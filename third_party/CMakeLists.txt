@@ -11,8 +11,9 @@ else()
 endif()
 
 option(OPYNDEPS_BUILD_CATCH2    "Build Catch2"                            ON)
+option(OPYNDEPS_BUILD_EIGEN     "Build Eigen"                             ON)
 option(OPYNDEPS_BUILD_MDSPAN    "Build mdspan"                            ON)
-# SKIP nanobind: it's imported by `opynsim` via `add_submodule`
+option(OPYNDEPS_BUILD_NANOBIND  "Build nanobind"                          ON)
 option(OPYNDEPS_BUILD_OPENBLAS  "Build OpenBLAS"                          ${OPYNDEPS_BUILD_OPENBLAS_DEFAULT})
 option(OPYNDEPS_BUILD_ROBIN_MAP "Build robin-map (required for nanobind)" ON)
 option(OPYNDEPS_BUILD_SPDLOG    "Build spdlog"                            ON)
@@ -74,12 +75,37 @@ if(OPYNDEPS_BUILD_CATCH2)
     )
 endif()
 
+if(OPYNDEPS_BUILD_EIGEN)
+    ExternalProject_Add(eigen
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/eigen
+        BUILD_ALWAYS ${OPYNDEPS_BUILD_ALWAYS}
+        CMAKE_CACHE_ARGS
+            ${OPYNDEPS_DEPENDENCY_CMAKE_ARGS}
+            -DCMAKEPACKAGE_INSTALL_DIR:STRING=${CMAKE_INSTALL_LIBDIR}/cmake/eigen
+            -DEIGEN_BUILD_TESTING:BOOL=OFF
+            -DEIGEN_TEST_NO_FORTRAN:BOOL=ON
+            -DEIGEN_BUILD_BLAS:BOOL=OFF
+            -DEIGEN_BUILD_LAPACK:BOOL=OFF
+    )
+endif()
+
 if(OPYNDEPS_BUILD_MDSPAN)
     ExternalProject_Add(mdspan
         SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mdspan
         BUILD_ALWAYS ${OPYNDEPS_BUILD_ALWAYS}
         CMAKE_CACHE_ARGS
             ${OPYNDEPS_DEPENDENCY_CMAKE_ARGS}
+    )
+endif()
+
+if(OPYNDEPS_BUILD_NANOBIND)
+    ExternalProject_Add(nanobind
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nanobind
+        BUILD_ALWAYS ${OPYNDEPS_BUILD_ALWAYS}
+        CMAKE_CACHE_ARGS
+            ${OPYNDEPS_DEPENDENCY_CMAKE_ARGS}
+            -DNB_TEST:BOOL=OFF
+            -DNB_USE_SUBMODULE_DEPS:BOOL=OFF  # we separately install robin-map, below
     )
 endif()
 
