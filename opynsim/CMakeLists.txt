@@ -18,15 +18,8 @@ if(OPYN_BUILD_OPYNSIM_DEBUGGER)
     list(APPEND OPYN_REQUIRED_PYTHON_COMPONENTS Development.Embed)
 endif()
 
-# Find Python
-find_package(
-    Python     ${OPYN_MIN_PYTHON_REQUIRED_VERSION}
-    COMPONENTS ${OPYN_REQUIRED_PYTHON_COMPONENTS}
-    REQUIRED
-)
-
-# Find nanobind (must be *after* finding Python)
-find_package(nanobind REQUIRED)
+find_package(Python ${OPYN_MIN_PYTHON_REQUIRED_VERSION} COMPONENTS ${OPYN_REQUIRED_PYTHON_COMPONENTS} REQUIRED)
+find_package(nanobind REQUIRED)  # Note: this must be *after* finding Python
 
 # Build
 #
