@@ -66,7 +66,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: opynsim-macos-amd64-wheel
-          path: build/Release/*macosx_14_0_x86_64.whl
+          path: build/Release-MacOS-amd64/*macosx_14_0_x86_64.whl
           if-no-files-found: error
 
   macos_arm64:
@@ -83,7 +83,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: opynsim-macos-arm64-wheel
-          path: build/Release/*macosx_14_0_arm64.whl
+          path: build/Release-MacOS-arm64/*macosx_14_0_arm64.whl
           if-no-files-found: error
 
   manylinux_amd64:
