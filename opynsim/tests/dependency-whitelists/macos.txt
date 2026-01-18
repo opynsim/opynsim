@@ -1,4 +1,4 @@
-/system/library/frameworks/*
-/usr/lib/libobjc*
-/usr/lib/libsystem*
-/usr/lib/libc++*
+/system/library/frameworks/.*
+/usr/lib/libobjc.*
+/usr/lib/libsystem/*
+/usr/lib/libc\+\+.*
