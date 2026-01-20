@@ -11,7 +11,6 @@
 namespace OpenSim { class Component; }
 namespace OpenSim { class Model; }
 namespace SimTK { class State; }
-namespace osc { class Environment; }
 
 namespace osc
 {
@@ -86,8 +85,6 @@ namespace osc
             implSetFixupScaleFactor(newScaleFactor);
         }
 
-        std::shared_ptr<Environment> tryUpdEnvironment() const { return implUpdAssociatedEnvironment(); }
-
         // if supported by the implementation, manually sets if the current model
         // state pair as being up to date with disk at the given timepoint
         void setUpToDateWithFilesystem(std::filesystem::file_time_type t) { implSetUpToDateWithFilesystem(t); }
@@ -150,9 +147,6 @@ namespace osc
         virtual void implSetFixupScaleFactor(float) {}
         virtual void implSetSelected(const OpenSim::Component*) {}
         virtual void implSetHovered(const OpenSim::Component*) {}
-
-        virtual std::shared_ptr<Environment> implUpdAssociatedEnvironment() const { return nullptr; }
-
         virtual void implSetUpToDateWithFilesystem(std::filesystem::file_time_type) {}
     };
 }
