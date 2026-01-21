@@ -141,6 +141,8 @@ Basic Model Rendering Example
     with the current internal API. Freeze your OPynSim version if you're building
     something that needs to survive a longer time.
 
+Below is a code snippet for an application that can visualize an ``OpenSim::Model`` and
+``SimTK::State`` pair in a window with some basic interactions:
 
 .. code-block:: c++
 
