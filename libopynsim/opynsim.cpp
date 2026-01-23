@@ -3,6 +3,7 @@
 #include <jam-plugin/Smith2018ArticularContactForce.h>
 #include <jam-plugin/Smith2018ContactMesh.h>
 #include <liboscar/platform/log.h>
+#include <liboscar/utils/conversion.h>
 #include <OpenSim/Actuators/RegisterTypes_osimActuators.h>
 #include <OpenSim/Analyses/RegisterTypes_osimAnalyses.h>
 #include <OpenSim/Common/LogSink.h>
@@ -27,14 +28,38 @@
 
 using namespace opyn;
 
+template<>
+struct osc::Converter<spdlog::level::level_enum, osc::LogLevel> {
+    osc::LogLevel operator()(spdlog::level::level_enum e) const
+    {
+        switch (e) {
+        case spdlog::level::level_enum::trace:    return osc::LogLevel::trace;
+        case spdlog::level::level_enum::debug:    return osc::LogLevel::debug;
+        case spdlog::level::level_enum::info:     return osc::LogLevel::info;
+        case spdlog::level::level_enum::warn:     return osc::LogLevel::warn;
+        case spdlog::level::level_enum::err:      return osc::LogLevel::err;
+        case spdlog::level::level_enum::critical: return osc::LogLevel::critical;
+        case spdlog::level::level_enum::off:      return osc::LogLevel::off;
+        default:                                  return osc::LogLevel::DEFAULT;
+        }
+    }
+};
+
+template<>
+struct osc::Converter<spdlog::string_view_t, std::string> {
+    std::string operator()(spdlog::string_view_t s) const { return {s.begin(), s.end()}; }
+};
+
 namespace
 {
     // An OpenSim log sink that sinks into the `oscar` application log.
     class OpenSimLogSink final : public OpenSim::LogSink {
-        void sinkImpl(const std::string& msg) final
+    protected:
+        void sink_it_(const spdlog::details::log_msg& msg) final
         {
-            osc::log_info("%s", msg.c_str());
+            osc::log_message(osc::to<osc::LogLevel>(msg.level), osc::to<std::string>(msg.payload));
         }
+        virtual void flush_() {}
     };
 
     void SetupOpenSimLogToUseOSCsLog()

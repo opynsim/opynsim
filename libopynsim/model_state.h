@@ -8,6 +8,8 @@ namespace SimTK { class State; }
 namespace opyn
 {
     class ModelState final {
+    public:
+        const SimTK::State& simbody_state() const;
     private:
         friend class Model;
         explicit ModelState(SimTK::State&&);
