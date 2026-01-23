@@ -1,0 +1,18 @@
+#pragma once
+
+#include <liboscar/utils/copy_on_upd_ptr.h>
+
+namespace opyn { class Model; }
+namespace SimTK { class State; }
+
+namespace opyn
+{
+    class ModelState final {
+    private:
+        friend class Model;
+        explicit ModelState(SimTK::State&&);
+
+        class Impl;
+        osc::CopyOnUpdPtr<Impl> impl_;
+    };
+}
