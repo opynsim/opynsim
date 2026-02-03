@@ -528,7 +528,16 @@ namespace
         });
 
         // setup texture binding (it's almost always the font texture)
-        if (const auto* texture = bd.textures.lookup_texture(draw_command.GetTexID())) {
+        //
+        // Note: the reason we use a custom `tex_id` getter is because `GetTexID()`
+        // checks for an invalid texture ID at runtime, but there are edge-cases where
+        // a backend can actually have an invalid texture ID (specifically, drawing into
+        // a drawlist on the first frame before ImGui has had a chance to populate its
+        // font texture cache).
+        const ImTextureID tex_id = draw_command.TexRef._TexData ?
+            draw_command.TexRef._TexData->TexID :
+            draw_command.TexRef.GetTexID();
+        if (const auto* texture = bd.textures.lookup_texture(tex_id)) {
             std::visit(Overload{
                 [&bd](const auto& texture) { bd.ui_material.set("uTexture", texture); },
             }, *texture);
@@ -2715,6 +2724,7 @@ void osc::ui::DrawListAPI::render_to(RenderTexture& target)
     data.DisplaySize = target.dimensions();
     data.FramebufferScale = ImVec2{target.device_pixel_ratio(), target.device_pixel_ratio()};
     data.OwnerViewport = ImGui::GetMainViewport();
+    data.Textures = &ImGui::GetPlatformIO().Textures;
 
     // Add the `ImDrawList`.
     data.AddDrawList(&drawlist);
@@ -2737,7 +2747,6 @@ osc::ui::DrawList::DrawList() :
 {
     underlying_drawlist_->_ResetForNewFrame();
     underlying_drawlist_->PushTexture(ImGui::GetIO().Fonts->TexRef);  // Ensure the draw list can use the main font texture
-    underlying_drawlist_->AddDrawCmd();
 }
 osc::ui::DrawList::DrawList(DrawList&&) noexcept = default;
 osc::ui::DrawList& osc::ui::DrawList::operator=(DrawList&&) noexcept = default;
