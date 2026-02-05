@@ -967,8 +967,8 @@ namespace
         }
     }
 
-    // note: the native IME UI will only display if user calls `SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1")`
-    //       before `SDL_CreateWindow`.
+    // note: the native IME UI will only display if the caller enables IME before creating
+    //       the application window.
     //
     //       However, even if the native overlay isn't showing it's still __VERY IMPORTANT__ to handle
     //       IME correctly, because ImGui's text input widgets use text input events, rather than key
@@ -1005,7 +1005,6 @@ namespace
     // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
     // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
     // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-    // If you have multiple SDL events and some of them are not meant to be used by dear imgui, you may need to filter events based on their windowID field.
     bool ImGui_ImplOscar_ProcessEvent(Event& e)
     {
         ImGuiIO& io = ImGui::GetIO();
@@ -1068,19 +1067,17 @@ namespace
             return true;
         }
         case EventType::DisplayStateChange: {
-            // 2.0.26 has SDL_DISPLAYEVENT_CONNECTED/SDL_DISPLAYEVENT_DISCONNECTED/SDL_DISPLAYEVENT_ORIENTATION,
-            // so change of DPI/Scaling are not reflected in this event. (SDL3 has it)
-
             // triggered when monitors are connected/disconnected: oscar doesn't use imgui's multi-viewport
             // so we don't need this
             return true;
         }
         case EventType::Window: {
-            // - When capturing mouse, SDL will send a bunch of conflicting LEAVE/ENTER event on every mouse move, but the final ENTER tends to be right.
+            // - When capturing mouse, the application may send a bunch of conflicting LEAVE/ENTER
+            //   events on every mouse move, but the final ENTER tends to be right.
             // - However we won't get a correct LEAVE event for a captured window.
-            // - In some cases, when detaching a window from main viewport SDL may send SDL_WINDOWEVENT_ENTER one frame too late,
-            //   causing SDL_WINDOWEVENT_LEAVE on previous frame to interrupt drag operation by clear mouse position. This is why
-            //   we delay process the SDL_WINDOWEVENT_LEAVE events by one frame. See issue imgui#5012 for details.
+            // - In some cases, when detaching a window from main viewport the application may send an ENTER event
+            //   one frame too late, causing LEAVE on previous frame to interrupt drag operation by clear mouse
+            //   position. This is why delay process the LEAVE events by one frame. See issue imgui#5012 for details.
             const auto& window_event = dynamic_cast<const WindowEvent&>(e);
 
             switch (window_event.type()) {
