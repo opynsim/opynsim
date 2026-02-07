@@ -1,4 +1,6 @@
-# OPynSim <img src="docs/source/_static/opynsim_logo.svg" align="right" alt="OPynSim Logo" width="128" height="128" />
+![OPynSim Logo](docs/source/_static/opynsim_logo.svg)
+
+# OPynSim
 
 > Python-Native Musculoskeletal Modelling
 
