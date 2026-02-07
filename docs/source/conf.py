@@ -18,9 +18,9 @@
 # -- Project information -----------------------------------------------------
 
 project = 'OPynSim'
-copyright = '%Y, Adam Kewley'
+copyright = '2026, Adam Kewley'
 author = 'Adam Kewley'
-github_username = 'ComputationalBiomechanicsLab'
+github_username = 'adamkewley'
 github_repository = 'https://github.com/opynsim/opynsim'
 
 
