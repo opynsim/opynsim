@@ -1,6 +1,4 @@
-# OPynSim
-
-> Python-Native Musculoskeletal Modelling
+<img src="docs/source/_static/opynsim_horizontal-banner.svg" />
 
 > [!CAUTION]
 > This is currently **ALPHA** software. You can (of course) use it, but major architectural
