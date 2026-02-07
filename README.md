@@ -1,4 +1,4 @@
-<img src="docs/source/_static/opynsim_horizontal-banner.svg" />
+# OPynSim <img src="docs/source/_static/opynsim_logo.svg" align="right" alt="OPynSim Logo" width="128" height="128" />
 
 > [!CAUTION]
 > This is currently **ALPHA** software. You can (of course) use it, but major architectural
