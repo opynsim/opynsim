@@ -1,13 +1,21 @@
 # OPynSim <img src="docs/source/_static/opynsim_logo.svg" align="right" alt="OPynSim Logo" width="128" height="128" />
 
+> Python-Native Musculoskeletal Modelling
+
 > [!CAUTION]
 > This is currently **ALPHA** software. You can (of course) use it, but major architectural
 > pieces are still being moved around.
+
+- 📚 Looking for the documentation? It's hosted at [docs.opynsim.eu](docs.opynsim.eu)
+
+
+# Overview
 
 The aim of OPynSim is to provide a python-native API for musculoskeletal modelling that
 doesn't compromise on nearly 20 years of research, feature development, and UI development from
 [Simbody](https://github.com/simbody/simbody), [OpenSim](https://simtk.org/projects/opensim),
 and [OpenSim Creator](https://www.opensimcreator.com/).
+
 
 # Installation
 
