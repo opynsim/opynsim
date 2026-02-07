@@ -6,7 +6,7 @@
 > This is currently **ALPHA** software. You can (of course) use it, but major architectural
 > pieces are still being moved around.
 
-- 📚 Looking for the documentation? It's hosted at [docs.opynsim.eu](docs.opynsim.eu)
+- 📚 Looking for the documentation? It's hosted at [docs.opynsim.eu](https://docs.opynsim.eu)
 
 
 # Overview
