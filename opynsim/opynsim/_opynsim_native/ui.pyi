@@ -1,0 +1,6 @@
+import _opynsim_native
+
+
+def hello_ui() -> None: ...
+
+def view_model_in_state(arg0: _opynsim_native.Model, arg1: _opynsim_native.ModelState, /) -> None: ...
