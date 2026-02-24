@@ -1,8 +1,30 @@
 Modelling
 =========
 
-Modelling is a core part of OPynSim. The base ``opynsim`` package contains a
-variety of model building, editing, and debugging utilities.
+At a high-level, OPynSim's modelling API is designed around three classes with
+distinct roles:
+
+- :class:`opynsim.ModelSpecification`: A high-level specification of the
+  model. This is what Python code manipulates before calling :func:`opynsim.compile`
+  to yield...
+- :class:`opynsim.Model`: A compiled readonly physics model, which can
+  create/read/manipulate...
+- :class:`opynsim.ModelState`: A single state of an :class:`opynsim.Model`. This
+  can be manipulated with Python code to do something useful with the model.
+
+Here's how the design interplays with common use-cases:
+
+- **Output Extraction**: :class:`opynsim.ModelState`\s can be imported from lab data.
+  An :class:`opynsim.Model` can then produce output values---for example, body ``center_of_mass``---from
+  the state with :meth:`opynsim.Model.output_value`.
+
+
+.. automodule:: opynsim
+   :members:
+   :imported-members:
+   :undoc-members:
+   :show-inheritance:
+
 
 .. code:: python
 

@@ -2,6 +2,9 @@ import opynsim._opynsim_native
 
 from opynsim._opynsim_native import set_logging_level
 from opynsim._opynsim_native import ModelStateStage
+from opynsim._opynsim_native import ModelSpecification
+from opynsim._opynsim_native import Model
+from opynsim._opynsim_native import ModelState
 
 def import_osim_file(osim_file_path):
     """
