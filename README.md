@@ -23,7 +23,7 @@ OPynSim provides:
   is built into a single native extension module that only depends on common
   system libraries. The Python stack only depends on `numpy` (unpinned).
 - **Stable Python ABI implementation**. Each release of OPynSim works on any
-  Python version >= 3.12 on Windows, macOS, and major Linux distributions.
+  Python version ≥ 3.12 on Windows, macOS, and major Linux distributions.
 - **Excellent compatibility with OpenSim**. The OPynSim codebase uses
   a [lightly-patched forks](libosim) of [opensim-core](https://github.com/opensim-orgopensim-core)
   and [simbody](https://github.com/simbody/simbody). The native part is already
