@@ -15,14 +15,17 @@ OPynSim is a python-native API for musculoskeletal modeling that doesn't comprom
 
 OPynSim provides:
 
-- A pythonic interface for building and manipulating musculoskeletal models.
-- A visualization API that supports both 2D widgets (plots, buttons, text) and
+- **A Python-native interface** for building and manipulating musculoskeletal models.
+- **An integrated visualization API** that supports both 2D widgets (plots, buttons, text) and
   real-time 3D rendering.
-- High-performance, low-overhead native bindings, implemented with
-  [nanobind](https://github.com/wjakob/nanobind).
-- Almost zero runtime dependencies. The entire OPynSim C++ stack
+- **High-performance native bindings**, implemented with [nanobind](https://github.com/wjakob/nanobind).
+- **Almost zero runtime dependencies**. The entire OPynSim C++ stack
   is built into a single native extension module that only depends on common
   system libraries. The Python stack only depends on `numpy` (unpinned).
-- Stable Python ABI implementation. Each release of OPynSim works on any
+- **Stable Python ABI implementation**. Each release of OPynSim works on any
   Python version >= 3.12 on Windows, macOS, and major Linux distributions.
-- Strong compatibility with OpenSim data files.
+- **Excellent compatibility with OpenSim**. The OPynSim codebase uses
+  a [lightly-patched forks](libosim) of [opensim-core](https://github.com/opensim-orgopensim-core)
+  and [simbody](https://github.com/simbody/simbody). The native part is already
+  used in production releases of [OpenSim Creator](https://www.opensimcreator.com), which
+  ships to thousands of OpenSim ~~testers~~ users.
