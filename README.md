@@ -1,6 +1,6 @@
 > [!CAUTION]
-> This is currently **ALPHA** software. You can (of course) use it, but major architectural
-> pieces are still being moved around.
+> This is currently **PRE-ALPHA** software. You can (of course) use it, but major
+> architectural pieces are still being moved around.
 
 <h1 align="center">
     <img src="docs/source/_static/opynsim_banner_horizontal.svg" alt="OPynSim banner" />
