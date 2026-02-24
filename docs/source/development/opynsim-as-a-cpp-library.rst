@@ -1,5 +1,5 @@
-Building OPynSim As a C++ Library
-=================================
+OPynSim As a C++ Library
+========================
 
 
 .. warning::
