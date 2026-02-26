@@ -1,7 +1,7 @@
-Visualization
-=============
+User Interface
+==============
 
-TODO
+TODO: this is roughly the direction that the API needs to go:
 
 .. code:: python
 

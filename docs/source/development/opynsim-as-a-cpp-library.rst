@@ -25,6 +25,12 @@ OPynSim As a C++ Library
     content like 'your change broke my C++ code' will be responsed with something
     along the lines of 'LOL RTFM'.
 
+Doxygen Documentation
+---------------------
+
+Go `here <../doxygen/html>`_ to view the (very patchy and unofficial) Doxygen
+documentation for the ``libopynsim`` API.
+
 
 Walkthrough
 -----------

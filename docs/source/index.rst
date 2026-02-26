@@ -18,8 +18,11 @@ Table of Contents
     :maxdepth: 1
     :caption: API
 
+    api/configuration
     api/modelling
-    api/visualization
+    api/application
+    api/graphics
+    api/ui
     api/tps3d
 
 .. toctree::
