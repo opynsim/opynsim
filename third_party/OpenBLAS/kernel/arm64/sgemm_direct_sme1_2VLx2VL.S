@@ -35,16 +35,17 @@
 #define K_exit       x15 //Exit condition for K loop
 #define M_cntr       x16 //M loop counter
 #define C1           x17 //Constant1: N*(SVLs+1);SVLs-No. of 32-bit elements
-#define C2           x18 //Constant2: N + SVLs
-#define C3           x19 //Constant3: K*SVLs + SVLs
-#define C4           x20 //Constant4: SVLs-2
-#define C5           x21 //Constant5: K*SVLs
-#define C6           x22 //Constant6: N*SVLs
+#define C2           x19 //Constant2: N + SVLs
+#define C3           x20 //Constant3: K*SVLs + SVLs
+#define C4           x21 //Constant4: SVLs-2
+#define C5           x22 //Constant5: K*SVLs
+#define C6           x23 //Constant6: N*SVLs
 
     .text
-    .global sgemm_direct_sme1_2VLx2VL
+    .global ASMNAME
 
-    sgemm_direct_sme1_2VLx2VL:
+    ASMNAME:
+    //sgemm_direct_sme1_2VLx2VL:
 
     stp     x19, x20, [sp, #-48]!
     stp     x21, x22, [sp, #16]
@@ -61,7 +62,7 @@
     add     C2, N, C4                  //N + SVLs
     add     C3, C5, C4                 //K*SVLs + SVLs
     whilelt p2.s, M_cntr, M            //Tile 0,1 predicate (M dimension)
-    sub     w20, w20, #2               //SVLs-2
+    sub     w21, w21, #2               //SVLs-2
 
 .M_Loop:
     incw    M_cntr
@@ -198,7 +199,7 @@ process_K_less_than_equal_2:
     st1w    {za1h.s[w13, #0]},  p5, [Cptr1]
     st1w    {za2h.s[w13, #0]},  p6, [Cptr0, C6, lsl #2]
     st1w    {za3h.s[w13, #0]},  p7, [Cptr1, C6, lsl #2]
-    cmp     w13, w20
+    cmp     w13, w21
     b.mi    .Loop_store_ZA
     psel    p4, p0, p2.s[w13, 1]
     psel    p5, p1, p2.s[w13, 1]
@@ -211,12 +212,12 @@ process_K_less_than_equal_2:
     addvl   Cptr, Cptr, #2
     addvl   Bptr, Bptr, #1
     whilelt p0.b, Bptr, N_exit           //1st Tile predicate (N dimension)
-    b.first .N_Loop
+    b.mi .N_Loop
     add     A_base, A_base, C5, lsl #3   //A_base += 2*K*SVLs FP32 elements
     add     C_base, C_base, C6, lsl #3   //C_base += 2*N*SVLs FP32 elements
     incw    M_cntr
     whilelt p2.s, M_cntr, M              //1st Tile predicate (M dimension)
-    b.first    .M_Loop
+    b.mi    .M_Loop
 
     smstop
 
