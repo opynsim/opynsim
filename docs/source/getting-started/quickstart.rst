@@ -101,38 +101,22 @@ Once you have a :class:`opynsim.ModelState`, you can the manipulate and inspect 
 according to your modelling requirements.
 
 
-Render the Model in a State
-----------------------------
+Visualize the Model in the State
+--------------------------------
 
-.. warning::
+The OPynSim :doc:`../api/ui` API provides various utilities for visualizing and
+interacting with OPynSim's datastructures.
 
-    TODO: not yet implemented
-
-The OPynSim :doc:`graphics <../api/graphics>` API provides various utilities for
-rendering things to a window or image. The API was ported from `OpenSim Creator <https://opensimcreator.com>`_
-so that Python scripts may have similar features and render identically to it.
-
-In order to render anything, OPynSim needs an active graphics context (e.g.
-an OpenGL context) to render with. This is achieved by creating an
-:class:`opynsim.Application` before using any :mod:`opynsim.graphics` API. You
-can then render things to images:
+The API includes high-level functions, such as :func:`opynsim.ui.show_model_in_state`,
+which can be used to quickly check a model in a state:
 
 .. code:: python
 
     import opynsim
+    import opynsim.ui
 
     model_specification = opynsim.import_osim_file("arm26.osim")
     model = opynsim.compile_specification(model_specification)
     state = model.initial_state()
 
-    with opynsim.Application():
-        camera = opynsim.graphics.Camera()
-        image = opynsim.graphics.render_model_in_state(model, state, camera=camera)
-
-See :doc:`../api/graphics` for an explanation of the graphics API.
-
-TODO: Show Model+State in an Interactive UI
--------------------------------------------
-
-TODO: Create a custom UI
-------------------------
+    opynsim.ui.show_model_in_state(model, state)
