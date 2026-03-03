@@ -12,6 +12,7 @@
 #include <liboscar/maths/aabb_functions.h>
 #include <liboscar/maths/polar_perspective_camera.h>
 #include <liboscar/platform/app.h>
+#include <liboscar/utilities/assertions.h>
 
 #include <optional>
 #include <utility>
