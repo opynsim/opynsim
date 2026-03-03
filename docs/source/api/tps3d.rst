@@ -24,39 +24,40 @@ The primary literature source for the TPS technique is:
     See also: `Relevant Literature`_
 
 A high-level view of the TPS technique in three dimensions is that warping a 3D
-point (:math:`v`) involves evaluating this equation (named "warping equation" in
-this documentation page):
+point (:math:`v`) involves evaluating this equation (referred to as "warping
+equation" in this documentation page):
 
 .. math::
 
     f(v) = a_1 + a_2v_x + a_3v_y + a_4v_z + \sum_{i=1}^K w_i ||u_i - v||
 
 Where :math:`a_1`, :math:`a_2`, :math:`a_3`, :math:`a_4`, :math:`w_i..w_K`, and :math:`u_i..u_K`
-are 3-component vector coefficients that are computed/solved from :math:`K` source + destination landmark
-pairs. As an implementation detail, OPynSim's implementation uses a basis function
-:math:`U(u) = ||u||`, from:
+are :math:`\mathbb{R}^3` vector coefficients computed from :math:`K` source + destination landmark
+pairs. Evaluating :math:`f(v)` is equivalent to calling :meth:`opynsim.tps3d.TPSCoefficients3D.warp_point`.
 
-    Gunz, P., Mitteroecker, P., Bookstein, F.L. (2005). Semilandmarks in Three
-    Dimensions. In: Slice, D.E. (eds) Modern Morphometrics in Physical Anthropology. Developments in
-    Primatology: Progress and Prospects. Springer, Boston, MA. https://doi.org/10.1007/0-387-27614-9_3
+.. note::
 
-Rather than :math:`U(u) = ||u||^2 log ||u||^2`, from the Bookstein source, because it tends to
-behave better. The Gunz literature source is also excellent. The choice of basis
-function (:math:`U`) is an implementation detail, mentioned here for completeness.
+    OPynSim's warping equation assumes a basis function (:math:`U`) of :math:`U(u) = ||u||`, from:
 
-OPynSim provides a Python API for this process, in the form of:
+        Gunz, P., Mitteroecker, P., Bookstein, F.L. (2005). Semilandmarks in Three
+        Dimensions. In: Slice, D.E. (eds) Modern Morphometrics in Physical Anthropology. Developments in
+        Primatology: Progress and Prospects. Springer, Boston, MA. https://doi.org/10.1007/0-387-27614-9_3
+
+    Rather than :math:`U(u) = ||u||^2 log ||u||^2`, from the Bookstein source. This is because it tends to
+    behave better. The choice of basis function is an implementation detail, noted here for completeness.
+
+OPynSim provides a Python API for the TPS technique, in the form of:
 
 - :func:`opynsim.tps3d.solve_coefficients`: a function that computes the warping equation
-  coefficients (:math:`a_1`, etc.) for a given set of paired landmarks, which returns...
+  coefficients (:math:`a_1`, :math:`a_2`, etc.) for the provided landmark pairs, which returns...
 - :class:`opynsim.tps3d.TPSCoefficients3D`: a class that represents the coefficients, which has...
-- :meth:`opynsim.tps3d.TPSCoefficients3D.warp_point`: a method that evaluates the warping equation
-  for a single point.
+- :meth:`opynsim.tps3d.TPSCoefficients3D.warp_point`: a method that evaluates the warping
+  equation (:math:`f`, above) for a single point.
 
-As a high-level example, a downstream script would load/gather landmark pairs (e.g. from
-scanner data, CSV files), provide them to :func:`opynsim.tps3d.solve_coefficients`
-followed by using methods like :meth:`opynsim.tps3d.TPSCoefficients3D.warp_point` to warp
-other things from the "source" coordinate system to the warped/result
-coordinate system (e.g. muscle via points).
+As a high-level workflow example, a script that uses OPynSim script could load/gather
+landmark pairs (e.g. from scanner data, CSV files), provide them to :func:`opynsim.tps3d.solve_coefficients`,
+and then use methods like :meth:`opynsim.tps3d.TPSCoefficients3D.warp_point` to warp other things
+from the "source" coordinate system to the warped/result coordinate system (e.g. muscle via points).
 
 
 API Reference

@@ -73,28 +73,28 @@ void opyn::init_tps3d_submodule(nanobind::module_& tps3d_module)
             [](const TPSCoefficients3D<double>& coefs) { return to_owned_numpy_array(coefs.a1); },
             nb::rv_policy::take_ownership,
             R"(
-                The first term of the warping equation. Colloquially, some systems treat it as the translation component of the warp.
+                The first term of the warping equation. Some systems treat this as the translation component of the warp.
             )"
         )
         .def_prop_ro("a2",
             [](const TPSCoefficients3D<double>& coefs) { return to_owned_numpy_array(coefs.a2); },
             nb::rv_policy::take_ownership,
             R"(
-                The second term of the warping equation. Colloquially, some systems treat it as the first column of a 3x3 scale + rotation matrix.
+                The second term of the warping equation. Some systems treat this as the first column of a 3x3 scale + rotation matrix.
             )"
         )
         .def_prop_ro("a3",
             [](const TPSCoefficients3D<double>& coefs) { return to_owned_numpy_array(coefs.a3); },
             nb::rv_policy::take_ownership,
             R"(
-                The second term of the warping equation. Colloquially, some systems treat it as the second column of a 3x3 scale + rotation matrix.
+                The second term of the warping equation. Some systems treat this as the second column of a 3x3 scale + rotation matrix.
             )"
         )
         .def_prop_ro("a4",
             [](const TPSCoefficients3D<double>& coefs) { return to_owned_numpy_array(coefs.a4); },
             nb::rv_policy::take_ownership,
             R"(
-                The second term of the warping equation. Colloquially, some systems treat it as the third column of a 3x3 scale + rotation matrix.
+                The second term of the warping equation. Some systems treat this as the third column of a 3x3 scale + rotation matrix.
             )"
         )
         .def("warp_point",

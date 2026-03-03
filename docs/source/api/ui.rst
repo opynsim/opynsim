@@ -8,7 +8,7 @@ interactive user interfaces, including:
   typically high-level functions that internally handle initialization, maintaining
   the GUI main loop, and cleanup for the caller. They are similar to other
   Python APIs, like ``matplotlib.pyplot.show`` and ``pyvista.Plotter.show``.
-- **Mid-Level Visualizer Builders**: TODO.
+- **Mid-Level Visualization Builders**: TODO.
 
 In effect, :mod:`opynsim.ui` combines the rendering capabilities of the
 :mod:`opynsim.graphics` module with an application framework that manages
@@ -28,6 +28,7 @@ Example
     model_specification = opynsim.import_osim_file("arm26.osim")
     model = opynsim.compile_specification(model_specification)
     model_state = model.initial_state()
+    model.realize(model_state, opynsim.ModelStateStage.REPORT)  # usually required for rendering
 
     # Show them in an interactive window.
     opynsim.ui.show_model_in_state(model, model_state)

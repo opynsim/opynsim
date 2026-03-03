@@ -2,7 +2,7 @@
     :width: 60%
     :align: center
 
-    .. padding
+    ..
 
 Welcome to the offical OPynSim documentation pages 👋
 
