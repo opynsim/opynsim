@@ -6,6 +6,7 @@
 #include <liboscar/graphics/texture2d.h>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/pair.h>
 #include <nanobind/stl/unique_ptr.h>
 
 #include <algorithm>
@@ -13,6 +14,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <new>
+#include <utility>
 
 namespace nb = nanobind;
 
@@ -63,9 +65,20 @@ void opyn::init_graphics_submodule(nanobind::module_& graphics_module)
         render_model_in_state,
         nb::arg("model"),
         nb::arg("state"),
+        nb::arg("dimensions") = std::make_pair(640, 480),
+        nb::arg("zoom_to_fit") = true,
         R"(
             Renders the given :class:`opynsim.Model` + :class:`opynsim.ModelState` to
             a :class:`opynsim.graphics.Texture2D`.
+
+            Args:
+                model (opynsim.Model): The model to render.
+                state (opynsim.ModelState): The state of the model to render.
+                dimensions (tuple[int, int]): The desired output resolution (width, height) of the rendered image in pixels. Defaults to (640, 480).
+                zoom_to_fit (bool): Tells the renderer to automatically set up the camera to focus on the center of the bounds of the scene at a distance that can see the entire scene.
+
+            Returns:
+                opynsim.graphics.Texture2D: The rendered image, which will have the specified ``dimensions``.
         )"
     );
 
