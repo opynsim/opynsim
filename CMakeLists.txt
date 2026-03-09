@@ -24,10 +24,6 @@ endif()
 add_subdirectory(libosim SYSTEM)  # SYSTEM because it's all third-party code
 add_subdirectory(libopynsim)
 
-if(OPYN_BUILD_DOCS)
-    add_subdirectory(docs)
-endif()
-
 if(OPYN_BUILD_PYTHON_BINDINGS)
     # If building Python bindings, try to centrally figure out Python environment,
     # version, required components here, so that the sub-parts of the build consistently
@@ -76,6 +72,10 @@ if(OPYN_BUILD_PYTHON_BINDINGS)
     if(OPYN_BUILD_OPYNSIM_DEBUGGER)
         add_subdirectory(opynsim_debugger)
     endif()
+endif()
+
+if(OPYN_BUILD_DOCS)
+    add_subdirectory(docs)
 endif()
 
 if(OPYN_PACKAGE)
