@@ -334,7 +334,7 @@ namespace
     //     https://wiki.libsdl.org/SDL_DestroyWindow
     class SDLWindow final {
     public:
-        explicit SDLWindow(SDL_Window * _ptr) :
+        explicit SDLWindow(SDL_Window* _ptr) :
             window_handle_{_ptr}
         {}
         SDLWindow(const SDLWindow&) = delete;
@@ -347,6 +347,12 @@ namespace
         {
             if (window_handle_) {
                 SDL_DestroyWindow(window_handle_);
+
+                // On macOS, the windowing system requires that the event queue is
+                // pumped after the destruction of the window so that the application
+                // can receive the window manager's destruction event. Otherwise,
+                // the window will keep open.
+                SDL_PumpEvents();
             }
         }
 
