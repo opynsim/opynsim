@@ -1,5 +1,6 @@
 #include "show_hello_ui.h"
 
+#include <libopynsim/platform/opynsim_app.h>
 #include <libopynsim/ui/ui_callbacks.h>
 
 #include <liboscar/oscar.h>
@@ -98,7 +99,10 @@ namespace
     };
 }
 
-void opyn::show_hello_ui(UiCallbacks callbacks)
+void opyn::show_hello_ui(OPynSimApp& app, UiCallbacks callbacks)
 {
-    osc::App::main<HelloTriangleScreen>(osc::AppMetadata{}, std::move(callbacks));
+    app.show_main_window();
+    osc::ScopeExit hide_window_on_exit{[&app]{ app.hide_main_window(); }};
+    app.focus_main_window();
+    app.show<HelloTriangleScreen>(std::move(callbacks));
 }

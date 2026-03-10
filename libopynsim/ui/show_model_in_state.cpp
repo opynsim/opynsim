@@ -1,6 +1,7 @@
 #include "show_model_in_state.h"
 
 #include <libopynsim/graphics/open_sim_decoration_generator.h>
+#include <libopynsim/platform/opynsim_app.h>
 #include <libopynsim/ui/ui_callbacks.h>
 #include <libopynsim/model.h>
 #include <libopynsim/model_state.h>
@@ -14,10 +15,9 @@
 #include <liboscar/maths/aabb_functions.h>
 #include <liboscar/maths/polar_perspective_camera.h>
 #include <liboscar/maths/vector.h>
-#include <liboscar/platform/app.h>
-#include <liboscar/platform/app_metadata.h>
 #include <liboscar/platform/widget.h>
 #include <liboscar/ui/oscimgui.h>
+#include <liboscar/utilities/scope_exit.h>
 
 #include <optional>
 #include <utility>
@@ -110,13 +110,16 @@ namespace
 
 
 void opyn::show_model_in_state(
+    OPynSimApp& app,
     const Model& model,
     const ModelState& state,
     bool zoom_to_fit,
     UiCallbacks callbacks)
 {
-    osc::App::main<BasicModelViewer>(
-        osc::AppMetadata{},
+    app.show_main_window();
+    osc::ScopeExit hide_window_on_exit{[&app]{ app.hide_main_window(); }};
+    app.focus_main_window();
+    app.show<BasicModelViewer>(
         model,
         state,
         zoom_to_fit,

@@ -1,5 +1,7 @@
 #include "ui.h"
 
+#include <opynsim/_core/core.h>
+
 #include <libopynsim/ui/show_hello_ui.h>
 #include <libopynsim/ui/show_model_in_state.h>
 #include <libopynsim/ui/ui_callbacks.h>
@@ -34,7 +36,7 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
 {
     ui_module.def(
         "show_hello_ui",
-        [] { show_hello_ui(default_python_callbacks()); },
+        [] { show_hello_ui(get_lazy_loaded_opynsim_app(), default_python_callbacks()); },
         R"(
             Displays OPynSim's 'hello world' user interface in a window.
 
@@ -46,6 +48,7 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
         [](const Model& model, const ModelState& model_state, bool zoom_to_fit)
         {
             show_model_in_state(
+                get_lazy_loaded_opynsim_app(),
                 model,
                 model_state,
                 zoom_to_fit,
