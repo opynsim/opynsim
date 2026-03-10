@@ -1,6 +1,7 @@
 #include "show_model_in_state.h"
 
 #include <libopynsim/graphics/open_sim_decoration_generator.h>
+#include <libopynsim/ui/ui_callbacks.h>
 #include <libopynsim/model.h>
 #include <libopynsim/model_state.h>
 
@@ -45,13 +46,23 @@ namespace
         explicit BasicModelViewer(
             const Model& model,
             const ModelState& model_state,
-            bool zoom_to_fit) :
+            bool zoom_to_fit,
+            UiCallbacks callbacks) :
 
+            callbacks_{std::move(callbacks)},
             decorations_{generate_scene(scene_cache_, model, model_state)},
             fit_camera_on_next_frame_{zoom_to_fit}
         {}
     private:
-        bool impl_on_event(osc::Event& e) override { return ui_context_.on_event(e); }
+        bool impl_on_event(osc::Event& e) override
+        {
+            return ui_context_.on_event(e);
+        }
+
+        void impl_on_tick() override
+        {
+            callbacks_.on_tick_begin();
+        }
 
         void impl_on_draw() final
         {
@@ -87,6 +98,7 @@ namespace
             osc::graphics::blit_to_main_window(scene_renderer_.upd_render_texture());
         }
 
+        UiCallbacks callbacks_;
         osc::ui::Context ui_context_{osc::App::upd()};
         osc::SceneCache scene_cache_;
         osc::SceneRenderer scene_renderer_{scene_cache_};
@@ -97,7 +109,17 @@ namespace
 }
 
 
-void opyn::show_model_in_state(const Model& model, const ModelState& state, bool zoom_to_fit)
+void opyn::show_model_in_state(
+    const Model& model,
+    const ModelState& state,
+    bool zoom_to_fit,
+    UiCallbacks callbacks)
 {
-    osc::App::main<BasicModelViewer>(osc::AppMetadata{}, model, state, zoom_to_fit);
+    osc::App::main<BasicModelViewer>(
+        osc::AppMetadata{},
+        model,
+        state,
+        zoom_to_fit,
+        std::move(callbacks)
+    );
 }

@@ -1,14 +1,20 @@
 #include "show_hello_ui.h"
 
+#include <libopynsim/ui/ui_callbacks.h>
+
 #include <liboscar/oscar.h>
 
+#include <utility>
+
 namespace ui = osc::ui;
+using namespace opyn;
 
 namespace
 {
     class HelloTriangleScreen final : public osc::Widget {
     public:
-        HelloTriangleScreen()
+        explicit HelloTriangleScreen(UiCallbacks callbacks) :
+            callbacks_{std::move(callbacks)}
         {
             // setup camera
             constexpr osc::Vector3 viewer_position = {3.0f, 0.0f, 0.0f};
@@ -24,6 +30,11 @@ namespace
 
         void impl_on_unmount() override
         {}
+
+        void impl_on_tick() override
+        {
+            callbacks_.on_tick_begin();
+        }
 
         bool impl_on_event(osc::Event& e) override
         {
@@ -71,6 +82,7 @@ namespace
             torus_parameters_ = edited_torus_parameters_;
         }
 
+        UiCallbacks callbacks_;
         ui::Context ui_context_{osc::App::upd()};
         osc::TorusKnotGeometryParams torus_parameters_;
         osc::TorusKnotGeometryParams edited_torus_parameters_;
@@ -86,4 +98,7 @@ namespace
     };
 }
 
-void opyn::show_hello_ui() { osc::App::main<HelloTriangleScreen>(osc::AppMetadata{}); }
+void opyn::show_hello_ui(UiCallbacks callbacks)
+{
+    osc::App::main<HelloTriangleScreen>(osc::AppMetadata{}, std::move(callbacks));
+}
