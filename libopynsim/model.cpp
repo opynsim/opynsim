@@ -39,6 +39,15 @@ public:
         }
     }
 
+    void set_coordinate_value(
+        std::string_view coordinate_path,
+        ModelState& model_state,
+        double value) const
+    {
+        const auto& coordinate = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate_path});
+        coordinate.setValue(model_state.simbody_state(), value);
+    }
+
     const OpenSim::Model& opensim_model() const { return model_; }
 private:
     OpenSim::Model model_;
@@ -47,4 +56,11 @@ private:
 opyn::Model::Model(const OpenSim::Model& model) : impl_{osc::make_cow<Impl>(model)} {}
 opyn::ModelState opyn::Model::initial_state() const { return impl_->initial_state(); }
 void opyn::Model::realize(ModelState& state, ModelStateStage stage) const { impl_->realize(state, stage); }
+void opyn::Model::set_coordinate_value(
+    std::string_view coordinate_path,
+    ModelState& model_state,
+    double value) const
+{
+    impl_->set_coordinate_value(coordinate_path, model_state, value);
+}
 const OpenSim::Model& opyn::Model::opensim_model() const { return impl_->opensim_model(); }

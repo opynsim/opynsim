@@ -135,10 +135,11 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
         model_class.def(
             "realize",
             &Model::realize,
-            nb::arg("state"),
-            nb::arg("stage"),
+            nb::arg("model_state"),
+            nb::arg("model_state_stage"),
             R"(
-                Realizes ``state`` to the desired ``stage``, which modifies ``state`` in-place.
+                Realizes ``model_state`` to the desired ``model_state_stage``, which modifies
+                ``model_state`` in-place.
 
                 "Realization" of the state involves taking a new set of values from the :class:`ModelState`
                 and performing computations that those new values enable. Realization is performed
@@ -150,6 +151,21 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
                     State realization is a concept that OPynSim inherited from `Simbody <github.com/simbody/simbody>`_, which
                     has a much more comprehensive explanation of the realization process in its `Simbody Theory Manual <https://github.com/simbody/simbody/blob/master/Simbody/doc/SimbodyTheoryManual.pdf>`_. You
                     should read that manual if you want to know more.
+            )"
+        );
+        model_class.def(
+            "set_coordinate_value",
+            &Model::set_coordinate_value,
+            nb::arg("model_state"),
+            nb::arg("coordinate_path"),
+            nb::arg("value"),
+            R"(
+                Finds ``coordinate_path`` in the model and sets the corresponding state variable in ``model_state`` to ``value``.
+
+                Changing the value of a coordinate changes ``model_state``'s :class:`ModelStateStage` to
+                :attr:`ModelStateStage.POSITION`, which means you may need to use :meth:`Model.realize` to re-realize
+                the state to a later stage if you subsequently intend on doing something else with the
+                model (e.g. for rendering).
             )"
         );
 

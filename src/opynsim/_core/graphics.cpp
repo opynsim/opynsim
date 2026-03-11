@@ -80,7 +80,7 @@ void opyn::init_graphics_submodule(nanobind::module_& graphics_module)
             );
         },
         nb::arg("model"),
-        nb::arg("state"),
+        nb::arg("model_state"),
         nb::kw_only{},
         nb::arg("dimensions") = std::make_pair(640, 480),
         nb::arg("zoom_to_fit") = true,
@@ -91,7 +91,7 @@ void opyn::init_graphics_submodule(nanobind::module_& graphics_module)
 
             Args:
                 model (opynsim.Model): The model to render.
-                state (opynsim.ModelState): The state of the model to render. Should be realized to at least :attr:`opynsim.ModelStateStage.REPORT`.
+                model_state (opynsim.ModelState): The state of the model to render. Should be realized to at least :attr:`opynsim.ModelStateStage.REPORT`.
                 dimensions (tuple[int, int]): The desired output resolution (width, height) of the rendered image in pixels.
                 zoom_to_fit (bool): Tells the renderer to automatically set up the camera to focus on the center of the bounds of the scene at a distance that can see the entire scene.
                 draw_floor (bool): Draws a floor, matching the default behavior of Simbody and OpenSim GUI.

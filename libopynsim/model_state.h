@@ -14,6 +14,7 @@ namespace opyn
     class ModelState final {
     public:
         const SimTK::State& simbody_state() const;
+        SimTK::State& simbody_state();
     private:
         friend class Model;
         explicit ModelState(SimTK::State&&);

@@ -5,6 +5,8 @@
 
 #include <liboscar/utilities/copy_on_upd_ptr.h>
 
+#include <string_view>
+
 namespace OpenSim { class Model; }
 
 namespace opyn
@@ -19,6 +21,12 @@ namespace opyn
     public:
         ModelState initial_state() const;
         void realize(ModelState&, ModelStateStage) const;
+
+        void set_coordinate_value(
+            std::string_view coordinate_path,
+            ModelState& model_state,
+            double value
+        ) const;
 
         const OpenSim::Model& opensim_model() const;
     private:

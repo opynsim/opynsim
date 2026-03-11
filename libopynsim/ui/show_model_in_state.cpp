@@ -46,12 +46,14 @@ namespace
         explicit BasicModelViewer(
             const Model& model,
             const ModelState& model_state,
+            osc::Color background_color,
             bool zoom_to_fit,
             bool draw_floor,
             UiCallbacks callbacks) :
 
             callbacks_{std::move(callbacks)},
             decorations_{generate_scene(scene_cache_, model, model_state)},
+            background_color_{background_color},
             fit_camera_on_next_frame_{zoom_to_fit},
             draw_floor_{draw_floor}
         {}
@@ -94,6 +96,7 @@ namespace
                 .draw_floor = draw_floor_,
                 .view_matrix = camera.view_matrix(),
                 .projection_matrix = camera.projection_matrix(osc::aspect_ratio_of(dimensions)),
+                .background_color = background_color_,
             };
             scene_renderer_.render(decorations_, scene_renderer_params);
             ui_context_.render();
@@ -107,6 +110,7 @@ namespace
         osc::SceneRenderer scene_renderer_{scene_cache_};
         std::vector<osc::SceneDecoration> decorations_;
         osc::PolarPerspectiveCamera camera;
+        osc::Color background_color_ = osc::Color::white();
         bool fit_camera_on_next_frame_ = false;
         bool draw_floor_ = true;
     };
@@ -118,6 +122,7 @@ void opyn::show_model_in_state(
     const Model& model,
     const ModelState& state,
     osc::Vector2 dimensions,
+    osc::Color background_color,
     bool zoom_to_fit,
     bool draw_floor,
     UiCallbacks callbacks)
@@ -129,6 +134,7 @@ void opyn::show_model_in_state(
     app.show<BasicModelViewer>(
         model,
         state,
+        background_color,
         zoom_to_fit,
         draw_floor,
         std::move(callbacks)

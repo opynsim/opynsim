@@ -10,6 +10,7 @@ public:
     explicit Impl(SimTK::State&& state) : state_{std::move(state)} {}
 
     const SimTK::State& simbody_state() const { return state_; }
+    SimTK::State& simbody_state() { return state_; }
 private:
     SimTK::State state_;
 };
@@ -18,3 +19,4 @@ opyn::ModelState::ModelState(SimTK::State&& state) :
     impl_{osc::make_cow<Impl>(std::move(state))}
 {}
 const SimTK::State& opyn::ModelState::simbody_state() const { return impl_->simbody_state(); }
+SimTK::State& opyn::ModelState::simbody_state() { return impl_.upd()->simbody_state(); }
