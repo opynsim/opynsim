@@ -47,11 +47,13 @@ namespace
             const Model& model,
             const ModelState& model_state,
             bool zoom_to_fit,
+            bool draw_floor,
             UiCallbacks callbacks) :
 
             callbacks_{std::move(callbacks)},
             decorations_{generate_scene(scene_cache_, model, model_state)},
-            fit_camera_on_next_frame_{zoom_to_fit}
+            fit_camera_on_next_frame_{zoom_to_fit},
+            draw_floor_{draw_floor}
         {}
     private:
         bool impl_on_event(osc::Event& e) override
@@ -89,8 +91,9 @@ namespace
                 .dimensions = dimensions,
                 .device_pixel_ratio = osc::App::get().main_window_device_pixel_ratio(),
                 .anti_aliasing_level = osc::App::get().anti_aliasing_level(),
+                .draw_floor = draw_floor_,
                 .view_matrix = camera.view_matrix(),
-                .projection_matrix = camera.projection_matrix(osc::aspect_ratio_of(dimensions))
+                .projection_matrix = camera.projection_matrix(osc::aspect_ratio_of(dimensions)),
             };
             scene_renderer_.render(decorations_, scene_renderer_params);
             ui_context_.render();
@@ -105,6 +108,7 @@ namespace
         std::vector<osc::SceneDecoration> decorations_;
         osc::PolarPerspectiveCamera camera;
         bool fit_camera_on_next_frame_ = false;
+        bool draw_floor_ = true;
     };
 }
 
@@ -113,16 +117,20 @@ void opyn::show_model_in_state(
     OPynSimApp& app,
     const Model& model,
     const ModelState& state,
+    osc::Vector2 dimensions,
     bool zoom_to_fit,
+    bool draw_floor,
     UiCallbacks callbacks)
 {
     app.show_main_window();
+    app.try_async_set_main_window_dimensions(dimensions);
     osc::ScopeExit hide_window_on_exit{[&app]{ app.hide_main_window(); }};
     app.focus_main_window();
     app.show<BasicModelViewer>(
         model,
         state,
         zoom_to_fit,
+        draw_floor,
         std::move(callbacks)
     );
 }

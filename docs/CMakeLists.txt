@@ -13,18 +13,18 @@ add_custom_target(opynsim_docs
     DEPENDS _core_development_stubs
     COMMAND
         ${CMAKE_COMMAND} -E env PYTHONPATH=$<TARGET_FILE_DIR:_core>/..
-        ${Python_EXECUTABLE} -m sphinx.cmd.build -M html "${CMAKE_CURRENT_SOURCE_DIR}/source" "${OPYN_SPHINX_OUTPUT_DIR}"
+        ${Python_EXECUTABLE} -m sphinx.cmd.build -E -M html "${CMAKE_CURRENT_SOURCE_DIR}/source" "${OPYN_SPHINX_OUTPUT_DIR}"
     COMMENT "Building Sphinx documentation"
 )
 
 # Create a custom target that can be ran to live-rebuild the
 # documentation for the current configuration.
 add_custom_target(opynsim_docs_autobuild
-    DEPENDS opynsim_clean_docs _core_development_stubs
+    DEPENDS _core_development_stubs
     USES_TERMINAL
     COMMAND
         ${CMAKE_COMMAND} -E env PYTHONPATH=$<TARGET_FILE_DIR:_core>/..
-        ${Python_EXECUTABLE} -m sphinx_autobuild "${CMAKE_CURRENT_SOURCE_DIR}/source" "${OPYN_SPHINX_OUTPUT_DIR}"
+        ${Python_EXECUTABLE} -m sphinx_autobuild -E "${CMAKE_CURRENT_SOURCE_DIR}/source" "${OPYN_SPHINX_OUTPUT_DIR}"
 )
 
 # Create a custom target that can be ran to deploy the built documentation
@@ -51,9 +51,9 @@ if(${Doxygen_FOUND})
 
     # Create a custom build target that builds the C++ documentation
     add_custom_target(opynsim_doxygen_docs
-        COMMAND           ${CMAKE_COMMAND} -E make_directory ${OPYN_DOXYGEN_OUTPUT_DIR}
-        COMMAND           ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND           "${CMAKE_COMMAND}" -E make_directory "${OPYN_DOXYGEN_OUTPUT_DIR}" &&
+                          "${DOXYGEN_EXECUTABLE}" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         COMMENT           "Generating internal C++ API documentation with Doxygen"
         VERBATIM
     )

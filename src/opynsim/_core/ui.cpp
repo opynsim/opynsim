@@ -8,6 +8,7 @@
 #include <libopynsim/model.h>
 #include <libopynsim/model_state.h>
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/pair.h>
 
 namespace nb = nanobind;
 using namespace opyn;
@@ -45,20 +46,29 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
     );
     ui_module.def(
         "show_model_in_state",
-        [](const Model& model, const ModelState& model_state, bool zoom_to_fit)
+        [](
+            const Model& model,
+            const ModelState& model_state,
+            std::pair<int, int> dimensions,
+            bool zoom_to_fit,
+            bool draw_floor)
         {
             show_model_in_state(
                 get_lazy_loaded_opynsim_app(),
                 model,
                 model_state,
+                osc::Vector2{dimensions.first, dimensions.second},
                 zoom_to_fit,
+                draw_floor,
                 default_python_callbacks()
             );
         },
         nb::arg("model"),
         nb::arg("state"),
         nb::kw_only{},
+        nb::arg("dimensions") = std::make_pair(640, 480),
         nb::arg("zoom_to_fit") = true,
+        nb::arg("draw_floor") = false,
         R"(
             Displays an interactive visualizer for the given :class:`opynsim.Model` + :class:`opynsim.ModelState`
             in a window.
@@ -66,9 +76,11 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
             Blocks and runs the GUI main loop until the window is closed.
 
             Args:
-                model (opynsim.Model): The model to render.
-                state (opynsim.ModelState): The state of the model to render. Should be realized to at least :attr:`opynsim.ModelStateStage.REPORT`.
-                zoom_to_fit (bool): Tells the renderer to automatically set up the camera to focus on the center of the bounds of the scene at a distance that can see the entire scene.
+                model (opynsim.Model): The model to show.
+                state (opynsim.ModelState): The state of the model to show. Should be realized to at least :attr:`opynsim.ModelStateStage.REPORT`.
+                dimensions (tuple[int, int]): The desired output resolution (width, height) of the window in device-independent pixels.
+                zoom_to_fit (bool): Tells the ui to automatically set up the camera to focus on the center of the bounds of the scene at a distance that can see the entire scene.
+                draw_floor (bool): Draws a floor, matching the default behavior of Simbody and OpenSim GUI.
         )"
     );
 }
