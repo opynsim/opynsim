@@ -9,16 +9,16 @@ add_custom_target(opynsim_clean_docs
 )
 
 # Create a custom build target that builds the Sphinx documentation
-add_custom_target(opynsim_docs ALL
-    DEPENDS opynsim_clean_docs _core_development_stubs
+add_custom_target(opynsim_docs
+    DEPENDS _core_development_stubs
     COMMAND
         ${CMAKE_COMMAND} -E env PYTHONPATH=$<TARGET_FILE_DIR:_core>/..
         ${Python_EXECUTABLE} -m sphinx.cmd.build -M html "${CMAKE_CURRENT_SOURCE_DIR}/source" "${OPYN_SPHINX_OUTPUT_DIR}"
     COMMENT "Building Sphinx documentation"
 )
 
-# Create a not-ALL custom target that can be ran to live-rebuild
-# the documentation for the current configuration.
+# Create a custom target that can be ran to live-rebuild the
+# documentation for the current configuration.
 add_custom_target(opynsim_docs_autobuild
     DEPENDS opynsim_clean_docs _core_development_stubs
     USES_TERMINAL
@@ -27,8 +27,8 @@ add_custom_target(opynsim_docs_autobuild
         ${Python_EXECUTABLE} -m sphinx_autobuild "${CMAKE_CURRENT_SOURCE_DIR}/source" "${OPYN_SPHINX_OUTPUT_DIR}"
 )
 
-# Create a not-ALL custom target that can be ran to deploy the
-# built documentation to the live server.
+# Create a custom target that can be ran to deploy the built documentation
+# to the live server.
 #
 # NOTE: This assumes the caller has already globally configured SSH (rsync)
 #       access to `docs.opynsim.eu` in their `.ssh/config` so that
@@ -51,7 +51,6 @@ if(${Doxygen_FOUND})
 
     # Create a custom build target that builds the C++ documentation
     add_custom_target(opynsim_doxygen_docs
-        DEPENDS           opynsim_clean_docs
         COMMAND           ${CMAKE_COMMAND} -E make_directory ${OPYN_DOXYGEN_OUTPUT_DIR}
         COMMAND           ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
