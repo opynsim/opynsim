@@ -13,7 +13,7 @@ add_custom_target(opynsim_docs
     DEPENDS _core_development_stubs
     COMMAND
         ${CMAKE_COMMAND} -E env PYTHONPATH=$<TARGET_FILE_DIR:_core>/..
-        ${Python_EXECUTABLE} -m sphinx.cmd.build -E -M html "${CMAKE_CURRENT_SOURCE_DIR}/source" "${OPYN_SPHINX_OUTPUT_DIR}"
+        ${Python_EXECUTABLE} -m sphinx.cmd.build -E "${CMAKE_CURRENT_SOURCE_DIR}/source" "${OPYN_SPHINX_OUTPUT_DIR}"
     COMMENT "Building Sphinx documentation"
 )
 
@@ -36,7 +36,7 @@ add_custom_target(opynsim_docs_autobuild
 add_custom_target(opynsim_docs_deploy
     DEPENDS opynsim_docs
     USES_TERMINAL
-    COMMAND rsync -avz --delete "${OPYN_SPHINX_OUTPUT_DIR}" "docs.opynsim.eu:/var/www/docs.opynsim.eu/manual/en/latest"
+    COMMAND rsync -avz --delete "${OPYN_SPHINX_OUTPUT_DIR}/" "docs.opynsim.eu:/var/www/docs.opynsim.eu/manual/en/latest"
 )
 
 if(${Doxygen_FOUND})
