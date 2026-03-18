@@ -34,6 +34,9 @@ osc::Texture2D opyn::render_model_in_state(
 
     // Setup scene camera
     osc::PolarPerspectiveCamera camera;
+    // TODO: try and default the camera to look down the Z axis
+    camera.phi = {};
+    camera.theta = {};
 
     // Handle autofocus
     if (zoom_to_fit) {

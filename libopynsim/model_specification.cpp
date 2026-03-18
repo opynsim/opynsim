@@ -32,10 +32,10 @@ namespace
             model,
             "pin",
             model.getGround(),
-            SimTK::Vec3{0.0, 1.0, 0.0},
+            SimTK::Vec3{0.0, 0.0, 0.0},
             SimTK::Vec3{0.0},
             head,
-            SimTK::Vec3{0.0},
+            SimTK::Vec3{0.0, -1.0, 0.0},
             SimTK::Vec3{0.0}
         );
         pin.updCoordinate().set_default_value(0.25*std::numbers::pi_v<double>);

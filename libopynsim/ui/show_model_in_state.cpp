@@ -42,7 +42,11 @@ namespace
             background_color_{background_color},
             fit_camera_on_next_frame_{zoom_to_fit},
             draw_floor_{draw_floor}
-        {}
+        {
+            // TODO: try and default the camera to look down the Z axis
+            camera.theta = {};
+            camera.phi = {};
+        }
     private:
         bool impl_on_event(osc::Event& e) override
         {
