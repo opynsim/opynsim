@@ -60,7 +60,7 @@ returned by :meth:`opynsim.graphics.Texture2D.pixels_rgba32` into a line plot.
     from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
     # Create/import a `Model` + `ModelState`.
-    model_specification = opynsim.example_specification_double_pendulum()
+    model_specification = opynsim.example_specification_pendulum()
     model = opynsim.compile_specification(model_specification)
     model_state = model.initial_state()
     model.realize(model_state, opynsim.ModelStateStage.REPORT)  # usually required for rendering
