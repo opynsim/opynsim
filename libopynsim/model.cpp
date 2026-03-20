@@ -483,7 +483,6 @@ public:
     }
 
     const OpenSim::Model& open_sim_model() const { return model_; }
-
 private:
     OpenSim::Model model_;
     ankerl::unordered_dense::map<Symbol, const OpenSim::AbstractOutput*> outputs_{
