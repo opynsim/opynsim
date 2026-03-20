@@ -339,7 +339,7 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
             )"
         );
 
-        static_assert(osc::num_options<ModelStateStage>() == 6);
+        static_assert(osc::num_options<ModelStateStage>() == 9);
         nb::enum_<ModelStateStage> model_state_stage_class(
             _core_module,
             "ModelStateStage",
@@ -357,6 +357,9 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
                 :class:`Model` can then extract that information from the :class:`ModelState`.
             )"
         );
+        model_state_stage_class.value("TOPOLOGY",     ModelStateStage::topology,     "System topology known.");
+        model_state_stage_class.value("MODEL",        ModelStateStage::model,        "Modelling choices have been made.");
+        model_state_stage_class.value("INSTANCE",     ModelStateStage::instance,     "Physical parameters have been set.");
         model_state_stage_class.value("TIME",         ModelStateStage::time,         "Time has advanced and state variables have new values, but no derived information has been calculated.");
         model_state_stage_class.value("POSITION",     ModelStateStage::position,     "The spatial positions of all bodies are known.");
         model_state_stage_class.value("VELOCITY",     ModelStateStage::velocity,     "The spatial velocities of all bodies are known.");
