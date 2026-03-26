@@ -19,18 +19,18 @@ namespace opyn
     //
     // this is a *basic* class that only guarantees the model is *initialized* this way. It
     // does not guarantee that everything is up-to-date after a caller mutates the model.
-    class SimpleModelStatePair final : public ModelStatePair {
+    class BasicModelStatePair : public ModelStatePair {
     public:
-        SimpleModelStatePair();
-        explicit SimpleModelStatePair(const ModelStatePair&);
-        explicit SimpleModelStatePair(const std::filesystem::path&);
-        explicit SimpleModelStatePair(OpenSim::Model&&);
-        SimpleModelStatePair(const OpenSim::Model&, const SimTK::State&);
-        SimpleModelStatePair(const SimpleModelStatePair&);
-        SimpleModelStatePair(SimpleModelStatePair&&) noexcept;
-        SimpleModelStatePair& operator=(const SimpleModelStatePair&);
-        SimpleModelStatePair& operator=(SimpleModelStatePair&&) noexcept;
-        ~SimpleModelStatePair() noexcept override;
+        BasicModelStatePair();
+        explicit BasicModelStatePair(const ModelStatePair&);
+        explicit BasicModelStatePair(const std::filesystem::path&);
+        explicit BasicModelStatePair(OpenSim::Model&&);
+        BasicModelStatePair(const OpenSim::Model&, const SimTK::State&);
+        BasicModelStatePair(const BasicModelStatePair&);
+        BasicModelStatePair(BasicModelStatePair&&) noexcept;
+        BasicModelStatePair& operator=(const BasicModelStatePair&);
+        BasicModelStatePair& operator=(BasicModelStatePair&&) noexcept;
+        ~BasicModelStatePair() noexcept override;
 
     private:
         const OpenSim::Model& implGetModel() const final;
