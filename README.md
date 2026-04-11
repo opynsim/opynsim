@@ -11,7 +11,7 @@ OPynSim is a python-native API for musculoskeletal modeling that doesn't comprom
 [OpenSim](https://simtk.org/projects/opensim), and [OpenSim Creator](https://www.opensimcreator.com/).
 
 - **Documentation**: [https://docs.opynsim.eu](https://docs.opynsim.eu)
-- **Source code**: [https://github.com/opynsim/opynsim](https://docs.opynsim.eu)
+- **Source code**: [https://github.com/opynsim/opynsim](https://github.com/opynsim/opynsim)
 
 OPynSim provides:
 
