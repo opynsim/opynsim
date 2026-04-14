@@ -22,8 +22,8 @@ The ``opynsim`` :doc:`configuration <../api/configuration>` API contains utiliti
 globally affect OPynSim's behavior.
 
 The most important thing to consider is  ``opynsim``\'s logging behavior. ``opynsim``
-is fully integrated with Python's ``logging`` API but, for performance reasons, it
-stores an internal (C++) log level separately. :func:`opynsim.set_log_level` sets
+is integrated with `Python's logging API <https://docs.python.org/3/library/logging.html>`_ but, for performance reasons, its
+C++ engine stores an internal log level separately. :func:`opynsim.set_log_level` sets
 both the internal and Python-level logging APIs to the specified level:
 
 .. code:: python
@@ -31,7 +31,7 @@ both the internal and Python-level logging APIs to the specified level:
     import opynsim as opyn
     import logging
 
-    # Make OPynSim's logging more verbose.
+    # Make OPynSim's logging more verbose (default is `logging.WARN`).
     #
     # This sets both OPynSim's internal C++ logging level *and* the level of the
     # Python `logging.getLogger("opynsim")` to the given level.
@@ -45,11 +45,8 @@ both the internal and Python-level logging APIs to the specified level:
         handlers=[
             logging.FileHandler("opynsim.log"), # Write logs to a log file...
             logging.StreamHandler()             # ... and also write them to the console.
-        ],
-        force=True
+        ]
     )
-
-By default, the logging level is ``logging.WARN``, which matches Python's default.
 
 Import an ``osim`` File
 -----------------------
