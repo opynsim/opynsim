@@ -497,6 +497,8 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
 
                 Args:
                     geometry_directory_path: An absolute path to the fallback directory.
+                Raises:
+                    RuntimeError: if `geometry_directory_path` does not exist on the caller's filesystem.
             )"
         );
 
