@@ -30,11 +30,12 @@ is one way to do this:
 .. code:: python
 
     import opynsim as opyn
+    import opynsim.config
     import pathlib
 
     # (optional): Add a geometry directory to the search path, so that
     # OPynSim can find shared mesh files.
-    opyn.append_search_path("/some/geometry/directory")
+    opyn.config.append_search_path("/some/geometry/directory")
 
     # Import an `.osim` file as an `opynsim.ModelSpecification`
     model_specification = opyn.import_osim_file("arm26.osim")
