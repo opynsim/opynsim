@@ -36,7 +36,7 @@ The Search Path
 ---------------
 
 Whenever OPynSim encounters a relative resource path in a file (e.g. ``pelvis.vtp`` in ``some_model.osim``), it
-performs a search for that resource on the caller's filesystem. :func:`opynsim.get_search_paths`'s docstring
+performs a search for that resource on the caller's filesystem. The documentation for :func:`opynsim.get_search_paths`
 explains the process.
 
 This mechanism can be useful for specifying central, shared, resource directories - particularly when sharing
@@ -54,10 +54,11 @@ specify that shared directory:
     opyn.prepend_search_path("shared_geometry")
 
     # Passing an absolute path says "I don't care about context, always resolve it
-    # relative to my working directory" (in this case).
+    # to this exact location."
     opyn.prepend_search_path(Path("shared_geometry").absolute())
 
-See :func:`opynsim.get_search_paths` for a detailed explanation.
+See :func:`opynsim.get_search_paths` for a detailed explanation of the
+path resolution process.
 
 API Reference
 -------------

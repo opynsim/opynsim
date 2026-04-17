@@ -34,7 +34,7 @@ is one way to do this:
 
     # (optional): Add a geometry directory to the search path, so that
     # OPynSim can find shared mesh files.
-    opynsim.append_search_path("/some/geometry/directory")
+    opyn.append_search_path("/some/geometry/directory")
 
     # Import an `.osim` file as an `opynsim.ModelSpecification`
     model_specification = opyn.import_osim_file("arm26.osim")
@@ -104,7 +104,7 @@ interacting with OPynSim's datastructures.
 The API includes high-level functions, such as :func:`opynsim.ui.show_model_in_state`,
 which can be used to visualize a model in a single state. The state should be realized
 to :attr:`opynsim.STAGE_REPORT` to ensure that all the state variables the
-renderer reads are fully realized:
+renderer reads are available:
 
 .. code:: python
 

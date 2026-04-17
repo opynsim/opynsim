@@ -521,7 +521,8 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
                 Args:
                     python_logging_level (int): A logging level from the Python (:mod:`logging`) module
                         such as ``logging.DEBUG``, ``logging.INFO``, ``logging.WARNING``, ``logging.ERROR``,
-                        or ``logging.CRITICAL``.
+                        or ``logging.CRITICAL`` see `Python's Logging Levels documentation <https://docs.python.org/3/library/logging.html#logging-levels>`_ for
+                        more information on the logging levels.
 
             )"
         );
@@ -584,11 +585,11 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
                 ``base_path``'s value depends on the situation in which OPynSim is resolving a
                 path. For example, when resolving a ``opynsim.ModelSpecification`` with a known
                 filesystem path, ``base_path`` is the parent of that path. However, if the
-                ``opynsim.ModelSpecification`` has **no** filesystem location, ``base_path`` is the
+                ``opynsim.ModelSpecification`` has no filesystem location, ``base_path`` is the
                 working directory of the Python process. **Notably**, when a ``entry`` is absolute,
-                ``(base_path / entry / path) == (entry / path)``, which ignores ``base_path``. So, when
-                providing directories that are in a context-independent location (e.g. a global geometry
-                directory) use absolute paths.
+                ``(base_path / entry / path) == (entry / path)``, which ignores ``base_path``. Therefore, when
+                providing directories that are context-independent (e.g. a global geometry directory), use
+                absolute paths.
 
                 When a resource cannot be found, the consequences are context-dependent. For example, a
                 mesh implementation that fails to find a mesh file may choose to ignore the failure, generate
@@ -628,7 +629,7 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
             nb::arg("search_path"),
             R"(
                 Returns ``True`` if ``search_path`` was found and removed from the global
-                search path list (see :func:`get_search_paths`).
+                search path list.
 
                 Args:
                     search_path: The path to remove. Must exactly match an entry from :func:`get_search_paths`.
