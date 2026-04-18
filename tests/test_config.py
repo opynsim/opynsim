@@ -94,7 +94,7 @@ def _remove_search_path_then_assert_it_was_removed():
     assert opyn.config.remove_search_path(path_to_remove), "Function should return `True` if something was removed"
     paths_after = opyn.config.get_search_paths()
     assert paths_after != paths_before
-    assert path_to_remove not in paths_after
+    assert str(path_to_remove) not in [str(e) for e in paths_after]  # care: Windows is case-insensitive, so do a string comparison
 
 def test_remove_search_path_removes_the_search_path():
     execute_forked(_remove_search_path_then_assert_it_was_removed)

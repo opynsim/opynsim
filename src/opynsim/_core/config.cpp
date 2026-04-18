@@ -137,11 +137,11 @@ void opyn::init_config_submodule(nanobind::module_& config_module)
         "get_log_level",
         []{ return to_python_log_level(get_log_level()); },
         R"(
-            Returns the current global logging level for OPynSim. The default log level is ``logging.WARN``.
+            Returns the current global logging level for OPynSim. The default log level is ``logging.WARNING``.
 
             If the logger has been misconfigured (e.g. because the log level was edited via Python, rather than
             via :func:`opynsim.set_log_level`) then the value returned by this function may not match
-            ``logger.getLogger("opynsim").level`` read :func:`set_log_level` for more details.
+            ``logger.getLogger("opynsim").level``. See :func:`set_log_level` for more details.
 
             Returns:
                 int: A logging level integer that's compatible with the Python (:mod:`logging`) module such as ``logging.DEBUG``, ``logging.INFO``, ``logging.WARNING``, ``logging.ERROR``, or ``logging.CRITICAL`` see `Python's Logging Levels documentation <https://docs.python.org/3/library/logging.html#logging-levels>`_ for more information on the logging levels.
@@ -165,7 +165,7 @@ void opyn::init_config_submodule(nanobind::module_& config_module)
             ``opynsim`` is integrated with `Python's logging API <https://docs.python.org/3/library/logging.html>`_
             but, for performance reasons, its C++ engine stores an internal log level separately. This function
             synchronizes the log level of both OPynSim's Python logger (i.e. ``logger.getLogger("opynsim")``) and
-            the internal C++ log level. Only changing the Python logger can result in a situation where the C++
+            the internal C++ log level. Changing only the Python logger can result in a situation where the C++
             engine emits (or doesn't!) log messages that Python logger subsequently drops.
 
             Args:
@@ -180,29 +180,27 @@ void opyn::init_config_submodule(nanobind::module_& config_module)
         "get_search_paths",
         &opyn::get_search_paths,
         R"(
-            Returns a copy of the current global search paths that OPynSim uses to resolve
-            filesystem resources in high-to-low priority order.
+            Returns a copy of the current global search paths used to resolve filesystem resources,
+            ordered from highest to lowest priority.
 
-            When OPynSim needs to load a path (``path``) as a resource on the filesystem, OPynSim
-            establishes a context-dependent base path (``base_path``) and then probes the filesystem
-            until it either finds a file or runs out of options:
+            When OPynSim resolves a relative ``path``, it uses a context-dependent ``base_path``
+            (e.g., the directory containing the current model file) and probes locations in this order:
 
-            - If ``path`` is absolute, only probes ``path`` - no searching behavior.
-            - Otherwise, iterates through each ``entry`` in ``get_search_path()``, and probes
-              ``(base_path / entry / path)`` until a a file is found.
+            1. If ``path`` is absolute: Probes only ``path``
+            2. If ``path`` is relative: For each ``entry`` in ``get_search_path()``, probe
+              ``(base_path / entry / path)``.
 
-            ``base_path``'s value depends on the situation in which OPynSim is resolving a
-            path. For example, when resolving a mesh resource path from a ``opynsim.ModelSpecification``
-            that has a known filesystem location, ``base_path`` is the parent directory of the specification.
-            However, if the ``opynsim.ModelSpecification`` has no filesystem location, ``base_path`` is the
-            working directory of the Python process. **Notably**, when a ``entry`` is absolute,
-            ``(base_path / entry / path) == (entry / path)``, which ignores ``base_path``. Therefore, when
-            providing directories that need to be context-independent (e.g. a global geometry directory), use
-            absolute paths.
+            Notably, if an ``entry`` is absolute, ``(base_path / entry / path) == (entry / path)``, so
+            the ``base_path`` is ignored for that entry.
 
-            When a resource cannot be found, the consequences are context-dependent. For example, a
+            When a resource cannot be found via probing, the consequences are context-dependent. For example, a
             mesh implementation that fails to find a mesh file may choose to ignore the failure, generate
             a debug/error mesh, or throw an exception.
+
+            The returned paths will be lexicographically unique, but entries may not be be behaviorally
+            unique. For example, ``pathlib.Path("Geometry") == pathlib.Path("geometry")`` is ``True`` on
+            Windows but ``False`` on macOS and Linux. Regardless, the OPynSim API for search paths checks
+            and compares the lexicographic representation.
         )"
     );
 
@@ -214,8 +212,9 @@ void opyn::init_config_submodule(nanobind::module_& config_module)
             Prepends ``search_path`` to the start (highest-priority) of the global
             search path list (see :func:`get_search_paths`).
 
-            If ``search_path`` already exists in the search path list, it is moved to the
-            start of the list. ``search_path`` does not need to exist on the filesystem.
+            If an existing entry in the global search path list lexicographically
+            matches ``search_path``, it is removed to prevent duplicate entries.
+            ``search_path`` does not need to exist on the filesystem.
         )"
     );
 
@@ -227,8 +226,9 @@ void opyn::init_config_submodule(nanobind::module_& config_module)
             Appends ``search_path`` to the end (lowest-priority) of the global
             search path list (see :func:`get_search_paths`).
 
-            If ``search_path`` already exists in the search path list, it is moved to the
-            end of the list. ``search_path`` does not need to exist on the filesystem.
+            If an existing entry in the global search path list lexicographically
+            matches ``search_path``, it is removed to prevent duplicate entries.
+            ``search_path`` does not need to exist on the filesystem.
         )"
     );
 
@@ -237,11 +237,11 @@ void opyn::init_config_submodule(nanobind::module_& config_module)
         &opyn::remove_search_path,
         nb::arg("search_path"),
         R"(
-            Returns ``True`` if ``search_path`` was found and removed from the global
-            search path list.
+            Returns ``True`` if an entry that lexicographically matches ``search_path`` was
+            found and removed from the global search path list.
 
             Args:
-                search_path: The path to remove. Must exactly match an entry from :func:`get_search_paths`.
+                search_path: The path to remove. It must lexicographically match an entry from :func:`get_search_paths`.
         )"
     );
 }
