@@ -187,8 +187,7 @@ void opyn::init_config_submodule(nanobind::module_& config_module)
             (e.g., the directory containing the current model file) and probes locations in this order:
 
             1. If ``path`` is absolute: Probes only ``path``
-            2. If ``path`` is relative: For each ``entry`` in ``get_search_path()``, probe
-              ``(base_path / entry / path)``.
+            2. If ``path`` is relative: For each ``entry`` in ``get_search_path()``, probe ``(base_path / entry / path)``.
 
             Notably, if an ``entry`` is absolute, ``(base_path / entry / path) == (entry / path)``, so
             the ``base_path`` is ignored for that entry.
