@@ -428,14 +428,5 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
                     RuntimeError: If the file cannot be found, read, or is invalid.
             )"
         );
-
-        _core_module.def(
-            "compile_specification",
-            opyn::compile_specification,
-            nb::arg("model_specification"),
-            R"(
-                An alias for :meth:`ModelSpecification.compile`.
-            )"
-        );
     }
 }

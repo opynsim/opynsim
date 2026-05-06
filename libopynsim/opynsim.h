@@ -62,7 +62,4 @@ namespace opyn
 
     /// Returns a `ModelSpecification` for an example double pendulum.
     ModelSpecification example_specification_double_pendulum();
-
-    /// Returns `model_specification.compile()`.
-    Model compile_specification(const ModelSpecification& model_specification);
 }

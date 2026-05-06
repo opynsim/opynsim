@@ -65,7 +65,6 @@ find further inspiration. Use API reference (below) to learn about the API in mo
 API Reference
 -------------
 
-.. autofunction:: opynsim.compile_specification
 .. autofunction:: opynsim.read_osim
 .. autofunction:: opynsim.example_specification_pendulum
 .. autofunction:: opynsim.example_specification_double_pendulum

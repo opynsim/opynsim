@@ -270,8 +270,3 @@ ModelSpecification opyn::example_specification_double_pendulum()
 {
     return ModelSpecification::example_double_pendulum();
 }
-
-Model opyn::compile_specification(const ModelSpecification& model_specification)
-{
-    return model_specification.compile();
-}
