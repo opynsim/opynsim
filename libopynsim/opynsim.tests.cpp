@@ -20,10 +20,3 @@ TEST(opynsim, read_osim_works_when_given_a_file_that_does_exist)
 
     ASSERT_NO_THROW({ read_osim(opynsim_tests_resources_directory() / "models/Blank/blank.osim"); });
 }
-
-TEST(opynsim, example_specification_double_pendulum_works)
-{
-    opyn::init();
-
-    ASSERT_NO_THROW({ example_specification_double_pendulum(); });
-}
