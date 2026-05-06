@@ -7,18 +7,18 @@
 
 using namespace opyn;
 
-TEST(opynsim, import_osim_file_throws_if_file_doesnt_exist)
+TEST(opynsim, read_osim_throws_if_file_doesnt_exist)
 {
     opyn::init();
 
-    ASSERT_ANY_THROW({ import_osim_file("/this/probably/doesnt/exist"); });
+    ASSERT_ANY_THROW({ read_osim("/this/probably/doesnt/exist"); });
 }
 
-TEST(opynsim, import_osim_file_works_when_given_a_file_that_does_exist)
+TEST(opynsim, read_osim_works_when_given_a_file_that_does_exist)
 {
     opyn::init();
 
-    ASSERT_NO_THROW({ import_osim_file(opynsim_tests_resources_directory() / "models/Blank/blank.osim"); });
+    ASSERT_NO_THROW({ read_osim(opynsim_tests_resources_directory() / "models/Blank/blank.osim"); });
 }
 
 TEST(opynsim, example_specification_double_pendulum_works)
@@ -40,6 +40,6 @@ TEST(opynsim, compile_specification_works_on_more_complicated_example_OpenSim_mo
 {
     opyn::init();
 
-    const ModelSpecification model_specification = import_osim_file(opynsim_tests_resources_directory() / "models/RajagopalModel/Rajagopal2015.osim");
+    const ModelSpecification model_specification = read_osim(opynsim_tests_resources_directory() / "models/RajagopalModel/Rajagopal2015.osim");
     ASSERT_NO_THROW({ compile_specification(model_specification); });
 }

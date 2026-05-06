@@ -417,11 +417,11 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
         );
 
         _core_module.def(
-            "import_osim_file",
-            [](const std::filesystem::path& osim_path) { return opyn::import_osim_file(osim_path); },
+            "read_osim_file",
+            [](const std::filesystem::path& osim_path) { return opyn::read_osim(osim_path); },
             nb::arg("osim_file_path"),
             R"(
-                Returns a :class:`ModelSpecification` imported from an `.osim` file on the
+                Returns a :class:`ModelSpecification` parsed from an `.osim` file on the
                 caller's filesystem.
 
                 Raises:

@@ -24,7 +24,7 @@ behavior.
 
 One way to create a :class:`opynsim.ModelSpecification` is to import it from an
 ``.osim`` file, which enables importing complex specifications built using visual
-tools like `OpenSim Creator <https://opensimcreator.com>`_.  :func:`opynsim.import_osim_file`
+tools like `OpenSim Creator <https://opensimcreator.com>`_.  :func:`opynsim.read_osim`
 is one way to do this:
 
 .. code:: python
@@ -38,10 +38,10 @@ is one way to do this:
     opyn.config.append_search_path("/some/geometry/directory")
 
     # Import an `.osim` file as an `opynsim.ModelSpecification`
-    model_specification = opyn.import_osim_file("arm26.osim")
+    model_specification = opyn.read_osim("arm26.osim")
 
     # `pathlib.Path`s are also supported
-    model_specification2 = opyn.import_osim_file(pathlib.Path("/some/path/to/arm26.osim"))
+    model_specification2 = opyn.read_osim(pathlib.Path("/some/path/to/arm26.osim"))
 
 .. note::
 
@@ -50,7 +50,7 @@ is one way to do this:
 
     This is only because it's easier to copy + paste Python code that uses generated
     examples. However, you can always exchange an example :class:`opynsim.ModelSpecification` for
-    one loaded via :func:`opynsim.import_osim_file`.
+    one loaded via :func:`opynsim.read_osim`.
 
 
 Compile a Specification into a Model
@@ -65,7 +65,7 @@ to build (compile) a :class:`opynsim.Model`, which represents a read-only physic
 
     import opynsim as opyn
 
-    # alternatively: model_specification = opyn.import_osim_file("your.osim")
+    # alternatively: model_specification = opyn.read_osim("your.osim")
     model_specification = opyn.example_specification_double_pendulum()
 
     # ... if necessary, edit the `ModelSpecification`, and then...

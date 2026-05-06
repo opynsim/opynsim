@@ -36,7 +36,7 @@ find further inspiration. Use API reference (below) to learn about the API in mo
     import opynsim as opyn
 
     # 1. Import a `ModelSpecification`.
-    model_specification = opyn.import_osim_file("some.osim")
+    model_specification = opyn.read_osim("some.osim")
 
     force_wrt_elbow_per_tendon_length = {}
     for i in range(16):
@@ -66,7 +66,7 @@ API Reference
 -------------
 
 .. autofunction:: opynsim.compile_specification
-.. autofunction:: opynsim.import_osim_file
+.. autofunction:: opynsim.read_osim
 .. autofunction:: opynsim.example_specification_pendulum
 .. autofunction:: opynsim.example_specification_double_pendulum
 

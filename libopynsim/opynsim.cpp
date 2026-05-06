@@ -256,7 +256,7 @@ bool opyn::init()
     return s_osc_initialized;
 }
 
-ModelSpecification opyn::import_osim_file(const std::filesystem::path& osim_file_path)
+ModelSpecification opyn::read_osim(const std::filesystem::path& osim_file_path)
 {
     return ModelSpecification::from_osim_file(osim_file_path);
 }

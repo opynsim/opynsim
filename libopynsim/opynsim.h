@@ -53,9 +53,9 @@ namespace opyn
     /// search path sequence.
     bool remove_search_path(const std::filesystem::path& search_path);
 
-    /// Returns a `ModelSpecification` imported from `osim_file_path`, throws if there's an
+    /// Returns a `ModelSpecification` parsed from `osim_file_path`, throws if there's an
     /// import error.
-    ModelSpecification import_osim_file(const std::filesystem::path& osim_file_path);
+    ModelSpecification read_osim(const std::filesystem::path& osim_file_path);
 
     /// Returns a `ModelSpecification` for a simple pendulum.
     ModelSpecification example_specification_pendulum();
