@@ -41,6 +41,14 @@ std::vector<std::string> opyn::DataFrame::columns() const
     return column_names_;
 }
 
+std::pair<size_t, size_t> opyn::DataFrame::shape() const
+{
+    const size_t num_columns = column_data_.size();
+    return num_columns > 0 ?
+        std::pair{column_data_[0].size(), num_columns} :
+        std::pair{0uz,                    num_columns};
+}
+
 std::unordered_map<std::string, std::string> opyn::DataFrame::attrs() const
 {
     return attrs_;

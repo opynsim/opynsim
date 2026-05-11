@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace opyn
@@ -24,6 +25,9 @@ namespace opyn
 
         /// Returns this `DataFrame`'s column labels.
         std::vector<std::string> columns() const;
+
+        /// Returns the shape (rows, columns) of this `DataFrame`.
+        std::pair<size_t, size_t> shape() const;
 
         /// Returns this `DataFram`'s metadata (e.g. header key-values).
         std::unordered_map<std::string, std::string> attrs() const;

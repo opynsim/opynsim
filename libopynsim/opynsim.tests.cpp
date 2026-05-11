@@ -7,6 +7,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 using namespace opyn;
@@ -49,6 +50,16 @@ TEST(opynsim, read_sto_columns_returns_time_column_for_minimal_example)
     ASSERT_EQ(df.columns(), expected);
 }
 
+TEST(opynsim, read_sto_shape_returns_0_1_for_minimal_example)
+{
+    opyn::init();
+
+    const DataFrame df = read_sto(opynsim_tests_resources_directory() / "Documents/sto/minimal.sto");
+    const std::pair<size_t, size_t> expected = {0, 1};
+
+    ASSERT_EQ(df.shape(), expected);
+}
+
 TEST(opynsim, read_sto_columns_returns_time_and_data_column_for_one_column_example)
 {
     opyn::init();
@@ -69,6 +80,16 @@ TEST(opynsim, read_sto_columns_returns_expected_attrs_for_one_column_example)
     };
 
     ASSERT_EQ(df.attrs(), expected);
+}
+
+TEST(opynsim, read_sto_shape_returns_1_2_for_one_column_example)
+{
+    opyn::init();
+
+    const DataFrame df = read_sto(opynsim_tests_resources_directory() / "Documents/sto/one_data_column.sto");
+    const std::pair<size_t, size_t> expected = {1, 2};
+
+    ASSERT_EQ(df.shape(), expected);
 }
 
 TEST(opynsim, read_sto_columns_returns_time_and_two_data_columns_for_two_column_example)
@@ -92,6 +113,16 @@ TEST(opynsim, read_sto_columns_returns_expected_attrs_for_two_column_example)
     };
 
     ASSERT_EQ(df.attrs(), expected);
+}
+
+TEST(opynsim, read_sto_shape_returns_3_2_for_two_column_example)
+{
+    opyn::init();
+
+    const DataFrame df = read_sto(opynsim_tests_resources_directory() / "Documents/sto/two_data_columns.sto");
+    const std::pair<size_t, size_t> expected = {2, 3};
+
+    ASSERT_EQ(df.shape(), expected);
 }
 
 TEST(opynsim, read_sto_attrs_contains_header_if_non_kv_headers_are_in_file)
