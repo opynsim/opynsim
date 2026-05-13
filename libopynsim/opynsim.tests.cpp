@@ -168,3 +168,23 @@ TEST(opynsim, read_sto_can_read_and_print_a_bigger_pendulum_example)
 
     ASSERT_FALSE(got.empty());
 }
+
+TEST(opynsim, read_sto_throws_when_given_duplicate_time_rows)
+{
+    // This just checks current parser behavior.
+    //
+    // TODO: The desired behavior actually should be that the user can specify whether they want:
+    //
+    // - To reject duplicate timestamp rows (current/OpenSim default)
+    // - To filter out duplicate timestamp rows (only accept the first, or only accept the last?)
+    // - To keep duplicate timestamp rows (i.e. allow duplicates)
+    //
+    // The reason why is that legacy `.sto` files in the wild (e.g. on SimTK.org, or
+    // opensim-org/opensim-models) can contain repeated rows with the same timestamp. It's
+    // wrong to allow these rows through, but OPynSim must provide easy mechanisms for dealing
+    // with invalid STO data because users will certainly encounter it.
+
+    opyn::init();
+
+    ASSERT_ANY_THROW({ read_sto(opynsim_tests_resources_directory() / "Documents/sto/duplicate_time_row.sto"); });
+}
