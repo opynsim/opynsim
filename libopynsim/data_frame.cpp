@@ -34,6 +34,10 @@ namespace
         std::vector<std::vector<double>> column_data)
     {
         OSC_ASSERT_ALWAYS(column_names.size() == column_data.size() && "The number of column names (headers) must match the number of column data vectors");
+        if (not column_data.empty()) {
+            const size_t num_rows_in_first_column = column_data.front().size();
+            OSC_ASSERT_ALWAYS(rgs::all_of(column_data, [num_rows_in_first_column](const auto& column) { return column.size() == num_rows_in_first_column; }));
+        }
 
         std::vector<Series> rv;
         rv.reserve(column_names.size());
@@ -218,12 +222,12 @@ std::ostream& opyn::operator<<(std::ostream& out, const DataFrame& data_frame)
         }
         out << '\n';
     }
-    for (size_t row = 1; row < num_rows + 1; ++row) {  // start from 1 (first data row)
+    for (size_t row = 0; row < num_rows; ++row) {
         out << '|';  // Left line
         for (size_t column = 0; column < num_columns; ++column) {
             out << ' ';  // Left padding
-            out << formatted_columns[column][row];
-            const size_t remaining_width = rgs::max(1uz, column_content_widths[column] - formatted_columns[column][row].size());
+            out << formatted_columns[column].at(row+1);  // +1 to skip header
+            const size_t remaining_width = rgs::max(1uz, column_content_widths[column] - formatted_columns[column][row+1].size());
             for (size_t i = 0; i < remaining_width; ++i) {
                 out << ' ';
             }
