@@ -3,6 +3,7 @@
 #include <liboscar/utilities/assertions.h>
 
 #include <algorithm>
+#include <functional>
 #include <cstddef>
 #include <cmath>
 #include <iomanip>
