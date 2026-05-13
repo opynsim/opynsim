@@ -188,3 +188,34 @@ TEST(opynsim, read_sto_throws_when_given_duplicate_time_rows)
 
     ASSERT_ANY_THROW({ read_sto(opynsim_tests_resources_directory() / "Documents/sto/duplicate_time_row.sto"); });
 }
+
+TEST(opynsim, read_mot_works_on_minimal_example)
+{
+    opyn::init();
+
+    ASSERT_NO_THROW({ read_mot(opynsim_tests_resources_directory() / "Documents/mot/minimal.mot"); });
+}
+
+TEST(opynsim, read_mot_columns_returns_time_column_for_minimal_example)
+{
+    opyn::init();
+
+    const DataFrame df = read_mot(opynsim_tests_resources_directory() / "Documents/mot/minimal.mot");
+    const std::vector<std::string> expected = {"time"};
+
+    ASSERT_EQ(df.columns(), expected);
+}
+
+TEST(opynsim, read_mot_parses_one_data_column_correctly)
+{
+    opyn::init();
+
+    const DataFrame df = read_mot(opynsim_tests_resources_directory() / "Documents/mot/one_data_column.mot");
+    const std::vector<std::string> expected_columns = {"time", "column1"};
+    const std::unordered_map<std::string, std::string> expected_attrs = {{"header", "meta isn't a thing in OpenSim's mot file parser?"}};
+    const std::tuple<size_t, size_t> expected_shape = {1, 2};
+
+    ASSERT_EQ(df.columns(), expected_columns);
+    ASSERT_EQ(df.attrs(), expected_attrs);
+    ASSERT_EQ(df.shape(), expected_shape);
+}
