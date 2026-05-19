@@ -304,3 +304,40 @@ TEST(opynsim, read_trc_parses_leg39_swing_short_trc_correctly)
     ASSERT_EQ(df.height(), 14);
     ASSERT_EQ(df.width(), expected_column_names.size());
 }
+
+TEST(opynsim, read_csv_works_on_minimal_example)
+{
+    opyn::init();
+
+    ASSERT_NO_THROW({ read_csv(opynsim_tests_resources_directory() / "Documents/csv/minimal.csv"); });
+}
+
+TEST(opynsim, read_csv_prints_expected_pretty_printed_string_for_minimal_example)
+{
+    opyn::init();
+
+    const DataFrame df = read_csv(opynsim_tests_resources_directory() / "Documents/csv/minimal.csv");
+    const std::string got = osc::stream_to_string(df);
+    const std::string_view expected = R"(shape: (1, 2)
+| time | header1 |
+|:-----|:--------|
+| 0.0  | 1.0     |
+)";
+
+    ASSERT_EQ(got, expected);
+}
+
+TEST(opynsim, read_csv_works_for_two_row_example)
+{
+    opyn::init();
+
+    const DataFrame df = read_csv(opynsim_tests_resources_directory() / "Documents/csv/two_rows.csv");
+    const std::vector<std::string> expected_columns = {"time", "x", "y", "z"};
+    const std::vector<double> expected_times = {1.0, 2.0};
+
+    ASSERT_EQ(df.columns(), expected_columns);
+    ASSERT_EQ(df.width(), 4);
+    ASSERT_EQ(df.height(), 2);
+    ASSERT_EQ(df.shape(), std::tuple(2uz, 4uz));
+    ASSERT_EQ(df["time"].to_list(), expected_times);
+}
