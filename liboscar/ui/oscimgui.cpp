@@ -1085,7 +1085,7 @@ namespace
 
             switch (window_event.type()) {
             case WindowEventType::GainedMouseFocus: {
-                bd->mouse_window_id = window_event.window();
+                bd->mouse_window_id = window_event.window_id();
                 bd->mouse_last_leave_frame = 0;
                 return true;
             }
@@ -1103,21 +1103,21 @@ namespace
             }
             case WindowEventType::WindowClosed: {
                 ImGuiViewport* vp = ImGui::GetMainViewport();
-                if (window_event.window() == WindowID{vp->PlatformHandle}) {
+                if (window_event.window_id() == WindowID{vp->PlatformHandle}) {
                     vp->PlatformRequestClose = true;
                 }
                 return true;
             }
             case WindowEventType::WindowMoved: {
                 ImGuiViewport* vp = ImGui::GetMainViewport();
-                if (window_event.window() == WindowID{vp->PlatformHandle}) {
+                if (window_event.window_id() == WindowID{vp->PlatformHandle}) {
                     vp->PlatformRequestMove = true;
                 }
                 return true;
             }
             case WindowEventType::WindowResized: {
                 ImGuiViewport* vp = ImGui::GetMainViewport();
-                if (window_event.window() == WindowID{vp->PlatformHandle}) {
+                if (window_event.window_id() == WindowID{vp->PlatformHandle}) {
                     vp->PlatformRequestResize = true;
                 }
                 return true;

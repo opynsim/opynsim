@@ -666,10 +666,9 @@ namespace
             static_assert(num_options<WindowEventType>() == 9);
             OSC_ASSERT(SDL_EVENT_WINDOW_FIRST <= e.type and e.type <= SDL_EVENT_WINDOW_LAST);
 
-            const WindowEventType type = parse_as_window_event_type(e.type);
-            const WindowID id{SDL_GetWindowFromID(e.window.windowID)};
-            const uint32_t window_id = e.window.windowID;
-            return std::make_unique<WindowEvent>(type, id, window_id);
+            const WindowEventType window_event_type = parse_as_window_event_type(e.type);
+            const WindowID window_id{SDL_GetWindowFromID(e.window.windowID)};
+            return std::make_unique<WindowEvent>(window_event_type, window_id);
         }
         else {
             return nullptr;
