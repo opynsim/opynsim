@@ -84,7 +84,7 @@ namespace
 
     void mesh_set_vertices_impl(
         osc::Mesh& mesh,
-        nb::ndarray<nb::ro, nb::shape<-1, 3>, nb::c_contig, nb::device::cpu> input)
+        const nb::ndarray<nb::ro, nb::shape<-1, 3>, nb::c_contig, nb::device::cpu>& input)
     {
         const size_t num_vertices = input.shape(0);
 
@@ -150,7 +150,7 @@ namespace
 
     void mesh_set_faces_impl(
         osc::Mesh& mesh,
-        nb::ndarray<nb::ro, nb::shape<-1>, nb::c_contig, nb::device::cpu> input)
+        const nb::ndarray<nb::ro, nb::shape<-1>, nb::c_contig, nb::device::cpu>& input)
     {
         const size_t num_faces = input.shape(0);
 
