@@ -120,6 +120,51 @@ namespace
         }
     }
 
+    nb::ndarray<nb::numpy, const int32_t, nb::shape<-1>> mesh_faces_impl(
+        const osc::Mesh& mesh)
+    {
+        // Read the `Mesh`'s indices into a pointer that can be put into a capsule
+        const auto indices_view = mesh.indices();
+        auto faces = std::make_unique<std::vector<int32_t>>();
+        faces->reserve(indices_view.size());
+        for (const auto& index : indices_view) {
+            faces->emplace_back(index);
+        }
+
+        const int32_t* faces_ptr = faces->data();
+        const size_t size = faces->size();
+
+        return {faces_ptr, {size}, to_capsule(std::move(faces))};
+    }
+
+    template<typename To, typename From>
+    void mesh_assign_converted_indices(osc::Mesh& mesh, std::span<const From> from)
+    {
+        std::vector<To> data;
+        data.reserve(from.size());
+        for (const From& face : from) {
+            data.emplace_back(static_cast<To>(face));
+        }
+        mesh.set_indices(data);
+    }
+
+    void mesh_set_faces_impl(
+        osc::Mesh& mesh,
+        nb::ndarray<nb::ro, nb::shape<-1>, nb::c_contig, nb::device::cpu> input)
+    {
+        const size_t num_faces = input.shape(0);
+
+        if (input.dtype() == nb::dtype<int32_t>()) {
+            const std::span<const int32_t> faces{static_cast<const int32_t*>(input.data()), num_faces};
+            mesh_assign_converted_indices<uint32_t>(mesh, faces);
+        } else if (input.dtype() == nb::dtype<int64_t>()) {
+            const std::span<const int64_t> faces{static_cast<const int64_t*>(input.data()), num_faces};
+            mesh_assign_converted_indices<uint32_t>(mesh, faces);
+        } else {
+            throw nb::type_error("Unsupported array type! The faces property only accepts int32/int64 data types.");
+        }
+    }
+
     void def_texture2d(nanobind::module_& graphics_module)
     {
         nb::class_<osc::Texture2D> texture2d_class(
@@ -172,7 +217,16 @@ namespace
             mesh_set_vertices_impl,
             nb::rv_policy::move,
             R"(
-                Gets the vertices of the mesh as an Nx3 ndarray.
+                Gets/sets the vertices of the mesh as an Nx3 ndarray.
+            )"
+        );
+        mesh_class.def_prop_rw(
+            "faces",
+            mesh_faces_impl,
+            mesh_set_faces_impl,
+            nb::rv_policy::move,
+            R"(
+                Gets/sets the faces (indices) of the mesh as an 1-dimensional ndarray.
             )"
         );
     }
