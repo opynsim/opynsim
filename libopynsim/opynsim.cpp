@@ -363,3 +363,8 @@ osc::Mesh opyn::read_obj(const std::filesystem::path& source)
 {
     return LoadMeshViaSimbody(source);
 }
+
+osc::Mesh opyn::read_stl(const std::filesystem::path& source)
+{
+    return LoadMeshViaSimbody(source);
+}

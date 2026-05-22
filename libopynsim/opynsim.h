@@ -82,4 +82,8 @@ namespace opyn
     /// Returns a `Mesh` parsed from `source`, throws if there's an IO or
     /// data validation error.
     osc::Mesh read_obj(const std::filesystem::path& source);
+
+    /// Returns a `Mesh` parsed from `source`, throws if there's an IO or
+    /// data validation error.
+    osc::Mesh read_stl(const std::filesystem::path& source);
 }

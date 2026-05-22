@@ -361,7 +361,7 @@ TEST(opynsim, read_vtp_works_for_triangle)
 
     const osc::Mesh mesh = read_vtp(opynsim_tests_resources_directory() / "Documents/triangle.vtp");
     const std::vector<osc::Vector3f> expected_vertices = {
-        {-1.0f, -1.0f, 0   },
+        {-1.0f, -1.0f, 0.0f},
         { 1.0f, -1.0f, 0.0f},
         { 0.0f,  1.0f, 0.0f},
     };
@@ -385,7 +385,31 @@ TEST(opynsim, read_obj_works_for_triangle)
 
     const osc::Mesh mesh = read_obj(opynsim_tests_resources_directory() / "Documents/triangle.obj");
     const std::vector<osc::Vector3f> expected_vertices = {
-        {-1.0f, -1.0f, 0   },
+        {-1.0f, -1.0f, 0.0f},
+        { 1.0f, -1.0f, 0.0f},
+        { 0.0f,  1.0f, 0.0f},
+    };
+
+    ASSERT_EQ(mesh.num_vertices(), expected_vertices.size());
+    ASSERT_EQ(mesh.num_indices(), 3);
+    ASSERT_EQ(mesh.topology(), osc::MeshTopology::Triangles);
+    ASSERT_EQ(mesh.vertices(), expected_vertices);
+}
+
+TEST(opynsim, read_stl_works_for_minimal_example)
+{
+    opyn::init();
+
+    ASSERT_NO_THROW({ read_stl(opynsim_tests_resources_directory() / "Documents/minimal.stl"); });
+}
+
+TEST(opynsim, read_stl_works_for_a_triangle)
+{
+    opyn::init();
+
+    const osc::Mesh mesh = read_stl(opynsim_tests_resources_directory() / "Documents/triangle.stl");
+    const std::vector<osc::Vector3f> expected_vertices = {
+        {-1.0f, -1.0f, 0.0f},
         { 1.0f, -1.0f, 0.0f},
         { 0.0f,  1.0f, 0.0f},
     };

@@ -719,6 +719,10 @@ private:
 }
 
 void PolygonalMesh::loadStlFile(const String& pathname) {
+    // Ensure the handle is initialized before this parser attempts to
+    // manipulate it.
+    initializeHandleIfEmpty();
+
     bool isAbsolutePath;
     std::string directory, fileName, extension;
     Pathname::deconstructPathname(pathname, isAbsolutePath,
