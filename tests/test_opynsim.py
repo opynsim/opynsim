@@ -88,3 +88,14 @@ def test_read_obj_can_read_a_basic_obj_file():
     assert vertices.shape == (3, 3)
     assert np.array_equal(vertices, np.array([[-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 1.0, 0.0]]))
     assert np.array_equal(faces, np.array([0, 1, 2]))
+
+def test_read_stl_can_read_a_basic_stl_file():
+    mesh = opynsim.read_stl(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/triangle.stl")
+    vertices = mesh.vertices
+    faces = mesh.faces
+
+    assert vertices.dtype == np.float32
+    assert faces.dtype == np.int32
+    assert vertices.shape == (3, 3)
+    assert np.array_equal(vertices, np.array([[-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 1.0, 0.0]]))
+    assert np.array_equal(faces, np.array([0, 1, 2]))
