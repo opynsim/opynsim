@@ -30,7 +30,7 @@ def test_read_sto_can_read_and_print_a_basic_sto_file():
 """
 
 def test_read_mot_can_read_and_print_a_basic_mot_file():
-    df = opynsim.read_sto(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/mot/one_data_column.mot")
+    df = opynsim.read_sto(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/one_data_column.mot")
 
     repr_printed = repr(df)
     stringified = str(df)
@@ -43,7 +43,7 @@ def test_read_mot_can_read_and_print_a_basic_mot_file():
 """
 
 def test_read_trc_can_read_and_print_a_minimal_trc_file():
-    df = opynsim.read_trc(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/trc/minimal.trc")
+    df = opynsim.read_trc(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/minimal.trc")
     repr_printed = repr(df)
     stringified = str(df)
 
@@ -55,7 +55,7 @@ def test_read_trc_can_read_and_print_a_minimal_trc_file():
 """
 
 def test_read_csv_can_read_and_print_a_basic_csv_file():
-    df = opynsim.read_csv(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/csv/two_rows.csv")
+    df = opynsim.read_csv(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/two_rows.csv")
     repr_printed = repr(df)
     stringified = str(df)
 
@@ -68,7 +68,7 @@ def test_read_csv_can_read_and_print_a_basic_csv_file():
 """
 
 def test_read_vtp_can_read_a_basic_vtp_file():
-    mesh = opynsim.read_vtp(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/vtp/triangle.vtp")
+    mesh = opynsim.read_vtp(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/triangle.vtp")
     vertices = mesh.vertices
     faces = mesh.faces
 

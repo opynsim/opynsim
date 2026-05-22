@@ -196,14 +196,14 @@ TEST(opynsim, read_mot_works_on_minimal_example)
 {
     opyn::init();
 
-    ASSERT_NO_THROW({ read_mot(opynsim_tests_resources_directory() / "Documents/mot/minimal.mot"); });
+    ASSERT_NO_THROW({ read_mot(opynsim_tests_resources_directory() / "Documents/minimal.mot"); });
 }
 
 TEST(opynsim, read_mot_columns_returns_time_column_for_minimal_example)
 {
     opyn::init();
 
-    const DataFrame df = read_mot(opynsim_tests_resources_directory() / "Documents/mot/minimal.mot");
+    const DataFrame df = read_mot(opynsim_tests_resources_directory() / "Documents/minimal.mot");
     const std::vector<std::string> expected = {"time"};
 
     ASSERT_EQ(df.columns(), expected);
@@ -213,7 +213,7 @@ TEST(opynsim, read_mot_parses_one_data_column_correctly)
 {
     opyn::init();
 
-    const DataFrame df = read_mot(opynsim_tests_resources_directory() / "Documents/mot/one_data_column.mot");
+    const DataFrame df = read_mot(opynsim_tests_resources_directory() / "Documents/one_data_column.mot");
     const std::vector<std::string> expected_columns = {"time", "column1"};
     const std::unordered_map<std::string, std::string> expected_attrs = {{"header", "meta isn't a thing in OpenSim's mot file parser?"}};
     const std::tuple<size_t, size_t> expected_shape = {1, 2};
@@ -227,14 +227,14 @@ TEST(opynsim, read_trc_works_on_minimal_example)
 {
     opyn::init();
 
-    ASSERT_NO_THROW({ read_trc(opynsim_tests_resources_directory() / "Documents/trc/minimal.trc"); });
+    ASSERT_NO_THROW({ read_trc(opynsim_tests_resources_directory() / "Documents/minimal.trc"); });
 }
 
 TEST(opynsim, read_trc_prints_expected_pretty_printed_string_for_minimal_example)
 {
     opyn::init();
 
-    const DataFrame df = read_trc(opynsim_tests_resources_directory() / "Documents/trc/minimal.trc");
+    const DataFrame df = read_trc(opynsim_tests_resources_directory() / "Documents/minimal.trc");
     const std::string got = osc::stream_to_string(df);
     const std::string_view expected = R"(shape: (1, 4)
 | time | Marker1_x | Marker1_y | Marker1_z |
@@ -248,7 +248,7 @@ TEST(opynsim, read_trc_parses_leg39_swing_short_trc_correctly)
 {
     opyn::init();
 
-    const DataFrame df = read_trc(opynsim_tests_resources_directory() / "Documents/trc/leg39_swing_short.trc");
+    const DataFrame df = read_trc(opynsim_tests_resources_directory() / "Documents/leg39_swing_short.trc");
     const auto raw_column_names = std::to_array<std::string_view>({
         "R.ASIS",
         "L.ASIS",
@@ -311,14 +311,14 @@ TEST(opynsim, read_csv_works_on_minimal_example)
 {
     opyn::init();
 
-    ASSERT_NO_THROW({ read_csv(opynsim_tests_resources_directory() / "Documents/csv/minimal.csv"); });
+    ASSERT_NO_THROW({ read_csv(opynsim_tests_resources_directory() / "Documents/minimal.csv"); });
 }
 
 TEST(opynsim, read_csv_prints_expected_pretty_printed_string_for_minimal_example)
 {
     opyn::init();
 
-    const DataFrame df = read_csv(opynsim_tests_resources_directory() / "Documents/csv/minimal.csv");
+    const DataFrame df = read_csv(opynsim_tests_resources_directory() / "Documents/minimal.csv");
     const std::string got = osc::stream_to_string(df);
     const std::string_view expected = R"(shape: (1, 2)
 | time | header1 |
@@ -333,7 +333,7 @@ TEST(opynsim, read_csv_works_for_two_row_example)
 {
     opyn::init();
 
-    const DataFrame df = read_csv(opynsim_tests_resources_directory() / "Documents/csv/two_rows.csv");
+    const DataFrame df = read_csv(opynsim_tests_resources_directory() / "Documents/two_rows.csv");
     const std::vector<std::string> expected_columns = {"time", "x", "y", "z"};
     const std::vector<double> expected_times = {1.0, 2.0};
 
@@ -348,7 +348,7 @@ TEST(opynsim, read_vtp_works_for_minimal_example)
 {
     opyn::init();
 
-    const osc::Mesh mesh = read_vtp(opynsim_tests_resources_directory() / "Documents/vtp/minimal.vtp");
+    const osc::Mesh mesh = read_vtp(opynsim_tests_resources_directory() / "Documents/minimal.vtp");
 
     ASSERT_EQ(mesh.num_vertices(), 1);
     ASSERT_EQ(mesh.num_indices(), 0);
@@ -359,7 +359,7 @@ TEST(opynsim, read_vtp_works_for_triangle)
 {
     opyn::init();
 
-    const osc::Mesh mesh = read_vtp(opynsim_tests_resources_directory() / "Documents/vtp/triangle.vtp");
+    const osc::Mesh mesh = read_vtp(opynsim_tests_resources_directory() / "Documents/triangle.vtp");
     const std::vector<osc::Vector3f> expected_vertices = {
         {-1.0f, -1.0f, 0   },
         { 1.0f, -1.0f, 0.0f},
