@@ -88,7 +88,8 @@ namespace
         {
             osc::log_message(
                 osc::to<osc::LogLevel>(msg.level),
-                osc::to<std::string>(msg.payload)
+                "%s",
+                osc::to<std::string>(msg.payload).c_str()
             );
         }
         void flush_() override {}
