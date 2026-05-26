@@ -16,6 +16,7 @@
 #include <jam-plugin/Smith2018ArticularContactForce.h>
 #include <jam-plugin/Smith2018ContactMesh.h>
 #include <liboscar/formats/csv.h>
+#include <liboscar/formats/image.h>
 #include <liboscar/platform/log.h>
 #include <liboscar/utilities/conversion.h>
 
@@ -27,6 +28,7 @@
 #include <clocale>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <locale>
 #include <sstream>
@@ -367,4 +369,16 @@ osc::Mesh opyn::read_obj(const std::filesystem::path& source)
 osc::Mesh opyn::read_stl(const std::filesystem::path& source)
 {
     return LoadMeshViaSimbody(source);
+}
+
+osc::Texture2D opyn::read_png(const std::filesystem::path& source)
+{
+    std::ifstream ifs{source, std::ios::in | std::ios::binary};
+    if (not ifs) {
+        std::stringstream ss;
+        ss << source << ": Error opening input file";
+        throw std::runtime_error{std::move(ss).str()};
+    }
+
+    return osc::Image::read_into_texture(ifs, source.filename().string(), osc::ColorSpace::sRGB);
 }

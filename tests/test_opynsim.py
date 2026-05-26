@@ -99,3 +99,10 @@ def test_read_stl_can_read_a_basic_stl_file():
     assert vertices.shape == (3, 3)
     assert np.array_equal(vertices, np.array([[-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 1.0, 0.0]]))
     assert np.array_equal(faces, np.array([0, 1, 2]))
+
+def test_read_png_can_read_minimal_png_file():
+    png = opynsim.read_png(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/minimal.png")
+    pixels = png.pixels_rgba32()
+
+    assert pixels.shape == (1, 1, 4)
+    assert np.array_equal(pixels[0, 0], np.array([255, 255, 255, 255]))

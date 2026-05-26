@@ -516,5 +516,18 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
                     RuntimeError: If the file cannot be found, read, or is invalid.
             )"
         );
+
+        _core_module.def(
+            "read_png",
+            [](const std::filesystem::path& source) { return opyn::read_png(source); },
+            nb::arg("source"),
+            R"(
+                Returns a :class:`graphics.Texture2D` parsed from a ``.png`` file on the caller's
+                filesystem.
+
+                Raises:
+                    RuntimeError: If the file cannot be found, read, or is invalid.
+            )"
+        );
     }
 }

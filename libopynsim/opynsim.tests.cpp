@@ -4,8 +4,12 @@
 #include <libopynsim/model_specification.h>
 
 #include <gtest/gtest.h>
+#include <liboscar/graphics/color.h>
 #include <liboscar/graphics/mesh.h>
 #include <liboscar/graphics/mesh_topology.h>
+#include <liboscar/graphics/texture2d.h>
+#include <liboscar/graphics/texture_format.h>
+#include <liboscar/maths/vector.h>
 #include <liboscar/utilities/string_helpers.h>
 
 #include <array>
@@ -418,4 +422,15 @@ TEST(opynsim, read_stl_works_for_a_triangle)
     ASSERT_EQ(mesh.num_indices(), 3);
     ASSERT_EQ(mesh.topology(), osc::MeshTopology::Triangles);
     ASSERT_EQ(mesh.vertices(), expected_vertices);
+}
+
+TEST(opynsim, read_png_works_for_minimal_png_file)
+{
+    opyn::init();
+
+    const osc::Texture2D png = read_png(opynsim_tests_resources_directory() / "Documents/minimal.png");
+
+    ASSERT_EQ(png.pixel_dimensions(), osc::Vector2i(1, 1));
+    ASSERT_EQ(png.texture_format(), osc::TextureFormat::RGBA32);
+    ASSERT_EQ(png.pixels().front(), osc::Color::white());
 }
