@@ -2103,7 +2103,7 @@ private:
     // path to the directory that the application's executable is contained within
     std::filesystem::path executable_dir_ = get_current_exe_dir_and_log_it();
 
-    // path to the write-able user data directory
+    // path to the writable user data directory
     std::filesystem::path user_data_dir_ = get_current_user_dir_and_log_it(
         metadata_.organization_name(),
         metadata_.application_name()
@@ -2133,13 +2133,6 @@ private:
     // try to show when displaying the next dialog.
     std::optional<std::filesystem::path> initial_directory_to_show_fallback_;
 
-    // main application window (initialized when the user first `show`s a `Widget`).
-    OscarWindow main_window_{
-        metadata_.maximize_main_window().value_or(true),
-        metadata_.headless_mode().value_or(config_.get_value<bool>("headless_mode")),
-        metadata_.human_readable_application_name().c_str()
-    };
-
     // get performance counter frequency (for the delta clocks)
     Uint64 perf_counter_frequency_ = SDL_GetPerformanceFrequency();
 
@@ -2166,6 +2159,13 @@ private:
 
     // runtime cache of initialized singletons
     SynchronizedValue<ankerl::unordered_dense::map<TypeInfoReference, std::shared_ptr<void>>> singletons_;
+
+    // main application window (initialized when the user first `show`s a `Widget`).
+    OscarWindow main_window_{
+        metadata_.maximize_main_window().value_or(true),
+        metadata_.headless_mode().value_or(config_.get_value<bool>("headless_mode")),
+        metadata_.human_readable_application_name().c_str()
+    };
 };
 
 App& osc::App::upd()
