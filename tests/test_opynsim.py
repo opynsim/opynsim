@@ -106,3 +106,10 @@ def test_read_png_can_read_minimal_png_file():
 
     assert pixels.shape == (1, 1, 4)
     assert np.array_equal(pixels[0, 0], np.array([255, 255, 255, 255]))
+
+def test_read_png_can_read_minimal_jpeg_file():
+    jpeg = opynsim.read_png(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/minimal.jpeg")
+    pixels = jpeg.pixels_rgba32()
+
+    assert pixels.shape == (1, 1, 4)
+    assert np.array_equal(pixels[0, 0], np.array([255, 255, 255, 255]))

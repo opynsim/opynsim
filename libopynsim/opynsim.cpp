@@ -267,6 +267,18 @@ namespace
             std::move(attrs),
         };
     }
+
+    osc::Texture2D read_texture_via_oscar(const std::filesystem::path& source)
+    {
+        std::ifstream ifs{source, std::ios::in | std::ios::binary};
+        if (not ifs) {
+            std::stringstream ss;
+            ss << source << ": Error opening input file";
+            throw std::runtime_error{std::move(ss).str()};
+        }
+
+        return osc::Image::read_into_texture(ifs, source.filename().string(), osc::ColorSpace::sRGB);
+    }
 }
 
 osc::LogLevel opyn::get_log_level()
@@ -373,12 +385,10 @@ osc::Mesh opyn::read_stl(const std::filesystem::path& source)
 
 osc::Texture2D opyn::read_png(const std::filesystem::path& source)
 {
-    std::ifstream ifs{source, std::ios::in | std::ios::binary};
-    if (not ifs) {
-        std::stringstream ss;
-        ss << source << ": Error opening input file";
-        throw std::runtime_error{std::move(ss).str()};
-    }
+    return read_texture_via_oscar(source);
+}
 
-    return osc::Image::read_into_texture(ifs, source.filename().string(), osc::ColorSpace::sRGB);
+osc::Texture2D opyn::read_jpeg(const std::filesystem::path& source)
+{
+    return read_texture_via_oscar(source);
 }
