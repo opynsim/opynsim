@@ -2100,6 +2100,10 @@ private:
         metadata_.config_filename(),
     };
 
+    // ensures that the global application log is configured according to the
+    // application's configuration file
+    bool log_is_configured_ = configure_application_log(config_);
+
     // path to the directory that the application's executable is contained within
     std::filesystem::path executable_dir_ = get_current_exe_dir_and_log_it();
 
@@ -2108,10 +2112,6 @@ private:
         metadata_.organization_name(),
         metadata_.application_name()
     );
-
-    // ensures that the global application log is configured according to the
-    // application's configuration file
-    bool log_is_configured_ = configure_application_log(config_);
 
     // internal native filesystem (we know its implementation at compile-time)
     std::shared_ptr<NativeFilesystem> native_filesystem_ = std::make_shared<NativeFilesystem>(
@@ -2220,7 +2220,6 @@ osc::App::App() :
 osc::App::App(const AppMetadata& metadata)
 {
     OSC_ASSERT(g_app_global == nullptr && "cannot instantiate multiple `App` instances at the same time");
-
     impl_ = std::make_unique<AppPrivate>(metadata);
     g_app_global = this;
 }
