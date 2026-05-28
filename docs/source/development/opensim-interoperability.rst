@@ -47,7 +47,7 @@ easily be handled elsewhere.
 ========== ============== =============================================================================
 Format     Count          Comments
 ========== ============== =============================================================================
-.sto       38677 (45.6%)  OpenSim storage file. :func:`opynsim.read_sto`. Currently cannot read invalid/legacy/custom STO files that use space as a delimiter, rather than tab.
+.sto       38677 (45.6%)  OpenSim storage file. :func:`opynsim.read_sto`.
 .vtp       14333 (16.9%)  VTK PolyData mesh file. :func:`opynsim.read_vtp`. Only vertices and faces are parsed. OpenSim <= 4.5 did not read any other data types. OPynSim does not plan on expanding VTP support beyond that.
 .mot       4403 (5.2%)    OpenSim motion file. :func:`opynsim.read_mot`.
 .xml       3846 (4.5%)    Generic XML file. Use Python's in-built XML parser or a third-party library.
