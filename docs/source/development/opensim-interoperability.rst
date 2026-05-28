@@ -9,9 +9,8 @@ entirely separately from OpenSim. This enables it to have a different
 development process/cadence and API design from OpenSim. However, although
 the implementation and API may differ in the details, a major goal of
 OPynSim is to always provide strong interoperability with OpenSim's
-**data formats**, so that it's capable of reading and writing data
-that can also be used by OpenSim-compatible tools in the wider
-ecosystem.
+**data formats**, so that it's capable of both reading and writing
+data that's compatible with tools in the wider OpenSim ecosystem.
 
 .. note::
 
