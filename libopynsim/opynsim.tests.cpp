@@ -197,6 +197,20 @@ TEST(opynsim, read_sto_accepts_duplicate_time_rows)
     ASSERT_EQ(df["time"].to_list(), expected_timestamps);
 }
 
+TEST(opynsim, read_sto_flatterns_quaternion_stos)
+{
+    opyn::init();
+
+    const DataFrame df = read_sto(opynsim_tests_resources_directory() / "Documents/sto/quaternion.sto");
+    const std::vector<std::string> expected_columns = {"time", "pelvis_w", "pelvis_x", "pelvis_y", "pelvis_z"};
+    const std::vector<double> expected_timestamps = {0.0, 1.0};
+    const std::tuple<size_t, size_t> expected_shape = {2, 5};
+
+    ASSERT_EQ(df.columns(), expected_columns);
+    ASSERT_EQ(df["time"].to_list(), expected_timestamps);
+    ASSERT_EQ(df.shape(), expected_shape);
+}
+
 TEST(opynsim, read_mot_works_on_minimal_example)
 {
     opyn::init();
