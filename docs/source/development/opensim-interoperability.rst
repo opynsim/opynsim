@@ -72,3 +72,10 @@ Format     Count          Comments
 .asc       309 (0.4%)     Plaintext ASCII file. Use a text editor to read it.
 .jpg       303 (0.4%)     Joint Photographic Experts Group image file. :func:`opynsim.read_jpeg` / :func:`opynsim.read_jpg`. Can parse all of them.
 ========== ============== =============================================================================
+
+Note: ``.c3d`` files don't appear in this collection very much (167) but parsing
+them is something that the project should get around to, because motion labs tend
+to produce them internally and convert them into something OpenSim likes before
+uploading to SimTK.org
+
+
