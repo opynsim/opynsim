@@ -234,6 +234,21 @@ TEST(opynsim, read_sto_permits_legacy_delimiters)
     ASSERT_EQ(df["col1"].to_list(), expected_values);
 }
 
+TEST(opynsim, read_sto_can_read_empty_sto_files)
+{
+    // STO files in the wild can sometimes pop up that contain just the headers
+    // but no data rows. These should be accepted, rather than throwing an exception,
+    // so that the caller can at least see what headers/attrs (metadata) was parsed
+    // from the file.
+    opyn::init();
+
+    const DataFrame df = read_sto(opynsim_tests_resources_directory() / "Documents/sto/table_is_empty.sto");
+    const std::vector<std::string> expected_column_labels = {"time", "col1", "col2", "col3"};
+    ASSERT_EQ(df.height(), 0);
+    ASSERT_EQ(df.columns(), expected_column_labels);
+    ASSERT_EQ(df["time"].size(), 0);
+}
+
 TEST(opynsim, read_mot_works_on_minimal_example)
 {
     opyn::init();
