@@ -62,15 +62,15 @@ Format     Count          Comments
 .ply       1640 (1.9%)    Mesh file. Only used in one project. Use Blender/Meshlab to read it.
 .m         1505 (1.8%)    MATLAB source code. Use MATLAB to read/run it.
 .txt       1101 (1.3%)    Plaintext file. Use a text editor to read it.
-.csv       1068 (1.3%)    Comma-Separated Values file. :func:`opynsim.read_csv`. Can only parse 17 (1.5 %) of them because most have non-numeric columns (requires ``DataFrame`` update).
-.stl       694 (0.8%)     Standard Triangle Language mesh file. :func:`opynsim.read_stl`. Can parse all of them.
-.png       641 (0.8%)     Portable Network Graphics image file. :func:`opynsim.read_png`. Can parse all of them.
+.csv       1068 (1.3%)    Comma-Separated Values file. :func:`opynsim.read_csv`. Can parse 17 (1.5 %!) of them. Reason is because most of them have non-numeric columns (requires ``DataFrame`` API change).
+.stl       694 (0.8%)     Standard Triangle Language mesh file. :func:`opynsim.read_stl`. Can parse 100 % of them.
+.png       641 (0.8%)     Portable Network Graphics image file. :func:`opynsim.read_png`. Can parse 100 % of them.
 .h         634 (0.7%)     C/C++ source file. Use a suitable editor to read it.
-.obj       566 (0.7%)     Wavefront OBJ mesh file. :func:`opynsim.read_obj`. Can parse all of them.
+.obj       566 (0.7%)     Wavefront OBJ mesh file. :func:`opynsim.read_obj`. Can parse 100 % of them.
 .ds_store  502 (0.6%)     macOS hidden metadata file. Can be ignored.
 .pkl       415 (0.5%)     Python pickle file. Use Python's ``pickle`` module to read it.
 .asc       309 (0.4%)     Plaintext ASCII file. Use a text editor to read it.
-.jpg       303 (0.4%)     Joint Photographic Experts Group image file. :func:`opynsim.read_jpeg` / :func:`opynsim.read_jpg`. Can parse all of them.
+.jpg       303 (0.4%)     Joint Photographic Experts Group image file. :func:`opynsim.read_jpeg` / :func:`opynsim.read_jpg`. Can parse 100 % of them.
 ========== ============== =============================================================================
 
 Note: ``.c3d`` files don't appear in this collection very much (167) but parsing
