@@ -225,9 +225,9 @@ TEST(opynsim, read_sto_permits_legacy_delimiters)
     opyn::init();
 
     const DataFrame df = read_sto(opynsim_tests_resources_directory() / "Documents/sto/legacy_delimiters.sto");
-    std::vector<std::string> expected_column_labels = {"time", "col1"};
-    std::vector<double> expected_times = {0.654092, 0.970842, 0.981167};
-    std::vector<double> expected_values = {0.000000, 0.256537, 0.256537};
+    const std::vector<std::string> expected_column_labels = {"time", "col1"};
+    const std::vector<double> expected_times = {0.654092, 0.970842, 0.981167};
+    const std::vector<double> expected_values = {0.000000, 0.256537, 0.256537};
 
     ASSERT_EQ(df.columns(), expected_column_labels);
     ASSERT_EQ(df["time"].to_list(), expected_times);
