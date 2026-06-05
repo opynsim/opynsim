@@ -7,7 +7,6 @@
 #include <libopynsim/output_value.h>
 
 #include <ankerl/unordered_dense.h>
-#include <OpenSim/Simulation/Model/Model.h>
 #include <liboscar/graphics/scene/scene_cache.h>
 #include <liboscar/graphics/scene/scene_decoration.h>
 #include <liboscar/shims/cpp23/ranges.h>
@@ -15,6 +14,8 @@
 #include <liboscar/utilities/copy_on_upd_ptr.h>
 #include <liboscar/utilities/string_helpers.h>
 #include <liboscar/utilities/typelist.h>
+#include <OpenSim/Simulation/Model/Model.h>
+#include <OpenSim/Common/TableUtilities.h>
 
 #include <algorithm>
 #include <array>
@@ -241,6 +242,18 @@ public:
         return rv;
     }
 
+    std::unordered_map<std::string, Symbol> column_to_state_variable_mappings(const DataFrame& data_frame) const
+    {
+        const auto state_variables = model_.getStateVariableNames();
+        std::unordered_map<std::string, Symbol> rv;
+        for (const auto& column_name : data_frame.columns()) {
+            if (int idx = OpenSim::TableUtilities::findStateLabelIndex(state_variables, column_name); idx != -1) {
+                rv.insert_or_assign(column_name, Symbol{state_variables[idx]});
+            }
+        }
+        return rv;
+    }
+
     void realize(ModelState& state, ModelStateStage stage) const
     {
         switch (stage) {
@@ -341,6 +354,11 @@ opyn::ModelState opyn::Model::initial_state() const
 std::vector<std::string> opyn::Model::rotational_columns_in(const DataFrame& data_frame) const
 {
     return impl_->rotational_columns_in(data_frame);
+}
+
+std::unordered_map<std::string, Symbol> opyn::Model::column_to_state_variable_mappings(const DataFrame& data_frame) const
+{
+    return impl_->column_to_state_variable_mappings(data_frame);
 }
 
 void opyn::Model::realize(ModelState& model_state, ModelStateStage model_state_stage) const

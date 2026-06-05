@@ -34,3 +34,28 @@ TEST(Model, rotational_columns_in_returns_rotational_columns_for_pendulum_input)
 
     ASSERT_EQ(got, expected);
 }
+
+TEST(Model, column_to_state_variable_mappings_returns_empty_map_when_given_empty_data_frame)
+{
+    opyn::init();
+
+    const Model model = read_osim(opynsim_tests_resources_directory() / "pendulum/pendulum.osim").compile();
+    const DataFrame data_frame;
+
+    ASSERT_TRUE(model.column_to_state_variable_mappings(data_frame).empty());
+}
+
+TEST(Model, column_to_state_variable_mapping_returns_expected_result_for_basic_pendulum)
+{
+    opyn::init();
+
+    const Model model = read_osim(opynsim_tests_resources_directory() / "pendulum/pendulum.osim").compile();
+    const DataFrame data_frame = read_sto(opynsim_tests_resources_directory() / "pendulum/pendulum_trajectory.sto");
+    const std::unordered_map<std::string, Symbol> got = model.column_to_state_variable_mappings(data_frame);
+    const std::unordered_map<std::string, Symbol> expected = {
+        {"/jointset/pin/pin_coord_0/value", Symbol{"/jointset/pin/pin_coord_0/value"}},
+        {"/jointset/pin/pin_coord_0/speed", Symbol{"/jointset/pin/pin_coord_0/speed"}},
+    };
+
+    ASSERT_EQ(got, expected);
+}

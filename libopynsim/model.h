@@ -33,10 +33,20 @@ namespace opyn
         ModelState initial_state() const;
 
         /// Returns the names of the columns in `data_frame` that can
-        /// be associated with rotational coordinates in this `Model`.
+        /// be mapped to rotational state variables in this `Model`.
         std::vector<std::string> rotational_columns_in(const DataFrame& data_frame) const;
 
-        /// Realize `model_state` to the given `model_state_stage`.
+        /// Returns associative mappings between the names of columns in
+        /// `data_frame` and state variables (internal name) in this
+        /// `Model`, where the correspondence can be found.
+        ///
+        /// This is useful for debugging data and `states_from_data_frame`, which
+        /// uses this internally. Legacy/custom state files may contain column
+        /// headers that cannot be matched to state variables in a `Model`. This
+        /// method can help figure out where the problem is.
+        std::unordered_map<std::string, Symbol> column_to_state_variable_mappings(const DataFrame& data_frame) const;
+
+        /// Realizes `model_state` to the given `model_state_stage`.
         void realize(ModelState& model_state, ModelStateStage model_state_stage) const;
 
         size_t num_coordinates() const;
