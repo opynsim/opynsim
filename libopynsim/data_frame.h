@@ -31,6 +31,14 @@ namespace opyn
             std::unordered_map<std::string, std::string> attrs = {}
         );
 
+        /// Returns `true` all members of `lhs` compare equivalent to `rhs`.
+        ///
+        /// Note: This operator confirms to IEEE 754 and C++'s regular type invariants,
+        /// which means identity checks are non-reflexive for special values. Therefore,
+        /// if either `lhs` or `rhs` contains `NaN` values, this operator will
+        /// return `false`.
+        bool operator==(const DataFrame&) const;
+
         /// Returns this `DataFrame`'s column labels.
         std::vector<std::string> columns() const;
 
@@ -87,20 +95,10 @@ namespace opyn
         ///   caller to decide how to propagate metadata.
         DataFrame with_series(Series series) const;
     private:
-        friend bool operator==(const DataFrame&, const DataFrame&);
-
         std::vector<Series> series_;
         std::unordered_map<std::string, size_t> column_to_index_lookup_;
         std::unordered_map<std::string, std::string> attrs_;
     };
-
-    /// Returns `true` all members of `lhs` compare equivalent to `rhs`.
-    ///
-    /// Note: This operator confirms to IEEE 754 and C++'s regular type invariants,
-    /// which means identity checks are non-reflexive for special values. Therefore,
-    /// if either `lhs` or `rhs` contains `NaN` values, this operator will
-    /// return `false`.
-    bool operator==(const DataFrame& lhs, const DataFrame& rhs);
 
     /// Writes a pretty-printed representation of `data_frame` to `out`.
     std::ostream& operator<<(std::ostream& out, const DataFrame& data_frame);

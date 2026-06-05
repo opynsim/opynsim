@@ -92,6 +92,8 @@ opyn::DataFrame::DataFrame(
     attrs_{std::move(attrs)}
 {}
 
+bool opyn::DataFrame::operator==(const DataFrame&) const = default;
+
 std::vector<std::string> opyn::DataFrame::columns() const
 {
     std::vector<std::string> rv;
@@ -157,8 +159,6 @@ opyn::DataFrame opyn::DataFrame::with_series(Series series) const
     }
     return rv;
 }
-
-bool opyn::operator==(const DataFrame&, const DataFrame&)= default;
 
 std::ostream& opyn::operator<<(std::ostream& out, const DataFrame& data_frame)
 {
