@@ -69,4 +69,27 @@ TEST(Model, states_from_data_frame_works_for_basic_pendulum)
     const ModelStates model_states = model.states_from_data_frame(data_frame);
 
     ASSERT_EQ(model_states.size(), data_frame.height());
+
+    // Validate timepoints
+    {
+        std::vector<double> time_points;
+        time_points.reserve(model_states.size());
+        for (const auto& state : model_states) {
+            time_points.push_back(state.time());
+        }
+        ASSERT_EQ(time_points, data_frame["time"].to_list());
+    }
+
+    // Validate realization state
+    for (const auto& model_state : model_states) {
+        ASSERT_EQ(model_state.stage(), ModelStateStage::instance);
+    }
+
+    // Spot-check some of the states: this is based on manually scrubbing
+    // through the states in external software and reading out the outputs
+    {
+        const double v = model.get_coordinate_value(model_states.at(0), Symbol{"/jointset/pin/pin_coord_0"});
+        const double expected = osc::deg_to_rad_v<double> * 90.0;
+        ASSERT_NEAR(v, expected, 0.00000000001);
+    }
 }

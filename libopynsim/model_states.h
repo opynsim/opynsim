@@ -26,11 +26,14 @@ namespace opyn
         /// Returns the number of elements in the container.
         size_t size() const { return states_.size(); }
 
+        /// Returns a reference to the element at specified location `pos`, with bounds checking.
+        reference at(size_t pos) { return *states_.at(pos); }
+
+        /// Returns a reference to the element at specified location `pos`, with bounds checking.
+        const_reference at(size_t pos) const { return *states_.at(pos); }
+
         /// Increases the capacity of the container to a value that's greater or equal to `new_cap`.
         void reserve(size_type new_cap) { states_.reserve(new_cap); }
-
-        /// Appends a shared handle of `ModelState` to the end of the sequence.
-        void handle_push_back(shared_handle handle) { states_.push_back(std::move(handle)); }
 
         /// Appends a new `ModelState` to the end of the sequence. The `ModelState` is
         /// constructed in-place with the provided arguments.
@@ -40,6 +43,9 @@ namespace opyn
         {
             return *states_.emplace_back(std::make_shared<ModelState>(std::forward<Args>(args)...));
         }
+
+        /// Appends a shared handle of `ModelState` to the end of the sequence.
+        void handle_push_back(shared_handle handle) { states_.push_back(std::move(handle)); }
 
         /// Returns a shared handle to the element at specified location `pos`, with bounds checking.
         shared_handle handle_at(size_t pos) { return states_.at(pos); }
