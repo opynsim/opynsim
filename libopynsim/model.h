@@ -37,14 +37,22 @@ namespace opyn
         std::vector<std::string> rotational_columns_in(const DataFrame& data_frame) const;
 
         /// Returns associative mappings between the names of columns in
-        /// `data_frame` and state variables (internal name) in this
-        /// `Model`, where the correspondence can be found.
-        ///
-        /// This is useful for debugging data and `states_from_data_frame`, which
-        /// uses this internally. Legacy/custom state files may contain column
-        /// headers that cannot be matched to state variables in a `Model`. This
-        /// method can help figure out where the problem is.
+        /// `data_frame` and state variables in this `Model`, where the
+        /// correspondence can be found.
         std::unordered_map<std::string, Symbol> column_to_state_variable_mappings(const DataFrame& data_frame) const;
+
+        /// Returns `ModelStates` constructed from `data_frame`.
+        ///
+        /// Columns in `data_frame` will be mapped to state variables in this
+        /// `Model` (see: `column_to_state_variable_mappings`). Each row in
+        /// `data_frame` constructs one state in the returned `ModelStates`, in
+        /// row-order.
+        ///
+        /// If `data_frame.attrs()["inDegrees"] == "yes"` then rotational columns in
+        /// `data_frame` will be automatically converted into radians internally
+        /// (see: `rotational_columns_in`). This is to support `DataFrame`s loaded
+        /// from legacy data sources.
+        ModelStates states_from_data_frame(const DataFrame& data_frame) const;
 
         /// Realizes `model_state` to the given `model_state_stage`.
         void realize(ModelState& model_state, ModelStateStage model_state_stage) const;

@@ -59,3 +59,14 @@ TEST(Model, column_to_state_variable_mapping_returns_expected_result_for_basic_p
 
     ASSERT_EQ(got, expected);
 }
+
+TEST(Model, states_from_data_frame_works_for_basic_pendulum)
+{
+    opyn::init();
+
+    const Model model = read_osim(opynsim_tests_resources_directory() / "pendulum/pendulum.osim").compile();
+    const DataFrame data_frame = read_sto(opynsim_tests_resources_directory() / "pendulum/pendulum_trajectory.sto");
+    const ModelStates model_states = model.states_from_data_frame(data_frame);
+
+    ASSERT_EQ(model_states.size(), data_frame.height());
+}
