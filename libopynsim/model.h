@@ -33,7 +33,8 @@ namespace opyn
         ModelState initial_state() const;
 
         /// Returns the names of the columns in `data_frame` that can
-        /// be mapped to rotational state variables in this `Model`.
+        /// be mapped to rotational state variables in this `Model` in
+        /// the column-order of `data_frame`.
         std::vector<std::string> rotational_columns_in(const DataFrame& data_frame) const;
 
         /// Returns associative mappings between the names of columns in

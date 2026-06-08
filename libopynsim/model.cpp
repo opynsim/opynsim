@@ -386,7 +386,7 @@ public:
         const auto it = outputs_.find(output);
         if (it == outputs_.end()) {
             std::stringstream ss;
-            ss << static_cast<std::string>(output) << "Cannot find this output in the model";
+            ss << static_cast<std::string>(output) << ": Cannot find this output in the model";
             throw std::runtime_error{std::move(ss).str()};
         }
         return output_extraction_system().read_value(model_state.simbody_state(), *it->second);

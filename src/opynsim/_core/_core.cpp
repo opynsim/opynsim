@@ -17,8 +17,9 @@
 #include <libopynsim/opynsim.h>
 #include <libopynsim/symbol.h>
 #include <nanobind/nanobind.h>
-#include <nanobind/stl/filesystem.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/filesystem.h>
+#include <nanobind/stl/shared_ptr.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/string_view.h>
 #include <nanobind/stl/unordered_map.h>
@@ -232,6 +233,55 @@ namespace {
             )"
         );
         model_class.def(
+            "column_to_state_variable_mappings",
+            &Model::column_to_state_variable_mappings,
+            nb::arg("data_frame"),
+            R"(
+                Returns associative mappings between the names of columns in
+                ``data_frame`` and state variables in this ``Model``, where
+                the correspondence can be found.
+
+                This mapping uses a variety of heuristics, including (e.g.)
+                accounting for legacy column headers supported by earlier
+                files in SIMM and OpenSim. It is how :meth:`states_from_dataframe`
+                maps dataframes into :class:`ModelState`\s, so it can be
+                useful for debugging why states aren't being read correctly.
+            )"
+        );
+        model_class.def(
+            "rotational_columns_in",
+            &Model::rotational_columns_in,
+            nb::arg("data_frame"),
+            R"(
+                Returns the names of columns in ``data_frame`` that can be
+                mapped to rotational state variables in this ``Model`` in
+                the column-order of ``data_frame``.
+
+                This is how :meth:`states_from_dataframe` automatically converts
+                degrees to radians when ``data_frame.attrs["inDegrees"] == "yes"``,
+                so it can be useful for debugging why states aren't
+                being read correctly.
+            )"
+        );
+        model_class.def(
+            "states_from_dataframe",
+            &Model::states_from_data_frame,
+            nb::arg("data_frame"),
+            R"(
+                Returns :class:`ModelStates` constructed from ``data_frame``.
+
+                Columns in ``data_frame`` will be mapped to state variables in
+                this ``Model`` (see: :meth:`column_to_state_variable_mappings`). Each
+                row in ``data_frame`` constructs one :class:`ModelState` in the returned
+                :class:`ModelStates`, in row-order.
+
+                If ``data_frame.attrs["inDegrees"] == "yes"`` then rotational columns
+                in ``data_frame`` will be automatically converted into radians internally
+                (see: :meth:`rotational_columns_in`). This is to support :class:`DataFrame`\s
+                loaded from legacy data sources.
+            )"
+        );
+        model_class.def(
             "realize",
             &Model::realize,
             nb::arg("model_state"),
@@ -326,6 +376,44 @@ namespace {
                     A state may be realized to a later stage with :meth:`Model.realize`.
             )"
         );
+    }
+
+    void register_model_states_class(nb::module_& m)
+    {
+        nb::class_<ModelStates> cls(
+            m,
+            "ModelStates",
+            R"(
+                Represents a sequence of :class:`ModelState`\s.
+
+                ``ModelStates`` is typically returned from functions that produce sequences
+                of :class:`ModelState`\s, such as :meth:`Model.states_from_dataframe`. The
+                API of ``ModelStates`` is list-like, meaning downstream code can iterate over
+                each ``ModelState``, use ``len`` with it, randomly access a state with ``model_states[idx]``
+                and so on.
+            )"
+        );
+        cls.def(nb::init<>());
+        cls.def("__len__", &ModelStates::size);
+        cls.def("__getitem__", [](ModelStates& states, ptrdiff_t idx)
+        {
+            if (idx < 0) {
+                idx += static_cast<ptrdiff_t>(states.size());
+            }
+            return states.handle_at(idx);
+        });
+        cls.def("__getitem__", [](ModelStates& states, const nb::slice& slice)
+        {
+            const auto [start, stop, step, slice_length] = slice.compute(states.size());
+            ModelStates rv;
+            rv.reserve(slice_length);
+            for (size_t i = 0; i < slice_length; ++i) {
+                const auto cur = static_cast<size_t>(start + (static_cast<decltype(step)>(i)*step));
+                rv.handle_push_back(states.handle_at(cur));
+            }
+            return rv;
+        });
+        cls.def("to_list", &ModelStates::to_handle_list);
     }
 
     void register_model_state_stage_class(nb::module_& m)
@@ -581,6 +669,7 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
     register_model_specification_class(_core_module);
     register_model_class(_core_module);
     register_model_state_class(_core_module);
+    register_model_states_class(_core_module);
     register_model_state_stage_class(_core_module);
     register_dataframe_class(_core_module);
     register_readers(_core_module);

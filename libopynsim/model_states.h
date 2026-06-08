@@ -50,6 +50,9 @@ namespace opyn
         /// Returns a shared handle to the element at specified location `pos`, with bounds checking.
         shared_handle handle_at(size_t pos) { return states_.at(pos); }
 
+        /// Converts this `ModelStates` into a `std::vector` its `shared_handle`s.
+        std::vector<shared_handle> to_handle_list() const { return states_; }
+
     private:
         auto view() const { return states_ | std::views::transform([](const auto& handle) -> const_reference { return *handle; }); }
     public:
