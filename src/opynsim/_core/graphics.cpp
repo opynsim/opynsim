@@ -59,9 +59,10 @@ namespace
         // Cast the pixel pointer from `const Color32*` to `const uint8_t*`, so that the
         // shape of the ndarray matches how Python APIs typically expect it (`(h, w, 4)`).
         const uint8_t* pixel_pointer = std::launder(reinterpret_cast<const uint8_t*>(decoded_pixels->data()));
-
+        constexpr size_t ndim = 3;
         const auto shape = std::to_array<size_t>({ pixel_dimensions.y(), pixel_dimensions.x(), 4 });
-        return {pixel_pointer, 3, shape.data(), to_capsule(std::move(decoded_pixels))};
+
+        return {pixel_pointer, ndim, shape.data(), to_capsule(std::move(decoded_pixels))};
     }
 
     nb::ndarray<nb::numpy, const float, nb::shape<-1, 3>> mesh_vertices_impl(
