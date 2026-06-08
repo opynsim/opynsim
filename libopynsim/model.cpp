@@ -277,7 +277,7 @@ public:
         if (auto attrs = caller_data_frame.attrs(); attrs["inDegrees"] == "yes") {
             DataFrame& converted = converted_storage.emplace(caller_data_frame);
             for (const auto& rotational_column : rotational_columns_in(converted)) {
-                converted = converted.with_series(static_cast<double>(SimTK_DEGREE_TO_RADIAN) * converted[rotational_column]);
+                converted = converted.with_series(osc::deg_to_rad_v<double> * converted[rotational_column]);
             }
             attrs.erase("inDegrees");
             converted.set_attrs(std::move(attrs));
