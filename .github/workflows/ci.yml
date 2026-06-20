@@ -39,6 +39,35 @@ jobs:
           path: build/Release/*win_amd64.whl
           if-no-files-found: error
 
+  macos_amd64:
+    name: MacOS (amd64)
+    runs-on: macos-14
+    env:
+      CTEST_PARALLEL_LEVEL: 1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          architecture: 'x64'
+
+      - name: Setup Python Virtual Environment
+        run: cd ${GITHUB_WORKSPACE} && arch -x86_64 python -m venv .venv && source .venv/bin/activate && pip install -r requirements/all_requirements.txt
+
+      - name: Build Dependencies
+        run: cd ${GITHUB_WORKSPACE}/third_party && arch -x86_64 cmake --workflow --preset Release-MacOS-amd64
+
+      - name: Build Project
+        run: cd ${GITHUB_WORKSPACE} && arch -x86_64 cmake --workflow --preset Release-MacOS-arm64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: opynsim-macos-amd64-wheel
+          path: build/Release-MacOS-amd64/*macosx_14_0_x86_64.whl
+          if-no-files-found: error
+
   macos_arm64:
     name: MacOS (arm64)
     runs-on: macos-14
