@@ -20,9 +20,18 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run Build Script
+      - name: Setup Python Virtual Environment
         shell: cmd
-        run: call .\scripts\e2e_setup-and-build-windows.bat
+        run: cd %GITHUB_WORKSPACE% && python -m venv .venv && call .venv\Scripts\activate && pip install -r requirements\all_requirements.txt
+
+      - name: Build Dependencies
+        shell: cmd
+        run: cd %GITHUB_WORKSPACE%/third_party && call %GITHUB_WORKSPACE%/scripts/env_vs-x64.bat && cmake --workflow --preset Release-Windows-amd64
+
+      - name: Build Project
+        shell: cmd
+        run: |
+          cd %GITHUB_WORKSPACE% && call %GITHUB_WORKSPACE%/opynsim/scripts/env_vs-x64.bat && cmake --workflow --preset Release-Windows-amd64
 
       - uses: actions/upload-artifact@v4
         with:
