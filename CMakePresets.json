@@ -65,7 +65,8 @@
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Release-Linux-amd64/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release-Linux-amd64/install",
 
-                "OPYN_STRICT_ABI_CHECKS": "ON"
+                "OPYN_STRICT_ABI_CHECKS": "ON",
+                "OPYN_ABI_MAX_SYMBOL_VERSIONS": "GLIBCXX_3.4.22 CXXABI_1.3.11 GLIBC_2.27 GCC_4.0.0"
             }
         },
         {
