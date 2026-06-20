@@ -45,7 +45,16 @@
             "binaryDir": "${sourceDir}/../build/third_party/Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release/install",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release/install"
+            }
+        },
+        {
+            "name": "Release-Windows-amd64",
+            "inherits": ["mixin_ConfigBase"],
+            "binaryDir": "${sourceDir}/../build/third_party/Release-Windows-amd64",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release-Windows-amd64/install",
                 "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
             }
         },
@@ -90,6 +99,10 @@
             "configurePreset": "Release"
         },
         {
+            "name": "Release-Windows-amd64",
+            "configurePreset": "Release-Windows-amd64"
+        },
+        {
             "name": "Release-MacOS-amd64",
             "configurePreset": "Release-MacOS-amd64"
         },
@@ -125,6 +138,13 @@
             "steps": [
                 { "type": "configure", "name": "Release" },
                 { "type": "build",     "name": "Release" }
+            ]
+        },
+        {
+            "name": "Release-Windows-amd64",
+            "steps": [
+                { "type": "configure", "name": "Release-Windows-amd64" },
+                { "type": "build",     "name": "Release-Windows-amd64" }
             ]
         },
         {

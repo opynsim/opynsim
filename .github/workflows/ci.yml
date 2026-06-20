@@ -26,12 +26,12 @@ jobs:
 
       - name: Build Dependencies
         shell: cmd
-        run: cd %GITHUB_WORKSPACE%/third_party && call %GITHUB_WORKSPACE%/scripts/env_vs-x64.bat && cmake --workflow --preset Release
+        run: cd %GITHUB_WORKSPACE%/third_party && call %GITHUB_WORKSPACE%/scripts/env_vs-x64.bat && cmake --workflow --preset Release-Windows-amd64
 
       - name: Build Project
         shell: cmd
         run: |
-          cd %GITHUB_WORKSPACE% && call scripts/env_vs-x64.bat && cmake --workflow --preset Release
+          cd %GITHUB_WORKSPACE% && call scripts/env_vs-x64.bat && cmake --workflow --preset Release-Windows-amd64
 
       - uses: actions/upload-artifact@v4
         with:

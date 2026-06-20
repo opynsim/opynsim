@@ -64,6 +64,18 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Release/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release/install",
+
+                "OPYN_STRICT_ABI_CHECKS": "ON"
+            }
+        },
+        {
+            "name": "Release-Windows-amd64",
+            "inherits": ["mixin_ConfigBase"],
+            "binaryDir": "${sourceDir}/build/Release-Windows-amd64",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Release-Windows-amd64/install",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release-Windows-amd64/install",
                 "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded",
 
                 "OPYN_STRICT_ABI_CHECKS": "ON"
@@ -101,17 +113,18 @@
         }
     ],
     "buildPresets": [
-        { "name": "Development",         "configurePreset": "Development"         },
-        { "name": "ErrorCheck",          "configurePreset": "ErrorCheck"          },
-        { "name": "RelWithDebInfo",      "configurePreset": "RelWithDebInfo"      },
-        { "name": "Release",             "configurePreset": "Release"             },
-        { "name": "Release-MacOS-amd64", "configurePreset": "Release-MacOS-amd64" },
-        { "name": "Release-MacOS-arm64", "configurePreset": "Release-MacOS-arm64" }
+        { "name": "Development",           "configurePreset": "Development"           },
+        { "name": "ErrorCheck",            "configurePreset": "ErrorCheck"            },
+        { "name": "RelWithDebInfo",        "configurePreset": "RelWithDebInfo"        },
+        { "name": "Release",               "configurePreset": "Release"               },
+        { "name": "Release-Windows-amd64", "configurePreset": "Release-Windows-amd64" },
+        { "name": "Release-MacOS-amd64",   "configurePreset": "Release-MacOS-amd64"   },
+        { "name": "Release-MacOS-arm64",   "configurePreset": "Release-MacOS-arm64"   }
     ],
     "testPresets": [
         {
-            "name": "Development",
-            "configurePreset": "Development",
+            "name": "mixin_TestBase",
+            "hidden": true,
             "filter": {
                 "exclude": {
                     "name": "$env{OPYN_TEST_EXCLUDE_FILTER}"
@@ -119,67 +132,51 @@
             },
             "output": {"outputOnFailure": true},
             "execution": {"noTestsAction": "error"}
+        },
+        {
+            "name": "Development",
+            "configurePreset": "Development",
+            "inherits": ["mixin_TestBase"]
         },
         {
             "name": "ErrorCheck",
             "configurePreset": "ErrorCheck",
-            "filter": {
-                "exclude": {
-                    "name": "$env{OPYN_TEST_EXCLUDE_FILTER}"
-                }
-            },
-            "output": {"outputOnFailure": true},
-            "execution": {"noTestsAction": "error"}
+            "inherits": ["mixin_TestBase"]
         },
         {
             "name": "RelWithDebInfo",
             "configurePreset": "RelWithDebInfo",
-            "filter": {
-                "exclude": {
-                    "name": "$env{OPYN_TEST_EXCLUDE_FILTER}"
-                }
-            },
-            "output": {"outputOnFailure": true},
-            "execution": {"noTestsAction": "error"}
+            "inherits": ["mixin_TestBase"]
         },
         {
             "name": "Release",
             "configurePreset": "Release",
-            "filter": {
-                "exclude": {
-                    "name": "$env{OPYN_TEST_EXCLUDE_FILTER}"
-                }
-            },
-            "output": {"outputOnFailure": true},
-            "execution": {"noTestsAction": "error"}
+            "inherits": ["mixin_TestBase"]
+        },
+        {
+            "name": "Release-Windows-amd64",
+            "configurePreset": "Release-Windows-amd64",
+            "inherits": ["mixin_TestBase"]
         },
         {
             "name": "Release-MacOS-amd64",
             "configurePreset": "Release-MacOS-amd64",
-            "filter": {
-                "exclude": {
-                    "name": "$env{OPYN_TEST_EXCLUDE_FILTER}"
-                }
-            },
-            "output": {"outputOnFailure": true},
-            "execution": {"noTestsAction": "error"}
+            "inherits": ["mixin_TestBase"]
         },
         {
             "name": "Release-MacOS-arm64",
             "configurePreset": "Release-MacOS-arm64",
-            "filter": {
-                "exclude": {
-                    "name": "$env{OPYN_TEST_EXCLUDE_FILTER}"
-                }
-            },
-            "output": {"outputOnFailure": true},
-            "execution": {"noTestsAction": "error"}
+            "inherits": ["mixin_TestBase"]
         }
     ],
     "packagePresets": [
         {
             "name": "Release",
             "configurePreset": "Release"
+        },
+        {
+            "name": "Release-Windows-amd64",
+            "configurePreset": "Release-Windows-amd64"
         },
         {
             "name": "Release-MacOS-amd64",
@@ -222,6 +219,15 @@
                 { "type": "build", "name": "Release" },
                 { "type": "test", "name": "Release" },
                 { "type": "package", "name": "Release" }
+            ]
+        },
+        {
+            "name": "Release-Windows-amd64",
+            "steps": [
+                { "type": "configure", "name": "Release-Windows-amd64" },
+                { "type": "build", "name": "Release-Windows-amd64" },
+                { "type": "test", "name": "Release-Windows-amd64" },
+                { "type": "package", "name": "Release-Windows-amd64" }
             ]
         },
         {
