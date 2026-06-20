@@ -57,10 +57,10 @@ jobs:
         run: cd ${GITHUB_WORKSPACE} && arch -x86_64 python -m venv .venv && source .venv/bin/activate && pip install -r requirements/all_requirements.txt
 
       - name: Build Dependencies
-        run: cd ${GITHUB_WORKSPACE}/third_party && arch -x86_64 cmake --workflow --preset Release-MacOS-amd64
+        run: cd ${GITHUB_WORKSPACE}/third_party && arch -x86_64 bash -c "cmake --workflow --preset Release-MacOS-amd64"
 
       - name: Build Project
-        run: cd ${GITHUB_WORKSPACE} && arch -x86_64 cmake --workflow --preset Release-MacOS-arm64
+        run: cd ${GITHUB_WORKSPACE} && arch -x86_64 bash -c "cmake --workflow --preset Release-MacOS-arm64"
 
       - uses: actions/upload-artifact@v4
         with:
