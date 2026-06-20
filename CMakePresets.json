@@ -77,7 +77,6 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Release-Windows-amd64/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release-Windows-amd64/install",
-                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded",
 
                 "OPYN_STRICT_ABI_CHECKS": "ON"
             }
