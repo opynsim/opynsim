@@ -67,27 +67,20 @@ jobs:
           path: build/Release-MacOS-arm64/*macosx_14_0_arm64.whl
           if-no-files-found: error
 
-  manylinux_amd64:
+  almalinux18_amd64:
+    name: AlmaLinux 8 (amd64, docker)
     runs-on: ubuntu-latest
-    container:
-      image: quay.io/pypa/manylinux_2_34_x86_64
-    env:
-      # Filter out tests that require OpenGL 3.3 support (manylinux
-      # runner doesn't support it).
-      OPYN_TEST_EXCLUDE_FILTER: "RenderQueueFixture|Graphics|MaterialTest|MeshDepthWritingMaterialFixture|MeshNormalVectorsMaterialFixture|ShaderTest|RegisteredDemoTabsTest"
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Ninja
-        run: |
-          yum install -y epel-release
-          yum install -y ninja-build
+      - name: Build OS (AlmaLinux8) Docker Image
+        run: cd ${GITHUB_WORKSPACE}/docker && docker build -f almalinux8.Dockerfile -t opynsim:almalinux8 .
 
-      - name: Run Build Script
-        run: PATH=/opt/python/cp312-cp312/bin:${PATH} ./scripts/e2e_setup-and-build-unix.sh
+      - name: Setup Python Virtual Environment
+        run: docker run --rm -v ${GITHUB_WORKSPACE}:/workspace -w /workspace opynsim:almalinux8 /bin/bash -c "python3.12 -m venv .venv && source .venv/bin/activate && pip install -r requirements/all_requirements.txt"
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: opynsim-manylinux-wheel
-          path: build/Release/*manylinux_2_34_x86_64.whl
-          if-no-files-found: error
+      - name: Build Dependencies
+        run: docker run --rm -v ${GITHUB_WORKSPACE}:/workspace -w /workspace opynsim:almalinux8 /bin/bash -c "cd third_party && cmake --workflow --preset Release"
+
+      - name: Build Project
+        run: docker run --rm -v ${GITHUB_WORKSPACE}:/workspace -w /workspace opynsim:almalinux8 /bin/bash -c "xvfb-run cmake --workflow --preset Release"
