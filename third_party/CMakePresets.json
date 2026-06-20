@@ -54,7 +54,7 @@
             "binaryDir": "${sourceDir}/../build/third_party/Release-Windows-amd64",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release-Windows-amd64/install",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release-Windows-amd64/install"
             }
         },
         {
