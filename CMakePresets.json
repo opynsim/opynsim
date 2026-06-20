@@ -2,16 +2,24 @@
     "version": 6,
     "configurePresets": [
         {
-            "name": "Development",
+            "name": "mixin_ConfigBase",
+            "description": "Common base settings for all configurations",
+            "hidden": true,
             "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "OPYN_VENV": "${sourceDir}/.venv"
+            }
+        },
+        {
+            "name": "Development",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/build/Development",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Development/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Development/install",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
 
-                "OPYN_VENV": "${sourceDir}/.venv",
                 "OPYN_USE_STRICT_COMPILER_FLAGS": "ON",
                 "OPYN_FORCE_ASSERTS_ENABLED": "ON",
                 "OPYN_BUILD_OPYNSIM_DEBUGGER": "ON",
@@ -20,18 +28,16 @@
         },
         {
             "name": "ErrorCheck",
-            "generator": "Ninja",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/build/ErrorCheck",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/ErrorCheck/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/ErrorCheck/install",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
                 "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
 
-                "OPYN_VENV": "${sourceDir}/.venv",
                 "OPYN_USE_STRICT_COMPILER_FLAGS": "ON",
                 "OPYN_FORCE_ASSERTS_ENABLED": "ON",
                 "OPYN_BUILD_OPYNSIM_DEBUGGER": "ON",
@@ -40,64 +46,56 @@
         },
         {
             "name": "RelWithDebInfo",
-            "generator": "Ninja",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/build/RelWithDebInfo",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/RelWithDebInfo/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/RelWithDebInfo/install",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
 
-                "OPYN_VENV": "${sourceDir}/.venv",
                 "OPYN_STRICT_ABI_CHECKS": "OFF"
             }
         },
         {
             "name": "Release",
-            "generator": "Ninja",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/build/Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Release/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release/install",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded",
 
-                "OPYN_VENV": "${sourceDir}/.venv",
                 "OPYN_STRICT_ABI_CHECKS": "ON"
             }
         },
         {
             "name": "Release-MacOS-amd64",
-            "generator": "Ninja",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/build/Release-MacOS-amd64",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Release-MacOS-amd64/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release-MacOS-amd64/install",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_OSX_ARCHITECTURES": "x86_64",
                 "CMAKE_OSX_DEPLOYMENT_TARGET": "14.5",
                 "CMAKE_CXX_FLAGS": "-Wunguarded-availability -Werror=unguarded-availability -Werror=unguarded-availability-new",
 
-                "OPYN_VENV": "${sourceDir}/.venv",
                 "OPYN_STRICT_ABI_CHECKS": "ON"
             }
         },
         {
             "name": "Release-MacOS-arm64",
-            "generator": "Ninja",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/build/Release-MacOS-arm64",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Release-MacOS-arm64/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release-MacOS-arm64/install",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_OSX_ARCHITECTURES": "arm64",
                 "CMAKE_OSX_DEPLOYMENT_TARGET": "14.5",
                 "CMAKE_CXX_FLAGS": "-Wunguarded-availability -Werror=unguarded-availability -Werror=unguarded-availability-new",
 
-                "OPYN_VENV": "${sourceDir}/.venv",
                 "OPYN_STRICT_ABI_CHECKS": "ON"
             }
         }

@@ -2,68 +2,71 @@
     "version": 6,
     "configurePresets": [
         {
-            "name": "Development",
+            "name": "mixin_ConfigBase",
+            "description": "Common base settings for all configurations",
+            "hidden": true,
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/../build/third_party/Development",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Development/install",
                 "CMAKE_POSITION_INDEPENDENT_CODE": "ON"
             }
         },
         {
+            "name": "Development",
+            "inherits": ["mixin_ConfigBase"],
+            "binaryDir": "${sourceDir}/../build/third_party/Development",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Development/install"
+            }
+        },
+        {
             "name": "ErrorCheck",
-            "generator": "Ninja",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/../build/third_party/ErrorCheck",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/ErrorCheck/install",
                 "CMAKE_C_COMPILER": "clang",
-                "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_POSITION_INDEPENDENT_CODE": "ON"
+                "CMAKE_CXX_COMPILER": "clang++"
             }
         },
         {
             "name": "RelWithDebInfo",
-            "generator": "Ninja",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/../build/third_party/RelWithDebInfo",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/RelWithDebInfo/install",
-                "CMAKE_POSITION_INDEPENDENT_CODE": "ON"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/RelWithDebInfo/install"
             }
         },
         {
             "name": "Release",
-            "generator": "Ninja",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/../build/third_party/Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release/install",
-                "CMAKE_POSITION_INDEPENDENT_CODE": "ON",
                 "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
             }
         },
         {
             "name": "Release-MacOS-amd64",
-            "generator": "Ninja",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/../build/third_party/Release-MacOS-amd64",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release-MacOS-amd64/install",
-                "CMAKE_POSITION_INDEPENDENT_CODE": "ON",
                 "CMAKE_OSX_ARCHITECTURES": "x86_64",
                 "CMAKE_OSX_DEPLOYMENT_TARGET": "14.5"
             }
         },
         {
             "name": "Release-MacOS-arm64",
-            "generator": "Ninja",
+            "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/../build/third_party/Release-MacOS-arm64",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release-MacOS-arm64/install",
-                "CMAKE_POSITION_INDEPENDENT_CODE": "ON",
                 "CMAKE_OSX_ARCHITECTURES": "arm64",
                 "CMAKE_OSX_DEPLOYMENT_TARGET": "14.5"
             }
