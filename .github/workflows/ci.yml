@@ -39,52 +39,6 @@ jobs:
           path: build/Release/*win_amd64.whl
           if-no-files-found: error
 
-  ubuntu22_amd64:
-    name: Ubuntu 22.04 (amd64)
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: setup system
-        run: cd $GITHUB_WORKSPACE && sudo apt-get update && sudo apt-get install $(sed 's/#.*//' "docker/ubuntu22_apt.txt" | xargs)
-
-      - name: Setup Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Run Build Script
-        run: CC=gcc-12 CXX=g++-12 xvfb-run ./scripts/e2e_setup-and-build-unix.sh
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: opynsim-ubuntu22-wheel
-          path: build/Release/*manylinux_2_35_x86_64.whl
-          if-no-files-found: error
-
-  macos_amd64:
-    name: MacOS (amd64)
-    runs-on: macos-14
-    env:
-      CTEST_PARALLEL_LEVEL: 1
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python 3.12 (x86_64)
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          architecture: 'x64'
-
-      - name: Run Build Script
-        run: arch -x86_64 /usr/bin/env bash ./scripts/e2e_setup-and-build-unix.sh Release-MacOS-amd64
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: opynsim-macos-amd64-wheel
-          path: build/Release-MacOS-amd64/*macosx_14_0_x86_64.whl
-          if-no-files-found: error
-
   macos_arm64:
     name: MacOS (arm64)
     runs-on: macos-14
@@ -98,8 +52,14 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run Build Script
-        run: ./scripts/e2e_setup-and-build-unix.sh Release-MacOS-arm64
+      - name: Setup Python Virtual Environment
+        run: cd ${GITHUB_WORKSPACE} && python -m venv .venv && source .venv/bin/activate && pip install -r requirements/all_requirements.txt
+
+      - name: Build Dependencies
+        run: cd ${GITHUB_WORKSPACE}/third_party && cmake --workflow --preset Release-MacOS-amd64
+
+      - name: Build Project
+        run: cd ${GITHUB_WORKSPACE} && cmake --workflow --preset Release-MacOS-amd64
 
       - uses: actions/upload-artifact@v4
         with:
