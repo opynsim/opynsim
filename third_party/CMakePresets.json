@@ -58,17 +58,6 @@
             }
         },
         {
-            "name": "Release-MacOS-amd64",
-            "inherits": ["mixin_ConfigBase"],
-            "binaryDir": "${sourceDir}/../build/third_party/Release-MacOS-amd64",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release-MacOS-amd64/install",
-                "CMAKE_OSX_ARCHITECTURES": "x86_64",
-                "CMAKE_OSX_DEPLOYMENT_TARGET": "14.5"
-            }
-        },
-        {
             "name": "Release-MacOS-arm64",
             "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/../build/third_party/Release-MacOS-arm64",
@@ -100,10 +89,6 @@
         {
             "name": "Release-Windows-amd64",
             "configurePreset": "Release-Windows-amd64"
-        },
-        {
-            "name": "Release-MacOS-amd64",
-            "configurePreset": "Release-MacOS-amd64"
         },
         {
             "name": "Release-MacOS-arm64",
@@ -144,13 +129,6 @@
             "steps": [
                 { "type": "configure", "name": "Release-Windows-amd64" },
                 { "type": "build",     "name": "Release-Windows-amd64" }
-            ]
-        },
-        {
-            "name": "Release-MacOS-amd64",
-            "steps": [
-                { "type": "configure", "name": "Release-MacOS-amd64" },
-                { "type": "build",     "name": "Release-MacOS-amd64" }
             ]
         },
         {
