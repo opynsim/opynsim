@@ -3,6 +3,8 @@
 //     https://arrow.apache.org/docs/format/CDataInterface.html
 //     https://arrow.apache.org/docs/format/CStreamInterface.html
 
+#include <cstdint>
+
 #ifndef ARROW_C_DATA_INTERFACE
 #define ARROW_C_DATA_INTERFACE
 
