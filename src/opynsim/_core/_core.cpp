@@ -35,6 +35,7 @@
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <new>
 #include <mutex>
 #include <string>
 #include <string_view>
@@ -90,226 +91,243 @@ namespace {
         }, std::move(output_value));  // NOLINT(hicpp-move-const-arg,performance-move-const-arg)
     }
 
-    template<typename ArrowType, typename PrivateDataType>
-    void arrow_release_callback(ArrowType* ptr)
+    // Satisfied if `T` is an Arrow object (a C struct with a type-erased destructor).
+    template<typename T>
+    concept ArrowCObject = requires(T& value)
     {
-        delete static_cast<PrivateDataType*>(ptr->private_data);
-        ptr->release = nullptr;
+        std::is_trivially_constructible_v<T>;
+        std::is_trivially_destructible_v<T>;
+        { value.release(&value) };
+        { value.private_data } -> std::same_as<void*&>;
+    };
+
+    // A template function that can be instantiated to create an Arrow C release callback
+    // that `delete`s the given `PrivateDataType`.
+    template<ArrowCObject T, typename PrivateDataType>
+    void private_data_releaser(T* ptr)
+    {
+        if (ptr->release) {
+            delete static_cast<PrivateDataType*>(ptr->private_data);
+            ptr->release = nullptr;
+        }
     }
 
-    // Provides a C++-friendly wrapper around Apache Arrow's `ArrowSchema`.
-    struct ArrowSchemaWrapper : ArrowSchema {
-        explicit ArrowSchemaWrapper(const Series& series) : ArrowSchema{}
-        {
-            using PrivateData = Series;
-            auto pdata = std::make_unique<PrivateData>(series);
+    // A template function that can be instantiated to create an Arrow C callback that
+    // calls a `MemberFunction` of `PrivateData` with given `Args`.
+    template<ArrowCObject T, typename PrivateData, auto MemberFunction, typename... Args>
+    auto type_erased_callback(T* self, Args... args)
+    {
+        auto* pdata = static_cast<PrivateData*>(self->private_data);
+        return (pdata->*MemberFunction)(args...);
+    }
 
-            this->format = "g";  static_assert(std::same_as<Series::value_type, double>);
-            this->name = pdata->name().c_str();
-            this->metadata = nullptr;
-            this->flags = int64_t{0};
-            this->n_children = int64_t{0};
-            this->children = nullptr;
-            this->dictionary = nullptr;
-            this->release = arrow_release_callback<ArrowSchema, PrivateData>;
-            this->private_data = pdata.release();
-        }
-
-        explicit ArrowSchemaWrapper(const DataFrame& data_frame) : ArrowSchema{}
+    // Represents an owned handle to an `ArrowCObject`.
+    template<ArrowCObject T>
+    class ArrowHandle final {
+    public:
+        ArrowHandle() = default;
+        ArrowHandle(const ArrowHandle&) = delete;
+        ArrowHandle(ArrowHandle&& tmp) noexcept :
+            ptr_{std::exchange(tmp.ptr_, nullptr)}
+        {}
+        ~ArrowHandle() noexcept
         {
-            struct PrivateData final {
-                explicit PrivateData(const DataFrame& data_frame) :
-                    data_frame_{data_frame}
-                {
-                    children_.reserve(data_frame_.width());
-                    children_pointers_.reserve(data_frame_.width());
-                    for (const auto& series : data_frame_) {
-                        auto& wrapper = children_.emplace_back(std::make_unique<ArrowSchemaWrapper>(series));
-                        children_pointers_.push_back(wrapper.get());
-                    }
+            if (ptr_) {
+                if (ptr_->release) {
+                    ptr_->release(ptr_);
                 }
-                DataFrame data_frame_;
-                std::vector<std::unique_ptr<ArrowSchemaWrapper>> children_;
-                std::vector<ArrowSchema*> children_pointers_;
-            };
-            auto pdata = std::make_unique<PrivateData>(data_frame);
-
-            this->format = "+s";
-            this->name = "";
-            this->metadata = nullptr;
-            this->flags = int64_t{0};
-            this->n_children = static_cast<int64_t>(pdata->children_pointers_.size());
-            this->children = pdata->children_pointers_.data();
-            this->dictionary = nullptr;
-            this->release = arrow_release_callback<ArrowSchema, PrivateData>;
-            this->private_data = pdata.release();
-        }
-
-        ArrowSchemaWrapper(const ArrowSchemaWrapper&) = delete;
-        ArrowSchemaWrapper(ArrowSchemaWrapper&&) noexcept = delete;
-        ~ArrowSchemaWrapper() noexcept
-        {
-            if (this->release) {
-                this->release(this);
+                delete ptr_;
             }
         }
-        ArrowSchemaWrapper& operator=(const ArrowSchemaWrapper&) = delete;
-        ArrowSchemaWrapper& operator=(ArrowSchemaWrapper&&) noexcept = delete;
+        ArrowHandle& operator=(const ArrowHandle&) = delete;
+        ArrowHandle& operator=(ArrowHandle&& rhs) noexcept { std::swap(ptr_, rhs.ptr_); return *this; }
+
+        T* release() { return std::exchange(ptr_, nullptr); }
+        T& operator*() const { return *ptr_; }
+
+    private:
+        T* ptr_ = new T{};
     };
-    static_assert( sizeof(ArrowSchemaWrapper) ==  sizeof(ArrowSchema), "The wrapper is type-punned: it must be entirely destructible via .release and not add any new data members (add them at runtime into a `PrivateData` struct)");
-    static_assert(alignof(ArrowSchemaWrapper) >= alignof(ArrowSchema), "The wrapper is type-punned: it must be entirely destructible via .release and not add any new data members (add them at runtime into a `PrivateData` struct)");
 
-    // Provides a C++-friendly wrapper around Apache Arrow's `ArrowArray`.
-    struct ArrowArrayWrapper : ArrowArray {
-        explicit ArrowArrayWrapper(const Series& series) : ArrowArray{}
+    template<ArrowCObject T>
+    nb::capsule to_capsule(ArrowHandle<T> handle, char const* name)
+    {
+        return nb::capsule(handle.release(), name, [](void* p) noexcept { delete static_cast<T*>(p); });
+    }
+
+    // Represents a contiguous sequence of `ArrowHandle<T>`s.
+    template<ArrowCObject T>
+    class ArrowChildren final {
+    public:
+        void reserve(size_t new_cap) { handles_.reserve(new_cap); }
+        ArrowHandle<T>& emplace_back() { return handles_.emplace_back(); }
+        int64_t n_children() const { return static_cast<int64_t>(handles_.size()); }
+        T** children()
         {
-            struct PrivateData final {
-                explicit PrivateData(const Series& series) :
-                    series_{series}
-                {
-                    buffers_[0] = nullptr;          // validity bitmap (unused)
-                    buffers_[1] = series_.data();  // data pointer (float64)
-                }
-
-                Series series_;
-                std::unique_ptr<const void*[]> buffers_ = std::make_unique<const void*[]>(2);
-            };
-            auto pdata = std::make_unique<PrivateData>(series);
-
-            this->length = static_cast<int64_t>(pdata->series_.size());
-            this->null_count = 0;
-            this->offset = 0;
-            this->n_buffers = 2;
-            this->buffers = pdata->buffers_.get();
-            this->n_children = 0;
-            this->children = nullptr;
-            this->dictionary = nullptr;
-            this->release = arrow_release_callback<ArrowArray, PrivateData>;
-            this->private_data = pdata.release();
+            static_assert(sizeof(ArrowHandle<T>) == sizeof(T*));
+            static_assert(alignof(ArrowHandle<T>) == alignof(T*));
+            static_assert(std::is_standard_layout_v<ArrowHandle<T>>);
+            return handles_.empty() ? nullptr : reinterpret_cast<T**>(std::launder(handles_.data()));
         }
+    private:
+        std::vector<ArrowHandle<T>> handles_;
+    };
 
-        explicit ArrowArrayWrapper(const DataFrame& data_frame) : ArrowArray{}
-        {
-            struct PrivateData final {
-                explicit PrivateData(const DataFrame& data_frame) :
-                    data_frame_{data_frame}
-                {
-                    children_.reserve(data_frame_.width());
-                    children_pointers_.reserve(data_frame_.width());
-                    for (const auto& series : data_frame_) {
-                        auto& wrapper = children_.emplace_back(std::make_unique<ArrowArrayWrapper>(series));
-                        children_pointers_.push_back(wrapper.get());
-                    }
-                }
+    template<ArrowCObject T, typename U>
+    void arrow_assign(T&, const U&);
 
-                DataFrame data_frame_;
-                std::vector<std::unique_ptr<ArrowArrayWrapper>> children_;
-                std::vector<ArrowArray*> children_pointers_;
-                std::vector<const void*> buffers_ = {nullptr};  // validity bitmap
-            };
-            auto pdata = std::make_unique<PrivateData>(data_frame);
-
-            this->length = data_frame.height();
-            this->null_count = 0;
-            this->offset = 0;
-            this->n_buffers = pdata->buffers_.size();
-            this->buffers = pdata->buffers_.data();
-            this->n_children = static_cast<int64_t>(pdata->children_pointers_.size());
-            this->children = pdata->children_pointers_.data();
-            this->dictionary = nullptr;
-            this->release = arrow_release_callback<ArrowArray, PrivateData>;
-            this->private_data = pdata.release();
+    template<ArrowCObject T>
+    ArrowChildren<T> generate_children(const DataFrame& data_frame)
+    {
+        ArrowChildren<T> rv;
+        rv.reserve(data_frame.size());
+        for (const auto& series : data_frame) {
+            auto& handle = rv.emplace_back();
+            arrow_assign(*handle, series);
         }
-        ArrowArrayWrapper(const ArrowArrayWrapper&) = delete;
-        ArrowArrayWrapper(ArrowArrayWrapper&&) noexcept = delete;
-        ~ArrowArrayWrapper() noexcept
-        {
-            if (this->release) {
-                this->release(this);
+        return rv;
+    }
+
+    template<>
+    void arrow_assign(ArrowSchema& lhs, const Series& series)
+    {
+        using PrivateData = Series;
+        auto pdata = std::make_unique<PrivateData>(series);
+
+        lhs.format = "g";  static_assert(std::same_as<Series::value_type, double>);
+        lhs.name = pdata->name().c_str();
+        lhs.metadata = nullptr;
+        lhs.flags = int64_t{0};
+        lhs.n_children = int64_t{0};
+        lhs.children = nullptr;
+        lhs.dictionary = nullptr;
+        lhs.release = private_data_releaser<ArrowSchema, PrivateData>;
+        lhs.private_data = pdata.release();
+    }
+
+    void arrow_assign(ArrowSchema& lhs, const DataFrame& data_frame)
+    {
+        struct PrivateData {
+            explicit PrivateData(const DataFrame& data_frame) : data_frame{data_frame} {}
+
+            DataFrame data_frame;
+            ArrowChildren<ArrowSchema> children = generate_children<ArrowSchema>(data_frame);
+        };
+        auto pdata = std::make_unique<PrivateData>(data_frame);
+
+        lhs.format = "+s";
+        lhs.name = "";
+        lhs.metadata = nullptr;
+        lhs.flags = int64_t{0};
+        lhs.n_children = pdata->children.n_children();
+        lhs.children = pdata->children.children();
+        lhs.dictionary = nullptr;
+        lhs.release = private_data_releaser<ArrowSchema, PrivateData>;
+        lhs.private_data = pdata.release();
+    }
+
+    template<>
+    void arrow_assign(ArrowArray& lhs, const Series& series)
+    {
+        struct PrivateData {
+            explicit PrivateData(const Series& series) : series{series} {}
+
+            Series series;
+            std::vector<const void*> buffers = {nullptr, series.data()};  // [validity bitmap (unused), data]
+        };
+        auto pdata = std::make_unique<PrivateData>(series);
+
+        lhs.length = static_cast<int64_t>(pdata->series.size());
+        lhs.null_count = 0;
+        lhs.offset = 0;
+        lhs.n_buffers = static_cast<int64_t>(pdata->buffers.size());
+        lhs.buffers = pdata->buffers.data();
+        lhs.n_children = 0;
+        lhs.children = nullptr;
+        lhs.dictionary = nullptr;
+        lhs.release = private_data_releaser<ArrowArray, PrivateData>;
+        lhs.private_data = pdata.release();
+    }
+
+    template<>
+    void arrow_assign(ArrowArray& lhs, const DataFrame& data_frame)
+    {
+        struct PrivateData {
+            explicit PrivateData(const DataFrame& data_frame) : data_frame{data_frame} {}
+
+            DataFrame data_frame;
+            ArrowChildren<ArrowArray> children = generate_children<ArrowArray>(data_frame);
+            std::vector<const void*> buffers = {nullptr};  // [validity bitmap (unused)]
+        };
+        auto pdata = std::make_unique<PrivateData>(data_frame);
+
+        lhs.length = data_frame.height();
+        lhs.null_count = 0;
+        lhs.offset = 0;
+        lhs.n_buffers = pdata->buffers.size();
+        lhs.buffers = pdata->buffers.data();
+        lhs.n_children = pdata->children.n_children();
+        lhs.children = pdata->children.children();
+        lhs.dictionary = nullptr;
+        lhs.release = private_data_releaser<ArrowArray, PrivateData>;
+        lhs.private_data = pdata.release();
+    }
+
+    template<>
+    void arrow_assign(ArrowArrayStream& lhs, const DataFrame& data_frame)
+    {
+        struct PrivateData {
+            explicit PrivateData(const DataFrame& data_frame) :
+                data_frame_{data_frame}
+            {}
+
+            int get_schema(ArrowSchema* out)
+            {
+                last_error_.clear();
+
+                try {
+                    arrow_assign(*out, data_frame_);
+                    return 0;
+                }
+                catch (const std::bad_alloc& ex) {
+                    last_error_ = ex.what();
+                    return ENOMEM;
+                }
             }
-        }
-    };
-    static_assert( sizeof(ArrowArrayWrapper) ==  sizeof(ArrowArray), "The wrapper is type-punned: it must be entirely destructible via .release and not add any new data members (add them at runtime into a `PrivateData` struct)");
-    static_assert(alignof(ArrowArrayWrapper) >= alignof(ArrowArray), "The wrapper is type-punned: it must be entirely destructible via .release and not add any new data members (add them at runtime into a `PrivateData` struct)");
 
-    struct ArrowArrayStreamWrapper : ArrowArrayStream {
-        explicit ArrowArrayStreamWrapper(const DataFrame& data_frame) : ArrowArrayStream{}
-        {
-            struct PrivateData final {
-                explicit PrivateData(const DataFrame& data_frame) :
-                    data_frame_{data_frame}
-                {}
+            int get_next(ArrowArray* out)
+            {
+                last_error_.clear();
 
-                int get_schema(ArrowSchema& out)
-                {
-                    last_error_.clear();
-                    try {
-                        new (&out) ArrowSchemaWrapper{data_frame_};
-                        return 0;
-                    }
-                    catch (const std::bad_alloc& ex) {
-                        last_error_ = ex.what();
-                        return ENOMEM;
-                    }
+                if (std::exchange(array_already_emitted_, true)) {
+                    out->release = nullptr;  // Spec: end of stream.
+                    return 0;
                 }
 
-                int get_next(ArrowArray& out)
-                {
-                    if (std::exchange(array_already_emitted_, true)) {
-                        out.release = nullptr;
-                        return 0;
-                    }
-
-                    last_error_.clear();
-                    try {
-                        new (&out) ArrowArrayWrapper{data_frame_};
-                        OSC_ASSERT(out.release != nullptr);
-                        return 0;
-                    }
-                    catch (const std::bad_alloc& ex) {
-                        last_error_ = ex.what();
-                        return ENOMEM;
-                    }
+                try {
+                    arrow_assign(*out, data_frame_);
+                    return 0;
                 }
-                const char* get_last_error() const
-                {
-                    return last_error_.data();
+                catch (const std::bad_alloc& ex) {
+                    last_error_ = ex.what();
+                    return ENOMEM;
                 }
-
-                DataFrame data_frame_;
-                bool array_already_emitted_ = false;
-                std::string last_error_;
-            };
-
-            auto private_data = std::make_unique<PrivateData>(data_frame);
-            this->get_schema = [](ArrowArrayStream* self, ArrowSchema* out)
-            {
-                return static_cast<PrivateData*>(self->private_data)->get_schema(*out);
-            };
-            this->get_next = [](ArrowArrayStream* self, ArrowArray* out)
-            {
-                return static_cast<PrivateData*>(self->private_data)->get_next(*out);
-            };
-            this->get_last_error = [](ArrowArrayStream* self)
-            {
-                return static_cast<PrivateData*>(self->private_data)->get_last_error();
-            };
-            this->release = arrow_release_callback<ArrowArrayStream, PrivateData>;
-            this->private_data = private_data.release();
-        }
-        ArrowArrayStreamWrapper(const ArrowArrayStreamWrapper&) = delete;
-        ArrowArrayStreamWrapper(ArrowArrayStreamWrapper&&) noexcept = delete;
-        ~ArrowArrayStreamWrapper() noexcept
-        {
-            if (this->release) {
-                this->release(this);
             }
-        }
-        ArrowArrayStreamWrapper& operator=(const ArrowArrayStreamWrapper&) = delete;
-        ArrowArrayStreamWrapper& operator=(ArrowArrayStreamWrapper&&) noexcept = delete;
-    };
-    static_assert( sizeof(ArrowArrayStreamWrapper) ==  sizeof(ArrowArrayStream), "The wrapper is type-punned: it must be entirely destructible via .release and not add any new data members (add them at runtime into a `PrivateData` struct)");
-    static_assert(alignof(ArrowArrayStreamWrapper) >= alignof(ArrowArrayStream), "The wrapper is type-punned: it must be entirely destructible via .release and not add any new data members (add them at runtime into a `PrivateData` struct)");
+
+            const char* get_last_error() const { return last_error_.data(); }
+
+            DataFrame data_frame_;
+            bool array_already_emitted_ = false;
+            std::string last_error_;
+        };
+        auto pdata = std::make_unique<PrivateData>(data_frame);
+
+        lhs.get_schema     =  type_erased_callback<ArrowArrayStream, PrivateData, &PrivateData::get_schema, ArrowSchema*>;
+        lhs.get_next       =  type_erased_callback<ArrowArrayStream, PrivateData, &PrivateData::get_next, ArrowArray*>;
+        lhs.get_last_error =  type_erased_callback<ArrowArrayStream, PrivateData, &PrivateData::get_last_error>;
+        lhs.release        = private_data_releaser<ArrowArrayStream, PrivateData>;
+        lhs.private_data   = pdata.release();
+    }
 
     void register_dataframe_class(nb::module_& m)
     {
@@ -336,9 +354,9 @@ namespace {
             [](const DataFrame& data_frame,
                [[maybe_unused]] std::optional<nb::capsule> requested_schema = std::nullopt)
             {
-                static_assert(std::derived_from<ArrowArrayStreamWrapper, ArrowArrayStream>);
-                auto stream = std::make_unique<ArrowArrayStreamWrapper>(data_frame);
-                return nb::capsule{stream.release(), "arrow_array_stream", [](void* ptr) noexcept { delete static_cast<ArrowArrayStreamWrapper*>(ptr); }};
+                ArrowHandle<ArrowArrayStream> stream;
+                arrow_assign(*stream, data_frame);
+                return to_capsule(std::move(stream), "arrow_array_stream");
             },
             nb::arg("requested_schema") = std::nullopt,
             R"(
