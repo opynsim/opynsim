@@ -19,6 +19,44 @@ def test_can_default_construct_data_frame():
     assert "shape: (0, 0)" in repr(data_frame)
     assert "shape: (0, 0)" in str(data_frame)
 
+def test_data_frame_from_arrow_works_on_pandas_data_frame():
+    import pandas
+
+    pandas_df = pandas.DataFrame({
+        "col_a": [1.0, 2.0, 3.0],
+        "col_b": [4.0, 5.0, 6.0],
+    })
+
+    opynsim_df = opynsim.DataFrame.from_arrow(pandas_df)
+    assert opynsim_df.shape == pandas_df.shape
+
+def test_data_frame_from_arrow_works_on_polars_data_frame():
+    import polars
+
+    polars_df = polars.DataFrame({
+        "col_a": [1.0, 2.0, 3.0],
+        "col_b": [4.0, 5.0, 6.0],
+    })
+
+    opynsim_df = opynsim.DataFrame.from_arrow(polars_df)
+    assert opynsim_df.shape == polars_df.shape
+
+def test_data_frame_from_arrow_works_on_pyarrow_table():
+    import pyarrow as pa
+
+    pa_schema = pa.schema([
+        pa.field("col_1", pa.float64()),
+        pa.field("col_2", pa.float64()),
+    ])
+    pa_table = pa.Table.from_pydict({
+        "col_1": [100.0, 200.0],
+        "col_2": [0.001, 0.002]
+    }, schema=pa_schema)
+
+    opynsim_df = opynsim.DataFrame.from_arrow(pa_table)
+
+    assert opynsim_df.shape == pa_table.shape
+
 def test_data_frame_has__arrow_c_schema():
     data_frame = opynsim.DataFrame()
     assert hasattr(data_frame, "__arrow_c_stream__")

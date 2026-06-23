@@ -9,6 +9,7 @@
 
 #include <liboscar/utilities/assertions.h>
 #include <liboscar/utilities/enum_helpers.h>
+#include <liboscar/utilities/scope_exit.h>
 #include <liboscar/utilities/string_helpers.h>
 #include <libopynsim/platform/opynsim_app.h>
 #include <libopynsim/data_frame.h>
@@ -32,15 +33,21 @@
 #include <nanobind/stl/vector.h>
 
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <memory>
 #include <new>
 #include <mutex>
+#include <sstream>
+#include <span>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <variant>
+#include <vector>
 
 using namespace opyn;
 
@@ -121,7 +128,7 @@ namespace {
         return (pdata->*MemberFunction)(args...);
     }
 
-    // Represents an owned handle to an `ArrowCObject`.
+    // Represents a nullable owned handle to an `ArrowCObject`.
     template<ArrowCObject T>
     class ArrowHandle final {
     public:
@@ -147,6 +154,16 @@ namespace {
 
     private:
         T* ptr_ = new T{};
+    };
+
+    template<ArrowCObject T>
+    struct ArrowLifetimeWrapper final : T {
+        ArrowLifetimeWrapper() : T{} {}
+        ArrowLifetimeWrapper(const ArrowLifetimeWrapper&) = delete;
+        ArrowLifetimeWrapper(ArrowLifetimeWrapper&&) noexcept = delete;
+        ~ArrowLifetimeWrapper() noexcept { if (this->release) { this->release(this); }}
+        ArrowLifetimeWrapper& operator=(const ArrowLifetimeWrapper&) = delete;
+        ArrowLifetimeWrapper& operator=(ArrowLifetimeWrapper&&) noexcept = delete;
     };
 
     template<ArrowCObject T>
@@ -329,24 +346,131 @@ namespace {
         lhs.private_data   = pdata.release();
     }
 
+    DataFrame construct_dataframe(ArrowArrayStream& stream)
+    {
+        ArrowLifetimeWrapper<ArrowSchema> schema;
+        if (stream.get_schema(&stream, &schema) != 0) {
+            throw std::runtime_error{"Failed to get `ArrowSchema` from the provided `ArrowArrayStream`"};
+        }
+
+        // Validate top-level schema.
+        if (std::string_view{schema.format} != "+s") {
+            throw std::runtime_error{"OPynSim can only parse a table (a struct, '+s') containing float64 columns into a `DataFrame` right now - you may need to flatten and convert your columns accordingly (sorry - work in progress!)"};
+        }
+
+        // Get column names and validate each column's data type.
+        std::vector<std::string> column_names;
+        column_names.reserve(schema.n_children);
+        for (int64_t i = 0; i < schema.n_children; ++i) {
+            auto& child = schema.children[i];
+            std::string_view format{child->format};
+            if (format != "g") {
+                std::stringstream ss;
+                ss << "Child " << i << " in the provided data table has an invalid type '" << format << "' (expected: 'g' - float64): OPynSim can only parse a flat table containing float64 series right now - you may need to convert your data accordingly (sorry - work in progress!)";
+                throw std::runtime_error{std::move(ss).str()};
+            }
+            column_names.push_back(child->name ? std::string{child->name} : std::string{});
+        }
+
+        // Read `ArrowArray` (chunks) into local vector.
+        std::vector<std::vector<double>> column_data;
+        column_data.resize(schema.n_children);
+        while (true) {
+            ArrowLifetimeWrapper<ArrowArray> array;
+            OSC_ASSERT(array.release == nullptr);
+            if (stream.get_next(&stream, &array) != 0) {
+                std::stringstream ss;
+                ss << "Error encountered when reading an array stream: " << stream.get_last_error(&stream);
+                throw std::runtime_error{std::move(ss).str()};
+            }
+            if (array.release == nullptr) {
+                break;  // This is how the API communicates "done"
+            }
+
+            OSC_ASSERT(array.n_children == column_data.size() && "The number of children in an array stream doesn't match the provided schema");
+
+            // Read each child of doubles (validated above)
+            for (size_t i = 0; i < column_data.size(); ++i) {
+                auto& chunk = array.children[i];
+                if (chunk->length > 0) {
+                    std::span source_span{
+                        static_cast<const double*>(chunk->buffers[1]) + chunk->offset,
+                        static_cast<size_t>(chunk->length)
+                    };
+                    column_data[i].insert(column_data[i].end(), source_span.begin(), source_span.end());
+                }
+            }
+        }
+
+        return DataFrame{std::move(column_names), std::move(column_data)};
+    }
+
     void register_dataframe_class(nb::module_& m)
     {
         nb::class_<DataFrame> cls(m, "DataFrame", R"(
-            Represents data as a table with rows and columns (:class:`opynsim.Series`).
+            Represents data as a table containing rows and columns.
+
+            :class:`DataFrame` currently only supports storing ``float64`` data. It enforces
+            no constraints on the number/order/labels of columns, or the values it contains.
+            However, other APIs in OPynSim may enforce stronger constraints (e.g. "The
+            supplied :class:`DataFrame` must contain a series named ``time`` with strongly
+            monotonically increasing values"). In general, those constraints are checked
+            at runtime and produce a validation error, but callers are expected to handle
+            filtering/cleaning/fixing their :class:`DataFrame` accordingly.
+
+            You can construct Pandas/Polars/pyarrow ``DataFrame``\s from OPynSim's
+            :class:`DataFrame` via their respective constructors, or via helper functions
+            like ``pandas.DataFrame.from_arrow`` (see: :meth:`__arrow_c_stream__`).
+            Conversely, you can convert third-party ``DataFrame``\s into OPynSim's
+            :class:`DataFrame` with :meth:`from_arrow`.
         )");
-        cls.def(nb::init{}, "Default-constructs an empty ``DataFrame``");
+        cls.def_static(
+            "from_arrow",
+            [](nb::object data)
+            {
+                auto arrow_c_stream_method = nb::getattr(data, "__arrow_c_stream__");
+                auto method_rv = arrow_c_stream_method();
+                auto stream_capsule = nb::cast<nb::capsule>(method_rv);
+
+                const char* capsule_name = stream_capsule.name();
+                if (not (capsule_name and std::string_view{capsule_name} == "arrow_array_stream")) {
+                    throw nb::value_error("Expected capsule name 'arrow_array_stream', but got something else");
+                }
+
+                auto* stream = static_cast<ArrowArrayStream*>(stream_capsule.data());
+                if (stream == nullptr) {
+                    throw nb::value_error("Capsule from '__arrow_c_stream__' contains a null pointer");
+                }
+
+                return construct_dataframe(*stream);
+            },
+            nb::arg("data"),
+            R"(
+                Constructs a `DataFrame` from an array-like Arrow object.
+
+                This function accepts any Arrow-compatible array-like object implementing the array-streaming
+                part of the `Arrow PyCapsule Protocol <https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html>`_
+                (i.e. having an ``__arrow_c_stream__`` method).
+
+                Notably, the ``DataFrame`` classes of popular third-party dataframe libraries such
+                as `Pandas <https://pandas.pydata.org/>`_ (>= v2.2.0) and `Polars <https://pola.rs/>`_ (>= v0.20.4)
+                implement the protocol, meaning you can use this function to optimally import those ``DataFrame``\s into
+                an OPynSim :class:`DataFrame`.
+            )"
+        );
+        cls.def(nb::init{}, "Default-constructs an empty ``DataFrame``.");
         cls.def("__repr__", osc::stream_to_string<DataFrame>);
         cls.def("__str__", osc::stream_to_string<DataFrame>);
         cls.def_prop_ro(
             "attrs",
             &DataFrame::attrs,
             R"(
-                Returns the attributes (metadata) associated with this `DataFrame`.
+                Returns the attributes (metadata) associated with ``self``.
 
-                These entries are nominally metadata, but can affect the behavior of functions that
-                read data from :class:`DataFrame`\s. Notably, functions like :meth:`opynsim.Model.states_from_data_frame`
-                look for attributes like 'inDegrees' to perform on-the-fly degrees-to-radians conversions on
-                legacy data files.
+                In some cases, attributes can affect the behavior of functions that read data
+                from :class:`DataFrame`\s. Notably, functions like :meth:`opynsim.Model.states_from_data_frame` look
+                for attributes like ``'inDegrees'`` to perform on-the-fly degrees-to-radians conversions
+                on legacy data files.
             )"
         );
         cls.def(
@@ -363,7 +487,9 @@ namespace {
                 Exports this ``DataFrame`` as an ``ArrowSchema`` (see: `Apache Arrow PyCapsule Interface <https://arrow.apache.org/docs/dev/format/CDataInterface/PyCapsuleInterface.html>`_).
 
                 This is a low-level interface that other dataframe libraries (e.g. `Pandas <https://pandas.pydata.org/>`_
-                and `Polars <https://pola.rs/>`_) can use to natively (i.e. rapidly) read OPynSim's ``DataFrame``.
+                and `Polars <https://pola.rs/>`_) may use to natively read OPynSim's ``DataFrame``. For
+                example, ``polars.DataFrame.__init__`` accepts any object that implements the API, as
+                does ``pandas.DataFrame.from_arrow``.
 
                 Args:
                     requested_schema: An optional Arrow schema capsule (currently ignored).
@@ -392,7 +518,17 @@ namespace {
                 nb::object from_arrow = DataFrame.attr("from_arrow");
                 nb::object data_frame_obj = nb::cast(&data_frame, nb::rv_policy::reference);
                 return from_arrow(data_frame_obj);
-            }
+            },
+            R"(
+                Returns a ``pandas.DataFrame`` constructed from ``self``.
+
+                The ``pandas`` module is lazily ``import``\ed when this method is called. It's
+                expected that the caller's environment supplies a version of ``pandas`` that is compatible with
+                the Arrow API (>= v2.2.0). This may require additionally supplying ``pyarrow``, which
+                ``pandas`` may internally use to implement the API.
+
+                See also: :meth:`__arrow_c_stream__` and :meth:`from_arrow`.
+            )"
         );
         cls.def(
             "to_polars",
@@ -406,7 +542,16 @@ namespace {
                 nb::object from_arrow = pd.attr("from_arrow");
                 nb::object data_frame_obj = nb::cast(&data_frame, nb::rv_policy::reference);
                 return from_arrow(data_frame_obj);
-            }
+            },
+            R"(
+                Returns a ``polars.DataFrame`` constructed from ``self``.
+
+                The ``polars`` module is lazily ``import``\ed when this method is called. It's
+                expected that the callers have installed a version of ``polars`` that is compatible with
+                the Arrow API (>= v0.20.4).
+
+                See also: :meth:`__arrow_c_stream__` and :meth:`from_arrow`.
+            )"
         );
     }
 
