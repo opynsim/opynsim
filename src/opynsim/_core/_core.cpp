@@ -7,6 +7,7 @@
 #include <opynsim/_core/tps3d.h>
 #include <opynsim/_core/ui.h>
 
+#include <liboscar/utilities/assertions.h>
 #include <liboscar/utilities/enum_helpers.h>
 #include <liboscar/utilities/string_helpers.h>
 #include <libopynsim/platform/opynsim_app.h>
