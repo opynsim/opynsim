@@ -483,21 +483,20 @@ namespace {
         nb::class_<DataFrame> cls(m, "DataFrame", R"(
             Represents data as a table containing rows and columns, with metadata (:meth:`attrs`).
 
-            :class:`DataFrame` currently only supports storing ``float64`` data. It enforces
-            no constraints on the number/order/labels of columns, or the values it contains.
-            However, other APIs in OPynSim may enforce stronger constraints (e.g. "The
-            supplied :class:`DataFrame` must contain a series named ``time`` with strongly
-            monotonically increasing values"). In general, those constraints are checked
-            at runtime and produce a validation error and callers are expected to handle
-            filtering/cleaning/fixing their :class:`DataFrame` accordingly.
+            :class:`DataFrame` only supports storing ``float64`` data. It enforces no constraints
+            on the number/order/labels of columns, or the values it contains. However, other
+            APIs in OPynSim may enforce stronger constraints (e.g. "The :class:`DataFrame` supplied to
+            this solver must contain a series named ``time`` with strongly monotonically increasing
+            values"). In general, those constraints are checked at runtime and produce a validation
+            error. Callers are expected to handle filtering/cleaning/fixing their :class:`DataFrame`\s
+            accordingly.
 
-            You can construct third-party (e.g. Pandas/Polars/pyarrow) ``DataFrame``\s from
-            OPynSim's :class:`DataFrame` via their respective constructors, or via
-            helper functions like ``pandas.DataFrame.from_arrow`` (see: :meth:`__arrow_c_stream__`).
-            Conversely, you can convert third-party ``DataFrame``\s into OPynSim's
-            :class:`DataFrame` with :meth:`from_arrow` - provided the third-party ``DataFrame``
-            supports the `Arrow PyCapsule Protocol <https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html>`_
-            (many do).
+            :class:`DataFrame`'s functionality is limited to being *just* good enough for common
+            OPynSim-related tasks. However, it the `Arrow PyCapsule Protocol <https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html>`_,
+            which lets you import/export :class:`DataFrame`\s to more-comprehensive libraries (e.g.
+            :meth:`DataFrame.from_arrow`, ``pandas.DataFrame.from_arrow``, ``polars.from_arrow``,
+            ``pyarrow.table.__init__``). If you want to do some fancy data manipulation, we
+            recommend using one of those libraries.
         )");
         cls.def_static(
             "from_arrow",
@@ -533,7 +532,15 @@ namespace {
                 an OPynSim :class:`DataFrame`.
             )"
         );
-        cls.def(nb::init{}, "Default-constructs an empty ``DataFrame``.");
+        cls.def(
+            nb::init{},
+            R"(
+                Constructs an empty ``DataFrame``.
+
+                At the moment (WIP), the only way to construct a ``DataFrame`` that contains data is
+                via methods like :meth:`opynsim.read_sto`.
+            )"
+        );
         cls.def("__repr__", osc::stream_to_string<DataFrame>);
         cls.def("__str__", osc::stream_to_string<DataFrame>);
         cls.def_prop_ro(
@@ -562,16 +569,16 @@ namespace {
                 Exports this ``DataFrame`` as an ``ArrowSchema`` (see: `Apache Arrow PyCapsule Interface <https://arrow.apache.org/docs/dev/format/CDataInterface/PyCapsuleInterface.html>`_).
 
                 This is a low-level interface that other dataframe libraries (e.g. `Pandas <https://pandas.pydata.org/>`_
-                and `Polars <https://pola.rs/>`_) may use to natively read OPynSim's ``DataFrame``. For
-                example, ``polars.DataFrame.__init__`` accepts any object that implements the API, as
-                does ``pandas.DataFrame.from_arrow``.
+                and `Polars <https://pola.rs/>`_) can use to natively read :class:`DataFrame`\s. For
+                example, ``polars.DataFrame.__init__`` accepts :class:`DataFrame`\s because it implements this
+                method, as does ``pandas.DataFrame.from_arrow``.
 
-                **Note**: The implementation also exports metadata (:meth:`attrs`), but third-party libraries handle
+                **Note**: This method also exports metadata (:meth:`attrs`), but third-party libraries handle
                 metadata inconsistently. At time of writing, `PyArrow <https://arrow.apache.org/docs/python/index.html>`_
                 encodes metadata into its table schema, but `Pandas <https://pandas.pydata.org/>`_ and `Polars <https://pola.rs/>`_
-                drop it. Therefore, callers must propagate metadata manually, or adjust their :class:`DataFrame` to no
-                longer need it (e.g. call :meth:`Model.convert_data_frame_to_radians` beforehand so that
-                ``inDegrees`` is no longer relevant).
+                drop it. Therefore, we recommend that callers propagate metadata manually, or adjust their
+                :class:`DataFrame` to no need the metadata (e.g. use :meth:`Model.convert_data_frame_to_radians`
+                so that ``inDegrees`` isn't needed).
 
                 Args:
                     requested_schema: An optional Arrow schema capsule (currently ignored).
