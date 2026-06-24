@@ -219,7 +219,7 @@ TEST(append_range, works_as_expected_with_vector)
 {
     {
         std::vector<int> v;
-        append_range(v, std::initializer_list{1});
+        append_range(v, std::initializer_list<int>{1});
         const std::vector<int> expected = {1};
 
         ASSERT_EQ(v, expected);
