@@ -246,7 +246,7 @@ TEST(append_range, also_works_on_list)
 {
     std::list lst = {"how", "cute"};
     append_range(lst, std::array{"definitely", "useful?"});
-    const std::list expected = {"how", "cute", "definitely", "useful"};
+    const std::list expected = {"how", "cute", "definitely", "useful?"};
 
     ASSERT_EQ(lst, expected);
 }

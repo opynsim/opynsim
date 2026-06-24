@@ -48,6 +48,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -446,7 +447,35 @@ namespace {
             }
         }
 
-        return DataFrame{std::move(column_names), std::move(column_data)};
+        // Read metadata
+        std::unordered_map<std::string, std::string> metadata;
+        if (schema.metadata) {
+            const auto read_int32_as_size_t = [](const char*& cursor)
+            {
+                std::array<char, sizeof(int32_t)> copied_bytes{};
+                rgs::copy(std::span<const char, sizeof(int32_t)>{cursor, sizeof(int32_t)}, copied_bytes.begin());
+                cursor += sizeof(int32_t);
+                return static_cast<size_t>(std::bit_cast<int32_t>(copied_bytes));
+            };
+            const auto read_string = [&read_int32_as_size_t](const char*& cursor)
+            {
+                const size_t len = read_int32_as_size_t(cursor);
+                const std::string rv{cursor, cursor + len};
+                cursor += len;
+                return rv;
+            };
+
+            const char* cursor = schema.metadata;
+            const size_t num_kv_pairs = read_int32_as_size_t(cursor);
+            metadata.reserve(num_kv_pairs);
+            for (size_t i = 0; i < num_kv_pairs; ++i) {
+                auto k = read_string(cursor);
+                auto v = read_string(cursor);
+                metadata.try_emplace(std::move(k), std::move(v));
+            }
+        }
+
+        return DataFrame{std::move(column_names), std::move(column_data), std::move(metadata)};
     }
 
     void register_dataframe_class(nb::module_& m)

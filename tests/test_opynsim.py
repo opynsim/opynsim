@@ -29,6 +29,7 @@ def test_data_frame_from_arrow_works_on_pandas_data_frame():
 
     opynsim_df = opynsim.DataFrame.from_arrow(pandas_df)
     assert opynsim_df.shape == pandas_df.shape
+    assert "pandas" in opynsim_df.attrs, "OPynSim's DataFrame reads Pandas metadata (might be useful?)"
 
 def test_data_frame_from_arrow_works_on_polars_data_frame():
     import polars
