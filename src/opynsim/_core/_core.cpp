@@ -7,6 +7,7 @@
 #include <opynsim/_core/tps3d.h>
 #include <opynsim/_core/ui.h>
 
+#include <liboscar/utilities/algorithms.h>
 #include <liboscar/utilities/assertions.h>
 #include <liboscar/utilities/enum_helpers.h>
 #include <liboscar/utilities/scope_exit.h>
@@ -41,6 +42,7 @@
 #include <memory>
 #include <new>
 #include <mutex>
+#include <ranges>
 #include <sstream>
 #include <span>
 #include <stdexcept>
@@ -53,6 +55,7 @@
 using namespace opyn;
 
 namespace nb = nanobind;
+namespace rgs = std::ranges;
 
 namespace {
     std::unique_ptr<OPynSimApp> g_lazy_loaded_app;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -206,6 +209,45 @@ namespace {
         return rv;
     }
 
+    std::optional<std::vector<char>> encode_attrs_to_binary_string(const DataFrame& data_frame)
+    {
+        const auto attrs = data_frame.attrs();
+        if (attrs.empty()) {
+            return std::nullopt;
+        }
+
+        // Figure out the string length (single allocation).
+        const size_t buffer_len = [&attrs]
+        {
+            size_t rv = sizeof(int32_t);  // Field: the number of key-value pairs (int32).
+            for (const auto& [k, v] : attrs) {
+                rv += sizeof(int32_t);    // Field: number of bytes in key N (int32).
+                rv += k.size();           // Field: key character bytes.
+                rv += sizeof(int32_t);    // Field: the number of bytes in value N (int32).
+                rv += v.size();           // Field: value character bytes.
+            }
+            return rv;
+        }();
+
+        // Converts the size of range `r` into a sequence of native-endian int32 bytes.
+        const auto size_as_int32_bytes = [](const auto& r)
+        {
+            return std::bit_cast<std::array<char, sizeof(int32_t)>>(static_cast<int32_t>(rgs::size(r)));
+        };
+
+        // Create + encode the string
+        std::vector<char> rv;
+        rv.reserve(buffer_len);
+        osc::append_range(rv, size_as_int32_bytes(attrs));
+        for (const auto& [k, v] : attrs) {
+            osc::append_range(rv, size_as_int32_bytes(k));
+            osc::append_range(rv, k);
+            osc::append_range(rv, size_as_int32_bytes(v));
+            osc::append_range(rv, v);
+        }
+        return rv;
+    }
+
     template<>
     void arrow_assign(ArrowSchema& lhs, const Series& series)
     {
@@ -230,12 +272,13 @@ namespace {
 
             DataFrame data_frame;
             ArrowChildren<ArrowSchema> children = generate_children<ArrowSchema>(data_frame);
+            std::optional<std::vector<char>> metadata = encode_attrs_to_binary_string(data_frame);
         };
         auto pdata = std::make_unique<PrivateData>(data_frame);
 
         lhs.format = "+s";
         lhs.name = "";
-        lhs.metadata = nullptr;
+        lhs.metadata = pdata->metadata ? pdata->metadata->data() : nullptr;
         lhs.flags = int64_t{0};
         lhs.n_children = pdata->children.n_children();
         lhs.children = pdata->children.children();
@@ -409,21 +452,23 @@ namespace {
     void register_dataframe_class(nb::module_& m)
     {
         nb::class_<DataFrame> cls(m, "DataFrame", R"(
-            Represents data as a table containing rows and columns.
+            Represents data as a table containing rows and columns, with metadata (:meth:`attrs`).
 
             :class:`DataFrame` currently only supports storing ``float64`` data. It enforces
             no constraints on the number/order/labels of columns, or the values it contains.
             However, other APIs in OPynSim may enforce stronger constraints (e.g. "The
             supplied :class:`DataFrame` must contain a series named ``time`` with strongly
             monotonically increasing values"). In general, those constraints are checked
-            at runtime and produce a validation error, but callers are expected to handle
+            at runtime and produce a validation error and callers are expected to handle
             filtering/cleaning/fixing their :class:`DataFrame` accordingly.
 
-            You can construct Pandas/Polars/pyarrow ``DataFrame``\s from OPynSim's
-            :class:`DataFrame` via their respective constructors, or via helper functions
-            like ``pandas.DataFrame.from_arrow`` (see: :meth:`__arrow_c_stream__`).
+            You can construct third-party (e.g. Pandas/Polars/pyarrow) ``DataFrame``\s from
+            OPynSim's :class:`DataFrame` via their respective constructors, or via
+            helper functions like ``pandas.DataFrame.from_arrow`` (see: :meth:`__arrow_c_stream__`).
             Conversely, you can convert third-party ``DataFrame``\s into OPynSim's
-            :class:`DataFrame` with :meth:`from_arrow`.
+            :class:`DataFrame` with :meth:`from_arrow` - provided the third-party ``DataFrame``
+            supports the `Arrow PyCapsule Protocol <https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html>`_
+            (many do).
         )");
         cls.def_static(
             "from_arrow",
@@ -491,6 +536,13 @@ namespace {
                 and `Polars <https://pola.rs/>`_) may use to natively read OPynSim's ``DataFrame``. For
                 example, ``polars.DataFrame.__init__`` accepts any object that implements the API, as
                 does ``pandas.DataFrame.from_arrow``.
+
+                **Note**: The implementation also exports metadata (:meth:`attrs`), but third-party libraries handle
+                metadata inconsistently. At time of writing, `PyArrow <https://arrow.apache.org/docs/python/index.html>`_
+                encodes metadata into its table schema, but `Pandas <https://pandas.pydata.org/>`_ and `Polars <https://pola.rs/>`_
+                drop it. Therefore, callers must propagate metadata manually, or adjust their :class:`DataFrame` to no
+                longer need it (e.g. call :meth:`Model.convert_data_frame_to_radians` beforehand so that
+                ``inDegrees`` is no longer relevant).
 
                 Args:
                     requested_schema: An optional Arrow schema capsule (currently ignored).
@@ -641,7 +693,7 @@ namespace {
             m,
             "Model",
             R"(
-                A validated, optimized, compiled, and ready-to-simulate model of a physics system.
+                A compiled, ready-to-simulate, model of a physics system.
 
                 A :class:`Model` can only be created from a :class:`ModelSpecification` via the
                 :meth:`ModelSpecification.compile` function. Therefore, editing a :class:`Model` requires
@@ -720,10 +772,11 @@ namespace {
             R"(
                 Returns a new ``DataFrame`` with all rotational columns converted to radians (if applicable).
 
-                If ``data_frame.attrs["inDegrees"] == "yes"``, returns an identical clone of ``data_frame``.
-                Otherwise, creates a new :class:`DataFrame` where :meth:`rotational_columns_in` is
-                used to scale all rotational columns from degrees to radians (other columns are left unmodified).
-                The ``"inDegrees"`` key is cleared from the returned :class:`DataFrame`\'s attributes.
+                If ``data_frame.attrs["inDegrees"] != "yes"``, returns an identical clone of ``data_frame``.
+                Otherwise, creates a new :class:`DataFrame` where :meth:`rotational_columns_in` is used
+                to scale all rotational columns from degrees to radians (other columns are left
+                unmodified). The ``"inDegrees"`` key is cleared from the returned :class:`DataFrame`\'s
+                attributes.
             )"
         );
         model_class.def(

@@ -80,6 +80,7 @@ def test_data_frame_arrow_api_is_compatible_with_pyarrow():
     df = opynsim.read_sto(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/sto/double_pendulum_run.sto")
     pyarrow_table = pyarrow.table(df)
     assert pyarrow_table.shape == df.shape
+    assert pyarrow_table.schema.metadata == {k.encode(): v.encode() for k, v in df.attrs.items()}  # Metadata is propagated to PyArrow
 
 def test_data_frame_arrow_api_is_compatible_with_pandas_from_arrow():
     import pandas
@@ -88,6 +89,7 @@ def test_data_frame_arrow_api_is_compatible_with_pandas_from_arrow():
     df = opynsim.read_sto(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/sto/double_pendulum_run.sto")
     pandas_df = pandas.DataFrame.from_arrow(df)
     assert pandas_df.shape == df.shape
+    assert len(pandas_df.attrs) == 0, "Sanity check: pandas doesn't usually import the metadata, check documentation/pandas if this starts failing"
 
 def test_data_frame_to_pandas_works():
     df = opynsim.read_sto(Path(__file__).resolve().parent / "../libopynsim/tests/resources/Documents/sto/double_pendulum_run.sto")
