@@ -81,8 +81,8 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release-Windows-amd64/install",
 
                 "OPYN_STRICT_ABI_CHECKS": "ON",
-                "CMAKE_C_FLAGS": "/arch:AVX2",
-                "CMAKE_CXX_FLAGS": "/arch:AVX2"
+                "CMAKE_C_FLAGS": "/arch:AVX2 $env{CFLAGS}",
+                "CMAKE_CXX_FLAGS": "/arch:AVX2 /EHsc $env{CXXFLAGS}"
             }
         },
         {
