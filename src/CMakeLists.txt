@@ -200,15 +200,26 @@ if(TRUE)
         install(CODE "
             # This variable is automatically set to TRUE by CMake during 'cmake --install --strip' or CPack packaging
             if(CMAKE_INSTALL_DO_STRIP)
-                set(INSTALLED_MODULE \"\${CMAKE_INSTALL_PREFIX}/${OPYN_PYTHON_INSTALL_DIR}/\$<TARGET_FILE_NAME:_core>\")
-
-                message(NOTICE \"Stripping Python extension module: \${INSTALLED_MODULE}\")
-
+                # Feature-test the stripping tool (some use -x, some use --strip-unneeded)
                 execute_process(
-                    COMMAND \"${CMAKE_STRIP}\" --strip-unneeded \"\${INSTALLED_MODULE}\"
+                    COMMAND \"${CMAKE_STRIP}\" --help
+                    OUTPUT_VARIABLE STRIP_HELP_OUT
+                    ERROR_VARIABLE STRIP_HELP_ERR
+                )
+                set(STRIP_INFO \"\${STRIP_HELP_OUT}\${STRIP_HELP_ERR}\")
+                if(STRIP_INFO MATCHES \"--strip-unneeded\")
+                    set(STRIP_FLAG \"--strip-unneeded\")  # GNU stripper
+                else()
+                    set(STRIP_FLAG \"-x\")                # Mach-O, LLVM/BSD stripper
+                endif()
+                message(STATUS \"Dynamically selected strip flag: \${STRIP_FLAG}\")
+
+                set(INSTALLED_MODULE \"\${CMAKE_INSTALL_PREFIX}/${OPYN_PYTHON_INSTALL_DIR}/\$<TARGET_FILE_NAME:_core>\")
+                message(NOTICE \"Stripping Python extension module: \${INSTALLED_MODULE}\")
+                execute_process(
+                    COMMAND \"${CMAKE_STRIP}\" \"\${STRIP_FLAG}\" \"\${INSTALLED_MODULE}\"
                     RESULT_VARIABLE STRIP_RESULT
                 )
-
                 if(NOT STRIP_RESULT EQUAL 0)
                     message(FATAL_ERROR \"Failed to strip extension module: \${INSTALLED_MODULE}\")
                 endif()
