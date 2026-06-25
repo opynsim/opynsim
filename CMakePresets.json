@@ -45,25 +45,14 @@
             }
         },
         {
-            "name": "RelWithDebInfo",
-            "inherits": ["mixin_ConfigBase"],
-            "binaryDir": "${sourceDir}/build/RelWithDebInfo",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/RelWithDebInfo/install",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/RelWithDebInfo/install",
-
-                "OPYN_STRICT_ABI_CHECKS": "OFF"
-            }
-        },
-        {
             "name": "Release-Linux-amd64",
             "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/build/Release-Linux-amd64",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Release-Linux-amd64/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release-Linux-amd64/install",
+                "CPACK_STRIP_FILES": "ON",
 
                 "OPYN_STRICT_ABI_CHECKS": "ON",
                 "OPYN_ABI_MAX_SYMBOL_VERSIONS": "GLIBCXX_3.4.22 CXXABI_1.3.11 GLIBC_2.27 GCC_7.0.0",
@@ -76,9 +65,10 @@
             "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/build/Release-Windows-amd64",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Release-Windows-amd64/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release-Windows-amd64/install",
+                "CPACK_STRIP_FILES": "ON",
 
                 "OPYN_STRICT_ABI_CHECKS": "ON",
                 "CMAKE_C_FLAGS": "/arch:AVX2",
@@ -90,9 +80,10 @@
             "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/build/Release-MacOS-arm64",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Release-MacOS-arm64/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release-MacOS-arm64/install",
+                "CPACK_STRIP_FILES": "ON",
                 "CMAKE_OSX_ARCHITECTURES": "arm64",
                 "CMAKE_OSX_DEPLOYMENT_TARGET": "14.5",
                 "CMAKE_CXX_FLAGS": "-Wunguarded-availability -Werror=unguarded-availability -Werror=unguarded-availability-new",
@@ -104,7 +95,6 @@
     "buildPresets": [
         { "name": "Development",           "configurePreset": "Development"           },
         { "name": "ErrorCheck",            "configurePreset": "ErrorCheck"            },
-        { "name": "RelWithDebInfo",        "configurePreset": "RelWithDebInfo"        },
         { "name": "Release-Linux-amd64",   "configurePreset": "Release-Linux-amd64"   },
         { "name": "Release-Windows-amd64", "configurePreset": "Release-Windows-amd64" },
         { "name": "Release-MacOS-arm64",   "configurePreset": "Release-MacOS-arm64"   }
@@ -129,11 +119,6 @@
         {
             "name": "ErrorCheck",
             "configurePreset": "ErrorCheck",
-            "inherits": ["mixin_TestBase"]
-        },
-        {
-            "name": "RelWithDebInfo",
-            "configurePreset": "RelWithDebInfo",
             "inherits": ["mixin_TestBase"]
         },
         {
@@ -181,14 +166,6 @@
                 { "type": "configure", "name": "ErrorCheck" },
                 { "type": "build", "name": "ErrorCheck" },
                 { "type": "test", "name": "ErrorCheck" }
-            ]
-        },
-        {
-            "name": "RelWithDebInfo",
-            "steps": [
-                { "type": "configure", "name": "RelWithDebInfo" },
-                { "type": "build", "name": "RelWithDebInfo" },
-                { "type": "test", "name": "RelWithDebInfo" }
             ]
         },
         {

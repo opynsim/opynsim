@@ -31,20 +31,11 @@
             }
         },
         {
-            "name": "RelWithDebInfo",
-            "inherits": ["mixin_ConfigBase"],
-            "binaryDir": "${sourceDir}/../build/third_party/RelWithDebInfo",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/RelWithDebInfo/install"
-            }
-        },
-        {
             "name": "Release-Linux-amd64",
             "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/../build/third_party/Release-Linux-amd64",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release-Linux-amd64/install",
                 "CMAKE_C_FLAGS": "-march=x86-64-v3",
                 "CMAKE_CXX_FLAGS": "-march=x86-64-v3"
@@ -55,7 +46,7 @@
             "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/../build/third_party/Release-Windows-amd64",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release-Windows-amd64/install",
                 "CMAKE_C_FLAGS": "/arch:AVX2",
                 "CMAKE_CXX_FLAGS": "/arch:AVX2 /EHsc"
@@ -66,7 +57,7 @@
             "inherits": ["mixin_ConfigBase"],
             "binaryDir": "${sourceDir}/../build/third_party/Release-MacOS-arm64",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/third_party/Release-MacOS-arm64/install",
                 "CMAKE_OSX_ARCHITECTURES": "arm64",
                 "CMAKE_OSX_DEPLOYMENT_TARGET": "14.5"
@@ -81,10 +72,6 @@
         {
             "name": "ErrorCheck",
             "configurePreset": "ErrorCheck"
-        },
-        {
-            "name": "RelWithDebInfo",
-            "configurePreset": "RelWithDebInfo"
         },
         {
             "name": "Release-Linux-amd64",
@@ -112,13 +99,6 @@
             "steps": [
                 { "type": "configure", "name": "ErrorCheck" },
                 { "type": "build",     "name": "ErrorCheck" }
-            ]
-        },
-        {
-            "name": "RelWithDebInfo",
-            "steps": [
-                { "type": "configure", "name": "RelWithDebInfo" },
-                { "type": "build",     "name": "RelWithDebInfo" }
             ]
         },
         {
