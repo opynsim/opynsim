@@ -1435,7 +1435,7 @@ namespace
 // This is what "booting the application" actually initializes.
 class osc::AppPrivate final {
 public:
-    explicit AppPrivate(const AppMetadata& metadata) :  // NOLINT(modernize-pass-by-value)
+    explicit AppPrivate(const AppMetadata& metadata) :
         metadata_{metadata}
     {}
 

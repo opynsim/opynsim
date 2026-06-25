@@ -269,11 +269,11 @@ namespace {
     void arrow_assign(ArrowSchema& lhs, const DataFrame& data_frame)
     {
         struct PrivateData {
-            explicit PrivateData(DataFrame data_frame) : data_frame{std::move(data_frame)} {}
+            explicit PrivateData(const DataFrame& df) : data_frame{df} {}
 
             DataFrame data_frame;
-            ArrowChildren<ArrowSchema> children = generate_children<ArrowSchema>(data_frame);
-            std::optional<std::vector<char>> metadata = encode_attrs_to_binary_string(data_frame);
+            ArrowChildren<ArrowSchema> children = generate_children<ArrowSchema>(this->data_frame);
+            std::optional<std::vector<char>> metadata = encode_attrs_to_binary_string(this->data_frame);
         };
         auto pdata = std::make_unique<PrivateData>(data_frame);
 
@@ -292,10 +292,10 @@ namespace {
     void arrow_assign(ArrowArray& lhs, const Series& series)
     {
         struct PrivateData {
-            explicit PrivateData(Series series) : series{std::move(series)} {}
+            explicit PrivateData(const Series& s) : series{s} {}
 
             Series series;
-            std::vector<const void*> buffers = {nullptr, series.data()};  // [validity bitmap (unused), data]
+            std::vector<const void*> buffers = {nullptr, this->series.data()};  // [validity bitmap (unused), data]
         };
         auto pdata = std::make_unique<PrivateData>(series);
 
@@ -315,15 +315,15 @@ namespace {
     void arrow_assign(ArrowArray& lhs, const DataFrame& data_frame)
     {
         struct PrivateData {
-            explicit PrivateData(DataFrame data_frame) : data_frame{std::move(data_frame)} {}
+            explicit PrivateData(const DataFrame& df) : data_frame{df} {}
 
             DataFrame data_frame;
-            ArrowChildren<ArrowArray> children = generate_children<ArrowArray>(data_frame);
+            ArrowChildren<ArrowArray> children = generate_children<ArrowArray>(this->data_frame);
             std::vector<const void*> buffers = {nullptr};  // [validity bitmap (unused)]
         };
         auto pdata = std::make_unique<PrivateData>(data_frame);
 
-        lhs.length = data_frame.height();
+        lhs.length = pdata->data_frame.height();
         lhs.null_count = 0;
         lhs.offset = 0;
         lhs.n_buffers = pdata->buffers.size();
@@ -339,7 +339,7 @@ namespace {
     void arrow_assign(ArrowArrayStream& lhs, const DataFrame& data_frame)
     {
         struct PrivateData {
-            explicit PrivateData(DataFrame data_frame) : data_frame_{std::move(data_frame)} {}
+            explicit PrivateData(const DataFrame& df) : data_frame_{df} {}
 
             int get_schema(ArrowSchema* out)
             {
@@ -498,9 +498,9 @@ namespace {
         )");
         cls.def_static(
             "from_arrow",
-            [](nb::object data)
+            [](const nb::object& data)
             {
-                auto arrow_c_stream_method = nb::getattr(std::move(data), "__arrow_c_stream__");
+                auto arrow_c_stream_method = nb::getattr(data, "__arrow_c_stream__");
                 auto method_rv = arrow_c_stream_method();
                 auto stream_capsule = nb::cast<nb::capsule>(method_rv);
 
