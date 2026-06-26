@@ -430,7 +430,7 @@ namespace {
                 break;  // This is how the API communicates "done"
             }
 
-            OSC_ASSERT(array.n_children == column_data.size() && "The number of children in an array stream doesn't match the provided schema");
+            OSC_ASSERT(static_cast<size_t>(array.n_children) == column_data.size() && "The number of children in an array stream doesn't match the provided schema");
 
             // Read each child of doubles (validated above)
             for (size_t i = 0; i < column_data.size(); ++i) {
