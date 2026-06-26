@@ -54,6 +54,9 @@ function(opyn_add_strict_compiler_options_to target)
             /wd26426            # disable "global initializer calls a non-constexpr function"
             /wd26818            # disable "switch statement does not cover all cases" (triggered by googletest macros)
             /wd26414            # disable: "move, copy, reassign or reset a local smart pointer"
+            /wd26820            # disable: "this is a potentially expensive copy operation"
+            /wd26415            # disable: "smart pointer parameter is used only to access contained pointer"
+            /wd26418            # disable: "shared pointer parameter is not copied or moved"
         >
 
         # gcc/clang flags
