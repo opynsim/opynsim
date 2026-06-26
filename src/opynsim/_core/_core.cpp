@@ -964,7 +964,7 @@ namespace {
             ModelStates rv;
             rv.reserve(slice_length);
             for (size_t i = 0; i < slice_length; ++i) {
-                const auto cur = static_cast<size_t>(start + (static_cast<decltype(step)>(i)*step));
+                const auto cur = static_cast<size_t>(start + (static_cast<std::decay_t<decltype(step)>>(i)*step));
                 rv.handle_push_back(states.handle_at(cur));
             }
             return rv;
