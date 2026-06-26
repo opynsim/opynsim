@@ -1492,7 +1492,7 @@ private:
     TextureWrapMode wrap_mode_v_ = TextureWrapMode::Repeat;
     TextureWrapMode wrap_mode_w_ = TextureWrapMode::Repeat;
     TextureFilterMode filter_mode_ = TextureFilterMode::Nearest;
-    std::vector<uint8_t> pixel_data_ = std::vector<uint8_t>(num_bytes_per_pixel_in(texture_format_) * pixel_dimensions_.x() * pixel_dimensions_.y(), 0xff);
+    std::vector<uint8_t> pixel_data_ = std::vector<uint8_t>(num_bytes_per_pixel_in(texture_format_) * area_of(Vector2uz{pixel_dimensions_}), 0xff);
     float device_pixel_ratio_ = 1.0f;
     UID texture_params_version_;
     DefaultConstructOnCopy<std::optional<Texture2DOpenGLData>> maybe_opengl_data_;
@@ -6097,7 +6097,7 @@ public:
             const Vector2i pixel_dimensions = App::get().main_window_pixel_dimensions();
             const float device_pixel_ratio = App::get().main_window_device_pixel_ratio();
 
-            std::vector<uint8_t> pixels(static_cast<size_t>(4*pixel_dimensions.x()*pixel_dimensions.y()));
+            std::vector<uint8_t> pixels(4 * area_of(Vector2uz{pixel_dimensions}));
             OSC_ASSERT(is_aligned_at_least(pixels.data(), 4) && "glReadPixels must be called with a buffer that is aligned to GL_PACK_ALIGNMENT (see: https://www.khronos.org/opengl/wiki/Common_Mistakes)");
             gl::pixel_store_i(GL_PACK_ALIGNMENT, 4);
             glReadPixels(
@@ -7267,7 +7267,7 @@ std::optional<gl::FrameBuffer> osc::GraphicsBackend::bind_and_clear_render_buffe
                     glClearBufferfv(
                         GL_COLOR,
                         static_cast<GLint>(i),
-                        value_ptr(static_cast<Vector4>(color_attachment.clear_color))
+                        value_ptr(Vector4f{color_attachment.clear_color})
                     );
                 }
             }
