@@ -10,7 +10,6 @@
 #include <liboscar/utilities/algorithms.h>
 #include <liboscar/utilities/assertions.h>
 #include <liboscar/utilities/enum_helpers.h>
-#include <liboscar/utilities/scope_exit.h>
 #include <liboscar/utilities/string_helpers.h>
 #include <libopynsim/platform/opynsim_app.h>
 #include <libopynsim/data_frame.h>
@@ -644,41 +643,29 @@ namespace {
 
     void register_symbol_class(nb::module_& m)
     {
-        nb::class_<Symbol> symbol_class(
-            m,
-            "Symbol",
-            R"(
-                Represents an immutable, cheap-to-use, readable symbol.
+        nb::class_<Symbol> cls(m,"Symbol", R"(
+            Represents an immutable, cheap-to-use, readable symbol.
 
-                Symbols are extensively used by the OPynSim API to accelerate associative lookups. They are the
-                middle-ground between fast, but hard to read/introspect, integer handles and slow, simpler string
-                handles.
+            Symbols are extensively used by the OPynSim API to accelerate associative lookups. They are the
+            middle-ground between fast, but hard to read/introspect, integer handles and slow, simpler string
+            handles.
 
-                From Python code's point of view, symbols should be seen as string-like handles that OPynSim
-                accepts/emits. You can safely store symbols independently of any larger data structure, and
-                interchange them across your entire Python codebase, without having to worry about object
-                lifetimes. OPynSim's native code uses runtime-checked associative lookups, rather than pointers, to
-                ensure that the Python API is memory-safe and can provide suitable feedback whenever a lookup fails.
-            )"
-        );
-        symbol_class.def(
-            nb::init<std::string_view>(),
-            nb::arg("id"),
-            R"(
-                Constructs a symbol from a Python string.
-            )"
-        );
-        symbol_class.def(
-            "__str__",
-            [](const Symbol& symbol) { return static_cast<std::string>(symbol); },
-            "Converts this symbol into a Python :class:`str`"
-        );
-        symbol_class.def("__repr__", [](const Symbol& self) { return std::string("Symbol(\"") + std::string(self) + "\")"; });
-        symbol_class.def("__hash__", [](const Symbol& self) { return std::hash<Symbol>{}(self); });
-        symbol_class.def("__eq__",   [](const Symbol& self, const Symbol& other)  { return self == other; });
-        symbol_class.def("__eq__",   [](const Symbol& self, std::string_view rhs) { return self == rhs; });
-        symbol_class.def("__contains__", [](const Symbol& self, std::string_view rhs) { return static_cast<std::string_view>(self).find(rhs) != std::string_view::npos; });
+            From Python code's point of view, symbols should be seen as string-like handles that OPynSim
+            accepts/emits. You can safely store symbols independently of any larger data structure, and
+            interchange them across your entire Python codebase, without having to worry about object
+            lifetimes. OPynSim's native code uses runtime-checked associative lookups, rather than pointers, to
+            ensure that the Python API is memory-safe and can provide suitable feedback whenever a lookup fails.
+        )");
+        cls.def(nb::init<std::string_view>(), nb::arg("id"), R"(
+            Constructs a symbol from a Python string.
+        )");
         nb::implicitly_convertible<std::string_view, Symbol>();
+        cls.def("__str__",      [](const Symbol& s)                            { return static_cast<std::string>(s); });
+        cls.def("__repr__",     [](const Symbol& s)                            { return std::format("{}", s); });
+        cls.def("__hash__",     [](const Symbol& s)                            { return std::hash<Symbol>{}(s); });
+        cls.def("__eq__",       [](const Symbol& lhs, const Symbol& rhs)       { return lhs == rhs; });
+        cls.def("__eq__",       [](const Symbol& lhs, std::string_view rhs)    { return lhs == rhs; });
+        cls.def("__contains__", [](const Symbol& sym, std::string_view substr) { return sym.name().contains(substr); });
     }
 
     void register_model_specification_class(nb::module_& m)
