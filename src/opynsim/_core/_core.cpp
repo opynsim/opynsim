@@ -1015,146 +1015,81 @@ namespace {
 
     void register_readers(nb::module_& m)
     {
-        m.def(
-            "read_osim",
-            [](const std::filesystem::path& source) { return opyn::read_osim(source); },
-            nb::arg("source"),
-            R"(
-                Returns a :class:`ModelSpecification` parsed from an `.osim` file on the
-                caller's filesystem.
+        m.def("read_osim", opyn::read_osim, nb::arg("source"), R"(
+            Returns a :class:`ModelSpecification` parsed from an `.osim` file on the
+            caller's filesystem.
 
-                Raises:
-                    RuntimeError: If the file cannot be found, read, or is invalid.
-            )"
-        );
+            Raises:
+                RuntimeError: If the file cannot be found, read, or is invalid.
+        )");
+        m.def("read_sto", opyn::read_sto, nb::arg("source"), R"(
+            Returns a :class:`DataFrame` parsed from an ``.sto`` file on the caller's
+            filesystem.
 
-        m.def(
-            "read_sto",
-            [](const std::filesystem::path& source) { return opyn::read_sto(source); },
-            nb::arg("source"),
-            R"(
-                Returns a :class:`DataFrame` parsed from an ``.sto`` file on the caller's
-                filesystem.
+            Raises:
+                RuntimeError: If the file cannot be found, read, or is invalid.
+        )");
+        m.def("read_mot", opyn:: read_mot, nb::arg("source"), R"(
+            Returns a :class:`DataFrame` parsed from an ``.mot`` file on the caller's
+            filesystem.
 
-                Raises:
-                    RuntimeError: If the file cannot be found, read, or is invalid.
-            )"
-        );
+            Raises:
+                RuntimeError: If the file cannot be found, read, or is invalid.
+        )");
+        m.def("read_trc", opyn::read_trc, nb::arg("source"), R"(
+            Returns a :class:`DataFrame` parsed from an ``.trc`` file on the caller's
+            filesystem.
 
-        m.def(
-            "read_mot",
-            [](const std::filesystem::path& source) { return opyn::read_mot(source); },
-            nb::arg("source"),
-            R"(
-                Returns a :class:`DataFrame` parsed from an ``.mot`` file on the caller's
-                filesystem.
+            Raises:
+                RuntimeError: If the file cannot be found, read, or is invalid.
+        )");
+        m.def("read_csv", opyn::read_csv, nb::arg("source"), R"(
+            Returns a :class:`DataFrame` parsed from an ``.csv`` file on the caller's
+            filesystem.
 
-                Raises:
-                    RuntimeError: If the file cannot be found, read, or is invalid.
-            )"
-        );
+            The CSV file must have a header section, delimited by 'endheader`. This usually
+            necessitates adding an `endheader` entry just above the header row (TODO: this
+            limitation was inherited from OpenSim and shouldn't be a thing long-term).
 
-        m.def(
-            "read_trc",
-            [](const std::filesystem::path& source) { return opyn::read_trc(source); },
-            nb::arg("source"),
-            R"(
-                Returns a :class:`DataFrame` parsed from an ``.trc`` file on the caller's
-                filesystem.
+            Raises:
+                RuntimeError: If the file cannot be found, read, or is invalid.
+        )");
+        m.def("read_vtp", opyn::read_vtp, nb::arg("source"), R"(
+            Returns a :class:`graphics.Mesh` parsed from a ``.vtp`` file on the caller's
+            filesystem.
 
-                Raises:
-                    RuntimeError: If the file cannot be found, read, or is invalid.
-            )"
-        );
+            Raises:
+                RuntimeError: If the file cannot be found, read, or is invalid.
+        )");
+        m.def("read_obj", opyn::read_obj, nb::arg("source"), R"(
+            Returns a :class:`graphics.Mesh` parsed from a ``.obj`` file on the caller's
+            filesystem.
 
-        m.def(
-            "read_csv",
-            [](const std::filesystem::path& source) { return opyn::read_csv(source); },
-            nb::arg("source"),
-            R"(
-                Returns a :class:`DataFrame` parsed from an ``.csv`` file on the caller's
-                filesystem.
+            Raises:
+                RuntimeError: If the file cannot be found, read, or is invalid.
+        )");
+        m.def("read_stl", opyn::read_stl, nb::arg("source"), R"(
+            Returns a :class:`graphics.Mesh` parsed from a ``.stl`` file on the caller's
+            filesystem.
 
-                The CSV file must have a header section, delimited by 'endheader`. This usually
-                necessitates adding an `endheader` entry just above the header row (TODO: this
-                limitation was inherited from OpenSim and shouldn't be a thing long-term).
+            Raises:
+                RuntimeError: If the file cannot be found, read, or is invalid.
+        )");
+        m.def("read_png", opyn::read_png, nb::arg("source"), R"(
+            Returns a :class:`graphics.Texture2D` parsed from a ``.png`` file on the caller's
+            filesystem.
 
-                Raises:
-                    RuntimeError: If the file cannot be found, read, or is invalid.
-            )"
-        );
+            Raises:
+                RuntimeError: If the file cannot be found, read, or is invalid.
+        )");
+        m.def("read_jpeg", opyn::read_jpeg, nb::arg("source"), R"(
+            Returns a :class:`graphics.Texture2D` parsed from a ``.jpeg`` file on the caller's
+            filesystem.
 
-        m.def(
-            "read_vtp",
-            [](const std::filesystem::path& source) { return opyn::read_vtp(source); },
-            nb::arg("source"),
-            R"(
-                Returns a :class:`graphics.Mesh` parsed from a ``.vtp`` file on the caller's
-                filesystem.
-
-                Raises:
-                    RuntimeError: If the file cannot be found, read, or is invalid.
-            )"
-        );
-
-        m.def(
-            "read_obj",
-            [](const std::filesystem::path& source) { return opyn::read_obj(source); },
-            nb::arg("source"),
-            R"(
-                Returns a :class:`graphics.Mesh` parsed from a ``.obj`` file on the caller's
-                filesystem.
-
-                Raises:
-                    RuntimeError: If the file cannot be found, read, or is invalid.
-            )"
-        );
-
-        m.def(
-            "read_stl",
-            [](const std::filesystem::path& source) { return opyn::read_obj(source); },
-            nb::arg("source"),
-            R"(
-                Returns a :class:`graphics.Mesh` parsed from a ``.stl`` file on the caller's
-                filesystem.
-
-                Raises:
-                    RuntimeError: If the file cannot be found, read, or is invalid.
-            )"
-        );
-
-        m.def(
-            "read_png",
-            [](const std::filesystem::path& source) { return opyn::read_png(source); },
-            nb::arg("source"),
-            R"(
-                Returns a :class:`graphics.Texture2D` parsed from a ``.png`` file on the caller's
-                filesystem.
-
-                Raises:
-                    RuntimeError: If the file cannot be found, read, or is invalid.
-            )"
-        );
-
-        m.def(
-            "read_jpeg",
-            [](const std::filesystem::path& source) { return opyn::read_jpeg(source); },
-            nb::arg("source"),
-            R"(
-                Returns a :class:`graphics.Texture2D` parsed from a ``.jpeg`` file on the caller's
-                filesystem.
-
-                Raises:
-                    RuntimeError: If the file cannot be found, read, or is invalid.
-            )"
-        );
-
-        m.def(
-            "read_jpg",
-            [](const std::filesystem::path& source) { return opyn::read_jpg(source); },
-            nb::arg("source"),
-            "An alias for :func:`read_jpeg`"
-        );
+            Raises:
+                RuntimeError: If the file cannot be found, read, or is invalid.
+        )");
+        m.def("read_jpg", opyn::read_jpg, nb::arg("source"), "An alias for :func:`read_jpeg`");
     }
 }
 
