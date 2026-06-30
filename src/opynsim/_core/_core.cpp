@@ -879,6 +879,14 @@ namespace {
                 simulation, or in a solver).
             )"
         );
+        cls.def(
+            "is_coordinate_rotational",
+            &Model::is_coordinate_rotational,
+            nb::arg("coordinate"),
+            R"(
+                Returns ``True`` if ``coordinate`` is rotational (i.e. not translational, coupled, or undefined).
+            )"
+        );
         cls.def_prop_ro("num_outputs", &Model::num_outputs, R"(
             Returns the number of outputs the model has.
         )");

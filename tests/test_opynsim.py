@@ -1,4 +1,5 @@
 import opynsim
+import opynsim.examples
 
 from pathlib import Path
 import pytest
@@ -418,7 +419,7 @@ def test_read_jpg_alias_also_works():
     assert pixels.shape == (1, 1, 4)
     assert np.array_equal(pixels[0, 0], np.array([255, 255, 255, 255]))
 
-def test_get_and_set_coordinate_locked_works():
+def test_is_and_set_coordinate_locked_works():
     osim = opynsim.read_osim(Path(__file__).resolve().parent / "../libopynsim/tests/resources/pendulum/pendulum.osim")
     model = osim.compile()
     state = model.initial_state()
@@ -426,3 +427,13 @@ def test_get_and_set_coordinate_locked_works():
         assert model.is_coordinate_locked(state, coord) == False
         model.set_coordinate_locked(state, coord, True)
         assert model.is_coordinate_locked(state, coord)
+
+def test_is_coordinate_rotational_returns_true_for_pendulum():
+    model = opynsim.examples.double_pendulum_model()
+    for coord in model.coordinates:
+        assert model.is_coordinate_rotational(coord)
+
+def test_is_coordinate_rotational_throws_if_given_bogus_coordinate():
+    model = opynsim.examples.double_pendulum_model()
+    with pytest.raises(Exception):
+        model.is_coordinate_rotational("bogus/coordinate")
