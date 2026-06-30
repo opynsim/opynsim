@@ -710,36 +710,24 @@ namespace {
 
     void register_model_class(nb::module_& m)
     {
-        nb::class_<Model> model_class(
-            m,
-            "Model",
-            R"(
-                A compiled, ready-to-simulate, model of a physics system.
+        nb::class_<Model> cls(m, "Model", R"(
+            A compiled, ready-to-simulate, model of a physics system.
 
-                A :class:`Model` can only be created from a :class:`ModelSpecification` via the
-                :meth:`ModelSpecification.compile` function. Therefore, editing a :class:`Model` requires
-                editing its associated :class:`ModelSpecification` and recompiling it to create a
-                new :class:`Model`.
-            )"
-        );
-        model_class.def_prop_ro(
-            "num_coordinates",
-            &Model::num_coordinates,
-            R"(
-                Returns the number of coordinates in the model.
+            A :class:`Model` can only be created from a :class:`ModelSpecification` via the
+            :meth:`ModelSpecification.compile` function. Therefore, editing a :class:`Model` requires
+            editing its associated :class:`ModelSpecification` and recompiling it to create a
+            new :class:`Model`.
+        )");
+        cls.def_prop_ro("num_coordinates", &Model::num_coordinates, R"(
+            Returns the number of coordinates in the model.
 
-                A coordinate represents a single degree of freedom (DoF) in the model, such as a joint angle,
-                translation, or rotational parameter that contributes to the configuration/pose of a model.
-            )"
-        );
-        model_class.def_prop_ro(
-            "coordinates",
-            &Model::coordinates,
-            R"(
-                Returns a list of all the coordinates in the model.
-            )"
-        );
-        model_class.def(
+            A coordinate represents a single degree of freedom (DoF) in the model, such as a joint angle,
+            translation, or rotational parameter that contributes to the configuration/pose of a model.
+        )");
+        cls.def_prop_ro("coordinates", &Model::coordinates, R"(
+            Returns a list of all the coordinates in the model.
+        )");
+        cls.def(
             "initial_state",
             &Model::initial_state,
             nb::kw_only{},
@@ -755,7 +743,7 @@ namespace {
                 :meth:`Model.realize` on it.
             )"
         );
-        model_class.def(
+        cls.def(
             "column_to_state_variable_mappings",
             &Model::column_to_state_variable_mappings,
             nb::arg("data_frame"),
@@ -771,7 +759,7 @@ namespace {
                 useful for debugging why states aren't being read correctly.
             )"
         );
-        model_class.def(
+        cls.def(
             "rotational_columns_in",
             &Model::rotational_columns_in,
             nb::arg("data_frame"),
@@ -786,7 +774,7 @@ namespace {
                 being read correctly.
             )"
         );
-        model_class.def(
+        cls.def(
             "convert_data_frame_to_radians",
             &Model::convert_data_frame_to_radians,
             nb::arg("data_frame"),
@@ -800,7 +788,7 @@ namespace {
                 attributes.
             )"
         );
-        model_class.def(
+        cls.def(
             "states_from_data_frame",
             &Model::states_from_data_frame,
             nb::arg("data_frame"),
@@ -824,7 +812,7 @@ namespace {
                 each of them.
             )"
         );
-        model_class.def(
+        cls.def(
             "realize",
             &Model::realize,
             nb::arg("model_state"),
@@ -840,7 +828,7 @@ namespace {
                 and so on.
             )"
         );
-        model_class.def(
+        cls.def(
             "get_coordinate_value",
             &Model::get_coordinate_value,
             nb::arg("model_state"),
@@ -850,7 +838,7 @@ namespace {
                 coordinate identified by ``coordinate``.
             )"
         );
-        model_class.def(
+        cls.def(
             "set_coordinate_value",
             &Model::set_coordinate_value,
             nb::arg("model_state"),
@@ -866,21 +854,13 @@ namespace {
                 requires a later stage (e.g. rendering).
             )"
         );
-        model_class.def_prop_ro(
-            "num_outputs",
-            &Model::num_outputs,
-            R"(
-                Returns the number of outputs the model has.
-            )"
-        );
-        model_class.def_prop_ro(
-            "outputs",
-            &Model::outputs,
-            R"(
-                Returns a list of all outputs the model has.
-            )"
-        );
-        model_class.def(
+        cls.def_prop_ro("num_outputs", &Model::num_outputs, R"(
+            Returns the number of outputs the model has.
+        )");
+        cls.def_prop_ro("outputs", &Model::outputs, R"(
+            Returns a list of all outputs the model has.
+        )");
+        cls.def(
             "get_output_value",
             [](const Model& model, const ModelState& model_state, const Symbol& output)
             {
