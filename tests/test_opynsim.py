@@ -437,3 +437,32 @@ def test_is_coordinate_rotational_throws_if_given_bogus_coordinate():
     model = opynsim.examples.double_pendulum_model()
     with pytest.raises(Exception):
         model.is_coordinate_rotational("bogus/coordinate")
+
+def test_set_coordinate_value_works():
+    model = opynsim.examples.double_pendulum_model()
+    model_state = model.initial_state(realized_to=opynsim.STAGE_REPORT)
+    assert model_state.stage == opynsim.STAGE_REPORT
+
+    for coordinate in model.coordinates:
+        model.set_coordinate_value(model_state, coordinate, 1.0)
+        assert model.get_coordinate_value(model_state, coordinate) == 1.0
+
+    # The state rolling back to `STAGE_POSITION` is explicitly mentioned in
+    # the docstring for `set_coordinate_value` - change it if this assertion
+    # breaks.
+    assert model_state.stage == opynsim.STAGE_POSITION
+
+def test_set_coordinate_speed_works():
+    model = opynsim.examples.double_pendulum_model()
+    model_state = model.initial_state(realized_to=opynsim.STAGE_REPORT)
+    assert model_state.stage == opynsim.STAGE_REPORT
+
+    for coordinate in model.coordinates:
+        assert model.get_coordinate_speed(model_state, coordinate) == 0.0
+        model.set_coordinate_speed(model_state, coordinate, 1.0)
+        assert model.get_coordinate_speed(model_state, coordinate) == 1.0
+
+    # The state rolling back to `STAGE_POSITION` is explicitly mentioned in
+    # the docstring for `set_coordinate_speed` - change it if this assertion
+    # breaks.
+    assert model_state.stage == opynsim.STAGE_POSITION

@@ -387,6 +387,18 @@ public:
         coord.setValue(model_state.simbody_state(), value);
     }
 
+    double get_coordinate_speed(const ModelState& model_state, const Symbol& coordinate) const
+    {
+        const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
+        return coord.getSpeedValue(model_state.simbody_state());
+    }
+
+    void set_coordinate_speed(ModelState& model_state, const Symbol& coordinate, double speed) const
+    {
+        const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
+        coord.setSpeedValue(model_state.simbody_state(), speed);
+    }
+
     bool is_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const
     {
         const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
@@ -505,6 +517,16 @@ double opyn::Model::get_coordinate_value(const ModelState& model_state, const Sy
 void opyn::Model::set_coordinate_value(ModelState& model_state, const Symbol& coordinate, double value) const
 {
     impl_->set_coordinate_value(model_state, coordinate, value);
+}
+
+double opyn::Model::get_coordinate_speed(const ModelState& model_state, const Symbol& coordinate) const
+{
+    return impl_->get_coordinate_speed(model_state, coordinate);
+}
+
+void opyn::Model::set_coordinate_speed(ModelState& model_state, const Symbol& coordinate, double speed) const
+{
+    impl_->set_coordinate_speed(model_state, coordinate, speed);
 }
 
 bool opyn::Model::is_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const

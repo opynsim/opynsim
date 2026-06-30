@@ -92,6 +92,12 @@ namespace opyn
         /// Sets the value of `coordinate` in `model_state` to `value`.
         void set_coordinate_value(ModelState& model_state, const Symbol& coordinate, double value) const;
 
+        /// Returns the speed of `coordinate` in `model_state`.
+        double get_coordinate_speed(const ModelState& model_state, const Symbol& coordinate) const;
+
+        /// Sets the speed of `coordinate` in `model_state` to `speed`.
+        void set_coordinate_speed(ModelState& model_state, const Symbol& coordinate, double speed) const;
+
         /// Returns `true` if `coordinate` is locked in `model_state`.
         bool is_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const;
 

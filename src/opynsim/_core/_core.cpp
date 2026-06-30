@@ -835,7 +835,7 @@ namespace {
             nb::arg("coordinate"),
             R"(
                 Returns the value of the corresponding state variable in ``model_state`` for the
-                coordinate identified by ``coordinate``.
+                value of ``coordinate``.
             )"
         );
         cls.def(
@@ -845,10 +845,36 @@ namespace {
             nb::arg("coordinate"),
             nb::arg("value"),
             R"(
-                Sets corresponding state variable in ``model_state`` for the coordinate identified by
-                ``coordinate`` to ``value``.
+                Sets corresponding state variable in ``model_state`` for the value of  ``coordinate``
+                to ``value``.
 
                 Changing the value of a coordinate changes ``model_state``'s :class:`ModelStateStage` to
+                :attr:`ModelStateStage.POSITION`. Therefore, you may need to use :meth:`realize` to
+                re-realize the state to a later stage if you intend on using the state with a method that
+                requires a later stage (e.g. rendering).
+            )"
+        );
+        cls.def(
+            "get_coordinate_speed",
+            &Model::get_coordinate_speed,
+            nb::arg("model_state"),
+            nb::arg("coordinate"),
+            R"(
+                Returns the value of the corresponding state variable in ``model_state`` for the
+                speed of ``coordinate``.
+            )"
+        );
+        cls.def(
+            "set_coordinate_speed",
+            &Model::set_coordinate_speed,
+            nb::arg("model_state"),
+            nb::arg("coordinate"),
+            nb::arg("speed"),
+            R"(
+                Sets the value corresponding state variable in ``model_state`` for the speed of ``coordinate``
+                to ``speed``.
+
+                Changing the speed of a coordinate changes ``model_state``'s :class:`ModelStateStage` to
                 :attr:`ModelStateStage.POSITION`. Therefore, you may need to use :meth:`realize` to
                 re-realize the state to a later stage if you intend on using the state with a method that
                 requires a later stage (e.g. rendering).

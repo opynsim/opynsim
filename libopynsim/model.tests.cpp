@@ -192,3 +192,36 @@ TEST(Model, is_coordinate_rotational_returns_true_on_pendulum_model)
         ASSERT_TRUE(model.is_coordinate_rotational(coordinate));
     }
 }
+
+TEST(Model, get_and_set_coordinate_speed_works_on_basic_pendulum)
+{
+    opyn::init();
+
+    const Model model = examples::double_pendulum_model();
+    ModelState model_state = model.initial_state();
+    for (const auto& coordinate : model.coordinates()) {
+        ASSERT_EQ(model.get_coordinate_speed(model_state, coordinate), 0.0);
+        model.set_coordinate_speed(model_state, coordinate, 1.0);
+        ASSERT_EQ(model.get_coordinate_speed(model_state, coordinate), 1.0);
+    }
+}
+
+TEST(Model, get_coordinate_speed_throws_when_given_bogus_coordinate)
+{
+    opyn::init();
+
+    const Model model = examples::double_pendulum_model();
+    const ModelState model_state = model.initial_state();
+
+    ASSERT_ANY_THROW({ model.get_coordinate_speed(model_state, Symbol{"bogus/coordinate/path"}); });
+}
+
+TEST(Model, set_coordinate_speed_throws_when_given_bogus_coordiante)
+{
+    opyn::init();
+
+    const Model model = examples::double_pendulum_model();
+    ModelState model_state = model.initial_state();
+
+    ASSERT_ANY_THROW({ model.set_coordinate_speed(model_state, Symbol{"bogus/coordinate/path"}, 5.0); });
+}
