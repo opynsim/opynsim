@@ -387,7 +387,7 @@ public:
         coord.setValue(model_state.simbody_state(), value);
     }
 
-    bool get_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const
+    bool is_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const
     {
         const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
         return coord.getLocked(model_state.simbody_state());
@@ -397,6 +397,12 @@ public:
     {
         const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
         coord.setLocked(model_state.simbody_state(), locked);
+    }
+
+    bool is_coordinate_rotational(const Symbol& coordinate) const
+    {
+        const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
+        return coord.getMotionType() == OpenSim::Coordinate::MotionType::Rotational;
     }
 
     size_t num_outputs() const
@@ -501,14 +507,19 @@ void opyn::Model::set_coordinate_value(ModelState& model_state, const Symbol& co
     impl_->set_coordinate_value(model_state, coordinate, value);
 }
 
-bool opyn::Model::get_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const
+bool opyn::Model::is_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const
 {
-    return impl_->get_coordinate_locked(model_state, coordinate);
+    return impl_->is_coordinate_locked(model_state, coordinate);
 }
 
 void opyn::Model::set_coordinate_locked(ModelState& model_state, const Symbol& coordinate, bool locked) const
 {
     impl_->set_coordinate_locked(model_state, coordinate, locked);
+}
+
+bool opyn::Model::is_coordinate_rotational(const Symbol& coordinate) const
+{
+    return impl_->is_coordinate_rotational(coordinate);
 }
 
 size_t opyn::Model::num_outputs() const

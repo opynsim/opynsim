@@ -423,6 +423,6 @@ def test_get_and_set_coordinate_locked_works():
     model = osim.compile()
     state = model.initial_state()
     for coord in model.coordinates:
-        assert model.get_coordinate_locked(state, coord) == False
+        assert model.is_coordinate_locked(state, coord) == False
         model.set_coordinate_locked(state, coord, True)
-        assert model.get_coordinate_locked(state, coord)
+        assert model.is_coordinate_locked(state, coord)

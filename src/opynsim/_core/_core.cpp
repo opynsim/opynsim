@@ -855,8 +855,8 @@ namespace {
             )"
         );
         cls.def(
-            "get_coordinate_locked",
-            &Model::get_coordinate_locked,
+            "is_coordinate_locked",
+            &Model::is_coordinate_locked,
             nb::arg("model_state"),
             nb::arg("coordinate"),
             R"(

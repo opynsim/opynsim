@@ -93,10 +93,13 @@ namespace opyn
         void set_coordinate_value(ModelState& model_state, const Symbol& coordinate, double value) const;
 
         /// Returns `true` if `coordinate` is locked in `model_state`.
-        bool get_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const;
+        bool is_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const;
 
         /// Sets the locked state of `coordinate` in `model_state` to `locked`.
-        void set_coordinate_locked(ModelState& model_state, const Symbol& coordinate, bool locked) const;
+        void set_coordinate_locked(ModelState& model_state, const Symbol& coordinate, bool locked = true) const;
+
+        /// Returns `true` if `coordinate` has a rotational (i.e. not translational or coupled).
+        bool is_coordinate_rotational(const Symbol& coordinate) const;
 
         /// Returns the number of outputs in the model.
         size_t num_outputs() const;

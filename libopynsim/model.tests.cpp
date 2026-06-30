@@ -2,6 +2,7 @@
 
 #include <libopynsim/tests/opynsim_tests_config.h>
 #include <libopynsim/data_frame.h>
+#include <libopynsim/examples.h>
 #include <libopynsim/model.h>
 #include <libopynsim/model_states.h>
 #include <libopynsim/opynsim.h>
@@ -146,18 +147,48 @@ TEST(Model, convert_data_frame_to_radians_degrees_sto_file_to_radians)
     ASSERT_TRUE(not rv.has_attr("inDegrees"));
 }
 
-TEST(Model, get_and_set_locked_updates_the_coordinate_lock)
+TEST(Model, is_and_set_coordinate_locked_updates_the_coordinate_lock)
 {
     opyn::init();
 
-    const Model model = read_osim(opynsim_tests_resources_directory() / "models/DoublePendulum/double_pendulum.osim").compile();
-    ModelState state = model.initial_state();
+    const Model model = examples::double_pendulum_model();
+    ModelState model_state = model.initial_state();
 
     for (const auto& coordinate : model.coordinates()) {
-        ASSERT_FALSE(model.get_coordinate_locked(state, coordinate));
-        model.set_coordinate_locked(state, coordinate, true);
+        ASSERT_FALSE(model.is_coordinate_locked(model_state, coordinate));
+        model.set_coordinate_locked(model_state, coordinate, true);
     }
     for (const auto& coordinate : model.coordinates()) {
-        ASSERT_TRUE(model.get_coordinate_locked(state, coordinate));
+        ASSERT_TRUE(model.is_coordinate_locked(model_state, coordinate));
+    }
+}
+
+TEST(Model, is_coordinate_locked_throws_if_given_invalid_coordinate_path)
+{
+    opyn::init();
+
+    const Model model = examples::pendulum_model();
+    const ModelState model_state = model.initial_state();
+
+    ASSERT_ANY_THROW({ model.is_coordinate_locked(model_state, Symbol{"/bogus/path"}); });
+}
+
+TEST(Model, set_coordinate_locked_throws_if_given_invalid_coordinate_path)
+{
+    opyn::init();
+
+    const Model model = examples::pendulum_model();
+    ModelState model_state = model.initial_state();
+
+    ASSERT_ANY_THROW({ model.set_coordinate_locked(model_state, Symbol{"/bogus/path"}); });
+}
+
+TEST(Model, is_coordinate_rotational_returns_true_on_pendulum_model)
+{
+    opyn::init();
+
+    const Model model = examples::double_pendulum_model();
+    for (const auto& coordinate : model.coordinates()) {
+        ASSERT_TRUE(model.is_coordinate_rotational(coordinate));
     }
 }
