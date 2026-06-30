@@ -145,3 +145,19 @@ TEST(Model, convert_data_frame_to_radians_degrees_sto_file_to_radians)
     }
     ASSERT_TRUE(not rv.has_attr("inDegrees"));
 }
+
+TEST(Model, get_and_set_locked_updates_the_coordinate_lock)
+{
+    opyn::init();
+
+    const Model model = read_osim(opynsim_tests_resources_directory() / "models/DoublePendulum/double_pendulum.osim").compile();
+    ModelState state = model.initial_state();
+
+    for (const auto& coordinate : model.coordinates()) {
+        ASSERT_FALSE(model.get_coordinate_locked(state, coordinate));
+        model.set_coordinate_locked(state, coordinate, true);
+    }
+    for (const auto& coordinate : model.coordinates()) {
+        ASSERT_TRUE(model.get_coordinate_locked(state, coordinate));
+    }
+}

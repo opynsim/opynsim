@@ -854,6 +854,31 @@ namespace {
                 requires a later stage (e.g. rendering).
             )"
         );
+        cls.def(
+            "get_coordinate_locked",
+            &Model::get_coordinate_locked,
+            nb::arg("model_state"),
+            nb::arg("coordinate"),
+            R"(
+                Returns ``True`` if ``coordinate`` is locked in ``model_state``.
+
+                Locking a coordinate prevents it from changing its value/speed (e.g. during
+                simulation, or in a solver).
+            )"
+        );
+        cls.def(
+            "set_coordinate_locked",
+            &Model::set_coordinate_locked,
+            nb::arg("model_state"),
+            nb::arg("coordinate"),
+            nb::arg("locked") = true,
+            R"(
+                Sets the locked state of ``coordinate`` in ``model_state`` to ``locked``.
+
+                Locking a coordinate prevents it from changing its value/speed (e.g. during
+                simulation, or in a solver).
+            )"
+        );
         cls.def_prop_ro("num_outputs", &Model::num_outputs, R"(
             Returns the number of outputs the model has.
         )");

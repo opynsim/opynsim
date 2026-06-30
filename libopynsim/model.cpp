@@ -387,6 +387,18 @@ public:
         coord.setValue(model_state.simbody_state(), value);
     }
 
+    bool get_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const
+    {
+        const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
+        return coord.getLocked(model_state.simbody_state());
+    }
+
+    void set_coordinate_locked(ModelState& model_state, const Symbol& coordinate, bool locked) const
+    {
+        const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
+        coord.setLocked(model_state.simbody_state(), locked);
+    }
+
     size_t num_outputs() const
     {
         size_t rv = 0;
@@ -487,6 +499,16 @@ double opyn::Model::get_coordinate_value(const ModelState& model_state, const Sy
 void opyn::Model::set_coordinate_value(ModelState& model_state, const Symbol& coordinate, double value) const
 {
     impl_->set_coordinate_value(model_state, coordinate, value);
+}
+
+bool opyn::Model::get_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const
+{
+    return impl_->get_coordinate_locked(model_state, coordinate);
+}
+
+void opyn::Model::set_coordinate_locked(ModelState& model_state, const Symbol& coordinate, bool locked) const
+{
+    impl_->set_coordinate_locked(model_state, coordinate, locked);
 }
 
 size_t opyn::Model::num_outputs() const
