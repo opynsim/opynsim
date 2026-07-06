@@ -123,6 +123,8 @@ namespace opyn
             const OpenSimDecorationOptions& = {}
         ) const;
 
+        /// Returns the underlying `OpenSim::Model` (internal method: be careful with this).
+        const OpenSim::Model& open_sim_model() const;
     private:
         class Impl;
         osc::CopyOnUpdPtr<Impl> impl_;

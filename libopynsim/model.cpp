@@ -384,7 +384,7 @@ public:
     void set_coordinate_value(ModelState& model_state, const Symbol& coordinate, double value) const
     {
         const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
-        coord.setValue(model_state.simbody_state(), value);
+        coord.setValue(model_state.upd_simbody_state(), value);
     }
 
     double get_coordinate_speed(const ModelState& model_state, const Symbol& coordinate) const
@@ -396,7 +396,7 @@ public:
     void set_coordinate_speed(ModelState& model_state, const Symbol& coordinate, double speed) const
     {
         const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
-        coord.setSpeedValue(model_state.simbody_state(), speed);
+        coord.setSpeedValue(model_state.upd_simbody_state(), speed);
     }
 
     bool is_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const
@@ -408,7 +408,7 @@ public:
     void set_coordinate_locked(ModelState& model_state, const Symbol& coordinate, bool locked) const
     {
         const auto& coord = model_.getComponent<OpenSim::Coordinate>(std::string{coordinate});
-        coord.setLocked(model_state.simbody_state(), locked);
+        coord.setLocked(model_state.upd_simbody_state(), locked);
     }
 
     bool is_coordinate_rotational(const Symbol& coordinate) const
@@ -459,6 +459,8 @@ public:
             open_sim_decoration_options
         );
     }
+
+    const OpenSim::Model& open_sim_model() const { return model_; }
 
 private:
     OpenSim::Model model_;
@@ -565,4 +567,9 @@ std::vector<osc::SceneDecoration> opyn::Model::decorations(
     const OpenSimDecorationOptions& open_sim_decoration_options) const
 {
     return impl_->decorations(scene_cache, model_state, open_sim_decoration_options);
+}
+
+const OpenSim::Model& opyn::Model::open_sim_model() const
+{
+    return impl_->open_sim_model();
 }
