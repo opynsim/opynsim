@@ -21,12 +21,12 @@ TEST(ForwardDynamicsSimulation, works_for_basic_pendulum_example)
     auto simulation = ForwardDynamicsSimulation{pendulum, state};
     std::vector<ModelState> states;
     for (size_t i = 0; i <= 10; ++i) {
-        states.push_back(simulation.integrate_to(i*0.1, ModelStateStage::dynamics));
+        states.push_back(simulation.integrate_to(static_cast<double>(i)*0.1, ModelStateStage::dynamics));
     }
 
     // Ensure each state has the correct time and realization level.
     for (size_t i = 0; i <= 10; ++i) {
-        ASSERT_EQ(states.at(i).time(), i*0.1);
+        ASSERT_EQ(states.at(i).time(), static_cast<double>(i)*0.1);
         ASSERT_GE(states.at(i).stage(), ModelStateStage::dynamics);
     }
 }
