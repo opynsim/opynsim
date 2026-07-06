@@ -13,6 +13,7 @@
 #include <liboscar/utilities/string_helpers.h>
 #include <libopynsim/platform/opynsim_app.h>
 #include <libopynsim/data_frame.h>
+#include <libopynsim/forward_dynamics_simulation.h>
 #include <libopynsim/model.h>
 #include <libopynsim/model_specification.h>
 #include <libopynsim/model_state.h>
@@ -949,10 +950,17 @@ namespace {
             )"
         );
         model_state_class.def_prop_ro(
+            "time",
+            &ModelState::time,
+            R"(
+                Returns the time of the state.
+            )"
+        );
+        model_state_class.def_prop_ro(
             "stage",
             &ModelState::stage,
             R"(
-                Returns the current :class:`ModelStateStage` of the state.
+                Returns the :class:`ModelStateStage` of the state.
 
                 Notes:
                     A state may be realized to a later stage with :meth:`Model.realize`.
@@ -1039,6 +1047,11 @@ namespace {
         model_state_stage_class.value("DYNAMICS",     ModelStateStage::dynamics,     "The force acting on each body is known, along with total kinetic/potential energy.");
         model_state_stage_class.value("ACCELERATION", ModelStateStage::acceleration, "The time derivatives of all continuous state variables are known.");
         model_state_stage_class.value("REPORT",       ModelStateStage::report,       "Additional variables useful for output are known");
+
+        model_state_stage_class.def("__lt__", std::less<ModelStateStage>{});
+        model_state_stage_class.def("__le__", std::less_equal<ModelStateStage>{});
+        model_state_stage_class.def("__gt__", std::greater<ModelStateStage>{});
+        model_state_stage_class.def("__ge__", std::greater_equal<ModelStateStage>{});
 
         // Define convenience aliases for the enum
         m.attr("STAGE_TOPOLOGY")     = model_state_stage_class.attr("TOPOLOGY");
@@ -1130,6 +1143,57 @@ namespace {
         )");
         m.def("read_jpg", opyn::read_jpg, nb::arg("source"), "An alias for :func:`read_jpeg`");
     }
+
+    void register_integrator_settings(nb::module_& m)
+    {
+        nb::class_<IntegratorSettings> cls(m, "IntegratorSettings", R"(
+            Settings for a forward integrator (e.g. as used by :class:`ForwardDynamicsSimulation`).
+
+            **Note**: Modifying integrator settings can have a large effect on a simulation's
+            performance and behavior. When tweaking the settings, it is recommended to re-validate
+            the simulation's outcomes.
+        )");
+        cls.def(nb::init<>{});
+    }
+
+    void register_forward_dynamics_simulation_class(nb::module_& m)
+    {
+        nb::class_<ForwardDynamicsSimulation> cls(
+            m,
+            "ForwardDynamicsSimulation",
+            R"(
+                Represents an active forward-dynamics simulation.
+
+                The simulation stores a :class:`ModelState` that it integrates forward
+                in time to a caller-specified timepoint (see :meth:`integrate_to`).
+            )"
+        );
+        cls.def(
+            nb::init<Model, ModelState, std::optional<IntegratorSettings>>{},
+            nb::arg("model"),
+            nb::arg("model_state"),
+            nb::arg("integrator_settings") = std::nullopt,
+            R"(
+                Constructs a :class:`ForwardDynamicsSimulation` of ``model`` in ``model_state``.
+
+                Args:
+                    model: The :class:`Model` that is being integrated.
+                    model_state: The state of ``model`` that the simulator begins at.
+                    integrator_settings: The :class:`IntegratorSettings` that the simulation's integrator
+                        should use to integrate time forwards.
+            )"
+        );
+        cls.def(
+            "integrate_to",
+            &ForwardDynamicsSimulation::integrate_to,
+            nb::arg("time"),
+            nb::arg("realized_to") = ModelStateStage::report,
+            R"(
+                Integrates this simulation's internal :class:`ModelState` to ``time`` and
+                then returns a copy of the state realized to at least ``realized_to``.
+            )"
+        );
+    }
 }
 
 opyn::OPynSimApp& opyn::get_lazy_loaded_opynsim_app()
@@ -1190,4 +1254,6 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
     register_model_states_class(_core_module);
     register_dataframe_class(_core_module);
     register_readers(_core_module);
+    register_integrator_settings(_core_module);
+    register_forward_dynamics_simulation_class(_core_module);
 }

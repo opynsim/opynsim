@@ -466,3 +466,32 @@ def test_set_coordinate_speed_works():
     # the docstring for `set_coordinate_speed` - change it if this assertion
     # breaks.
     assert model_state.stage == opynsim.STAGE_POSITION
+
+def test_model_state_has_time_property():
+    state = opynsim.examples.pendulum_model().initial_state()
+    assert state.time == 0.0
+
+def test_model_state_stage_is_value_comparable():
+    assert      opynsim.STAGE_TIME     == opynsim.ModelStateStage.TIME
+    assert      opynsim.STAGE_TIME     != opynsim.ModelStateStage.VELOCITY
+    assert      opynsim.STAGE_VELOCITY <= opynsim.STAGE_VELOCITY
+    assert not (opynsim.STAGE_VELOCITY <  opynsim.STAGE_VELOCITY)
+    assert      opynsim.STAGE_VELOCITY <  opynsim.STAGE_DYNAMICS
+    assert      opynsim.STAGE_VELOCITY <  opynsim.STAGE_DYNAMICS < opynsim.STAGE_ACCELERATION < opynsim.STAGE_REPORT
+    assert      opynsim.STAGE_REPORT   >= opynsim.STAGE_REPORT
+    assert not (opynsim.STAGE_REPORT   >  opynsim.STAGE_REPORT)
+    assert      opynsim.STAGE_REPORT   >  opynsim.STAGE_ACCELERATION
+
+def test_forward_dynamics_simulation_works_on_basic_example():
+    import numpy as np
+
+    model = opynsim.examples.pendulum_model()
+    state = model.initial_state()
+    simulation = opynsim.ForwardDynamicsSimulation(model, state)
+    emitted_states = []
+    for t in np.linspace(0, 1, 11):
+        emitted_states.append(simulation.integrate_to(t, realized_to=opynsim.STAGE_ACCELERATION))
+
+    for i in range(0, 11):
+        assert emitted_states[i].time  == (i * 0.1)
+        assert emitted_states[i].stage >= opynsim.STAGE_ACCELERATION
