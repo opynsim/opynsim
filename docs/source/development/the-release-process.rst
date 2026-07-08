@@ -31,12 +31,13 @@ websites like GitHub.
 	- [ ] Update  `CHANGELOG.md`:
 	  - [ ] Move sections around such that `Unreleased` becomes `XX.xx.pp`, add a new (empty) `Unreleased` section at the top.
 	  - [ ] Write a very short summary paragraph at the top of the `XX.xx.pp` section, for use in GitHub, website, etc.
-	- [ ] Tag+push the `CHANGELOG.md` update commit as a release (e.g. "Update CHANGELOG.md for XX.xx.pp")
+	- [ ] Push the `CHANGELOG.md` update commit (e.g. "Update CHANGELOG.md for XX.xx.pp")
+	- [ ] Tag the commit as `v${VERSION}`
 	- [ ] Rebase any active branches onto the `main` branch so that all branches are at-least compatible with the latest release, or delete the branches if they are stale.
 	- [ ] Collect all build artifacts:
-	  - [ ] Wheels (``.whl``) for each supported platform
-	  - [ ] Built documentation, packaged into a ``.tar.gz`` file
-	  - [ ] Source code, packaged into a ``.tar.gz`` file
+	  - [ ] Wheels (``.whl``) for each supported platform.
+	  - [ ] Built documentation, packaged into a ``.tar.xz`` file.
+	  - [ ] Source code, packaged into a ``.tar.gz`` file (e.g. `git archive --format=tar --prefix=opynsim-${VERSION}/ v${VERSION} | xz -c > "opynsim-${VERSION}-src.tar.xz"`).
 
 	## Publish Release
 
