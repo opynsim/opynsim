@@ -14,6 +14,7 @@ namespace opyn
         const Model&,
         const ModelState&,
         osc::Vector2 dimensions,
+        osc::Color background_color,
         bool zoom_to_fit,
         bool draw_floor
     );

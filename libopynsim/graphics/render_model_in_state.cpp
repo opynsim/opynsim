@@ -23,6 +23,7 @@ osc::Texture2D opyn::render_model_in_state(
     const Model& model,
     const ModelState& model_state,
     osc::Vector2 dimensions,
+    osc::Color background_color,
     bool zoom_to_fit,
     bool draw_floor)
 {
@@ -53,7 +54,7 @@ osc::Texture2D opyn::render_model_in_state(
         .draw_floor = draw_floor,
         .view_matrix = camera.view_matrix(),
         .projection_matrix = camera.projection_matrix(osc::aspect_ratio_of(dimensions)),
-        .background_color = osc::Color::clear(),
+        .background_color = background_color,
     };
     scene_renderer.render(decorations, scene_renderer_params);
     const osc::RenderTexture& rendered_scene = scene_renderer.upd_render_texture();
