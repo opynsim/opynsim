@@ -17,7 +17,7 @@ websites like GitHub.
 
 .. code:: markdown
 
-	## Prepare, Test, and Build
+	## Prepare, Test, Package
 
 	- [ ] Create an issue called something like `Release XX.xx.pp`
 	- [ ] Copy this checklist into it
@@ -35,21 +35,34 @@ websites like GitHub.
 	- [ ] Tag the commit as `v${VERSION}`
 	- [ ] Rebase any active branches onto the `main` branch so that all branches are at-least compatible with the latest release, or delete the branches if they are stale.
 	- [ ] Collect all build artifacts:
-	  - [ ] Wheels (``.whl``) for each supported platform.
-	  - [ ] Built documentation, packaged into a ``.tar.xz`` file.
-	  - [ ] Source code, packaged into a ``.tar.gz`` file (e.g. `git archive --format=tar --prefix=opynsim-${VERSION}/ v${VERSION} | xz -c > "opynsim-${VERSION}-src.tar.xz"`).
+	  - [ ] `opynsim-${VERSION}-cp312-abi3-macosx_14_5_arm64.whl`
+	  - [ ] `opynsim-${VERSION}-cp312-abi3-win_amd64.whl`
+	  - [ ] `opynsim-${VERSION}-cp312-abi3-manylinux_2_28_x86_64.whl`
+	  - [ ] `opynsim-${VERSION}-docs.tar.xz`: E.g. `tar cvzf opynsim-${VERSION}-docs.tar.xz -C ${DOCS_HTML_DIR} --transform="s,^,opynsim-${VERSION}-docs/," *`.
+	  - [ ] `opynsim-${VERSION}-src.tar.xz`: E.g. `git archive --format=tar --prefix=opynsim-${VERSION}/ v${VERSION} | xz -c > "opynsim-${VERSION}-src.tar.xz"`.
 
-	## Publish Release
+	## Publish
 
 	- [ ] Create a GitHub release from the tagged commit
-	  - [ ] Upload all artifacts against it
+	  - [ ] Upload all artifacts build artifacts against the release
 	  - [ ] Copy + paste the release summary paragraph from `CHANGELOG.md` as the release description
-	- [ ] TODO: Update Zenodo with the release
+    - [ ] Upload wheels to PyPi
+      - [ ] Set `TWINE_USERNAME` and `TWINE_PASSWORD` (stored on developer's keychain)
+      - [ ] Run `./scripts/deploy_pypi.py WHEEL_FILES` (or similar)
+	- [ ] Update Zenodo with the release
+	  - [ ] This should happen automatically, because Zenodo is linked to @adamkewley, which
+	        and has linked/mirrored organizational OAuth access for OPynSim setup at the
+            user-level.
 	- [ ] TODO: Update `README.md` with Zenodo release details
-	- [ ] TODO: Ensure the entire repository is pushed to the official TU Delft mirror
-	- [ ] TODO: Ensure all build artifacts are uploaded to `files.opynsim.eu/releases`
-	- [ ] TODO: Upload built documentation to `docs.opynsim.eu`
-	- [ ] TODO: Ensure repo syncs with research-software-directory.org
+	- [ ] Ensure the entire repository is pushed/mirrored to the official TU Delft mirror:
+	  - [ ] `git remote add tud https://gitlab.tudelft.nl/opynsim/opynsim.git`
+	  - [ ] `git push tud --all`
+	  - [ ] `git push tud --tags`
+	- [ ] Ensure all build artifacts are uploaded to `files.opynsim.eu/releases`:
+	  - [ ] `rsync -avz release-binaries/* files.opynsim.eu:/var/www/files.opynsim.eu/releases/`
+	- [ ] Upload built documentation to `docs.opynsim.eu`
+	  - [ ] `rsync -avz --delete ${DOCS_HTML_DIR}/ docs.opynsim.eu:/var/www/docs.opynsim.eu/manual/en/latest`
+	- [ ] Ensure repo syncs with research-software-directory.org
 
 	## Announce Release
 
