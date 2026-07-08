@@ -25,13 +25,17 @@ osc::Texture2D opyn::render_model_in_state(
     osc::Vector2 dimensions,
     osc::Color background_color,
     bool zoom_to_fit,
-    bool draw_floor)
+    bool draw_floor,
+    osc::SceneCache* scene_cache)
 {
     OSC_ASSERT_ALWAYS(dimensions.x() > 0 and dimensions.y() > 0 && "The dimensions of a render must be positive integers");
 
     // Generate 3D scene
-    osc::SceneCache scene_cache;
-    const std::vector<osc::SceneDecoration> decorations = model.decorations(scene_cache, model_state);
+    std::optional<osc::SceneCache> local_cache;
+    if (not scene_cache) {
+        scene_cache = &local_cache.emplace();
+    }
+    const std::vector<osc::SceneDecoration> decorations = model.decorations(*scene_cache, model_state);
 
     // Setup scene camera
     osc::PolarPerspectiveCamera camera;
@@ -47,7 +51,7 @@ osc::Texture2D opyn::render_model_in_state(
     }
 
     // Use camera to render scene to `RenderTexture` (GPU)
-    osc::SceneRenderer scene_renderer{scene_cache};
+    osc::SceneRenderer scene_renderer{*scene_cache};
     osc::SceneRendererParams scene_renderer_params = {
         .dimensions = dimensions,
         .anti_aliasing_level = osc::AntiAliasingLevel{4},

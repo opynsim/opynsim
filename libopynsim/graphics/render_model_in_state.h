@@ -6,6 +6,7 @@
 namespace opyn { class OPynSimApp; }
 namespace opyn { class Model; }
 namespace opyn { class ModelState; }
+namespace osc { class SceneCache; }
 
 namespace opyn
 {
@@ -16,6 +17,7 @@ namespace opyn
         osc::Vector2 dimensions,
         osc::Color background_color,
         bool zoom_to_fit,
-        bool draw_floor
+        bool draw_floor,
+        osc::SceneCache* scene_cache
     );
 }

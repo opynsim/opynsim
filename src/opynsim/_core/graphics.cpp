@@ -3,6 +3,7 @@
 #include <opynsim/_core/_core.h>
 
 #include <libopynsim/graphics/render_model_in_state.h>
+#include <liboscar/graphics/scene/scene_cache.h>
 #include <libopynsim/model.h>
 #include <libopynsim/model_state.h>
 #include <liboscar/graphics/mesh.h>
@@ -285,6 +286,18 @@ namespace
             )"
         );
     }
+
+    void def_scene_cache(nanobind::module_& m)
+    {
+        nb::class_<osc::SceneCache> cls(
+            m,
+            "SceneCache",
+            R"(
+                Caches slow-to-load assets (shaders, meshes).
+            )"
+        );
+        cls.def(nb::init<>{});
+    }
 }
 
 void opyn::init_graphics_submodule(nanobind::module_& graphics_module)
@@ -296,7 +309,8 @@ void opyn::init_graphics_submodule(nanobind::module_& graphics_module)
             std::pair<int, int> dimensions,
             std::array<float, 4> background_color,
             bool zoom_to_fit,
-            bool draw_floor)
+            bool draw_floor,
+            osc::SceneCache* scene_cache)
         {
             return render_model_in_state(
                 get_lazy_loaded_opynsim_app(),
@@ -305,7 +319,8 @@ void opyn::init_graphics_submodule(nanobind::module_& graphics_module)
                 osc::Vector2{dimensions.first, dimensions.second},
                 osc::Color{background_color[0], background_color[1], background_color[2], background_color[3]},
                 zoom_to_fit,
-                draw_floor
+                draw_floor,
+                scene_cache
             );
         },
         nb::arg("model"),
@@ -315,6 +330,7 @@ void opyn::init_graphics_submodule(nanobind::module_& graphics_module)
         nb::arg("background_color") = std::to_array({0.0f, 0.0f, 0.0f, 0.0f}),
         nb::arg("zoom_to_fit") = true,
         nb::arg("draw_floor") = false,
+        nb::arg("scene_cache") = nullptr,
         R"(
             Renders the given :class:`opynsim.Model` + :class:`opynsim.ModelState` to
             a :class:`opynsim.graphics.Texture2D`.
@@ -326,12 +342,14 @@ void opyn::init_graphics_submodule(nanobind::module_& graphics_module)
                 background_color: The desired background color of the rendered scene, specified as normalized floats representing RGBA.
                 zoom_to_fit (bool): Tells the renderer to automatically set up the camera to focus on the center of the bounds of the scene at a distance that can see the entire scene.
                 draw_floor (bool): Draws a chequered floor.
+                scene_cache (opynsim.graphics.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets.
 
             Returns:
                 opynsim.graphics.Texture2D: The rendered image, which will have the specified ``dimensions``.
         )"
     );
 
+    def_scene_cache(graphics_module);
     def_texture2d(graphics_module);
     def_mesh(graphics_module);
 }
