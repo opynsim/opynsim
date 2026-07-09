@@ -53,9 +53,10 @@ osc::Texture2D opyn::render_model_in_state(
             osc::auto_focus(polar_camera, *aabb, aspect_ratio);
         }
 
-        local_camera->set_view_matrix_override(polar_camera.view_matrix());
-        local_camera->set_projection_matrix_override(polar_camera.projection_matrix(aspect_ratio));
-        camera = &*local_camera;
+        auto& lc = local_camera.emplace();
+        lc.set_view_matrix_override(polar_camera.view_matrix());
+        lc.set_projection_matrix_override(polar_camera.projection_matrix(aspect_ratio));
+        camera = &lc;
     }
 
     // Use camera to render scene to `RenderTexture` (GPU)

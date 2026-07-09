@@ -24,14 +24,14 @@ public:
         *this = Impl{};
     }
 
-    CameraProjection projection() const                     { return camera_projection_; }
-    void set_projection(CameraProjection camera_projection) { camera_projection_ = camera_projection; }
+    CameraProjection projection() const                     { return projection_; }
+    void set_projection(CameraProjection camera_projection) { projection_ = camera_projection; }
 
     float orthographic_size() const                     { return orthographic_size_; }
     void set_orthographic_size(float orthographic_size) { orthographic_size_ = orthographic_size; }
 
-    Radians vertical_field_of_view() const                          { return perspective_vertical_field_of_view; }
-    void set_vertical_field_of_view(Radians vertical_field_of_view) { perspective_vertical_field_of_view = vertical_field_of_view; }
+    Radians vertical_field_of_view() const                          { return vertical_field_of_view_; }
+    void set_vertical_field_of_view(Radians vertical_field_of_view) { vertical_field_of_view_ = vertical_field_of_view; }
 
     Radians horizontal_field_of_view(float aspect_ratio) const
     {
@@ -53,8 +53,8 @@ public:
     Vector3 direction() const                    { return direction_; }
     void set_direction(const Vector3& direction) { direction_ = direction; }
 
-    Vector3 up() const             { return upwards_direction_; }
-    void set_up(const Vector3& up) { upwards_direction_ = up; }
+    Vector3 up() const             { return up_; }
+    void set_up(const Vector3& up) { up_ = up; }
 
     Matrix4x4 view_matrix() const
     {
@@ -79,7 +79,7 @@ public:
         }
         if (projection() == CameraProjection::Perspective) {
             return perspective(
-                perspective_vertical_field_of_view,
+                vertical_field_of_view_,
                 aspect_ratio,
                 clipping_planes_.znear,
                 clipping_planes_.zfar
@@ -111,13 +111,13 @@ public:
     }
 
 private:
-    CameraProjection camera_projection_ = CameraProjection::Default;
+    CameraProjection projection_ = CameraProjection::Default;
     float orthographic_size_ = 2.0f;
-    Radians perspective_vertical_field_of_view = 90_deg;
+    Radians vertical_field_of_view_ = 90_deg;
     CameraClippingPlanes clipping_planes_{0.1f, 100.0f};
     Vector3 position_;
     Vector3 direction_ = {0.0f, 0.0f, -1.0f};
-    Vector3 upwards_direction_ = {0.0f, 1.0f, 0.0f};
+    Vector3 up_ = {0.0f, 1.0f, 0.0f};
     std::optional<Matrix4x4> maybe_view_matrix_override_;
     std::optional<Matrix4x4> maybe_projection_matrix_override_;
 };

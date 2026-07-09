@@ -264,6 +264,7 @@ TEST(CameraV2, projection_matrix_returns_matrix_based_on_camera_position_and_up)
     CameraV2 camera;
     camera.set_projection(CameraProjection::Orthographic);
     camera.set_position({0.0f, 0.0f, 0.0f});
+    camera.set_clipping_planes({1.0f, -1.0f});
 
     const Matrix4x4 returned = camera.projection_matrix(1.0f);
     const Matrix4x4 expected = identity<Matrix4x4>();
