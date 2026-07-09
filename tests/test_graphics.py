@@ -1,4 +1,3 @@
-import numpy as np
 import opynsim as opyn
 import opynsim.examples
 import opynsim.graphics
@@ -8,6 +7,8 @@ def test_can_initialize_blank_mesh():
     assert mesh.vertices.size == 0
 
 def test_can_set_mesh_vertices():
+    import numpy as np
+
     mesh = opyn.graphics.Mesh()
     vertices = np.array([
         [-1.0, -1.0, 0.0],
@@ -21,6 +22,8 @@ def test_can_set_mesh_vertices():
     assert np.array_equal(mesh.vertices, vertices)
 
 def test_can_set_mesh_faces():
+    import numpy as np
+
     mesh = opyn.graphics.Mesh()
     vertices = np.array([
         [-1.0, -1.0, 0.0],
@@ -37,6 +40,8 @@ def test_can_set_mesh_faces():
     assert np.array_equal(mesh.faces, faces)
 
 def test_render_model_in_state_has_expected_background_color():
+    import numpy as np
+
     model = opyn.examples.pendulum_model()
     state = model.initial_state(realized_to=opyn.STAGE_REPORT)
     render = opyn.graphics.render_model_in_state(model, state, background_color=opyn.graphics.Color(1.0, 0.0, 0.0, 1.0))
@@ -93,3 +98,20 @@ def test_color_properties_work_as_expected():
     assert color.a == 1.0
     color.a = 0.5
     assert color.a == 0.5
+
+def test_camera_properties_work_as_expected():
+    import numpy as np
+
+    camera = opyn.graphics.Camera()
+    assert np.array_equal(camera.position, np.array([0.0, 0.0, 0.0]))
+    assert np.array_equal(camera.direction, np.array([0.0, 0.0, -1.0]))
+    assert np.array_equal(camera.up, np.array([0.0, 1.0, 0.0]))
+
+    camera.position = np.array([1.0, 0.0, 0.0])
+    assert np.array_equal(camera.position, np.array([1.0, 0.0, 0.0]))
+
+    camera.direction = np.array([0.0, -1.0, 0.0])
+    assert np.array_equal(camera.direction, np.array([0.0, -1.0, 0.0]))
+
+    camera.up = np.array([1.0, 0.0, 0.0])
+    assert np.array_equal(camera.up, np.array([1.0, 0.0, 0.0]))

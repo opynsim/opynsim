@@ -1,11 +1,13 @@
 #include "graphics.h"
 
+#include <opynsim/_core/type_casters/vector.h>
 #include <opynsim/_core/_core.h>
 
 #include <libopynsim/graphics/render_model_in_state.h>
 #include <liboscar/graphics/scene/scene_cache.h>
 #include <libopynsim/model.h>
 #include <libopynsim/model_state.h>
+#include <liboscar/graphics/camera_v2.h>
 #include <liboscar/graphics/mesh.h>
 #include <liboscar/graphics/texture2d.h>
 #include <liboscar/maths/geometric_functions.h>
@@ -17,6 +19,7 @@
 #pragma warning(pop)
 #include <nanobind/stl/array.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/optional.h>
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/unique_ptr.h>
 
@@ -27,6 +30,7 @@
 #include <format>
 #include <memory>
 #include <new>
+#include <optional>
 #include <span>
 #include <utility>
 #include <vector>
@@ -69,10 +73,9 @@ namespace
         static_assert(sizeof(T) == std::tuple_size_v<T> * sizeof(typename T::value_type));
 
         const uint8_t* pixel_pointer = std::launder(reinterpret_cast<const uint8_t*>(pixels->data()));
-        constexpr size_t ndim = 3;
         const auto shape = std::to_array<size_t>({ dimensions.y(), dimensions.x(), std::tuple_size_v<T> });
 
-        return {pixel_pointer, ndim, shape.data(), to_capsule(std::move(pixels))};
+        return {pixel_pointer, shape.size(), shape.data(), to_capsule(std::move(pixels))};
     }
 
     nb::ndarray<nb::numpy, const uint8_t, nb::shape<-1, -1, 4>> pixels_rgba32_impl(
@@ -233,6 +236,33 @@ namespace
         cls.def_prop_rw("a", [](const Color& c) { return c.a; }, [](Color& self, float rhs) { self.a = rhs; });
     }
 
+    void def_camera(nanobind::module_& m) {
+        nb::class_<osc::CameraV2> cls(m, "Camera", R"(
+            Represents a virtual camera at `position` in world space, looking along
+            a `direction` vector. The `up` vector specifies which direction corresponds
+            to the 'top' of the rendered image.
+        )");
+        cls.def(nb::init<>{});
+        cls.def_prop_rw(
+            "position",
+            &osc::CameraV2::position,
+            &osc::CameraV2::set_position,
+            "Get/set the position of the camera in world space."
+        );
+        cls.def_prop_rw(
+            "direction",
+            &osc::CameraV2::direction,
+            &osc::CameraV2::set_direction,
+            "Get/set the normalized direction the camera is looking toward."
+        );
+        cls.def_prop_rw(
+            "up",
+            &osc::CameraV2::up,
+            &osc::CameraV2::set_up,
+            "Get/set the normalized direction vector that corresponds to the 'top' of the rendered image"
+        );
+    }
+
     void def_texture2d(nanobind::module_& graphics_module)
     {
         nb::class_<osc::Texture2D> texture2d_class(
@@ -335,9 +365,9 @@ namespace
                const ModelState& model_state,
                std::pair<int, int> dimensions,
                const osc::Color& background_color,
-               bool zoom_to_fit,
                bool draw_floor,
-               osc::SceneCache* scene_cache)
+               osc::SceneCache* scene_cache,
+               const osc::CameraV2* camera)
             {
                 return render_model_in_state(
                     get_lazy_loaded_opynsim_app(),
@@ -345,9 +375,9 @@ namespace
                     model_state,
                     osc::Vector2{dimensions.first, dimensions.second},
                     background_color,
-                    zoom_to_fit,
                     draw_floor,
-                    scene_cache
+                    scene_cache,
+                    camera
                 );
             },
             nb::arg("model"),
@@ -355,9 +385,9 @@ namespace
             nb::kw_only{},
             nb::arg("dimensions") = std::make_pair(640, 480),
             nb::arg("background_color") = osc::Color::clear(),
-            nb::arg("zoom_to_fit") = true,
             nb::arg("draw_floor") = false,
             nb::arg("scene_cache") = nullptr,
+            nb::arg("camera") = std::nullopt,
             R"(
                 Renders the given :class:`opynsim.Model` + :class:`opynsim.ModelState` to
                 a :class:`opynsim.graphics.Texture2D`.
@@ -367,9 +397,9 @@ namespace
                     model_state (opynsim.ModelState): The state of the model to render. Should be realized to at least :attr:`opynsim.ModelStateStage.REPORT`.
                     dimensions (tuple[int, int]): The desired output resolution (width, height) of the rendered image in pixels.
                     background_color (opynsim.graphics.Color): The desired background color of the rendered scene.
-                    zoom_to_fit (bool): Tells the renderer to automatically set up the camera to focus on the center of the bounds of the scene at a distance that can see the entire scene.
-                    draw_floor (bool): Draws a chequered floor.
-                    scene_cache (opynsim.graphics.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets.
+                    draw_floor (bool): Toggles drawing a chequered floor at Y=0 in the scene.
+                    scene_cache (opynsim.graphics.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets every time this function is called (slow).
+                    camera (opynsim.graphics.Camera): The camera to use when rendering (default: looks down -Z and pulls back from the origin until the entire model fits in-frame).
 
                 Returns:
                     opynsim.graphics.Texture2D: The rendered image, which will have the specified ``dimensions``.
@@ -384,5 +414,6 @@ void opyn::init_graphics_submodule(nanobind::module_& graphics_module)
     def_scene_cache(graphics_module);
     def_texture2d(graphics_module);
     def_mesh(graphics_module);
+    def_camera(graphics_module);
     def_render_model_in_state(graphics_module);
 }
