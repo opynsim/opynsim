@@ -16,6 +16,7 @@
 #include <nanobind/ndarray.h>
 #pragma warning(pop)
 #include <nanobind/stl/array.h>
+#include <nanobind/stl/string.h>
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/unique_ptr.h>
 
@@ -23,6 +24,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <memory>
 #include <new>
 #include <span>
@@ -30,6 +32,7 @@
 #include <vector>
 
 namespace nb = nanobind;
+using namespace opyn;
 
 namespace
 {
@@ -205,6 +208,31 @@ namespace
         }
     }
 
+    void def_color(nanobind::module_& m)
+    {
+        using osc::Color;
+
+        nb::class_<Color> cls(m, "Color", R"(
+            Represents an RGBA color in an sRGB color space with normalized 32-bit floating-point components.
+        )");
+        static_assert(Color{} == Color::clear());
+        cls.def(nb::init<>{});
+        cls.def(nb::init<float, float, float, float>{}, nb::arg("r"), nb::arg("g"), nb::arg("b"), nb::arg("a") = 1.0f);
+        cls.def_prop_ro_static("clear", [](nb::handle) { return Color::clear(); }, nb::rv_policy::copy);
+        cls.def_prop_ro_static("white", [](nb::handle) { return Color::white(); }, nb::rv_policy::copy);
+        cls.def_prop_ro_static("black", [](nb::handle) { return Color::black(); }, nb::rv_policy::copy);
+        cls.def_prop_ro_static("red",   [](nb::handle) { return Color::red();   }, nb::rv_policy::copy);
+        cls.def_prop_ro_static("green", [](nb::handle) { return Color::green(); }, nb::rv_policy::copy);
+        cls.def_prop_ro_static("blue",  [](nb::handle) { return Color::blue();  }, nb::rv_policy::copy);
+        cls.def("__eq__", std::equal_to<Color>{});
+        cls.def("__hash__",  [](const Color& c) { return std::hash<Color>{}(c); });
+        cls.def("__repr__",  [](const Color& c) { return std::format("{}", c); });
+        cls.def_prop_rw("r", [](const Color& c) { return c.r; }, [](Color& self, float rhs) { self.r = rhs; });
+        cls.def_prop_rw("g", [](const Color& c) { return c.g; }, [](Color& self, float rhs) { self.g = rhs; });
+        cls.def_prop_rw("b", [](const Color& c) { return c.b; }, [](Color& self, float rhs) { self.b = rhs; });
+        cls.def_prop_rw("a", [](const Color& c) { return c.a; }, [](Color& self, float rhs) { self.a = rhs; });
+    }
+
     void def_texture2d(nanobind::module_& graphics_module)
     {
         nb::class_<osc::Texture2D> texture2d_class(
@@ -298,58 +326,63 @@ namespace
         );
         cls.def(nb::init<>{});
     }
+
+    void def_render_model_in_state(nanobind::module_& m)
+    {
+        m.def(
+            "render_model_in_state",
+            [](const Model& model,
+               const ModelState& model_state,
+               std::pair<int, int> dimensions,
+               const osc::Color& background_color,
+               bool zoom_to_fit,
+               bool draw_floor,
+               osc::SceneCache* scene_cache)
+            {
+                return render_model_in_state(
+                    get_lazy_loaded_opynsim_app(),
+                    model,
+                    model_state,
+                    osc::Vector2{dimensions.first, dimensions.second},
+                    background_color,
+                    zoom_to_fit,
+                    draw_floor,
+                    scene_cache
+                );
+            },
+            nb::arg("model"),
+            nb::arg("model_state"),
+            nb::kw_only{},
+            nb::arg("dimensions") = std::make_pair(640, 480),
+            nb::arg("background_color") = osc::Color::clear(),
+            nb::arg("zoom_to_fit") = true,
+            nb::arg("draw_floor") = false,
+            nb::arg("scene_cache") = nullptr,
+            R"(
+                Renders the given :class:`opynsim.Model` + :class:`opynsim.ModelState` to
+                a :class:`opynsim.graphics.Texture2D`.
+
+                Args:
+                    model (opynsim.Model): The model to render.
+                    model_state (opynsim.ModelState): The state of the model to render. Should be realized to at least :attr:`opynsim.ModelStateStage.REPORT`.
+                    dimensions (tuple[int, int]): The desired output resolution (width, height) of the rendered image in pixels.
+                    background_color (opynsim.graphics.Color): The desired background color of the rendered scene.
+                    zoom_to_fit (bool): Tells the renderer to automatically set up the camera to focus on the center of the bounds of the scene at a distance that can see the entire scene.
+                    draw_floor (bool): Draws a chequered floor.
+                    scene_cache (opynsim.graphics.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets.
+
+                Returns:
+                    opynsim.graphics.Texture2D: The rendered image, which will have the specified ``dimensions``.
+            )"
+        );
+    }
 }
 
 void opyn::init_graphics_submodule(nanobind::module_& graphics_module)
 {
-    graphics_module.def(
-        "render_model_in_state",
-        []( const Model& model,
-            const ModelState& model_state,
-            std::pair<int, int> dimensions,
-            std::array<float, 4> background_color,
-            bool zoom_to_fit,
-            bool draw_floor,
-            osc::SceneCache* scene_cache)
-        {
-            return render_model_in_state(
-                get_lazy_loaded_opynsim_app(),
-                model,
-                model_state,
-                osc::Vector2{dimensions.first, dimensions.second},
-                osc::Color{background_color[0], background_color[1], background_color[2], background_color[3]},
-                zoom_to_fit,
-                draw_floor,
-                scene_cache
-            );
-        },
-        nb::arg("model"),
-        nb::arg("model_state"),
-        nb::kw_only{},
-        nb::arg("dimensions") = std::make_pair(640, 480),
-        nb::arg("background_color") = std::to_array({0.0f, 0.0f, 0.0f, 0.0f}),
-        nb::arg("zoom_to_fit") = true,
-        nb::arg("draw_floor") = false,
-        nb::arg("scene_cache") = nullptr,
-        R"(
-            Renders the given :class:`opynsim.Model` + :class:`opynsim.ModelState` to
-            a :class:`opynsim.graphics.Texture2D`.
-
-            Args:
-                model (opynsim.Model): The model to render.
-                model_state (opynsim.ModelState): The state of the model to render. Should be realized to at least :attr:`opynsim.ModelStateStage.REPORT`.
-                dimensions (tuple[int, int]): The desired output resolution (width, height) of the rendered image in pixels.
-                background_color: The desired background color of the rendered scene, specified as normalized floats representing RGBA.
-                zoom_to_fit (bool): Tells the renderer to automatically set up the camera to focus on the center of the bounds of the scene at a distance that can see the entire scene.
-                draw_floor (bool): Draws a chequered floor.
-                scene_cache (opynsim.graphics.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets.
-
-            Returns:
-                opynsim.graphics.Texture2D: The rendered image, which will have the specified ``dimensions``.
-        )"
-    );
-
+    def_color(graphics_module);
     def_scene_cache(graphics_module);
     def_texture2d(graphics_module);
     def_mesh(graphics_module);
+    def_render_model_in_state(graphics_module);
 }
