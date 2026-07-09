@@ -152,7 +152,7 @@ namespace
 
         for (const float value : values) {
             const auto [ptr, size] = std::format_to_n(buffer.data(), buffer.size(), "{}", value);
-            if (0 < size and size <= buffer.size()) {
+            if (0 < size and size <= std::ssize(buffer)) {
                 out << delimiter << std::string_view{buffer.data(), static_cast<size_t>(size)};
                 delimiter = " ";
             }
