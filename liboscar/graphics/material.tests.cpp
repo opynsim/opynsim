@@ -832,7 +832,7 @@ TEST_F(MaterialTest, MaterialCanCompareNotEquals)
     ASSERT_NE(material_a, material_b);
 }
 
-TEST_F(MaterialTest, MaterialCanPrintToStringStream)
+TEST_F(MaterialTest, MaterialCanPrintToOstream)
 {
     const Material material = generate_material();
 
