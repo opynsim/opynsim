@@ -520,7 +520,7 @@ namespace {
             &construct_dataframe_from_arrow_object_or_throw,
             nb::arg("data"),
             R"(
-                Constructs a `DataFrame` from an array-like Arrow object.
+                Constructs a :class:`DataFrame` from an array-like Arrow object.
 
                 This function accepts any Arrow-compatible array-like object implementing the array-streaming
                 part of the `Arrow PyCapsule Protocol <https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html>`_
@@ -546,10 +546,10 @@ namespace {
             },
             nb::arg("data") = nb::none(),
             R"(
-                Constructs a ``DataFrame``.
+                Constructs a :class:`DataFrame`.
 
                 Args:
-                    data: If ``None``, constructs an empty ``DataFrame``. Else, assumes ``data`` is
+                    data: If ``None``, constructs an empty :class:`DataFrame`. Otherwise, assumes ``data`` is
                         an Arrow-compatible Python object with an  ``__arrow_c_stream__`` method and
                         constructs the ``DataFrame`` as-if by calling :meth:`from_arrow`.
             )"
@@ -563,7 +563,7 @@ namespace {
                 Returns the attributes (metadata) associated with ``self``.
 
                 In some cases, attributes can affect the behavior of functions that read data
-                from :class:`DataFrame`\s. Notably, functions like :meth:`opynsim.Model.states_from_data_frame` look
+                from :class:`DataFrame`\s. Notably, functions like :meth:`Model.states_from_data_frame` look
                 for attributes like ``'inDegrees'`` to perform on-the-fly degrees-to-radians conversions
                 on legacy data files.
             )"
@@ -579,14 +579,14 @@ namespace {
             },
             nb::arg("requested_schema") = std::nullopt,
             R"(
-                Exports this ``DataFrame`` as an ``ArrowSchema`` (see: `Apache Arrow PyCapsule Interface <https://arrow.apache.org/docs/dev/format/CDataInterface/PyCapsuleInterface.html>`_).
+                Exports this :class:`DataFrame` as an ``ArrowSchema`` (see: `Apache Arrow PyCapsule Interface <https://arrow.apache.org/docs/dev/format/CDataInterface/PyCapsuleInterface.html>`_).
 
                 This is a low-level interface that other dataframe libraries (e.g. `Pandas <https://pandas.pydata.org/>`_
                 and `Polars <https://pola.rs/>`_) can use to natively read :class:`DataFrame`\s. For
                 example, ``polars.DataFrame.__init__`` accepts :class:`DataFrame`\s because it implements this
                 method, as does ``pandas.DataFrame.from_arrow``.
 
-                **Note**: This method also exports metadata (:meth:`attrs`), but third-party libraries handle
+                **Note**: This method also exports metadata (:attr:`attrs`), but third-party libraries handle
                 metadata inconsistently. At time of writing, `PyArrow <https://arrow.apache.org/docs/python/index.html>`_
                 encodes metadata into its table schema, but `Pandas <https://pandas.pydata.org/>`_ and `Polars <https://pola.rs/>`_
                 drop it. Therefore, we recommend that callers propagate metadata manually, or adjust their
@@ -604,7 +604,7 @@ namespace {
             "shape",
             &DataFrame::shape,
             R"(
-                Returns the shape of the ``DataFrame`` (rows, columns).
+                Returns the shape of the :class:`DataFrame` (rows, columns).
             )"
         );
         cls.def(
@@ -1192,8 +1192,7 @@ namespace {
                 Args:
                     model (Model): The model that is being integrated.
                     model_state (ModelState): The state of ``model`` that the solver begins integration from.
-                    integrator_settings (IntegratorSettings): The integrator settings that the solvers's
-                        integrator uses.
+                    integrator_settings (IntegratorSettings): The integrator settings of the solvers's integrator.
             )"
         );
         cls.def(
@@ -1202,7 +1201,7 @@ namespace {
             nb::arg("time"),
             nb::arg("realized_to") = ModelStateStage::report,
             R"(
-                Integrates the solvers's internal :class:`ModelState` forwards to ``time``.
+                Forward-integrates the solvers's :class:`ModelState` to ``time``.
 
                 Args:
                     time (float): The endpoint that the integrator should integrate towards. Must be
@@ -1211,7 +1210,7 @@ namespace {
                         should be realized to by the solver.
 
                 Returns:
-                    A copy of the solver's :class:`ModelStateStage` representing the model's state
+                    A copy of the solver's :class:`ModelState` representing the model's state
                     at ``time`` realized to ``realized_to``.
             )"
         );
