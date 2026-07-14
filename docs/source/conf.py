@@ -32,7 +32,7 @@ class NanobindFunctionDocumenter(FunctionDocumenter):
     """
     objtype = 'nanobindfunction'
     directivetype = 'function'                   # override emitting `autonanobindfunction::` with `autofunction::`
-    priority = 10 + FunctionDocumenter.priority  # Check this documenter before the base function one
+    priority = 20 + FunctionDocumenter.priority  # Check this documenter before the base function one
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
