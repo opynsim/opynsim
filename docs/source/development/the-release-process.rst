@@ -35,7 +35,7 @@ websites like GitHub.
     - [ ] Tag and push the commit as `v${VERSION}`
     - [ ] Rebase any active branches onto the `main` branch so that all branches are at-least compatible with the latest release, or delete the branches if they are stale.
     - [ ] Collect all build artifacts:
-      - [ ] `opynsim-${VERSION}-cp312-abi3-macosx_14_5_arm64.whl`
+      - [ ] `opynsim-${VERSION}-cp312-abi3-macosx_14_0_arm64.whl`
       - [ ] `opynsim-${VERSION}-cp312-abi3-win_amd64.whl`
       - [ ] `opynsim-${VERSION}-cp312-abi3-manylinux_2_28_x86_64.whl`
       - [ ] `opynsim-${VERSION}-docs.tar.xz`: E.g. `tar cvzf opynsim-${VERSION}-docs.tar.xz -C ${DOCS_HTML_DIR} --transform="s,^\.,opynsim-${VERSION}-docs," .`.
@@ -49,11 +49,11 @@ websites like GitHub.
     - [ ] Upload wheels to PyPi
       - [ ] Set `TWINE_USERNAME` and `TWINE_PASSWORD` (stored on developer's keychain)
       - [ ] Run `./scripts/deploy_pypi.py WHEEL_FILES` (or similar)
-    - [ ] Update Zenodo with the release
+    - [ ] Update Zenodo with the release (https://zenodo.org/records/21373996):
       - [ ] This should happen automatically, because Zenodo is linked to @adamkewley, which
             and has linked/mirrored organizational OAuth access for OPynSim setup at the
             user-level.
-    - [ ] TODO: Update `README.md` with Zenodo release details
+    - [ ] Update `README.md` with Zenodo release details
     - [ ] Ensure the entire repository is pushed/mirrored to the official TU Delft mirror:
       - [ ] `git remote add tud https://gitlab.tudelft.nl/opynsim/opynsim.git`
       - [ ] `git push tud --all`
@@ -62,7 +62,7 @@ websites like GitHub.
       - [ ] `rsync -avz release-binaries/* files.opynsim.eu:/var/www/files.opynsim.eu/releases/`
     - [ ] Upload built documentation to `docs.opynsim.eu`
       - [ ] `rsync -avz --delete ${DOCS_HTML_DIR}/ docs.opynsim.eu:/var/www/docs.opynsim.eu/manual/en/latest`
-    - [ ] Ensure repo syncs with research-software-directory.org
+    - [ ] Ensure repo syncs with research-software-directory.org (https://research-software-directory.org/software/opynsim)
 
     ## Announce Release
 
