@@ -32,7 +32,7 @@ websites like GitHub.
       - [ ] Move sections around such that `Unreleased` becomes `XX.xx.pp`, add a new (empty) `Unreleased` section at the top.
       - [ ] Write a very short summary paragraph at the top of the `XX.xx.pp` section, for use in GitHub, website, etc.
     - [ ] Push the `CHANGELOG.md` update commit (e.g. "Update CHANGELOG.md for XX.xx.pp")
-    - [ ] Tag the commit as `v${VERSION}`
+    - [ ] Tag and push the commit as `v${VERSION}`
     - [ ] Rebase any active branches onto the `main` branch so that all branches are at-least compatible with the latest release, or delete the branches if they are stale.
     - [ ] Collect all build artifacts:
       - [ ] `opynsim-${VERSION}-cp312-abi3-macosx_14_5_arm64.whl`
