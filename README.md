@@ -16,9 +16,9 @@ OPynSim provides:
 
 - **A Python-native interface** for building and manipulating musculoskeletal models.
 - **An integrated visualization API** that supports real-time 3D rendering.
-- **High-performance native bindings**, implemented with [nanobind](https://github.com/wjakob/nanobind).
-- **Almost zero runtime dependencies**. Only depends on common system libraries and `numpy` ≥1.26.0.
-- **Stable Python ABI implementation**. Each release of OPynSim works with Python ≥3.12 on Windows, macOS, and Linux.
+- **High-performance bindings**, implemented with [nanobind](https://github.com/wjakob/nanobind).
+- **Almost zero runtime dependencies**. It only depends on `numpy` ≥1.26.0.
+- **Stable Python ABI implementation**. Works Python ≥3.12 on Windows, macOS, and Linux.
 - **Excellent compatibility with OpenSim**. Can import/export `.osim` files and be used alongside the `opensim` Python API.
 
 
