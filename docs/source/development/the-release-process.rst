@@ -38,7 +38,7 @@ websites like GitHub.
       - [ ] `opynsim-${VERSION}-cp312-abi3-macosx_14_5_arm64.whl`
       - [ ] `opynsim-${VERSION}-cp312-abi3-win_amd64.whl`
       - [ ] `opynsim-${VERSION}-cp312-abi3-manylinux_2_28_x86_64.whl`
-      - [ ] `opynsim-${VERSION}-docs.tar.xz`: E.g. `tar cvzf opynsim-${VERSION}-docs.tar.xz -C ${DOCS_HTML_DIR} --transform="s,^,opynsim-${VERSION}-docs/," *`.
+      - [ ] `opynsim-${VERSION}-docs.tar.xz`: E.g. `tar cvzf opynsim-${VERSION}-docs.tar.xz -C ${DOCS_HTML_DIR} --transform="s,^\.,opynsim-${VERSION}-docs," .`.
       - [ ] `opynsim-${VERSION}-src.tar.xz`: E.g. `git archive --format=tar --prefix=opynsim-${VERSION}/ v${VERSION} | xz -c > "opynsim-${VERSION}-src.tar.xz"`.
 
     ## Publish
