@@ -19,7 +19,7 @@ OPynSim provides:
 - **High-performance bindings**, implemented with [nanobind](https://github.com/wjakob/nanobind).
 - **Almost zero runtime dependencies**. It only depends on `numpy` ≥1.26.0.
 - **Stable Python ABI implementation**. Works Python ≥3.12 on Windows, macOS, and Linux.
-- **Excellent compatibility with OpenSim**. Can import/export `.osim` files and be used alongside the `opensim` Python API.
+- **Excellent compatibility with OpenSim**. Supports `.osim` files and can be installed alongside `opensim`.
 
 
 ## 📖 Citing/Acknowledging
