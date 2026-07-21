@@ -21,7 +21,6 @@
 #include <liboscar/graphics/detail/depth_stencil_render_buffer_format_helpers.h>
 #include <liboscar/graphics/detail/material_value_traits.h>
 #include <liboscar/graphics/detail/material_value_traits_like.h>
-#include <liboscar/graphics/detail/maybe_index.h>
 #include <liboscar/graphics/detail/render_queue.h>
 #include <liboscar/graphics/detail/shader_property_type_list.h>
 #include <liboscar/graphics/detail/shader_property_type_traits.h>
@@ -4708,7 +4707,7 @@ public:
 
     void draw_instanced(
         size_t n,
-        MaybeIndex maybe_submesh_index)
+        RenderQueue::submesh_index_type maybe_submesh_index)
     {
         const SubMeshDescriptor descriptor = maybe_submesh_index ?
             submesh_descriptors_.at(*maybe_submesh_index) :         // draw the requested sub-mesh
@@ -5488,6 +5487,7 @@ private:
     Quaternion rotation_ = identity<Quaternion>();
     std::optional<Matrix4x4> maybe_view_matrix_override_;
     std::optional<Matrix4x4> maybe_projection_matrix_override_;
+
     RenderQueue render_queue_;
 };
 
@@ -6680,7 +6680,7 @@ void osc::GraphicsBackend::handle_batch_with_same_submesh(
     OSC_ASSERT(not handle_subrange.empty());
     auto& mesh_impl = const_cast<Mesh::Impl&>(*render_queue.mesh(handle_subrange.front()).impl_);
     const Shader::Impl& shader_impl = *render_queue.material(handle_subrange.front()).impl_->shader_.impl_;
-    const MaybeIndex maybe_submesh_index = render_queue.maybe_submesh_index(handle_subrange.front());
+    const RenderQueue::submesh_index_type maybe_submesh_index = render_queue.maybe_submesh_index(handle_subrange.front());
 
     gl::bind_vertex_array(mesh_impl.upd_vertex_array());
 
