@@ -5475,23 +5475,25 @@ public:
 private:
     friend class GraphicsBackend;
 
-    Color background_color_ = Color::clear();
+    // Transform
+    Vector3 position_;
+    Quaternion rotation_ = identity<Quaternion>();
+    std::optional<Matrix4x4> maybe_view_matrix_override_;
+
+    // Projection
     CameraProjection camera_projection_ = CameraProjection::Default;
     float orthographic_size_ = 2.0f;
     Radians perspective_vertical_field_of_view = 90_deg;
     CameraClippingPlanes clipping_planes_{1.0f, -1.0f};
+    std::optional<Matrix4x4> maybe_projection_matrix_override_;
+
+    // Rendering
+    Color background_color_ = Color::clear();
     CameraClearFlags clear_flags_ = CameraClearFlag::Default;
     std::optional<Rect> maybe_screen_pixel_rect_ = std::nullopt;
     std::optional<Rect> maybe_scissor_rect_ = std::nullopt;
-    Vector3 position_;
-    Quaternion rotation_ = identity<Quaternion>();
-    std::optional<Matrix4x4> maybe_view_matrix_override_;
-    std::optional<Matrix4x4> maybe_projection_matrix_override_;
-
     RenderQueue render_queue_;
 };
-
-
 
 std::ostream& osc::operator<<(std::ostream& o, CameraProjection camera_projection)
 {

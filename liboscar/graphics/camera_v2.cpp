@@ -111,14 +111,17 @@ public:
     }
 
 private:
-    CameraProjection projection_ = CameraProjection::Default;
-    float orthographic_size_ = 2.0f;
-    Radians vertical_field_of_view_ = 90_deg;
-    CameraClippingPlanes clipping_planes_{0.1f, 100.0f};
+    // Transform
     Vector3 position_;
     Vector3 direction_ = {0.0f, 0.0f, -1.0f};
     Vector3 up_ = {0.0f, 1.0f, 0.0f};
     std::optional<Matrix4x4> maybe_view_matrix_override_;
+
+    // Projection
+    CameraProjection projection_ = CameraProjection::Default;
+    float orthographic_size_ = 2.0f;
+    Radians vertical_field_of_view_ = 90_deg;
+    CameraClippingPlanes clipping_planes_{0.1f, 100.0f};
     std::optional<Matrix4x4> maybe_projection_matrix_override_;
 };
 
