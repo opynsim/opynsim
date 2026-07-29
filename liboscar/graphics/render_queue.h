@@ -21,7 +21,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace osc::detail
+namespace osc
 {
     // Represents what's queued up whenever a caller calls `graphics::draw`
     class RenderQueue final {

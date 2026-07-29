@@ -21,7 +21,6 @@
 #include <liboscar/graphics/detail/depth_stencil_render_buffer_format_helpers.h>
 #include <liboscar/graphics/detail/material_value_traits.h>
 #include <liboscar/graphics/detail/material_value_traits_like.h>
-#include <liboscar/graphics/detail/render_queue.h>
 #include <liboscar/graphics/detail/shader_property_type_list.h>
 #include <liboscar/graphics/detail/shader_property_type_traits.h>
 #include <liboscar/graphics/detail/texture_format_list.h>
@@ -42,6 +41,7 @@
 #include <liboscar/graphics/mesh_topology.h>
 #include <liboscar/graphics/render_buffer_load_action.h>
 #include <liboscar/graphics/render_buffer_store_action.h>
+#include <liboscar/graphics/render_queue.h>
 #include <liboscar/graphics/render_target.h>
 #include <liboscar/graphics/render_target_color_attachment.h>
 #include <liboscar/graphics/render_target_depth_stencil_attachment.h>
