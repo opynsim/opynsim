@@ -42,6 +42,7 @@
 #include <liboscar/graphics/mesh_topology.h>
 #include <liboscar/graphics/render_buffer_load_action.h>
 #include <liboscar/graphics/render_buffer_store_action.h>
+#include <liboscar/graphics/render_pass_config.h>
 #include <liboscar/graphics/render_queue.h>
 #include <liboscar/graphics/render_target.h>
 #include <liboscar/graphics/render_target_color_attachment.h>
@@ -5182,12 +5183,12 @@ public:
 
     Color background_color() const
     {
-        return background_color_;
+        return render_pass_config_.clear_color;
     }
 
     void set_background_color(const Color& color)
     {
-        background_color_ = color;
+        render_pass_config_.clear_color = color;
     }
 
     CameraProjection projection() const
@@ -5257,32 +5258,32 @@ public:
 
     CameraClearFlags clear_flags() const
     {
-        return clear_flags_;
+        return render_pass_config_.clear_flags;
     }
 
     void set_clear_flags(CameraClearFlags flags)
     {
-        clear_flags_ = flags;
+        render_pass_config_.clear_flags = flags;
     }
 
     std::optional<Rect> pixel_rect() const
     {
-        return maybe_screen_pixel_rect_;
+        return render_pass_config_.viewport_rect;
     }
 
     void set_pixel_rect(std::optional<Rect> maybe_pixel_rect)
     {
-        maybe_screen_pixel_rect_ = maybe_pixel_rect;
+        render_pass_config_.viewport_rect = maybe_pixel_rect;
     }
 
     std::optional<Rect> scissor_rect() const
     {
-        return maybe_scissor_rect_;
+        return render_pass_config_.scissor_rect;
     }
 
     void set_scissor_rect(std::optional<Rect> maybe_scissor_rect)
     {
-        maybe_scissor_rect_ = maybe_scissor_rect;
+        render_pass_config_.scissor_rect = maybe_scissor_rect;
     }
 
     Vector3 position() const
@@ -5455,12 +5456,7 @@ private:
     friend class GraphicsBackend;
 
     CameraV2 camera_v2_;
-
-    // Rendering
-    Color background_color_ = Color::clear();
-    CameraClearFlags clear_flags_ = CameraClearFlag::Default;
-    std::optional<Rect> maybe_screen_pixel_rect_ = std::nullopt;
-    std::optional<Rect> maybe_scissor_rect_ = std::nullopt;
+    RenderPassConfig render_pass_config_;
     RenderQueue render_queue_;
 };
 
