@@ -1,7 +1,7 @@
 #include "oscimgui.h"
 
 #include <liboscar/graphics/camera.h>
-#include <liboscar/graphics/camera_clear_flags.h>
+#include <liboscar/graphics/clear_flags.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/color_space.h>
 #include <liboscar/graphics/cull_mode.h>
@@ -517,7 +517,7 @@ namespace
         const Vector2 maxflip{clip_max.x(), (draw_data.DisplaySize.y) - clip_min.y()};
 
         // setup clipping rectangle
-        bd.camera.set_clear_flags(CameraClearFlag::None);
+        bd.camera.set_clear_flags(ClearFlag::None);
         bd.camera.set_scissor_rect(Rect::from_corners(minflip, maxflip));
 
         // setup sub-mesh description

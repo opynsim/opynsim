@@ -1,7 +1,7 @@
 #include "camera_v2.h"
 
-#include <liboscar/graphics/camera_clear_flags.h>
 #include <liboscar/graphics/camera_projection.h>
+#include <liboscar/graphics/clear_flags.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/maths/angle.h>
 #include <liboscar/maths/math_helpers.h>

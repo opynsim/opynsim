@@ -1,8 +1,8 @@
 #include <liboscar/graphics/anti_aliasing_level.h>
 #include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/camera_v2.h>
-#include <liboscar/graphics/camera_clear_flags.h>
 #include <liboscar/graphics/camera_projection.h>
+#include <liboscar/graphics/clear_flags.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/color32.h>
 #include <liboscar/graphics/color_render_buffer_format.h>
@@ -5256,12 +5256,12 @@ public:
         camera_v2_.set_far_clipping_plane(distance);
     }
 
-    CameraClearFlags clear_flags() const
+    ClearFlags clear_flags() const
     {
         return render_pass_config_.clear_flags;
     }
 
-    void set_clear_flags(CameraClearFlags flags)
+    void set_clear_flags(ClearFlags flags)
     {
         render_pass_config_.clear_flags = flags;
     }
@@ -5370,7 +5370,7 @@ public:
 
     void render_to(RenderTexture& render_texture)
     {
-        static_assert(CameraClearFlag::All == CameraClearFlags{CameraClearFlag::SolidColor, CameraClearFlag::Depth});
+        static_assert(ClearFlag::All == ClearFlags{ClearFlag::SolidColor, ClearFlag::Depth});
 
         // If the color/depth buffer(s) haven't been rendered to yet, they should be
         // cleared (so that new buffers have a predictable initial state).Otherwise,
@@ -5381,10 +5381,10 @@ public:
         // results in an inordinate amount of wasted fucking time - not that I'd know ;)).
         bool should_clear_color_buffer =
             not render_texture.upd_color_buffer().has_been_rendered_to() or
-            (clear_flags() & CameraClearFlag::SolidColor);
+            (clear_flags() & ClearFlag::SolidColor);
         bool should_clear_depth_stencil_buffer =
             not render_texture.upd_depth_buffer().has_been_rendered_to() or
-            (clear_flags() & CameraClearFlag::Depth);
+            (clear_flags() & ClearFlag::Depth);
 
         RenderTarget render_target{
             {
@@ -5420,7 +5420,7 @@ public:
 
     void render_to(SharedDepthStencilRenderBuffer& shared_depth_stencil_buffer)
     {
-        static_assert(CameraClearFlag::All == CameraClearFlags{CameraClearFlag::SolidColor, CameraClearFlag::Depth});
+        static_assert(ClearFlag::All == ClearFlags{ClearFlag::SolidColor, ClearFlag::Depth});
 
         // If the color/depth buffer(s) haven't been rendered to yet, they should be
         // cleared (so that new buffers have a predictable initial state).Otherwise,
@@ -5431,7 +5431,7 @@ public:
         // results in an inordinate amount of wasted fucking time - not that I'd know ;)).
         bool should_clear_depth_stencil_buffer =
             not shared_depth_stencil_buffer.has_been_rendered_to() or
-            (clear_flags() & CameraClearFlag::Depth);
+            (clear_flags() & ClearFlag::Depth);
 
         const RenderTarget render_target{
             RenderTargetDepthStencilAttachment{
@@ -5549,12 +5549,12 @@ void osc::Camera::set_far_clipping_plane(float far_clipping_plane)
     impl_.upd()->set_far_clipping_plane(far_clipping_plane);
 }
 
-CameraClearFlags osc::Camera::clear_flags() const
+ClearFlags osc::Camera::clear_flags() const
 {
     return impl_->clear_flags();
 }
 
-void osc::Camera::set_clear_flags(CameraClearFlags clear_flags)
+void osc::Camera::set_clear_flags(ClearFlags clear_flags)
 {
     impl_.upd()->set_clear_flags(clear_flags);
 }
@@ -7250,10 +7250,10 @@ std::optional<gl::FrameBuffer> osc::GraphicsBackend::bind_and_clear_render_buffe
         gl::bind_framebuffer(GL_FRAMEBUFFER, gl::window_framebuffer);
 
         // we're rendering to the window
-        if (camera.clear_flags() != CameraClearFlag::None) {
+        if (camera.clear_flags() != ClearFlag::None) {
 
             // clear window
-            const GLenum clear_flags = camera.clear_flags() & CameraClearFlag::SolidColor ?
+            const GLenum clear_flags = camera.clear_flags() & ClearFlag::SolidColor ?
                 GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT :
                 GL_DEPTH_BUFFER_BIT;
 
@@ -7515,7 +7515,7 @@ void osc::GraphicsBackend::blit_to_main_window(
     camera.set_pixel_rect(destination_screen_rect);
     camera.set_projection_matrix_override(identity<Matrix4x4>());
     camera.set_view_matrix_override(identity<Matrix4x4>());
-    camera.set_clear_flags(CameraClearFlag::None);
+    camera.set_clear_flags(ClearFlag::None);
 
     Material material_copy{material};
     material_copy.set("uTexture", source);
@@ -7535,7 +7535,7 @@ void osc::GraphicsBackend::blit_to_main_window(
     camera.set_pixel_rect(rect);
     camera.set_projection_matrix_override(identity<Matrix4x4>());
     camera.set_view_matrix_override(identity<Matrix4x4>());
-    camera.set_clear_flags(CameraClearFlag::None);
+    camera.set_clear_flags(ClearFlag::None);
 
     Material material_copy{g_graphics_context_impl->quad_material()};
     material_copy.set("uTexture", source);

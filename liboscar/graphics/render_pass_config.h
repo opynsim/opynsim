@@ -1,6 +1,6 @@
 #pragma once
 
-#include <liboscar/graphics/camera_clear_flags.h>
+#include <liboscar/graphics/clear_flags.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/maths/rect.h>
 
@@ -42,6 +42,6 @@ namespace osc
 
         /// Flags that tell the renderer if (and what) it should clear
         /// before rendering.
-        CameraClearFlags clear_flags = CameraClearFlag::Default;
+        ClearFlags clear_flags = ClearFlag::Default;
     };
 }

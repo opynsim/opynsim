@@ -1,8 +1,8 @@
 #pragma once
 
-#include <liboscar/graphics/camera_clear_flags.h>
 #include <liboscar/graphics/camera_clipping_planes.h>
 #include <liboscar/graphics/camera_projection.h>
+#include <liboscar/graphics/clear_flags.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/maths/angle.h>
 #include <liboscar/maths/matrix4x4.h>
@@ -79,10 +79,10 @@ namespace osc
         float far_clipping_plane() const;
         void set_far_clipping_plane(float);
 
-        // get/set the camera's clear flags, which affect how/if the camera clears the output
-        // during a call to `graphics::draw`
-        CameraClearFlags clear_flags() const;
-        void set_clear_flags(CameraClearFlags);
+        // get/set the camera's clear flags, which affect how/if the renderer clears the output
+        // during a call to `render`
+        ClearFlags clear_flags() const;
+        void set_clear_flags(ClearFlags);
 
         // get/set where on the output that this `Camera` should rasterize its pixels
         // during a call to `graphics::draw`
