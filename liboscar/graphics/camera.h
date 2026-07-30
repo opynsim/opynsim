@@ -130,16 +130,10 @@ namespace osc
         Quaternion rotation() const;
         void set_rotation(const Quaternion&);
 
-        // get/set the direction in which this `Camera` is pointing
+        // get/set the direction that the front of the `Camera` is pointing towards.
         //
-        // care: This is a convenience method. `Camera` actually stores a rotation, not this
-        //       direction vector. The implementation assumes that the direction is along `-Z`
-        //       and that `+Y` is "up", followed by figuring out what rotation is necessary to
-        //       point it along directions get/set via these methods.
-        //
-        //       Therefore, if you want to "roll" the camera (i.e. where `+Y` isn't "up"), you
-        //       should directly manipulate the rotation of this camera, rather than trying to
-        //       play with this method.
+        // The top of the camera is pointing towards `upwards_direction`. Use `set_rotation` to
+        // change that.
         Vector3 direction() const;
         void set_direction(const Vector3&);
 

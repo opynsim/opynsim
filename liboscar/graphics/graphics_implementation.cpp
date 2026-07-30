@@ -1,5 +1,6 @@
 #include <liboscar/graphics/anti_aliasing_level.h>
 #include <liboscar/graphics/camera.h>
+#include <liboscar/graphics/camera_v2.h>
 #include <liboscar/graphics/camera_clear_flags.h>
 #include <liboscar/graphics/camera_projection.h>
 #include <liboscar/graphics/color.h>
@@ -5164,6 +5165,11 @@ namespace
 class osc::Camera::Impl final {
 public:
 
+    Impl()
+    {
+        camera_v2_.set_clipping_planes({1.0f, -1.0f});  // Legacy (V1) behavior.
+    }
+
     void reset()
     {
         // keep the render queue memory allocation
@@ -5186,32 +5192,32 @@ public:
 
     CameraProjection projection() const
     {
-        return camera_projection_;
+        return camera_v2_.projection();
     }
 
     void set_projection(CameraProjection projection)
     {
-        camera_projection_ = projection;
+        camera_v2_.set_projection(projection);
     }
 
     float orthographic_size() const
     {
-        return orthographic_size_;
+        return camera_v2_.orthographic_size();
     }
 
     void set_orthographic_size(float size)
     {
-        orthographic_size_ = size;
+        camera_v2_.set_orthographic_size(size);
     }
 
     Radians vertical_field_of_view() const
     {
-        return perspective_vertical_field_of_view;
+        return camera_v2_.vertical_field_of_view();
     }
 
     void set_vertical_field_of_view(Radians size)
     {
-        perspective_vertical_field_of_view = size;
+        camera_v2_.set_vertical_field_of_view(size);
     }
 
     Radians horizontal_field_of_view(float aspect_ratio) const
@@ -5221,32 +5227,32 @@ public:
 
     CameraClippingPlanes clipping_planes() const
     {
-        return clipping_planes_;
+        return camera_v2_.clipping_planes();
     }
 
     void set_clipping_planes(CameraClippingPlanes planes)
     {
-        clipping_planes_ = planes;
+        camera_v2_.set_clipping_planes(planes);
     }
 
     float near_clipping_plane() const
     {
-        return clipping_planes_.znear;
+        return camera_v2_.near_clipping_plane();
     }
 
     void set_near_clipping_plane(float distance)
     {
-        clipping_planes_.znear = distance;
+        camera_v2_.set_near_clipping_plane(distance);
     }
 
     float far_clipping_plane() const
     {
-        return clipping_planes_.zfar;
+        return camera_v2_.far_clipping_plane();
     }
 
     void set_far_clipping_plane(float distance)
     {
-        clipping_planes_.zfar = distance;
+        camera_v2_.set_far_clipping_plane(distance);
     }
 
     CameraClearFlags clear_flags() const
@@ -5281,109 +5287,82 @@ public:
 
     Vector3 position() const
     {
-        return position_;
+        return camera_v2_.position();
     }
 
     void set_position(const Vector3& position)
     {
-        position_ = position;
+        camera_v2_.set_position(position);
     }
 
     Quaternion rotation() const
     {
-        return rotation_;
+        return camera_v2_.rotation();
     }
 
     void set_rotation(const Quaternion& rotation)
     {
-        rotation_ = rotation;
+        camera_v2_.set_rotation(rotation);
     }
 
     Vector3 direction() const
     {
-        return rotation_ * Vector3{0.0f, 0.0f, -1.0f};
+        return camera_v2_.direction();
     }
 
     void set_direction(const Vector3& direction)
     {
-        rotation_ = osc::rotation(Vector3{0.0f, 0.0f, -1.0f}, direction);
+        camera_v2_.set_direction(direction);
     }
 
     Vector3 upwards_direction() const
     {
-        return rotation_ * Vector3{0.0f, 1.0f, 0.0f};
+        return camera_v2_.up();
     }
 
     Matrix4x4 view_matrix() const
     {
-        if (maybe_view_matrix_override_) {
-            return *maybe_view_matrix_override_;
-        }
-        else {
-            return look_at(position_, position_ + direction(), upwards_direction());
-        }
+        return camera_v2_.view_matrix();
     }
 
     Matrix4x4 inverse_view_matrix() const
     {
-        return inverse(view_matrix());
+        return camera_v2_.inverse_view_matrix();
     }
 
     std::optional<Matrix4x4> view_matrix_override() const
     {
-        return maybe_view_matrix_override_;
+        return camera_v2_.view_matrix_override();
     }
 
     void set_view_matrix_override(std::optional<Matrix4x4> maybe_view_matrix_override)
     {
-        maybe_view_matrix_override_ = maybe_view_matrix_override;
+        camera_v2_.set_view_matrix_override(maybe_view_matrix_override);
     }
 
     Matrix4x4 projection_matrix(float aspect_ratio) const
     {
-        if (maybe_projection_matrix_override_) {
-            return *maybe_projection_matrix_override_;
-        }
-        else if (camera_projection_ == CameraProjection::Perspective) {
-            return perspective(
-                perspective_vertical_field_of_view,
-                aspect_ratio,
-                clipping_planes_.znear,
-                clipping_planes_.zfar
-            );
-        }
-        else
-        {
-            const float height = orthographic_size_;
-            const float width = height * aspect_ratio;
-
-            const float right = 0.5f * width;
-            const float left = -right;
-            const float top = 0.5f * height;
-            const float bottom = -top;
-
-            return ortho(left, right, bottom, top, clipping_planes_.znear, clipping_planes_.zfar);
-        }
+        return camera_v2_.projection_matrix(aspect_ratio);
     }
 
     std::optional<Matrix4x4> projection_matrix_override() const
     {
-        return maybe_projection_matrix_override_;
+        return camera_v2_.projection_matrix_override();
     }
 
     void set_projection_matrix_override(std::optional<Matrix4x4> maybe_projection_matrix_override)
     {
-        maybe_projection_matrix_override_ = maybe_projection_matrix_override;
+        camera_v2_.set_projection_matrix_override(maybe_projection_matrix_override);
     }
 
     Matrix4x4 view_projection_matrix(float aspect_ratio) const
     {
-        return projection_matrix(aspect_ratio) * view_matrix();
+        return camera_v2_.view_projection_matrix(aspect_ratio);
     }
 
     Matrix4x4 inverse_view_projection_matrix(float aspect_ratio) const
     {
-        return inverse(view_projection_matrix(aspect_ratio));
+        return camera_v2_.inverse_view_projection_matrix(aspect_ratio);
     }
 
     void render_to_main_window();
@@ -5475,17 +5454,7 @@ public:
 private:
     friend class GraphicsBackend;
 
-    // Transform
-    Vector3 position_;
-    Quaternion rotation_ = identity<Quaternion>();
-    std::optional<Matrix4x4> maybe_view_matrix_override_;
-
-    // Projection
-    CameraProjection camera_projection_ = CameraProjection::Default;
-    float orthographic_size_ = 2.0f;
-    Radians perspective_vertical_field_of_view = 90_deg;
-    CameraClippingPlanes clipping_planes_{1.0f, -1.0f};
-    std::optional<Matrix4x4> maybe_projection_matrix_override_;
+    CameraV2 camera_v2_;
 
     // Rendering
     Color background_color_ = Color::clear();
@@ -6272,7 +6241,7 @@ namespace osc
             RenderQueue::handle_subrange
         );
 
-        struct ViewportGeometry final {
+        struct ActualViewportGeometry final {
             struct Viewport {
                 Vector2 bottom_left;
                 Vector2 pixel_dimensions;
@@ -6284,7 +6253,7 @@ namespace osc
             };
             std::optional<Scissor> scissor;
         };
-        static ViewportGeometry calc_viewport_geometry(
+        static ActualViewportGeometry calc_viewport_geometry(
             Camera::Impl&,
             const RenderTarget* maybe_custom_render_target
         );
@@ -7073,17 +7042,17 @@ void osc::GraphicsBackend::flush_render_queue(Camera::Impl& camera, float aspect
     render_queue.clear();
 }
 
-osc::GraphicsBackend::ViewportGeometry osc::GraphicsBackend::calc_viewport_geometry(
+osc::GraphicsBackend::ActualViewportGeometry osc::GraphicsBackend::calc_viewport_geometry(
     Camera::Impl& camera,
     const RenderTarget* maybe_custom_render_target)
 {
-    ViewportGeometry rv;
+    ActualViewportGeometry rv;
     const float device_pixel_ratio = maybe_custom_render_target ?
         maybe_custom_render_target->device_pixel_ratio() :
         App::get().main_window_device_pixel_ratio();
 
     // handle viewport (which should be in raw pixels for low-level graphics API calls)
-    if (auto pixel_rect = camera.pixel_rect()) {
+    if (const auto pixel_rect = camera.pixel_rect()) {
         rv.viewport = {
             .bottom_left = device_pixel_ratio * pixel_rect->ypu_bottom_left(),
             .pixel_dimensions = device_pixel_ratio * pixel_rect->dimensions()
@@ -7102,10 +7071,10 @@ osc::GraphicsBackend::ViewportGeometry osc::GraphicsBackend::calc_viewport_geome
         };
     }
 
-    if (camera.maybe_scissor_rect_) {
+    if (const auto scissor_rect = camera.scissor_rect()) {
         rv.scissor = {
-            .bottom_left = device_pixel_ratio * camera.maybe_scissor_rect_->ypu_bottom_left(),
-            .pixel_dimensions = device_pixel_ratio * camera.maybe_scissor_rect_->dimensions(),
+            .bottom_left = device_pixel_ratio * scissor_rect->ypu_bottom_left(),
+            .pixel_dimensions = device_pixel_ratio * scissor_rect->dimensions(),
         };
     }
 
@@ -7145,7 +7114,7 @@ void osc::GraphicsBackend::teardown_top_level_pipeline_state(
     Camera::Impl& camera,
     const RenderTarget*)
 {
-    if (camera.maybe_scissor_rect_) {
+    if (camera.scissor_rect()) {
         gl::disable(GL_SCISSOR_TEST);
     }
     gl::bind_framebuffer(GL_FRAMEBUFFER, gl::window_framebuffer);
@@ -7285,16 +7254,16 @@ std::optional<gl::FrameBuffer> osc::GraphicsBackend::bind_and_clear_render_buffe
         gl::bind_framebuffer(GL_FRAMEBUFFER, gl::window_framebuffer);
 
         // we're rendering to the window
-        if (camera.clear_flags_ != CameraClearFlag::None) {
+        if (camera.clear_flags() != CameraClearFlag::None) {
 
             // clear window
-            const GLenum clear_flags = camera.clear_flags_ & CameraClearFlag::SolidColor ?
+            const GLenum clear_flags = camera.clear_flags() & CameraClearFlag::SolidColor ?
                 GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT :
                 GL_DEPTH_BUFFER_BIT;
 
             // clear color is in sRGB, but the window's framebuffer is sRGB-corrected
             // and assume that clear colors are in linear space
-            const Color linear_color = to_linear_colorspace(camera.background_color_);
+            const Color linear_color = to_linear_colorspace(camera.background_color());
             gl::clear_color(
                 linear_color.r,
                 linear_color.g,
