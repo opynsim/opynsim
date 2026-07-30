@@ -4,6 +4,7 @@
 #include <liboscar/graphics/camera_projection.h>
 #include <liboscar/maths/angle.h>
 #include <liboscar/maths/matrix4x4.h>
+#include <liboscar/maths/quaternion.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/utilities/copy_on_upd_shared_value.h>
 
@@ -67,11 +68,17 @@ namespace osc
         Vector3 position() const;
         void set_position(const Vector3&);
 
-        // get/set the direction in which this `Camera` is pointing
+        // get/set the world space orientation of this `Camera` (normalized by
+        // the implementation).
+        Quaternion rotation() const;
+        void set_rotation(const Quaternion&);
+
+        // get/set the direction in which this `Camera` is pointing (normalized by
+        // the implementation).
         Vector3 direction() const;
         void set_direction(const Vector3&);
 
-        // returns the upwards direction of this camera
+        // get/set the upwards direction of this camera (normalized by the implementation).
         Vector3 up() const;
         void set_up(const Vector3&);
 

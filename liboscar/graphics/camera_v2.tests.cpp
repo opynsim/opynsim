@@ -179,6 +179,26 @@ TEST(CameraV2, set_direction_to_standard_direction_causes_direction_to_return_ne
     ASSERT_EQ(camera.direction(), default_direction);
 }
 
+TEST(CameraV2, default_rotation_is_identity)
+{
+    ASSERT_EQ(CameraV2{}.rotation(), Quaternion{});
+}
+
+TEST(CameraV2, default_position_is_zero)
+{
+    ASSERT_EQ(CameraV2{}.position(), Vector3{});
+}
+
+TEST(CameraV2, default_direction_is_minus_z)
+{
+    ASSERT_EQ(CameraV2{}.direction(), Vector3(0.0f, 0.0f, -1.0f));
+}
+
+TEST(CameraV2, default_up_is_plus_y)
+{
+    ASSERT_EQ(CameraV2{}.up(), Vector3(0.0f, 1.0f, 0.0f));
+}
+
 TEST(CameraV2, set_direction_to_different_direction_gives_accurate_enough_results)
 {
     // this kind of test sucks, because it's effectively saying "is the result good enough"
