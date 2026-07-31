@@ -14,6 +14,7 @@
 #include <iosfwd>
 #include <optional>
 
+namespace osc { class RenderQueue; }
 namespace osc { class RenderTexture; }
 namespace osc { class RenderTarget; }
 namespace osc { class SharedDepthStencilRenderBuffer; }
@@ -187,6 +188,9 @@ namespace osc
         // returns the equivalent of `inverse(view_projection_matrix(aspect_ratio))`
         Matrix4x4 inverse_view_projection_matrix(float aspect_ratio) const;
 
+        // Returns a reference to the camera's `RenderQueue`.
+        RenderQueue& upd_render_queue();
+
         // flushes and renders any queued drawcalls from `graphics::draw(...)` to the
         // main application window.
         void render_to_main_window();
@@ -201,11 +205,9 @@ namespace osc
         //
         // the resulting render pass is a depth-only render
         void render_to(SharedDepthStencilRenderBuffer& shared_depth_stencil_buffer);
-
     private:
         friend bool operator==(const Camera&, const Camera&);
         friend std::ostream& operator<<(std::ostream&, const Camera&);
-        friend class GraphicsBackend;
 
         class Impl;
         CopyOnUpdSharedValue<Impl> impl_;
