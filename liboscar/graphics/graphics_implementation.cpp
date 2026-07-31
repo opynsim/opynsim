@@ -6208,11 +6208,6 @@ namespace osc
         static void resolve_render_buffers(
             const RenderTarget& maybe_custom_render_target
         );
-        static void draw_render_queue(
-            const RenderQueue& render_queue,
-            const CameraV2& camera,
-            float aspect_ratio
-        );
         static void teardown_top_level_pipeline_state(
             const RenderPassConfig&,
             const RenderTarget* maybe_custom_render_target
@@ -7059,30 +7054,6 @@ void osc::GraphicsBackend::draw_batched_by_depth_testing(
     }
 }
 
-void osc::GraphicsBackend::draw_render_queue(
-    const RenderQueue& render_queue,
-    const CameraV2& camera,
-    float aspect_ratio)
-{
-    OSC_PERF("GraphicsBackend::flush_render_queue");
-
-    if (render_queue.empty()) {
-        return;  // Nothing to flush
-    }
-
-    // Construct a `RenderPassState`, shared by all sub-passes (drawcalls)
-    RenderPassState render_pass_state{
-        .camera_pos = camera.position(),
-        .view_matrix = camera.view_matrix(),
-        .projection_matrix = camera.projection_matrix(aspect_ratio),
-    };
-
-    // Copy `RenderQueue` handles so that they can be reordered.
-    std::vector<RenderQueue::handle_type> handles_copy = render_queue.handles();
-
-    draw_batched_by_depth_testing(render_pass_state, render_queue, handles_copy);
-}
-
 osc::GraphicsBackend::ActualViewportGeometry osc::GraphicsBackend::calc_viewport_geometry(
     const RenderPassConfig& rp_config,
     const RenderTarget* maybe_custom_render_target)
@@ -7457,16 +7428,29 @@ void osc::GraphicsBackend::render(
     if (maybe_custom_render_target) {
         maybe_custom_render_target->validate_or_throw();
     }
+    if (render_queue.empty()) {
+        return;  // Nothing to render.
+    }
 
+    // Setup top-level pipeline state and calculate output aspect ratio.
     const float output_aspect_ratio = setup_top_level_pipeline_state(
         rp_config,
         maybe_custom_render_target
     );
 
+    // Construct a `RenderPassState`, shared by all sub-passes (drawcalls)
+    RenderPassState render_pass_state{
+        .camera_pos = camera.position(),
+        .view_matrix = camera.view_matrix(),
+        .projection_matrix = camera.projection_matrix(output_aspect_ratio),
+    };
+
+    // Copy `RenderQueue` handles so that they can be reordered.
+    std::vector<RenderQueue::handle_type> handles_copy = render_queue.handles();
     {
         const std::optional<gl::FrameBuffer> maybe_tmp_fbo_KEEPALIVE =
             bind_and_clear_render_buffers(rp_config, maybe_custom_render_target);
-        draw_render_queue(render_queue, camera, output_aspect_ratio);
+        draw_batched_by_depth_testing(render_pass_state, render_queue, handles_copy);
     }
 
     if (maybe_custom_render_target) {
