@@ -35,12 +35,11 @@ namespace
 {
     constexpr auto c_triangle_vertices = std::to_array<Vector3>({
         {-10.0f, -10.0f, 0.0f},
-        {+0.0f, +10.0f, 0.0f},
+        {+ 0.0f, +10.0f, 0.0f},
         {+10.0f, -10.0f, 0.0f},
     });
 
     struct SceneSphere final {
-
         explicit SceneSphere(Vector3 pos_) :
             pos{pos_}
         {}
@@ -75,13 +74,10 @@ namespace
         Mesh rv;
         rv.set_topology(MeshTopology::Lines);
         rv.set_vertices({
-            // -X to +X
-            {-0.05f, 0.0f, 0.0f},
-            {+0.05f, 0.0f, 0.0f},
-
-            // -Y to +Y
-            {0.0f, -0.05f, 0.0f},
-            {0.0f, +0.05f, 0.0f},
+            {-0.05f, 0.0f,  0.0f},  // -X
+            {+0.05f, 0.0f,  0.0f},  // +X
+            { 0.0f, -0.05f, 0.0f},  // -Y
+            { 0.0f, +0.05f, 0.0f},  // +Y
         });
         rv.set_indices({0, 1, 2, 3});
         return rv;
@@ -111,7 +107,7 @@ public:
     explicit Impl(HittestTab& owner, Widget* parent) :
         TabPrivate{owner, parent, static_label()}
     {
-        camera_.set_background_color({1.0f, 1.0f, 1.0f, 0.0f});
+        camera_.set_background_color(Color::white().with_alpha(0.0f));
     }
 
     void on_mount()
@@ -263,7 +259,6 @@ private:
     std::vector<SceneSphere> scene_spheres_ = generate_scene_spheres();
     AABB scene_sphere_aabb_ = sphere_mesh_.bounds().value();
     Sphere sphere_bounding_sphere_ = bounding_sphere_of(sphere_mesh_).value();
-    EulerAngles camera_eulers;
     bool showing_aabbs_ = true;
 };
 
