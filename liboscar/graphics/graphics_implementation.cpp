@@ -5163,11 +5163,6 @@ namespace
 class osc::Camera::Impl final {
 public:
 
-    Impl()
-    {
-        camera_v2_.set_clipping_planes({1.0f, -1.0f});  // Legacy (V1) behavior.
-    }
-
     void reset()
     {
         // keep the render queue memory allocation
@@ -5186,71 +5181,6 @@ public:
     void set_background_color(const Color& color)
     {
         render_pass_config_.clear_color = color;
-    }
-
-    CameraProjection projection() const
-    {
-        return camera_v2_.projection();
-    }
-
-    void set_projection(CameraProjection projection)
-    {
-        camera_v2_.set_projection(projection);
-    }
-
-    float orthographic_size() const
-    {
-        return camera_v2_.orthographic_size();
-    }
-
-    void set_orthographic_size(float size)
-    {
-        camera_v2_.set_orthographic_size(size);
-    }
-
-    Radians vertical_field_of_view() const
-    {
-        return camera_v2_.vertical_field_of_view();
-    }
-
-    void set_vertical_field_of_view(Radians size)
-    {
-        camera_v2_.set_vertical_field_of_view(size);
-    }
-
-    Radians horizontal_field_of_view(float aspect_ratio) const
-    {
-        return vertical_to_horizontal_field_of_view(vertical_field_of_view(), aspect_ratio);
-    }
-
-    CameraClippingPlanes clipping_planes() const
-    {
-        return camera_v2_.clipping_planes();
-    }
-
-    void set_clipping_planes(CameraClippingPlanes planes)
-    {
-        camera_v2_.set_clipping_planes(planes);
-    }
-
-    float near_clipping_plane() const
-    {
-        return camera_v2_.near_clipping_plane();
-    }
-
-    void set_near_clipping_plane(float distance)
-    {
-        camera_v2_.set_near_clipping_plane(distance);
-    }
-
-    float far_clipping_plane() const
-    {
-        return camera_v2_.far_clipping_plane();
-    }
-
-    void set_far_clipping_plane(float distance)
-    {
-        camera_v2_.set_far_clipping_plane(distance);
     }
 
     ClearFlags clear_flags() const
@@ -5283,118 +5213,10 @@ public:
         render_pass_config_.scissor_rect = maybe_scissor_rect;
     }
 
-    Vector3 position() const
-    {
-        return camera_v2_.position();
-    }
-
-    void set_position(const Vector3& position)
-    {
-        camera_v2_.set_position(position);
-    }
-
-    Quaternion rotation() const
-    {
-        return camera_v2_.rotation();
-    }
-
-    void set_rotation(const Quaternion& rotation)
-    {
-        camera_v2_.set_rotation(rotation);
-    }
-
-    Vector3 direction() const
-    {
-        return camera_v2_.direction();
-    }
-
-    void set_direction(const Vector3& direction)
-    {
-        camera_v2_.set_direction(direction);
-    }
-
-    Vector3 upwards_direction() const
-    {
-        return camera_v2_.up();
-    }
-
-    Matrix4x4 view_matrix() const
-    {
-        return camera_v2_.view_matrix();
-    }
-
-    Matrix4x4 inverse_view_matrix() const
-    {
-        return camera_v2_.inverse_view_matrix();
-    }
-
-    std::optional<Matrix4x4> view_matrix_override() const
-    {
-        return camera_v2_.view_matrix_override();
-    }
-
-    void set_view_matrix_override(std::optional<Matrix4x4> maybe_view_matrix_override)
-    {
-        camera_v2_.set_view_matrix_override(maybe_view_matrix_override);
-    }
-
-    Matrix4x4 projection_matrix(float aspect_ratio) const
-    {
-        return camera_v2_.projection_matrix(aspect_ratio);
-    }
-
-    std::optional<Matrix4x4> projection_matrix_override() const
-    {
-        return camera_v2_.projection_matrix_override();
-    }
-
-    void set_projection_matrix_override(std::optional<Matrix4x4> maybe_projection_matrix_override)
-    {
-        camera_v2_.set_projection_matrix_override(maybe_projection_matrix_override);
-    }
-
-    Matrix4x4 view_projection_matrix(float aspect_ratio) const
-    {
-        return camera_v2_.view_projection_matrix(aspect_ratio);
-    }
-
-    Matrix4x4 inverse_view_projection_matrix(float aspect_ratio) const
-    {
-        return camera_v2_.inverse_view_projection_matrix(aspect_ratio);
-    }
-
     RenderQueue& upd_render_queue() { return render_queue_; }
-
-    void render_to_main_window()
-    {
-        graphics::render_to_main_window(render_queue_, camera_v2_, render_pass_config_);
-        render_queue_.clear();
-    }
-
-    void render_to(RenderTexture& render_texture)
-    {
-        graphics::render_to(render_texture, render_queue_, camera_v2_, render_pass_config_);
-        render_queue_.clear();
-    }
-
-    void render_to(const RenderTarget& render_target)
-    {
-        graphics::render_to(render_target, render_queue_, camera_v2_, render_pass_config_);
-        render_queue_.clear();
-    }
-
-    void render_to(SharedDepthStencilRenderBuffer& shared_depth_stencil_buffer)
-    {
-        graphics::render_to(shared_depth_stencil_buffer, render_queue_, camera_v2_, render_pass_config_);
-        render_queue_.clear();
-    }
 
     friend bool operator==(const Impl&, const Impl&) = default;
 
-private:
-    friend class GraphicsBackend;
-
-    CameraV2 camera_v2_;
     RenderPassConfig render_pass_config_;
     RenderQueue render_queue_;
 };
@@ -5406,11 +5228,15 @@ std::ostream& osc::operator<<(std::ostream& o, CameraProjection camera_projectio
 
 osc::Camera::Camera() :
     impl_{make_cowv<Impl>()}
-{}
+{
+    set_clipping_planes({1.0f, -1.0f});  // Legacy (V1) behavior.
+}
 
 void osc::Camera::reset()
 {
+    CameraV2::reset();
     impl_.upd()->reset();
+    set_clipping_planes({1.0f, -1.0f});  // Legacy (V1) behavior.
 }
 
 Color osc::Camera::background_color() const
@@ -5421,71 +5247,6 @@ Color osc::Camera::background_color() const
 void osc::Camera::set_background_color(const Color& color)
 {
     impl_.upd()->set_background_color(color);
-}
-
-CameraProjection osc::Camera::projection() const
-{
-    return impl_->projection();
-}
-
-void osc::Camera::set_projection(CameraProjection camera_projection)
-{
-    impl_.upd()->set_projection(camera_projection);
-}
-
-float osc::Camera::orthographic_size() const
-{
-    return impl_->orthographic_size();
-}
-
-void osc::Camera::set_orthographic_size(float size)
-{
-    impl_.upd()->set_orthographic_size(size);
-}
-
-Radians osc::Camera::vertical_field_of_view() const
-{
-    return impl_->vertical_field_of_view();
-}
-
-void osc::Camera::set_vertical_field_of_view(Radians vertical_field_of_view)
-{
-    impl_.upd()->set_vertical_field_of_view(vertical_field_of_view);
-}
-
-Radians osc::Camera::horizontal_field_of_view(float aspect_ratio) const
-{
-    return impl_->horizontal_field_of_view(aspect_ratio);
-}
-
-CameraClippingPlanes osc::Camera::clipping_planes() const
-{
-    return impl_->clipping_planes();
-}
-
-void osc::Camera::set_clipping_planes(CameraClippingPlanes planes)
-{
-    impl_.upd()->set_clipping_planes(planes);
-}
-
-float osc::Camera::near_clipping_plane() const
-{
-    return impl_->near_clipping_plane();
-}
-
-void osc::Camera::set_near_clipping_plane(float near_clipping_plane)
-{
-    impl_.upd()->set_near_clipping_plane(near_clipping_plane);
-}
-
-float osc::Camera::far_clipping_plane() const
-{
-    return impl_->far_clipping_plane();
-}
-
-void osc::Camera::set_far_clipping_plane(float far_clipping_plane)
-{
-    impl_.upd()->set_far_clipping_plane(far_clipping_plane);
 }
 
 ClearFlags osc::Camera::clear_flags() const
@@ -5518,86 +5279,6 @@ void osc::Camera::set_scissor_rect(std::optional<Rect> maybe_scissor_rect)
     impl_.upd()->set_scissor_rect(maybe_scissor_rect);
 }
 
-Vector3 osc::Camera::position() const
-{
-    return impl_->position();
-}
-
-void osc::Camera::set_position(const Vector3& position)
-{
-    impl_.upd()->set_position(position);
-}
-
-Quaternion osc::Camera::rotation() const
-{
-    return impl_->rotation();
-}
-
-void osc::Camera::set_rotation(const Quaternion& rotation)
-{
-    impl_.upd()->set_rotation(rotation);
-}
-
-Vector3 osc::Camera::direction() const
-{
-    return impl_->direction();
-}
-
-void osc::Camera::set_direction(const Vector3& direction)
-{
-    impl_.upd()->set_direction(direction);
-}
-
-Vector3 osc::Camera::upwards_direction() const
-{
-    return impl_->upwards_direction();
-}
-
-Matrix4x4 osc::Camera::view_matrix() const
-{
-    return impl_->view_matrix();
-}
-
-Matrix4x4 osc::Camera::inverse_view_matrix() const
-{
-    return impl_->inverse_view_matrix();
-}
-
-std::optional<Matrix4x4> osc::Camera::view_matrix_override() const
-{
-    return impl_->view_matrix_override();
-}
-
-void osc::Camera::set_view_matrix_override(std::optional<Matrix4x4> maybe_view_matrix_override)
-{
-    impl_.upd()->set_view_matrix_override(maybe_view_matrix_override);
-}
-
-Matrix4x4 osc::Camera::projection_matrix(float aspect_ratio) const
-{
-    return impl_->projection_matrix(aspect_ratio);
-}
-
-std::optional<Matrix4x4> osc::Camera::projection_matrix_override() const
-{
-    return impl_->projection_matrix_override();
-}
-
-void osc::Camera::set_projection_matrix_override(std::optional<Matrix4x4> maybe_projection_matrix_override)
-{
-    impl_.upd()->set_projection_matrix_override(maybe_projection_matrix_override);
-}
-
-Matrix4x4 osc::Camera::view_projection_matrix(float aspect_ratio) const
-{
-    return impl_->view_projection_matrix(aspect_ratio);
-}
-
-Matrix4x4 osc::Camera::inverse_view_projection_matrix(float aspect_ratio) const
-{
-    return impl_->inverse_view_projection_matrix(aspect_ratio);
-}
-
 RenderQueue& osc::Camera::upd_render_queue()
 {
     return impl_.upd()->upd_render_queue();
@@ -5605,22 +5286,26 @@ RenderQueue& osc::Camera::upd_render_queue()
 
 void osc::Camera::render_to_main_window()
 {
-    impl_.upd()->render_to_main_window();
+    graphics::render_to_main_window(impl_->render_queue_, *this, impl_->render_pass_config_);
+    impl_.upd()->render_queue_.clear();
 }
 
 void osc::Camera::render_to(RenderTexture& render_texture)
 {
-    impl_.upd()->render_to(render_texture);
+    graphics::render_to(render_texture, impl_->render_queue_, *this, impl_->render_pass_config_);
+    impl_.upd()->render_queue_.clear();
 }
 
 void osc::Camera::render_to(const RenderTarget& render_target)
 {
-    impl_.upd()->render_to(render_target);
+    graphics::render_to(render_target, impl_->render_queue_, *this, impl_->render_pass_config_);
+    impl_.upd()->render_queue_.clear();
 }
 
 void osc::Camera::render_to(SharedDepthStencilRenderBuffer& shared_depth_stencil_buffer)
 {
-    impl_.upd()->render_to(shared_depth_stencil_buffer);
+    graphics::render_to(shared_depth_stencil_buffer, impl_->render_queue_, *this, impl_->render_pass_config_);
+    impl_.upd()->render_queue_.clear();
 }
 
 std::ostream& osc::operator<<(std::ostream& o, const Camera& camera)
@@ -5630,9 +5315,8 @@ std::ostream& osc::operator<<(std::ostream& o, const Camera& camera)
 
 bool osc::operator==(const Camera& lhs, const Camera& rhs)
 {
-    return lhs.impl_ == rhs.impl_ || *lhs.impl_ == *rhs.impl_;
+    return static_cast<const CameraV2&>(lhs) == static_cast<const CameraV2&>(rhs) and (lhs.impl_ == rhs.impl_ or *lhs.impl_ == *rhs.impl_);
 }
-
 
 namespace
 {
