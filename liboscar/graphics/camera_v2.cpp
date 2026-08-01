@@ -8,6 +8,7 @@
 #include <liboscar/maths/matrix4x4.h>
 #include <liboscar/maths/math_helpers.h>
 #include <liboscar/maths/quaternion.h>
+#include <liboscar/maths/ray.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/utilities/enum_helpers.h>
 
@@ -99,6 +100,8 @@ public:
 
         rotation_ = quaternion_from_xyz(right, nup, backward);
     }
+
+    Ray principal_ray() const { return {position(), direction()}; }
 
     Matrix4x4 view_matrix() const
     {
@@ -217,6 +220,8 @@ void osc::CameraV2::set_direction(const Vector3& direction) { impl_.upd()->set_d
 
 Vector3 osc::CameraV2::up() const             { return impl_->up(); }
 void osc::CameraV2::set_up(const Vector3& up) { impl_.upd()->set_up(up); }
+
+Ray osc::CameraV2::principal_ray() const { return impl_->principal_ray(); }
 
 Matrix4x4 osc::CameraV2::view_matrix() const                                    { return impl_->view_matrix(); }
 Matrix4x4 osc::CameraV2::inverse_view_matrix() const                            { return impl_->inverse_view_matrix(); }

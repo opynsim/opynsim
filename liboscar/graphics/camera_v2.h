@@ -5,6 +5,7 @@
 #include <liboscar/maths/angle.h>
 #include <liboscar/maths/matrix4x4.h>
 #include <liboscar/maths/quaternion.h>
+#include <liboscar/maths/ray.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/utilities/copy_on_upd_shared_value.h>
 
@@ -14,7 +15,7 @@ namespace osc
 {
     /// Represents a camera at a `position` in world space, pointing toward `direction`
     /// and oriented such that it is `up`.
-    class CameraV2 final {
+    class CameraV2 {
     public:
         CameraV2();
 
@@ -81,6 +82,12 @@ namespace osc
         // get/set the upwards direction of this camera (normalized by the implementation).
         Vector3 up() const;
         void set_up(const Vector3&);
+
+        // returns the principal ray of this camera in world space
+        //
+        // the principal ray originates at the camera's `position()` and travels
+        // straight down its optical axis (i.e. `direction()`).
+        Ray principal_ray() const;
 
         // returns the matrix that this camera uses to transform world space points into
         // view space
