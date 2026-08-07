@@ -5,6 +5,8 @@
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/mesh.h>
+#include <liboscar/graphics/render_pass_config.h>
+#include <liboscar/graphics/render_queue.h>
 #include <liboscar/graphics/shared_depth_stencil_render_buffer.h>
 #include <liboscar/graphics/geometries/box_geometry.h>
 #include <liboscar/graphics/geometries/icosahedron_geometry.h>
@@ -17,7 +19,7 @@
 #include <liboscar/maths/matrix_functions.h>
 #include <liboscar/maths/quaternion_functions.h>
 #include <liboscar/platform/app.h>
-#include <liboscar/ui/mouse_capturing_camera.h>
+#include <liboscar/ui/mouse_capturing_camera_v2.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/panels/log_viewer_panel.h>
 #include <liboscar/ui/tabs/tab_private.h>
@@ -124,7 +126,7 @@ namespace
 
     // returns orthogonal projection information for each cascade
     std::vector<OrthogonalProjectionParameters> calculate_light_source_orthographic_projections(
-        const Camera& camera,
+        const CameraV2& camera,
         float aspect_ratio,
         Vector3 light_world_direction)
     {
@@ -273,15 +275,20 @@ private:
         for (size_t i = 0; i < cascade_projections.size(); ++i) {
             const Matrix4x4 cascade_projection_matrix = to_matrix4x4(cascade_projections[i]) * world_to_light;
 
-            Camera camera;
+            CameraV2 camera;
             camera.set_view_matrix_override(identity<Matrix4x4>());
             camera.set_projection_matrix_override(cascade_projection_matrix);
 
             for (const auto& decoration : decorations_) {
-                graphics::draw(decoration.mesh, decoration.transform, shadow_mapping_material_, camera);
+                render_queue_.emplace(
+                    decoration.mesh,
+                    decoration.transform,
+                    shadow_mapping_material_
+                );
             }
 
-            camera.render_to(cascade_rasters_[i]);
+            graphics::render_to(cascade_rasters_[i], render_queue_, camera);
+            render_queue_.clear();
             rv.push_back(cascade_projection_matrix);
         }
         return rv;
@@ -317,10 +324,12 @@ private:
         csm_material_.set_array("gCascadeEndClipSpace", ends);
 
         for (const auto& decoration : decorations_) {
-            graphics::draw(decoration.mesh, decoration.transform, csm_material_, user_camera_);
+            render_queue_.emplace(decoration.mesh, decoration.transform, csm_material_);
         }
-        user_camera_.set_pixel_rect(ui::get_main_window_workspace_screen_space_rect());
-        user_camera_.render_to_main_window();
+        graphics::render_to_main_window(render_queue_, user_camera_, {
+            .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
+        });
+        render_queue_.clear();
     }
 
     void draw_debug_overlays()
@@ -335,7 +344,8 @@ private:
     }
 
     ResourceLoader resource_loader_ = App::resource_loader();
-    MouseCapturingCamera user_camera_;
+    MouseCapturingCameraV2 user_camera_;
+    RenderQueue render_queue_;
     std::vector<TransformedMesh> decorations_ = generate_decorations();
     MeshDepthWritingMaterial shadow_mapping_material_;
     Material csm_material_{Shader{

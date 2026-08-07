@@ -4,11 +4,13 @@
 #include <liboscar/graphics/geometries/box_geometry.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
+#include <liboscar/graphics/render_pass_config.h>
+#include <liboscar/graphics/render_queue.h>
 #include <liboscar/maths/quaternion_functions.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/resource_loader.h>
-#include <liboscar/ui/mouse_capturing_camera.h>
+#include <liboscar/ui/mouse_capturing_camera_v2.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/panels/perf_panel.h>
 #include <liboscar/ui/tabs/tab_private.h>
@@ -35,13 +37,12 @@ namespace
         {-1.3f,  1.0f, -1.5f },
     });
 
-    MouseCapturingCamera create_camera_that_matches_learnopengl()
+    MouseCapturingCameraV2 create_camera_that_matches_learnopengl()
     {
-        MouseCapturingCamera rv;
+        MouseCapturingCameraV2 rv;
         rv.set_position({0.0f, 0.0f, 3.0f});
         rv.set_vertical_field_of_view(45_deg);
         rv.set_clipping_planes({0.1f, 100.0f});
-        rv.set_background_color({0.2f, 0.3f, 0.3f, 1.0f});
         return rv;
     }
 
@@ -113,30 +114,29 @@ public:
 private:
     void draw_3d_scene()
     {
-        // clear screen and ensure camera has correct pixel rect
-        camera_.set_pixel_rect(ui::get_main_window_workspace_screen_space_rect());
-
-        // draw 3D scene
+        render_queue_.clear();
         if (show_step1_) {
-            graphics::draw(mesh_, step1_transform_, material_, camera_);
+            render_queue_.emplace(mesh_, step1_transform_, material_);
         }
         else {
             const Vector3 axis = normalize(Vector3{1.0f, 0.3f, 0.5f});
 
             for (size_t i = 0; i < c_cube_positions.size(); ++i) {
-                graphics::draw(
+                render_queue_.emplace(
                     mesh_,
-                    Transform{
+                    {
                         .rotation = angle_axis(i * 20_deg, axis),
                         .translation = c_cube_positions[i],
                     },
-                    material_,
-                    camera_
+                    material_
                 );
             }
         }
 
-        camera_.render_to_main_window();
+        graphics::render_to_main_window(render_queue_, camera_, {
+            .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
+            .clear_color = {0.2f, 0.3f, 0.3f, 1.0f},
+        });
     }
 
     void draw_2d_ui()
@@ -159,7 +159,8 @@ private:
     ResourceLoader loader_ = App::resource_loader();
     Material material_ = make_box_material(loader_);
     Mesh mesh_ = BoxGeometry{}.mesh();
-    MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
+    MouseCapturingCameraV2 camera_ = create_camera_that_matches_learnopengl();
+    RenderQueue render_queue_;
     bool show_step1_ = false;
     Transform step1_transform_;
     PerfPanel perf_panel_{&owner()};

@@ -95,7 +95,7 @@ public:
     explicit Impl(FrustumCullingTab& owner, Widget* parent) :
         TabPrivate{owner, parent, static_label()}
     {
-        user_camera_.set_clipping_planes({0.1f, 10.0f});
+        camera_.set_clipping_planes({0.1f, 10.0f});
         top_down_camera_.set_position({0.0f, 9.5f, 0.0f});
         top_down_camera_.set_direction({0.0f, -1.0f, 0.0f});
         top_down_camera_.set_clipping_planes({0.1f, 10.0f});
@@ -104,18 +104,18 @@ public:
     void on_mount()
     {
         App::upd().make_main_loop_polling();
-        user_camera_.on_mount();
+        camera_.on_mount();
     }
 
     void on_unmount()
     {
-        user_camera_.on_unmount();
+        camera_.on_unmount();
         App::upd().make_main_loop_waiting();
     }
 
     bool on_event(Event& e)
     {
-        return user_camera_.on_event(e);
+        return camera_.on_event(e);
     }
 
     void on_draw()
@@ -131,9 +131,9 @@ public:
             {x_midpoint, workspace_screen_space_rect_corners.min.y()},
             workspace_screen_space_rect_corners.max
         );
-        const FrustumPlanes frustum = calc_frustum_planes(user_camera_, aspect_ratio_of(lhs_screen_space_rect));
+        const FrustumPlanes frustum = calc_frustum_planes(camera_, aspect_ratio_of(lhs_screen_space_rect));
 
-        user_camera_.on_draw();  // update from inputs etc.
+        camera_.on_draw();  // update from inputs etc.
 
         // render from user's perspective on left-hand side
         render_queue_.clear();
@@ -143,7 +143,7 @@ public:
                 render_queue_.emplace(decoration.mesh, decoration.transform, material_, blue_material_props_);
             }
         }
-        graphics::render_to_main_window(render_queue_, user_camera_, {
+        graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = lhs_screen_space_rect,
         });
 
@@ -156,7 +156,7 @@ public:
         }
         render_queue_.emplace(
             SphereGeometry{},
-            {.scale = Vector3{0.1f}, .translation = user_camera_.position()},
+            {.scale = Vector3{0.1f}, .translation = camera_.position()},
             material_,
             green_material_props_
         );
@@ -168,7 +168,7 @@ public:
     }
 
 private:
-    MouseCapturingCameraV2 user_camera_;
+    MouseCapturingCameraV2 camera_;
     std::vector<TransformedMesh> decorations_ = generateDecorations();
     CameraV2 top_down_camera_;
     RenderQueue render_queue_;
