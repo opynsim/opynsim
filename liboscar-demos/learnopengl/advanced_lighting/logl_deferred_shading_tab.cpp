@@ -6,12 +6,14 @@
 #include <liboscar/graphics/geometries/plane_geometry.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
+#include <liboscar/graphics/render_pass_config.h>
+#include <liboscar/graphics/render_queue.h>
 #include <liboscar/graphics/render_target.h>
 #include <liboscar/graphics/render_target_color_attachment.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/resource_loader.h>
-#include <liboscar/ui/mouse_capturing_camera.h>
+#include <liboscar/ui/mouse_capturing_camera_v2.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/tabs/tab_private.h>
 #include <liboscar/utilities/assertions.h>
@@ -98,13 +100,12 @@ namespace
         return rv;
     }
 
-    MouseCapturingCamera create_camera_that_matches_learnopengl()
+    MouseCapturingCameraV2 create_camera_that_matches_learnopengl()
     {
-        MouseCapturingCamera rv;
+        MouseCapturingCameraV2 rv;
         rv.set_position({0.0f, 0.5f, 5.0f});
         rv.set_vertical_field_of_view(45_deg);
         rv.set_clipping_planes({0.1f, 100.0f});
-        rv.set_background_color(Color::black());
         return rv;
     }
 
@@ -228,17 +229,19 @@ private:
     {
         gbuffer_.material.set("uDiffuseMap", diffuse_map_);
         gbuffer_.material.set("uSpecularMap", specular_map_);
+        render_queue_.clear();
 
         // render scene cubes
         for (const Vector3& object_position : c_object_positions) {
-            graphics::draw(
+            render_queue_.emplace(
                 cube_mesh_,
                 {.scale = Vector3{0.5f}, .translation = object_position},
-                gbuffer_.material,
-                camera_
+                gbuffer_.material
             );
         }
-        camera_.render_to(gbuffer_.render_target);
+        graphics::render_to(gbuffer_.render_target, render_queue_, camera_, {
+            .clear_color = Color::black(),
+        });
     }
 
     void draw_gbuffer_overlays(const Rect& viewport_screen_space_rect) const
@@ -280,10 +283,13 @@ private:
         light_pass_.material.set("uLightLinear", 0.7f);
         light_pass_.material.set("uLightQuadratic", 1.8f);
         light_pass_.material.set("uViewPos", camera_.position());
+        render_queue_.clear();
 
-        graphics::draw(quad_mesh_, identity<Transform>(), light_pass_.material, camera_);
+        render_queue_.emplace(quad_mesh_, identity<Transform>(), light_pass_.material);
 
-        camera_.render_to(output_texture_);
+        graphics::render_to(output_texture_, render_queue_, camera_, {
+            .clear_color = Color::black(),
+        });
 
         light_pass_.material.unset("uPositionTex");
         light_pass_.material.unset("uNormalTex");
@@ -294,9 +300,15 @@ private:
     {
         OSC_ASSERT(light_positions_.size() == light_colors_.size());
 
+        render_queue_.clear();
+
         for (size_t i = 0; i < light_positions_.size(); ++i) {
             light_box_material_.set("uLightColor", light_colors_[i]);
-            graphics::draw(cube_mesh_, {.scale = Vector3{0.125f}, .translation = light_positions_[i]}, light_box_material_, camera_);
+            render_queue_.emplace(
+                cube_mesh_,
+                {.scale = Vector3{0.125f}, .translation = light_positions_[i]},
+                light_box_material_
+            );
         }
 
         const RenderTarget render_target{
@@ -312,7 +324,10 @@ private:
                 RenderBufferStoreAction::DontCare,
             },
         };
-        camera_.render_to(render_target);
+
+        graphics::render_to(render_target, render_queue_, camera_, {
+            .clear_color = Color::black(),
+        });
     }
 
     ResourceLoader loader_ = App::resource_loader();
@@ -320,7 +335,8 @@ private:
     // scene state
     std::vector<Vector3> light_positions_ = generate_n_scene_light_positions(c_num_lights);
     std::vector<Vector3> light_colors_ = generate_n_scene_light_colors(c_num_lights);
-    MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
+    MouseCapturingCameraV2 camera_ = create_camera_that_matches_learnopengl();
+    RenderQueue render_queue_;
     Mesh cube_mesh_ = BoxGeometry{{.dimensions = Vector3{2.0f}}};
     Mesh quad_mesh_ = PlaneGeometry{{.dimensions = Vector2{2.0f}}};
     Texture2D diffuse_map_ = Image::read_into_texture(

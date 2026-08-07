@@ -5,12 +5,14 @@
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/mesh.h>
+#include <liboscar/graphics/render_pass_config.h>
+#include <liboscar/graphics/render_queue.h>
 #include <liboscar/graphics/render_texture.h>
 #include <liboscar/graphics/geometries/box_geometry.h>
 #include <liboscar/maths/matrix_functions.h>
 #include <liboscar/maths/quaternion_functions.h>
 #include <liboscar/platform/app.h>
-#include <liboscar/ui/mouse_capturing_camera.h>
+#include <liboscar/ui/mouse_capturing_camera_v2.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/tabs/tab_private.h>
 
@@ -57,9 +59,9 @@ namespace
         return mesh;
     }
 
-    MouseCapturingCamera create_camera()
+    MouseCapturingCameraV2 create_camera()
     {
-        MouseCapturingCamera camera;
+        MouseCapturingCameraV2 camera;
         camera.set_position({-2.0f, 1.0f, 0.0f});
         camera.set_clipping_planes({0.1f, 100.0f});
         return camera;
@@ -114,18 +116,18 @@ private:
 
         render_shadows_to_depth_texture();
 
-        camera_.set_background_color({0.1f, 0.1f, 0.1f, 1.0f});
-
         scene_material_.set("uLightWorldPos", light_pos_);
         scene_material_.set("uViewWorldPos", camera_.position());
         scene_material_.set("uLightSpaceMat", latest_light_space_matrix_);
         scene_material_.set("uDiffuseTexture", wood_texture_);
         scene_material_.set("uShadowMapTexture", depth_texture_);
 
+        render_queue_.clear();
         draw_meshes_with_material(scene_material_);
-        camera_.set_pixel_rect(workspace_screen_space_rect);
-        camera_.render_to_main_window();
-        camera_.set_pixel_rect(std::nullopt);
+        graphics::render_to_main_window(render_queue_, camera_, {
+            .viewport_rect = workspace_screen_space_rect,
+            .clear_color = {0.1f, 1.0f},
+        });
         graphics::blit_to_main_window(
             depth_texture_,
             Rect::from_corners(
@@ -140,30 +142,27 @@ private:
     void draw_meshes_with_material(const Material& material)
     {
         // floor
-        graphics::draw(plane_mesh_, identity<Transform>(), material, camera_);
+        render_queue_.emplace(plane_mesh_, identity<Transform>(), material);
 
         // cubes
-        graphics::draw(
+        render_queue_.emplace(
             cube_mesh_,
             {.scale = Vector3{0.5f}, .translation = {0.0f, 1.0f, 0.0f}},
-            material,
-            camera_
+            material
         );
-        graphics::draw(
+        render_queue_.emplace(
             cube_mesh_,
             {.scale = Vector3{0.5f}, .translation = {2.0f, 0.0f, 1.0f}},
-            material,
-            camera_
+            material
         );
-        graphics::draw(
+        render_queue_.emplace(
             cube_mesh_,
             Transform{
                 .scale = Vector3{0.25f},
                 .rotation = angle_axis(60_deg, normalize(Vector3{1.0f, 0.0f, 1.0f})),
                 .translation = {-1.0f, 0.0f, 2.0f},
             },
-            material,
-            camera_
+            material
         );
     }
 
@@ -175,17 +174,21 @@ private:
         const Matrix4x4 light_projection_matrix = ortho(-10.0f, 10.0f, -10.0f, 10.0f, znear, zfar);
         latest_light_space_matrix_ = light_projection_matrix * light_view_matrix;
 
+        render_queue_.clear();
         draw_meshes_with_material(depth_material_);
 
         camera_.set_view_matrix_override(light_view_matrix);
         camera_.set_projection_matrix_override(light_projection_matrix);
-        camera_.render_to(depth_texture_);
+        graphics::render_to(depth_texture_, render_queue_, camera_, {
+            .clear_color = {0.1f, 1.0f},
+        });
         camera_.set_view_matrix_override(std::nullopt);
         camera_.set_projection_matrix_override(std::nullopt);
     }
 
     ResourceLoader loader_ = App::resource_loader();
-    MouseCapturingCamera camera_ = create_camera();
+    MouseCapturingCameraV2 camera_ = create_camera();
+    RenderQueue render_queue_;
     Texture2D wood_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/wood.jpg"),
         ColorSpace::sRGB

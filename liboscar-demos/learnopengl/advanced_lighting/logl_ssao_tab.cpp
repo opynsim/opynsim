@@ -6,6 +6,8 @@
 #include <liboscar/graphics/geometries/sphere_geometry.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
+#include <liboscar/graphics/render_pass_config.h>
+#include <liboscar/graphics/render_queue.h>
 #include <liboscar/graphics/render_target.h>
 #include <liboscar/graphics/render_target_color_attachment.h>
 #include <liboscar/graphics/render_target_depth_stencil_attachment.h>
@@ -13,7 +15,7 @@
 #include <liboscar/graphics/texture2d.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/resource_loader.h>
-#include <liboscar/ui/mouse_capturing_camera.h>
+#include <liboscar/ui/mouse_capturing_camera_v2.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/panels/perf_panel.h>
 #include <liboscar/ui/tabs/tab_private.h>
@@ -30,13 +32,12 @@ using namespace osc;
 
 namespace
 {
-    MouseCapturingCamera create_camera_that_matches_learnopengl()
+    MouseCapturingCameraV2 create_camera_that_matches_learnopengl()
     {
-        MouseCapturingCamera rv;
+        MouseCapturingCameraV2 rv;
         rv.set_position({0.0f, 0.0f, 5.0f});
         rv.set_vertical_field_of_view(45_deg);
         rv.set_clipping_planes({0.1f, 50.0f});
-        rv.set_background_color(Color::black());
         return rv;
     }
 
@@ -197,29 +198,32 @@ private:
 
     void render_geometry_pass_to_gbuffers()
     {
+        render_queue_.clear();
+
         // render cube
         {
             gbuffer_state_.material.set("uInvertedNormals", true);
-            graphics::draw(
+            render_queue_.emplace(
                 cube_mesh_,
                 {.scale = Vector3{7.5f}, .translation = {0.0f, 7.0f, 0.0f}},
-                gbuffer_state_.material,
-                camera_
+                gbuffer_state_.material
             );
         }
 
         // render sphere
         {
             gbuffer_state_.material.set("uInvertedNormals", false);
-            graphics::draw(
+            render_queue_.emplace(
                 sphere_mesh_,
                 {.translation = {0.0f, 0.5f, 0.0f}},
-                gbuffer_state_.material,
-                camera_
+                gbuffer_state_.material
             );
         }
 
-        camera_.render_to(gbuffer_state_.render_target);
+        graphics::render_to(gbuffer_state_.render_target, render_queue_, camera_, {
+            .clear_color = Color::black(),
+        });
+        render_queue_.clear();
     }
 
     void render_ssao_pass(const Vector2& viewport_dimensions)
@@ -233,8 +237,12 @@ private:
         ssao_state_.material.set("uRadius", 0.5f);
         ssao_state_.material.set("uBias", 0.125f);
 
-        graphics::draw(quad_mesh_, identity<Transform>(), ssao_state_.material, camera_);
-        camera_.render_to(ssao_state_.output_texture);
+        render_queue_.clear();
+        render_queue_.emplace(quad_mesh_, ssao_state_.material);
+        graphics::render_to(ssao_state_.output_texture, render_queue_, camera_, {
+            .clear_color = Color::black(),
+        });
+        render_queue_.clear();
 
         ssao_state_.material.unset("uPositionTex");
         ssao_state_.material.unset("uNormalTex");
@@ -244,8 +252,12 @@ private:
     {
         blur_state_.material.set("uSSAOTex", ssao_state_.output_texture);
 
-        graphics::draw(quad_mesh_, identity<Transform>(), blur_state_.material, camera_);
-        camera_.render_to(blur_state_.output_texture);
+        render_queue_.clear();
+        render_queue_.emplace(quad_mesh_, blur_state_.material);
+        graphics::render_to(blur_state_.output_texture, render_queue_, camera_, {
+            .clear_color = Color::black(),
+        });
+        render_queue_.clear();
 
         blur_state_.material.unset("uSSAOTex");
     }
@@ -261,8 +273,12 @@ private:
         lighting_state_.material.set("uLightLinear", 0.09f);
         lighting_state_.material.set("uLightQuadratic", 0.032f);
 
-        graphics::draw(quad_mesh_, identity<Transform>(), lighting_state_.material, camera_);
-        camera_.render_to(lighting_state_.output_texture);
+        render_queue_.clear();
+        render_queue_.emplace(quad_mesh_, lighting_state_.material);
+        graphics::render_to(lighting_state_.output_texture, render_queue_, camera_, {
+            .clear_color = Color::black(),
+        });
+        render_queue_.clear();
 
         lighting_state_.material.unset("uPositionTex");
         lighting_state_.material.unset("uNormalTex");
@@ -296,7 +312,8 @@ private:
     Vector3 light_position_ = {2.0f, 4.0f, -2.0f};
     Color light_color_ = {0.2f, 0.2f, 0.7f, 1.0f};
 
-    MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
+    MouseCapturingCameraV2 camera_ = create_camera_that_matches_learnopengl();
+    RenderQueue render_queue_;
 
     Mesh sphere_mesh_ = SphereGeometry{{.num_width_segments = 32, .num_height_segments = 32}};
     Mesh cube_mesh_ = BoxGeometry{{.dimensions = Vector3{2.0f}}};

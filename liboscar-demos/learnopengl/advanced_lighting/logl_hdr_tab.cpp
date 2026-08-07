@@ -1,16 +1,19 @@
 #include "logl_hdr_tab.h"
 
 #include <liboscar/formats/image.h>
+#include <liboscar/graphics/camera_v2.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/geometries/box_geometry.h>
 #include <liboscar/graphics/geometries/plane_geometry.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
+#include <liboscar/graphics/render_pass_config.h>
+#include <liboscar/graphics/render_queue.h>
 #include <liboscar/maths/transform.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/resource_loader.h>
-#include <liboscar/ui/mouse_capturing_camera.h>
+#include <liboscar/ui/mouse_capturing_camera_v2.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/tabs/tab_private.h>
 
@@ -44,13 +47,12 @@ namespace
         return {.scale = {2.5f, 2.5f, 27.5f}, .translation = {0.0f, 0.0f, 25.0f}};
     }
 
-    MouseCapturingCamera create_scene_camera()
+    MouseCapturingCameraV2 create_scene_camera()
     {
-        MouseCapturingCamera rv;
+        MouseCapturingCameraV2 rv;
         rv.set_position({0.0f, 0.0f, 5.0f});
         rv.set_vertical_field_of_view(45_deg);
         rv.set_clipping_planes({0.1f, 100.0f});
-        rv.set_background_color({0.1f, 0.1f, 0.1f, 1.0f});
         rv.eulers() = {0_deg, 180_deg, 0_deg};
         return rv;
     }
@@ -136,15 +138,16 @@ private:
             scene_hdr_texture_.reformat(params);
         }
 
-        graphics::draw(cube_mesh_, corridoor_transform_, scene_material_, camera_);
-        camera_.render_to(scene_hdr_texture_);
+        render_queue_.clear();
+        render_queue_.emplace(cube_mesh_, corridoor_transform_, scene_material_);
+        graphics::render_to(scene_hdr_texture_, render_queue_, camera_, {
+            .clear_color = {0.1f, 1.0f},
+        });
     }
 
     void draw_hdr_texture_via_tonemapper_to_screen()
     {
-        Camera orthogonal_camera;
-        orthogonal_camera.set_background_color(Color::clear());
-        orthogonal_camera.set_pixel_rect(ui::get_main_window_workspace_screen_space_rect());
+        CameraV2 orthogonal_camera;
         orthogonal_camera.set_projection_matrix_override(identity<Matrix4x4>());
         orthogonal_camera.set_view_matrix_override(identity<Matrix4x4>());
 
@@ -152,8 +155,12 @@ private:
         tonemap_material_.set("uUseTonemap", use_tonemap_);
         tonemap_material_.set("uExposure", exposure_);
 
-        graphics::draw(quad_mesh_, identity<Transform>(), tonemap_material_, orthogonal_camera);
-        orthogonal_camera.render_to_main_window();
+        render_queue_.clear();
+        render_queue_.emplace(quad_mesh_, tonemap_material_);
+        graphics::render_to_main_window(render_queue_, orthogonal_camera, {
+            .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
+            .clear_color = Color::clear(),
+        });
 
         tonemap_material_.unset("uTexture");
     }
@@ -172,7 +179,8 @@ private:
     ResourceLoader loader_ = App::resource_loader();
     Material scene_material_ = create_scene_material(loader_);
     Material tonemap_material_ = create_tonemap_material(loader_);
-    MouseCapturingCamera camera_ = create_scene_camera();
+    MouseCapturingCameraV2 camera_ = create_scene_camera();
+    RenderQueue render_queue_;
     Mesh cube_mesh_ = BoxGeometry{{.dimensions = Vector3{2.0f}}};
     Mesh quad_mesh_ = PlaneGeometry{{.dimensions = Vector2{2.0f}}};
     Transform corridoor_transform_ = calc_corridoor_transform();
