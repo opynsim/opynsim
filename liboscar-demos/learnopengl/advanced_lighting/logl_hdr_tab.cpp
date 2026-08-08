@@ -138,11 +138,11 @@ private:
             scene_hdr_texture_.reformat(params);
         }
 
-        render_queue_.clear();
         render_queue_.emplace(cube_mesh_, corridoor_transform_, scene_material_);
         graphics::render_to(scene_hdr_texture_, render_queue_, camera_, {
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
     }
 
     void draw_hdr_texture_via_tonemapper_to_screen()
@@ -155,12 +155,12 @@ private:
         tonemap_material_.set("uUseTonemap", use_tonemap_);
         tonemap_material_.set("uExposure", exposure_);
 
-        render_queue_.clear();
         render_queue_.emplace(quad_mesh_, tonemap_material_);
         graphics::render_to_main_window(render_queue_, orthogonal_camera, {
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = Color::clear(),
         });
+        render_queue_.clear();
 
         tonemap_material_.unset("uTexture");
     }

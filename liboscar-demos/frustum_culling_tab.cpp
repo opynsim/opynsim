@@ -136,7 +136,6 @@ public:
         camera_.on_draw();  // update from inputs etc.
 
         // render from user's perspective on left-hand side
-        render_queue_.clear();
         for (const auto& decoration : decorations_) {
             const std::optional<AABB> decoration_world_aabb = decoration.world_space_bounds();
             if (decoration_world_aabb and is_intersecting(frustum, *decoration_world_aabb)) {
@@ -146,9 +145,9 @@ public:
         graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = lhs_screen_space_rect,
         });
+        render_queue_.clear();
 
         // render from top-down perspective on right-hand side
-        render_queue_.clear();
         for (const auto& decoration : decorations_) {
             const std::optional<AABB> decoration_world_aabb = decoration.world_space_bounds();
             const auto & props = (decoration_world_aabb and is_intersecting(frustum, *decoration_world_aabb)) ? blue_material_props_ : red_material_props_;
@@ -165,6 +164,7 @@ public:
             .scissor_rect = rhs_screen_space_rect,  // stops clear from clearing left-hand side
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
     }
 
 private:

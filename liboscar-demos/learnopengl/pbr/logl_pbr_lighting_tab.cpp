@@ -98,7 +98,6 @@ private:
         pbr_material_.set_array("uLightPositions", c_light_positions);
         pbr_material_.set_array("uLightColors", c_light_radiances);
 
-        render_queue_.clear();
         draw_spheres();
         draw_lights();
 
@@ -106,6 +105,7 @@ private:
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
     }
 
     void draw_spheres()

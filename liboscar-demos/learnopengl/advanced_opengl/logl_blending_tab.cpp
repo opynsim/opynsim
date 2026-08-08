@@ -124,7 +124,6 @@ public:
     void on_draw()
     {
         camera_.on_draw();
-        render_queue_.clear();
 
         // cubes
         {
@@ -163,6 +162,7 @@ public:
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
 
         // auxiliary UI
         log_viewer_.on_draw();

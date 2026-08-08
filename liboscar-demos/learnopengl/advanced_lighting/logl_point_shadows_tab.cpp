@@ -155,11 +155,11 @@ private:
         shadow_mapping_material_.set("uFarPlane", zfar);
 
         // render (shadow mapping does not use the camera's view/projection matrices)
-        render_queue_.clear();
         for (const SceneCube& cube : scene_cubes_) {
             render_queue_.emplace(cube_mesh_, cube.transform, shadow_mapping_material_);
         }
         graphics::render_to(depth_texture_, render_queue_, CameraV2{});
+        render_queue_.clear();
     }
 
     void draw_shadow_mapped_scene_to_screen(const Rect& viewport_screen_space_rect)
@@ -174,7 +174,6 @@ private:
         material.set("uShadows", soft_shadows_);
         material.set("uDepthMap", depth_texture_);
 
-        render_queue_.clear();
         for (const SceneCube& cube : scene_cubes_) {
             MaterialPropertyBlock material_props;
             material_props.set("uReverseNormals", cube.invert_normals);
@@ -194,6 +193,7 @@ private:
             .viewport_rect = viewport_screen_space_rect,
             .clear_color = Color::clear(),
         });
+        render_queue_.clear();
     }
 
     void draw_2d_ui()

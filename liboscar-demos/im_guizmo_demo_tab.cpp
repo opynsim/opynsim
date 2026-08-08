@@ -39,7 +39,6 @@ public:
 
         // Render 3D scene: a grid floor and a cube that has a different color per face
         {
-            render_queue_.clear();
             for (size_t i = 0; i < 6; ++i) {
                 // axis-aligned vector
                 Vector3 v;
@@ -68,6 +67,7 @@ public:
             graphics::render_to_main_window(render_queue_, camera, {
                 .viewport_rect = workspace_screen_space_rect,
             });
+            render_queue_.clear();
         }
 
         // Draw UI overlays (incl. gizmo)

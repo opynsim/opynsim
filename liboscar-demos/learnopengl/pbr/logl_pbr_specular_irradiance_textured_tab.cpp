@@ -277,8 +277,6 @@ private:
     {
         set_common_material_properties();
 
-        render_queue_.clear();
-
         // Add spheres
         Vector3 sphere_pos = {-5.0f, 0.0f, 2.0f};
         for (const IBLSpecularObjectTextures& texture : object_textures_) {
@@ -296,10 +294,10 @@ private:
             );
         }
 
-        // Render
         graphics::render_to(output_render_, render_queue_, camera_, {
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
     }
 
     void set_common_material_properties()
@@ -327,12 +325,12 @@ private:
         background_material_.set("uEnvironmentMap", projected_map_);
         background_material_.set_depth_function(DepthFunction::LessOrEqual);  // for skybox depth trick
 
-        render_queue_.clear();
         render_queue_.emplace(cube_mesh_, identity<Transform>(), background_material_);
         graphics::render_to(output_render_, render_queue_, camera_, {
             .clear_color = {0.1f, 1.0f},
             .clear_flags = ClearFlag::None,
         });
+        render_queue_.clear();
     }
 
     ResourceLoader loader_ = App::resource_loader();

@@ -5,11 +5,9 @@
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/mesh.h>
-#include <liboscar/graphics/render_pass_config.h>
 #include <liboscar/graphics/render_queue.h>
 #include <liboscar/graphics/render_texture.h>
 #include <liboscar/graphics/geometries/box_geometry.h>
-#include <liboscar/graphics/geometries/plane_geometry.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/ui/mouse_capturing_camera_v2.h>
 #include <liboscar/ui/oscimgui.h>
@@ -95,7 +93,6 @@ public:
     void on_draw()
     {
         camera_.on_draw();
-        render_queue_.clear();
 
         // setup render texture
         const Rect workspace_screen_space_rect = ui::get_main_window_workspace_screen_space_rect();
@@ -118,6 +115,7 @@ public:
             render_queue_.emplace(plane_mesh_, scene_render_material_);
         }
         graphics::render_to(render_texture_, render_queue_, camera_);
+        render_queue_.clear();
 
         // render via a effect sampler
         graphics::blit_to_main_window(render_texture_, screen_material_, workspace_screen_space_rect);

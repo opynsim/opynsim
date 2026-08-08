@@ -84,12 +84,12 @@ public:
 private:
     void draw_scene()
     {
-        render_queue_.clear();
         render_queue_.emplace(cube_, material_);
         graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
     }
 
     void draw_2d_ui()

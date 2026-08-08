@@ -229,7 +229,6 @@ private:
     {
         gbuffer_.material.set("uDiffuseMap", diffuse_map_);
         gbuffer_.material.set("uSpecularMap", specular_map_);
-        render_queue_.clear();
 
         // render scene cubes
         for (const Vector3& object_position : c_object_positions) {
@@ -242,6 +241,7 @@ private:
         graphics::render_to(gbuffer_.render_target, render_queue_, camera_, {
             .clear_color = Color::black(),
         });
+        render_queue_.clear();
     }
 
     void draw_gbuffer_overlays(const Rect& viewport_screen_space_rect) const
@@ -283,13 +283,12 @@ private:
         light_pass_.material.set("uLightLinear", 0.7f);
         light_pass_.material.set("uLightQuadratic", 1.8f);
         light_pass_.material.set("uViewPos", camera_.position());
-        render_queue_.clear();
 
         render_queue_.emplace(quad_mesh_, identity<Transform>(), light_pass_.material);
-
         graphics::render_to(output_texture_, render_queue_, camera_, {
             .clear_color = Color::black(),
         });
+        render_queue_.clear();
 
         light_pass_.material.unset("uPositionTex");
         light_pass_.material.unset("uNormalTex");
@@ -299,8 +298,6 @@ private:
     void render_light_cubes()
     {
         OSC_ASSERT(light_positions_.size() == light_colors_.size());
-
-        render_queue_.clear();
 
         for (size_t i = 0; i < light_positions_.size(); ++i) {
             light_box_material_.set("uLightColor", light_colors_[i]);
@@ -328,6 +325,7 @@ private:
         graphics::render_to(render_target, render_queue_, camera_, {
             .clear_color = Color::black(),
         });
+        render_queue_.clear();
     }
 
     ResourceLoader loader_ = App::resource_loader();

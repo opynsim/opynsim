@@ -165,7 +165,6 @@ private:
     {
         cube_properties_.set("uCameraPos", camera_.position());
         cube_properties_.set("uIOR", ior_);
-        render_queue_.clear();
         render_queue_.emplace(
             cube_mesh_,
             identity<Transform>(),
@@ -176,17 +175,18 @@ private:
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
     }
 
     void draw_skybox()
     {
-        render_queue_.clear();
         camera_.set_view_matrix_override(Matrix4x4{Matrix3x3{camera_.view_matrix()}});
         render_queue_.emplace(skybox_, skybox_material_);
         graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_flags = ClearFlag::None,
         });
+        render_queue_.clear();
         camera_.set_view_matrix_override(std::nullopt);
     }
 

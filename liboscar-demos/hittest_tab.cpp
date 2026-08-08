@@ -150,7 +150,6 @@ public:
     void on_draw()
     {
         camera_.on_draw();
-        render_queue_.clear();
 
         // render spheres
         for (const SceneSphere& scene_sphere : scene_spheres_) {
@@ -228,6 +227,7 @@ public:
             .viewport_rect = workspace_screen_space_rect,
             .clear_color = Color::white().with_alpha(0.0f),
         });
+        render_queue_.clear();
     }
 
 private:

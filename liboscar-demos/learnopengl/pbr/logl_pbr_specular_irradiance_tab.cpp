@@ -167,10 +167,10 @@ namespace
             const float mip_roughness = static_cast<float>(mip)/static_cast<float>(max_mipmap_level);
             material.set("uRoughness", mip_roughness);
 
-            render_queue.clear();
             render_queue.emplace(BoxGeometry{{.dimensions = Vector3{2.0f}}}, identity<Transform>(), material);
             graphics::render_to(capture_render_texture, render_queue, camera);
             graphics::copy_texture(capture_render_texture, rv, mip);
+            render_queue.clear();
         }
 
         return rv;
@@ -273,12 +273,12 @@ private:
         pbr_material_.set("uMaxReflectionLOD", static_cast<float>(std::bit_width(static_cast<size_t>(prefilter_map_.width()) - 1)));
         pbr_material_.set("uBRDFLut", brdf_lookup_);
 
-        render_queue_.clear();
         draw_spheres();
         draw_lights();
         graphics::render_to(output_render_texture_, render_queue_, camera_, {
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
     }
 
     void draw_spheres()
@@ -318,11 +318,11 @@ private:
         background_material_.set("uEnvironmentMap", projected_map_);
         background_material_.set_depth_function(DepthFunction::LessOrEqual);  // for skybox depth trick
 
-        render_queue_.clear();
         render_queue_.emplace(cube_mesh_, identity<Transform>(), background_material_);
         graphics::render_to(output_render_texture_, render_queue_, camera_, {
             .clear_flags = ClearFlag::None,
         });
+        render_queue_.clear();
     }
 
     void draw_2d_ui()

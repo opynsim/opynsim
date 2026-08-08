@@ -127,7 +127,6 @@ private:
     {
         pbr_material_.set("uCameraWorldPosition", camera_.position());
 
-        render_queue_.clear();
         draw_spheres();
         draw_lights();
 
@@ -135,6 +134,7 @@ private:
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
     }
 
     void draw_spheres()

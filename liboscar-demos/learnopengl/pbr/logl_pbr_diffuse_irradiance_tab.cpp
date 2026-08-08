@@ -175,7 +175,6 @@ private:
         pbr_material_.set_array("uLightColors", c_light_radiances);
         pbr_material_.set("uIrradianceMap", irradiance_map_);
 
-        render_queue_.clear();
         draw_spheres();
         draw_lights();
 
@@ -183,6 +182,7 @@ private:
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
     }
 
     void draw_spheres()
@@ -218,12 +218,12 @@ private:
         background_material_.set("uEnvironmentMap", projected_map_);
         background_material_.set_depth_function(DepthFunction::LessOrEqual);  // for skybox depth trick
 
-        render_queue_.clear();
         render_queue_.emplace(cube_mesh_, identity<Transform>(), background_material_);
         graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_flags = ClearFlag::None,
         });
+        render_queue_.clear();
     }
 
     void draw_2d_ui()

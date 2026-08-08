@@ -198,8 +198,6 @@ private:
 
     void render_geometry_pass_to_gbuffers()
     {
-        render_queue_.clear();
-
         // render cube
         {
             gbuffer_state_.material.set("uInvertedNormals", true);
@@ -237,7 +235,6 @@ private:
         ssao_state_.material.set("uRadius", 0.5f);
         ssao_state_.material.set("uBias", 0.125f);
 
-        render_queue_.clear();
         render_queue_.emplace(quad_mesh_, ssao_state_.material);
         graphics::render_to(ssao_state_.output_texture, render_queue_, camera_, {
             .clear_color = Color::black(),
@@ -252,7 +249,6 @@ private:
     {
         blur_state_.material.set("uSSAOTex", ssao_state_.output_texture);
 
-        render_queue_.clear();
         render_queue_.emplace(quad_mesh_, blur_state_.material);
         graphics::render_to(blur_state_.output_texture, render_queue_, camera_, {
             .clear_color = Color::black(),
@@ -273,7 +269,6 @@ private:
         lighting_state_.material.set("uLightLinear", 0.09f);
         lighting_state_.material.set("uLightQuadratic", 0.032f);
 
-        render_queue_.clear();
         render_queue_.emplace(quad_mesh_, lighting_state_.material);
         graphics::render_to(lighting_state_.output_texture, render_queue_, camera_, {
             .clear_color = Color::black(),

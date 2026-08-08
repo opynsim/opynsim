@@ -95,7 +95,6 @@ public:
     void on_draw()
     {
         camera_.on_draw();
-        render_queue_.clear();
 
         // draw normal-mapped quad
         {
@@ -115,6 +114,7 @@ public:
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = Color::darkest_grey(),
         });
+        render_queue_.clear();
 
         ui::begin_panel("controls");
         ui::draw_checkbox("normal mapping", &parallax_mapping_enabled_);

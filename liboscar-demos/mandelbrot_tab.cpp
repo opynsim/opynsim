@@ -53,11 +53,11 @@ public:
         material_.set("uOffset", Vector2{});
         material_.set("uNumIterations", num_iterations_);
 
-        render_queue_.clear();
         render_queue_.emplace(quad_mesh_, identity<Transform>(), material_);
         graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
         });
+        render_queue_.clear();
     }
 
 private:

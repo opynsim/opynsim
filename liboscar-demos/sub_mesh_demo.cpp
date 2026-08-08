@@ -81,7 +81,6 @@ public:
 
     void on_draw()
     {
-        render_queue_.clear();
         for (size_t sub_mesh_index = 0; sub_mesh_index < mesh_with_sub_meshes_.num_submesh_descriptors(); ++sub_mesh_index) {
             render_queue_.emplace(
                 mesh_with_sub_meshes_,
@@ -94,6 +93,7 @@ public:
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = Color::white(),
         });
+        render_queue_.clear();
     }
 
 private:

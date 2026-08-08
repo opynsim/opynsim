@@ -114,7 +114,6 @@ public:
 private:
     void draw_3d_scene()
     {
-        render_queue_.clear();
         if (show_step1_) {
             render_queue_.emplace(mesh_, step1_transform_, material_);
         }
@@ -137,6 +136,7 @@ private:
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = {0.2f, 0.3f, 0.3f, 1.0f},
         });
+        render_queue_.clear();
     }
 
     void draw_2d_ui()

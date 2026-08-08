@@ -78,7 +78,6 @@ public:
     void on_draw()
     {
         camera_.on_draw();
-        render_queue_.clear();
 
         // draw cube
         lighting_maps_material_.set("uViewPos", camera_.position());
@@ -97,6 +96,7 @@ public:
         graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
         });
+        render_queue_.clear();
 
         // render 2D UI
         ui::begin_panel("controls");

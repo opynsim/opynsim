@@ -5,7 +5,6 @@
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/material_property_block.h>
-#include <liboscar/graphics/render_pass_config.h>
 #include <liboscar/graphics/render_queue.h>
 #include <liboscar/graphics/geometries/plane_geometry.h>
 #include <liboscar/platform/app.h>

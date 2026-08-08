@@ -122,7 +122,6 @@ private:
         scene_material_.set("uDiffuseTexture", wood_texture_);
         scene_material_.set("uShadowMapTexture", depth_texture_);
 
-        render_queue_.clear();
         draw_meshes_with_material(scene_material_);
         graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = workspace_screen_space_rect,
@@ -135,7 +134,7 @@ private:
                 workspace_screen_space_top_left + Vector2{depth_overlay_size, 0.0f}
             )
         );
-
+        render_queue_.clear();
         scene_material_.unset("uShadowMapTexture");
     }
 
@@ -174,7 +173,6 @@ private:
         const Matrix4x4 light_projection_matrix = ortho(-10.0f, 10.0f, -10.0f, 10.0f, znear, zfar);
         latest_light_space_matrix_ = light_projection_matrix * light_view_matrix;
 
-        render_queue_.clear();
         draw_meshes_with_material(depth_material_);
 
         camera_.set_view_matrix_override(light_view_matrix);
@@ -182,6 +180,7 @@ private:
         graphics::render_to(depth_texture_, render_queue_, camera_, {
             .clear_color = {0.1f, 1.0f},
         });
+        render_queue_.clear();
         camera_.set_view_matrix_override(std::nullopt);
         camera_.set_projection_matrix_override(std::nullopt);
     }
