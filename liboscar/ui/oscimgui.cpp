@@ -1,6 +1,6 @@
 #include "oscimgui.h"
 
-#include <liboscar/graphics/camera.h>
+#include <liboscar/graphics/camera_v2.h>
 #include <liboscar/graphics/clear_flags.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/color_space.h>
@@ -8,6 +8,8 @@
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/mesh.h>
+#include <liboscar/graphics/render_pass_config.h>
+#include <liboscar/graphics/render_queue.h>
 #include <liboscar/graphics/render_texture.h>
 #include <liboscar/graphics/shader.h>
 #include <liboscar/graphics/sub_mesh_descriptor.h>
@@ -447,7 +449,8 @@ namespace
         // Graphics
         SRGBToLinearConverter                        srgb_to_linear_converter;
         Material                                     ui_material{Shader{c_ui_vertex_shader_src, c_ui_fragment_shader_src}};
-        Camera                                       camera;
+        CameraV2                                     camera;
+        RenderQueue                                  render_queue;
         Mesh                                         mesh;
         OscarUITextureStorage                        textures;
 
@@ -516,10 +519,6 @@ namespace
         const Vector2 minflip{clip_min.x(), (draw_data.DisplaySize.y) - clip_max.y()};
         const Vector2 maxflip{clip_max.x(), (draw_data.DisplaySize.y) - clip_min.y()};
 
-        // setup clipping rectangle
-        bd.camera.set_clear_flags(ClearFlag::None);
-        bd.camera.set_scissor_rect(Rect::from_corners(minflip, maxflip));
-
         // setup sub-mesh description
         const size_t sub_mesh_index = mesh.num_submesh_descriptors();
         mesh.push_submesh_descriptor(SubMeshDescriptor{
@@ -545,16 +544,25 @@ namespace
             }, *texture);
         }
 
-        // draw
-        graphics::draw(mesh, identity<Matrix4x4>(), bd.ui_material, bd.camera, sub_mesh_index);
+        bd.render_queue.emplace(
+            mesh,
+            identity<Matrix4x4>(),
+            bd.ui_material,
+            sub_mesh_index
+        );
 
-        // flush draw queue to output
+        // flush render queue to output
+        const RenderPassConfig render_pass_config{
+            .scissor_rect = Rect::from_corners(minflip, maxflip),
+            .clear_flags = ClearFlag::None,
+        };
         if (maybe_target) {
-            bd.camera.render_to(*maybe_target);
+            graphics::render_to(*maybe_target, bd.render_queue, bd.camera, render_pass_config);
         }
         else {
-            bd.camera.render_to_main_window();
+            graphics::render_to_main_window(bd.render_queue, bd.camera, render_pass_config);
         }
+        bd.render_queue.clear();
 
         // Prevent UI material from retaining a potentially-stale
         // texture handle, which can trigger additional copies
