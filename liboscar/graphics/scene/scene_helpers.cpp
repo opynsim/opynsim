@@ -1,7 +1,7 @@
 #include "scene_helpers.h"
 
 #include <liboscar/graphics/anti_aliasing_level.h>
-#include <liboscar/graphics/camera.h>
+#include <liboscar/graphics/camera_v2.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/mesh.h>
 #include <liboscar/graphics/mesh_indices_view.h>
