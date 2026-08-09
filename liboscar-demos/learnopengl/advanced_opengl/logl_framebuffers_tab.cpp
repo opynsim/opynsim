@@ -55,14 +55,6 @@ namespace
         rv.set_clipping_planes({0.1f, 100.0f});
         return rv;
     }
-
-    Camera create_screen_camera()
-    {
-        Camera rv;
-        rv.set_view_matrix_override(identity<Matrix4x4>());
-        rv.set_projection_matrix_override(identity<Matrix4x4>());
-        return rv;
-    }
 }
 
 class osc::LOGLFramebuffersTab::Impl final : public TabPrivate {
