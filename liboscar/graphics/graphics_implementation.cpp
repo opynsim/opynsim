@@ -5907,15 +5907,6 @@ namespace osc
 
         // public (forwarded) API
 
-        static void draw(const Mesh&, const Transform&, const Material&, Camera&);
-        static void draw(const Mesh&, const Transform&, const Material&, Camera&, const MaterialPropertyBlock&);
-        static void draw(const Mesh&, const Transform&, const Material&, Camera&, size_t submesh_index);
-        static void draw(const Mesh&, const Transform&, const Material&, Camera&, const MaterialPropertyBlock&, size_t submesh_index);
-        static void draw(const Mesh&, const Matrix4x4&, const Material&, Camera&);
-        static void draw(const Mesh&, const Matrix4x4&, const Material&, Camera&, const MaterialPropertyBlock&);
-        static void draw(const Mesh&, const Matrix4x4&, const Material&, Camera&, size_t submesh_index);
-        static void draw(const Mesh&, const Matrix4x4&, const Material&, Camera&, const MaterialPropertyBlock&, size_t submesh_index);
-
         static void blit(
             const Texture2D&,
             RenderTexture&
@@ -6030,39 +6021,6 @@ std::string osc::GraphicsContext::backend_version_string() const
 std::string osc::GraphicsContext::backend_shading_language_version_string() const
 {
     return g_graphics_context_impl->backend_shading_language_version_string();
-}
-
-void osc::graphics::draw(const Mesh& mesh, const Transform& transform, const Material& material, Camera& camera)
-{
-    GraphicsBackend::draw(mesh, transform, material, camera);
-}
-void osc::graphics::draw(const Mesh& mesh, const Transform& transform, const Material& material, Camera& camera, const MaterialPropertyBlock& material_prop_block)
-{
-    GraphicsBackend::draw(mesh, transform, material, camera, material_prop_block);
-}
-void osc::graphics::draw(const Mesh& mesh, const Transform& transform, const Material& material, Camera& camera, size_t submesh_index)
-{
-    GraphicsBackend::draw(mesh, transform, material, camera, submesh_index);
-}
-void osc::graphics::draw(const Mesh& mesh, const Transform& transform, const Material& material, Camera& camera, const MaterialPropertyBlock& material_prop_block, size_t submesh_index)
-{
-    GraphicsBackend::draw(mesh, transform, material, camera, material_prop_block, submesh_index);
-}
-void osc::graphics::draw(const Mesh& mesh, const Matrix4x4& transform, const Material& material, Camera& camera)
-{
-    GraphicsBackend::draw(mesh, transform, material, camera);
-}
-void osc::graphics::draw(const Mesh& mesh, const Matrix4x4& transform, const Material& material, Camera& camera, const MaterialPropertyBlock& material_prop_block)
-{
-    GraphicsBackend::draw(mesh, transform, material, camera, material_prop_block);
-}
-void osc::graphics::draw(const Mesh& mesh, const Matrix4x4& transform, const Material& material, Camera& camera, size_t submesh_index)
-{
-    GraphicsBackend::draw(mesh, transform, material, camera, submesh_index);
-}
-void osc::graphics::draw(const Mesh& mesh, const Matrix4x4& transform, const Material& material, Camera& camera, const MaterialPropertyBlock& material_prop_block, size_t submesh_index)
-{
-    GraphicsBackend::draw(mesh, transform, material, camera, material_prop_block, submesh_index);
 }
 
 void osc::graphics::render_to_main_window(
@@ -7145,51 +7103,6 @@ void osc::GraphicsBackend::render(
         rp_config,
         maybe_custom_render_target
     );
-}
-
-void osc::GraphicsBackend::draw(const Mesh& mesh, const Transform& transform, const Material& material, Camera& camera)
-{
-    camera.upd_render_queue().emplace(mesh, transform, material);
-}
-void osc::GraphicsBackend::draw(const Mesh& mesh, const Transform& transform, const Material& material, Camera& camera, const MaterialPropertyBlock& material_prop_block)
-{
-    camera.upd_render_queue().emplace(mesh, transform, material, material_prop_block);
-}
-void osc::GraphicsBackend::draw(const Mesh& mesh, const Transform& transform, const Material& material, Camera& camera, size_t submesh_index)
-{
-    if (submesh_index >= mesh.num_submesh_descriptors()) {
-        throw std::out_of_range{"the given sub-mesh index was out of range (i.e. the given mesh does not have that many sub-meshes)"};
-    }
-    camera.upd_render_queue().emplace(mesh, transform, material, submesh_index);
-}
-void osc::GraphicsBackend::draw(const Mesh& mesh, const Transform& transform, const Material& material, Camera& camera, const MaterialPropertyBlock& material_prop_block, size_t submesh_index)
-{
-    if (submesh_index >= mesh.num_submesh_descriptors()) {
-        throw std::out_of_range{"the given sub-mesh index was out of range (i.e. the given mesh does not have that many sub-meshes)"};
-    }
-    camera.upd_render_queue().emplace(mesh, transform, material, material_prop_block, submesh_index);
-}
-void osc::GraphicsBackend::draw(const Mesh& mesh, const Matrix4x4& transform, const Material& material, Camera& camera)
-{
-    camera.upd_render_queue().emplace(mesh, transform, material);
-}
-void osc::GraphicsBackend::draw(const Mesh& mesh, const Matrix4x4& transform, const Material& material, Camera& camera, const MaterialPropertyBlock& material_prop_block)
-{
-    camera.upd_render_queue().emplace(mesh, transform, material, material_prop_block);
-}
-void osc::GraphicsBackend::draw(const Mesh& mesh, const Matrix4x4& transform, const Material& material, Camera& camera, size_t submesh_index)
-{
-    if (submesh_index >= mesh.num_submesh_descriptors()) {
-        throw std::out_of_range{"the given sub-mesh index was out of range (i.e. the given mesh does not have that many sub-meshes)"};
-    }
-    camera.upd_render_queue().emplace(mesh, transform, material, submesh_index);
-}
-void osc::GraphicsBackend::draw(const Mesh& mesh, const Matrix4x4& transform, const Material& material, Camera& camera, const MaterialPropertyBlock& material_prop_block, size_t submesh_index)
-{
-    if (submesh_index >= mesh.num_submesh_descriptors()) {
-        throw std::out_of_range{"the given sub-mesh index was out of range (i.e. the given mesh does not have that many sub-meshes)"};
-    }
-    camera.upd_render_queue().emplace(mesh, transform, material, material_prop_block, submesh_index);
 }
 
 void osc::GraphicsBackend::blit(
