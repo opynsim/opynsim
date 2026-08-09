@@ -7196,16 +7196,19 @@ void osc::GraphicsBackend::blit(
     const Texture2D& source,
     RenderTexture& destination)
 {
-    Camera camera;
-    camera.set_background_color(Color::clear());
+    CameraV2 camera;
     camera.set_projection_matrix_override(identity<Matrix4x4>());
     camera.set_view_matrix_override(identity<Matrix4x4>());
 
     Material material = g_graphics_context_impl->quad_material();
     material.set("uTexture", source);
 
-    graphics::draw(g_graphics_context_impl->quad_mesh(), Transform{}, material, camera);
-    camera.render_to(destination);
+    RenderQueue render_queue;
+    render_queue.emplace(g_graphics_context_impl->quad_mesh(), material);
+
+    graphics::render_to(destination, render_queue, camera, {
+        .clear_color = Color::clear(),
+    });
 }
 
 void osc::GraphicsBackend::blit_to_main_window(
@@ -7225,18 +7228,20 @@ void osc::GraphicsBackend::blit_to_main_window(
     OSC_ASSERT(g_graphics_context_impl);
     OSC_ASSERT(source.impl_->has_been_rendered_to() && "the input texture has not been rendered to");
 
-    Camera camera;
-    camera.set_background_color(Color::clear());
-    camera.set_pixel_rect(destination_screen_rect);
+    CameraV2 camera;
     camera.set_projection_matrix_override(identity<Matrix4x4>());
     camera.set_view_matrix_override(identity<Matrix4x4>());
-    camera.set_clear_flags(ClearFlag::None);
 
     Material material_copy{material};
     material_copy.set("uTexture", source);
-    graphics::draw(g_graphics_context_impl->quad_mesh(), Transform{}, material_copy, camera);
-    camera.render_to_main_window();
-    material_copy.unset("uTexture");
+
+    RenderQueue render_queue;
+    render_queue.emplace(g_graphics_context_impl->quad_mesh(), material_copy);
+
+    graphics::render_to_main_window(render_queue, camera, {
+        .viewport_rect = destination_screen_rect,
+        .clear_flags = ClearFlag::None,
+    });
 }
 
 void osc::GraphicsBackend::blit_to_main_window(
@@ -7245,18 +7250,20 @@ void osc::GraphicsBackend::blit_to_main_window(
 {
     OSC_ASSERT(g_graphics_context_impl);
 
-    Camera camera;
-    camera.set_background_color(Color::clear());
-    camera.set_pixel_rect(rect);
+    CameraV2 camera;
     camera.set_projection_matrix_override(identity<Matrix4x4>());
     camera.set_view_matrix_override(identity<Matrix4x4>());
-    camera.set_clear_flags(ClearFlag::None);
 
     Material material_copy{g_graphics_context_impl->quad_material()};
     material_copy.set("uTexture", source);
-    graphics::draw(g_graphics_context_impl->quad_mesh(), Transform{}, material_copy, camera);
-    camera.render_to_main_window();
-    material_copy.unset("uTexture");
+
+    RenderQueue render_queue;
+    render_queue.emplace(g_graphics_context_impl->quad_mesh(), material_copy);
+
+    graphics::render_to_main_window(render_queue, camera, {
+        .viewport_rect = rect,
+        .clear_flags = ClearFlag::None,
+    });
 }
 
 void osc::GraphicsBackend::copy_texture(
