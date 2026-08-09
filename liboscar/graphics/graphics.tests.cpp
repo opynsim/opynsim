@@ -1,6 +1,6 @@
 #include "graphics.h"
 
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/mesh.h>
 #include <liboscar/graphics/mesh_topology.h>
@@ -161,7 +161,7 @@ TEST_F(Graphics, rendering_does_not_throw_with_standard_args)
     const Mesh mesh;
     const Transform transform = identity<Transform>();
     const Material material{Shader{c_vertex_shader_src, c_fragment_shader_src}};
-    const CameraV2 camera;
+    const Camera camera;
     RenderQueue render_queue;
     render_queue.emplace(mesh, transform, material);
     graphics::render_to_main_window(render_queue, camera);
@@ -172,7 +172,7 @@ TEST_F(Graphics, rendering_throws_if_given_out_of_bounds_sub_mesh_index)
     const Mesh mesh;
     const Transform transform = identity<Transform>();
     const Material material{Shader{c_vertex_shader_src, c_fragment_shader_src}};
-    const CameraV2 camera;
+    const Camera camera;
     RenderQueue render_queue;
     render_queue.emplace(mesh, transform, material, 0);
     ASSERT_ANY_THROW({ graphics::render_to_main_window(render_queue, camera); });
@@ -184,7 +184,7 @@ TEST_F(Graphics, graphics_draw_does_not_throw_if_given_in_bounds_sub_mesh_index)
     mesh.push_submesh_descriptor({0, 0, MeshTopology::Triangles});
     const Transform transform = identity<Transform>();
     const Material material{Shader{c_vertex_shader_src, c_fragment_shader_src}};
-    const CameraV2 camera;
+    const Camera camera;
     RenderQueue render_queue;
     render_queue.emplace(mesh, transform, material, 0);
     graphics::render_to_main_window(render_queue, camera);

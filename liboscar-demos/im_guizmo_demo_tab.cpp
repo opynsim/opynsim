@@ -1,6 +1,6 @@
 #include "im_guizmo_demo_tab.h"
 
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/render_pass_config.h>
 #include <liboscar/graphics/render_queue.h>
 #include <liboscar/graphics/geometries/grid_geometry.h>
@@ -61,7 +61,7 @@ public:
                 MeshBasicMaterial::PropertyBlock{Color::white().with_alpha(0.1f)}
             );
 
-            CameraV2 camera;
+            Camera camera;
             camera.set_view_matrix_override(view_matrix);
             camera.set_projection_matrix_override(projection_matrix);
             graphics::render_to_main_window(render_queue_, camera, {

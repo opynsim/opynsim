@@ -1,7 +1,7 @@
 #include "logl_texturing_tab.h"
 
 #include <liboscar/formats/image.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/geometries/plane_geometry.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
@@ -61,9 +61,9 @@ namespace
         return rv;
     }
 
-    CameraV2 create_identity_camera()
+    Camera create_identity_camera()
     {
-        CameraV2 rv;
+        Camera rv;
         rv.set_view_matrix_override(identity<Matrix4x4>());
         rv.set_projection_matrix_override(identity<Matrix4x4>());
         return rv;
@@ -91,7 +91,7 @@ private:
     ResourceLoader loader_ = App::resource_loader();
     Material material_ = load_textured_material(loader_);
     Mesh mesh_ = generate_textured_quad_mesh();
-    CameraV2 camera_ = create_identity_camera();
+    Camera camera_ = create_identity_camera();
     RenderQueue render_queue_;
 };
 

@@ -1,7 +1,7 @@
 #include "scene_helpers.h"
 
 #include <liboscar/graphics/anti_aliasing_level.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/mesh.h>
 #include <liboscar/graphics/mesh_indices_view.h>
@@ -367,7 +367,7 @@ BVH osc::create_triangle_bvh(const Mesh& mesh)
     return rv;
 }
 
-FrustumPlanes osc::calc_frustum_planes(const CameraV2& camera, float aspect_ratio)
+FrustumPlanes osc::calc_frustum_planes(const Camera& camera, float aspect_ratio)
 {
     const Radians fov_y = camera.vertical_field_of_view();
     const auto [z_near, z_far] = camera.clipping_planes();

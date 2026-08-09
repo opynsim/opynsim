@@ -15,9 +15,9 @@ namespace osc
 {
     /// Represents a camera at a `position` in world space, pointing toward `direction`
     /// and oriented such that it is `up`.
-    class CameraV2 {
+    class Camera {
     public:
-        CameraV2();
+        Camera();
 
         // resets the camera to default parameters
         void reset();
@@ -137,10 +137,10 @@ namespace osc
         Matrix4x4 inverse_view_projection_matrix(float aspect_ratio) const;
 
     private:
-        friend bool operator==(const CameraV2&, const CameraV2&);
+        friend bool operator==(const Camera&, const Camera&);
         class Impl;
         CopyOnUpdSharedValue<Impl> impl_;
     };
 
-    bool operator==(const CameraV2&, const CameraV2&);
+    bool operator==(const Camera&, const Camera&);
 }

@@ -95,7 +95,7 @@ namespace
             .diffuse_color = 0.5f * torus_color_,
             .specular_color = 0.5f * torus_color_,
         }};
-        osc::CameraV2 camera_;
+        osc::Camera camera_;
         osc::RenderQueue render_queue_;
         osc::RenderTexture target_texture_;
     };

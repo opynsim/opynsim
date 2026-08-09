@@ -1,6 +1,6 @@
 #include "oscimgui.h"
 
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/clear_flags.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/color_space.h>
@@ -449,7 +449,7 @@ namespace
         // Graphics
         SRGBToLinearConverter                        srgb_to_linear_converter;
         Material                                     ui_material{Shader{c_ui_vertex_shader_src, c_ui_fragment_shader_src}};
-        CameraV2                                     camera;
+        Camera                                       camera;
         RenderQueue                                  render_queue;
         Mesh                                         mesh;
         OscarUITextureStorage                        textures;
@@ -3044,7 +3044,7 @@ bool osc::ui::update_polar_camera_from_all_inputs(
     return mouse_handled or keyboard_handled;
 }
 
-void osc::ui::update_camera_from_all_inputs(CameraV2& camera, EulerAngles& eulers)
+void osc::ui::update_camera_from_all_inputs(Camera& camera, EulerAngles& eulers)
 {
     const Vector3 front = camera.direction();
     const Vector3 up = camera.up();

@@ -1,6 +1,6 @@
 #include "logl_hello_triangle_tab.h"
 
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/render_pass_config.h>
@@ -34,9 +34,9 @@ namespace
         return mesh;
     }
 
-    CameraV2 create_scene_camera()
+    Camera create_scene_camera()
     {
-        CameraV2 rv;
+        Camera rv;
         rv.set_view_matrix_override(identity<Matrix4x4>());
         rv.set_projection_matrix_override(identity<Matrix4x4>());
         return rv;
@@ -72,7 +72,7 @@ private:
     ResourceLoader loader_ = App::resource_loader();
     Material material_ = create_triangle_material(loader_);
     Mesh triangle_mesh_ = generate_triangle_mesh();
-    CameraV2 camera_ = create_scene_camera();
+    Camera camera_ = create_scene_camera();
     RenderQueue render_queue_;
 };
 

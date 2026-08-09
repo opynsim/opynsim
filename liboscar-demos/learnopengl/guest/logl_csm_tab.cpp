@@ -1,6 +1,6 @@
 #include "logl_csm_tab.h"
 
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/depth_stencil_render_buffer_params.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
@@ -126,7 +126,7 @@ namespace
 
     // returns orthogonal projection information for each cascade
     std::vector<OrthogonalProjectionParameters> calculate_light_source_orthographic_projections(
-        const CameraV2& camera,
+        const Camera& camera,
         float aspect_ratio,
         Vector3 light_world_direction)
     {
@@ -275,7 +275,7 @@ private:
         for (size_t i = 0; i < cascade_projections.size(); ++i) {
             const Matrix4x4 cascade_projection_matrix = to_matrix4x4(cascade_projections[i]) * world_to_light;
 
-            CameraV2 camera;
+            Camera camera;
             camera.set_view_matrix_override(identity<Matrix4x4>());
             camera.set_projection_matrix_override(cascade_projection_matrix);
 

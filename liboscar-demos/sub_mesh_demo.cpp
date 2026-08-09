@@ -4,7 +4,7 @@
 #include <liboscar/graphics/geometries/circle_geometry.h>
 #include <liboscar/graphics/geometries/sphere_geometry.h>
 #include <liboscar/graphics/materials/mesh_basic_material.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/mesh.h>
 #include <liboscar/graphics/render_pass_config.h>
@@ -97,7 +97,7 @@ public:
     }
 
 private:
-    CameraV2 camera_;
+    Camera camera_;
     RenderQueue render_queue_;
     MeshBasicMaterial material_;
     Mesh mesh_with_sub_meshes_ = generate_mesh_with_sub_meshes();

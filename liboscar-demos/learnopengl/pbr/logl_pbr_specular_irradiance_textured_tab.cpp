@@ -79,7 +79,7 @@ namespace
         material.set("uEquirectangularMap", hdr_texture);
         material.set_array("uShadowMatrices", calc_cubemap_view_proj_matrices(projection_matrix, Vector3{}));
 
-        CameraV2 camera;
+        Camera camera;
         RenderQueue render_queue;
         render_queue.emplace(BoxGeometry{{.dimensions = Vector3{2.0f}}}, identity<Transform>(), material);
         graphics::render_to(cubemap_render_target, render_queue, camera);
@@ -106,7 +106,7 @@ namespace
         material.set("uEnvironmentMap", skybox);
         material.set_array("uShadowMatrices", calc_cubemap_view_proj_matrices(captureProjection, Vector3{}));
 
-        CameraV2 camera;
+        Camera camera;
         RenderQueue render_queue;
         render_queue.emplace(BoxGeometry{{.dimensions = Vector3{2.0f}}}, identity<Transform>(), material);
         graphics::render_to(irradiance_cubemap, render_queue, camera);
@@ -146,7 +146,7 @@ namespace
         ));
         static_assert(max_mipmap_level == 7);
 
-        CameraV2 camera;
+        Camera camera;
         RenderQueue render_queue;
 
         // render prefilter map such that each supported level of roughness maps into one
@@ -169,7 +169,7 @@ namespace
     Texture2D create_2D_brdf_lookup(ResourceLoader& loader)
     {
         // TODO: `graphics::blit` with material
-        CameraV2 camera;
+        Camera camera;
         camera.set_projection_matrix_override(identity<Matrix4x4>());
         camera.set_view_matrix_override(identity<Matrix4x4>());
 

@@ -1,6 +1,6 @@
 #include "hittest_tab.h"
 
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/geometries/aabb_geometry.h>
 #include <liboscar/graphics/geometries/circle_geometry.h>
 #include <liboscar/graphics/geometries/sphere_geometry.h>

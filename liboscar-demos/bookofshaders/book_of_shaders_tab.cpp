@@ -1,6 +1,6 @@
 #include "book_of_shaders_tab.h"
 
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/camera_projection.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
@@ -193,7 +193,7 @@ private:
     };
     size_t current_material_index_ = 0;
     PlaneGeometry quad_;
-    CameraV2 camera_;
+    Camera camera_;
     RenderQueue render_queue_;
     BookOfShadersCommonProperties props_;
 };

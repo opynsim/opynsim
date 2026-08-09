@@ -1,7 +1,7 @@
 #include "logl_hdr_tab.h"
 
 #include <liboscar/formats/image.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/geometries/box_geometry.h>
 #include <liboscar/graphics/geometries/plane_geometry.h>
@@ -147,7 +147,7 @@ private:
 
     void draw_hdr_texture_via_tonemapper_to_screen()
     {
-        CameraV2 orthogonal_camera;
+        Camera orthogonal_camera;
         orthogonal_camera.set_projection_matrix_override(identity<Matrix4x4>());
         orthogonal_camera.set_view_matrix_override(identity<Matrix4x4>());
 

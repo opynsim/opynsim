@@ -1,5 +1,5 @@
 #include <liboscar/graphics/anti_aliasing_level.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/camera_projection.h>
 #include <liboscar/graphics/clear_flags.h>
 #include <liboscar/graphics/color.h>
@@ -5745,7 +5745,7 @@ namespace osc
 
         static void render(
             const RenderQueue& render_queue,
-            const CameraV2& camera,
+            const Camera& camera,
             const RenderPassConfig& rp_config,
             const RenderTarget* maybe_custom_render_target = nullptr
         );
@@ -5871,7 +5871,7 @@ std::string osc::GraphicsContext::backend_shading_language_version_string() cons
 
 void osc::graphics::render_to_main_window(
     const RenderQueue& render_queue,
-    const CameraV2& camera,
+    const Camera& camera,
     const RenderPassConfig& render_pass_config)
 {
     GraphicsBackend::render(render_queue, camera, render_pass_config);
@@ -5880,7 +5880,7 @@ void osc::graphics::render_to_main_window(
 void osc::graphics::render_to(
     RenderTexture& render_texture,
     const RenderQueue& render_queue,
-    const CameraV2& camera,
+    const Camera& camera,
     const RenderPassConfig& render_pass_config)
 {
     static_assert(ClearFlag::All == ClearFlags{ClearFlag::SolidColor, ClearFlag::Depth});
@@ -5934,7 +5934,7 @@ void osc::graphics::render_to(
 void osc::graphics::render_to(
     const RenderTarget& render_target,
     const RenderQueue& render_queue,
-    const CameraV2& camera_v2,
+    const Camera& camera_v2,
     const RenderPassConfig& render_pass_config)
 {
     GraphicsBackend::render(render_queue, camera_v2, render_pass_config, &render_target);
@@ -5943,7 +5943,7 @@ void osc::graphics::render_to(
 void osc::graphics::render_to(
     SharedDepthStencilRenderBuffer& shared_depth_stencil_render_buffer,
     const RenderQueue& render_queue,
-    const CameraV2& camera_v2,
+    const Camera& camera_v2,
     const RenderPassConfig& render_pass_config)
 {
     static_assert(ClearFlag::All == ClearFlags{ClearFlag::SolidColor, ClearFlag::Depth});
@@ -6907,7 +6907,7 @@ void osc::GraphicsBackend::resolve_render_buffers(
 
 void osc::GraphicsBackend::render(
     const RenderQueue& render_queue,
-    const CameraV2& camera,
+    const Camera& camera,
     const RenderPassConfig& rp_config,
     const RenderTarget* maybe_custom_render_target)
 {
@@ -6955,7 +6955,7 @@ void osc::GraphicsBackend::blit(
     const Texture2D& source,
     RenderTexture& destination)
 {
-    CameraV2 camera;
+    Camera camera;
     camera.set_projection_matrix_override(identity<Matrix4x4>());
     camera.set_view_matrix_override(identity<Matrix4x4>());
 
@@ -6987,7 +6987,7 @@ void osc::GraphicsBackend::blit_to_main_window(
     OSC_ASSERT(g_graphics_context_impl);
     OSC_ASSERT(source.impl_->has_been_rendered_to() && "the input texture has not been rendered to");
 
-    CameraV2 camera;
+    Camera camera;
     camera.set_projection_matrix_override(identity<Matrix4x4>());
     camera.set_view_matrix_override(identity<Matrix4x4>());
 
@@ -7009,7 +7009,7 @@ void osc::GraphicsBackend::blit_to_main_window(
 {
     OSC_ASSERT(g_graphics_context_impl);
 
-    CameraV2 camera;
+    Camera camera;
     camera.set_projection_matrix_override(identity<Matrix4x4>());
     camera.set_view_matrix_override(identity<Matrix4x4>());
 

@@ -1,7 +1,7 @@
 #include "logl_point_shadows_tab.h"
 
 #include <liboscar/formats/image.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/render_pass_config.h>
@@ -158,7 +158,7 @@ private:
         for (const SceneCube& cube : scene_cubes_) {
             render_queue_.emplace(cube_mesh_, cube.transform, shadow_mapping_material_);
         }
-        graphics::render_to(depth_texture_, render_queue_, CameraV2{});
+        graphics::render_to(depth_texture_, render_queue_, Camera{});
         render_queue_.clear();
     }
 

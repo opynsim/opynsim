@@ -1,4 +1,4 @@
-#include "camera_v2.h"
+#include "camera.h"
 
 #include <liboscar/graphics/camera_projection.h>
 #include <liboscar/graphics/clear_flags.h>
@@ -22,41 +22,41 @@ using namespace osc::tests;
 
 TEST(CameraV2, can_default_construct)
 {
-    const CameraV2 camera;  // should compile + run
+    const Camera camera;  // should compile + run
 }
 
 TEST(CameraV2, can_copy_construct)
 {
-    const CameraV2 camera;
-    const CameraV2 copy = camera;  // NOLINT(performance-unnecessary-copy-initialization)
+    const Camera camera;
+    const Camera copy = camera;  // NOLINT(performance-unnecessary-copy-initialization)
 }
 
 TEST(CameraV2, copied_instance_compares_equal_to_original)
 {
-    const CameraV2 camera;
-    const CameraV2 copy = camera;  // NOLINT(performance-unnecessary-copy-initialization)
+    const Camera camera;
+    const Camera copy = camera;  // NOLINT(performance-unnecessary-copy-initialization)
 
     ASSERT_EQ(camera, copy);
 }
 
 TEST(CameraV2, can_move_construct)
 {
-    CameraV2 camera;
-    const CameraV2 copy{std::move(camera)};
+    Camera camera;
+    const Camera copy{std::move(camera)};
 }
 
 TEST(CameraV2, can_copy_assign)
 {
-    const CameraV2 c1;
-    CameraV2 c2;
+    const Camera c1;
+    Camera c2;
 
     c2 = c1;
 }
 
 TEST(CameraV2, copy_assigned_instance_compares_equal_to_rhs)
 {
-    CameraV2 c1;
-    const CameraV2 c2;
+    Camera c1;
+    const Camera c2;
 
     c1 = c2;
 
@@ -65,16 +65,16 @@ TEST(CameraV2, copy_assigned_instance_compares_equal_to_rhs)
 
 TEST(CameraV2, can_move_assign)
 {
-    CameraV2 c1;
-    CameraV2 c2;
+    Camera c1;
+    Camera c2;
 
     c2 = std::move(c1);
 }
 
 TEST(CameraV2, uses_value_comparision)
 {
-    CameraV2 c1;
-    CameraV2 c2;
+    Camera c1;
+    Camera c2;
 
     ASSERT_EQ(c1, c2);
 
@@ -89,8 +89,8 @@ TEST(CameraV2, uses_value_comparision)
 
 TEST(CameraV2, reset_resets_the_instance_to_default_values)
 {
-    const CameraV2 default_camera;
-    CameraV2 camera = default_camera;
+    const Camera default_camera;
+    Camera camera = default_camera;
     camera.set_direction({1.0f, 0.0f, 0.0f});
     ASSERT_NE(camera, default_camera);
     camera.reset();
@@ -99,19 +99,19 @@ TEST(CameraV2, reset_resets_the_instance_to_default_values)
 
 TEST(CameraV2, projection_defaults_to_Default)
 {
-    const CameraV2 camera;
+    const Camera camera;
     ASSERT_EQ(camera.projection(), CameraProjection::Default);
 }
 
 TEST(CameraV2, can_call_set_projection)
 {
-    CameraV2 camera;
+    Camera camera;
     camera.set_projection(CameraProjection::Orthographic);
 }
 
 TEST(CameraV2, set_projection_makes_getter_return_the_projection)
 {
-    CameraV2 camera;
+    Camera camera;
     const CameraProjection new_projection = CameraProjection::Orthographic;
 
     ASSERT_NE(camera.projection(), new_projection);
@@ -121,13 +121,13 @@ TEST(CameraV2, set_projection_makes_getter_return_the_projection)
 
 TEST(CameraV2, vertical_field_of_view_defaults_to_90_deg)
 {
-    const CameraV2 camera;
+    const Camera camera;
     ASSERT_EQ(camera.vertical_field_of_view(), 90_deg);
 }
 
 TEST(CameraV2, set_vertical_field_of_view_sets_the_vertical_field_of_view)
 {
-    CameraV2 camera;
+    Camera camera;
 
     ASSERT_EQ(camera.vertical_field_of_view(), 90_deg);
     camera.set_vertical_field_of_view(120_deg);
@@ -136,14 +136,14 @@ TEST(CameraV2, set_vertical_field_of_view_sets_the_vertical_field_of_view)
 
 TEST(CameraV2, horizontal_field_of_view_equals_vertical_field_of_view_when_aspect_ratio_is_1)
 {
-    const CameraV2 camera;
+    const Camera camera;
     ASSERT_FLOAT_EQ(camera.vertical_field_of_view().count(), camera.horizontal_field_of_view(1.0f).count());
 }
 
 TEST(CameraV2, set_projection_on_copy_makes_it_compare_nonequal_to_original)
 {
-    const CameraV2 camera;
-    CameraV2 copy = camera;
+    const Camera camera;
+    Camera copy = camera;
     const CameraProjection new_projection = CameraProjection::Orthographic;
 
     ASSERT_NE(copy.projection(), new_projection);
@@ -153,7 +153,7 @@ TEST(CameraV2, set_projection_on_copy_makes_it_compare_nonequal_to_original)
 
 TEST(CameraV2, position_defaults_to_zero_vector)
 {
-    const CameraV2 camera;
+    const Camera camera;
     ASSERT_EQ(camera.position(), Vector3(0.0f, 0.0f, 0.0f));
 }
 
@@ -164,7 +164,7 @@ TEST(CameraV2, set_direction_to_standard_direction_causes_direction_to_return_ne
     //
     // the main reason this test exists is just to sanity-check parts of the direction API
 
-    CameraV2 camera;
+    Camera camera;
 
     const Vector3 default_direction = {0.0f, 0.0f, -1.0f};
 
@@ -183,12 +183,12 @@ TEST(CameraV2, set_direction_to_standard_direction_causes_direction_to_return_ne
 
 TEST(CameraV2, principal_ray_points_from_origin_along_minus_z_when_default_initialized)
 {
-    ASSERT_EQ(CameraV2{}.principal_ray(), Ray(Vector3(0.0f), Vector3(0.0f, 0.0f, -1.0f)));
+    ASSERT_EQ(Camera{}.principal_ray(), Ray(Vector3(0.0f), Vector3(0.0f, 0.0f, -1.0f)));
 }
 
 TEST(CameraV2, principal_ray_is_changed_by_changing_the_position_and_direction_of_the_camera)
 {
-    CameraV2 camera;
+    Camera camera;
     camera.set_position({3.0f, 2.0f, 1.0f});
     camera.set_direction({1.0f, 0.0f, 0.0f});
 
@@ -198,22 +198,22 @@ TEST(CameraV2, principal_ray_is_changed_by_changing_the_position_and_direction_o
 
 TEST(CameraV2, default_rotation_is_identity)
 {
-    ASSERT_EQ(CameraV2{}.rotation(), Quaternion{});
+    ASSERT_EQ(Camera{}.rotation(), Quaternion{});
 }
 
 TEST(CameraV2, default_position_is_zero)
 {
-    ASSERT_EQ(CameraV2{}.position(), Vector3{});
+    ASSERT_EQ(Camera{}.position(), Vector3{});
 }
 
 TEST(CameraV2, default_direction_is_minus_z)
 {
-    ASSERT_EQ(CameraV2{}.direction(), Vector3(0.0f, 0.0f, -1.0f));
+    ASSERT_EQ(Camera{}.direction(), Vector3(0.0f, 0.0f, -1.0f));
 }
 
 TEST(CameraV2, default_up_is_plus_y)
 {
-    ASSERT_EQ(CameraV2{}.up(), Vector3(0.0f, 1.0f, 0.0f));
+    ASSERT_EQ(Camera{}.up(), Vector3(0.0f, 1.0f, 0.0f));
 }
 
 TEST(CameraV2, set_direction_to_different_direction_gives_accurate_enough_results)
@@ -224,7 +224,7 @@ TEST(CameraV2, set_direction_to_different_direction_gives_accurate_enough_result
     // only guarantees storing the position + rotation accurately - the Z direction vector
     // is computed *from*  the rotation and may change a little bit between set/get
 
-    CameraV2 camera;
+    Camera camera;
 
     const Vector3 new_direction = normalize(Vector3{1.0f, 1.0f, 1.0f});
 
@@ -237,7 +237,7 @@ TEST(CameraV2, set_direction_to_different_direction_gives_accurate_enough_result
 
 TEST(CameraV2, view_matrix_returns_view_matrix_based_on_position_direction_and_up)
 {
-    CameraV2 camera;
+    Camera camera;
     camera.set_projection(CameraProjection::Orthographic);
     camera.set_position({1.0f, 2.0f, 3.0f});
 
@@ -251,7 +251,7 @@ TEST(CameraV2, view_matrix_returns_view_matrix_based_on_position_direction_and_u
 
 TEST(CameraV2, inverse_view_matrix_returns_inverse_of_view_matrix_based_on_position_direction_and_up)
 {
-    CameraV2 camera;
+    Camera camera;
     camera.set_projection(CameraProjection::Orthographic);
     camera.set_position({1.0f, 2.0f, 3.0f});
 
@@ -265,7 +265,7 @@ TEST(CameraV2, inverse_view_matrix_returns_inverse_of_view_matrix_based_on_posit
 
 TEST(CameraV2, set_view_matrix_override_makes_view_matrix_return_the_override)
 {
-    CameraV2 camera;
+    Camera camera;
 
     // these shouldn't matter - they're overridden
     camera.set_projection(CameraProjection::Orthographic);
@@ -281,7 +281,7 @@ TEST(CameraV2, set_view_matrix_override_makes_view_matrix_return_the_override)
 
 TEST(CameraV2, set_view_matrix_override_to_nullopt_resets_view_matrix_to_use_camera_position_and_up)
 {
-    CameraV2 camera;
+    Camera camera;
     const Matrix4x4 initial_view_matrix = camera.view_matrix();
 
     Matrix4x4 view_matrix = identity<Matrix4x4>();
@@ -298,7 +298,7 @@ TEST(CameraV2, set_view_matrix_override_to_nullopt_resets_view_matrix_to_use_cam
 
 TEST(CameraV2, projection_matrix_returns_matrix_based_on_camera_position_and_up)
 {
-    CameraV2 camera;
+    Camera camera;
     camera.set_projection(CameraProjection::Orthographic);
     camera.set_position({0.0f, 0.0f, 0.0f});
     camera.set_clipping_planes({1.0f, -1.0f});
@@ -315,7 +315,7 @@ TEST(CameraV2, projection_matrix_returns_matrix_based_on_camera_position_and_up)
 
 TEST(CameraV2, set_projection_matrix_override_makes_projection_matrix_return_the_override)
 {
-    CameraV2 camera;
+    Camera camera;
 
     // these shouldn't matter - they're overridden
     camera.set_projection(CameraProjection::Orthographic);
@@ -331,7 +331,7 @@ TEST(CameraV2, set_projection_matrix_override_makes_projection_matrix_return_the
 
 TEST(CameraV2, set_projection_matrix_override_to_nullopt_resets_projection_matrix_to_use_camera_field_of_view_etc)
 {
-    CameraV2 camera;
+    Camera camera;
     const Matrix4x4 initial_projection_matrix = camera.projection_matrix(1.0f);
 
     Matrix4x4 projection_matrix = identity<Matrix4x4>();
@@ -348,7 +348,7 @@ TEST(CameraV2, set_projection_matrix_override_to_nullopt_resets_projection_matri
 
 TEST(CameraV2, view_projection_matrix_returns_view_matrix_multiplied_by_projection_matrix)
 {
-    CameraV2 camera;
+    Camera camera;
 
     Matrix4x4 view_matrix = identity<Matrix4x4>();
     view_matrix[0][3] = 2.5f;  // change some part of it
@@ -365,7 +365,7 @@ TEST(CameraV2, view_projection_matrix_returns_view_matrix_multiplied_by_projecti
 
 TEST(CameraV2, inverse_view_projection_matrix_returns_expected_matrix)
 {
-    CameraV2 camera;
+    Camera camera;
 
     Matrix4x4 view_matrix = identity<Matrix4x4>();
     view_matrix[0][3] = 2.5f;  // change some part of it
@@ -382,7 +382,7 @@ TEST(CameraV2, inverse_view_projection_matrix_returns_expected_matrix)
 
 TEST(CameraV2, can_call_clipping_planes)
 {
-    const CameraV2 camera;
+    const Camera camera;
     const auto [znear, zfar] = camera.clipping_planes();
     ASSERT_FALSE(isnan(znear));
     ASSERT_FALSE(isnan(zfar));
@@ -390,21 +390,21 @@ TEST(CameraV2, can_call_clipping_planes)
 
 TEST(CameraV2, clipping_planes_can_be_set_via_set_near_clipping_plane)
 {
-    CameraV2 camera;
+    Camera camera;
     camera.set_near_clipping_plane(1337.0f);
     ASSERT_EQ(camera.clipping_planes().znear, 1337.0f);
 }
 
 TEST(CameraV2, set_clipping_planes_makes_near_clipping_plane_return_new_near_clipping_plane)
 {
-    CameraV2 camera;
+    Camera camera;
     camera.set_clipping_planes({-1337.0f, 1337.0f});
     ASSERT_EQ(camera.near_clipping_plane(), -1337.0f);
 }
 
 TEST(CameraV2, set_clipping_planes_makes_far_clipping_plane_return_new_far_clipping_plane)
 {
-    CameraV2 camera;
+    Camera camera;
     camera.set_clipping_planes({-1337.0f, 1337.0f});
     ASSERT_EQ(camera.far_clipping_plane(), 1337.0f);
 }

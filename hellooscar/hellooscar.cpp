@@ -78,7 +78,7 @@ namespace
             .diffuse_color = 0.5f * torus_color_,
             .specular_color = 0.5f * torus_color_,
         }};
-        CameraV2 camera_;
+        Camera camera_;
         RenderQueue render_queue_;
         RenderTexture target_texture_;
     };

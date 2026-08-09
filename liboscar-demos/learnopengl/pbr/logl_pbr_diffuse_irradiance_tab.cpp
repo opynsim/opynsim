@@ -3,7 +3,7 @@
 #include <liboscar/formats/image.h>
 #include <liboscar/graphics/geometries/box_geometry.h>
 #include <liboscar/graphics/geometries/sphere_geometry.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/render_pass_config.h>
@@ -81,7 +81,7 @@ namespace
         material.set("uEquirectangularMap", hdr_texture);
         material.set_array("uShadowMatrices", calc_cubemap_view_proj_matrices(projection_matrix, Vector3{}));
 
-        CameraV2 camera;
+        Camera camera;
         RenderQueue render_queue;
         render_queue.emplace(
             BoxGeometry{{.dimensions = Vector3{2.0f}}},
@@ -112,7 +112,7 @@ namespace
         material.set("uEnvironmentMap", skybox);
         material.set_array("uShadowMatrices", calc_cubemap_view_proj_matrices(capture_projection, Vector3{}));
 
-        CameraV2 camera;
+        Camera camera;
         RenderQueue render_queue;
         render_queue.emplace(BoxGeometry{{.dimensions = Vector3{2.0f}}}, identity<Transform>(), material);
         graphics::render_to(irradiance_cubemap, render_queue, camera);

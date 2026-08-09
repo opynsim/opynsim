@@ -1,6 +1,6 @@
 #include "scene_renderer.h"
 
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/clear_flags.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/color_render_buffer_params.h>
@@ -1071,7 +1071,7 @@ private:
     ankerl::unordered_dense::map<Color32, MaterialPropertyBlock> color_cache_;
 
     Mesh quad_mesh_;
-    CameraV2 camera_;
+    Camera camera_;
     RenderQueue render_queue_;
     RenderTexture rims_render_texture_;
     SharedDepthStencilRenderBuffer shadow_map_render_buffer_{DepthStencilRenderBufferParams{

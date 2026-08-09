@@ -6,7 +6,7 @@
 #include <liboscar/graphics/geometries/torus_knot_geometry.h>
 #include <liboscar/graphics/materials/mesh_basic_material.h>
 #include <liboscar/graphics/scene/scene_helpers.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/mesh.h>
 #include <liboscar/graphics/render_pass_config.h>
@@ -170,7 +170,7 @@ public:
 private:
     MouseCapturingCamera camera_;
     std::vector<TransformedMesh> decorations_ = generateDecorations();
-    CameraV2 top_down_camera_;
+    Camera top_down_camera_;
     RenderQueue render_queue_;
     MeshBasicMaterial material_;
     MeshBasicMaterial::PropertyBlock red_material_props_{Color::red()};

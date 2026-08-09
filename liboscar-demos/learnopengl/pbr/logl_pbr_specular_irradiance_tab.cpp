@@ -4,7 +4,7 @@
 #include <liboscar/graphics/geometries/box_geometry.h>
 #include <liboscar/graphics/geometries/plane_geometry.h>
 #include <liboscar/graphics/geometries/sphere_geometry.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/render_pass_config.h>
@@ -86,7 +86,7 @@ namespace
             calc_cubemap_view_proj_matrices(projection_matrix, Vector3{})
         );
 
-        CameraV2 camera;
+        Camera camera;
         RenderQueue render_queue;
         render_queue.emplace(BoxGeometry{{.dimensions = Vector3{2.0f}}}, identity<Transform>(), material);
         graphics::render_to(cubemap_render_target, render_queue, camera);
@@ -116,7 +116,7 @@ namespace
             calc_cubemap_view_proj_matrices(capture_projection, Vector3{})
         );
 
-        CameraV2 camera;
+        Camera camera;
         RenderQueue render_queue;
         render_queue.emplace(BoxGeometry{{.dimensions = Vector3{2.0f}}}, identity<Transform>(), material);
         graphics::render_to(irradiance_cubemap, render_queue, camera);
@@ -158,7 +158,7 @@ namespace
 
         // render prefilter map such that each supported level of roughness maps into one
         // LOD of the cubemap's mipmaps
-        CameraV2 camera;
+        Camera camera;
         RenderQueue render_queue;
         for (size_t mip = 0; mip <= max_mipmap_level; ++mip) {
             const size_t mip_width = level_zero_width >> mip;
@@ -189,7 +189,7 @@ namespace
         }};
 
         // TODO: graphics::blit with material
-        CameraV2 camera;
+        Camera camera;
         camera.set_projection_matrix_override(identity<Matrix4x4>());
         camera.set_view_matrix_override(identity<Matrix4x4>());
 

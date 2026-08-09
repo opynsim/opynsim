@@ -1,7 +1,7 @@
 #include "logl_bloom_tab.h"
 
 #include <liboscar/formats/image.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
@@ -276,7 +276,7 @@ private:
         for (RenderTexture& ping_pong_buffer : ping_pong_blur_output_buffers_) {
             blur_material_.set("uHorizontal", horizontal);
             render_queue_.emplace(quad_mesh_, blur_material_);
-            graphics::render_to(ping_pong_buffer, render_queue_, CameraV2{});
+            graphics::render_to(ping_pong_buffer, render_queue_, Camera{});
             render_queue_.clear();
             blur_material_.unset("uInputImage");
 
@@ -292,7 +292,7 @@ private:
         final_compositing_material_.set("uExposure", 1.0f);
 
         render_queue_.emplace(quad_mesh_, final_compositing_material_);
-        graphics::render_to_main_window(render_queue_, CameraV2{}, {
+        graphics::render_to_main_window(render_queue_, Camera{}, {
             .viewport_rect = viewport_screen_space_rect,
         });
         render_queue_.clear();

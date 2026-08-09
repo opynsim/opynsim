@@ -1,7 +1,7 @@
 #include "logl_framebuffers_tab.h"
 
 #include <liboscar/formats/image.h>
-#include <liboscar/graphics/camera_v2.h>
+#include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
 #include <liboscar/graphics/mesh.h>
@@ -56,9 +56,9 @@ namespace
         return rv;
     }
 
-    CameraV2 create_screen_camera()
+    Camera create_screen_camera()
     {
-        CameraV2 rv;
+        Camera rv;
         rv.set_view_matrix_override(identity<Matrix4x4>());
         rv.set_projection_matrix_override(identity<Matrix4x4>());
         return rv;
