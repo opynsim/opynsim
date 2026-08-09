@@ -17,7 +17,7 @@
 #include <liboscar/maths/frustum_planes.h>
 #include <liboscar/maths/rect_functions.h>
 #include <liboscar/platform/app.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/tabs/tab_private.h>
 
@@ -168,7 +168,7 @@ public:
     }
 
 private:
-    MouseCapturingCameraV2 camera_;
+    MouseCapturingCamera camera_;
     std::vector<TransformedMesh> decorations_ = generateDecorations();
     CameraV2 top_down_camera_;
     RenderQueue render_queue_;

@@ -13,7 +13,7 @@
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/resource_loader.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/tabs/tab_private.h>
 
@@ -47,9 +47,9 @@ namespace
         return {.scale = {2.5f, 2.5f, 27.5f}, .translation = {0.0f, 0.0f, 25.0f}};
     }
 
-    MouseCapturingCameraV2 create_scene_camera()
+    MouseCapturingCamera create_scene_camera()
     {
-        MouseCapturingCameraV2 rv;
+        MouseCapturingCamera rv;
         rv.set_position({0.0f, 0.0f, 5.0f});
         rv.set_vertical_field_of_view(45_deg);
         rv.set_clipping_planes({0.1f, 100.0f});
@@ -179,7 +179,7 @@ private:
     ResourceLoader loader_ = App::resource_loader();
     Material scene_material_ = create_scene_material(loader_);
     Material tonemap_material_ = create_tonemap_material(loader_);
-    MouseCapturingCameraV2 camera_ = create_scene_camera();
+    MouseCapturingCamera camera_ = create_scene_camera();
     RenderQueue render_queue_;
     Mesh cube_mesh_ = BoxGeometry{{.dimensions = Vector3{2.0f}}};
     Mesh quad_mesh_ = PlaneGeometry{{.dimensions = Vector2{2.0f}}};

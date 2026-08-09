@@ -10,7 +10,7 @@
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/resource_loader.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/tabs/tab_private.h>
 
@@ -70,9 +70,9 @@ namespace
         return mesh;
     }
 
-    MouseCapturingCameraV2 create_scene_camera()
+    MouseCapturingCamera create_scene_camera()
     {
-        MouseCapturingCameraV2 camera;
+        MouseCapturingCamera camera;
         camera.set_position({0.0f, 0.0f, 3.0f});
         camera.set_vertical_field_of_view(45_deg);
         camera.set_clipping_planes({0.1f, 100.0f});
@@ -151,7 +151,7 @@ private:
 
     Material material_ = create_floor_material(App::resource_loader());
     Mesh plane_mesh_ = generate_plane();
-    MouseCapturingCameraV2 camera_ = create_scene_camera();
+    MouseCapturingCamera camera_ = create_scene_camera();
     RenderQueue render_queue_;
 };
 

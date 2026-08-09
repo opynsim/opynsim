@@ -1,13 +1,13 @@
 #pragma once
 
-#include <liboscar/graphics/camera.h>
+#include <liboscar/graphics/camera_v2.h>
 #include <liboscar/maths/euler_angles.h>
 
 namespace osc { class Event; }
 
 namespace osc
 {
-    class MouseCapturingCamera final : public Camera {
+    class MouseCapturingCamera final : public CameraV2 {
     public:
         void on_mount();
         void on_unmount();

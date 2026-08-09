@@ -9,7 +9,7 @@
 #include <liboscar/graphics/geometries/box_geometry.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/panels/log_viewer_panel.h>
 #include <liboscar/ui/panels/perf_panel.h>
@@ -82,9 +82,9 @@ namespace
         return mesh;
     }
 
-    MouseCapturingCameraV2 create_camera_that_matches_learnopengl()
+    MouseCapturingCamera create_camera_that_matches_learnopengl()
     {
-        MouseCapturingCameraV2 rv;
+        MouseCapturingCamera rv;
         rv.set_position({0.0f, 0.0f, 3.0f});
         rv.set_vertical_field_of_view(45_deg);
         rv.set_clipping_planes({0.1f, 100.0f});
@@ -179,7 +179,7 @@ private:
     Mesh cube_mesh_ = BoxGeometry{}.mesh();
     Mesh plane_mesh_ = generate_plane();
     Mesh transparent_mesh_ = generate_transparent();
-    MouseCapturingCameraV2 camera_ = create_camera_that_matches_learnopengl();
+    MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
     RenderQueue render_queue_;
     Texture2D marble_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/marble.jpg"),

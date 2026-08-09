@@ -14,7 +14,7 @@
 #include <liboscar/maths/transform.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/panels/perf_panel.h>
 #include <liboscar/ui/tabs/tab_private.h>
@@ -75,9 +75,9 @@ namespace
         }};
     }
 
-    MouseCapturingCameraV2 create_camera()
+    MouseCapturingCamera create_camera()
     {
-        MouseCapturingCameraV2 rv;
+        MouseCapturingCamera rv;
         rv.set_position({0.0f, 0.0f, 5.0f});
         rv.set_vertical_field_of_view(45_deg);
         rv.set_clipping_planes({0.1f, 100.0f});
@@ -224,7 +224,7 @@ private:
         loader_.slurp("oscar_demos/learnopengl/shaders/AdvancedLighting/point_shadows/SoftScene.frag"),
     }};
 
-    MouseCapturingCameraV2 camera_ = create_camera();
+    MouseCapturingCamera camera_ = create_camera();
     RenderQueue render_queue_;
     Texture2D m_WoodTexture = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/wood.jpg"),

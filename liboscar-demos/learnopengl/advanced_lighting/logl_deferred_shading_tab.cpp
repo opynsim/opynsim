@@ -13,7 +13,7 @@
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/resource_loader.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/tabs/tab_private.h>
 #include <liboscar/utilities/assertions.h>
@@ -100,9 +100,9 @@ namespace
         return rv;
     }
 
-    MouseCapturingCameraV2 create_camera_that_matches_learnopengl()
+    MouseCapturingCamera create_camera_that_matches_learnopengl()
     {
-        MouseCapturingCameraV2 rv;
+        MouseCapturingCamera rv;
         rv.set_position({0.0f, 0.5f, 5.0f});
         rv.set_vertical_field_of_view(45_deg);
         rv.set_clipping_planes({0.1f, 100.0f});
@@ -333,7 +333,7 @@ private:
     // scene state
     std::vector<Vector3> light_positions_ = generate_n_scene_light_positions(c_num_lights);
     std::vector<Vector3> light_colors_ = generate_n_scene_light_colors(c_num_lights);
-    MouseCapturingCameraV2 camera_ = create_camera_that_matches_learnopengl();
+    MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
     RenderQueue render_queue_;
     Mesh cube_mesh_ = BoxGeometry{{.dimensions = Vector3{2.0f}}};
     Mesh quad_mesh_ = PlaneGeometry{{.dimensions = Vector2{2.0f}}};

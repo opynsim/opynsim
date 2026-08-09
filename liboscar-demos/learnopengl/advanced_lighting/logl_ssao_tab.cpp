@@ -15,7 +15,7 @@
 #include <liboscar/graphics/texture2d.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/resource_loader.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/panels/perf_panel.h>
 #include <liboscar/ui/tabs/tab_private.h>
@@ -32,9 +32,9 @@ using namespace osc;
 
 namespace
 {
-    MouseCapturingCameraV2 create_camera_that_matches_learnopengl()
+    MouseCapturingCamera create_camera_that_matches_learnopengl()
     {
-        MouseCapturingCameraV2 rv;
+        MouseCapturingCamera rv;
         rv.set_position({0.0f, 0.0f, 5.0f});
         rv.set_vertical_field_of_view(45_deg);
         rv.set_clipping_planes({0.1f, 50.0f});
@@ -307,7 +307,7 @@ private:
     Vector3 light_position_ = {2.0f, 4.0f, -2.0f};
     Color light_color_ = {0.2f, 0.2f, 0.7f, 1.0f};
 
-    MouseCapturingCameraV2 camera_ = create_camera_that_matches_learnopengl();
+    MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
     RenderQueue render_queue_;
 
     Mesh sphere_mesh_ = SphereGeometry{{.num_width_segments = 32, .num_height_segments = 32}};

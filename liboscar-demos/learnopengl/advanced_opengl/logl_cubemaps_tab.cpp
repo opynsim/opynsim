@@ -11,7 +11,7 @@
 #include <liboscar/graphics/geometries/box_geometry.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/resource_loader.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/tabs/tab_private.h>
 #include <liboscar/utilities/assertions.h>
@@ -70,9 +70,9 @@ namespace
         return cubemap;
     }
 
-    MouseCapturingCameraV2 create_camera_that_matches_learnopengl()
+    MouseCapturingCamera create_camera_that_matches_learnopengl()
     {
-        MouseCapturingCameraV2 rv;
+        MouseCapturingCamera rv;
         rv.set_position({0.0f, 0.0f, 3.0f});
         rv.set_vertical_field_of_view(45_deg);
         rv.set_clipping_planes({0.1f, 100.0f});
@@ -225,7 +225,7 @@ private:
     Mesh skybox_ = BoxGeometry{{.dimensions = Vector3{2.0f}}};
     Cubemap cubemap_ = load_cubemap(loader_);
 
-    MouseCapturingCameraV2 camera_ = create_camera_that_matches_learnopengl();
+    MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
     RenderQueue render_queue_;
 };
 

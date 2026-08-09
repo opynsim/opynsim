@@ -19,7 +19,7 @@
 #include <liboscar/maths/matrix_functions.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/tabs/tab_private.h>
 
@@ -101,9 +101,9 @@ namespace
         return rv;
     }
 
-    MouseCapturingCameraV2 create_camera_that_matches_learnopengl()
+    MouseCapturingCamera create_camera_that_matches_learnopengl()
     {
-        MouseCapturingCameraV2 camera;
+        MouseCapturingCamera camera;
         camera.set_position({0.0f, 0.5f, 5.0f});
         camera.set_clipping_planes({0.1f, 100.0f});
         return camera;
@@ -360,7 +360,7 @@ private:
     RenderTexture scene_hdr_thresholded_output_;
     std::array<RenderTexture, 2> ping_pong_blur_output_buffers_;
 
-    MouseCapturingCameraV2 camera_ = create_camera_that_matches_learnopengl();
+    MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
     RenderQueue render_queue_;
 };
 

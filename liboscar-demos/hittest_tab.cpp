@@ -20,7 +20,7 @@
 #include <liboscar/maths/sphere.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/tabs/tab_private.h>
 
@@ -231,7 +231,7 @@ public:
     }
 
 private:
-    MouseCapturingCameraV2 camera_;
+    MouseCapturingCamera camera_;
     RenderQueue render_queue_;
     MeshBasicMaterial material_;
     Mesh sphere_mesh_ = SphereGeometry{{.num_width_segments = 12, .num_height_segments = 12}};

@@ -19,7 +19,7 @@
 #include <liboscar/maths/matrix_functions.h>
 #include <liboscar/maths/quaternion_functions.h>
 #include <liboscar/platform/app.h>
-#include <liboscar/ui/mouse_capturing_camera_v2.h>
+#include <liboscar/ui/mouse_capturing_camera.h>
 #include <liboscar/ui/oscimgui.h>
 #include <liboscar/ui/panels/log_viewer_panel.h>
 #include <liboscar/ui/tabs/tab_private.h>
@@ -344,7 +344,7 @@ private:
     }
 
     ResourceLoader resource_loader_ = App::resource_loader();
-    MouseCapturingCameraV2 user_camera_;
+    MouseCapturingCamera user_camera_;
     RenderQueue render_queue_;
     std::vector<TransformedMesh> decorations_ = generate_decorations();
     MeshDepthWritingMaterial shadow_mapping_material_;
