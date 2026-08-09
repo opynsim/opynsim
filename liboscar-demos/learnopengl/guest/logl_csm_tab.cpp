@@ -1,6 +1,6 @@
 #include "logl_csm_tab.h"
 
-#include <liboscar/graphics/camera.h>
+#include <liboscar/graphics/camera_v2.h>
 #include <liboscar/graphics/depth_stencil_render_buffer_params.h>
 #include <liboscar/graphics/graphics.h>
 #include <liboscar/graphics/material.h>
