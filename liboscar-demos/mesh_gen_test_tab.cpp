@@ -12,6 +12,7 @@
 #include <liboscar/graphics/geometries/torus_knot_geometry.h>
 #include <liboscar/graphics/scene/scene_cache.h>
 #include <liboscar/graphics/scene/scene_decoration.h>
+#include <liboscar/graphics/scene/scene_helpers.h>
 #include <liboscar/graphics/scene/scene_renderer_params.h>
 #include <liboscar/maths/polar_perspective_camera.h>
 #include <liboscar/maths/vector.h>

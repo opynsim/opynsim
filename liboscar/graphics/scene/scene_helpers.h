@@ -151,4 +151,8 @@ namespace osc
     // returns `FrustumPlanes` that represent the clipping planes of `camera` when rendering to an
     // output that has an aspect ratio of `aspect_ratio`
     FrustumPlanes calc_frustum_planes(const Camera& camera, float aspect_ratio);
+
+    // Returns a vector that points in a direction that nicely lights
+    // the scene with a directional light from the perspective of `camera`.
+    Vector3 recommended_light_direction(const CameraAPI& camera);
 }

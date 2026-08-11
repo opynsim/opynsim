@@ -80,6 +80,4 @@ namespace osc
         float znear = 0.1f;
         float zfar = 100.0f;
     };
-
-    Vector3 recommended_light_direction(const CameraAPI&);
 }

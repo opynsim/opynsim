@@ -698,32 +698,6 @@ void osc::PolarPerspectiveCamera::focus_along(CoordinateDirection coordinate_dir
     }
 }
 
-Vector3 osc::recommended_light_direction(const CameraAPI& camera)
-{
-    // The light's azimuth should track with the camera with a fixed
-    // offset angle, so that the scene is always illuminated from the
-    // viewer's perspective (opensim-creator#275).
-    //
-    // The offset angle should try to closely match other GUIs, which tend to
-    // light scenes from right to left (almost +1 in Z, but slightly along -X
-    // also, opensim-creator#590).
-    //
-    // However, the offset angle shouldn't be too great, because the renderer
-    // may be using double-sided normals (opensim-creator#318, opensim-creator#168).
-    // With double-sided normals, if the camera is too angled relative to the
-    // PoV, it's possible to see angled parts of the scene be illuminated from
-    // the back.
-    const Vector3 forward = camera.forward();
-    const Radians theta = atan2(forward.x(), forward.z()) + 22.5_deg;
-
-    // opensim-creator#549: phi shouldn't always track with the camera, because
-    // changing the "height"/"slope" of the camera with shadow rendering
-    // (opensim-creator#10) looks bizarre at low angles.
-    const Radians phi = min(Radians{-45_deg}, asin(forward.y()));
-
-    return PolarToCartesian(theta, phi);
-}
-
 void osc::PolarPerspectiveCamera::focus_on(
     const AABB& aabb,
     float aspect_ratio)
@@ -748,7 +722,6 @@ std::ostream& osc::operator<<(std::ostream& out, const Rect& rect)
 {
     return out << "Rect(origin = " << rect.origin() << ", dimensions = " << rect.dimensions() << ")";
 }
-
 
 std::ostream& osc::operator<<(std::ostream& out, const LineSegment& line_segment)
 {

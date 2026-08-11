@@ -2,6 +2,7 @@
 
 #include <liboscar/graphics/anti_aliasing_level.h>
 #include <liboscar/graphics/camera.h>
+#include <liboscar/graphics/camera_api.h>
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/mesh.h>
 #include <liboscar/graphics/mesh_indices_view.h>
@@ -389,5 +390,35 @@ FrustumPlanes osc::calc_frustum_planes(const Camera& camera, float aspect_ratio)
         to_analytic_plane(pos                  , -normalize(cross(up, front_mult_far + right*half_h_size))),  // left
         to_analytic_plane(pos                  , -normalize(cross(right, front_mult_far - up*half_v_size))),  // top
         to_analytic_plane(pos                  , -normalize(cross(front_mult_far + up*half_v_size, right))),  // bottom
+    };
+}
+
+Vector3 osc::recommended_light_direction(const CameraAPI& camera)
+{
+    // The light's azimuth should track with the camera with a fixed
+    // offset angle, so that the scene is always illuminated from the
+    // viewer's perspective (opensim-creator#275).
+    //
+    // The offset angle should try to closely match other GUIs, which tend to
+    // light scenes from right to left (almost +1 in Z, but slightly along -X
+    // also, opensim-creator#590).
+    //
+    // However, the offset angle shouldn't be too great, because the renderer
+    // may be using double-sided normals (opensim-creator#318, opensim-creator#168).
+    // With double-sided normals, if the camera is too angled relative to the
+    // PoV, it's possible to see angled parts of the scene be illuminated from
+    // the back.
+    const Vector3 forward = camera.forward();
+    const Radians theta = atan2(forward.x(), forward.z()) + 22.5_deg;
+
+    // opensim-creator#549: phi shouldn't always track with the camera, because
+    // changing the "height"/"slope" of the camera with shadow rendering
+    // (opensim-creator#10) looks bizarre at low angles.
+    const Radians phi = min(Radians{-45_deg}, asin(forward.y()));
+
+    return {
+        sin(theta) * cos(phi),
+        sin(phi),
+        cos(theta) * cos(phi),
     };
 }
