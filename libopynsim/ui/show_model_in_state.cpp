@@ -65,7 +65,7 @@ namespace
             // Handle initial autofocus
             if (std::exchange(fit_camera_on_next_frame_, false)) {
                 if (const auto aabb = osc::bounding_aabb_of(decorations_, &osc::SceneDecoration::world_space_bounds)) {
-                    osc::auto_focus(camera, *aabb, osc::aspect_ratio_of(osc::App::get().main_window_dimensions()));
+                    camera.focus_on(*aabb, osc::aspect_ratio_of(osc::App::get().main_window_dimensions()));
                 }
             }
 

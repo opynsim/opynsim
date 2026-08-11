@@ -149,7 +149,7 @@ public:
     {
         m_DecorationCache.update(modelState, params);
         if (const std::optional<osc::AABB> aabb = m_DecorationCache.getVisibleAABB()) {
-            auto_focus(params.camera, *aabb, aspectRatio);
+            params.camera.focus_on(*aabb, aspectRatio);
         }
     }
 

@@ -65,7 +65,7 @@ opyn::ModelRendererParams::ModelRendererParams() :
     lightColor{osc::SceneRendererParams::default_light_color()},
     backgroundColor{osc::SceneRendererParams::default_background_color()},
     floorLocation{osc::SceneRendererParams::default_floor_position()},
-    camera{osc::create_camera_with_radius(5.0f)}
+    camera{osc::PolarPerspectiveCamera::with_radius(5.0f)}
 {}
 
 void opyn::UpdModelRendererParamsFrom(

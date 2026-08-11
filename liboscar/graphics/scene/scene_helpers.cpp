@@ -304,7 +304,7 @@ std::optional<RayCollision> osc::get_closest_world_space_ray_triangle_collision(
 }
 
 std::optional<RayCollision> osc::get_closest_world_space_ray_triangle_collision(
-    const PolarPerspectiveCamera& camera,
+    const CameraAPI& camera,
     const Mesh& mesh,
     const BVH& triangle_bvh,
     const Rect& screen_render_rect,
@@ -324,19 +324,20 @@ std::optional<RayCollision> osc::get_closest_world_space_ray_triangle_collision(
 }
 
 SceneRendererParams osc::calc_standard_dark_scene_render_params(
-    const PolarPerspectiveCamera& camera,
+    const CameraAPI& camera,
     AntiAliasingLevel aa_level,
     Vector2 dimensions,
     float device_pixel_ratio)
 {
+    const auto clipping_planes = camera.clipping_planes();
     return SceneRendererParams{
         .dimensions = dimensions,
         .device_pixel_ratio = device_pixel_ratio,
         .anti_aliasing_level = aa_level,
         .draw_mesh_normals = false,
         .draw_floor = false,
-        .near_clipping_plane = camera.znear,
-        .far_clipping_plane = camera.zfar,
+        .near_clipping_plane = clipping_planes.znear,
+        .far_clipping_plane = clipping_planes.zfar,
         .view_matrix = camera.view_matrix(),
         .projection_matrix = camera.projection_matrix(aspect_ratio_of(dimensions)),
         .viewer_position = camera.position(),

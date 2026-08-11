@@ -50,7 +50,7 @@ osc::Texture2D opyn::render_model_in_state(
 
         // Handle auto-framing
         if (const auto aabb = osc::bounding_aabb_of(decorations, &osc::SceneDecoration::world_space_bounds)) {
-            osc::auto_focus(polar_camera, *aabb, aspect_ratio);
+            polar_camera.focus_on(*aabb, aspect_ratio);
         }
 
         auto& lc = local_camera.emplace();

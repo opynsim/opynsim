@@ -545,25 +545,36 @@ std::ostream& osc::operator<<(std::ostream& out, const Plane& plane)
 
 namespace
 {
+    Vector3 PolarToCartesian(Radians theta, Radians phi)
+    {
+        return {
+            sin(theta) * cos(phi),
+            sin(phi),
+            cos(theta) * cos(phi),
+        };
+    }
+
     Vector3 PolarToCartesian(Vector3 focus, float radius, Radians theta, Radians phi)
     {
-        const float x = radius * sin(theta) * cos(phi);
-        const float y = radius * sin(phi);
-        const float z = radius * cos(theta) * cos(phi);
-
-        return -focus + Vector3{x, y, z};
+        return -focus + radius*PolarToCartesian(theta, phi);
     }
 }
 
-osc::PolarPerspectiveCamera::PolarPerspectiveCamera() :
-    radius{1.0f},
-    theta{45_deg},
-    phi{45_deg},
-    focus_point{0.0f, 0.0f, 0.0f},
-    vertical_field_of_view{35_deg},
-    znear{0.1f},
-    zfar{100.0f}
-{}
+osc::PolarPerspectiveCamera osc::PolarPerspectiveCamera::with_radius(float radius)
+{
+    PolarPerspectiveCamera rv;
+    rv.radius = radius;
+    return rv;
+}
+
+osc::PolarPerspectiveCamera osc::PolarPerspectiveCamera::focused_on(const AABB& aabb)
+{
+    PolarPerspectiveCamera rv;
+    rv.focus_on(aabb);
+    return rv;
+}
+
+osc::PolarPerspectiveCamera::PolarPerspectiveCamera() = default;
 
 void osc::PolarPerspectiveCamera::reset()
 {
@@ -637,6 +648,16 @@ Vector3 osc::PolarPerspectiveCamera::position() const
     return PolarToCartesian(focus_point, radius, theta, phi);
 }
 
+Vector3 PolarPerspectiveCamera::forward() const
+{
+    return -PolarToCartesian(theta, phi);
+}
+
+CameraClippingPlanes osc::PolarPerspectiveCamera::clipping_planes() const
+{
+    return {znear, zfar};
+}
+
 Vector2 osc::PolarPerspectiveCamera::project_onto_viewport(
     const Vector3& world_space_position,
     const Rect& viewport_rect) const
@@ -664,135 +685,62 @@ float osc::PolarPerspectiveCamera::frustum_height_at_depth(float depth) const
     return 2.0f * depth * tan(0.5f * vertical_field_of_view);
 }
 
-PolarPerspectiveCamera osc::create_camera_with_radius(float radius)
+void osc::PolarPerspectiveCamera::focus_along(CoordinateDirection coordinate_direction)
 {
-    PolarPerspectiveCamera rv;
-    rv.radius = radius;
-    return rv;
-}
-
-PolarPerspectiveCamera osc::create_camera_focused_on(const AABB& aabb)
-{
-    PolarPerspectiveCamera rv;
-    auto_focus(rv, aabb);
-    return rv;
-}
-
-Vector3 osc::recommended_light_direction(const PolarPerspectiveCamera& camera)
-{
-    // theta should track with the camera, so that the scene is always
-    // illuminated from the viewer's perspective (opensim-creator#275)
-    //
-    // and the offset angle should try to closely match other GUIs, which tend to
-    // light scenes right-to-left (almost +1 in Z, but slightly along -X also) -
-    // opensim-creator#590
-    //
-    // but don't offset this too much, because we are using double-sided normals
-    // (opensim-creator#318, opensim-creator#168) and, if the camera is too angled
-    // relative to the PoV, it's possible to see angled parts of the scene be
-    // illuminated from the back (which should be impossible)
-    const Radians theta = camera.theta + 22.5_deg;
-
-    // opensim-creator#549: phi shouldn't track with the camera, because changing the "height"/"slope"
-    // of the camera with shadow rendering (opensim-creator#10) looks bizarre
-    const Radians phi = 45_deg;
-
-    const Vector3 p = PolarToCartesian(camera.focus_point, camera.radius, theta, phi);
-
-    return normalize(-camera.focus_point - p);
-}
-
-void osc::focus_along_axis(PolarPerspectiveCamera& camera, size_t axis, bool negate)
-{
-    if (negate) {
-        switch (axis) {
-        case 0: focus_along_minus_x(camera); break;
-        case 1: focus_along_minus_y(camera); break;
-        case 2: focus_along_minus_z(camera); break;
-        default: break;
-        }
-    }
-    else {
-        switch (axis) {
-        case 0: focus_along_x(camera); break;
-        case 1: focus_along_y(camera); break;
-        case 2: focus_along_z(camera); break;
-        default: break;
-        }
+    switch (coordinate_direction.index()) {
+    case CoordinateDirection::x().index():       theta =  90_deg;  phi =  0_deg;  break;
+    case CoordinateDirection::y().index():       theta =  0_deg;   phi =  90_deg; break;
+    case CoordinateDirection::z().index():       theta =  0_deg;   phi =  0_deg;  break;
+    case CoordinateDirection::minus_x().index(): theta = -90_deg;  phi =  0_deg;  break;
+    case CoordinateDirection::minus_y().index(): theta =  0_deg;   phi = -90_deg; break;
+    case CoordinateDirection::minus_z().index(): theta =  180_deg; phi =  0_deg;  break;
+    default:                                                                      break;
     }
 }
 
-void osc::focus_along_x(PolarPerspectiveCamera& camera)
+Vector3 osc::recommended_light_direction(const CameraAPI& camera)
 {
-    camera.theta = 90_deg;
-    camera.phi = 0_deg;
+    // The light's azimuth should track with the camera with a fixed
+    // offset angle, so that the scene is always illuminated from the
+    // viewer's perspective (opensim-creator#275).
+    //
+    // The offset angle should try to closely match other GUIs, which tend to
+    // light scenes from right to left (almost +1 in Z, but slightly along -X
+    // also, opensim-creator#590).
+    //
+    // However, the offset angle shouldn't be too great, because the renderer
+    // may be using double-sided normals (opensim-creator#318, opensim-creator#168).
+    // With double-sided normals, if the camera is too angled relative to the
+    // PoV, it's possible to see angled parts of the scene be illuminated from
+    // the back.
+    const Vector3 forward = camera.forward();
+    const Radians theta = atan2(forward.x(), forward.z()) + 22.5_deg;
+
+    // opensim-creator#549: phi shouldn't always track with the camera, because
+    // changing the "height"/"slope" of the camera with shadow rendering
+    // (opensim-creator#10) looks bizarre at low angles.
+    const Radians phi = min(Radians{-45_deg}, asin(forward.y()));
+
+    return PolarToCartesian(theta, phi);
 }
 
-void osc::focus_along_minus_x(PolarPerspectiveCamera& camera)
-{
-    camera.theta = -90_deg;
-    camera.phi = 0_deg;
-}
-
-void osc::focus_along_y(PolarPerspectiveCamera& camera)
-{
-    camera.theta = 0_deg;
-    camera.phi = 90_deg;
-}
-
-void osc::focus_along_minus_y(PolarPerspectiveCamera& camera)
-{
-    camera.theta = 0_deg;
-    camera.phi = -90_deg;
-}
-
-void osc::focus_along_z(PolarPerspectiveCamera& camera)
-{
-    camera.theta = 0_deg;
-    camera.phi = 0_deg;
-}
-
-void osc::focus_along_minus_z(PolarPerspectiveCamera& camera)
-{
-    camera.theta = 180_deg;
-    camera.phi = 0_deg;
-}
-
-void osc::zoom_in(PolarPerspectiveCamera& camera)
-{
-    camera.radius *= 0.8f;
-}
-
-void osc::zoom_out(PolarPerspectiveCamera& camera)
-{
-    camera.radius *= 1.2f;
-}
-
-void osc::reset(PolarPerspectiveCamera& camera)
-{
-    camera = {};
-    camera.theta = 45_deg;
-    camera.phi = 45_deg;
-}
-
-void osc::auto_focus(
-    PolarPerspectiveCamera& camera,
-    const AABB& element_aabb,
+void osc::PolarPerspectiveCamera::focus_on(
+    const AABB& aabb,
     float aspect_ratio)
 {
-    const Sphere bounding_sphere = bounding_sphere_of(element_aabb);
+    const Sphere bounding_sphere = bounding_sphere_of(aabb);
     const Radians smallest_fov = aspect_ratio >= 1.0f ?
-        camera.vertical_field_of_view :
-        vertical_to_horizontal_field_of_view(camera.vertical_field_of_view, aspect_ratio);
+        vertical_field_of_view :
+        vertical_to_horizontal_field_of_view(vertical_field_of_view, aspect_ratio);
 
     // auto-focus the camera with a minimum radius of 1m
     //
     // this will break autofocusing on very small models (e.g. insect legs) but
     // handles the edge-case of autofocusing an empty model (opensim-creator#552), which is a
     // more common use-case (e.g. for new users and users making human-sized models)
-    camera.focus_point = -bounding_sphere.origin;
-    camera.radius = max(bounding_sphere.radius / tan(smallest_fov/2.0), 1.0f);
-    camera.rescale_znear_and_zfar_based_on_radius();
+    focus_point = -bounding_sphere.origin;
+    radius = max(bounding_sphere.radius / tan(smallest_fov/2.0), 1.0f);
+    rescale_znear_and_zfar_based_on_radius();
 }
 
 
