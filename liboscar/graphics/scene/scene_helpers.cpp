@@ -1,5 +1,8 @@
 #include "scene_helpers.h"
 
+#include <liboscar/graphics/scene/scene_cache.h>
+#include <liboscar/graphics/scene/scene_decoration.h>
+#include <liboscar/graphics/scene/scene_renderer_params.h>
 #include <liboscar/graphics/anti_aliasing_level.h>
 #include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/camera_api.h>
@@ -7,9 +10,6 @@
 #include <liboscar/graphics/mesh.h>
 #include <liboscar/graphics/mesh_indices_view.h>
 #include <liboscar/graphics/mesh_topology.h>
-#include <liboscar/graphics/scene/scene_cache.h>
-#include <liboscar/graphics/scene/scene_decoration.h>
-#include <liboscar/graphics/scene/scene_renderer_params.h>
 #include <liboscar/maths/aabb.h>
 #include <liboscar/maths/angle.h>
 #include <liboscar/maths/bvh.h>
@@ -18,7 +18,6 @@
 #include <liboscar/maths/line_segment.h>
 #include <liboscar/maths/math_helpers.h>
 #include <liboscar/maths/plane_functions.h>
-#include <liboscar/maths/polar_perspective_camera.h>
 #include <liboscar/maths/quaternion.h>
 #include <liboscar/maths/ray.h>
 #include <liboscar/maths/ray_collision.h>

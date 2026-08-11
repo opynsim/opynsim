@@ -3,9 +3,9 @@
 #include <libopynsim/graphics/custom_rendering_options.h>
 #include <libopynsim/graphics/open_sim_decoration_options.h>
 #include <libopynsim/graphics/overlay_decoration_options.h>
-#include <liboscar/graphics/color.h>
 #include <liboscar/graphics/scene/scene_renderer_params.h>
-#include <liboscar/maths/polar_perspective_camera.h>
+#include <liboscar/graphics/color.h>
+#include <liboscar/graphics/polar_perspective_camera.h>
 #include <liboscar/platform/app_settings.h>
 #include <liboscar/utilities/algorithms.h>
 #include <liboscar/utilities/conversion.h>

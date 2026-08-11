@@ -11,8 +11,8 @@
 #include <liboscar/graphics/scene/scene_renderer_params.h>
 #include <liboscar/graphics/camera.h>
 #include <liboscar/graphics/graphics.h>
+#include <liboscar/graphics/polar_perspective_camera.h>
 #include <liboscar/maths/aabb_functions.h>
-#include <liboscar/maths/polar_perspective_camera.h>
 #include <liboscar/utilities/assertions.h>
 
 #include <optional>

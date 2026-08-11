@@ -1,11 +1,11 @@
 #include "camera_view_axes.h"
 
 #include <liboscar/graphics/color.h>
+#include <liboscar/graphics/polar_perspective_camera.h>
 #include <liboscar/maths/circle.h>
 #include <liboscar/maths/coordinate_direction.h>
 #include <liboscar/maths/geometric_functions.h>
 #include <liboscar/maths/math_helpers.h>
-#include <liboscar/maths/polar_perspective_camera.h>
 #include <liboscar/maths/rect.h>
 #include <liboscar/maths/rect_functions.h>
 #include <liboscar/maths/vector.h>

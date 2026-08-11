@@ -5,17 +5,17 @@
 #include <libopynsim/graphics/model_renderer_params.h>
 #include <libopynsim/graphics/open_sim_graphics_helpers.h>
 #include <libopynsim/graphics/overlay_decoration_generator.h>
-#include <liboscar/graphics/anti_aliasing_level.h>
 #include <liboscar/graphics/scene/scene_cache.h>
 #include <liboscar/graphics/scene/scene_collision.h>
 #include <liboscar/graphics/scene/scene_decoration.h>
 #include <liboscar/graphics/scene/scene_helpers.h>
 #include <liboscar/graphics/scene/scene_renderer.h>
 #include <liboscar/graphics/scene/scene_renderer_params.h>
+#include <liboscar/graphics/anti_aliasing_level.h>
+#include <liboscar/graphics/polar_perspective_camera.h>
 #include <liboscar/maths/aabb.h>
 #include <liboscar/maths/aabb_functions.h>
 #include <liboscar/maths/bvh.h>
-#include <liboscar/maths/polar_perspective_camera.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/utilities/perf.h>
 
