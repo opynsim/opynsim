@@ -21,8 +21,16 @@ namespace osc
 
         PolarPerspectiveCamera();
 
+        friend bool operator==(const PolarPerspectiveCamera&, const PolarPerspectiveCamera&) = default;
+
         // reset the camera to its initial state
         void reset();
+
+        Matrix4x4 view_matrix() const override;
+        Matrix4x4 projection_matrix(float aspect_ratio) const override;
+        Vector3 position() const override;
+        Vector3 forward() const override;
+        CameraClippingPlanes clipping_planes() const override;
 
         // note: relative deltas here are relative to whatever viewport the camera
         // is handling.
@@ -49,28 +57,20 @@ namespace osc
         // and the scene will look wrong.
         void rescale_znear_and_zfar_based_on_radius();
 
-        Matrix4x4 view_matrix() const override;
-        Matrix4x4 projection_matrix(float aspect_ratio) const override;
+        void focus_along(CoordinateDirection);
 
-        // uses this camera's transform to project a world space point
-        // onto the given viewport rectangle.
-        Vector2 project_onto_viewport(const Vector3& world_space_position, const Rect& viewport_rect) const override;
+        /// Returns a vector in ui space where this camera would project
+        /// `world_position` (in world space) into `ui_rect` (in ui space).
+        Vector2 world_to_ui(const Vector3& world_position, const Rect& ui_rect) const override;
 
-        Vector3 position() const override;
-        Vector3 forward() const override;
-
-        CameraClippingPlanes clipping_planes() const override;
-
-        // converts a `pos` (top-left) in the output `dimensions` into a `Ray` in world space by unprojection
-        Ray unproject_topleft_position_to_world_ray(Vector2 pos, Vector2 dimensions) const override;
+        /// Returns a `Ray` in world space that represents where `ui_position` (in
+        /// ui space, Z unknown) would shoot along the view space's Z axis, assuming
+        /// `ui_rect` represents the ui space viewport that this camera projects to.
+        Ray ui_to_world(const Vector2& ui_position, const Rect& ui_rect) const override;
 
         // Returns the height of the view frustum in world units at a given depth from
         // the camera origin (also in world units).
         float frustum_height_at_depth(float depth) const;
-
-        void focus_along(CoordinateDirection);
-
-        friend bool operator==(const PolarPerspectiveCamera&, const PolarPerspectiveCamera&) = default;
 
         float radius = 1.0f;
         Radians theta = Degrees{45.0f};

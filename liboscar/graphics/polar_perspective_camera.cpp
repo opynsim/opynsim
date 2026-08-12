@@ -129,25 +129,25 @@ CameraClippingPlanes osc::PolarPerspectiveCamera::clipping_planes() const
     return {znear, zfar};
 }
 
-Vector2 osc::PolarPerspectiveCamera::project_onto_viewport(
-    const Vector3& world_space_position,
-    const Rect& viewport_rect) const
+Vector2 osc::PolarPerspectiveCamera::world_to_ui(
+    const Vector3& world_position,
+    const Rect& ui_rect) const
 {
     return osc::project_onto_viewport_rect(
-        world_space_position,
+        world_position,
         view_matrix(),
-        projection_matrix(aspect_ratio_of(viewport_rect)),
-        viewport_rect
+        projection_matrix(aspect_ratio_of(ui_rect)),
+        ui_rect
     );
 }
 
-Ray osc::PolarPerspectiveCamera::unproject_topleft_position_to_world_ray(Vector2 position, Vector2 dimensions) const
+Ray osc::PolarPerspectiveCamera::ui_to_world(const Vector2& ui_position, const Rect& ui_rect) const
 {
     return perspective_unproject_topleft_normalized_pos_to_world(
-        position / dimensions,
+        (ui_position - ui_rect.ypd_top_left()) / ui_rect.dimensions(),
         this->position(),
         view_matrix(),
-        projection_matrix(aspect_ratio_of(dimensions))
+        projection_matrix(aspect_ratio_of(ui_rect))
     );
 }
 
