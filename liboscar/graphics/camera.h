@@ -11,6 +11,8 @@
 
 #include <optional>
 
+namespace osc { class Rect; }
+
 namespace osc
 {
     /// Represents a camera at `position` in world space, pointing in
@@ -147,6 +149,12 @@ namespace osc
         // returns the equivalent of `inverse(view_projection_matrix(aspect_ratio))`
         Matrix4x4 inverse_view_projection_matrix(float aspect_ratio) const;
 
+        // Returns a point in ui space where this `Camera` would project
+        // `world_position` (in world space) into `ui_rect` (in ui space).
+        //
+        // If the projection results in a negative `w` term (e.g. the point lies
+        // beind the camera) then the returned point will contain NaNs.
+        Vector2 world_to_ui(const Vector3& world_position, const Rect& ui_rect) const;
     private:
         friend bool operator==(const Camera&, const Camera&);
         class Impl;

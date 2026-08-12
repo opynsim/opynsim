@@ -8,6 +8,7 @@
 #include <liboscar/maths/constants.h>
 #include <liboscar/maths/math_helpers.h>
 #include <liboscar/maths/matrix_functions.h>
+#include <liboscar/maths/rect.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/tests/test_helpers.h>
 
@@ -429,4 +430,84 @@ TEST(Camera, set_clipping_planes_makes_far_clipping_plane_return_new_far_clippin
     Camera camera;
     camera.set_clipping_planes({-1337.0f, 1337.0f});
     ASSERT_EQ(camera.far_clipping_plane(), 1337.0f);
+}
+
+TEST(Camera, world_to_ui_returns_expected_results_for_orthographic_projection)
+{
+    Camera camera;
+    camera.set_projection(CameraProjection::Orthographic);
+    camera.set_orthographic_size(2.0f);
+    camera.set_position({2.0f, 100.0f, 2.0f});
+    camera.set_forward({0.0f, -1.0f, 0.0f});
+    camera.set_up({0.0f, 0.0f, -1.0f});
+
+    const Rect ui_rect = Rect::from_corners({0.0f, 0.0f}, {100.0f, 100.0f});
+    const Vector2 got = camera.world_to_ui({1.5f, 2.0f, 1.5f}, ui_rect);
+    const Vector2 expected = {25.0f, 25.0f};
+
+    ASSERT_TRUE(all_of(equal_within_absdiff(got, expected, 0.001f)));
+}
+
+TEST(Camera, world_to_ui_is_invariant_with_depth_for_orthographic_projection)
+{
+    Camera camera;
+    camera.set_projection(CameraProjection::Orthographic);
+    camera.set_orthographic_size(1.0f);
+    camera.set_position({1.0f, 1.0f, 0.0f});
+    camera.set_forward({0.0f, 0.0f, 1.0f});
+    camera.set_up({0.0f, 1.0f, 0.0f});
+
+    const Rect ui_rect = Rect::from_corners({0.0f, 0.0f}, {64.0f, 64.0f});
+    std::optional<Vector2> prev;
+    for (size_t i = 1; i < 16; ++i) {
+        const Vector2 p = camera.world_to_ui({1.0f, 1.0f, static_cast<float>(i) * 7.5f}, ui_rect);
+        ASSERT_TRUE(not prev or all_of(equal_within_absdiff(p, *prev, 0.001f))) << "p = " << p << ", prev = " << prev.value_or(Vector3{-5.0f});
+        prev = p;
+    }
+}
+
+TEST(Camera, world_to_ui_still_works_when_behind_camera_for_orthographic_projection)
+{
+    Camera camera;
+    camera.set_projection(CameraProjection::Orthographic);
+    camera.set_orthographic_size(1.0f);
+    camera.set_position({1.0f, 1.0f, 0.0f});
+    camera.set_forward({0.0f, 0.0f, 1.0f});
+    camera.set_up({0.0f, 1.0f, 0.0f});
+
+    const Rect ui_rect = Rect::from_corners({0.0f, 0.0f}, {64.0f, 64.0f});
+    const Vector2 got = camera.world_to_ui({1.0f, 1.0f, -5.0f}, ui_rect);
+    const Vector2 expected = {32.0f, 32.0f};
+
+    ASSERT_EQ(got, expected);
+}
+
+TEST(Camera, world_to_ui_returns_nan_when_behind_a_perspective_camera)
+{
+    Camera camera;
+    camera.set_projection(CameraProjection::Perspective);
+    camera.set_vertical_field_of_view(45_deg);
+    camera.set_position({25.0f, 25.0f, 25.0f});
+    camera.set_forward({0.0f, 0.0f, -1.0f});
+    camera.set_up({0.0f, 1.0f, 0.0f});
+
+    const Rect ui_rect = Rect::from_corners({0.0f, 0.0f}, {128.0f, 128.0f});
+    const Vector2 got = camera.world_to_ui({25.0f, 25.0f, 30.0f}, ui_rect);
+
+    ASSERT_TRUE(all_of(isnan(got)));
+}
+
+TEST(Camera, world_to_ui_returns_center_point_when_given_point_along_principal_ray)
+{
+    Camera camera;
+    camera.set_projection(CameraProjection::Perspective);
+    camera.set_vertical_field_of_view(45_deg);
+    camera.set_position({25.0f, 25.0f, 25.0f});
+    camera.set_forward({0.0f, 0.0f, -1.0f});
+    camera.set_up({0.0f, 1.0f, 0.0f});
+
+    const Rect ui_rect = Rect::from_corners({0.0f, 0.0f}, {128.0f, 128.0f});
+    const Vector2 got = camera.world_to_ui({25.0f, 25.0f, 24.0f}, ui_rect);
+
+    ASSERT_TRUE(all_of(equal_within_absdiff(ui_rect.origin(), got, 0.0001f))) << got;
 }

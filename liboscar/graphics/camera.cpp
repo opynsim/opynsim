@@ -9,6 +9,8 @@
 #include <liboscar/maths/math_helpers.h>
 #include <liboscar/maths/quaternion.h>
 #include <liboscar/maths/ray.h>
+#include <liboscar/maths/rect.h>
+#include <liboscar/maths/rect_functions.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/utilities/enum_helpers.h>
 
@@ -173,6 +175,16 @@ public:
         return inverse(view_projection_matrix(aspect_ratio));
     }
 
+    Vector2 world_to_ui(const Vector3& world_position, const Rect& ui_rect) const
+    {
+        return project_onto_viewport_rect(
+            world_position,
+            view_matrix(),
+            projection_matrix(aspect_ratio_of(ui_rect)),
+            ui_rect
+        );
+    }
+
 private:
     // Transform
     Vector3 position_;
@@ -240,3 +252,5 @@ void osc::Camera::set_projection_matrix_override(std::optional<Matrix4x4> overri
 
 Matrix4x4 osc::Camera::view_projection_matrix(float aspect_ratio) const         { return impl_->view_projection_matrix(aspect_ratio); }
 Matrix4x4 osc::Camera::inverse_view_projection_matrix(float aspect_ratio) const { return impl_->inverse_view_projection_matrix(aspect_ratio); }
+
+Vector2 osc::Camera::world_to_ui(const Vector3& world_position, const Rect& ui_rect) const { return impl_->world_to_ui(world_position, ui_rect); }
