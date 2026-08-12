@@ -181,6 +181,28 @@ TEST(CameraV2, set_direction_to_standard_direction_causes_direction_to_return_ne
     ASSERT_EQ(camera.direction(), default_direction);
 }
 
+TEST(CameraV2, forward_is_an_alias_to_direction)
+{
+    Camera camera;
+    ASSERT_EQ(camera.direction(), camera.forward());
+    camera.set_direction({-1.0f, -1.0f, 0.0f});
+    ASSERT_EQ(camera.direction(), camera.forward());
+    camera.set_forward({2.0f, 1.0f, 0.5f});
+    ASSERT_EQ(camera.forward(), camera.direction());
+}
+
+TEST(CameraV2, set_forward_normalizes_argument)
+{
+    Camera camera;
+    camera.set_direction({1.0f, 2.0f, 3.0f});
+    ASSERT_TRUE(all_of(equal_within_absdiff(camera.forward(), normalize(Vector3f{1.0f, 2.0f, 3.0f}), 0.000001f)));
+}
+
+TEST(CameraV2, forward_defaults_to_minus_z)
+{
+    ASSERT_EQ(Camera{}.forward(), Vector3f(0.0f, 0.0f, -1.0f));
+}
+
 TEST(CameraV2, principal_ray_points_from_origin_along_minus_z_when_default_initialized)
 {
     ASSERT_EQ(Camera{}.principal_ray(), Ray(Vector3(0.0f), Vector3(0.0f, 0.0f, -1.0f)));

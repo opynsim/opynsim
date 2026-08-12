@@ -14,7 +14,7 @@
 namespace osc
 {
     /// Represents a camera at `position` in world space, pointing in
-    /// `direction`, or oriented such that the top of its viewing plane
+    /// `direction`, and oriented such that the top of its viewing plane
     /// points `up`.
     class Camera {
     public:
@@ -79,6 +79,16 @@ namespace osc
         // the implementation).
         Vector3 direction() const;
         void set_direction(const Vector3&);
+
+        // Returns the forward-facing unit vector of this `Camera` in world space.
+        Vector3 forward() const;
+
+        // Sets the forward vector of this camera to `direction`.
+        //
+        // The implementation always internally normalizes `direction` and may
+        // store it differently. Therefore, it is not guaranteed that `forward()`
+        // returns `direction`.
+        void set_forward(const Vector3& direction);
 
         // get/set the upwards direction of this camera (normalized by the implementation).
         Vector3 up() const;

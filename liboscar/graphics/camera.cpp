@@ -79,6 +79,9 @@ public:
         rotation_ = quaternion_from_xyz(right, up, backward);
     }
 
+    Vector3 forward() const { return direction(); }
+    void set_forward(const Vector3f& direction) { set_direction(direction); }
+
     Vector3 up() const             { return rotation_ * Vector3{0.0f, 1.0f, 0.0f}; }
     void set_up(const Vector3& up)
     {
@@ -217,6 +220,9 @@ void osc::Camera::set_rotation(const Quaternion& rotation) { impl_.upd()->set_ro
 
 Vector3 osc::Camera::direction() const                    { return impl_->direction(); }
 void osc::Camera::set_direction(const Vector3& direction) { impl_.upd()->set_direction(direction); }
+
+Vector3 osc::Camera::forward() const                    { return impl_->forward(); }
+void osc::Camera::set_forward(const Vector3& direction) { impl_.upd()->set_forward(direction); }
 
 Vector3 osc::Camera::up() const             { return impl_->up(); }
 void osc::Camera::set_up(const Vector3& up) { impl_.upd()->set_up(up); }
