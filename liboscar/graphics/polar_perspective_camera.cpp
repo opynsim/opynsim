@@ -79,15 +79,6 @@ void osc::PolarPerspectiveCamera::drag(Vector2 delta)
     phi += 360_deg * delta.y();
 }
 
-void osc::PolarPerspectiveCamera::rescale_znear_and_zfar_based_on_radius()
-{
-    // znear and zfar are only really dictated by the camera's radius, because
-    // the radius is effectively the distance from the camera's focal point
-
-    znear = 0.1f * radius;
-    zfar = 10.0f * radius;
-}
-
 Matrix4x4 osc::PolarPerspectiveCamera::view_matrix() const
 {
     // camera: at a fixed position pointing at a fixed origin. The "camera"
@@ -185,5 +176,6 @@ void osc::PolarPerspectiveCamera::focus_on(
     // more common use-case (e.g. for new users and users making human-sized models)
     focus_point = -bounding_sphere.origin;
     radius = max(bounding_sphere.radius / tan(smallest_fov/2.0), 1.0f);
-    rescale_znear_and_zfar_based_on_radius();
+    znear = 0.1f * radius;
+    zfar = 10.0f * radius;
 }

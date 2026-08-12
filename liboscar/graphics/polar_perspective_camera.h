@@ -38,25 +38,11 @@ namespace osc
         // e.g. moving a mouse 400px in X in a viewport that is 800px wide should
         //      have a delta.x of 0.5f
 
-        // pan: pan along the current view plane
-        void pan(float aspect_ratio, Vector2 mouse_delta);
-
-        // drag: spin the view around the origin, such that the distance between
-        //       the camera and the origin remains constant
-        void drag(Vector2 mouse_delta);
-
+        void pan(float aspect_ratio, Vector2 mouse_delta);  // pan origin along current view plane
+        void drag(Vector2 mouse_delta);                     // spin around origin (constant radius)
         void zoom_in()  { radius *= 0.8f; }
         void zoom_out() { radius *= 1.2f; }
         void focus_on(const AABB& aabb, float aspect_ratio = 1.0f);
-
-        // autoscale znear and zfar based on the camera's distance from what it's looking at
-        //
-        // important for looking at tiny/large scenes. znear and zfar dictates
-        // both the culling planes of the camera *and* rescales the Z values of elements
-        // in the scene. If the znear-to-zfar range is too large then Z-fighting will happen
-        // and the scene will look wrong.
-        void rescale_znear_and_zfar_based_on_radius();
-
         void focus_along(CoordinateDirection);
 
         /// Returns a vector in ui space where this camera would project
