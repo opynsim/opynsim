@@ -185,6 +185,16 @@ public:
         );
     }
 
+    float view_volume_height_at_depth(float depth) const
+    {
+        static_assert(num_options<CameraProjection>() == 2);
+        if (projection_ == CameraProjection::Orthographic) {
+            return orthographic_size_;
+        }
+        // Else: perspective projection
+        return 2.0f * depth * tan(0.5f * vertical_field_of_view_);
+    }
+
 private:
     // Transform
     Vector3 position_;
@@ -254,3 +264,5 @@ Matrix4x4 osc::Camera::view_projection_matrix(float aspect_ratio) const         
 Matrix4x4 osc::Camera::inverse_view_projection_matrix(float aspect_ratio) const { return impl_->inverse_view_projection_matrix(aspect_ratio); }
 
 Vector2 osc::Camera::world_to_ui(const Vector3& world_position, const Rect& ui_rect) const { return impl_->world_to_ui(world_position, ui_rect); }
+
+float osc::Camera::view_volume_height_at_depth(float depth) const { return impl_->view_volume_height_at_depth(depth); }

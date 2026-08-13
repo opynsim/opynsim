@@ -155,6 +155,10 @@ namespace osc
         // If the projection results in a negative `w` term (e.g. the point lies
         // beind the camera) then the returned point will contain NaNs.
         Vector2 world_to_ui(const Vector3& world_position, const Rect& ui_rect) const;
+
+        // Returns the view volume's vertical extent in world units at a given depth
+        // from the camera origin.
+        float view_volume_height_at_depth(float depth) const;
     private:
         friend bool operator==(const Camera&, const Camera&);
         class Impl;

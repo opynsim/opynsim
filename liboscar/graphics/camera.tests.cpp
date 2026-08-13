@@ -511,3 +511,40 @@ TEST(Camera, world_to_ui_returns_center_point_when_given_point_along_principal_r
 
     ASSERT_TRUE(all_of(equal_within_absdiff(ui_rect.origin(), got, 0.0001f))) << got;
 }
+
+TEST(Camera, view_volume_height_at_depth_returns_orthographic_height_for_any_depth)
+{
+    Camera camera;
+    camera.set_projection(CameraProjection::Orthographic);
+    camera.set_orthographic_size(1.0f);
+    camera.set_position({});
+    camera.set_forward({0.0f, 1.0f, 0.0f});
+    camera.set_up({1.0f, 0.0f, 0.0f});
+
+    for (size_t i = 0; i < 16; ++i) {
+        const float h = camera.view_volume_height_at_depth(-8.0f + static_cast<float>(i)*1.0f);
+        ASSERT_EQ(h, 1.0f) << "The view volume height should always be the orthographic size with an orthographic camera";
+    }
+}
+
+TEST(Camera, view_volume_height_at_depth_returns_triangular_values_for_perspective_projection)
+{
+    Camera camera;
+    camera.set_projection(CameraProjection::Perspective);
+    camera.set_vertical_field_of_view(45_deg);
+    camera.set_position({});
+    camera.set_forward({0.0f, 1.0f, 0.0f});
+
+    //            /|
+    //           / | <------- h/2 = d*tan(vfov/2)
+    //  [0,0,0] P--d [0,d,0]
+    //           \ |
+    //            \|
+
+    for (size_t i = 0; i < 16; ++i) {
+        const float d = static_cast<float>(i) * 0.2f;
+        const float got = camera.view_volume_height_at_depth(d);
+        const float expected = 2.0f * d * tan(22.5_deg);
+        ASSERT_EQ(got, expected);
+    }
+}
