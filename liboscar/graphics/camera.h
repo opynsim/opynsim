@@ -156,6 +156,11 @@ namespace osc
         // beind the camera) then the returned point will contain NaNs.
         Vector2 world_to_ui(const Vector3& world_position, const Rect& ui_rect) const;
 
+        // Returns a `Ray` in world space that represents where `ui_position` (in
+        // ui space, Z unknown) would shoot along the view space's Z axis, assuming
+        // `ui_rect` represents the ui space viewport that this camera projects to.
+        Ray ui_to_world(const Vector2& ui_position, const Rect& ui_rect) const;
+
         // Returns the view volume's vertical extent in world units at a given depth
         // from the camera origin.
         float view_volume_height_at_depth(float depth) const;
