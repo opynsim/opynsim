@@ -108,3 +108,9 @@ void osc::OrbitCameraController::focus_along(CoordinateDirection coordinate_dire
     default:                                                                      break;
     }
 }
+
+void osc::OrbitCameraController::focus_along(const Vector3& direction)
+{
+    theta = atan2(-direction.x(), -direction.z());
+    phi = asin(-direction.y());
+}

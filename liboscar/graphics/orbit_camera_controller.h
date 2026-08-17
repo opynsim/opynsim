@@ -30,6 +30,7 @@ namespace osc
         void zoom_out() { radius *= 1.2f; }
         void focus_on(const AABB& aabb, const Camera& camera, float aspect_ratio = 1.0f);
         void focus_along(CoordinateDirection);
+        void focus_along(const Vector3& direction);
 
         Vector3 focus_point{};
         float radius = 1.0f;
