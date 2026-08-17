@@ -16,6 +16,7 @@
 #include <liboscar/graphics/scene/scene_decoration.h>
 #include <liboscar/graphics/scene/scene_helpers.h>
 #include <liboscar/graphics/scene/scene_renderer_params.h>
+#include <liboscar/maths/angle.h>
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/app_settings.h>
@@ -30,6 +31,7 @@
 #include <vector>
 
 using namespace osc;
+using namespace osc::literals;
 
 namespace
 {
@@ -79,6 +81,7 @@ public:
     explicit Impl(MeshGenTestTab& owner, Widget* parent) :
         TabPrivate{owner, parent, static_label()}
     {
+        camera_.set_vertical_field_of_view(35_deg);
         camera_controller_.radius = 5.0f;
         camera_controller_.update_camera(camera_);
     }
