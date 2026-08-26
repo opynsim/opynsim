@@ -150,16 +150,6 @@ namespace osc
     // returns euler angles for performing an intrinsic, step-by-step, rotation about X, Y, and then Z
     EulerAngles extract_eulers_xyz(const Quaternion&);
 
-    inline Vector3 transform_point(const Matrix4x4& mat, const Vector3& point)
-    {
-        return Vector3{mat * Vector4{point, 1.0f}};
-    }
-
-    inline Vector3 transform_vector(const Matrix4x4& mat, const Vector3& vector)
-    {
-        return Vector3{mat * Vector4{vector, 0.0f}};
-    }
-
     // returns a `Quaternion` equivalent to the given euler angles
     Quaternion to_world_space_rotation_quaternion(const EulerAngles&);
 
