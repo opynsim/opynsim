@@ -96,15 +96,6 @@ namespace osc
         const Rect& viewport_rect
     );
 
-    // ----- `Ray` helpers -----
-
-    // returns a `Ray` that has been transformed by the `Mat4`
-    Ray transform_ray(const Ray&, const Matrix4x4&);
-
-    // returns a `Ray` that has been transformed by the inverse of the supplied `Transform`
-    Ray inverse_transform_ray(const Ray&, const Transform&);
-
-
     // ----- `Disc` helpers -----
 
     // returns a `Mat4` that maps one `Disc` to another `Disc`
