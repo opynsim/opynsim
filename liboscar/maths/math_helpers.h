@@ -1,6 +1,5 @@
 #pragma once
 
-#include <liboscar/maths/aabb.h>
 #include <liboscar/maths/angle.h>
 #include <liboscar/maths/euler_angles.h>
 #include <liboscar/maths/matrix3x3.h>
@@ -8,14 +7,11 @@
 #include <liboscar/maths/quaternion.h>
 #include <liboscar/maths/ray.h>
 #include <liboscar/maths/rect.h>
-#include <liboscar/maths/sphere.h>
 #include <liboscar/maths/transform.h>
 #include <liboscar/maths/transform_functions.h>
 #include <liboscar/maths/vector.h>
 
 #include <array>
-#include <optional>
-#include <span>
 
 namespace osc { struct Circle; }
 namespace osc { struct Disc; }
@@ -99,19 +95,6 @@ namespace osc
         const Matrix4x4& projection_matrix,
         const Rect& viewport_rect
     );
-
-
-    // ----- `Sphere` helpers -----
-
-    // returns a `Sphere` that loosely bounds the given `Vector3`s
-    std::optional<Sphere> bounding_sphere_of(std::span<const Vector3>);
-
-    // returns a `Sphere` that loosely bounds the given `AABB`
-    Sphere bounding_sphere_of(const AABB&);
-
-    // returns an `AABB` that tightly bounds the `Sphere`
-    AABB bounding_aabb_of(const Sphere&);
-
 
     // ----- `Ray` helpers -----
 
