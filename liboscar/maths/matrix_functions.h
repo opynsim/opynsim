@@ -546,6 +546,9 @@ namespace osc
     {
         return Vector3{mat * Vector4{vector, 0.0f}};
     }
+
+    // returns a transform matrix that rotates `dir1` to point in the same direction as `dir2`
+    Matrix4x4 matrix4x4_transform_between_directions(const Vector3& dir1, const Vector3& dir2);
 }
 
 template<typename T, size_t C, size_t R>

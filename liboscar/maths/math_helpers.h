@@ -23,6 +23,8 @@ namespace osc { struct Tetrahedron; }
 //               osc struct
 namespace osc
 {
+    // ----- Visualization helpers -----
+
     // computes horizontal FoV for a given vertical FoV + aspect ratio
     Radians vertical_to_horizontal_field_of_view(Radians vertical_field_of_view, float aspect_ratio);
 
@@ -96,6 +98,14 @@ namespace osc
         const Rect& viewport_rect
     );
 
+    // returns arrays that transforms cube faces from world space to projection
+    // space such that the observer is looking at each face of the cube from
+    // the center of the cube
+    std::array<Matrix4x4, 6> calc_cubemap_view_proj_matrices(
+        const Matrix4x4& projection_matrix,
+        Vector3 cube_center
+    );
+
     // ----- `Disc` helpers -----
 
     // returns a `Mat4` that maps one `Disc` to another `Disc`
@@ -118,9 +128,6 @@ namespace osc
 
     // ----- Vector/Matrix helpers -----
 
-    // returns a transform matrix that rotates `dir1` to point in the same direction as `dir2`
-    Matrix4x4 matrix4x4_transform_between_directions(const Vector3& dir1, const Vector3& dir2);
-
     // returns euler angles for performing an intrinsic, step-by-step, rotation about X, Y, and then Z
     EulerAngles extract_eulers_xyz(const Quaternion&);
 
@@ -136,12 +143,4 @@ namespace osc
 
     // returns the volume of a given tetrahedron, defined as 4 points in space
     float volume_of(const Tetrahedron&);
-
-    // returns arrays that transforms cube faces from world space to projection
-    // space such that the observer is looking at each face of the cube from
-    // the center of the cube
-    std::array<Matrix4x4, 6> calc_cubemap_view_proj_matrices(
-        const Matrix4x4& projection_matrix,
-        Vector3 cube_center
-    );
 }
