@@ -496,7 +496,7 @@ namespace {
         return construct_dataframe(*stream);
     }
 
-    void register_dataframe_class(nb::module_& m)
+    void def_dataframe(nb::module_& m)
     {
         nb::class_<DataFrame> cls(m, "DataFrame", R"(
             Represents data as a table containing rows and columns, with metadata (:meth:`attrs`).
@@ -658,7 +658,7 @@ namespace {
         );
     }
 
-    void register_symbol_class(nb::module_& m)
+    void def_symbol(nb::module_& m)
     {
         nb::class_<Symbol> cls(m,"Symbol", R"(
             Represents an immutable, cheap-to-use, readable symbol.
@@ -685,7 +685,7 @@ namespace {
         cls.def("__contains__", [](const Symbol& sym, std::string_view substr) { return sym.name().contains(substr); });
     }
 
-    void register_model_specification_class(nb::module_& m)
+    void def_model_specification(nb::module_& m)
     {
         nb::class_<ModelSpecification> model_specification_class(
             m,
@@ -725,7 +725,7 @@ namespace {
         );
     }
 
-    void register_model_class(nb::module_& m)
+    void def_model(nb::module_& m)
     {
         nb::class_<Model> cls(m, "Model", R"(
             A compiled model of a physics system.
@@ -948,7 +948,7 @@ namespace {
         );
     }
 
-    void register_model_state_class(nb::module_& m)
+    void def_model_state(nb::module_& m)
     {
         nb::class_<ModelState> model_state_class(
             m,
@@ -982,7 +982,7 @@ namespace {
         );
     }
 
-    void register_model_states_class(nb::module_& m)
+    void def_model_states(nb::module_& m)
     {
         nb::class_<ModelStates> cls(
             m,
@@ -1020,7 +1020,7 @@ namespace {
         cls.def("to_list", &ModelStates::to_handle_list);
     }
 
-    void register_model_state_stage_class(nb::module_& m)
+    void def_model_state_stage(nb::module_& m)
     {
         static_assert(osc::num_options<ModelStateStage>() == 9);
         nb::enum_<ModelStateStage> model_state_stage_class(
@@ -1079,7 +1079,7 @@ namespace {
         m.attr("STAGE_REPORT")       = model_state_stage_class.attr("REPORT");
     }
 
-    void register_readers(nb::module_& m)
+    void def_read_functions(nb::module_& m)
     {
         m.def("read_osim", opyn::read_osim, nb::arg("source"), R"(
             Returns a :class:`ModelSpecification` parsed from an `.osim` file on the
@@ -1158,7 +1158,7 @@ namespace {
         m.def("read_jpg", opyn::read_jpg, nb::arg("source"), "An alias for :func:`read_jpeg`");
     }
 
-    void register_integrator_settings(nb::module_& m)
+    void def_integrator_settings(nb::module_& m)
     {
         nb::class_<IntegratorSettings> cls(m, "IntegratorSettings", R"(
             Settings for a forward integrator (e.g. as used by :class:`ForwardDynamicsSolver`).
@@ -1169,7 +1169,7 @@ namespace {
         cls.def(nb::init<>{});
     }
 
-    void register_forward_dynamics_solver_class(nb::module_& m)
+    void def_forward_dynamics_solver(nb::module_& m)
     {
         nb::class_<ForwardDynamicsSolver> cls(
             m,
@@ -1268,14 +1268,14 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
     }
 
     // Initialize top-level functions/classes
-    register_symbol_class(_core_module);
-    register_model_specification_class(_core_module);
-    register_model_state_stage_class(_core_module);
-    register_model_class(_core_module);
-    register_model_state_class(_core_module);
-    register_model_states_class(_core_module);
-    register_dataframe_class(_core_module);
-    register_readers(_core_module);
-    register_integrator_settings(_core_module);
-    register_forward_dynamics_solver_class(_core_module);
+    def_symbol(_core_module);
+    def_model_specification(_core_module);
+    def_model_state_stage(_core_module);
+    def_model(_core_module);
+    def_model_state(_core_module);
+    def_model_states(_core_module);
+    def_dataframe(_core_module);
+    def_read_functions(_core_module);
+    def_integrator_settings(_core_module);
+    def_forward_dynamics_solver(_core_module);
 }
