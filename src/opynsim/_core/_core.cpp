@@ -1,6 +1,6 @@
 #include "_core.h"
 
-#include <opynsim/_core/arrow.h>
+#include <opynsim/_core/utilities/arrow.h>
 #include <opynsim/_core/config.h>
 #include <opynsim/_core/examples.h>
 #include <opynsim/_core/graphics.h>
