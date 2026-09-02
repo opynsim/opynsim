@@ -492,3 +492,8 @@ osc::Texture2D opyn::read_jpg(const std::filesystem::path& source)
 {
     return read_jpeg(source);
 }
+
+ModelWarper opyn::read_model_warper_xml(const std::filesystem::path& source)
+{
+    return ModelWarper{source};
+}
