@@ -156,9 +156,9 @@ TEST(ModelSpecification, to_osim_with_no_args_generates_string_that_is_identical
     ASSERT_EQ(written_content, string_content);
 }
 
-TEST(ModelSpecification, convert_station_defined_frames_to_physical_offset_frames_performs_conversion)
+TEST(ModelSpecification, bake_station_defined_frames_performs_conversion)
 {
-    // The reason why callers tend to use `convert_station_defined_frames_to_physical_offset_frames`
+    // The reason why callers tend to use `bake_station_defined_frames`
     // is because they're about to write an osim that must be compatible with older versions
     // of OpenSim, so ensure that closed loop works.
 
@@ -184,7 +184,7 @@ TEST(ModelSpecification, convert_station_defined_frames_to_physical_offset_frame
     ModelSpecification model_specification{std::move(model)};
     ASSERT_TRUE(model_specification.to_osim().contains("<StationDefinedFrame"));
     ASSERT_FALSE(model_specification.to_osim().contains("<PhysicalOffsetFrame"));
-    model_specification.convert_station_defined_frames_to_physical_offset_frames();
+    model_specification.bake_station_defined_frames();
     ASSERT_FALSE(model_specification.to_osim().contains("<StationDefinedFrame"));
     ASSERT_TRUE(model_specification.to_osim().contains("<PhysicalOffsetFrame"));
 }

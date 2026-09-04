@@ -166,7 +166,7 @@ public:
         return model_->dump();
     }
 
-    void convert_station_defined_frames_to_physical_offset_frames()
+    void bake_station_defined_frames()
     {
         BakeStationDefinedFrames(*model_.upd());
     }
@@ -281,9 +281,9 @@ std::filesystem::path opyn::ModelSpecification::root_directory() const { return 
 void opyn::ModelSpecification::set_root_directory(const std::filesystem::path& directory) { impl_.upd()->set_root_directory(directory); }
 void opyn::ModelSpecification::to_osim(const std::filesystem::path& destination) const { impl_->to_osim(destination); }
 std::string opyn::ModelSpecification::to_osim() const { return impl_->to_osim(); }
-void opyn::ModelSpecification::convert_station_defined_frames_to_physical_offset_frames()
+void opyn::ModelSpecification::bake_station_defined_frames()
 {
-    impl_.upd()->convert_station_defined_frames_to_physical_offset_frames();
+    impl_.upd()->bake_station_defined_frames();
 }
 void opyn::ModelSpecification::flush_in_memory_resources_to(const std::filesystem::path& directory)
 {

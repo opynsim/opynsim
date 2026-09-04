@@ -51,7 +51,7 @@ namespace opyn
         ///
         /// Can be useful for compatibility with OpenSim <4.6, which doesn't
         /// support `StationDefinedFrame`s.
-        void convert_station_defined_frames_to_physical_offset_frames();
+        void bake_station_defined_frames();
 
         /// Flushes all in-memory resources in `*this` to `directory` and updates
         /// the associated components to point to the flushed resources.
