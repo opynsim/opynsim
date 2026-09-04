@@ -3,6 +3,7 @@ import opynsim.examples
 
 from pathlib import Path
 import pytest
+import tempfile
 
 def test_symbol_works_as_expected():
     a  = opynsim.Symbol("a")
@@ -46,6 +47,18 @@ def test_symbol_works_as_expected():
 
 def test_can_default_construct_model_specification():
     model_specification = opynsim.ModelSpecification()
+
+def test_to_osim_on_blank_model_specification_can_be_written_to_string():
+    model_specification = opynsim.ModelSpecification()
+    assert "xml" in model_specification.to_osim(), "This should work O_o"
+
+def test_to_osim_on_blank_model_specification_can_write_file():
+    model_specification = opynsim.ModelSpecification()
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        output_path = Path(temporary_directory) / "some.osim"
+        model_specification.to_osim(output_path)
+        assert output_path.exists
+        assert opynsim.read_osim(output_path) is not None
 
 def test_model_initial_state_state_defaults_to_instance():
     model = opynsim.ModelSpecification().compile()

@@ -3,6 +3,7 @@ from opynsim.solvers import ModelWarper
 
 from pathlib import Path
 import inspect
+import tempfile
 import pytest
 
 def test_solvers_module_contains_the_model_warper_solver_class():
@@ -41,3 +42,16 @@ def test_model_warper_can_warp_an_example():
     original_tibia_y = -model.get_output_value(model_state, "/bodyset/tibia_r[position]")[1]
     warped_tibia_y = -warped_model.get_output_value(warped_model_state, "/bodyset/tibia_r[position]")[1]
     assert warped_tibia_y < (original_tibia_y-0.05)
+
+    # The `ModelWarper` pipeline that produced this model contains in-memory
+    # resources, which prevents `to_osim` from working.
+    with pytest.raises(RuntimeError):
+        warped_model_specification.to_osim()
+
+    # ... so the caller could just flush them to an absolute path, if they're feeling lazy...
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        warped_model_specification.flush_in_memory_resources_to(temporary_directory)
+        assert Path(temporary_directory) / "femur_r_geom_1.obj", "ModelWarper didn't write the warped meshes?"
+
+    # ... And then it should be serialize-able
+    assert "<Mesh" in warped_model_specification.to_osim()

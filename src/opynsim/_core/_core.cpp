@@ -724,6 +724,41 @@ namespace {
                         the provided :class:`ModelSpecification` is valid.
             )"
         );
+        model_specification_class.def(
+            "to_osim",
+            [](const ModelSpecification& self,
+               std::optional<std::filesystem::path> destination = std::nullopt) -> std::optional<std::string>
+            {
+                if (destination) {
+                    self.to_osim(*destination);
+                    return std::nullopt;
+                } else {
+                    return self.to_osim();
+                }
+            },
+            nb::arg("destination") = std::nullopt,
+            R"(
+                Exports the model specification to an OpenSim (.osim) format.
+
+                Args:
+                    destination: Optional file path. If provided, the OSIM data is written
+                        directly to this path and the function returns ``None``. If omitted,
+                        the OSIM content is returned as a string.
+
+                Returns:
+                    The OSIM model as a string if no destination path is provided;
+                    otherwise ``None``.
+            )"
+        );
+        model_specification_class.def(
+            "flush_in_memory_resources_to",
+            &ModelSpecification::flush_in_memory_resources_to,
+            nb::arg("directory"),
+            R"(
+                Flushes all in-memory resources in the specification to ``directory`` and
+                updates/replaces the associated components to point to the flushed resources.
+            )"
+        );
     }
 
     void def_model(nb::module_& m)
