@@ -60,6 +60,16 @@ def test_to_osim_on_blank_model_specification_can_write_file():
         assert output_path.exists
         assert opynsim.read_osim(output_path) is not None
 
+def test_root_directory_on_blank_model_specification_is_dot():
+    model_specification = opynsim.ModelSpecification()
+    assert model_specification.root_directory == Path(".")
+
+def test_root_directory_can_be_changed():
+    model_specification = opynsim.ModelSpecification()
+    assert model_specification.root_directory != "some/dir"
+    model_specification.root_directory = "some/dir"
+    assert model_specification.root_directory == Path("some/dir")
+
 def test_model_initial_state_state_defaults_to_instance():
     model = opynsim.ModelSpecification().compile()
     assert model.initial_state().stage == opynsim.STAGE_INSTANCE

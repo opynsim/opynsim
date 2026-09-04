@@ -750,6 +750,22 @@ namespace {
                     otherwise ``None``.
             )"
         );
+        model_specification_class.def_prop_rw(
+            "root_directory",
+            &ModelSpecification::root_directory,
+            &ModelSpecification::set_root_directory,
+            R"(
+                The root directory that this model specification uses whenever it
+                resolves filesystem resources. Relative resource paths are
+                typically resolved as ``root_directory / resource_path``.
+
+                When loading resources that allow searching multiple locations
+                (see :meth:`config.get_search_paths`), this acts as the ``base_path``
+                for the search. E.g. the implementation may search
+                ``base_path / "Geometry" / resource_path`` for mesh files, if that's
+                how the implementation searches for those types of resources.
+            )"
+        );
         model_specification_class.def(
             "flush_in_memory_resources_to",
             &ModelSpecification::flush_in_memory_resources_to,
@@ -757,6 +773,12 @@ namespace {
             R"(
                 Flushes all in-memory resources in the specification to ``directory`` and
                 updates/replaces the associated components to point to the flushed resources.
+
+                Args:
+                    directory: Path to the directory where resources should be flushed. Absolute
+                        directory paths cause the associated components' properties to contain
+                        absolute filesystem paths to the associated flushed resource. Relative
+                        paths should be relative to :attr:`ModelSpecification.root_directory`.
             )"
         );
     }
