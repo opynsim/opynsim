@@ -117,8 +117,8 @@ class opyn::ModelSpecification::Impl final {
 public:
     explicit Impl() = default;
 
-    explicit Impl(const std::filesystem::path& osim_path) :
-        model_{osc::make_cow<OpenSim::Model>(osim_path.string())}
+    explicit Impl(const std::filesystem::path& source) :
+        model_{osc::make_cow<OpenSim::Model>(source.string())}
     {}
     explicit Impl(OpenSim::Model&& opensim_model) :
         model_{osc::make_cow<OpenSim::Model>(std::move(opensim_model))}
@@ -196,7 +196,7 @@ public:
                 for (const auto& [name, count] : name_counts | vws::filter(count_gt_1)) {
                     std::format_to(std::back_inserter(error_message), "- {} ({} occurrences)", name, count);
                 }
-                throw std::runtime_error{std::move(error_message)};
+                throw std::runtime_error{error_message};
             }
         }
 
@@ -244,16 +244,16 @@ private:
                 std::format_to(std::back_inserter(error_msg), "- {}", in_memory_mesh->getAbsolutePathString());
             }
             error_msg += "You can fix this by first flushing them to disk with `model_specification.flush_in_memory_resources_to(directory)`. If you are using a relative `directory`, you may also need to set the `root_path` of this model to the directory where it will be stored.";
-            throw std::runtime_error{std::move(error_msg)};
+            throw std::runtime_error{error_msg};
         }
     }
 
     osc::CopyOnUpdPtr<OpenSim::Model> model_ = osc::make_cow<OpenSim::Model>();
 };
 
-opyn::ModelSpecification opyn::ModelSpecification::from_osim(const std::filesystem::path& osim_path)
+opyn::ModelSpecification opyn::ModelSpecification::from_osim(const std::filesystem::path& source)
 {
-    return ModelSpecification{osc::make_cow<Impl>(osim_path)};
+    return ModelSpecification{osc::make_cow<Impl>(source)};
 }
 
 opyn::ModelSpecification opyn::ModelSpecification::example_pendulum()
@@ -287,5 +287,5 @@ void opyn::ModelSpecification::convert_station_defined_frames_to_physical_offset
 }
 void opyn::ModelSpecification::flush_in_memory_resources_to(const std::filesystem::path& directory)
 {
-    return impl_.upd()->flush_in_memory_resources_to(directory);
+    impl_.upd()->flush_in_memory_resources_to(directory);
 }
