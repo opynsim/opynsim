@@ -148,7 +148,7 @@ public:
         const std::string& ifn = model.getInputFileName();
 
         if (ifn.empty() or ifn == "Unassigned") {
-            model.setInputFileName(directory / "untitled.osim");
+            model.setInputFileName((directory / "untitled.osim").string());
         } else {
             model.setInputFileName((directory / std::filesystem::path{ifn}.filename()).string());
         }
