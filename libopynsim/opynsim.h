@@ -1,6 +1,5 @@
 #pragma once
 
-#include <libopynsim/solvers/model_warper.h>
 #include <libopynsim/data_frame.h>
 #include <libopynsim/model_specification.h>
 
@@ -98,9 +97,4 @@ namespace opyn
 
     /// An alias for `read_jpeg`.
     osc::Texture2D read_jpg(const std::filesystem::path& source);
-
-    /// Returns a `ModelWarper` parsed from `source`, which is typically a
-    /// `<ModelWarperV3Document>` XML configuration file (e.g. from OpenSim
-    /// Creator).
-    ModelWarper read_model_warper_xml(const std::filesystem::path& source);
 }

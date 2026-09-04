@@ -440,7 +440,7 @@ bool opyn::init()
 
 ModelSpecification opyn::read_osim(const std::filesystem::path& source)
 {
-    return ModelSpecification::from_osim_file(source);
+    return ModelSpecification::from_osim(source);
 }
 
 DataFrame opyn::read_sto(const std::filesystem::path& source)
@@ -491,9 +491,4 @@ osc::Texture2D opyn::read_jpeg(const std::filesystem::path& source)
 osc::Texture2D opyn::read_jpg(const std::filesystem::path& source)
 {
     return read_jpeg(source);
-}
-
-ModelWarper opyn::read_model_warper_xml(const std::filesystem::path& source)
-{
-    return ModelWarper{source};
 }

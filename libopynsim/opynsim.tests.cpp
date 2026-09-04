@@ -592,13 +592,3 @@ TEST(opynsim, read_jpg_alias_also_works)
     ASSERT_EQ(jpeg.texture_format(), osc::TextureFormat::RGB24);
     ASSERT_EQ(jpeg.pixels().front(), osc::Color::white());
 }
-
-TEST(opynsim, read_model_warper_xml_works)
-{
-    opyn::init();
-
-    const ModelWarper model_warper = read_model_warper_xml(opynsim_tests_resources_directory() / "Documents/model_warper/scaling-document.xml");
-
-    ASSERT_EQ(model_warper.num_scaling_parameters(), 1);
-    ASSERT_EQ(model_warper.num_scaling_steps(), 6);
-}

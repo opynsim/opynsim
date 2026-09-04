@@ -4,6 +4,7 @@
 #include <opynsim/_core/config.h>
 #include <opynsim/_core/examples.h>
 #include <opynsim/_core/graphics.h>
+#include <opynsim/_core/solvers.h>
 #include <opynsim/_core/tps3d.h>
 #include <opynsim/_core/ui.h>
 
@@ -1265,6 +1266,12 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
     {
         auto ui_submodule = _core_module.def_submodule("ui");
         init_ui_submodule(ui_submodule);
+    }
+
+    // Initialize `solvers` submodule.
+    {
+        auto solvers_submodule = _core_module.def_submodule("solvers");
+        init_solvers_submodule(solvers_submodule);
     }
 
     // Initialize top-level functions/classes
