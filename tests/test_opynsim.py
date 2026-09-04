@@ -78,6 +78,13 @@ def test_model_initial_state_realize_to_realizes_model_to_state():
     model = opynsim.ModelSpecification().compile()
     assert model.initial_state(realized_to=opynsim.STAGE_ACCELERATION).stage == opynsim.STAGE_ACCELERATION
 
+def test_bake_station_defined_frames_works():
+    model_specification = opynsim.read_osim(Path(__file__).resolve().parent / "resources/StationDefinedFrameExample.osim")
+    assert "<StationDefinedFrame" in     model_specification.to_osim()
+    model_specification.bake_station_defined_frames()
+    assert "<StationDefinedFrame" not in model_specification.to_osim()
+    model_specification.compile()  # shouldn't throw
+
 def test_can_default_construct_data_frame():
     data_frame = opynsim.DataFrame()
     assert "shape: (0, 0)" in repr(data_frame)

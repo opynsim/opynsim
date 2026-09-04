@@ -767,6 +767,16 @@ namespace {
             )"
         );
         model_specification_class.def(
+            "bake_station_defined_frames",
+            &ModelSpecification::bake_station_defined_frames,
+            R"(
+                Converts any ``StationDefinedFrame``\s in the specification into ``PhysicalOffsetFrame``\s.
+
+                This can be useful for compatibility with OpenSim <4.6, which doesn't support
+                ``StationDefinedFrame``\s.
+            )"
+        );
+        model_specification_class.def(
             "flush_in_memory_resources_to",
             &ModelSpecification::flush_in_memory_resources_to,
             nb::arg("directory"),
