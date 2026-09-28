@@ -1803,7 +1803,7 @@ std::optional<ComponentSpatialRepresentation> opyn::TryGetSpatialRepresentation(
 bool opyn::IsValidOpenSimComponentNameCharacter(char c)
 {
     return
-        std::isalpha(static_cast<uint8_t>(c)) != 0 ||
+        std::isalpha(static_cast<unsigned char>(c)) != 0 ||
         ('0' <= c && c <= '9') ||
         (c == '-' || c == '_');
 }
