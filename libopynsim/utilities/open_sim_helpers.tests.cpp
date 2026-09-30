@@ -77,7 +77,7 @@ TEST(OpenSimHelpers, CanSwapACustomJointForAFreeJoint)
     InitializeState(model);
 
     const auto& registry = opyn::get_component_registry<OpenSim::Joint>();
-    auto maybeIdx = IndexOf<OpenSim::FreeJoint>(registry);
+    auto maybeIdx = index_of<OpenSim::FreeJoint>(registry);
     ASSERT_TRUE(maybeIdx) << "can't find FreeJoint in type registry?";
     auto idx = maybeIdx.value();
 

@@ -55,15 +55,14 @@ namespace opyn
         std::vector<ComponentRegistryEntryBase> entries_;
     };
 
-    std::optional<size_t> IndexOf(const ComponentRegistryBase&, std::string_view componentClassName);
-    std::optional<size_t> IndexOf(const ComponentRegistryBase&, const OpenSim::Component&);
+    std::optional<size_t> index_of(const ComponentRegistryBase&, std::string_view class_name);
+    std::optional<size_t> index_of(const ComponentRegistryBase&, const OpenSim::Component&);
 
     template<typename T>
-    std::optional<size_t> IndexOf(const ComponentRegistryBase& registry)
+    std::optional<size_t> index_of(const ComponentRegistryBase& registry)
     {
         for (size_t i = 0; i < registry.size(); ++i) {
-            const OpenSim::Component& prototype = registry[i].prototype();
-            if (typeid(prototype) == typeid(T)) {
+            if (typeid(registry[i].prototype()) == typeid(T)) {
                 return i;
             }
         }

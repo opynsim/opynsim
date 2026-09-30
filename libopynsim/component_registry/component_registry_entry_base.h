@@ -12,8 +12,8 @@ namespace opyn
     class ComponentRegistryEntryBase {
     public:
         ComponentRegistryEntryBase(
-            std::string_view name_,
-            std::string_view description_,
+            std::string_view name,
+            std::string_view description,
             std::shared_ptr<const OpenSim::Component>
         );
 
