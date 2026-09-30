@@ -14,12 +14,12 @@ opyn::ComponentRegistryEntryBase::ComponentRegistryEntryBase(
     std::string_view description_,
     std::shared_ptr<const OpenSim::Component> prototype_) :
 
-    m_Name{name_},
-    m_Description{description_},
-    m_Prototype{std::move(prototype_)}
+    name_{name_},
+    description_{description_},
+    prototype_{std::move(prototype_)}
 {}
 
 std::unique_ptr<OpenSim::Component> opyn::ComponentRegistryEntryBase::instantiate() const
 {
-    return Clone(*m_Prototype);
+    return Clone(*prototype_);
 }

@@ -25,34 +25,34 @@ namespace opyn
         using const_iterator = const value_type*;
         using size_type = size_t;
 
-        osc::CStringView name() const { return m_Name; }
-        osc::CStringView description() const { return m_Description; }
+        osc::CStringView name() const { return name_; }
+        osc::CStringView description() const { return description_; }
 
-        const_iterator begin() const { return m_Entries.data(); }
-        const_iterator end() const { return m_Entries.data() + m_Entries.size(); }
-        size_type size() const { return m_Entries.size(); }
-        const_reference operator[](size_type pos) const { return m_Entries[pos]; }
+        const_iterator begin() const { return entries_.data(); }
+        const_iterator end() const { return entries_.data() + entries_.size(); }
+        size_type size() const { return entries_.size(); }
+        const_reference operator[](size_type pos) const { return entries_[pos]; }
 
     protected:
         explicit ComponentRegistryBase(
             std::string_view name_,
             std::string_view description_) :
 
-            m_Name{name_},
-            m_Description{description_}
+            name_{name_},
+            description_{description_}
         {}
 
         template<typename... Args>
         requires std::constructible_from<ComponentRegistryEntryBase, Args&&...>
         reference emplace_back_erased(Args&&... args)
         {
-            return m_Entries.emplace_back(std::forward<Args>(args)...);
+            return entries_.emplace_back(std::forward<Args>(args)...);
         }
 
     private:
-        std::string m_Name;
-        std::string m_Description;
-        std::vector<ComponentRegistryEntryBase> m_Entries;
+        std::string name_;
+        std::string description_;
+        std::vector<ComponentRegistryEntryBase> entries_;
     };
 
     std::optional<size_t> IndexOf(const ComponentRegistryBase&, std::string_view componentClassName);
