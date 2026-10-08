@@ -13,10 +13,10 @@ class opyn::BasicModelStatePair::Impl final {
 public:
 
     Impl() :
-        m_Model{std::make_unique<OpenSim::Model>()}
+        model_{std::make_unique<OpenSim::Model>()}
     {
-        opyn::initialize_model(*m_Model);
-        opyn::initialize_state(*m_Model);
+        opyn::initialize_model(*model_);
+        opyn::initialize_state(*model_);
     }
 
     explicit Impl(const ModelStatePair& p) :
@@ -24,17 +24,17 @@ public:
     {}
 
     explicit Impl(const std::filesystem::path& osimPath) :
-        m_Model{opyn::load_model(osimPath)}
+        model_{opyn::load_model(osimPath)}
     {
-        opyn::initialize_model(*m_Model);
-        opyn::initialize_state(*m_Model);
+        opyn::initialize_model(*model_);
+        opyn::initialize_state(*model_);
     }
 
     explicit Impl(OpenSim::Model&& model) :
-        m_Model{std::make_unique<OpenSim::Model>(std::move(model))}
+        model_{std::make_unique<OpenSim::Model>(std::move(model))}
     {
-        opyn::initialize_model(*m_Model);
-        opyn::initialize_state(*m_Model);
+        opyn::initialize_model(*model_);
+        opyn::initialize_state(*model_);
     }
 
     Impl(const OpenSim::Model& m, const SimTK::State& st) :
@@ -46,25 +46,25 @@ public:
         const SimTK::State& st,
         float fixupScaleFactor) :
 
-        m_Model(std::make_unique<OpenSim::Model>(m)),
-        m_FixupScaleFactor{fixupScaleFactor}
+        model_(std::make_unique<OpenSim::Model>(m)),
+        fixup_scale_factor_{fixupScaleFactor}
     {
-        opyn::initialize_model(*m_Model);
-        opyn::initialize_state(*m_Model);
-        m_Model->updWorkingState() = st;
-        m_Model->updWorkingState().invalidateAllCacheAtOrAbove(SimTK::Stage::Instance);
-        m_Model->realizeReport(m_Model->updWorkingState());
+        opyn::initialize_model(*model_);
+        opyn::initialize_state(*model_);
+        model_->updWorkingState() = st;
+        model_->updWorkingState().invalidateAllCacheAtOrAbove(SimTK::Stage::Instance);
+        model_->realizeReport(model_->updWorkingState());
     }
 
     Impl(const Impl& o) :
-        m_Model{std::make_unique<OpenSim::Model>(*o.m_Model)},
-        m_FixupScaleFactor{o.m_FixupScaleFactor}
+        model_{std::make_unique<OpenSim::Model>(*o.model_)},
+        fixup_scale_factor_{o.fixup_scale_factor_}
     {
-        opyn::initialize_model(*m_Model);
-        SimTK::State& state = m_Model->initializeState();
-        state = o.m_Model->getWorkingState();
-        opyn::try_equilibrate_muscles_or_log_warning(*m_Model, state);
-        m_Model->realizeDynamics(state);
+        opyn::initialize_model(*model_);
+        SimTK::State& state = model_->initializeState();
+        state = o.model_->getWorkingState();
+        opyn::try_equilibrate_muscles_or_log_warning(*model_, state);
+        model_->realizeDynamics(state);
     }
     Impl(Impl&&) noexcept = default;
     Impl& operator=(const Impl&) = delete;
@@ -78,26 +78,26 @@ public:
 
     const OpenSim::Model& getModel() const
     {
-        return *m_Model;
+        return *model_;
     }
 
     const SimTK::State& getState() const
     {
-        return m_Model->getWorkingState();
+        return model_->getWorkingState();
     }
 
     float getFixupScaleFactor() const
     {
-        return m_FixupScaleFactor;
+        return fixup_scale_factor_;
     }
 
     void setFixupScaleFactor(float v)
     {
-        m_FixupScaleFactor = v;
+        fixup_scale_factor_ = v;
     }
 private:
-    std::unique_ptr<OpenSim::Model> m_Model;
-    float m_FixupScaleFactor = 1.0f;
+    std::unique_ptr<OpenSim::Model> model_;
+    float fixup_scale_factor_ = 1.0f;
 };
 
 opyn::BasicModelStatePair::BasicModelStatePair() :

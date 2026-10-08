@@ -23,9 +23,9 @@ TEST(ConcatenatingOutputExtractor, hasExpectedOutputsWhenConcatenatingTwoFloatOu
 
     class BlankStateView final : public opyn::StateViewWithMetadata {
     private:
-        const SimTK::State& impl_get_state() const override { return m_State; }
+        const SimTK::State& impl_get_state() const override { return state_; }
 
-        SimTK::State m_State;
+        SimTK::State state_;
     };
     const BlankStateView state;
 
