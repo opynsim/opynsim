@@ -23,8 +23,8 @@ public:
         Impl{p.get_model(), p.get_state(), p.get_fixup_scale_factor()}
     {}
 
-    explicit Impl(const std::filesystem::path& osimPath) :
-        model_{opyn::load_model(osimPath)}
+    explicit Impl(const std::filesystem::path& osim_path) :
+        model_{opyn::load_model(osim_path)}
     {
         opyn::initialize_model(*model_);
         opyn::initialize_state(*model_);
@@ -42,16 +42,16 @@ public:
     {}
 
     Impl(
-        const OpenSim::Model& m,
-        const SimTK::State& st,
-        float fixupScaleFactor) :
+        const OpenSim::Model& model,
+        const SimTK::State& state,
+        float fixup_scale_factor) :
 
-        model_(std::make_unique<OpenSim::Model>(m)),
-        fixup_scale_factor_{fixupScaleFactor}
+        model_(std::make_unique<OpenSim::Model>(model)),
+        fixup_scale_factor_{fixup_scale_factor}
     {
         opyn::initialize_model(*model_);
         opyn::initialize_state(*model_);
-        model_->updWorkingState() = st;
+        model_->updWorkingState() = state;
         model_->updWorkingState().invalidateAllCacheAtOrAbove(SimTK::Stage::Instance);
         model_->realizeReport(model_->updWorkingState());
     }
@@ -76,22 +76,22 @@ public:
         return std::make_unique<Impl>(*this);
     }
 
-    const OpenSim::Model& getModel() const
+    const OpenSim::Model& get_model() const
     {
         return *model_;
     }
 
-    const SimTK::State& getState() const
+    const SimTK::State& get_state() const
     {
         return model_->getWorkingState();
     }
 
-    float getFixupScaleFactor() const
+    float get_fixup_scale_factor() const
     {
         return fixup_scale_factor_;
     }
 
-    void setFixupScaleFactor(float v)
+    void set_fixup_scale_factor(float v)
     {
         fixup_scale_factor_ = v;
     }
@@ -126,20 +126,20 @@ opyn::BasicModelStatePair::~BasicModelStatePair() noexcept = default;
 
 const OpenSim::Model& opyn::BasicModelStatePair::impl_get_model() const
 {
-    return impl_->getModel();
+    return impl_->get_model();
 }
 
 const SimTK::State& opyn::BasicModelStatePair::impl_get_state() const
 {
-    return impl_->getState();
+    return impl_->get_state();
 }
 
 float opyn::BasicModelStatePair::impl_get_fixup_scale_factor() const
 {
-    return impl_->getFixupScaleFactor();
+    return impl_->get_fixup_scale_factor();
 }
 
 void opyn::BasicModelStatePair::impl_set_fixup_scale_factor(float v)
 {
-    impl_->setFixupScaleFactor(v);
+    impl_->set_fixup_scale_factor(v);
 }
