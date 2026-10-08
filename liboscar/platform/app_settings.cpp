@@ -179,7 +179,7 @@ R"(# configuration options
 
             std::string_view table_name;
             const toml::table* table;
-            toml::table::const_iterator iterator = table->cbegin();
+            toml::table::const_iterator iterator = this->table->cbegin();
         };
 
         // crawl the table
