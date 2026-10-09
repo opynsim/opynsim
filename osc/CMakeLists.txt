@@ -1,0 +1,244 @@
+# Configure `osc_config.h` (compile-time configuration)
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/osc_config.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/osc/osc_config.h"
+    @ONLY
+)
+
+# setup generic (OS-independent) `osc` executable target
+add_executable(osc osc.cpp)
+target_compile_features(osc PUBLIC cxx_std_23)
+set_target_properties(osc PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS        OFF
+)
+if(OPYN_USE_STRICT_COMPILER_FLAGS)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/opynsim_strict_compiler_options.cmake)
+    opyn_add_strict_compiler_options_to(osc)
+endif()
+target_link_libraries(osc PRIVATE opensimcreator)
+target_include_directories(osc
+    # so that `#include <osc/osc_config.h>` works
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/generated/
+)
+
+# Make OS-specific modifications for the `osc` target
+if(WIN32)
+    # On Windows, configure an `osc.toml` that's used when running `osc`
+    # from the build directory (runtime configuration when developing)
+    #
+    # See `packaging/` for the `osc.toml` that's used at install-time
+    set(OSC_CONFIG_RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/osc.toml.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/osc.toml"
+        @ONLY
+    )
+    unset(OSC_CONFIG_RESOURCES_DIR)
+
+    # On Windows with MSVC, link a `resources.rc` file.
+    #
+    # It tells the MSVC compiler how to compile non-source resources into
+    # the output exe. Specifically, it's used to embed the application icon
+    # into the `osc` exe
+    target_sources(osc PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:${CMAKE_CURRENT_SOURCE_DIR}/resources.rc>
+    )
+
+    # On Windows with MSVC, indicate it's compiling a desktop application.
+    target_link_options(osc PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:
+            /SUBSYSTEM:windows     # Open as a desktop app (no console window)
+            /ENTRY:mainCRTStartup  # Call into `main`, not `WinMain`
+        >
+    )
+
+    # On Windows, copy all runtime dlls to the exe directory
+    # (because Windows doesn't have an RPATH)
+    #
+    # see: https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html?highlight=runtime#genex:TARGET_RUNTIME_DLLS
+    add_custom_command(
+        TARGET osc
+        PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:osc> $<TARGET_RUNTIME_DLLS:osc>
+        COMMAND_EXPAND_LISTS
+    )
+
+    # On Windows (installation). If `osc` was built with a dynamically-linked runtime, ensure
+    # it's installed alongside the executable.
+    get_property(_osc_msvc_runtime_library TARGET osc PROPERTY MSVC_RUNTIME_LIBRARY)
+    if(NOT DEFINED _osc_msvc_runtime_library OR _osc_msvc_runtime_library STREQUAL "" OR _osc_msvc_runtime_library MATCHES ".*DLL.*")
+        include(InstallRequiredSystemLibraries)
+    endif()
+    unset(_osc_msvc_runtime_library)
+
+    # On Windows (installation), install `osc` and all of its RUNTIME_DEPENDENCIES
+    #
+    # https://stackoverflow.com/questions/62884439/how-to-use-cmake-file-get-runtime-dependencies-in-an-install-statement
+    if(POLICY CMP0207)
+        cmake_policy(SET CMP0207 NEW)
+    endif()
+    install(
+        TARGETS osc
+        COMPONENT opensimcreator-exe
+        RUNTIME_DEPENDENCIES
+            PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-"  # don't install Windows-provided libs
+            POST_EXCLUDE_REGEXES ".*system32.*[.]dll"  # don't install Windows-provided libs
+    )
+
+    # On Windows (installation), install a user-facing `osc.toml` config file
+    #
+    #     - in contrast to the dev-centric one, this loads resources from the installation dir,
+    #       which has a known path relative to the osc executable (../resources)
+    if(TRUE)
+        set(OSC_CONFIG_RESOURCES_DIR "resources")  # relative to `osc.toml` at install time
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/osc.toml.in"
+            "${CMAKE_CURRENT_BINARY_DIR}/generated/osc_windows.toml"
+            @ONLY
+        )
+        unset(OSC_CONFIG_RESOURCES_DIR)
+        install(
+            FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/osc_windows.toml"
+            RENAME "osc.toml"
+            DESTINATION "."
+            COMPONENT opensimcreator-exe
+        )
+    endif()
+
+    # On Windows (installation), install the runtime `resources/` (assets) directory
+    install(
+        DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/resources/OpenSimCreator"
+        DESTINATION "resources"
+        COMPONENT opensimcreator-exe
+    )
+elseif(UNIX AND NOT APPLE)
+    # On Linux, configure an `osc.toml` that's used when running from the
+    # build directory (runtime configuration)
+    #
+    # See `packaging/` for the installed version
+    set(OSC_CONFIG_RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/osc.toml.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/osc.toml"
+        @ONLY
+    )
+    unset(OSC_CONFIG_RESOURCES_DIR)
+
+    # On Linux, set RPATH of `osc` to $ORIGIN/../lib, because unix directory
+    # structure usually is:
+    #
+    #     ${SOME_ROOT}/lib/*.so
+    #     ${SOME_ROOT}/bin/osc (executable)
+    set_target_properties(osc PROPERTIES INSTALL_RPATH "\$ORIGIN/../lib")
+
+    # On Linux (installation), install runtime libraries into the install directory
+    include(GNUInstallDirs)  # CMAKE_INSTALL_LIBDIR, _INCLUDEDIR, etc.
+    install(
+        TARGETS osc
+        RUNTIME_DEPENDENCIES
+        DIRECTORIES ${CMAKE_INSTALL_LIBDIR}
+        POST_EXCLUDE_REGEXES "^/usr/*" "^/lib/*"  # don't copy system-provided dependencies
+        COMPONENT opensimcreator-exe
+    )
+
+    # On Linux (installation): install a user-facing `osc.toml` config file
+    #
+    # In contrast to the dev-centric one, this loads resources from the installation
+    # directory, which has a known path relative to the osc executable (../resources)
+    if(TRUE)
+        set(OSC_CONFIG_RESOURCES_DIR "resources")  # relative to `osc.toml` at install time
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/osc.toml.in"
+            "${CMAKE_CURRENT_BINARY_DIR}/generated/osc_debian.toml"
+            @ONLY
+        )
+        unset(OSC_CONFIG_RESOURCES_DIR)
+        install(
+            FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/osc_debian.toml"
+            RENAME "osc.toml"
+            DESTINATION "."
+            COMPONENT opensimcreator-exe
+        )
+    endif()
+
+    # On Linux (installation), copy `resources/` (assets) directory
+    install(
+        DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/resources/OpenSimCreator"
+        DESTINATION "resources"
+        COMPONENT opensimcreator-exe
+    )
+elseif(APPLE)
+    # On Apple, resource files (configuration, images, etc.) are
+    # considered to be part of the BUILD artifact, not an INSTALL concern,
+    # because MacOS bundles are "the resultant executable" and contain
+    # everything.
+
+    # On Apple, generate + specify a valid `Info.plist` file for the Mac bundle.
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/generated/Info.plist"
+        @ONLY
+    )
+
+    # On Apple, build `osc` it as a MacOSX bundle (enables using BUNDLE variables).
+    set_target_properties(osc PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_BINARY_DIR}/generated/Info.plist"
+        OUTPUT_NAME "OpenSim Creator"  # This is what users see in the docking bar etc.
+    )
+
+    # On Apple, create a symlink named 'osc' inside the bundle next to the main binary
+    add_custom_command(TARGET osc POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+        "OpenSim Creator"
+        "$<TARGET_FILE_DIR:osc>/osc"
+    )
+
+    # On Apple, generate an `osc.toml` file inside the bundle __at build time__
+    set(OSC_CONFIG_RESOURCES_DIR ".")  # relative to `osc.toml` in the bundle
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/osc.toml.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/generated/osc.toml"
+        @ONLY
+    )
+    unset(OSC_CONFIG_RESOURCES_DIR)
+    target_sources(osc PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated/osc.toml")
+    set_source_files_properties(
+        "${CMAKE_CURRENT_BINARY_DIR}/generated/osc.toml"
+        PROPERTIES
+            MACOSX_PACKAGE_LOCATION Resources
+            HEADER_FILE_ONLY TRUE
+    )
+
+    # On Apple, copy all resource files into the bundle __at build time__
+    # and ensure they have the same directory structure
+    file(GLOB_RECURSE OSC_RESOURCE_FILES
+        CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/*"
+    )
+    foreach(_absolute_path ${OSC_RESOURCE_FILES})
+        file(RELATIVE_PATH _relative_path "${CMAKE_CURRENT_SOURCE_DIR}/resources/" ${_absolute_path})
+        get_filename_component(_relative_directory "${_relative_path}" DIRECTORY)
+        target_sources(osc PRIVATE "${_absolute_path}")
+        set_source_files_properties("${_absolute_path}" PROPERTIES
+            MACOSX_PACKAGE_LOCATION "Resources/${_relative_directory}"
+            HEADER_FILE_ONLY TRUE
+        )
+    endforeach()
+
+    # On Apple, copy the desktop icon into the bundle __at build time__
+    target_sources(osc PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/osc.icns")
+    set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/osc.icns" PROPERTIES
+        MACOSX_PACKAGE_LOCATION Resources
+        HEADER_FILE_ONLY TRUE
+    )
+
+    # On Apple, at install time, just copy the bundle. Everything was
+    # bundled at build time.
+    install(
+        TARGETS osc
+        BUNDLE DESTINATION .
+        COMPONENT opensimcreator-exe
+    )
+endif()

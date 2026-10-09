@@ -1,0 +1,44 @@
+#pragma once
+
+// char[]
+//
+// name of the organization (affects configuration location)
+#define OSC_ORGNAME_STRING "cbl"
+
+// char[]
+//
+// short-form name of the application (affects configuration location)
+#define OSC_APPNAME_STRING "osc"
+
+// char[]
+//
+// user-friendly full application name string
+#define OSC_LONG_APPNAME_STRING "OpenSim Creator"
+
+// char[]
+//
+// full version string of OSC (e.g. 1.0.3)
+#define OSC_VERSION_STRING "@opynsim_VERSION_MAJOR@.@opynsim_VERSION_MINOR@.@opynsim_VERSION_PATCH@"
+
+// char[]
+//
+// a URL for OSC's source code repo. Used by in-app links, shortcuts, etc. so that
+// users can just click and go, rather than having to separately browse to it.
+#define OSC_REPO_URL "https://github.com/ComputationalBiomechanicsLab/opensim-creator"
+
+// char[]
+//
+// a URL for the OSC's documentation Used by in-app links, shortcuts, etc. so that
+// users can just click and go, rather than having to separately browse to it.
+#define OSC_DOCS_URL "https://docs.opensimcreator.com"
+
+// char[]
+//
+// the internet location for a "help site", which is loosely defined as somewhere the user
+// can go to ask for help. This data is used by in-app links, shortcuts, etc.
+#define OSC_HELP_URL "https://github.com/ComputationalBiomechanicsLab/opensim-creator/discussions"
+
+// define
+//
+// set if the application should also bundle the demo tabs
+#cmakedefine OSC_BUNDLE_OSCAR_DEMOS
