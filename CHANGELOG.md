@@ -12,6 +12,9 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added `opynsim.graphics.Camera.look_at`, which creates a camera looking at a target.
 - C++: Added `osc::Camera::Camera(position, direction, up)` constructor.
 - C++: Added `osc::Camera::look_at(position, target, up)` factory function.
+- `libopensimcreator` and `osc` were merged into OPynSim's build, so that both OPynSim
+  and OpenSim Creator can be built from one source tree without much effort.
+
 
 
 ## 0.0.8 - 2026/09/08
