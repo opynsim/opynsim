@@ -26,6 +26,10 @@ if(OPYN_USE_STRICT_COMPILER_FLAGS)
     include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/opynsim_strict_compiler_options.cmake)
     opyn_add_strict_compiler_options_to(oscar_demos_tests)
 endif()
+if(OPYN_USE_STRICT_COMPILER_FLAGS)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/opynsim_strict_compiler_options.cmake)
+    opyn_add_strict_compiler_options_to(oscar_demos_tests)
+endif()
 target_link_libraries(oscar_demos_tests PRIVATE
     oscar
     oscar_demos

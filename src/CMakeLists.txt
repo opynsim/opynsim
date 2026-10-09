@@ -69,6 +69,10 @@ if(TRUE)
         include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/opynsim_strict_compiler_options.cmake)
         opyn_add_strict_compiler_options_to(_core)
     endif()
+    if(OPYN_ENABLE_SANITIZERS)
+        include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/opynsim_add_sanitizer_flags_to.cmake)
+        opyn_add_sanitizer_flags_to(_core)
+    endif()
     target_link_libraries(_core PRIVATE opynsim)
     add_dependencies(_core opynsim_python_source_staging) # Dependent on the copied Python staging directory
 

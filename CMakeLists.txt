@@ -18,6 +18,7 @@ option(OPYN_RUNTIME_PERF_MEASUREMENTS_ENABLED "Enable whether the `OSC_PERF` mac
 option(OPYN_STABLE_ABI                        "Perform a python stable ABI build"                                  ON)
 option(OPYN_STRICT_ABI_CHECKS                 "Check OPynSim has specified ABI"                                    ${OPYN_STABLE_ABI})
 option(OPYN_USE_STRICT_COMPILER_FLAGS         "Add stricter compilation flags to targets"                          OFF)
+option(OPYN_ENABLE_SANITIZERS                 "Enable sanitizers (libASAN, libUBSAN)"                              OFF)
 set   (OPYN_VENV "" CACHE PATH                "Optional path to a Python virtual environment the build should use")
 
 # Configure Python (if necessary)

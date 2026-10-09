@@ -653,6 +653,11 @@ target_compile_options(osim PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
         -Wno-tautological-undefined-compare  # Broken in OpenSim's sources
     >
+
+    # gcc flags
+    $<$<CXX_COMPILER_ID:GNU>:
+        -Wno-stringop-overflow               # Broken in OpenSim's sources
+    >
 )
 target_link_libraries(osim PUBLIC spdlog::spdlog)  # used by OpenSim (logging)
 

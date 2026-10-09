@@ -16,5 +16,13 @@ set_target_properties(opynsim_debugger PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS        OFF
 )
+if(OPYN_USE_STRICT_COMPILER_FLAGS)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/opynsim_strict_compiler_options.cmake)
+    opyn_add_strict_compiler_options_to(opynsim_debugger)
+endif()
+if(OPYN_ENABLE_SANITIZERS)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/opynsim_add_sanitizer_flags_to.cmake)
+    opyn_add_sanitizer_flags_to(opynsim_debugger)
+endif()
 target_link_libraries(opynsim_debugger PUBLIC Python::Python)
 add_dependencies(opynsim_debugger _core)  # ensure bindings are built first
