@@ -33,7 +33,7 @@ TEST(CSV, read_row_reading_a_stream_containing_just_two_commas_should_return_thr
 
     ASSERT_TRUE(output.has_value());
     ASSERT_EQ(output->size(), 3);
-    for (const std::string& column : *output) {
+    for (const std::string& column : output.value()) {
         ASSERT_TRUE(column.empty()) << column << " is not an empty string";
     }
 }
