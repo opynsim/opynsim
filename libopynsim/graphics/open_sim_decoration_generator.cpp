@@ -857,7 +857,7 @@ namespace
         const OpenSim::Muscle& muscle)
     {
         const std::vector<OpenSim::AbstractGeometryPath::DecorativePathPoint> pps =
-            muscle.getPath().getDecorativePathPoints(rs.get_state());
+            muscle.getPath().getDecorativePathPoints(rs.get_state(), rs.get_model_display_hints());
         if (pps.empty()) {
             return;  // edge-case: there are no points in the muscle path
         }
@@ -1131,7 +1131,7 @@ namespace
         const OpenSim::Muscle& musc)
     {
         const std::vector<OpenSim::AbstractGeometryPath::DecorativePathPoint> points =
-            musc.getPath().getDecorativePathPoints(rs.get_state());
+            musc.getPath().getDecorativePathPoints(rs.get_state(), rs.get_model_display_hints());
 
         const float radius = get_muscle_size(
             musc,
@@ -1162,7 +1162,7 @@ namespace
         const OpenSim::Component& hittest_target)
     {
         const std::vector<OpenSim::AbstractGeometryPath::DecorativePathPoint> points =
-            gp.getDecorativePathPoints(rs.get_state());
+            gp.getDecorativePathPoints(rs.get_state(), rs.get_model_display_hints());
         const Color color = get_geometry_path_color(gp, rs.get_state());
 
         emit_point_based_line(

@@ -18,8 +18,6 @@ if(NOT OPYN_USE_OPENBLAS)
     find_package(LAPACK  REQUIRED)
 endif()
 
-find_package(spdlog  REQUIRED)  # used by OpenSim
-
 set(OPYN_OPENSIM_BASEDIR "${CMAKE_CURRENT_SOURCE_DIR}/opensim-core")
 set(OPYN_SIMBODY_BASEDIR "${CMAKE_CURRENT_SOURCE_DIR}/simbody")
 
@@ -400,6 +398,7 @@ add_library(osim STATIC
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Control/Controller.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Control/ControlSet.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Control/SynergyController.cpp
+    ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/StatesDocument.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Control/PrescribedController.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Control/ControlSetController.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Control/ControlConstant.cpp
@@ -413,10 +412,12 @@ add_library(osim STATIC
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/Blankevoort1991Ligament.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/CMCActuatorSubsystem.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/ExpressionBasedPathForce.cpp
+    ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/ExponentialCoordinateLimitForce.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/JointInternalPowerProbe.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/Umberger2010MuscleMetabolicsProbe.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/Probe.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/ContactGeometry.cpp
+    ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/CoordinateLinearStopForce.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/GeometryPath.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/PathActuator.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/Model/ExpressionBasedBushingForce.cpp
@@ -504,6 +505,7 @@ add_library(osim STATIC
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/SimbodyEngine/PointOnLineConstraint.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/SimbodyEngine/SimbodyEngine.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/SimbodyEngine/PointConstraint.cpp
+    ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/SimbodyEngine/CantileverFreeBeamJoint.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/SimbodyEngine/ConstantCurvatureJoint.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/SimbodyEngine/WeldJoint.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Simulation/SimbodyEngine/UniversalJoint.cpp
@@ -631,6 +633,11 @@ PUBLIC
     # these ensure that `declspec(import)/declspec(export)` isn't used
     SimTK_USE_STATIC_LIBRARIES=1
     LEPTON_BUILDING_STATIC_LIBRARY=1
+    OPENSIM_COMMON_TYPE_STATIC=1
+    OPENSIM_EXAMPLECOMPONENTS_TYPE_STATIC=1
+    OPENSIM_ANALYSES_TYPE_STATIC=1
+    OPENSIM_ACTUATORS_TYPE_STATIC=1
+    OPENSIM_SIMULATION_TYPE_STATIC=1
     OPENSIM_USE_STATIC_LIBRARIES=1
     OPENSIM_DISABLE_STATIC_TYPE_REGISTRATION=1  # disable objects being registered during static init time
 
@@ -650,7 +657,6 @@ target_compile_options(osim PRIVATE
         -Wno-stringop-overflow               # Broken in OpenSim's sources
     >
 )
-target_link_libraries(osim PUBLIC spdlog::spdlog)  # used by OpenSim (logging)
 
 # BLAS/LAPACK/OpenBLAS is used by simbody for linear algebra.
 if(OPYN_USE_OPENBLAS)

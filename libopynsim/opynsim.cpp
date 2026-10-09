@@ -49,32 +49,22 @@
 
 using namespace opyn;
 
-// An `osc::Converter` that maps `spdlog::level`s (from OpenSim) to
+// An `osc::Converter` that maps `OpenSim::LogLevel`s (from OpenSim) to
 // `oscar`'s `LogLevel`.
 template<>
-struct osc::Converter<spdlog::level::level_enum, osc::LogLevel> {
-    osc::LogLevel operator()(spdlog::level::level_enum e) const
+struct osc::Converter<OpenSim::LogLevel, osc::LogLevel> {
+    osc::LogLevel operator()(OpenSim::LogLevel e) const
     {
         switch (e) {
-        case spdlog::level::level_enum::trace:    return osc::LogLevel::trace;
-        case spdlog::level::level_enum::debug:    return osc::LogLevel::debug;
-        case spdlog::level::level_enum::info:     return osc::LogLevel::info;
-        case spdlog::level::level_enum::warn:     return osc::LogLevel::warn;
-        case spdlog::level::level_enum::err:      return osc::LogLevel::err;
-        case spdlog::level::level_enum::critical: return osc::LogLevel::critical;
-        case spdlog::level::level_enum::off:      return osc::LogLevel::off;
-        default:                                  return osc::LogLevel::DEFAULT;
+        case OpenSim::LogLevel::Trace:    return osc::LogLevel::trace;
+        case OpenSim::LogLevel::Debug:    return osc::LogLevel::debug;
+        case OpenSim::LogLevel::Info:     return osc::LogLevel::info;
+        case OpenSim::LogLevel::Warn:     return osc::LogLevel::warn;
+        case OpenSim::LogLevel::Error:    return osc::LogLevel::err;
+        case OpenSim::LogLevel::Critical: return osc::LogLevel::critical;
+        case OpenSim::LogLevel::Off:      return osc::LogLevel::off;
+        default:                          return osc::LogLevel::DEFAULT;
         }
-    }
-};
-
-// An `osc::Converter` that maps `spdlog::string_view_t`s (from OpenSim) to
-// `std::string`s.
-template<>
-struct osc::Converter<spdlog::string_view_t, std::string> {
-    std::string operator()(spdlog::string_view_t s) const
-    {
-        return {s.begin(), s.end()};
     }
 };
 
@@ -97,11 +87,10 @@ namespace
     // An OpenSim log sink that sinks into the `oscar` application log.
     class OpenSimLogSink final : public OpenSim::LogSink {
     protected:
-        void sink_it_(const spdlog::details::log_msg& msg) override
+        void sinkImpl(const OpenSim::LogMessage& msg) override
         {
-            osc::log_message(osc::to<osc::LogLevel>(msg.level), osc::to<std::string>(msg.payload));
+            osc::log_message(osc::to<osc::LogLevel>(msg.getLevel()), osc::to<std::string>(msg.getPayload()));
         }
-        void flush_() override {}
     };
 
     // Globally mutates OpenSim's logging configuration to use the
