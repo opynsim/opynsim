@@ -14,7 +14,10 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - C++: Added `osc::Camera::look_at(position, target, up)` factory function.
 - `libopensimcreator` and `osc` were merged into OPynSim's build, so that both OPynSim
   and OpenSim Creator can be built from one source tree without much effort.
-
+- Removed support for `Smith2018ArticularContactForce` and `Smith2018ContactMesh` in order
+  to ensure `.osim` data interoperability with baseline OpenSim. Use an older
+  version of OPynSim/OpenSim Creator if you need to use these components, or get
+  them merged into opensim-core!
 
 
 ## 0.0.8 - 2026/09/08

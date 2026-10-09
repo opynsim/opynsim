@@ -18,8 +18,6 @@
 #include <OpenSim/ExampleComponents/RegisterTypes_osimExampleComponents.h>
 #include <OpenSim/Simulation/Model/ModelVisualizer.h>
 #include <OpenSim/Simulation/RegisterTypes_osimSimulation.h>
-#include <jam-plugin/Smith2018ArticularContactForce.h>
-#include <jam-plugin/Smith2018ContactMesh.h>
 #include <liboscar/formats/csv.h>
 #include <liboscar/formats/image.h>
 #include <liboscar/platform/log.h>
@@ -221,8 +219,6 @@ namespace
         RegisterTypes_osimActuators();
         RegisterTypes_osimAnalyses();
         RegisterTypes_osimExampleComponents();
-        OpenSim::Object::registerType(OpenSim::Smith2018ArticularContactForce());
-        OpenSim::Object::registerType(OpenSim::Smith2018ContactMesh());
         register_model_warper_types();
     }
 

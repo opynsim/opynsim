@@ -569,10 +569,6 @@ add_library(osim STATIC
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/Actuators/MeyerFregly2016Muscle.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/ExampleComponents/RegisterTypes_osimExampleComponents.cpp
     ${OPYN_OPENSIM_BASEDIR}/OpenSim/ExampleComponents/ToyReflexController.cpp
-
-    # jam-plugin sources
-    jam-plugin/Smith2018ArticularContactForce.cpp
-    jam-plugin/Smith2018ContactMesh.cpp
 )
 target_include_directories(osim
 PUBLIC
@@ -598,9 +594,6 @@ PUBLIC
     $<BUILD_INTERFACE:${OPYN_OPENSIM_BASEDIR}>
     $<BUILD_INTERFACE:${OPYN_OPENSIM_BASEDIR}/Vendors/lepton/include>
     $<INSTALL_INTERFACE:include>
-
-    # jam-plugin includes
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 target_compile_definitions(osim
 PRIVATE
