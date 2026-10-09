@@ -218,9 +218,7 @@ add_library(osim STATIC
     ${OPYN_SIMBODY_BASEDIR}/SimTKcommon/BigMatrix/src/ElementFilter.cpp
     ${OPYN_SIMBODY_BASEDIR}/SimTKcommon/BigMatrix/src/MatrixCharacteristics.cpp
     ${OPYN_SIMBODY_BASEDIR}/SimTKcommon/BigMatrix/src/MatrixHelper.cpp
-    ${OPYN_SIMBODY_BASEDIR}/SimTKcommon/Scalar/src/Scalar.cpp
     ${OPYN_SIMBODY_BASEDIR}/SimTKcommon/Mechanics/src/Rotation.cpp
-    ${OPYN_SIMBODY_BASEDIR}/SimTKcommon/Mechanics/src/CoordinateAxis.cpp
     ${OPYN_SIMBODY_BASEDIR}/SimTKcommon/Mechanics/src/Quaternion.cpp
     ${OPYN_SIMBODY_BASEDIR}/SimTKcommon/Mechanics/src/UnitVec.cpp
     ${OPYN_SIMBODY_BASEDIR}/SimTKcommon/Mechanics/src/MassProperties.cpp
