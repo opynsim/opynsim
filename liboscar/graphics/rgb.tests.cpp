@@ -101,7 +101,7 @@ TEST(Rgb, tuple_size_is_3)
 
 TEST(Rgb, structured_bindings_work_as_expected)
 {
-    const auto [r, g, b] = Rgb<float>{2.0f, 2.5f, 3.0f};
+    const auto& [r, g, b] = Rgb<float>{2.0f, 2.5f, 3.0f};
     ASSERT_EQ(r, 2.0f);
     ASSERT_EQ(g, 2.5f);
     ASSERT_EQ(b, 3.0f);

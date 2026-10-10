@@ -36,6 +36,7 @@ function(opyn_add_strict_compiler_options_to target)
             /wd26451            # disable arithmetic overflow checks
             /wd26496            # disable const-after-construction checks
             /wd26814            # disable "can be constexpr" checks
+            /wd26815            # disable "dangling temporary" checks (false positives)
             /wd26417            # disable shared pointer reference param checks
             /wd26826            # disable checking for C-style varargs (currently necessary)
             /wd26400            # disable a gsl::owner<T> check when allocating
@@ -58,6 +59,7 @@ function(opyn_add_strict_compiler_options_to target)
             /wd26820            # disable: "this is a potentially expensive copy operation"
             /wd26415            # disable: "smart pointer parameter is used only to access contained pointer"
             /wd26418            # disable: "shared pointer parameter is not copied or moved"
+            /wd6294             # disable: "Ill-defined for-loop.  Loop body not executed"
         >
 
         # gcc/clang flags
