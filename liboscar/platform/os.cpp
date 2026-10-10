@@ -150,14 +150,11 @@ std::pair<std::fstream, std::filesystem::path> osc::mkstemp(std::string_view suf
     const std::filesystem::path tmpdir = std::filesystem::temp_directory_path();
     for (size_t attempt = 0; attempt < 100; ++attempt) {
         std::filesystem::path attempt_path = tmpdir / generate_tempfile_name(prng, suffix, prefix);
-        // TODO: remove these `pragma`s once the codebase is upgraded to C++23, because it has `std::ios_base::noreplace` support
-#pragma warning(push)
-#pragma warning(suppress : 4996)
-        if (auto fd = std::fopen(attempt_path.string().c_str(), "w+x"); fd != nullptr) {  // TODO: replace with `std::ios_base::noreplace` in C++23 (waiting on XCode16)
-            std::fclose(fd);
-            return {std::fstream{attempt_path, std::ios_base::in | std::ios_base::out | std::ios_base::binary}, std::move(attempt_path)};
+        std::fstream fs{attempt_path, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::noreplace};
+        if (fs.is_open()) {
+            return {std::move(fs), std::move(attempt_path)};
         }
-#pragma warning(pop)
+        // Else: the file already exists (std::ios_base::noreplace): make another attempt
     }
     throw std::runtime_error{"Failed to create a unique temporary filename after 100 attempts - you might be creating too many temporary files/directories"};
 }
