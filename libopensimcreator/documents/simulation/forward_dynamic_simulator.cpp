@@ -240,7 +240,7 @@ namespace
         SimTK::State st = integrator.getState();
         std::unordered_map<UID, float> auxValues;
 
-        // care: state needs to be realized on the simulator thread
+        // HACK: state needs to be realized on the simulator thread
         st.invalidateAllCacheAtOrAbove(SimTK::Stage::Instance);
 
         // populate forward dynamic simulator outputs
