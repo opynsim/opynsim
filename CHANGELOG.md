@@ -18,6 +18,9 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   to ensure `.osim` data interoperability with baseline OpenSim. Use an older
   version of OPynSim/OpenSim Creator if you need to use these components, or get
   them merged into opensim-core!
+- The minimum step size used by the `ForwardDynamicSolver` is now the same as simbody's
+  default minimum step size (previously, was `1.0e-8`), which matches OpenSim's latest
+  behavior.
 
 
 ## 0.0.8 - 2026/09/08

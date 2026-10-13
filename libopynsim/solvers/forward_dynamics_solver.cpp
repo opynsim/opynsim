@@ -42,7 +42,7 @@ namespace
     {
         auto rv = make_simtk_integrator_with_method(settings.method, system);
         rv->setInternalStepLimit(static_cast<int>(settings.internal_step_limit));
-        rv->setMinimumStepSize(settings.minimum_step_size);
+        // rv->setMinimumStepSize(settings.minimum_step_size);  // CARE: can dramatically slow the integrator down?
         rv->setMaximumStepSize(settings.maximum_step_size);
         rv->setAccuracy(settings.accuracy);
         // rv->setFinalTime(end_time);  // defaults to infinity
