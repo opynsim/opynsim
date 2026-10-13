@@ -11,6 +11,16 @@ if(APPLE AND CMAKE_OSX_ARCHITECTURES)
     endif()
 endif()
 
+# Configure a pyproject.toml file for the built python package (installation/packaging)
+# is handled separately.
+if(TRUE)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/pyproject.toml.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/pyproject.toml"
+        @ONLY
+    )
+endif()
+
 # Copy the Python source code into build directory, so each build configuration
 # (Debug, Release, etc.) has its own unique staging directory.
 if(TRUE)
@@ -50,6 +60,7 @@ if(TRUE)
     set(OPYN_NANOBIND_ARGS
         NB_STATIC             # Compile the nanobind library as a static library
         NB_SUPPRESS_WARNINGS  # Mark nanobind/Python directories as SYSTEM and disable clang-tidying them
+        NOSTRIP               # Stripping is handled by CPack later on
     )
     if(OPYN_STABLE_ABI)
         list(APPEND OPYN_NANOBIND_ARGS STABLE_ABI)
