@@ -1,5 +1,6 @@
 #include "orbit_camera_controller.h"
 
+#include <liboscar/graphics/camera.h>
 #include <liboscar/maths/angle.h>
 #include <liboscar/maths/constants.h>
 #include <liboscar/maths/coordinate_direction.h>
@@ -70,7 +71,7 @@ TEST(OrbitCameraController, set_position_respects_custom_focus_point)
 
     OSC_ASSERT_VECTOR_NEAR(controller.position(), Vector3(1.0f, 6.0f, 1.0f), sqrt_epsilon_v<float>);
     ASSERT_NEAR(controller.radius, 5.0f, sqrt_epsilon_v<float>);
-    OSC_ASSERT_ANGLE_NEAR(controller.phi, 90_deg, Radians(10 * epsilon_v<float>));
+    OSC_ASSERT_ANGLE_NEAR(controller.phi, 90_deg, Radians(10.0f * epsilon_v<float>));
 }
 
 TEST(OrbitCameraController, set_position_at_focus_point_sets_radius_to_zero_safely)
@@ -83,7 +84,38 @@ TEST(OrbitCameraController, set_position_at_focus_point_sets_radius_to_zero_safe
     controller.set_position(controller.focus_point);
 
     ASSERT_EQ(controller.radius, 0.0f);
-    OSC_ASSERT_VECTOR_NEAR(controller.position(), controller.focus_point, 10*epsilon_v<float>);
+    OSC_ASSERT_VECTOR_NEAR(controller.position(), controller.focus_point, 10.0f*epsilon_v<float>);
     ASSERT_EQ(controller.theta, initial_theta) << "theta should be preserved when positioning at zero";
     ASSERT_EQ(controller.phi, initial_phi) << "phi should be preserved when positioning at zero";
+}
+
+TEST(OrbitCameraController, direction_works_as_expected_when_zeroing_theta_and_phi)
+{
+    OrbitCameraController controller;
+    controller.theta = {};
+    controller.phi = {};
+
+    OSC_ASSERT_VECTOR_NEAR(controller.direction(), Vector3(0.0f, 0.0f, -1.0f), 10.0f*epsilon_v<float>);
+}
+
+TEST(OrbitCameraController, direction_works_as_expected_when_looking_down_a_coordinate_axis)
+{
+    OrbitCameraController controller;
+    controller.focus_along(CoordinateDirection::y());
+
+    OSC_ASSERT_VECTOR_NEAR(controller.direction(), Vector3(0.0f, -1.0f, 0.0f), 10.0f*epsilon_v<float>);
+}
+
+TEST(OrbitCameraController, set_position_and_direction_from_works_as_expected)
+{
+    const Camera camera{
+        {-1.0f, 3.0f, -5.0f},  // position
+        { 0.0f, 0.0f, -1.0f},  // direction
+        { 0.0f, 1.0f,  0.0f},  // up
+    };
+    OrbitCameraController controller;
+    controller.set_position_and_direction_from(camera);
+    OSC_ASSERT_VECTOR_NEAR(controller.position(), Vector3(-1.0f, 3.0f, -5.0f), 10.0f*epsilon_v<float>);
+    OSC_ASSERT_VECTOR_NEAR(controller.direction(), Vector3(0.0f, 0.0f, -1.0f), 10.0f*epsilon_v<float>);
+    ASSERT_EQ(controller.radius, 1.0f);
 }

@@ -127,6 +127,23 @@ Vector3 osc::OrbitCameraController::position() const
     return focus_point + radius*back;
 }
 
+Vector3 osc::OrbitCameraController::direction() const
+{
+    const float sin_theta = sin(theta);
+    const float sin_phi = sin(phi);
+    const float cos_theta = cos(theta);
+    const float cos_phi = cos(phi);
+    return -Vector3{ sin_theta*cos_phi, sin_phi,  cos_theta*cos_phi};
+}
+
+void osc::OrbitCameraController::set_position_and_direction_from(const Camera& camera)
+{
+    const Vector3 back = -camera.direction();
+    focus_point = camera.position() - radius*back;
+    theta = atan2(back.x(), back.z());
+    phi = asin(back.y());
+}
+
 void osc::OrbitCameraController::set_position(const Vector3& position)
 {
     const Vector3 focus_point_to_position = position - focus_point;

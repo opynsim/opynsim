@@ -33,6 +33,12 @@ namespace osc
         void focus_along(const Vector3& direction);
         Vector3 position() const;
         void set_position(const Vector3&);
+        Vector3 direction() const;
+
+        /// Updates this controller's state such that its position/direction matches
+        /// `camera`'s position/direction. Can be useful for initializing a controller
+        /// from an existing camera.
+        void set_position_and_direction_from(const Camera& camera);
 
         Vector3 focus_point{};
         float radius = 1.0f;
