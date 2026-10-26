@@ -713,3 +713,15 @@ TEST(Camera, view_volume_height_at_depth_returns_triangular_values_for_perspecti
         ASSERT_EQ(got, expected);
     }
 }
+
+TEST(Camera, can_be_formatted_to_a_string)
+{
+    Camera camera;
+    camera.set_position({1.0f, 2.0f, 3.0f});
+    camera.set_direction({0.0f, 1.0f, 0.0f});
+    const std::string str = std::format("{}", camera);
+    ASSERT_TRUE(str.contains("Camera("));
+    ASSERT_TRUE(str.contains(std::format("position=({}, {}, {})", 1.0f, 2.0f, 3.0f)));
+    ASSERT_TRUE(str.contains(std::format("direction=({}, {}, {})", 0.0f, 1.0f, 0.0f)));
+    ASSERT_TRUE(str.contains("up="));
+}

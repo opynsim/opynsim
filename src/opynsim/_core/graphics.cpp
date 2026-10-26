@@ -305,6 +305,7 @@ Args:
             [](osc::Camera& camera, double fov) { camera.set_vertical_field_of_view(osc::Radians{fov}); },
             "Get/set the vertical field-of-view angle of the camera in radians. Only applicable to perspective cameras."
         );
+        cls.def("__repr__",  [](const osc::Camera& camera) { return std::format("{}", camera); });
     }
 
     void def_texture2d(nanobind::module_& graphics_module)

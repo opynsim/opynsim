@@ -129,6 +129,15 @@ def test_camera_properties_work_as_expected():
     camera.vertical_field_of_view = np.deg2rad(45)
     assert np.isclose(camera.vertical_field_of_view, np.deg2rad(45), rtol=1e-5, atol=1e-5)
 
+def test_camera_has_human_readable_repr():
+    # It's useful for a camera to have a human-readable/copyable `repr` because
+    # it lets people see what they should set their camera to (e.g. when rendering
+    # to a texture).
+    s = repr(opyn.graphics.Camera())
+    assert "Camera(" in s
+    assert "position=(" in s
+    assert "direction=" in s
+
 def test_can_construct_camera_from_position_direction_up():
     import numpy as np
 

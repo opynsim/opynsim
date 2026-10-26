@@ -9,6 +9,7 @@
 #include <liboscar/maths/vector.h>
 #include <liboscar/utilities/copy_on_upd_shared_value.h>
 
+#include <format>
 #include <optional>
 
 namespace osc { class Rect; }
@@ -196,3 +197,45 @@ namespace osc
 
     bool operator==(const Camera&, const Camera&);
 }
+
+// A `std::formatter` that pretty-prints a `Camera`.
+template<>
+struct std::formatter<osc::Camera> {
+    template<class ParseCtx>
+    constexpr typename ParseCtx::iterator parse(ParseCtx& ctx) { return inner_.parse(ctx); }
+
+    template<class FmtCtx>
+    typename FmtCtx::iterator format(const osc::Camera& camera, FmtCtx& ctx) const
+    {
+        auto it = std::ranges::copy(std::string_view{"Camera(position="}, ctx.out()).out;
+        ctx.advance_to(it);
+        it = format(camera.position(), ctx);
+        it = std::ranges::copy(std::string_view{", direction="}, it).out;
+        ctx.advance_to(it);
+        it = format(camera.direction(), ctx);
+        it = std::ranges::copy(std::string_view{", up="}, it).out;
+        ctx.advance_to(it);
+        it = format(camera.up(), ctx);
+        *it++ = ')';
+        return it;
+    }
+private:
+    // Pretty prints a vector in a tuple-like format (e.g. "(a, b, c)").
+    template<class FmtCtx>
+    typename FmtCtx::iterator format(const osc::Vector3& v, FmtCtx& ctx) const
+    {
+        auto it = ctx.out();
+        *it++ = '(';
+        std::string_view delimiter;
+        for (const auto& el : v) {
+            it = std::ranges::copy(delimiter, it).out;
+            ctx.advance_to(it);
+            it = inner_.format(el, ctx);
+            delimiter = ", ";
+        }
+        *it++ = ')';
+        return it;
+    }
+
+    std::formatter<float> inner_;
+};
