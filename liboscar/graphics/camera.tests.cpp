@@ -31,7 +31,7 @@ TEST(Camera, look_at_returns_camera_that_points_towards_target)
     const auto camera = Camera::look_at(position, target, up);
 
     ASSERT_EQ(camera.position(), position);
-    ASSERT_TRUE(all_of(equal_within_absdiff(camera.direction(), normalize(target - position), 0.00001f)));
+    OSC_ASSERT_VECTOR_NEAR(camera.direction(), normalize(target - position), 0.00001f);
 }
 
 TEST(Camera, look_at_normalizes_up)
@@ -42,7 +42,7 @@ TEST(Camera, look_at_normalizes_up)
 
     const auto camera = Camera::look_at(position, target, up);
 
-    ASSERT_TRUE(all_of(equal_within_absdiff(camera.up(), normalize(up), 0.00001f)));
+    OSC_ASSERT_VECTOR_NEAR(camera.up(), normalize(up), 0.00001f);
 }
 
 TEST(Camera, look_at_falls_back_when_up_is_parallel_to_target)
@@ -88,7 +88,7 @@ TEST(Camera, constructing_from_position_direction_up_normalizes_direction_vector
 
     const Camera camera{position, unnormalized_direction, up};
 
-    ASSERT_TRUE(all_of(equal_within_absdiff(camera.direction(), normalize(unnormalized_direction), 0.00001f)));
+    OSC_ASSERT_VECTOR_NEAR(camera.direction(), normalize(unnormalized_direction), 0.00001f);
 }
 
 TEST(Camera, constructing_from_position_direction_up_falls_back_when_direction_and_up_are_colinear)
@@ -273,7 +273,7 @@ TEST(Camera, set_forward_normalizes_argument)
 {
     Camera camera;
     camera.set_direction({1.0f, 2.0f, 3.0f});
-    ASSERT_TRUE(all_of(equal_within_absdiff(camera.forward(), normalize(Vector3f{1.0f, 2.0f, 3.0f}), 0.000001f)));
+    OSC_ASSERT_VECTOR_NEAR(camera.forward(), normalize(Vector3f{1.0f, 2.0f, 3.0f}), 0.000001f);
 }
 
 TEST(Camera, forward_defaults_to_minus_z)
@@ -293,7 +293,7 @@ TEST(Camera, principal_ray_is_changed_by_changing_the_position_and_direction_of_
     camera.set_direction({1.0f, 0.0f, 0.0f});
 
     ASSERT_EQ(camera.principal_ray().origin, Vector3(3.0f, 2.0f, 1.0f));
-    ASSERT_TRUE(all_of(equal_within_absdiff(camera.principal_ray().direction, Vector3(1.0f, 0.0f, 0.0f), sqrt_epsilon_v<float>)));
+    OSC_ASSERT_VECTOR_NEAR(camera.principal_ray().direction, Vector3(1.0f, 0.0f, 0.0f), sqrt_epsilon_v<float>);
 }
 
 TEST(Camera, default_rotation_is_identity)
@@ -522,7 +522,7 @@ TEST(Camera, world_to_ui_returns_expected_results_for_orthographic_projection)
     const Vector2 got = camera.world_to_ui({1.5f, 2.0f, 1.5f}, ui_rect);
     const Vector2 expected = {25.0f, 25.0f};
 
-    ASSERT_TRUE(all_of(equal_within_absdiff(got, expected, 0.001f)));
+    OSC_ASSERT_VECTOR_NEAR(got, expected, 0.001f);
 }
 
 TEST(Camera, world_to_ui_is_invariant_with_depth_for_orthographic_projection)
@@ -586,7 +586,7 @@ TEST(Camera, world_to_ui_returns_center_point_when_given_point_along_principal_r
     const Rect ui_rect = Rect::from_corners({0.0f, 0.0f}, {128.0f, 128.0f});
     const Vector2 got = camera.world_to_ui({25.0f, 25.0f, 24.0f}, ui_rect);
 
-    ASSERT_TRUE(all_of(equal_within_absdiff(ui_rect.origin(), got, 0.0001f))) << got;
+    OSC_ASSERT_VECTOR_NEAR(ui_rect.origin(), got, 0.0001f);
 }
 
 TEST(Camera, ui_to_world_returns_orthogonal_ray_direction_in_orthographic_camera)

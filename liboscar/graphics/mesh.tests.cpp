@@ -1981,7 +1981,7 @@ TEST(Mesh, recalculate_normals_assigns_normals_if_none_exist)
     const auto normals = mesh.normals();
     ASSERT_EQ(normals.size(), 3);
     ASSERT_TRUE(rgs::all_of(normals, [first = normals.front()](const Vector3& normal){ return normal == first; }));
-    ASSERT_TRUE(all_of(equal_within_absdiff(normals.front(), Vector3(0.0f, 0.0f, 1.0f), epsilon_v<float>)));
+    OSC_ASSERT_VECTOR_NEAR(normals.front(), Vector3(0.0f, 0.0f, 1.0f), epsilon_v<float>);
 }
 
 TEST(Mesh, recalculate_normals_averages_normals_of_shared_vertices)
@@ -2012,10 +2012,10 @@ TEST(Mesh, recalculate_normals_averages_normals_of_shared_vertices)
 
     const auto normals = mesh.normals();
     ASSERT_EQ(normals.size(), 4);
-    ASSERT_TRUE(all_of(equal_within_absdiff(normals[0], lhs_normal, epsilon_v<float>)));
-    ASSERT_TRUE(all_of(equal_within_absdiff(normals[1], mixed_normal, epsilon_v<float>)));
-    ASSERT_TRUE(all_of(equal_within_absdiff(normals[2], mixed_normal, epsilon_v<float>)));
-    ASSERT_TRUE(all_of(equal_within_absdiff(normals[3], rhs_normal, epsilon_v<float>)));
+    OSC_ASSERT_VECTOR_NEAR(normals[0], lhs_normal, epsilon_v<float>);
+    OSC_ASSERT_VECTOR_NEAR(normals[1], mixed_normal, epsilon_v<float>);
+    OSC_ASSERT_VECTOR_NEAR(normals[2], mixed_normal, epsilon_v<float>);
+    OSC_ASSERT_VECTOR_NEAR(normals[3], rhs_normal, epsilon_v<float>);
 }
 
 TEST(Mesh, recalculate_tangents_does_nothing_if_Mesh_topology_is_Lines)
