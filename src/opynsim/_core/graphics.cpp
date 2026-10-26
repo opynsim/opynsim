@@ -425,7 +425,7 @@ Args:
             nb::arg("background_color") = osc::Color::clear(),
             nb::arg("draw_floor") = false,
             nb::arg("scene_cache") = nullptr,
-            nb::arg("camera") = std::nullopt,
+            nb::arg("camera") = nullptr,
             R"(
                 Renders the given :class:`opynsim.Model` + :class:`opynsim.ModelState` to
                 a :class:`opynsim.graphics.Texture2D`.
