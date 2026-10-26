@@ -2,17 +2,22 @@
 
 #include <liboscar/graphics/color.h>
 #include <liboscar/graphics/color32.h>
+#include <liboscar/maths/common_functions.h>
+#include <liboscar/maths/functors.h>
 #include <liboscar/maths/matrix3x3.h>
 #include <liboscar/maths/matrix4x4.h>
-#include <liboscar/maths/transform.h>
 #include <liboscar/maths/triangle.h>
 #include <liboscar/maths/vector.h>
 
+#include <gtest/gtest.h>
+
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <iterator>
 #include <random>
 #include <ranges>
+#include <type_traits>
 #include <vector>
 
 namespace osc::tests
@@ -72,3 +77,37 @@ namespace osc::tests
         return rv;
     }
 }
+
+// Define "vector nearness" test assertions
+#define OSC_VECTOR_NEAR_INTERNAL(val1, val2, tol, failure_macro) \
+    do { \
+        auto&& _v1 = (val1); \
+        auto&& _v2 = (val2); \
+        auto&& _tol = (tol); \
+        if (not all_of(equal_within_absdiff(_v1, _v2, _tol))) { \
+            failure_macro << "Difference between " << #val1 << " and " << #val2 << " exceeds tolerance " << _tol << '\n' \
+                          << std::format("    Actual:   {}\n", _v1) \
+                          << std::format("    Expected: {}\n", _v2) \
+                          << std::format("    Delta:    {}\n", abs(_v1 - _v2)); \
+        } \
+    } while(0)
+#define OSC_ASSERT_VECTOR_NEAR(val1, val2, tol) \
+    OSC_VECTOR_NEAR_INTERNAL(val1, val2, tol, FAIL())
+#define OSC_EXPECT_VECTOR_NEAR(val1, val2, tol) \
+    OSC_VECTOR_NEAR_INTERNAL(val1, val2, tol, ADD_FAILURE())
+
+// Define "angle nearness" test assertions
+#define OSC_ANGLE_NEAR_INTERNAL(val1, val2, tol, failure_macro) \
+    do { \
+        using CA = std::common_type_t<decltype(val1), decltype(val2), decltype(tol)>; \
+        const CA _v1(val1); \
+        const CA _v2(val2); \
+        const CA _tol(tol); \
+        if (not equal_within_absdiff(_v1, _v2, _tol)) { \
+            failure_macro << std::format("Difference between " #val1 " ({}) and " #val2 " ({}) exceeds " #tol " ({})\n", _v1, _v2, _tol); \
+        } \
+    } while (0)
+#define OSC_ASSERT_ANGLE_NEAR(val1, val2, tol) \
+    OSC_ANGLE_NEAR_INTERNAL(val1, val2, tol, FAIL())
+#define OSC_EXPECT_ANGLE_NEAR(val1, val2, tol) \
+    OSC_ANGLE_NEAR_INTERNAL(val1, val2, tol, ADD_FAILURE())
