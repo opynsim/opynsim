@@ -127,3 +127,11 @@ TEST(Angle, can_be_formatted)
 {
     ASSERT_EQ(std::format("{:.0f}", 10_deg), "10 deg");
 }
+
+TEST(Angle, abs_returns_absolute_version_of_supplied_angle)
+{
+    ASSERT_EQ(abs( 45_turn), 45_turn);
+    ASSERT_EQ(abs( 90_deg),  90_deg);
+    ASSERT_EQ(abs(-90_deg),  90_deg);
+    ASSERT_EQ(abs(-1.434_rad), 1.434_rad);
+}

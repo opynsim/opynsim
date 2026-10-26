@@ -324,4 +324,11 @@ namespace osc
     {
         return std::clamp(v, Angle<Rep, Units>{min}, Angle<Rep, Units>{max});
     }
+
+    // returns the absolute value of `angle`
+    template<std::floating_point Rep, AngularUnitTraits Units>
+    Angle<Rep, Units> abs(Angle<Rep, Units> angle)
+    {
+        return Angle<Rep, Units>{std::abs(angle.count())};
+    }
 }
