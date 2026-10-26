@@ -36,18 +36,23 @@ namespace
             osc::Color background_color,
             bool draw_floor,
             osc::SceneCache* scene_cache,
+            osc::Camera* camera,
             UiCallbacks callbacks) :
 
             callbacks_{std::move(callbacks)},
             local_scene_cache_{scene_cache ? std::optional<osc::SceneCache>{} : osc::SceneCache{}},
             scene_cache_{scene_cache ? scene_cache : &local_scene_cache_.value()},
             decorations_{model.decorations(*scene_cache_, model_state)},
+            local_camera_{camera ? std::optional<osc::Camera>{} : osc::Camera{}},
+            camera_{camera ? camera : &*local_camera_},
             background_color_{background_color},
             fit_camera_on_next_frame_{true},
             draw_floor_{draw_floor}
         {
-            camera_.set_vertical_field_of_view(35_deg);
-            camera_controller_.update_camera(camera_);
+            if (local_camera_) {
+                local_camera_->set_vertical_field_of_view(35_deg);
+            }
+            camera_controller_.update_camera(*camera_);
         }
     private:
         bool impl_on_event(osc::Event& e) override
@@ -70,7 +75,7 @@ namespace
                 if (const auto aabb = osc::bounding_aabb_of(decorations_, &osc::SceneDecoration::world_space_bounds)) {
                     camera_controller_.focus_on(
                         *aabb,
-                        camera_,
+                        *camera_,
                         osc::aspect_ratio_of(osc::App::get().main_window_dimensions())
                     );
                 }
@@ -79,11 +84,11 @@ namespace
             // Update the scene camera state based on the user's inputs.
             osc::ui::update_orbit_controller_from_all_inputs(
                 camera_controller_,
-                camera_,
+                *camera_,
                 osc::Rect::from_origin_and_dimensions({}, osc::App::get().main_window_dimensions()),
                 std::nullopt
             );
-            camera_controller_.update_camera(camera_);
+            camera_controller_.update_camera(*camera_);
 
             const osc::Vector2 dimensions = osc::App::get().main_window_dimensions();
 
@@ -92,8 +97,8 @@ namespace
                 .device_pixel_ratio = osc::App::get().main_window_device_pixel_ratio(),
                 .anti_aliasing_level = osc::App::get().anti_aliasing_level(),
                 .draw_floor = draw_floor_,
-                .view_matrix = camera_.view_matrix(),
-                .projection_matrix = camera_.projection_matrix(osc::aspect_ratio_of(dimensions)),
+                .view_matrix = camera_->view_matrix(),
+                .projection_matrix = camera_->projection_matrix(osc::aspect_ratio_of(dimensions)),
                 .background_color = background_color_,
             };
             scene_renderer_.render(decorations_, scene_renderer_params);
@@ -108,7 +113,8 @@ namespace
         osc::SceneCache* scene_cache_;
         osc::SceneRenderer scene_renderer_{*scene_cache_};
         std::vector<osc::SceneDecoration> decorations_;
-        osc::Camera camera_;
+        std::optional<osc::Camera> local_camera_;
+        osc::Camera* camera_ = nullptr;
         osc::OrbitCameraController camera_controller_;
         osc::Color background_color_ = osc::Color::white();
         bool fit_camera_on_next_frame_ = false;
@@ -125,6 +131,7 @@ void opyn::show_model_in_state(
     osc::Color background_color,
     bool draw_floor,
     osc::SceneCache* scene_cache,
+    osc::Camera* camera,
     UiCallbacks callbacks)
 {
     app.set_main_window_showing(true);
@@ -138,6 +145,7 @@ void opyn::show_model_in_state(
         background_color,
         draw_floor,
         scene_cache,
+        camera,
         std::move(callbacks)
     );
 }

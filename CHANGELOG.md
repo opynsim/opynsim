@@ -23,6 +23,8 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   behavior.
 - The OpenSim Creator UI now has a user-editable `target` and `position` inputs in the
   camera controls, which matches the Python API's `Camera.look_at` inputs.
+- `opynsim.ui.show_model_in_state` now accepts a `camera`, which the implementation will
+  handily mutate.
 
 
 ## 0.0.8 - 2026/09/08

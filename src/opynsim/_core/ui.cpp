@@ -8,6 +8,7 @@
 #include <libopynsim/model.h>
 #include <libopynsim/model_state.h>
 #include <liboscar/graphics/scene/scene_cache.h>
+#include <liboscar/graphics/camera.h>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/array.h>
 #include <nanobind/stl/optional.h>
@@ -58,7 +59,8 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
             std::pair<int, int> dimensions,
             const osc::Color& background_color,
             bool draw_floor,
-            osc::SceneCache* scene_cache)
+            osc::SceneCache* scene_cache,
+            osc::Camera* camera)
         {
             show_model_in_state(
                 get_lazy_loaded_opynsim_app(),
@@ -68,6 +70,7 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
                 background_color,
                 draw_floor,
                 scene_cache,
+                camera,
                 default_python_callbacks()
             );
         },
@@ -78,6 +81,7 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
         nb::arg("background_color") = osc::Color::white(),
         nb::arg("draw_floor") = false,
         nb::arg("scene_cache") = nullptr,
+        nb::arg("camera") = nullptr,
         R"(
             Displays an interactive visualizer for the given :class:`opynsim.Model` + :class:`opynsim.ModelState`
             in a window.
@@ -91,6 +95,7 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
                 background_color (opynsim.graphics.Color): The desired background color of the rendered scene.
                 draw_floor (bool): Toggles drawing a chequered floor at Y=0 in the scene.
                 scene_cache (opynsim.graphics.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets every time this function is called (slow).
+                camera (opynsim.graphics.Camera): A camera that the UI uses, updates, and manipulates (default: an internal camera that looks down -Z and pulls back from the origin until the entire model fits in-frame).
         )"
     );
 }
