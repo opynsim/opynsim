@@ -1127,7 +1127,6 @@ bool osc::DrawAdvancedParamsEditor(
         orbitCameraController.update_camera(params.camera);
         edited = true;
     }
-    ui::start_new_line();
     if (auto fov = params.camera.vertical_field_of_view(); ui::draw_angle_slider("vertial FoV", fov, 0_deg, 360_deg)) {
         params.camera.set_vertical_field_of_view(fov);
         edited = true;
@@ -1138,6 +1137,15 @@ bool osc::DrawAdvancedParamsEditor(
     }
     if (auto zfar = params.camera.far_clipping_plane(); ui::draw_float_meters_input("zfar", zfar)) {
         params.camera.set_far_clipping_plane(zfar);
+        edited = true;
+    }
+    if (ui::draw_float3_meters_input("target", orbitCameraController.focus_point)) {
+        orbitCameraController.update_camera(params.camera);
+        edited = true;
+    }
+    if (Vector3 position = orbitCameraController.position(); ui::draw_float3_meters_input("position", position)) {
+        orbitCameraController.set_position(position);
+        params.camera.set_position(position);
         edited = true;
     }
 

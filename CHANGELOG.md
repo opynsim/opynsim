@@ -21,6 +21,8 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - The minimum step size used by the `ForwardDynamicSolver` is now the same as simbody's
   default minimum step size (previously, was `1.0e-8`), which matches OpenSim's latest
   behavior.
+- The OpenSim Creator UI now has a user-editable `target` and `position` inputs in the
+  camera controls, which matches the Python API's `Camera.look_at` inputs.
 
 
 ## 0.0.8 - 2026/09/08
