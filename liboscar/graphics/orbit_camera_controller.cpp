@@ -116,3 +116,31 @@ void osc::OrbitCameraController::focus_along(const Vector3& direction)
     theta = atan2(-direction.x(), -direction.z());
     phi = asin(-direction.y());
 }
+
+Vector3 osc::OrbitCameraController::position() const
+{
+    const float sin_theta = sin(theta);
+    const float cos_theta = cos(theta);
+    const float sin_phi = sin(phi);
+    const float cos_phi = cos(phi);
+    const Vector3 back = { sin_theta*cos_phi, sin_phi,  cos_theta*cos_phi};
+    return focus_point + radius*back;
+}
+
+void osc::OrbitCameraController::set_position(const Vector3& position)
+{
+    const Vector3 focus_point_to_position = position - focus_point;
+    const float len2 = length2(focus_point_to_position);
+    if (len2 <= epsilon_v<float>) {
+        // position == focus_point: leave theta/phi alone so that there isn't an instability
+        radius = 0.0f;
+        return;
+    }
+    // else: calculate polar coordinates from backward unit vector
+
+    const float len = sqrt(len2);
+    const Vector3 back = focus_point_to_position / len;
+    radius = len;
+    theta = atan2(back.x(), back.z());
+    phi = asin(back.y());
+}
