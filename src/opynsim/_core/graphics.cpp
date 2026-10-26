@@ -299,6 +299,12 @@ Args:
             &osc::Camera::set_up,
             "Get/set the direction that corresponds to the 'top' of the rendered image. Normalized by the implementation."
         );
+        cls.def_prop_rw(
+            "vertical_field_of_view",
+            [](const osc::Camera& camera) { return camera.vertical_field_of_view().count(); },
+            [](osc::Camera& camera, double fov) { camera.set_vertical_field_of_view(osc::Radians{fov}); },
+            "Get/set the vertical field-of-view angle of the camera in radians. Only applicable to perspective cameras."
+        );
     }
 
     void def_texture2d(nanobind::module_& graphics_module)

@@ -124,6 +124,11 @@ def test_camera_properties_work_as_expected():
     camera.up = np.array([3.0, 0.0, 0.0])  # length==3
     assert np.array_equal(camera.up, np.array([1.0, 0.0, 0.0]))
 
+    # Vertical FoV defaults to close to 90 degrees (in radians)
+    assert np.isclose(camera.vertical_field_of_view, np.deg2rad(90), rtol=1e-5, atol=1e-5)
+    camera.vertical_field_of_view = np.deg2rad(45)
+    assert np.isclose(camera.vertical_field_of_view, np.deg2rad(45), rtol=1e-5, atol=1e-5)
+
 def test_can_construct_camera_from_position_direction_up():
     import numpy as np
 

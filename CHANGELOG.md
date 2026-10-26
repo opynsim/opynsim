@@ -25,6 +25,7 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   camera controls, which matches the Python API's `Camera.look_at` inputs.
 - `opynsim.ui.show_model_in_state` now accepts a `camera`, which the implementation will
   handily mutate.
+- `opynsim.graphics.Camera` now has a `vertical_field_of_view` read/write property.
 
 
 ## 0.0.8 - 2026/09/08
