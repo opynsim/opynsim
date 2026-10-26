@@ -46,13 +46,18 @@ namespace
             local_camera_{camera ? std::optional<osc::Camera>{} : osc::Camera{}},
             camera_{camera ? camera : &*local_camera_},
             background_color_{background_color},
-            fit_camera_on_next_frame_{true},
             draw_floor_{draw_floor}
         {
             if (local_camera_) {
+                // The implementation had to create an internal (local) camera. Ensure
+                // it has reasonable defaults etc.
                 local_camera_->set_vertical_field_of_view(35_deg);
+                camera_controller_.update_camera(*camera_);
+            } else {
+                // Ensure the controller is positioned according to the caller's
+                // initial camera positioning.
+                camera_controller_.set_position_and_direction_from(*camera_);
             }
-            camera_controller_.update_camera(*camera_);
         }
     private:
         bool impl_on_event(osc::Event& e) override
@@ -113,11 +118,11 @@ namespace
         osc::SceneCache* scene_cache_;
         osc::SceneRenderer scene_renderer_{*scene_cache_};
         std::vector<osc::SceneDecoration> decorations_;
-        std::optional<osc::Camera> local_camera_;
-        osc::Camera* camera_ = nullptr;
         osc::OrbitCameraController camera_controller_;
+        std::optional<osc::Camera> local_camera_;
+        osc::Camera* camera_ = nullptr;  // can be either `*local_camera_` or caller-supplied.
         osc::Color background_color_ = osc::Color::white();
-        bool fit_camera_on_next_frame_ = false;
+        bool fit_camera_on_next_frame_ = local_camera_.has_value();
         bool draw_floor_ = true;
     };
 }
