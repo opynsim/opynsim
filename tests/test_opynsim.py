@@ -70,6 +70,10 @@ def test_root_directory_can_be_changed():
     model_specification.root_directory = "some/dir"
     assert model_specification.root_directory == Path("some/dir")
 
+def test_model_pretty_prints_to_something_useful():
+    model = opynsim.examples.double_pendulum_model()
+    assert repr(model) == f"Model(num_coordinates={model.num_coordinates}, num_outputs={model.num_outputs})"
+
 def test_model_initial_state_state_defaults_to_instance():
     model = opynsim.ModelSpecification().compile()
     assert model.initial_state().stage == opynsim.STAGE_INSTANCE

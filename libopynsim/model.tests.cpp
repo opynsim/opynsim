@@ -9,6 +9,7 @@
 
 #include <gtest/gtest.h>
 
+#include <format>
 #include <ranges>
 #include <vector>
 
@@ -239,4 +240,15 @@ TEST(Model, set_coordinate_speed_throws_when_given_bogus_coordiante)
     ModelState model_state = model.initial_state();
 
     ASSERT_ANY_THROW({ model.set_coordinate_speed(model_state, Symbol{"bogus/coordinate/path"}, 5.0); });
+}
+
+TEST(Model, can_be_formatted_to_a_string)
+{
+    opyn::init();
+
+    const Model model = examples::double_pendulum_model();
+    const std::string expected = std::format("Model(num_coordinates={}, num_outputs={})", model.num_coordinates(), model.num_outputs());
+    const std::string got = std::format("{}", model);
+
+    ASSERT_EQ(got, expected);
 }

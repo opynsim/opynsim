@@ -10,6 +10,7 @@
 #include <liboscar/graphics/scene/scene_decoration.h>
 #include <liboscar/utilities/copy_on_upd_ptr.h>
 
+#include <format>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -130,3 +131,17 @@ namespace opyn
         osc::CopyOnUpdPtr<Impl> impl_;
     };
 }
+
+template<>
+struct std::formatter<opyn::Model> final {
+    constexpr auto parse(std::format_parse_context& ctx) const
+    {
+        return ctx.begin();
+    }
+
+    template<class FormatContext>
+    auto format(const opyn::Model& model, FormatContext& ctx) const
+    {
+        return std::format_to(ctx.out(), "Model(num_coordinates={}, num_outputs={})", model.num_coordinates(), model.num_outputs());
+    }
+};

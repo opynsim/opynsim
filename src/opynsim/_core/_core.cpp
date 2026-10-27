@@ -803,6 +803,7 @@ namespace {
             editing its associated :class:`ModelSpecification` and recompiling it to create a
             new :class:`Model`.
         )");
+        cls.def("__repr__", [](const Model& model) { return std::format("{}", model); });
         cls.def_prop_ro("num_coordinates", &Model::num_coordinates, R"(
             Returns the number of coordinates in the model.
 
