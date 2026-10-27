@@ -55,7 +55,8 @@ namespace
     public:
         explicit PythonLoggingSink()
         {
-            set_level(osc::LogLevel::warn);  // Python's default
+            // Log level is handled by the `Logger` (see `opyn::set_log_level`).
+            set_level(osc::LogLevel::debug);
 
             // Pre-cache the lookup for OPynSim's logger object
             nb::gil_scoped_acquire gil_lock;
@@ -76,6 +77,7 @@ namespace
         PythonLoggingSink& operator=(const PythonLoggingSink&) = delete;
         PythonLoggingSink& operator=(PythonLoggingSink&&) noexcept = delete;
 
+    private:
         void impl_sink_message(const osc::LogMessageView& log_message) override
         {
             // This sink is only called if the C++ logger is set to the appropriate
@@ -92,7 +94,7 @@ namespace
                 log_method_(py_message_level, std::string{log_message.payload()});
             }
         }
-    private:
+
         std::mutex log_mutex_;      // Protects `nb::object` accesses when Python is free-threaded (GIL-less)
         nb::object python_logger_;  // Keeps the logger alive as long as the methods (below)
         nb::object is_enabled_for_method_;
