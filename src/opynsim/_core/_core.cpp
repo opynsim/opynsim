@@ -1032,6 +1032,7 @@ namespace {
             )"
         );
         cls.def("__eq__", [](const ModelState& lhs, const ModelState& rhs) { return lhs == rhs; });
+        cls.def("__repr__", [](const ModelState& state) { return std::format("{}", state); });
         cls.def_prop_ro(
             "time",
             &ModelState::time,
