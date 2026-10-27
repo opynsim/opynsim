@@ -27,6 +27,10 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   handily mutate.
 - `opynsim.graphics.Camera` now has a `vertical_field_of_view` read/write property.
 - `opynsim.graphics.Camera` now has a `repr` printer (development nice-to-have).
+- Added `opyn::operator==(const ModelState&, const ModelState&)` so that states can be
+  compared (e.g. for tests).
+- Added `opyn::ForwardDynamicSimulator::model_state`, so calling code can see the internal
+  `ModelState` that's managed by a `ForwardDynamicSimulator`.
 
 
 ## 0.0.8 - 2026/09/08
