@@ -12,6 +12,7 @@
 #include <simmath/TimeStepper.h>
 
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <utility>
 
@@ -65,13 +66,15 @@ class opyn::ForwardDynamicsSolver::Impl final {
 public:
     Impl(
         Model model,
-        ModelState model_state,
+        std::optional<ModelState> model_state,
         const std::optional<IntegratorSettings>& integrator_settings) :
         model_{std::move(model)},
-        state_{std::move(model_state)},
+        state_{std::move(model_state).value_or(model_.initial_state())},
         integrator_{make_simtk_integrator(integrator_settings.value_or(IntegratorSettings{}), model_.open_sim_model().getMultibodySystem())},
         time_stepper_{create_simtk_time_stepper(model_.open_sim_model().getMultibodySystem(), *integrator_, state_.simbody_state())}
     {}
+
+    const ModelState& model_state() const { return state_; }
 
     ModelState integrate_to(double time, ModelStateStage realized_to)
     {
@@ -100,7 +103,7 @@ public:
 
 opyn::ForwardDynamicsSolver::ForwardDynamicsSolver(
     Model model,
-    ModelState model_state,
+    std::optional<ModelState> model_state,
     const std::optional<IntegratorSettings>& integrator_settings) :
     impl_{std::make_unique<Impl>(std::move(model), std::move(model_state), integrator_settings)}
 {}
@@ -108,4 +111,5 @@ opyn::ForwardDynamicsSolver::ForwardDynamicsSolver(ForwardDynamicsSolver&&) noex
 opyn::ForwardDynamicsSolver::~ForwardDynamicsSolver() noexcept = default;
 opyn::ForwardDynamicsSolver& opyn::ForwardDynamicsSolver::operator=(ForwardDynamicsSolver&&) noexcept = default;
 
+const ModelState& opyn::ForwardDynamicsSolver::model_state() const { return impl_->model_state(); }
 ModelState opyn::ForwardDynamicsSolver::integrate_to(double time, ModelStateStage realized_to) { return impl_->integrate_to(time, realized_to); }
