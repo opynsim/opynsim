@@ -86,16 +86,17 @@ namespace
             )"
         );
         cls.def(
-            nb::init<Model, ModelState, std::optional<IntegratorSettings>>{},
+            nb::init<Model, std::optional<ModelState>, std::optional<IntegratorSettings>>{},
             nb::arg("model"),
-            nb::arg("model_state"),
+            nb::arg("model_state") = std::nullopt,
             nb::arg("integrator_settings") = std::nullopt,
             R"(
-                Constructs a :class:`ForwardDynamicsSolver` of ``model`` in ``model_state``.
+                Constructs a :class:`ForwardDynamicsSolver` for ``model``.
 
                 Args:
                     model (Model): The model that is being integrated.
-                    model_state (ModelState): The state of ``model`` that the solver begins integration from.
+                    model_state (ModelState): If supplied, the state of ``model`` that the solver begins
+                        integration from. Otherwise, defaults to ``model.initial_state()``.
                     integrator_settings (IntegratorSettings): The integrator settings of the solvers's integrator.
             )"
         );

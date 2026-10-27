@@ -79,3 +79,9 @@ def test_forward_dynamics_solver_model_state_returns_supplied_state():
     advanced_state = ForwardDynamicsSolver(model, model.initial_state()).integrate_to(0.1)
 
     assert ForwardDynamicsSolver(model, advanced_state).model_state == advanced_state
+
+def test_forward_dynamics_solver_can_be_constructed_without_an_initial_state():
+    model = opynsim.examples.pendulum_model()
+    solver = ForwardDynamicsSolver(model)
+
+    assert solver.model_state == model.initial_state()
