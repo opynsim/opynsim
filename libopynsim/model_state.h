@@ -58,7 +58,7 @@ namespace opyn
 
 template<>
 struct std::formatter<opyn::ModelState> {
-    constexpr auto parse(std::format_parse_context& ctx)
+    constexpr auto parse(std::format_parse_context& ctx) const
     {
         return ctx.begin();
     }
