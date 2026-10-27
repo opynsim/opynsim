@@ -1,6 +1,11 @@
 #include "model_state.h"
 
+#include <libopynsim/examples.h>
+#include <libopynsim/model.h>
+#include <libopynsim/symbol.h>
+
 #include <gtest/gtest.h>
+#include <SimTKcommon/internal/State.h>
 
 using namespace opyn;
 
@@ -12,6 +17,18 @@ TEST(ModelState, can_default_construct)
 TEST(ModelState, equality_returns_true_in_trivial_case)
 {
     ASSERT_EQ(ModelState{}, ModelState{});
+}
+
+TEST(ModelState, mutating_state_q_changes_equivalence)
+{
+    const Model model = examples::double_pendulum_model();
+    const ModelState initial_state = model.initial_state(ModelStateStage::report);
+    ModelState state = initial_state;
+
+    ASSERT_EQ(state, initial_state);
+    ASSERT_TRUE(state.upd_simbody_state().getQ().size() > 0);
+    state.upd_simbody_state().updQ() += 0.5;  // modify Q
+    ASSERT_NE(state, initial_state);
 }
 
 TEST(ModelState, has_blank_attrs_when_default_constructed)
