@@ -9,6 +9,11 @@ TEST(ModelState, can_default_construct)
     ASSERT_NO_THROW({ ModelState{}; });
 }
 
+TEST(ModelState, equality_returns_true_in_trivial_case)
+{
+    ASSERT_EQ(ModelState{}, ModelState{});
+}
+
 TEST(ModelState, has_blank_attrs_when_default_constructed)
 {
     const ModelState model_state;

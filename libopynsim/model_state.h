@@ -45,6 +45,12 @@ namespace opyn
 
     private:
         class Impl;
+        friend bool operator==(const ModelState&, const ModelState&);
+
         osc::CopyOnUpdPtr<Impl> impl_;
     };
+
+    /// Returns `true` if `lhs` and `rhs` are equivalent (as in, no observable behavioral
+    /// difference between the two in any of OPynSim's APIs).
+    bool operator==(const ModelState& lhs, const ModelState& rhs);
 }
