@@ -81,7 +81,7 @@ namespace
                 A solver that integrates the forward dynamics of a :class:`Model`
                 + :class:`ModelState` pair.
 
-                The solver stores a :class:`ModelState` that it integrates forward
+                The solver manages a :class:`ModelState` that it integrates forward
                 in time to a caller-specified timepoint (see :meth:`integrate_to`).
             )"
         );
@@ -114,8 +114,15 @@ namespace
                         should be realized to by the solver.
 
                 Returns:
-                    A copy of the solver's :class:`ModelState` representing the model's state
+                    A copy of the solver's :class:`ModelState`, representing the model's state
                     at ``time`` realized to ``realized_to``.
+            )"
+        );
+        cls.def_prop_ro(
+            "model_state",
+            &ForwardDynamicsSolver::model_state,
+            R"(
+                Returns a copy of the solver's :class:`ModelState`.
             )"
         );
     }
