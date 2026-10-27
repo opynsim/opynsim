@@ -50,7 +50,7 @@ namespace opyn
         osc::CopyOnUpdPtr<Impl> impl_;
     };
 
-    /// Returns `true` if `lhs` and `rhs` are equivalent (as in, no observable behavioral
-    /// difference between the two in any of OPynSim's APIs).
+    /// Returns `true` if `lhs` and `rhs` are memory-equivalent at the
+    /// time/stage/state-variable level.
     bool operator==(const ModelState& lhs, const ModelState& rhs);
 }
