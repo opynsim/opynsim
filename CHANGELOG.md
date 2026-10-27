@@ -31,6 +31,10 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   compared (e.g. for tests).
 - Added `opyn::ForwardDynamicSimulator::model_state`, so calling code can see the internal
   `ModelState` that's managed by a `ForwardDynamicSimulator`.
+- Added `std::formatter` suppport for `ModelStateStage` and `ModelState`
+- Added `opynsim.ModelState.__repr__`
+- Changed `opynsim.solvers.ForwardDynamicsSolver.__init__` such that `model_state` is now
+  an optional argument that defaults to `model.initial_state()` when not supplied.
 
 
 ## 0.0.8 - 2026/09/08
