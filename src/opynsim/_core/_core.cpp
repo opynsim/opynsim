@@ -1018,7 +1018,7 @@ namespace {
 
     void def_model_state(nb::module_& m)
     {
-        nb::class_<ModelState> model_state_class(
+        nb::class_<ModelState> cls(
             m,
             "ModelState",
             R"(
@@ -1031,14 +1031,15 @@ namespace {
                 also be created, read, and manipulated by downstream Python code and other utilities in OPynSim.
             )"
         );
-        model_state_class.def_prop_ro(
+        cls.def("__eq__", [](const ModelState& lhs, const ModelState& rhs) { return lhs == rhs; });
+        cls.def_prop_ro(
             "time",
             &ModelState::time,
             R"(
                 Returns the time of the state.
             )"
         );
-        model_state_class.def_prop_ro(
+        cls.def_prop_ro(
             "stage",
             &ModelState::stage,
             R"(

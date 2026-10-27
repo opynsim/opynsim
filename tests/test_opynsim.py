@@ -551,3 +551,20 @@ def test_model_state_stage_is_value_comparable():
     assert      opynsim.STAGE_REPORT   >= opynsim.STAGE_REPORT
     assert not (opynsim.STAGE_REPORT   >  opynsim.STAGE_REPORT)
     assert      opynsim.STAGE_REPORT   >  opynsim.STAGE_ACCELERATION
+
+def test_model_states_are_value_comparable():
+    # Two independently-constructed `opynsim.ModelState`s should compare equal
+    # if their contents are equal (i.e. value-comparison, not reference-comparison).
+
+    model = opynsim.examples.pendulum_model()
+    state_a = model.initial_state()
+    state_b = model.initial_state()
+
+    assert state_a == state_b
+
+def test_model_states_realized_to_different_stages_compare_non_equal():
+    model = opynsim.examples.pendulum_model()
+    state_a = model.initial_state(realized_to=opynsim.STAGE_VELOCITY)
+    state_b = model.initial_state(realized_to=opynsim.STAGE_REPORT)
+
+    assert state_a != state_b
