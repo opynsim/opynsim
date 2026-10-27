@@ -5,6 +5,7 @@
 
 #include <liboscar/utilities/copy_on_upd_ptr.h>
 
+#include <format>
 #include <unordered_map>
 
 namespace opyn { class Model; }
@@ -54,3 +55,17 @@ namespace opyn
     /// time/stage/state-variable level.
     bool operator==(const ModelState& lhs, const ModelState& rhs);
 }
+
+template<>
+struct std::formatter<opyn::ModelState> {
+    constexpr auto parse(std::format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    template<class FormatContext>
+    auto format(const opyn::ModelState& model_state, FormatContext& ctx) const
+    {
+        return std::format_to(ctx.out(), "ModelState(time={}, stage={})", model_state.time(), model_state.stage());
+    }
+};

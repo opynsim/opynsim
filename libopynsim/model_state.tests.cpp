@@ -7,6 +7,9 @@
 #include <gtest/gtest.h>
 #include <SimTKcommon/internal/State.h>
 
+#include <format>
+#include <string>
+
 using namespace opyn;
 
 TEST(ModelState, can_default_construct)
@@ -45,4 +48,10 @@ TEST(ModelState, set_attrs_sets_attrs)
     ASSERT_NE(model_state.attrs(), new_attrs);
     model_state.set_attrs(new_attrs);
     ASSERT_EQ(model_state.attrs(), new_attrs);
+}
+
+TEST(ModelState, default_constructed_can_be_formatted_to_a_string)
+{
+    const std::string str = std::format("{}", ModelState{});
+    ASSERT_EQ(str, "ModelState(time=0.0, stage=ModelStateStage.TIME)");
 }
