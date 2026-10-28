@@ -5,9 +5,11 @@
 #include <opynsim/_core/color.h>
 #include <opynsim/_core/config.h>
 #include <opynsim/_core/examples.h>
+#include <opynsim/_core/forward_dynamics_solver.h>
+#include <opynsim/_core/integrator_settings.h>
 #include <opynsim/_core/mesh.h>
+#include <opynsim/_core/model_warper.h>
 #include <opynsim/_core/scene_cache.h>
-#include <opynsim/_core/solvers.h>
 #include <opynsim/_core/texture2d.h>
 #include <opynsim/_core/tps3d.h>
 #include <opynsim/_core/ui.h>
@@ -1323,6 +1325,9 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
     python::def_mesh(_core_module);
     python::def_camera(_core_module);
     def_render_model_in_state(_core_module);
+    python::def_model_warper(_core_module);
+    python::def_integrator_settings(_core_module);
+    python::def_forward_dynamics_solver(_core_module);
 
     // Initialize `config` submodule (also initializes the `opynsim` C++ API, logging, etc.).
     {
@@ -1346,11 +1351,5 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
     {
         auto ui_submodule = _core_module.def_submodule("ui");
         init_ui_submodule(ui_submodule);
-    }
-
-    // Initialize `solvers` submodule.
-    {
-        auto solvers_submodule = _core_module.def_submodule("solvers");
-        init_solvers_submodule(solvers_submodule);
     }
 }

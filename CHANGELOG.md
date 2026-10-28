@@ -40,7 +40,9 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Deleted the `opynsim.graphics` submodule: all of its definitions are now contained in the
   top-level `opynsim` module. A shim was added that makes `import opynsim.graphics` import
   `opynsim`, so legacy code should still work.
-
+- Deleted the `opynsim.solvers` submodule: all of its definitions are now contained in the
+  top-level `opynsim` module. A shim was added that makes `import opynsim.solvers` import
+  `opynsim`, so legacy code should still work.
 
 ## 0.0.8 - 2026/09/08
 
