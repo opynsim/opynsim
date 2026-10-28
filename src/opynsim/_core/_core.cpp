@@ -26,7 +26,6 @@
 #include <libopynsim/platform/opynsim_app.h>
 #include <libopynsim/graphics/render_model_in_state.h>
 #include <libopynsim/data_frame.h>
-#include <libopynsim/solvers/forward_dynamics_solver.h>
 #include <libopynsim/model.h>
 #include <libopynsim/model_specification.h>
 #include <libopynsim/model_state.h>
