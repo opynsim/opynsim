@@ -1,19 +1,28 @@
 #include "_core.h"
 
 #include <opynsim/_core/utilities/arrow.h>
+#include <opynsim/_core/camera.h>
+#include <opynsim/_core/color.h>
 #include <opynsim/_core/config.h>
 #include <opynsim/_core/examples.h>
-#include <opynsim/_core/graphics.h>
+#include <opynsim/_core/mesh.h>
+#include <opynsim/_core/scene_cache.h>
 #include <opynsim/_core/solvers.h>
+#include <opynsim/_core/texture2d.h>
 #include <opynsim/_core/tps3d.h>
 #include <opynsim/_core/ui.h>
 
+#include <liboscar/graphics/camera.h>
+#include <liboscar/graphics/color.h>
+#include <liboscar/graphics/scene/scene_cache.h>
+#include <liboscar/maths/vector.h>
 #include <liboscar/utilities/algorithms.h>
 #include <liboscar/utilities/assertions.h>
 #include <liboscar/utilities/enum_helpers.h>
 #include <liboscar/utilities/exception_helpers.h>
 #include <liboscar/utilities/string_helpers.h>
 #include <libopynsim/platform/opynsim_app.h>
+#include <libopynsim/graphics/render_model_in_state.h>
 #include <libopynsim/data_frame.h>
 #include <libopynsim/solvers/forward_dynamics_solver.h>
 #include <libopynsim/model.h>
@@ -1228,6 +1237,56 @@ namespace {
         )");
         m.def("read_jpg", opyn::read_jpg, nb::arg("source"), "An alias for :func:`read_jpeg`");
     }
+
+    void def_render_model_in_state(nanobind::module_& m)
+    {
+        m.def(
+            "render_model_in_state",
+            [](const Model& model,
+               const ModelState& model_state,
+               std::pair<int, int> dimensions,
+               const osc::Color& background_color,
+               bool draw_floor,
+               osc::SceneCache* scene_cache,
+               const osc::Camera* camera)
+            {
+                return render_model_in_state(
+                    get_lazy_loaded_opynsim_app(),
+                    model,
+                    model_state,
+                    osc::Vector2{dimensions.first, dimensions.second},
+                    background_color,
+                    draw_floor,
+                    scene_cache,
+                    camera
+                );
+            },
+            nb::arg("model"),
+            nb::arg("model_state"),
+            nb::kw_only{},
+            nb::arg("dimensions") = std::make_pair(640, 480),
+            nb::arg("background_color") = osc::Color::clear(),
+            nb::arg("draw_floor") = false,
+            nb::arg("scene_cache") = nullptr,
+            nb::arg("camera") = nullptr,
+            R"(
+                Renders the given :class:`opynsim.Model` + :class:`opynsim.ModelState` to
+                a :class:`opynsim.graphics.Texture2D`.
+
+                Args:
+                    model (opynsim.Model): The model to render.
+                    model_state (opynsim.ModelState): The state of the model to render. Should be realized to at least :attr:`opynsim.ModelStateStage.REPORT`.
+                    dimensions (tuple[int, int]): The desired output resolution (width, height) of the rendered image in pixels.
+                    background_color (opynsim.graphics.Color): The desired background color of the rendered scene.
+                    draw_floor (bool): Toggles drawing a chequered floor at Y=0 in the scene.
+                    scene_cache (opynsim.graphics.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets every time this function is called (slow).
+                    camera (opynsim.graphics.Camera): The camera to use when rendering (default: looks down -Z and pulls back from the origin until the entire model fits in-frame).
+
+                Returns:
+                    opynsim.graphics.Texture2D: The rendered image, which will have the specified ``dimensions``.
+            )"
+        );
+    }
 }
 
 opyn::OPynSimApp& opyn::get_lazy_loaded_opynsim_app()
@@ -1274,7 +1333,12 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
     // Initialize `graphics` submodule.
     {
         auto graphics_submodule = _core_module.def_submodule("graphics");
-        init_graphics_submodule(graphics_submodule);
+        python::def_color(graphics_submodule);
+        python::def_scene_cache(graphics_submodule);
+        python::def_texture2d(graphics_submodule);
+        python::def_mesh(graphics_submodule);
+        python::def_camera(graphics_submodule);
+        def_render_model_in_state(graphics_submodule);
     }
 
     // Initialize `tps3d` submodule.
