@@ -38,11 +38,12 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added `std::formatter` support for `Model`.
 - Added `opynsim.Model.__repr__`.
 - Deleted the `opynsim.graphics` submodule: all of its definitions are now contained in the
-  top-level `opynsim` module. A shim was added that makes `import opynsim.graphics` import
-  `opynsim`, so legacy code should still work.
+  top-level `opynsim` module.
 - Deleted the `opynsim.solvers` submodule: all of its definitions are now contained in the
-  top-level `opynsim` module. A shim was added that makes `import opynsim.solvers` import
-  `opynsim`, so legacy code should still work.
+  top-level `opynsim` module.
+- Functions that take `Vector3`-like inputs (e.g. `Camera` constructor) can now accept the
+  inputs as either a `numpy.array`, a 3-element Python tuple, or a 3-element Python list
+  (previously: only `numpy.array` was accepted)
 
 ## 0.0.8 - 2026/09/08
 
