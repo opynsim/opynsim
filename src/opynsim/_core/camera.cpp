@@ -40,16 +40,12 @@ void opyn::python::def_camera(nb::module_& m)
         "        will select a fallback that is non-parallel.\n"
     );
     cls.def(
-        nb::init<>{},
-        "Default-constructs a camera with reasonable initial parameters."
-    );
-    cls.def(
         nb::init<const osc::Vector3&, const osc::Vector3&, const osc::Vector3&>{},
-        nb::arg("position"),
-        nb::arg("direction"),
+        nb::arg("position") = osc::Vector3{},
+        nb::arg("direction") = osc::Vector3{0.0f, 0.0f, -1.0f},
         nb::kw_only{},
         nb::arg("up") = osc::Vector3{0.0f, 1.0f, 0.0f},
-        "(Constructs a ``Camera`` located at ``position`` in world-space and pointing\n"
+        "Constructs a ``Camera`` located at ``position`` in world-space and pointing\n"
         "in a world-space ``direction``, oriented such that ``up`` points toward the\n"
         "top of the camera's image plane.\n"
         "\n"

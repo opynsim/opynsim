@@ -59,6 +59,8 @@ TEST(Camera, look_at_falls_back_when_up_is_parallel_to_target)
 TEST(Camera, can_default_construct)
 {
     const Camera camera;  // should compile + run
+    ASSERT_EQ(camera.position(), Vector3f{});
+    ASSERT_EQ(camera.direction(), Vector3f(0.0f, 0.0f, -1.0f));
 }
 
 TEST(Camera, constructing_from_position_direction_up_is_equivalent_to_calling_setters)
