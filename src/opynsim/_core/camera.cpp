@@ -14,11 +14,13 @@ namespace nb = nanobind;
 
 void opyn::python::def_camera(nb::module_& m)
 {
-    nb::class_<osc::Camera> cls(m, "Camera", R"(
-        Represents a virtual camera at `position` in world space, looking along
-        a normalized `direction` vector. The `up` vector (also normalized)
-        specifies which direction corresponds to the 'top' of the rendered image.
-    )");
+    nb::class_<osc::Camera> cls(
+        m,
+        "Camera",
+        "Represents a virtual camera at `position` in world space, looking along\n"
+        "a normalized `direction` vector. The `up` vector (also normalized)\n"
+        "specifies which direction corresponds to the 'top' of the rendered image.\n"
+    );
     cls.def_static(
         "look_at",
         &osc::Camera::look_at,
@@ -47,16 +49,15 @@ void opyn::python::def_camera(nb::module_& m)
         nb::arg("direction"),
         nb::kw_only{},
         nb::arg("up") = osc::Vector3{0.0f, 1.0f, 0.0f},
-        R"(Constructs a ``Camera`` located at ``position`` in world-space and pointing
-in a world-space ``direction``, oriented such that ``up`` points toward the
-top of the camera's image plane.
-
-Args:
-position: Position of the camera in world-space.
-direction: Direction the camera is pointing towards in world-space. Normalized by the implementation.
-up: Direction towards the top of the camera's image plane. Normalized by the implementation. If
-    it is parallel with ``direction`` then the implementation will select a fallback that is non-parallel.
-        )"
+        "(Constructs a ``Camera`` located at ``position`` in world-space and pointing\n"
+        "in a world-space ``direction``, oriented such that ``up`` points toward the\n"
+        "top of the camera's image plane.\n"
+        "\n"
+        "Args:\n"
+        "    position: Position of the camera in world-space.\n"
+        "    direction: Direction the camera is pointing towards in world-space. Normalized by the implementation.\n"
+        "    up: Direction towards the top of the camera's image plane. Normalized by the implementation. If\n"
+        "        it is parallel with ``direction`` then the implementation will select a fallback that is non-parallel.\n"
     );
     cls.def_prop_rw(
         "position",
