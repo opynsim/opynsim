@@ -44,6 +44,10 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Functions that take `Vector3`-like inputs (e.g. `Camera` constructor) can now accept the
   inputs as either a `numpy.array`, a 3-element Python tuple, or a 3-element Python list
   (previously: only `numpy.array` was accepted)
+- The Python type annotation for `Vector3`-like inputs was simplified to "Vector3f", because
+  the actual type annotation was extremely long and annoying to actually read ;).
+
+  
 
 ## 0.0.8 - 2026/09/08
 
