@@ -92,10 +92,10 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
                 model (opynsim.Model): The model to show.
                 model_state (opynsim.ModelState): The state of the model to render. Should be realized to at least :attr:`opynsim.ModelStateStage.REPORT`.
                 dimensions (tuple[int, int]): The desired output resolution (width, height) of the rendered image in pixels.
-                background_color (opynsim.graphics.Color): The desired background color of the rendered scene.
+                background_color (opynsim.Color): The desired background color of the rendered scene.
                 draw_floor (bool): Toggles drawing a chequered floor at Y=0 in the scene.
-                scene_cache (opynsim.graphics.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets every time this function is called (slow).
-                camera (opynsim.graphics.Camera): A camera that the UI uses, updates, and manipulates (default: an internal camera that looks down -Z and pulls back from the origin until the entire model fits in-frame).
+                scene_cache (opynsim.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets every time this function is called (slow).
+                camera (opynsim.Camera): A camera that the UI uses, updates, and manipulates (default: an internal camera that looks down -Z and pulls back from the origin until the entire model fits in-frame).
         )"
     );
 }

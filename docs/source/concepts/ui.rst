@@ -10,8 +10,7 @@ interactive user interfaces, including:
   Python APIs, like ``matplotlib.pyplot.show`` and ``pyvista.Plotter.show``.
 - **Mid-Level Visualization Builders**: TODO.
 
-In effect, :mod:`opynsim.ui` combines the rendering capabilities of the
-:mod:`opynsim.graphics` module with an application framework that manages
-interaction. The implementation was ported from the
-`OpenSim Creator <https://www.opensimcreator.com>`_, which is compatible
-with OPynSim's data files, but doesn't support scripting.
+In effect, :mod:`opynsim.ui` combines the rendering capabilities of OPynSim
+with an application framework that manages interaction. The implementation
+was ported from the `OpenSim Creator <https://www.opensimcreator.com>`_, which
+is compatible with OPynSim's data files, but doesn't support scripting.

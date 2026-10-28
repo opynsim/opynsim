@@ -1201,35 +1201,35 @@ namespace {
                 RuntimeError: If the file cannot be found, read, or is invalid.
         )");
         m.def("read_vtp", opyn::read_vtp, nb::arg("source"), R"(
-            Returns a :class:`graphics.Mesh` parsed from a ``.vtp`` file on the caller's
+            Returns a :class:`Mesh` parsed from a ``.vtp`` file on the caller's
             filesystem.
 
             Raises:
                 RuntimeError: If the file cannot be found, read, or is invalid.
         )");
         m.def("read_obj", opyn::read_obj, nb::arg("source"), R"(
-            Returns a :class:`graphics.Mesh` parsed from a ``.obj`` file on the caller's
+            Returns a :class:`Mesh` parsed from a ``.obj`` file on the caller's
             filesystem.
 
             Raises:
                 RuntimeError: If the file cannot be found, read, or is invalid.
         )");
         m.def("read_stl", opyn::read_stl, nb::arg("source"), R"(
-            Returns a :class:`graphics.Mesh` parsed from a ``.stl`` file on the caller's
+            Returns a :class:`Mesh` parsed from a ``.stl`` file on the caller's
             filesystem.
 
             Raises:
                 RuntimeError: If the file cannot be found, read, or is invalid.
         )");
         m.def("read_png", opyn::read_png, nb::arg("source"), R"(
-            Returns a :class:`graphics.Texture2D` parsed from a ``.png`` file on the caller's
+            Returns a :class:`Texture2D` parsed from a ``.png`` file on the caller's
             filesystem.
 
             Raises:
                 RuntimeError: If the file cannot be found, read, or is invalid.
         )");
         m.def("read_jpeg", opyn::read_jpeg, nb::arg("source"), R"(
-            Returns a :class:`graphics.Texture2D` parsed from a ``.jpeg`` file on the caller's
+            Returns a :class:`Texture2D` parsed from a ``.jpeg`` file on the caller's
             filesystem.
 
             Raises:
@@ -1271,19 +1271,19 @@ namespace {
             nb::arg("camera") = nullptr,
             R"(
                 Renders the given :class:`opynsim.Model` + :class:`opynsim.ModelState` to
-                a :class:`opynsim.graphics.Texture2D`.
+                a :class:`Texture2D`.
 
                 Args:
                     model (opynsim.Model): The model to render.
                     model_state (opynsim.ModelState): The state of the model to render. Should be realized to at least :attr:`opynsim.ModelStateStage.REPORT`.
                     dimensions (tuple[int, int]): The desired output resolution (width, height) of the rendered image in pixels.
-                    background_color (opynsim.graphics.Color): The desired background color of the rendered scene.
+                    background_color (opynsim.Color): The desired background color of the rendered scene.
                     draw_floor (bool): Toggles drawing a chequered floor at Y=0 in the scene.
-                    scene_cache (opynsim.graphics.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets every time this function is called (slow).
-                    camera (opynsim.graphics.Camera): The camera to use when rendering (default: looks down -Z and pulls back from the origin until the entire model fits in-frame).
+                    scene_cache (opynsim.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets every time this function is called (slow).
+                    camera (opynsim.Camera): The camera to use when rendering (default: looks down -Z and pulls back from the origin until the entire model fits in-frame).
 
                 Returns:
-                    opynsim.graphics.Texture2D: The rendered image, which will have the specified ``dimensions``.
+                    opynsim.Texture2D: The rendered image, which will have the specified ``dimensions``.
             )"
         );
     }
@@ -1317,6 +1317,12 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
     def_model_states(_core_module);
     def_dataframe(_core_module);
     def_read_functions(_core_module);
+    python::def_color(_core_module);
+    python::def_scene_cache(_core_module);
+    python::def_texture2d(_core_module);
+    python::def_mesh(_core_module);
+    python::def_camera(_core_module);
+    def_render_model_in_state(_core_module);
 
     // Initialize `config` submodule (also initializes the `opynsim` C++ API, logging, etc.).
     {
@@ -1328,17 +1334,6 @@ NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-glob
     {
         auto examples_submodule = _core_module.def_submodule("examples");
         init_examples_submodule(examples_submodule);
-    }
-
-    // Initialize `graphics` submodule.
-    {
-        auto graphics_submodule = _core_module.def_submodule("graphics");
-        python::def_color(graphics_submodule);
-        python::def_scene_cache(graphics_submodule);
-        python::def_texture2d(graphics_submodule);
-        python::def_mesh(graphics_submodule);
-        python::def_camera(graphics_submodule);
-        def_render_model_in_state(graphics_submodule);
     }
 
     // Initialize `tps3d` submodule.

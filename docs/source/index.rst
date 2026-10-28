@@ -37,7 +37,6 @@ Table of Contents
     :caption: Concepts
 
     concepts/configuration
-    concepts/graphics
     concepts/modelling
     concepts/tps3d
     concepts/ui

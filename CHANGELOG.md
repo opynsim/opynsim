@@ -37,6 +37,9 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   an optional argument that defaults to `model.initial_state()` when not supplied.
 - Added `std::formatter` support for `Model`.
 - Added `opynsim.Model.__repr__`.
+- Deleted the `opynsim.graphics` submodule: all of its definitions are now contained in the
+  top-level `opynsim` module. A shim was added that makes `import opynsim.graphics` import
+  `opynsim`, so legacy code should still work.
 
 
 ## 0.0.8 - 2026/09/08

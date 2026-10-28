@@ -577,3 +577,22 @@ def test_model_states_realized_to_different_stages_compare_non_equal():
     state_b = model.initial_state(realized_to=opynsim.STAGE_REPORT)
 
     assert state_a != state_b
+
+def test_render_model_in_state_has_expected_background_color():
+    import numpy as np
+
+    model = opynsim.examples.pendulum_model()
+    state = model.initial_state(realized_to=opynsim.STAGE_REPORT)
+    render = opynsim.render_model_in_state(model, state, background_color=opynsim.Color(1.0, 0.0, 0.0, 1.0))
+    top_left_pixel = render.pixels_rgba32()[0, 0]
+    expected_pixel = np.array([255, 0, 0, 255], dtype=np.uint8)
+    assert np.array_equal(top_left_pixel, expected_pixel)
+
+def test_render_model_in_state_can_be_given_a_scene_cache():
+    model = opynsim.examples.pendulum_model()
+    state = model.initial_state(realized_to=opynsim.STAGE_REPORT)
+    scene_cache = opynsim.SceneCache()
+
+    # i.e. it can be reused
+    opynsim.render_model_in_state(model, state, background_color=opynsim.Color(1.0, 0.0, 0.0, 1.0), scene_cache=scene_cache)
+    opynsim.render_model_in_state(model, state, background_color=opynsim.Color(0.0, 1.0, 0.0, 1.0), scene_cache=scene_cache)

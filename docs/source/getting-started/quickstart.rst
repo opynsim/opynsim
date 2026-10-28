@@ -144,12 +144,12 @@ information the UI may read:
 Render Visualization to an Image File
 -------------------------------------
 
-The OPynSim :doc:`../concepts/graphics` API provides utilities for rendering OPynSim's
-datastructures to images (:class:`graphics.Texture2D`). This can be useful
+The OPynSim rendering API provides utilities for rendering OPynSim's
+datastructures to images (:class:`Texture2D`). This can be useful
 for automating tasks like creating custom plots or creating images/videos of models.
 
-The API includes high-level functions, such as :func:`graphics.render_model_in_state`,
-which returns a :class:`graphics.Texture2D` - a class that stores rendered pixel data. The
+The API includes high-level functions, such as :func:`render_model_in_state`,
+which returns a :class:`Texture2D` - a class that stores rendered pixel data. The
 example below renders an :class:`Model` + :class:`ModelState` to a texture and then
 uses `Pillow <https://python-pillow.github.io/>`_ to write the pixel data to a PNG file:
 
@@ -158,7 +158,6 @@ uses `Pillow <https://python-pillow.github.io/>`_ to write the pixel data to a P
 
     import opynsim as opyn
     import opynsim.examples
-    import opynsim.graphics
     from PIL import Image  # from `Pillow` package
 
     # Create/import a `Model` + `ModelState`.
@@ -166,7 +165,7 @@ uses `Pillow <https://python-pillow.github.io/>`_ to write the pixel data to a P
     model_state = model.initial_state(realized_to=opyn.STAGE_REPORT)
 
     # Render the `Model` + `ModelState` to a `Texture2D` (image).
-    texture_2d = opyn.graphics.render_model_in_state(model, model_state)
+    texture_2d = opyn.render_model_in_state(model, model_state)
 
     # Copy the texture's pixels into a `PIL.Image` object.
     image = Image.fromarray(texture_2d.pixels_rgba32(), mode="RGBA")
