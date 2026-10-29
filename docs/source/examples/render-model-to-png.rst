@@ -13,8 +13,7 @@ into a PNG file that is then saved to ``render_output.png``.
 
     # Create/import a `Model` + `ModelState`.
     model = opyn.examples.double_pendulum_model()
-    model_state = model.initial_state()
-    model.realize(model_state, opyn.STAGE_REPORT)  # usually required for rendering
+    model_state = model.initial_state(realized_to=opyn.STAGE_REPORT)
 
     # Render the `Model` + `ModelState` to an `opynsim.Texture2D`.
     texture_2d = opyn.render_model_in_state(model, model_state)
