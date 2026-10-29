@@ -55,9 +55,15 @@ class osc::Camera::Impl final {
 public:
     Impl() = default;
 
-    Impl(const Vector3& position, const Vector3& direction, const Vector3& up) :
+    Impl(
+        const Vector3& position,
+        const Vector3& direction,
+        const Vector3& up,
+        Radians vertical_field_of_view) :
+
         position_{position},
-        rotation_{make_camera_rotation(direction, up)}
+        rotation_{make_camera_rotation(direction, up)},
+        vertical_field_of_view_{vertical_field_of_view}
     {}
 
     friend bool operator==(const Impl&, const Impl&) = default;
@@ -267,9 +273,16 @@ Camera osc::Camera::look_at(const Vector3& position, const Vector3& target, cons
     return Camera{position, target - position, up};
 }
 
-osc::Camera::Camera() : impl_{make_cowv<Impl>()} {}
-osc::Camera::Camera(const Vector3& position, const Vector3& direction, const Vector3& up) :
-    impl_{make_cowv<Impl>(position, direction, up)}
+osc::Camera::Camera() :
+    impl_{make_cowv<Impl>()}
+{}
+osc::Camera::Camera(
+    const Vector3& position,
+    const Vector3& direction,
+    const Vector3& up,
+    Radians vertical_field_of_view) :
+
+    impl_{make_cowv<Impl>(position, direction, up, vertical_field_of_view)}
 {}
 
 bool osc::operator==(const Camera& lhs, const Camera& rhs) { return lhs.impl_ == rhs.impl_ or *lhs.impl_ == *rhs.impl_; }

@@ -46,6 +46,8 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   (previously: only `numpy.array` was accepted)
 - The Python type annotation for `Vector3`-like inputs was simplified to "Vector3f", because
   the actual type annotation was extremely long and annoying to actually read ;).
+- `opynsim.Camera`'s constructor now accepts `vertical_field_of_view` as an argument, which
+  enables setting it during initialization, rather than having to set it separately.
 
   
 

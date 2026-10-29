@@ -82,6 +82,38 @@ TEST(Camera, constructing_from_position_direction_up_is_equivalent_to_calling_se
     ASSERT_EQ(directly_constructed, from_setters);
 }
 
+TEST(Camera, constructing_from_position_direction_up_vertical_field_of_view_is_equivalent_to_calling_setters)
+{
+    const Vector3 position = {1.0f, 2.0f, 3.0f};
+    const Vector3 direction = {1.0f, 0.0f, 0.0f};
+    const Vector3 up = {0.0f, 0.0f, 1.0f};
+    const Degrees vertical_field_of_view{37.0f};
+
+    const Camera directly_constructed{position, direction, up, vertical_field_of_view};
+    const Camera from_setters = [&]
+    {
+        Camera rv;
+        rv.set_position(position);
+        rv.set_direction(direction);
+        rv.set_up(up);
+        rv.set_vertical_field_of_view(vertical_field_of_view);
+        return rv;
+    }();
+
+    ASSERT_EQ(directly_constructed, from_setters);
+}
+
+TEST(Camera, defaulted_vertical_field_of_view_is_same_as_default_camera_ctor)
+{
+    const Vector3 position = {0.0f, 0.0f, 0.0f};
+    const Vector3 direction = {0.0f, 0.0f, -1.0f};
+
+    const Camera default_constructed;
+    const Camera partially_directly_constructed{position, direction};
+
+    ASSERT_EQ(default_constructed, partially_directly_constructed);
+}
+
 TEST(Camera, constructing_from_position_direction_up_normalizes_direction_vector)
 {
     const Vector3 position = {1.0f, 2.0f, 3.0f};

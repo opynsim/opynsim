@@ -1,5 +1,6 @@
 #include "camera.h"
 
+#include <opynsim/_core/type_casters/angle.h>
 #include <opynsim/_core/type_casters/vector.h>
 
 #include <nanobind/nanobind.h>
@@ -11,6 +12,7 @@
 #include <format>
 
 namespace nb = nanobind;
+using namespace osc::literals;
 
 void opyn::python::def_camera(nb::module_& m)
 {
@@ -29,7 +31,7 @@ void opyn::python::def_camera(nb::module_& m)
         nb::kw_only{},
         nb::arg("up") = osc::Vector3{0.0f, 1.0f, 0.0f},
 
-        "Returns a ``Camera`` located at ``position`` and looking at ``target``,\n"
+        "Returns a perspective ``Camera`` located at ``position`` and looking at ``target``,\n"
         "oriented such that ``up`` points toward the top of the camera's image plane.\n"
         "\n"
         "Args:\n"
@@ -40,12 +42,13 @@ void opyn::python::def_camera(nb::module_& m)
         "        will select a fallback that is non-parallel.\n"
     );
     cls.def(
-        nb::init<const osc::Vector3&, const osc::Vector3&, const osc::Vector3&>{},
+        nb::init<const osc::Vector3&, const osc::Vector3&, const osc::Vector3&, osc::Radians>{},
         nb::arg("position") = osc::Vector3{},
         nb::arg("direction") = osc::Vector3{0.0f, 0.0f, -1.0f},
         nb::kw_only{},
         nb::arg("up") = osc::Vector3{0.0f, 1.0f, 0.0f},
-        "Constructs a ``Camera`` located at ``position`` in world-space and pointing\n"
+        nb::arg("vertical_field_of_view") = osc::Radians{90_deg},
+        "Constructs a perspective ``Camera`` located at ``position`` in world-space and pointing\n"
         "in a world-space ``direction``, oriented such that ``up`` points toward the\n"
         "top of the camera's image plane.\n"
         "\n"
@@ -54,6 +57,7 @@ void opyn::python::def_camera(nb::module_& m)
         "    direction: Direction the camera is pointing towards in world-space. Normalized by the implementation.\n"
         "    up: Direction towards the top of the camera's image plane. Normalized by the implementation. If\n"
         "        it is parallel with ``direction`` then the implementation will select a fallback that is non-parallel.\n"
+        "    vertical_field_of_view: The vertical field-of-view angle of the camera in radians\n"
     );
     cls.def_prop_rw(
         "position",
@@ -75,8 +79,8 @@ void opyn::python::def_camera(nb::module_& m)
     );
     cls.def_prop_rw(
         "vertical_field_of_view",
-        [](const osc::Camera& camera) { return camera.vertical_field_of_view().count(); },
-        [](osc::Camera& camera, double fov) { camera.set_vertical_field_of_view(osc::Radians{fov}); },
+        &osc::Camera::vertical_field_of_view,
+        &osc::Camera::set_vertical_field_of_view,
         "Get/set the vertical field-of-view angle of the camera in radians. Only applicable to perspective cameras."
     );
     cls.def("__repr__",  [](const osc::Camera& camera) { return std::format("{}", camera); });

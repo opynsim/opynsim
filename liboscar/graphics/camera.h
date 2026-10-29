@@ -36,15 +36,17 @@ namespace osc
 
         Camera();
 
-        /// Constructs a camera from a world-space position (`position`),
-        /// direction (`direction`), and upwards vector (`up`).
+        /// Constructs a perspective camera from a world-space position (`position`),
+        /// direction (`direction`), upwards vector (`up`), and vertical
+        /// field of view (`vertical_field_of_view`).
         ///
         /// `direction` and `up` are normalized by the implementation. If they
         /// are parallel then `up` will fallback to something non-parallel.
         explicit Camera(
             const Vector3& position,
             const Vector3& direction,
-            const Vector3& up = {0.0f, 1.0f, 0.0f}
+            const Vector3& up = {0.0f, 1.0f, 0.0f},
+            Radians vertical_field_of_view = Degrees{90.0f}
         );
 
         // resets the camera to default parameters

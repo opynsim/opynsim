@@ -129,3 +129,11 @@ def test_constructing_camera_from_non_numeric_list_raises_exception():
             direction=[1, 0, 0],
             up=["tomato", 0, 1],
         )
+
+def test_can_construct_camera_with_vertical_field_of_view_argument():
+    import numpy as np
+
+    camera = opyn.Camera(
+        vertical_field_of_view=np.deg2rad(45)
+    )
+    assert np.isclose(camera.vertical_field_of_view, np.deg2rad(45))
