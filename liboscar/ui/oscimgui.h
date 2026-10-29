@@ -167,6 +167,13 @@ namespace osc::ui
         bool enabled = true
     );
 
+    bool draw_menu_item(
+        CStringView label,
+        CStringView shortcut_label,
+        bool selected = false,
+        bool enabled = true
+    );
+
     bool begin_tab_bar(CStringView str_id);
     void end_tab_bar();
 

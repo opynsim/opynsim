@@ -1982,6 +1982,15 @@ bool osc::ui::draw_menu_item(
 
 bool osc::ui::draw_menu_item(
     CStringView label,
+    CStringView shortcut_label,
+    bool selected,
+    bool enabled)
+{
+    return ImGui::MenuItem(label.c_str(), shortcut_label.c_str(), selected, enabled);
+}
+
+bool osc::ui::draw_menu_item(
+    CStringView label,
     std::optional<KeyCombination> shortcut,
     bool* p_selected,
     bool enabled)
