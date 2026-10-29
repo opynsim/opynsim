@@ -202,7 +202,7 @@ void osc::MainMenuFileTab::onDraw(std::shared_ptr<opyn::ModelStatePair> maybeMod
 
     ui::draw_separator();
 
-    if (ui::draw_menu_item(MSMICONS_FOLDER_OPEN " Load Motion", {}, false, maybeModel != nullptr)) {
+    if (ui::draw_menu_item(MSMICONS_FOLDER_OPEN " Load Motion", std::nullopt, false, maybeModel != nullptr)) {
         LoadMotionAgainstModel(maybeModel, parent());
     }
 
@@ -239,16 +239,16 @@ void osc::MainMenuFileTab::onDraw(std::shared_ptr<opyn::ModelStatePair> maybeMod
         }
         ui::draw_tooltip_if_item_hovered("Reload", "Attempts to reload the osim file from scratch. This can be useful if (e.g.) editing third-party files that OpenSim Creator doesn't automatically track.");
 
-        if (ui::draw_menu_item(MSMICONS_CLIPBOARD " Copy .osim path to clipboard", {}, false, undoableModel != nullptr and modelHasBackingFile) and undoableModel != nullptr) {
+        if (ui::draw_menu_item(MSMICONS_CLIPBOARD " Copy .osim path to clipboard", std::nullopt, false, undoableModel != nullptr and modelHasBackingFile) and undoableModel != nullptr) {
             ActionCopyModelPathToClipboard(*undoableModel);
         }
         ui::draw_tooltip_if_item_hovered("Copy .osim path to clipboard", "Copies the absolute path to the model's .osim file into your clipboard.\n\nThis is handy if you want to (e.g.) load the osim via a script, open it from the command line in another app, etc.");
 
-        if (ui::draw_menu_item(MSMICONS_FOLDER " Open .osim's parent directory", {}, false, modelHasBackingFile) && maybeModel) {
+        if (ui::draw_menu_item(MSMICONS_FOLDER " Open .osim's parent directory", std::nullopt, false, modelHasBackingFile) && maybeModel) {
             ActionOpenOsimParentDirectory(*maybeModel);
         }
 
-        if (ui::draw_menu_item(MSMICONS_LINK " Open .osim in external editor", {}, false, modelHasBackingFile) && maybeModel) {
+        if (ui::draw_menu_item(MSMICONS_LINK " Open .osim in external editor", std::nullopt, false, modelHasBackingFile) && maybeModel) {
             ActionOpenOsimInExternalEditor(*maybeModel);
         }
         ui::draw_tooltip_if_item_hovered("Open .osim in external editor", "Open the .osim file currently being edited in an external text editor. The editor that's used depends on your operating system's default for opening .osim files.");

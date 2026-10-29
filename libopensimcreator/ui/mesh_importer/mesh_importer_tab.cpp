@@ -2338,7 +2338,7 @@ private:
             for (size_t i = 0; i < m_Shared->num_toggleable_panels(); ++i)
             {
                 bool isEnabled = m_Shared->isNthPanelEnabled(i);
-                if (ui::draw_menu_item(m_Shared->getNthPanelName(i), {}, isEnabled))
+                if (ui::draw_menu_item(m_Shared->getNthPanelName(i), std::nullopt, isEnabled))
                 {
                     m_Shared->setNthPanelEnabled(i, !isEnabled);
                 }
