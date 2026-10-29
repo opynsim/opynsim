@@ -27,6 +27,9 @@ namespace osc
     // if it exists in the document, translates the given landmark by the given translation vector in the mesh's coordinate system.
     bool TranslateLandmarkByID(MwDocument&, UID, MiDocumentInputIdentifier, MwDocumentElementType, const Vector3& translation);
 
+    // if it exists in the document, sets the location of the given landmark to `location` in the mesh's coordinate system.
+    bool SetLandmarkLocationByID(MwDocument&, UID, MiDocumentInputIdentifier, MwDocumentElementType, const Vector3& location);
+
     // if it exists in the document, returns a pointer to the identified landmark pair; otherwise, returns `nullptr`
     const MwDocumentLandmarkPair* FindLandmarkPair(const MwDocument&, UID);
     MwDocumentLandmarkPair* FindLandmarkPair(MwDocument&, UID);

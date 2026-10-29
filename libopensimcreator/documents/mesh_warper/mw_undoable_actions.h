@@ -117,4 +117,7 @@ namespace osc
 
     // commit/save the scratch space with a "translated landmarks" message (pair this with `ActionTranslateLandmarksDontSave`)
     void ActionSaveLandmarkTranslation(MwUndoableDocument&, const std::unordered_set<MwDocumentElementID>& landmarkIDs);
+
+    // moves the chosen landmarks to `location` and saves the scratch space with a "set landmark locations" message
+    void ActionSetLandmarkLocations(MwUndoableDocument&, const std::unordered_set<MwDocumentElementID>&, const Vector3& location);
 }

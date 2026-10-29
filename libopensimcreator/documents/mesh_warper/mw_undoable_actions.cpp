@@ -509,3 +509,15 @@ void osc::ActionSaveLandmarkTranslation(MwUndoableDocument& doc, const std::unor
     ss << "Translated " << landmarkIDs.size() << " landmarks";
     doc.commit_scratch(std::move(ss).str());
 }
+
+void osc::ActionSetLandmarkLocations(
+    MwUndoableDocument& doc,
+    const std::unordered_set<MwDocumentElementID>& landmarkIDs,
+    const Vector3& location)
+{
+    MwDocument& scratch = doc.upd_scratch();
+    for (const MwDocumentElementID& id : landmarkIDs) {
+        SetLandmarkLocationByID(scratch, id.uid, id.input, id.type, location);
+    }
+    doc.commit_scratch(std::format("Relocated {} landmarks", landmarkIDs.size()));
+}

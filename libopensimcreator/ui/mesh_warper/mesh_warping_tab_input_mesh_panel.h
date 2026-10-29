@@ -7,6 +7,7 @@
 #include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_context_menu.h>
 #include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_decoration_generators.h>
 #include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_hover.h>
+#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_mesh_context_menu.h>
 #include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_panel.h>
 #include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
 
@@ -395,9 +396,19 @@ namespace osc
                 {
                     m_State->emplacePopup<MeshWarpingTabContextMenu>(
                         this,
-                        "##MeshInputContextMenu",
+                        "##MeshInputLandmarkContextMenu",
                         m_State,
                         landmarkCollision->getSceneElementID().value()
+                    );
+                }
+                else if (meshCollision)
+                {
+                    m_State->emplacePopup<MeshWarpingTabMeshContextMenu>(
+                        this,
+                        "##MeshInputMeshContextMenu",
+                        m_State,
+                        m_DocumentIdentifier,
+                        *meshCollision
                     );
                 }
             }

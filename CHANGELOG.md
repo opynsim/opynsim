@@ -48,6 +48,9 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   the actual type annotation was extremely long and annoying to actually read ;).
 - `opynsim.Camera`'s constructor now accepts `vertical_field_of_view` as an argument, which
   enables setting it during initialization, rather than having to set it separately.
+- OpenSim Creator's mesh warping workflow now has a right-click context menu
+  for the mesh, which includes a new "Move Selection Here" option, enabling moving existing
+  landmarks to the click location.
 
   
 

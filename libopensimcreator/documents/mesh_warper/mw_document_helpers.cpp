@@ -113,7 +113,12 @@ std::optional<Vector3> osc::FindLandmarkLocation(const MwDocument& doc, UID uid,
     return std::nullopt;
 }
 
-bool osc::TranslateLandmarkByID(MwDocument& doc, UID uid, MiDocumentInputIdentifier input, MwDocumentElementType elementType, const Vector3& translation)
+bool osc::TranslateLandmarkByID(
+    MwDocument& doc,
+    UID uid,
+    MiDocumentInputIdentifier input,
+    MwDocumentElementType elementType,
+    const Vector3& translation)
 {
     static_assert(num_options<MwDocumentElementType>() == 2);
     switch (elementType) {
@@ -135,6 +140,37 @@ bool osc::TranslateLandmarkByID(MwDocument& doc, UID uid, MiDocumentInputIdentif
         break;
     }
     default: return false;
+    }
+    return false;
+}
+
+bool osc::SetLandmarkLocationByID(
+    MwDocument& doc,
+    UID uid,
+    MiDocumentInputIdentifier input,
+    MwDocumentElementType elementType,
+    const Vector3& location)
+{
+    static_assert(num_options<MwDocumentElementType>() == 2);
+    switch (elementType) {
+        case MwDocumentElementType::Landmark: {
+            if (MwDocumentLandmarkPair* p = FindLandmarkPair(doc, uid)) {
+                static_assert(num_options<MiDocumentInputIdentifier>() == 2);
+                if (auto& pos = input == MiDocumentInputIdentifier::Source ? p->maybeSourceLocation : p->maybeDestinationLocation) {
+                    *pos = location;
+                    return true;
+                }
+            }
+            break;
+        }
+        case MwDocumentElementType::NonParticipatingLandmark: {
+            if (auto* npl = FindNonParticipatingLandmark(doc, uid)) {
+                npl->location = location;
+                return true;
+            }
+            break;
+        }
+        default: return false;
     }
     return false;
 }

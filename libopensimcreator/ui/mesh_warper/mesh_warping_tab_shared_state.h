@@ -152,6 +152,15 @@ namespace osc
             });
         }
 
+        bool hasSelection(MiDocumentInputIdentifier input) const
+        {
+            // TODO: should probably gc the selection
+            return std::ranges::any_of(m_UserSelection, [this, input](const MwDocumentElementID& el)
+            {
+                return el.input == input and FindElement(getScratch(), el);
+            });
+        }
+
         std::vector<Vector3> getSelectionLandmarkLocations(MiDocumentInputIdentifier input) const
         {
             std::vector<Vector3> rv;
