@@ -20,7 +20,7 @@ namespace osc
 
     // an `App` that:
     //
-    // - ensures `GlobalInitOpenSim` has been called
+    // - ensures `globally_init_open_sim` has been called
     // - ensures `resources/geometry` has been added to the geometry search path
     // - initializes a `TabRegistry` singleton instance containing all user-facing tabs
     // - initializes any other OpenSim-Creator-specific settings
