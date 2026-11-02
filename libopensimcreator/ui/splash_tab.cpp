@@ -6,7 +6,7 @@
 #include <libopensimcreator/platform/recent_files.h>
 #include <libopensimcreator/ui/loading_tab.h>
 #include <libopensimcreator/ui/mesh_importer/mesh_importer_tab.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_tab.h>
 #include <libopensimcreator/ui/model_warper/model_warper_tab.h>
 #include <libopensimcreator/ui/preview_experimental_data/preview_experimental_data_tab.h>
 #include <libopensimcreator/ui/shared/main_menu.h>
@@ -289,7 +289,7 @@ private:
             App::post_event<OpenTabEvent>(*parent(), std::move(tab));
         }
         if (ui::draw_menu_item(MSMICONS_CUBE " Mesh Warping")) {
-            auto tab = std::make_unique<MeshWarpingTab>(parent());
+            auto tab = std::make_unique<MwUiTab>(parent());
             App::post_event<OpenTabEvent>(*parent(), std::move(tab));
         }
         ui::add_screenshot_annotation_to_last_drawn_item("SplashTab/MeshWarpingMenuItem");

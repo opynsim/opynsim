@@ -6,11 +6,12 @@ namespace osc { class Widget; }
 
 namespace osc
 {
-    class MeshWarpingTab final : public Tab {
+    /// Represents the "mesh warping workflow" UI tab.
+    class MwUiTab final : public Tab {
     public:
         static CStringView id();
 
-        explicit MeshWarpingTab(Widget*);
+        explicit MwUiTab(Widget*);
 
     private:
         void impl_on_mount() final;

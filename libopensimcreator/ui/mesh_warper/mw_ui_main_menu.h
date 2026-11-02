@@ -1,9 +1,9 @@
 #pragma once
 
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_actions_menu.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_edit_menu.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_file_menu.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_actions_menu.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_edit_menu.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_file_menu.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 #include <libopensimcreator/ui/shared/main_menu.h>
 
 #include <liboscar/platform/widget.h>
@@ -15,11 +15,11 @@
 namespace osc
 {
     // widget: the main menu (contains multiple submenus: 'file', 'edit', 'about', etc.)
-    class MeshWarpingTabMainMenu final : public Widget {
+    class MwUiMainMenu final : public Widget {
     public:
-        explicit MeshWarpingTabMainMenu(
+        explicit MwUiMainMenu(
             Widget* parent,
-            const std::shared_ptr<MeshWarpingTabSharedState>& tabState_,
+            const std::shared_ptr<MwUiSharedState>& tabState_,
             const std::shared_ptr<PanelManager>& panelManager_) :
 
             Widget{parent},
@@ -38,9 +38,9 @@ namespace osc
             m_AboutTab.onDraw();
         }
     private:
-        MeshWarpingTabFileMenu m_FileMenu;
-        MeshWarpingTabEditMenu m_EditMenu;
-        MeshWarpingTabActionsMenu m_ActionsMenu;
+        MwUiFileMenu m_FileMenu;
+        MwUiEditMenu m_EditMenu;
+        MwUiActionsMenu m_ActionsMenu;
         WindowMenu m_WindowMenu;
         MainMenuAboutTab m_AboutTab;
     };

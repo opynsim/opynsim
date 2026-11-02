@@ -1,13 +1,13 @@
-#include "mesh_warping_tab.h"
+#include "mw_ui_tab.h"
 
 #include <libopensimcreator/documents/mesh_warper/mw_document_input_identifier.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_input_mesh_panel.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_main_menu.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_navigator_panel.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_result_mesh_panel.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_status_bar.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_toolbar.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_source_mesh_panel.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_main_menu.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_landmark_navigator_panel.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_result_panel.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_status_bar.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_toolbar.h>
 
 #include <liboscar/platform/app.h>
 #include <liboscar/platform/events/event.h>
@@ -25,18 +25,18 @@
 
 using namespace osc;
 
-class osc::MeshWarpingTab::Impl final : public TabPrivate {
+class osc::MwUiTab::Impl final : public TabPrivate {
 public:
 
-    explicit Impl(MeshWarpingTab& owner, Widget* parent_) :
+    explicit Impl(MwUiTab& owner, Widget* parent_) :
         TabPrivate{owner, parent_, MSMICONS_BEZIER_CURVE " Mesh Warping"},
-        m_Shared{std::make_shared<MeshWarpingTabSharedState>(id(), &owner, App::singleton<SceneCache>(App::resource_loader()))}
+        m_Shared{std::make_shared<MwUiSharedState>(id(), &owner, App::singleton<SceneCache>(App::resource_loader()))}
     {
         m_PanelManager->register_toggleable_panel(
             "Source Mesh",
             [state = m_Shared](Widget* parent, std::string_view panelName)
             {
-                return std::make_shared<MeshWarpingTabInputMeshPanel>(parent, panelName, state, MiDocumentInputIdentifier::Source);
+                return std::make_shared<MwUiSourceMeshPanel>(parent, panelName, state, MiDocumentInputIdentifier::Source);
             }
         );
 
@@ -44,7 +44,7 @@ public:
             "Destination Mesh",
             [state = m_Shared](Widget* parent, std::string_view panelName)
             {
-                return std::make_shared<MeshWarpingTabInputMeshPanel>(parent, panelName, state, MiDocumentInputIdentifier::Destination);
+                return std::make_shared<MwUiSourceMeshPanel>(parent, panelName, state, MiDocumentInputIdentifier::Destination);
             }
         );
 
@@ -52,7 +52,7 @@ public:
             "Result",
             [state = m_Shared](Widget* parent, std::string_view panelName)
             {
-                return std::make_shared<MeshWarpingTabResultMeshPanel>(parent, panelName, state);
+                return std::make_shared<MwUiResultPanel>(parent, panelName, state);
             }
         );
 
@@ -78,7 +78,7 @@ public:
             "Landmark Navigator",
             [state = m_Shared](Widget* parent, std::string_view panelName)
             {
-                return std::make_shared<MeshWarpingTabNavigatorPanel>(parent, panelName, state);
+                return std::make_shared<MwUiLandmarkNavigatorPanel>(parent, panelName, state);
             },
             ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault
         );
@@ -174,26 +174,26 @@ private:
     }
 
     // top-level state that all panels can potentially access
-    std::shared_ptr<MeshWarpingTabSharedState> m_Shared;
+    std::shared_ptr<MwUiSharedState> m_Shared;
 
     // available/active panels that the user can toggle via the `window` menu
     std::shared_ptr<PanelManager> m_PanelManager = std::make_shared<PanelManager>(&owner());
 
     // not-user-toggleable widgets
-    MeshWarpingTabMainMenu m_MainMenu{&owner(), m_Shared, m_PanelManager};
-    MeshWarpingTabToolbar m_TopToolbar{&owner(), "##MeshWarpingTabToolbar", m_Shared};
-    MeshWarpingTabStatusBar m_StatusBar{"##MeshWarpingTabStatusBar", m_Shared};
+    MwUiMainMenu m_MainMenu{&owner(), m_Shared, m_PanelManager};
+    MwUiToolbar m_TopToolbar{&owner(), "##MeshWarpingTabToolbar", m_Shared};
+    MwUiStatusBar m_StatusBar{"##MeshWarpingTabStatusBar", m_Shared};
 };
 
 
-CStringView osc::MeshWarpingTab::id() { return "OpenSim/Warping"; }
+CStringView osc::MwUiTab::id() { return "OpenSim/Warping"; }
 
-osc::MeshWarpingTab::MeshWarpingTab(Widget* parent_) :
+osc::MwUiTab::MwUiTab(Widget* parent_) :
     Tab{std::make_unique<Impl>(*this, parent_)}
 {}
-void osc::MeshWarpingTab::impl_on_mount() { private_data().on_mount(); }
-void osc::MeshWarpingTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::MeshWarpingTab::impl_on_event(Event& e) { return private_data().onEvent(e); }
-void osc::MeshWarpingTab::impl_on_tick() { private_data().on_tick(); }
-void osc::MeshWarpingTab::impl_on_draw_main_menu() { private_data().onDrawMainMenu(); }
-void osc::MeshWarpingTab::impl_on_draw() { private_data().onDraw(); }
+void osc::MwUiTab::impl_on_mount() { private_data().on_mount(); }
+void osc::MwUiTab::impl_on_unmount() { private_data().on_unmount(); }
+bool osc::MwUiTab::impl_on_event(Event& e) { return private_data().onEvent(e); }
+void osc::MwUiTab::impl_on_tick() { private_data().on_tick(); }
+void osc::MwUiTab::impl_on_draw_main_menu() { private_data().onDrawMainMenu(); }
+void osc::MwUiTab::impl_on_draw() { private_data().onDraw(); }

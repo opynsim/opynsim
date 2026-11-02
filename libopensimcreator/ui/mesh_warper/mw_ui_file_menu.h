@@ -3,7 +3,7 @@
 #include <libopensimcreator/documents/mesh_warper/mw_document_input_identifier.h>
 #include <libopensimcreator/documents/mesh_warper/mw_undoable_actions.h>
 #include <libopensimcreator/platform/msmicons.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 
 #include <libopynsim/documents/landmarks/landmark_csv_flags.h>
 #include <liboscar/platform/app.h>
@@ -15,10 +15,10 @@
 namespace osc
 {
     // widget: the 'file' menu (a sub menu of the main menu)
-    class MeshWarpingTabFileMenu final {
+    class MwUiFileMenu final {
     public:
-        explicit MeshWarpingTabFileMenu(
-            std::shared_ptr<MeshWarpingTabSharedState> tabState_) :
+        explicit MwUiFileMenu(
+            std::shared_ptr<MwUiSharedState> tabState_) :
             m_State{std::move(tabState_)}
         {}
 
@@ -109,6 +109,6 @@ namespace osc
             }
         }
 
-        std::shared_ptr<MeshWarpingTabSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> m_State;
     };
 }

@@ -6,7 +6,7 @@
 namespace osc
 {
     // generic base class for the panels shown in the TPS3D tab
-    class MeshWarpingTabPanel : public Panel {
+    class MwUiPanel : public Panel {
     public:
         using Panel::Panel;
 

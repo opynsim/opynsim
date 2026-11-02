@@ -4,12 +4,12 @@
 #include <libopensimcreator/documents/mesh_warper/mw_document_landmark_pair.h>
 #include <libopensimcreator/documents/mesh_warper/mw_undoable_actions.h>
 #include <libopensimcreator/platform/msmicons.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_context_menu.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_decoration_generators.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_hover.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_mesh_context_menu.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_panel.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_landmark_context_menu.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_decoration_generators.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_hovertest_result.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_mesh_context_menu.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_panel.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 
 #include <liboscar/graphics/geometries/solid_geometries.h>
 #include <liboscar/graphics/scene/cached_scene_renderer.h>
@@ -46,15 +46,15 @@
 namespace osc
 {
     // an "input" panel (i.e. source or destination mesh, before warping)
-    class MeshWarpingTabInputMeshPanel final : public MeshWarpingTabPanel {
+    class MwUiSourceMeshPanel final : public MwUiPanel {
     public:
-        explicit MeshWarpingTabInputMeshPanel(
+        explicit MwUiSourceMeshPanel(
             Widget* parent,
             std::string_view panelName_,
-            std::shared_ptr<MeshWarpingTabSharedState> state_,
+            std::shared_ptr<MwUiSharedState> state_,
             MiDocumentInputIdentifier documentIdentifier_) :
 
-            MeshWarpingTabPanel{parent, panelName_},
+            MwUiPanel{parent, panelName_},
             m_State{std::move(state_)},
             m_DocumentIdentifier{documentIdentifier_}
         {
@@ -80,7 +80,7 @@ namespace osc
                 std::nullopt;
 
             // landmark hittest: compute whether the user is hovering over a landmark
-            std::optional<MeshWarpingTabHover> landmarkCollision = m_LastTextureHittestResult.is_hovered ?
+            std::optional<MwUiHovertestResult> landmarkCollision = m_LastTextureHittestResult.is_hovered ?
                 getMouseLandmarkCollisions(cameraRay) :
                 std::nullopt;
 
@@ -132,9 +132,9 @@ namespace osc
         }
 
         // returns the closest collision, if any, between the provided camera ray and a landmark
-        std::optional<MeshWarpingTabHover> getMouseLandmarkCollisions(const Ray& cameraRay) const
+        std::optional<MwUiHovertestResult> getMouseLandmarkCollisions(const Ray& cameraRay) const
         {
-            std::optional<MeshWarpingTabHover> rv;
+            std::optional<MwUiHovertestResult> rv;
             hittestLandmarks(cameraRay, rv);
             hittestNonParticipatingLandmarks(cameraRay, rv);
             return rv;
@@ -143,7 +143,7 @@ namespace osc
         // 3D hittests landmarks and updates `closest` if a closer collision is found
         void hittestLandmarks(
             const Ray& cameraRay,
-            std::optional<MeshWarpingTabHover>& closest) const
+            std::optional<MwUiHovertestResult>& closest) const
         {
             for (const MwDocumentLandmarkPair& landmark : m_State->getScratch().landmarkPairs)
             {
@@ -154,7 +154,7 @@ namespace osc
         // 3D hittests one landmark and updates `closest` if a closer collision is found
         void hittestLandmark(
             const Ray& cameraRay,
-            std::optional<MeshWarpingTabHover>& closest,
+            std::optional<MwUiHovertestResult>& closest,
             const MwDocumentLandmarkPair& landmark) const
         {
             const std::optional<Vector3> maybePos = GetLocation(landmark, m_DocumentIdentifier);
@@ -177,7 +177,7 @@ namespace osc
         // 3D hittests non-participating landmarks and updates `closest` if a closer collision is found
         void hittestNonParticipatingLandmarks(
             const Ray& cameraRay,
-            std::optional<MeshWarpingTabHover>& closest) const
+            std::optional<MwUiHovertestResult>& closest) const
         {
             for (const auto& nonPariticpatingLandmark : m_State->getScratch().nonParticipatingLandmarks)
             {
@@ -188,7 +188,7 @@ namespace osc
         // 3D hittests one non-participating landmark and updates `closest` if a closer collision is found
         void hittestNonParticipatingLandmark(
             const Ray& cameraRay,
-            std::optional<MeshWarpingTabHover>& closest,
+            std::optional<MwUiHovertestResult>& closest,
             const MwDocumentNonParticipatingLandmark& nonPariticpatingLandmark) const
         {
             // hittest non-participating landmark as an analytic sphere
@@ -212,7 +212,7 @@ namespace osc
         RenderTexture& renderScene(
             Vector2 dims,
             const std::optional<RayCollision>& maybeMeshCollision,
-            const std::optional<MeshWarpingTabHover>& maybeLandmarkCollision)
+            const std::optional<MwUiHovertestResult>& maybeLandmarkCollision)
         {
             SceneRendererParams params = calc_standard_dark_scene_render_params(
                 m_Camera,
@@ -228,7 +228,7 @@ namespace osc
         // returns a fresh list of 3D decorations for this panel's 3D render
         std::vector<SceneDecoration> generateDecorations(
             const std::optional<RayCollision>& maybeMeshCollision,
-            const std::optional<MeshWarpingTabHover>& maybeLandmarkCollision) const
+            const std::optional<MwUiHovertestResult>& maybeLandmarkCollision) const
         {
             std::vector<SceneDecoration> decorations;
             decorations.reserve(
@@ -362,7 +362,7 @@ namespace osc
         void handleInputAndHoverEvents(
             const ui::HittestResult& htResult,
             const std::optional<RayCollision>& meshCollision,
-            const std::optional<MeshWarpingTabHover>& landmarkCollision)
+            const std::optional<MwUiHovertestResult>& landmarkCollision)
         {
             // event: if the user left-clicks and something is hovered, select it; otherwise, add a landmark
             if (htResult.is_left_click_released_without_dragging)
@@ -394,7 +394,7 @@ namespace osc
             {
                 if (landmarkCollision && landmarkCollision->isHoveringASceneElement())
                 {
-                    m_State->emplacePopup<MeshWarpingTabContextMenu>(
+                    m_State->emplacePopup<MwUiLandmarkContextMenu>(
                         this,
                         "##MeshInputLandmarkContextMenu",
                         m_State,
@@ -403,7 +403,7 @@ namespace osc
                 }
                 else if (meshCollision)
                 {
-                    m_State->emplacePopup<MeshWarpingTabMeshContextMenu>(
+                    m_State->emplacePopup<MwUiMeshContextMenu>(
                         this,
                         "##MeshInputMeshContextMenu",
                         m_State,
@@ -652,7 +652,7 @@ namespace osc
             return isSourceMesh && isCtrlPressed;
         }
 
-        std::shared_ptr<MeshWarpingTabSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> m_State;
         MiDocumentInputIdentifier m_DocumentIdentifier;
         Camera m_Camera;
         OrbitCameraController m_CameraController;

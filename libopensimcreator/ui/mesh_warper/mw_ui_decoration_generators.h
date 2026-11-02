@@ -1,6 +1,6 @@
 #pragma once
 
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 
 #include <libopynsim/graphics/overlay_decoration_generator.h>
 #include <liboscar/graphics/color.h>
@@ -14,7 +14,7 @@ namespace osc
 {
     // append decorations that are common to all panels to the given output vector
     void AppendCommonDecorations(
-        MeshWarpingTabSharedState& sharedState,
+        MwUiSharedState& sharedState,
         const Mesh& tpsSourceOrDestinationMesh,
         bool wireframeMode,
         const std::function<void(SceneDecoration&&)>& out,

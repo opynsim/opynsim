@@ -5,8 +5,8 @@
 #include <libopensimcreator/documents/mesh_warper/mw_document_input_identifier.h>
 #include <libopensimcreator/documents/mesh_warper/mw_result_cache.h>
 #include <libopensimcreator/documents/mesh_warper/mw_undoable_document.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_hover.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_user_selection.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_hovertest_result.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_selection.h>
 
 #include <libopynsim/graphics/custom_rendering_options.h>
 #include <libopynsim/graphics/overlay_decoration_options.h>
@@ -35,9 +35,9 @@
 namespace osc
 {
     // top-level UI state that is shared by all UI panels
-    class MeshWarpingTabSharedState final {
+    class MwUiSharedState final {
     public:
-        explicit MeshWarpingTabSharedState(
+        explicit MwUiSharedState(
             UID tabID_,
             Widget* parent_,
             std::shared_ptr<SceneCache> sceneCache_) :
@@ -118,7 +118,7 @@ namespace osc
             return m_CurrentHover.has_value();
         }
 
-        const MeshWarpingTabHover& getCurrentHover() const
+        const MwUiHovertestResult& getCurrentHover() const
         {
             return *m_CurrentHover;
         }
@@ -128,7 +128,7 @@ namespace osc
             return m_CurrentHover && m_CurrentHover->isHovering(id);
         }
 
-        void setHover(const std::optional<MeshWarpingTabHover>& newHover)
+        void setHover(const std::optional<MwUiHovertestResult>& newHover)
         {
             m_CurrentHover = newHover;
         }
@@ -322,10 +322,10 @@ namespace osc
         Mesh m_LandmarkSphere = m_SceneCache->sphere_mesh();
 
         // current user selection
-        MeshWaringTabUserSelection m_UserSelection;
+        MwUiSelection m_UserSelection;
 
         // current user hover: reset per-frame
-        std::optional<MeshWarpingTabHover> m_CurrentHover;
+        std::optional<MwUiHovertestResult> m_CurrentHover;
 
         // currently active tab-wide popups
         PopupManager m_PopupManager;

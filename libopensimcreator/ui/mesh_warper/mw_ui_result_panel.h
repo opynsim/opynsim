@@ -2,9 +2,9 @@
 
 #include <libopensimcreator/documents/mesh_warper/mw_undoable_actions.h>
 #include <libopensimcreator/platform/msmicons.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_decoration_generators.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_panel.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_decoration_generators.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_panel.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 
 #include <libopynsim/documents/landmarks/landmark_csv_flags.h>
 #include <liboscar/graphics/scene/cached_scene_renderer.h>
@@ -28,14 +28,14 @@
 namespace osc
 {
     // a "result" panel (i.e. after applying a warp to the source)
-    class MeshWarpingTabResultMeshPanel final : public MeshWarpingTabPanel {
+    class MwUiResultPanel final : public MwUiPanel {
     public:
-        explicit MeshWarpingTabResultMeshPanel(
+        explicit MwUiResultPanel(
             Widget* parent,
             std::string_view panelName_,
-            std::shared_ptr<MeshWarpingTabSharedState> state_) :
+            std::shared_ptr<MwUiSharedState> state_) :
 
-            MeshWarpingTabPanel{parent, panelName_},
+            MwUiPanel{parent, panelName_},
             m_State{std::move(state_)}
         {
             m_Camera.set_vertical_field_of_view(Degrees{35.0f});
@@ -336,7 +336,7 @@ namespace osc
             return m_CachedRenderer.render(decorations, params);
         }
 
-        std::shared_ptr<MeshWarpingTabSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> m_State;
         Camera m_Camera;
         OrbitCameraController m_CameraController;
         CachedSceneRenderer m_CachedRenderer{

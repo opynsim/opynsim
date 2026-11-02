@@ -5,17 +5,17 @@
 #include <memory>
 #include <string_view>
 
-namespace osc { class MeshWarpingTabSharedState; }
+namespace osc { class MwUiSharedState; }
 
 namespace osc
 {
-    // the top toolbar (contains icons for new, save, open, undo, redo, etc.)
-    class MeshWarpingTabToolbar final : public Widget {
+    /// Represents the mesh warper UI's top toolbar.
+    class MwUiToolbar final : public Widget {
     public:
-        explicit MeshWarpingTabToolbar(
+        explicit MwUiToolbar(
             Widget* parent,
             std::string_view label,
-            std::shared_ptr<MeshWarpingTabSharedState>
+            std::shared_ptr<MwUiSharedState>
         );
 
     private:

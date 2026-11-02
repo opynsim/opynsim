@@ -10,16 +10,16 @@
 namespace osc
 {
     // a mouse hovertest result
-    class MeshWarpingTabHover final {
+    class MwUiHovertestResult final {
     public:
-        explicit MeshWarpingTabHover(
+        explicit MwUiHovertestResult(
             MiDocumentInputIdentifier input_,
             const Vector3& worldSpaceLocation_) :
             m_Input{input_},
             m_WorldSpaceLocation{worldSpaceLocation_}
         {}
 
-        explicit MeshWarpingTabHover(
+        explicit MwUiHovertestResult(
             MwDocumentElementID sceneElementID_,
             const Vector3& worldSpaceLocation_) :
 

@@ -7,7 +7,7 @@
 #include <libopensimcreator/documents/mesh_warper/mw_document_non_participating_landmark.h>
 #include <libopensimcreator/documents/mesh_warper/mw_undoable_actions.h>
 #include <libopensimcreator/platform/msmicons.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 #include <libopensimcreator/ui/shared/basic_widgets.h>
 
 #include <liboscar/ui/oscimgui.h>
@@ -22,12 +22,12 @@
 
 namespace osc
 {
-    class MeshWarpingTabContextMenu final : public Popup {
+    class MwUiLandmarkContextMenu final : public Popup {
     public:
-        explicit MeshWarpingTabContextMenu(
+        explicit MwUiLandmarkContextMenu(
             Widget* parent,
             std::string_view label_,
-            std::shared_ptr<MeshWarpingTabSharedState> shared_,
+            std::shared_ptr<MwUiSharedState> shared_,
             MwDocumentElementID rightClickedID_) :
 
             Popup{parent, label_},
@@ -165,7 +165,7 @@ namespace osc
             }
         }
 
-        std::shared_ptr<MeshWarpingTabSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> m_State;
         MwDocumentElementID m_ElementID;
         std::optional<std::string> m_ActiveNameEdit;
         std::optional<Vector3> m_ActivePositionEdit;

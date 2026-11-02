@@ -2,7 +2,7 @@
 
 #include <libopensimcreator/documents/mesh_warper/mw_document_input_identifier.h>
 #include <libopensimcreator/documents/mesh_warper/mw_undoable_actions.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 #include <libopensimcreator/ui/shared/basic_widgets.h>
 
 #include <liboscar/maths/ray_collision.h>
@@ -20,12 +20,12 @@ namespace osc
 {
     /// The context menu that's shown when a user right-clicks a landmark
     /// in the scene.
-    class MeshWarpingTabMeshContextMenu final : public Popup {
+    class MwUiMeshContextMenu final : public Popup {
     public:
-        explicit MeshWarpingTabMeshContextMenu(
+        explicit MwUiMeshContextMenu(
             Widget* parent,
             std::string_view label_,
-            std::shared_ptr<MeshWarpingTabSharedState> shared_,
+            std::shared_ptr<MwUiSharedState> shared_,
             MiDocumentInputIdentifier mesh_identifier_,
             RayCollision mesh_collision_) :
 
@@ -53,7 +53,7 @@ namespace osc
             }
         }
 
-        std::shared_ptr<MeshWarpingTabSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> m_State;
         MiDocumentInputIdentifier m_DocumentIdentifier;
         RayCollision m_MeshCollision;
     };

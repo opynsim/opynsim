@@ -1,6 +1,6 @@
 #pragma once
 
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 
 #include <liboscar/ui/oscimgui.h>
 
@@ -10,10 +10,10 @@
 namespace osc
 {
     // widget: the 'edit' menu (a sub menu of the main menu)
-    class MeshWarpingTabEditMenu final {
+    class MwUiEditMenu final {
     public:
-        explicit MeshWarpingTabEditMenu(
-            std::shared_ptr<MeshWarpingTabSharedState> tabState_) :
+        explicit MwUiEditMenu(
+            std::shared_ptr<MwUiSharedState> tabState_) :
             m_State{std::move(tabState_)}
         {
         }
@@ -50,6 +50,6 @@ namespace osc
             }
         }
 
-        std::shared_ptr<MeshWarpingTabSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> m_State;
     };
 }

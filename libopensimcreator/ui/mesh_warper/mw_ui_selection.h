@@ -7,8 +7,8 @@
 
 namespace osc
 {
-    // the user's current selection
-    struct MeshWaringTabUserSelection final {
+    /// Represents the user's current selection.
+    struct MwUiSelection final {
 
         size_t size() const { return m_SelectedSceneElements.size(); }
         auto begin() const { return m_SelectedSceneElements.begin(); }

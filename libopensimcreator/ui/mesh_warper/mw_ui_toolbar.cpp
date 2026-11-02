@@ -1,8 +1,8 @@
-#include "mesh_warping_tab_toolbar.h"
+#include "mw_ui_toolbar.h"
 
 #include <libopensimcreator/documents/mesh_warper/mw_undoable_actions.h>
 #include <libopensimcreator/platform/msmicons.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 #include <libopensimcreator/ui/shared/basic_widgets.h>
 
 #include <libopynsim/documents/landmarks/named_landmark.h>
@@ -16,13 +16,13 @@
 #include <string_view>
 #include <utility>
 
-class osc::MeshWarpingTabToolbar::Impl final : public WidgetPrivate {
+class osc::MwUiToolbar::Impl final : public WidgetPrivate {
 public:
     explicit Impl(
         Widget& owner,
         Widget* parent,
         std::string_view label,
-        std::shared_ptr<MeshWarpingTabSharedState> tabState_) :
+        std::shared_ptr<MwUiSharedState> tabState_) :
 
         WidgetPrivate{owner, parent},
         m_State{std::move(tabState_)}
@@ -165,15 +165,15 @@ private:
         ui::draw_tooltip_if_item_hovered("Swap Source <-> Destination", "Swaps the source mesh with the destination mesh.\n\nNote: non-participating landmarks will be left in the source mesh, because they must always be there.");
     }
 
-    std::shared_ptr<MeshWarpingTabSharedState> m_State;
+    std::shared_ptr<MwUiSharedState> m_State;
     UndoButton m_UndoButton{&owner(), m_State->getUndoableSharedPtr(), MSMICONS_UNDO};
     RedoButton m_RedoButton{&owner(), m_State->getUndoableSharedPtr(), MSMICONS_REDO};
 };
 
-osc::MeshWarpingTabToolbar::MeshWarpingTabToolbar(
+osc::MwUiToolbar::MwUiToolbar(
     Widget* parent,
     std::string_view label,
-    std::shared_ptr<MeshWarpingTabSharedState> sharedState) :
+    std::shared_ptr<MwUiSharedState> sharedState) :
     Widget{std::make_unique<Impl>(*this, parent, label, std::move(sharedState))}
 {}
-void osc::MeshWarpingTabToolbar::impl_on_draw() { private_data().onDraw(); }
+void osc::MwUiToolbar::impl_on_draw() { private_data().onDraw(); }

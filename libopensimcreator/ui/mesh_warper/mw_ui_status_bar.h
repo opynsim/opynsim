@@ -1,6 +1,6 @@
 #pragma once
 
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 
 #include <liboscar/graphics/color.h>
 #include <liboscar/maths/vector.h>
@@ -14,11 +14,11 @@
 namespace osc
 {
     // widget: bottom status bar (shows status messages, hover information, etc.)
-    class MeshWarpingTabStatusBar final {
+    class MwUiStatusBar final {
     public:
-        MeshWarpingTabStatusBar(
+        MwUiStatusBar(
             std::string_view label,
-            std::shared_ptr<const MeshWarpingTabSharedState> tabState_) :
+            std::shared_ptr<const MwUiSharedState> tabState_) :
 
             m_Label{label},
             m_State{std::move(tabState_)}
@@ -45,7 +45,7 @@ namespace osc
             }
         }
 
-        void drawCurrentHoverInfo(const MeshWarpingTabHover& hover)
+        void drawCurrentHoverInfo(const MwUiHovertestResult& hover)
         {
             drawColorCodedXYZ(hover.getWorldSpaceLocation());
             ui::same_line();
@@ -81,6 +81,6 @@ namespace osc
         }
 
         std::string m_Label;
-        std::shared_ptr<const MeshWarpingTabSharedState> m_State;
+        std::shared_ptr<const MwUiSharedState> m_State;
     };
 }

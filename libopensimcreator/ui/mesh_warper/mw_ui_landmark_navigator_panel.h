@@ -5,7 +5,7 @@
 #include <libopensimcreator/documents/mesh_warper/mw_document_landmark_pair.h>
 #include <libopensimcreator/documents/mesh_warper/mw_document_non_participating_landmark.h>
 #include <libopensimcreator/platform/open_sim_creator_colors.h>
-#include <libopensimcreator/ui/mesh_warper/mesh_warping_tab_shared_state.h>
+#include <libopensimcreator/ui/mesh_warper/mw_ui_shared_state.h>
 
 #include <liboscar/maths/circle.h>
 #include <liboscar/maths/vector.h>
@@ -18,12 +18,12 @@
 
 namespace osc
 {
-    class MeshWarpingTabNavigatorPanel final : public Panel {
+    class MwUiLandmarkNavigatorPanel final : public Panel {
     public:
-        MeshWarpingTabNavigatorPanel(
+        MwUiLandmarkNavigatorPanel(
             Widget* parent,
             std::string_view label_,
-            std::shared_ptr<MeshWarpingTabSharedState> shared_) :
+            std::shared_ptr<MwUiSharedState> shared_) :
 
             Panel{parent, label_},
             m_State{std::move(shared_)}
@@ -240,6 +240,6 @@ namespace osc
             return ui::get_cursor_ui_position() + 0.5f*Vector2{ui::get_column_width(), ui::get_text_line_height_in_current_panel()};
         }
 
-        std::shared_ptr<MeshWarpingTabSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> m_State;
     };
 }
