@@ -12,6 +12,7 @@
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/key.h>
 #include <liboscar/platform/key_combination.h>
+#include <liboscar/platform/mouse_combination.h>
 #include <liboscar/platform/resource_path.h>
 #include <liboscar/utilities/copy_on_upd_ptr.h>
 #include <liboscar/utilities/c_string_view.h>
@@ -153,26 +154,10 @@ namespace osc::ui
     bool begin_menu(CStringView sv, bool enabled = true);
     void end_menu();
 
-    bool draw_menu_item(
-        CStringView label,
-        std::optional<KeyCombination> shortcut = {},
-        bool selected = false,
-        bool enabled = true
-    );
-
-    bool draw_menu_item(
-        CStringView label,
-        std::optional<KeyCombination> shortcut,
-        bool* p_selected,
-        bool enabled = true
-    );
-
-    bool draw_menu_item(
-        CStringView label,
-        CStringView shortcut_label,
-        bool selected = false,
-        bool enabled = true
-    );
+    bool draw_menu_item(CStringView label, std::nullopt_t = std::nullopt,            bool selected = false, bool enabled = true);
+    bool draw_menu_item(CStringView label, std::optional<KeyCombination> shortcut,   bool selected = false, bool enabled = true);
+    bool draw_menu_item(CStringView label, std::optional<KeyCombination> shortcut,   bool* p_selected,      bool enabled = true);
+    bool draw_menu_item(CStringView label, std::optional<MouseCombination> shortcut, bool selected = false, bool enabled = true);
 
     bool begin_tab_bar(CStringView str_id);
     void end_tab_bar();

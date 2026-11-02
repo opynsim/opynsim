@@ -420,10 +420,20 @@ namespace
             caller_config{std::move(config)},
             window_id{window_id}
         {
+            static_assert(osc::num_flags<MouseButton>() == 5);
+
             ui_material.set_transparent(true);
             ui_material.set_cull_mode(CullMode::Off);
             ui_material.set_depth_tested(false);
             ui_material.set_wireframe(false);
+        }
+
+        CStringView mouse_button_label_or_icon(MouseButton b) const
+        {
+            if (const auto it = mouse_button_ui_icons_or_strings.find(b); it != mouse_button_ui_icons_or_strings.end()) {
+                return it->second;
+            }
+            return mouse_button_ui_icon_or_string_fallback;
         }
 
         CopyOnUpdPtr<ui::ContextConfiguration::Impl> caller_config;
@@ -440,6 +450,14 @@ namespace
         int                                          mouse_last_leave_frame = 0;
         Vector2                                      mouse_delta_this_frame;   // Delta vector of the mouse in ui space this frame.
         Vector2                                      mouse_delta_from_events;  // Delta vector of the mouse in ui space, accumulated from events.
+        std::unordered_map<MouseButton, CStringView> mouse_button_ui_icons_or_strings = {
+            {MouseButton::Left,    "LeftClick"},
+            {MouseButton::Right,   "RightClick"},
+            {MouseButton::Middle,  "MiddleClick"},
+            {MouseButton::Back,    "Mouse4"},
+            {MouseButton::Forward, "Mouse5"},
+        };
+        CStringView mouse_button_ui_icon_or_string_fallback = "MouseUNKNOWN";
 
         // Font handling (CARE: this is here because ImGui requires it outlives the ImGui context)
         std::array<ImWchar, 3>                       icon_font_glyph_ranges{};
@@ -1428,16 +1446,21 @@ namespace
         }
     }
 
-    std::string to_human_readable_representation(KeyCombination shortcut)
+    std::string to_human_readable(KeyModifiers modifiers)
     {
-        const auto user_modifiers = to<PhysicalKeyModifiers>(shortcut.modifiers());
-
+        const auto user_modifiers = to<PhysicalKeyModifiers>(modifiers);
         std::string rv;
         for (const auto& [mod, label] : c_combo_lut) {
             if (mod & user_modifiers) {
                 rv += label;
             }
         }
+        return rv;
+    }
+
+    std::string to_human_readable_representation(KeyCombination shortcut)
+    {
+        std::string rv = to_human_readable(shortcut.modifiers());
         rv += to_human_readable(shortcut.key());
         return rv;
     }
@@ -1973,6 +1996,15 @@ void osc::ui::end_menu()
 
 bool osc::ui::draw_menu_item(
     CStringView label,
+    std::nullopt_t,
+    bool selected,
+    bool enabled)
+{
+    return ImGui::MenuItem(label.c_str(), nullptr, selected, enabled);
+}
+
+bool osc::ui::draw_menu_item(
+    CStringView label,
     std::optional<KeyCombination> shortcut,
     bool selected,
     bool enabled)
@@ -1982,10 +2014,16 @@ bool osc::ui::draw_menu_item(
 
 bool osc::ui::draw_menu_item(
     CStringView label,
-    CStringView shortcut_label,
+    std::optional<MouseCombination> shortcut,
     bool selected,
     bool enabled)
 {
+    if (not shortcut) {
+        return ImGui::MenuItem(label.c_str(), nullptr, selected, enabled);
+    }
+
+    std::string shortcut_label = to_human_readable(shortcut->modifiers());
+    shortcut_label += get_backend_data().mouse_button_label_or_icon(shortcut->mouse_button());
     return ImGui::MenuItem(label.c_str(), shortcut_label.c_str(), selected, enabled);
 }
 
