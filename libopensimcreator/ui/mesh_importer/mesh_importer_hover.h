@@ -10,20 +10,20 @@ namespace osc
     class MeshImporterHover final {
     public:
         MeshImporterHover() :
-            ID{MiIDs::Empty()},
-            Pos{}
+            id{MiIDs::Empty()},
+            pos{}
         {
         }
 
         MeshImporterHover(UID id_, Vector3 pos_) :
-            ID{id_},
-            Pos{pos_}
+            id{id_},
+            pos{pos_}
         {
         }
 
         explicit operator bool () const
         {
-            return ID != MiIDs::Empty();
+            return id != MiIDs::Empty();
         }
 
         void reset()
@@ -31,7 +31,7 @@ namespace osc
             *this = MeshImporterHover{};
         }
 
-        UID ID;
-        Vector3 Pos;
+        UID id;
+        Vector3 pos;
     };
 }

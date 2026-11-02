@@ -16,7 +16,7 @@ namespace osc
     // a layer that is hosted by the parent
     class MeshImporterUILayer {
     protected:
-        explicit MeshImporterUILayer(MeshImporterUILayerHost& parent) : m_Parent{&parent}
+        explicit MeshImporterUILayer(MeshImporterUILayerHost& parent) : parent_{&parent}
         {
         }
         MeshImporterUILayer(const MeshImporterUILayer&) = default;
@@ -26,32 +26,32 @@ namespace osc
     public:
         virtual ~MeshImporterUILayer() noexcept = default;
 
-        bool onEvent(Event& e)
+        bool on_event(Event& e)
         {
-            return implOnEvent(e);
+            return impl_on_event(e);
         }
 
         void tick(float dt)
         {
-            implTick(dt);
+            impl_tick(dt);
         }
 
-        void onDraw()
+        void on_draw()
         {
-            implOnDraw();
+            impl_on_draw();
         }
 
     protected:
-        void requestPop()
+        void request_pop()
         {
-            m_Parent->requestPop(*this);
+            parent_->request_pop(*this);
         }
 
     private:
-        virtual bool implOnEvent(Event&) = 0;
-        virtual void implTick(float) = 0;
-        virtual void implOnDraw() = 0;
+        virtual bool impl_on_event(Event&) = 0;
+        virtual void impl_tick(float) = 0;
+        virtual void impl_on_draw() = 0;
 
-        MeshImporterUILayerHost* m_Parent;
+        MeshImporterUILayerHost* parent_;
     };
 }

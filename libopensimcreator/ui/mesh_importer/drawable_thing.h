@@ -16,14 +16,14 @@ namespace osc
     // something that is being drawn in the scene
     struct DrawableThing final {
         UID id = MiIDs::Empty();
-        UID groupId = MiIDs::Empty();
+        UID group_id = MiIDs::Empty();
         osc::Mesh mesh{};
         Transform transform{};
         SceneDecorationShading shading = Color::black();
         SceneDecorationFlags flags = SceneDecorationFlag::Default;
     };
 
-    inline std::optional<AABB> calcBounds(const DrawableThing& dt)
+    inline std::optional<AABB> calc_bounds(const DrawableThing& dt)
     {
         return dt.mesh.bounds().transform([&dt](const AABB& localBounds)
         {

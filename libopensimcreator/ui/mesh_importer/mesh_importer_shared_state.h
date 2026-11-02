@@ -88,32 +88,32 @@ namespace osc
         {}
 
         explicit MeshImporterSharedState(Widget* parent, std::vector<std::filesystem::path> meshFiles) :
-            m_Logviewer{parent},
-            m_PerfPanel{parent}
+            logviewer_{parent},
+            perf_panel_{parent}
         {
-            m_FloorMaterial.set_transparent(true);
-            pushMeshLoadRequests(std::move(meshFiles));
+            floor_material_.set_transparent(true);
+            push_mesh_load_requests(std::move(meshFiles));
         }
 
         //
         // OpenSim OUTPUT MODEL STUFF
         //
 
-        bool hasOutputModel() const
+        bool has_output_model() const
         {
-            return m_MaybeOutputModel != nullptr;
+            return maybe_output_model_ != nullptr;
         }
 
-        std::unique_ptr<OpenSim::Model>& updOutputModel()
+        std::unique_ptr<OpenSim::Model>& upd_output_model()
         {
-            return m_MaybeOutputModel;
+            return maybe_output_model_;
         }
 
-        void tryCreateOutputModel()
+        void try_create_output_model()
         {
             try
             {
-                m_MaybeOutputModel = CreateOpenSimModelFromMeshImporterDocument(getModelGraph(), m_ModelCreationFlags, m_IssuesBuffer);
+                maybe_output_model_ = CreateOpenSimModelFromMeshImporterDocument(get_model_graph(), model_creation_flags_, issues_buffer_);
             }
             catch (const std::exception& ex)
             {
@@ -125,7 +125,7 @@ namespace osc
         // MODEL GRAPH STUFF
         //
 
-        void openOsimFileAsModelGraph()
+        void open_osim_file_as_model_graph()
         {
             if (not shared_from_this()) {
                 log_critical("cannot open import dialog because the mesh importer's state isn't reference-counted");
@@ -146,9 +146,9 @@ namespace osc
                     // data and we don't want the exception to propagate all the way up to the
                     // event loop (#1050).
                     try {
-                        state->m_ModelGraphSnapshots = MiUndoableDocument{CreateModelFromOsimFile(response.front())};
-                        state->m_MaybeModelGraphExportLocation = response.front();
-                        state->m_MaybeModelGraphExportedUID = state->m_ModelGraphSnapshots.head_id();
+                        state->model_graph_snapshots_ = MiUndoableDocument{CreateModelFromOsimFile(response.front())};
+                        state->maybe_model_graph_export_location_ = response.front();
+                        state->maybe_model_graph_exported_uid_ = state->model_graph_snapshots_.head_id();
                     }
                     catch (const std::exception& ex) {
                         log_error("Error importing {} as a model: {}", response.front().string(), ex.what());
@@ -159,7 +159,7 @@ namespace osc
             );
         }
 
-        std::future<TabSaveResult> exportAsModelGraphAsOsimFile()
+        std::future<TabSaveResult> export_as_model_graph_as_osim_file()
         {
             auto promise = std::make_shared<std::promise<TabSaveResult>>();
             App::upd().prompt_user_to_save_file_with_extension_async([promise, ptr = shared_from_this()](std::optional<std::filesystem::path> p)
@@ -169,7 +169,7 @@ namespace osc
                     return;  // user cancelled out of the prompt
                 }
                 try {
-                    ptr->exportModelGraphTo(*p);
+                    ptr->export_model_graph_to(*p);
                     promise->set_value(TabSaveResult::Done);
                 }
                 catch (const std::exception&) {
@@ -179,135 +179,135 @@ namespace osc
             return promise->get_future();
         }
 
-        std::future<TabSaveResult> exportModelGraphAsOsimFile()
+        std::future<TabSaveResult> export_model_graph_as_osim_file()
         {
-            if (m_MaybeModelGraphExportLocation.empty()) {
-                return exportAsModelGraphAsOsimFile();
+            if (maybe_model_graph_export_location_.empty()) {
+                return export_as_model_graph_as_osim_file();
             }
             else {
                 std::promise<TabSaveResult> promise;
-                promise.set_value(exportModelGraphTo(m_MaybeModelGraphExportLocation) ? TabSaveResult::Done : TabSaveResult::Cancelled);
+                promise.set_value(export_model_graph_to(maybe_model_graph_export_location_) ? TabSaveResult::Done : TabSaveResult::Cancelled);
                 return promise.get_future();
             }
         }
 
-        bool isModelGraphUpToDateWithDisk() const
+        bool is_model_graph_up_to_date_with_disk() const
         {
-            return m_MaybeModelGraphExportedUID == m_ModelGraphSnapshots.head_id();
+            return maybe_model_graph_exported_uid_ == model_graph_snapshots_.head_id();
         }
 
-        bool isCloseRequested() const
+        bool is_close_requested() const
         {
-            return m_CloseRequested;
+            return close_requested_;
         }
 
         void request_close()
         {
-            m_CloseRequested = true;
+            close_requested_ = true;
         }
 
-        void resetRequestClose()
+        void reset_request_close()
         {
-            m_CloseRequested = false;
+            close_requested_ = false;
         }
 
-        bool isNewMeshImpoterTabRequested() const
+        bool is_new_mesh_impoter_tab_requested() const
         {
-            return m_NewTabRequested;
+            return new_tab_requested_;
         }
 
-        void requestNewMeshImporterTab()
+        void request_new_mesh_importer_tab()
         {
-            m_NewTabRequested = true;
+            new_tab_requested_ = true;
         }
 
-        void resetRequestNewMeshImporter()
+        void reset_request_new_mesh_importer()
         {
-            m_NewTabRequested = false;
+            new_tab_requested_ = false;
         }
 
-        std::string getRecommendedTitle() const
+        std::string get_recommended_title() const
         {
             std::stringstream ss;
-            ss << MSMICONS_CUBE << ' ' << getDocumentName();
+            ss << MSMICONS_CUBE << ' ' << get_document_name();
             return std::move(ss).str();
         }
 
-        const MiDocument& getModelGraph() const
+        const MiDocument& get_model_graph() const
         {
-            return m_ModelGraphSnapshots.scratch();
+            return model_graph_snapshots_.scratch();
         }
 
-        MiDocument& updModelGraph()
+        MiDocument& upd_model_graph()
         {
-            return m_ModelGraphSnapshots.upd_scratch();
+            return model_graph_snapshots_.upd_scratch();
         }
 
-        MiUndoableDocument& updCommittableModelGraph()
+        MiUndoableDocument& upd_committable_model_graph()
         {
-            return m_ModelGraphSnapshots;
+            return model_graph_snapshots_;
         }
 
-        void commitCurrentModelGraph(std::string_view commitMsg)
+        void commit_current_model_graph(std::string_view commitMsg)
         {
-            m_ModelGraphSnapshots.commit_scratch(commitMsg);
+            model_graph_snapshots_.commit_scratch(commitMsg);
         }
 
-        bool canUndoCurrentModelGraph() const
+        bool can_undo_current_model_graph() const
         {
-            return m_ModelGraphSnapshots.can_undo();
+            return model_graph_snapshots_.can_undo();
         }
 
-        void undoCurrentModelGraph()
+        void undo_current_model_graph()
         {
-            m_ModelGraphSnapshots.undo();
+            model_graph_snapshots_.undo();
         }
 
-        bool canRedoCurrentModelGraph() const
+        bool can_redo_current_model_graph() const
         {
-            return m_ModelGraphSnapshots.can_redo();
+            return model_graph_snapshots_.can_redo();
         }
 
-        void redoCurrentModelGraph()
+        void redo_current_model_graph()
         {
-            m_ModelGraphSnapshots.redo();
+            model_graph_snapshots_.redo();
         }
 
-        const std::unordered_set<UID>& getCurrentSelection() const
+        const std::unordered_set<UID>& get_current_selection() const
         {
-            return getModelGraph().getSelected();
+            return get_model_graph().getSelected();
         }
 
-        void selectAll()
+        void select_all()
         {
-            updModelGraph().selectAll();
+            upd_model_graph().selectAll();
         }
 
-        void deSelectAll()
+        void de_select_all()
         {
-            updModelGraph().deSelectAll();
+            upd_model_graph().deSelectAll();
         }
 
-        bool hasSelection() const
+        bool has_selection() const
         {
-            return getModelGraph().hasSelection();
+            return get_model_graph().hasSelection();
         }
 
-        bool isSelected(UID id) const
+        bool is_selected(UID id) const
         {
-            return getModelGraph().isSelected(id);
+            return get_model_graph().isSelected(id);
         }
 
         //
         // MESH LOADING STUFF
         //
 
-        void pushMeshLoadRequests(std::vector<std::filesystem::path> paths, UID attachmentPoint = MiIDs::Ground())
+        void push_mesh_load_requests(std::vector<std::filesystem::path> paths, UID attachmentPoint = MiIDs::Ground())
         {
-            m_MeshLoader.send(MeshLoadRequest{attachmentPoint, std::move(paths)});
+            mesh_loader_.send(MeshLoadRequest{attachmentPoint, std::move(paths)});
         }
 
-        void promptUserForMeshFilesAndPushThemOntoMeshLoader(UID attachmentPoint = MiIDs::Ground())
+        void prompt_user_for_mesh_files_and_push_them_onto_mesh_loader(UID attachmentPoint = MiIDs::Ground())
         {
             if (not shared_from_this()) {
                 log_critical("cannot open mesh import dialog because the mesh importer's state isn't reference-counted");
@@ -320,7 +320,7 @@ namespace osc
                         return;  // Something went wrong
                     }
                     std::vector<std::filesystem::path> paths(response.begin(), response.end());
-                    state->pushMeshLoadRequests(paths, attachmentPoint);
+                    state->push_mesh_load_requests(paths, attachmentPoint);
                 },
                 opyn::get_supported_sim_tk_mesh_formats_as_filters(),
                 std::nullopt,
@@ -328,9 +328,9 @@ namespace osc
             );
         }
 
-        void reloadMeshes()
+        void reload_meshes()
         {
-            for (auto& mesh : m_ModelGraphSnapshots.upd_scratch().iter<MiMesh>()) {
+            for (auto& mesh : model_graph_snapshots_.upd_scratch().iter<MiMesh>()) {
                 try {
                     mesh.reloadMeshDataFromDisk();
                 }
@@ -344,28 +344,28 @@ namespace osc
         // UI OVERLAY STUFF
         //
 
-        Vector2 worldPosToUiPos(const Vector3& worldPos) const
+        Vector2 world_pos_to_ui_pos(const Vector3& worldPos) const
         {
-            return getCamera().world_to_ui(worldPos, get3DSceneUiRect());
+            return get_camera().world_to_ui(worldPos, scene_ui_rect());
         }
 
-        void drawConnectionLine(
+        void draw_connection_line(
             const Color& color,
             const Vector3& parent,
             const Vector3& child) const
         {
             // the line
-            ui::get_panel_draw_list().add_line(worldPosToUiPos(parent), worldPosToUiPos(child), color, c_ConnectionLineWidth);
+            ui::get_panel_draw_list().add_line(world_pos_to_ui_pos(parent), world_pos_to_ui_pos(child), color, c_ConnectionLineWidth);
 
             // the triangle
-            drawConnectionLineTriangleAtMidpoint(color, parent, child);
+            draw_connection_line_triangle_at_midpoint(color, parent, child);
         }
 
-        void drawConnectionLines(
+        void draw_connection_lines(
             const Color& color,
             const std::unordered_set<UID>& excludedIDs) const
         {
-            const MiDocument& mg = getModelGraph();
+            const MiDocument& mg = get_model_graph();
 
             for (const MiObject& el : mg.iter())
             {
@@ -376,52 +376,52 @@ namespace osc
                     continue;
                 }
 
-                if (!shouldShowConnectionLines(el))
+                if (!should_show_connection_lines(el))
                 {
                     continue;
                 }
 
                 if (el.getNumCrossReferences() > 0)
                 {
-                    drawConnectionLines(el, color, excludedIDs);
+                    draw_connection_lines(el, color, excludedIDs);
                 }
                 else if (!IsAChildAttachmentInAnyJoint(mg, el))
                 {
-                    drawConnectionLineToGround(el, color);
+                    draw_connection_line_to_ground(el, color);
                 }
             }
         }
 
-        void drawConnectionLines(const Color& color) const
+        void draw_connection_lines(const Color& color) const
         {
-            drawConnectionLines(color, {});
+            draw_connection_lines(color, {});
         }
 
-        void drawConnectionLines(const MeshImporterHover& currentHover) const
+        void draw_connection_lines(const MeshImporterHover& currentHover) const
         {
-            const MiDocument& mg = getModelGraph();
+            const MiDocument& mg = get_model_graph();
 
             for (const MiObject& el : mg.iter())
             {
                 UID id = el.getID();
 
-                if (id != currentHover.ID && !el.isCrossReferencing(currentHover.ID))
+                if (id != currentHover.id && !el.isCrossReferencing(currentHover.id))
                 {
                     continue;
                 }
 
-                if (!shouldShowConnectionLines(el))
+                if (!should_show_connection_lines(el))
                 {
                     continue;
                 }
 
                 if (el.getNumCrossReferences() > 0)
                 {
-                    drawConnectionLines(el, m_Colors.connectionLines);
+                    draw_connection_lines(el, colors_.connection_lines);
                 }
                 else if (!IsAChildAttachmentInAnyJoint(mg, el))
                 {
-                    drawConnectionLineToGround(el, m_Colors.connectionLines);
+                    draw_connection_line_to_ground(el, colors_.connection_lines);
                 }
             }
             //drawConnectionLines(m_Colors.connectionLines);
@@ -431,31 +431,31 @@ namespace osc
         // RENDERING STUFF
         //
 
-        void setContentRegionAvailAsSceneRect()
+        void set_content_region_avail_as_scene_rect()
         {
-            set3DSceneRect(ui::get_content_region_available_ui_rect());
+            set_scene_ui_rect(ui::get_content_region_available_ui_rect());
         }
 
-        void drawScene(std::span<const DrawableThing> drawables)
+        void draw_scene(std::span<const DrawableThing> drawables)
         {
             const App& app = App::get();
 
             // setup rendering params
             SceneRendererParams p;
-            p.dimensions = get3DSceneDims();
+            p.dimensions = scene_dims();
             p.device_pixel_ratio = app.settings().get_value<float>("graphics/render_scale", 1.0f) * app.main_window_device_pixel_ratio();
             p.anti_aliasing_level = app.anti_aliasing_level();
             p.draw_rims = true;
             p.draw_floor = false;
-            p.near_clipping_plane = m_Camera.near_clipping_plane();
-            p.far_clipping_plane = m_Camera.far_clipping_plane();
-            p.view_matrix = m_Camera.view_matrix();
-            p.projection_matrix = m_Camera.projection_matrix(aspect_ratio_of(p.dimensions));
-            p.viewer_position = m_Camera.position();
-            p.light_direction = recommended_light_direction(m_Camera);
+            p.near_clipping_plane = camera_.near_clipping_plane();
+            p.far_clipping_plane = camera_.far_clipping_plane();
+            p.view_matrix = camera_.view_matrix();
+            p.projection_matrix = camera_.projection_matrix(aspect_ratio_of(p.dimensions));
+            p.viewer_position = camera_.position();
+            p.light_direction = recommended_light_direction(camera_);
             p.light_color = Color::white();
             p.ambient_strength *= 1.5f;
-            p.background_color = getColorSceneBackground();
+            p.background_color = get_color_scene_background();
 
             std::vector<SceneDecoration> decs;
             decs.reserve(drawables.size());
@@ -476,114 +476,114 @@ namespace osc
             ui::draw_image(scene_renderer_.upd_render_texture());
 
             // handle hittesting, etc.
-            setIsRenderHovered(ui::is_item_hovered(ui::HoveredFlag::AllowWhenBlockedByPopup));
+            set_is_render_hovered(ui::is_item_hovered(ui::HoveredFlag::AllowWhenBlockedByPopup));
         }
 
-        bool isRenderHovered() const
+        bool is_render_hovered() const
         {
-            return m_IsRenderHovered;
+            return is_render_hovered_;
         }
 
-        const Rect& get3DSceneUiRect() const
+        const Rect& scene_ui_rect() const
         {
-            return m_3DSceneRect;
+            return scene_ui_rect_;
         }
 
-        Vector2 get3DSceneDims() const
+        Vector2 scene_dims() const
         {
-            return m_3DSceneRect.dimensions();
+            return scene_ui_rect_.dimensions();
         }
 
-        const Camera& getCamera() const
+        const Camera& get_camera() const
         {
-            return m_Camera;
+            return camera_;
         }
 
-        Camera& updCamera()
+        Camera& upd_camera()
         {
-            return m_Camera;
+            return camera_;
         }
 
-        const OrbitCameraController& getCameraController()
+        const OrbitCameraController& get_camera_controller()
         {
-            return m_CameraController;
+            return camera_controller_;
         }
 
-        OrbitCameraController& updCameraController()
+        OrbitCameraController& upd_camera_controller()
         {
-            return m_CameraController;
+            return camera_controller_;
         }
 
-        void resetCamera()
+        void reset_camera()
         {
-            m_CameraController = CreateDefaultCameraController();
-            m_CameraController.update_camera(m_Camera);
+            camera_controller_ = create_default_camera_controller();
+            camera_controller_.update_camera(camera_);
         }
 
-        void focusCameraOn(const Vector3& focusPoint)
+        void focus_camera_on(const Vector3& focusPoint)
         {
-            m_CameraController.focus_point = focusPoint;
-            m_CameraController.update_camera(m_Camera);
+            camera_controller_.focus_point = focusPoint;
+            camera_controller_.update_camera(camera_);
         }
 
         std::span<const Color> colors() const
         {
             static_assert(offsetof(Colors, ground) == 0);
             static_assert(sizeof(Colors) % sizeof(Color) == 0);
-            return {&m_Colors.ground, sizeof(m_Colors)/sizeof(Color)};
+            return {&colors_.ground, sizeof(colors_)/sizeof(Color)};
         }
 
-        void setColor(size_t i, const Color& newColorValue)
+        void set_color(size_t i, const Color& newColorValue)
         {
-            updColors()[i] = newColorValue;
+            upd_colors()[i] = newColorValue;
         }
 
-        std::span<const char* const> getColorLabels() const
+        std::span<const char* const> get_color_labels() const
         {
             return c_ColorNames;
         }
 
-        const Color& getColorConnectionLine() const
+        const Color& get_color_connection_line() const
         {
-            return m_Colors.connectionLines;
+            return colors_.connection_lines;
         }
 
-        std::span<const bool> getVisibilityFlags() const
+        std::span<const bool> get_visibility_flags() const
         {
             static_assert(offsetof(VisibilityFlags, ground) == 0);
             static_assert(sizeof(VisibilityFlags) % sizeof(bool) == 0);
-            return {&m_VisibilityFlags.ground, sizeof(m_VisibilityFlags)/sizeof(bool)};
+            return {&visibility_flags_.ground, sizeof(visibility_flags_)/sizeof(bool)};
         }
 
-        void setVisibilityFlag(size_t i, bool newVisibilityValue)
+        void set_visibility_flag(size_t i, bool newVisibilityValue)
         {
-            updVisibilityFlags()[i] = newVisibilityValue;
+            upd_visibility_flags()[i] = newVisibilityValue;
         }
 
-        std::span<const char* const> getVisibilityFlagLabels() const
+        std::span<const char* const> get_visibility_flag_labels() const
         {
             return c_VisibilityFlagNames;
         }
 
-        bool isShowingFloor() const
+        bool is_showing_floor() const
         {
-            return m_VisibilityFlags.floor;
+            return visibility_flags_.floor;
         }
 
-        DrawableThing generateFloorDrawable() const
+        DrawableThing generate_floor_drawable() const
         {
             auto props = MeshBasicMaterial::PropertyBlock{};
-            props.set_color(m_Colors.gridLines);
+            props.set_color(colors_.grid_lines);
 
             return DrawableThing{
                 .id = MiIDs::Empty(),
-                .groupId = MiIDs::Empty(),
+                .group_id = MiIDs::Empty(),
                 .mesh = App::singleton<SceneCache>(App::resource_loader())->grid_mesh(),
                 .transform = {
-                    .scale = 0.5f * Vector3{m_SceneScaleFactor * 100.0f, m_SceneScaleFactor * 100.0f, 1.0f},
+                    .scale = 0.5f * Vector3{scene_scale_factor_ * 100.0f, scene_scale_factor_ * 100.0f, 1.0f},
                     .rotation = angle_axis(90_deg, Vector3{-1.0f, 0.0f, 0.0f}),
                 },
-                .shading = std::pair<Material, MaterialPropertyBlock>{m_FloorMaterial, props},
+                .shading = std::pair<Material, MaterialPropertyBlock>{floor_material_, props},
                 .flags = SceneDecorationFlag::AnnotationElement,
             };
         }
@@ -592,38 +592,38 @@ namespace osc
         // HOVERTEST/INTERACTIVITY
         //
 
-        std::span<const bool> getIneractivityFlags() const
+        std::span<const bool> get_ineractivity_flags() const
         {
             static_assert(offsetof(InteractivityFlags, ground) == 0);
             static_assert(sizeof(InteractivityFlags) % sizeof(bool) == 0);
-            return {&m_InteractivityFlags.ground, sizeof(m_InteractivityFlags)/sizeof(bool)};
+            return {&interactivity_flags_.ground, sizeof(interactivity_flags_)/sizeof(bool)};
         }
 
-        void setInteractivityFlag(size_t i, bool newInteractivityValue)
+        void set_interactivity_flag(size_t i, bool newInteractivityValue)
         {
-            updInteractivityFlags()[i] = newInteractivityValue;
+            upd_interactivity_flags()[i] = newInteractivityValue;
         }
 
-        std::span<const char* const> getInteractivityFlagLabels() const
+        std::span<const char* const> get_interactivity_flag_labels() const
         {
             return c_InteractivityFlagNames;
         }
 
-        float getSceneScaleFactor() const
+        float get_scene_scale_factor() const
         {
-            return m_SceneScaleFactor;
+            return scene_scale_factor_;
         }
 
-        void setSceneScaleFactor(float newScaleFactor)
+        void set_scene_scale_factor(float newScaleFactor)
         {
-            m_SceneScaleFactor = newScaleFactor;
+            scene_scale_factor_ = newScaleFactor;
         }
 
-        MeshImporterHover doHovertest(const std::vector<DrawableThing>& drawables) const
+        MeshImporterHover do_hovertest(const std::vector<DrawableThing>& drawables) const
         {
             auto cache = App::singleton<SceneCache>(App::resource_loader());
 
-            const Rect sceneRect = get3DSceneUiRect();
+            const Rect sceneRect = scene_ui_rect();
             const Vector2 mouseUiPosition = ui::get_mouse_ui_position();
 
             if (!is_intersecting(sceneRect, mouseUiPosition))
@@ -632,12 +632,12 @@ namespace osc
                 return MeshImporterHover{};
             }
 
-            const Ray ray = getCamera().ui_to_world(mouseUiPosition, sceneRect);
-            const bool hittestMeshes = isMeshesInteractable();
-            const bool hittestBodies = isBodiesInteractable();
-            const bool hittestJointCenters = isJointCentersInteractable();
-            const bool hittestGround = isGroundInteractable();
-            const bool hittestStations = isStationsInteractable();
+            const Ray ray = get_camera().ui_to_world(mouseUiPosition, sceneRect);
+            const bool hittestMeshes = is_meshes_interactable();
+            const bool hittestBodies = is_bodies_interactable();
+            const bool hittestJointCenters = is_joint_centers_interactable();
+            const bool hittestGround = is_ground_interactable();
+            const bool hittestStations = is_stations_interactable();
 
             UID closestID = MiIDs::Empty();
             float closestDist = std::numeric_limits<float>::max();
@@ -648,27 +648,27 @@ namespace osc
                     continue;  // no hittest data
                 }
 
-                if (drawable.groupId == MiIDs::BodyGroup() && !hittestBodies)
+                if (drawable.group_id == MiIDs::BodyGroup() && !hittestBodies)
                 {
                     continue;
                 }
 
-                if (drawable.groupId == MiIDs::MeshGroup() && !hittestMeshes)
+                if (drawable.group_id == MiIDs::MeshGroup() && !hittestMeshes)
                 {
                     continue;
                 }
 
-                if (drawable.groupId == MiIDs::JointGroup() && !hittestJointCenters)
+                if (drawable.group_id == MiIDs::JointGroup() && !hittestJointCenters)
                 {
                     continue;
                 }
 
-                if (drawable.groupId == MiIDs::GroundGroup() && !hittestGround)
+                if (drawable.group_id == MiIDs::GroundGroup() && !hittestGround)
                 {
                     continue;
                 }
 
-                if (drawable.groupId == MiIDs::StationGroup() && !hittestStations)
+                if (drawable.group_id == MiIDs::StationGroup() && !hittestStations)
                 {
                     continue;
                 }
@@ -696,32 +696,32 @@ namespace osc
         // MODEL CREATION FLAGS
         //
 
-        ModelCreationFlags getModelCreationFlags() const
+        ModelCreationFlags get_model_creation_flags() const
         {
-            return m_ModelCreationFlags;
+            return model_creation_flags_;
         }
 
-        void setModelCreationFlags(ModelCreationFlags newFlags)
+        void set_model_creation_flags(ModelCreationFlags newFlags)
         {
-            m_ModelCreationFlags = newFlags;
+            model_creation_flags_ = newFlags;
         }
 
         //
         // SCENE ELEMENT STUFF (specific methods for specific scene element types)
         //
 
-        DrawableThing generateMeshDrawable(const MiMesh& el) const
+        DrawableThing generate_mesh_drawable(const MiMesh& el) const
         {
             return DrawableThing{
                 .id = el.getID(),
-                .groupId = MiIDs::MeshGroup(),
+                .group_id = MiIDs::MeshGroup(),
                 .mesh = el.getMeshData(),
                 .transform = el.getXForm(),
-                .shading = el.getParentID() == MiIDs::Ground() || el.getParentID() == MiIDs::Empty() ? RedifyColor(getColorMesh()) : getColorMesh(),
+                .shading = el.getParentID() == MiIDs::Ground() || el.getParentID() == MiIDs::Empty() ? redify_color(get_color_mesh()) : get_color_mesh(),
             };
         }
 
-        void appendDrawables(
+        void append_drawables(
             const MiObject& e,
             std::vector<DrawableThing>& appendOut) const
         {
@@ -729,39 +729,39 @@ namespace osc
             {
                 [this, &appendOut](const MiGround&)
                 {
-                    if (!isShowingGround())
+                    if (!is_showing_ground())
                     {
                         return;
                     }
 
-                    appendOut.push_back(generateGroundSphere(getColorGround()));
+                    appendOut.push_back(generate_ground_sphere(get_color_ground()));
                 },
                 [this, &appendOut](const MiMesh& el)
                 {
-                    if (!isShowingMeshes())
+                    if (!is_showing_meshes())
                     {
                         return;
                     }
 
-                    appendOut.push_back(generateMeshDrawable(el));
+                    appendOut.push_back(generate_mesh_drawable(el));
                 },
                 [this, &appendOut](const MiBody& el)
                 {
-                    if (!isShowingBodies())
+                    if (!is_showing_bodies())
                     {
                         return;
                     }
 
-                    appendBodyElAsCubeThing(el, appendOut);
+                    append_body_el_as_cube_thing(el, appendOut);
                 },
                 [this, &appendOut](const MiJoint& el)
                 {
-                    if (!isShowingJointCenters())
+                    if (!is_showing_joint_centers())
                     {
                         return;
                     }
 
-                    appendAsFrame(
+                    append_as_frame(
                         el.getID(),
                         MiIDs::JointGroup(),
                         el.getXForm(),
@@ -773,12 +773,12 @@ namespace osc
                 },
                 [this, &appendOut](const MiStation& el)
                 {
-                    if (!isShowingStations())
+                    if (!is_showing_stations())
                     {
                         return;
                     }
 
-                    appendOut.push_back(generateStationSphere(el, getColorStation()));
+                    appendOut.push_back(generate_station_sphere(el, get_color_station()));
                 },
             }, e.toVariant());
         }
@@ -799,39 +799,39 @@ namespace osc
             return num_options_v<PanelIndex>;
         }
 
-        CStringView getNthPanelName(size_t n) const
+        CStringView get_nth_panel_name(size_t n) const
         {
             return c_OpenedPanelNames[n];
         }
 
-        bool isNthPanelEnabled(size_t n) const
+        bool is_nth_panel_enabled(size_t n) const
         {
-            return m_PanelStates[n];
+            return panel_states_[n];
         }
 
-        void setNthPanelEnabled(size_t n, bool v)
+        void set_nth_panel_enabled(size_t n, bool v)
         {
-            m_PanelStates[n] = v;
+            panel_states_[n] = v;
         }
 
-        bool isPanelEnabled(PanelIndex idx) const
+        bool is_panel_enabled(PanelIndex idx) const
         {
-            return m_PanelStates[to_index(idx)];
+            return panel_states_[to_index(idx)];
         }
 
-        void setPanelEnabled(PanelIndex idx, bool v)
+        void set_panel_enabled(PanelIndex idx, bool v)
         {
-            m_PanelStates[to_index(idx)] = v;
+            panel_states_[to_index(idx)] = v;
         }
 
-        LogViewer& updLogViewer()
+        LogViewer& upd_log_viewer()
         {
-            return m_Logviewer;
+            return logviewer_;
         }
 
-        PerfPanel& updPerfPanel()
+        PerfPanel& upd_perf_panel()
         {
-            return m_PerfPanel;
+            return perf_panel_;
         }
 
 
@@ -839,32 +839,32 @@ namespace osc
         // TOP-LEVEL STUFF
         //
 
-        bool onEvent(Event&);
+        bool on_event(Event&);
 
         void tick(float)
         {
             // push any user-drag-dropped files as one batch
-            if (!m_DroppedFiles.empty())
+            if (!dropped_files_.empty())
             {
                 std::vector<std::filesystem::path> buf;
-                std::swap(buf, m_DroppedFiles);
-                pushMeshLoadRequests(std::move(buf));
+                std::swap(buf, dropped_files_);
+                push_mesh_load_requests(std::move(buf));
             }
 
             // pop any background-loaded meshes
-            popMeshLoader();
+            pop_mesh_loader();
 
-            m_ModelGraphSnapshots.upd_scratch().garbageCollect();
+            model_graph_snapshots_.upd_scratch().garbageCollect();
         }
 
     private:
-        bool exportModelGraphTo(const std::filesystem::path& exportPath)
+        bool export_model_graph_to(const std::filesystem::path& exportPath)
         {
             std::vector<std::string> issues;
             std::unique_ptr<OpenSim::Model> m;
 
             try {
-                m = CreateOpenSimModelFromMeshImporterDocument(getModelGraph(), m_ModelCreationFlags, issues);
+                m = CreateOpenSimModelFromMeshImporterDocument(get_model_graph(), model_creation_flags_, issues);
             }
             catch (const std::exception& ex) {
                 log_error("error occurred while trying to create an OpenSim model from the mesh editor scene: {}", ex.what());
@@ -872,8 +872,8 @@ namespace osc
 
             if (m) {
                 m->print(exportPath.string());
-                m_MaybeModelGraphExportLocation = exportPath;
-                m_MaybeModelGraphExportedUID = m_ModelGraphSnapshots.head_id();
+                maybe_model_graph_export_location_ = exportPath;
+                maybe_model_graph_exported_uid_ = model_graph_snapshots_.head_id();
                 return true;
             }
             else {
@@ -884,20 +884,20 @@ namespace osc
             }
         }
 
-        std::string getDocumentName() const
+        std::string get_document_name() const
         {
-            if (m_MaybeModelGraphExportLocation.empty())
+            if (maybe_model_graph_export_location_.empty())
             {
                 return "untitled.osim";
             }
             else
             {
-                return m_MaybeModelGraphExportLocation.filename().string();
+                return maybe_model_graph_export_location_.filename().string();
             }
         }
 
         // called when the mesh loader responds with a fully-loaded mesh
-        void popMeshLoaderHandleOKResponse(MeshLoadOKResponse& ok)
+        void pop_mesh_loader_handle_ok_response(MeshLoadOKResponse& ok)
         {
             if (ok.meshes.empty())
             {
@@ -905,16 +905,16 @@ namespace osc
             }
 
             // add each loaded mesh into the model graph
-            MiDocument& mg = updModelGraph();
+            MiDocument& mg = upd_model_graph();
             mg.deSelectAll();
 
             for (const LoadedMesh& lm : ok.meshes)
             {
-                const MiObject* el = mg.tryUpdByID(ok.preferredAttachmentPoint);
+                const MiObject* el = mg.tryUpdByID(ok.preferred_attachment_point);
 
                 if (el)
                 {
-                    auto& mesh = mg.emplace<MiMesh>(UID{}, ok.preferredAttachmentPoint, lm.meshData, lm.path);
+                    auto& mesh = mg.emplace<MiMesh>(UID{}, ok.preferred_attachment_point, lm.mesh_data, lm.path);
                     mesh.setXform(el->getXForm(mg));
                     mg.select(mesh);
                     mg.select(*el);
@@ -937,34 +937,34 @@ namespace osc
                     commitMsgSS << "loaded " << ok.meshes.size() << " meshes";
                 }
 
-                commitCurrentModelGraph(std::move(commitMsgSS).str());
+                commit_current_model_graph(std::move(commitMsgSS).str());
             }
         }
 
         // called when the mesh loader responds with a mesh loading error
-        void popMeshLoaderHandleErrorResponse(MeshLoadErrorResponse& err)
+        void pop_mesh_loader_handle_error_response(MeshLoadErrorResponse& err)
         {
             log_error("{}: error loading mesh file: {}", err.path.string(), err.error);
         }
 
-        void popMeshLoader()
+        void pop_mesh_loader()
         {
-            for (auto maybeResponse = m_MeshLoader.poll(); maybeResponse.has_value(); maybeResponse = m_MeshLoader.poll())
+            for (auto maybeResponse = mesh_loader_.poll(); maybeResponse.has_value(); maybeResponse = mesh_loader_.poll())
             {
                 MeshLoadResponse& meshLoaderResp = *maybeResponse;
 
                 if (std::holds_alternative<MeshLoadOKResponse>(meshLoaderResp))
                 {
-                    popMeshLoaderHandleOKResponse(std::get<MeshLoadOKResponse>(meshLoaderResp));
+                    pop_mesh_loader_handle_ok_response(std::get<MeshLoadOKResponse>(meshLoaderResp));
                 }
                 else
                 {
-                    popMeshLoaderHandleErrorResponse(std::get<MeshLoadErrorResponse>(meshLoaderResp));
+                    pop_mesh_loader_handle_error_response(std::get<MeshLoadErrorResponse>(meshLoaderResp));
                 }
             }
         }
 
-        void drawConnectionLineTriangleAtMidpoint(
+        void draw_connection_line_triangle_at_midpoint(
             const Color& color,
             const Vector3& parent,
             const Vector3& child) const
@@ -972,8 +972,8 @@ namespace osc
             constexpr float triangleWidth = 6.0f * c_ConnectionLineWidth;
             constexpr float triangleWidthSquared = triangleWidth*triangleWidth;
 
-            const Vector2 parentScr = worldPosToUiPos(parent);
-            const Vector2 childScr = worldPosToUiPos(child);
+            const Vector2 parentScr = world_pos_to_ui_pos(parent);
+            const Vector2 childScr = world_pos_to_ui_pos(child);
             const Vector2 child2ParentScr = parentScr - childScr;
 
             if (dot(child2ParentScr, child2ParentScr) < triangleWidthSquared) {
@@ -981,7 +981,7 @@ namespace osc
             }
 
             const Vector3 mp = midpoint(parent, child);
-            const Vector2 midpointScr = worldPosToUiPos(mp);
+            const Vector2 midpointScr = world_pos_to_ui_pos(mp);
             const Vector2 directionScr = normalize(child2ParentScr);
             const Vector2 directionNormalScr = {-directionScr.y(), directionScr.x()};
 
@@ -992,12 +992,12 @@ namespace osc
             ui::get_panel_draw_list().add_triangle_filled(p1, p2, p3, color);
         }
 
-        void drawConnectionLines(
+        void draw_connection_lines(
             const MiObject& el,
             const Color& color,
             const std::unordered_set<UID>& excludedIDs) const
         {
-            const MiDocument& mg = getModelGraph();
+            const MiDocument& mg = get_model_graph();
             for (int i = 0, len = el.getNumCrossReferences(); i < len; ++i)
             {
                 UID refID = el.getCrossReferenceConnecteeID(i);
@@ -1022,187 +1022,187 @@ namespace osc
                     std::swap(parent, child);
                 }
 
-                drawConnectionLine(color, parent, child);
+                draw_connection_line(color, parent, child);
             }
         }
 
-        void drawConnectionLines(const MiObject& el, const Color& color) const
+        void draw_connection_lines(const MiObject& el, const Color& color) const
         {
-            drawConnectionLines(el, color, std::unordered_set<UID>{});
+            draw_connection_lines(el, color, std::unordered_set<UID>{});
         }
 
-        void drawConnectionLineToGround(const MiObject& el, const Color& color) const
+        void draw_connection_line_to_ground(const MiObject& el, const Color& color) const
         {
             if (el.getID() == MiIDs::Ground())
             {
                 return;
             }
 
-            drawConnectionLine(color, Vector3{}, el.getPos(getModelGraph()));
+            draw_connection_line(color, Vector3{}, el.getPos(get_model_graph()));
         }
 
-        bool shouldShowConnectionLines(const MiObject& el) const
+        bool should_show_connection_lines(const MiObject& el) const
         {
             return std::visit(Overload
             {
                 []    (const MiGround&)  { return false; },
-                [this](const MiMesh&)    { return this->isShowingMeshConnectionLines(); },
-                [this](const MiBody&)    { return this->isShowingBodyConnectionLines(); },
-                [this](const MiJoint&)   { return this->isShowingJointConnectionLines(); },
-                [this](const MiStation&) { return this->isShowingMeshConnectionLines(); },
+                [this](const MiMesh&)    { return this->is_showing_mesh_connection_lines(); },
+                [this](const MiBody&)    { return this->is_showing_body_connection_lines(); },
+                [this](const MiJoint&)   { return this->is_showing_joint_connection_lines(); },
+                [this](const MiStation&) { return this->is_showing_mesh_connection_lines(); },
             }, el.toVariant());
         }
 
-        void setIsRenderHovered(bool newIsHovered)
+        void set_is_render_hovered(bool newIsHovered)
         {
-            m_IsRenderHovered = newIsHovered;
+            is_render_hovered_ = newIsHovered;
         }
 
-        void set3DSceneRect(const Rect& newRect)
+        void set_scene_ui_rect(const Rect& newRect)
         {
-            m_3DSceneRect = newRect;
+            scene_ui_rect_ = newRect;
         }
 
-        std::span<Color> updColors()
+        std::span<Color> upd_colors()
         {
             static_assert(offsetof(Colors, ground) == 0);
             static_assert(sizeof(Colors) % sizeof(Color) == 0);
-            return {&m_Colors.ground, sizeof(m_Colors)/sizeof(Color)};
+            return {&colors_.ground, sizeof(colors_)/sizeof(Color)};
         }
 
-        const Color& getColorSceneBackground() const
+        const Color& get_color_scene_background() const
         {
-            return m_Colors.sceneBackground;
+            return colors_.scene_background;
         }
 
-        const Color& getColorGround() const
+        const Color& get_color_ground() const
         {
-            return m_Colors.ground;
+            return colors_.ground;
         }
 
-        const Color& getColorMesh() const
+        const Color& get_color_mesh() const
         {
-            return m_Colors.meshes;
+            return colors_.meshes;
         }
 
-        const Color& getColorStation() const
+        const Color& get_color_station() const
         {
-            return m_Colors.stations;
+            return colors_.stations;
         }
 
-        std::span<bool> updVisibilityFlags()
+        std::span<bool> upd_visibility_flags()
         {
             static_assert(offsetof(VisibilityFlags, ground) == 0);
             static_assert(sizeof(VisibilityFlags) % sizeof(bool) == 0);
-            return {&m_VisibilityFlags.ground, sizeof(m_VisibilityFlags)/sizeof(bool)};
+            return {&visibility_flags_.ground, sizeof(visibility_flags_)/sizeof(bool)};
         }
 
-        bool isShowingMeshes() const
+        bool is_showing_meshes() const
         {
-            return m_VisibilityFlags.meshes;
+            return visibility_flags_.meshes;
         }
 
-        void setIsShowingMeshes(bool newIsShowing)
+        void set_is_showing_meshes(bool newIsShowing)
         {
-            m_VisibilityFlags.meshes = newIsShowing;
+            visibility_flags_.meshes = newIsShowing;
         }
 
-        bool isShowingBodies() const
+        bool is_showing_bodies() const
         {
-            return m_VisibilityFlags.bodies;
+            return visibility_flags_.bodies;
         }
 
-        void setIsShowingBodies(bool newIsShowing)
+        void set_is_showing_bodies(bool newIsShowing)
         {
-            m_VisibilityFlags.bodies = newIsShowing;
+            visibility_flags_.bodies = newIsShowing;
         }
 
-        bool isShowingJointCenters() const
+        bool is_showing_joint_centers() const
         {
-            return m_VisibilityFlags.joints;
+            return visibility_flags_.joints;
         }
 
-        void setIsShowingJointCenters(bool newIsShowing)
+        void set_is_showing_joint_centers(bool newIsShowing)
         {
-            m_VisibilityFlags.joints = newIsShowing;
+            visibility_flags_.joints = newIsShowing;
         }
 
-        bool isShowingGround() const
+        bool is_showing_ground() const
         {
-            return m_VisibilityFlags.ground;
+            return visibility_flags_.ground;
         }
 
-        void setIsShowingGround(bool newIsShowing)
+        void set_is_showing_ground(bool newIsShowing)
         {
-            m_VisibilityFlags.ground = newIsShowing;
+            visibility_flags_.ground = newIsShowing;
         }
 
-        void setIsShowingFloor(bool newIsShowing)
+        void set_is_showing_floor(bool newIsShowing)
         {
-            m_VisibilityFlags.floor = newIsShowing;
+            visibility_flags_.floor = newIsShowing;
         }
 
-        bool isShowingStations() const
+        bool is_showing_stations() const
         {
-            return m_VisibilityFlags.stations;
+            return visibility_flags_.stations;
         }
 
-        void setIsShowingStations(bool v)
+        void set_is_showing_stations(bool v)
         {
-            m_VisibilityFlags.stations = v;
+            visibility_flags_.stations = v;
         }
 
-        bool isShowingJointConnectionLines() const
+        bool is_showing_joint_connection_lines() const
         {
-            return m_VisibilityFlags.jointConnectionLines;
+            return visibility_flags_.joint_connection_lines;
         }
 
-        void setIsShowingJointConnectionLines(bool newIsShowing)
+        void set_is_showing_joint_connection_lines(bool newIsShowing)
         {
-            m_VisibilityFlags.jointConnectionLines = newIsShowing;
+            visibility_flags_.joint_connection_lines = newIsShowing;
         }
 
-        bool isShowingMeshConnectionLines() const
+        bool is_showing_mesh_connection_lines() const
         {
-            return m_VisibilityFlags.meshConnectionLines;
+            return visibility_flags_.mesh_connection_lines;
         }
 
-        void setIsShowingMeshConnectionLines(bool newIsShowing)
+        void set_is_showing_mesh_connection_lines(bool newIsShowing)
         {
-            m_VisibilityFlags.meshConnectionLines = newIsShowing;
+            visibility_flags_.mesh_connection_lines = newIsShowing;
         }
 
-        bool isShowingBodyConnectionLines() const
+        bool is_showing_body_connection_lines() const
         {
-            return m_VisibilityFlags.bodyToGroundConnectionLines;
+            return visibility_flags_.body_to_ground_connection_lines;
         }
 
-        void setIsShowingBodyConnectionLines(bool newIsShowing)
+        void set_is_showing_body_connection_lines(bool newIsShowing)
         {
-            m_VisibilityFlags.bodyToGroundConnectionLines = newIsShowing;
+            visibility_flags_.body_to_ground_connection_lines = newIsShowing;
         }
 
-        bool isShowingStationConnectionLines() const
+        bool is_showing_station_connection_lines() const
         {
-            return m_VisibilityFlags.stationConnectionLines;
+            return visibility_flags_.station_connection_lines;
         }
 
-        void setIsShowingStationConnectionLines(bool newIsShowing)
+        void set_is_showing_station_connection_lines(bool newIsShowing)
         {
-            m_VisibilityFlags.stationConnectionLines = newIsShowing;
+            visibility_flags_.station_connection_lines = newIsShowing;
         }
 
-        float getSphereRadius() const
+        float get_sphere_radius() const
         {
-            return 0.02f * m_SceneScaleFactor;
+            return 0.02f * scene_scale_factor_;
         }
 
-        Sphere sphereAtTranslation(const Vector3& translation) const
+        Sphere sphere_at_translation(const Vector3& translation) const
         {
-            return Sphere{translation, getSphereRadius()};
+            return Sphere{translation, get_sphere_radius()};
         }
 
-        void appendAsFrame(
+        void append_as_frame(
             UID logicalID,
             UID groupID,
             const Transform& xform,
@@ -1212,7 +1212,7 @@ namespace osc
             Vector3 legLen = {1.0f, 1.0f, 1.0f},
             Color coreColor = Color::white()) const
         {
-            const float coreRadius = getSphereRadius();
+            const float coreRadius = get_sphere_radius();
             const float legThickness = 0.5f * coreRadius;
 
             // this is how much the cylinder has to be "pulled in" to the core to hide the edges
@@ -1221,8 +1221,8 @@ namespace osc
             // emit origin sphere
             appendOut.push_back(DrawableThing{
                 .id = logicalID,
-                .groupId = groupID,
-                .mesh = m_SphereMesh,
+                .group_id = groupID,
+                .mesh = sphere_mesh_,
                 .transform = {
                     .scale = Vector3{coreRadius},
                     .rotation = xform.rotation,
@@ -1250,12 +1250,12 @@ namespace osc
                 const Quaternion rot = normalize(xform.rotation * rotation(meshDirection, cylinderDirection));
                 appendOut.push_back(DrawableThing{
                     .id = logicalID,
-                    .groupId = groupID,
-                    .mesh = m_CylinderMesh,
+                    .group_id = groupID,
+                    .mesh = cylinder_mesh_,
                     .transform = {
                         .scale = {legThickness, 0.5f * actualLegLen, legThickness}, // note: cylinder is 2 units high
                         .rotation = rot,
-                        .translation = xform.translation + (rot * (((getSphereRadius() + (0.5f * actualLegLen)) - cylinderPullback) * meshDirection)),
+                        .translation = xform.translation + (rot * (((get_sphere_radius() + (0.5f * actualLegLen)) - cylinderPullback) * meshDirection)),
                     },
                     .shading = Color{0.0f, alpha}.with_element(i, 1.0f),
                     .flags = flags,
@@ -1263,13 +1263,13 @@ namespace osc
             }
         }
 
-        void appendAsCubeThing(
+        void append_as_cube_thing(
             UID logicalID,
             UID groupID,
             const Transform& xform,
             std::vector<DrawableThing>& appendOut) const
         {
-            const float halfWidth = 1.5f * getSphereRadius();
+            const float halfWidth = 1.5f * get_sphere_radius();
 
             // core
             {
@@ -1278,7 +1278,7 @@ namespace osc
 
                 appendOut.push_back(DrawableThing{
                     .id = logicalID,
-                    .groupId = groupID,
+                    .group_id = groupID,
                     .mesh = App::singleton<SceneCache>(App::resource_loader())->brick_mesh(),
                     .transform = scaled,
                     .shading = Color::white(),
@@ -1297,7 +1297,7 @@ namespace osc
 
                 appendOut.push_back(DrawableThing{
                     .id = logicalID,
-                    .groupId = groupID,
+                    .group_id = groupID,
                     .mesh = App::singleton<SceneCache>(App::resource_loader())->cone_mesh(),
                     .transform = {
                         .scale = 0.5f * Vector3{halfWidth, coneHeight, halfWidth},
@@ -1310,102 +1310,102 @@ namespace osc
             }
         }
 
-        std::span<bool> updInteractivityFlags()
+        std::span<bool> upd_interactivity_flags()
         {
             static_assert(offsetof(InteractivityFlags, ground) == 0);
             static_assert(sizeof(InteractivityFlags) % sizeof(bool) == 0);
-            return {&m_InteractivityFlags.ground, sizeof(m_InteractivityFlags)/sizeof(bool)};
+            return {&interactivity_flags_.ground, sizeof(interactivity_flags_)/sizeof(bool)};
         }
 
-        bool isMeshesInteractable() const
+        bool is_meshes_interactable() const
         {
-            return m_InteractivityFlags.meshes;
+            return interactivity_flags_.meshes;
         }
 
-        void setIsMeshesInteractable(bool newIsInteractable)
+        void set_is_meshes_interactable(bool newIsInteractable)
         {
-            m_InteractivityFlags.meshes = newIsInteractable;
+            interactivity_flags_.meshes = newIsInteractable;
         }
 
-        bool isBodiesInteractable() const
+        bool is_bodies_interactable() const
         {
-            return m_InteractivityFlags.bodies;
+            return interactivity_flags_.bodies;
         }
 
-        void setIsBodiesInteractable(bool newIsInteractable)
+        void set_is_bodies_interactable(bool newIsInteractable)
         {
-            m_InteractivityFlags.bodies = newIsInteractable;
+            interactivity_flags_.bodies = newIsInteractable;
         }
 
-        bool isJointCentersInteractable() const
+        bool is_joint_centers_interactable() const
         {
-            return m_InteractivityFlags.joints;
+            return interactivity_flags_.joints;
         }
 
-        void setIsJointCentersInteractable(bool newIsInteractable)
+        void set_is_joint_centers_interactable(bool newIsInteractable)
         {
-            m_InteractivityFlags.joints = newIsInteractable;
+            interactivity_flags_.joints = newIsInteractable;
         }
 
-        bool isGroundInteractable() const
+        bool is_ground_interactable() const
         {
-            return m_InteractivityFlags.ground;
+            return interactivity_flags_.ground;
         }
 
-        void setIsGroundInteractable(bool newIsInteractable)
+        void set_is_ground_interactable(bool newIsInteractable)
         {
-            m_InteractivityFlags.ground = newIsInteractable;
+            interactivity_flags_.ground = newIsInteractable;
         }
 
-        bool isStationsInteractable() const
+        bool is_stations_interactable() const
         {
-            return m_InteractivityFlags.stations;
+            return interactivity_flags_.stations;
         }
 
-        void setIsStationsInteractable(bool v)
+        void set_is_stations_interactable(bool v)
         {
-            m_InteractivityFlags.stations = v;
+            interactivity_flags_.stations = v;
         }
 
-        void appendBodyElAsCubeThing(const MiBody& bodyEl, std::vector<DrawableThing>& appendOut) const
+        void append_body_el_as_cube_thing(const MiBody& bodyEl, std::vector<DrawableThing>& appendOut) const
         {
-            appendAsCubeThing(bodyEl.getID(), MiIDs::BodyGroup(), bodyEl.getXForm(), appendOut);
+            append_as_cube_thing(bodyEl.getID(), MiIDs::BodyGroup(), bodyEl.getXForm(), appendOut);
         }
 
-        DrawableThing generateBodyElSphere(const MiBody& bodyEl, const Color& color) const
+        DrawableThing generate_body_el_sphere(const MiBody& bodyEl, const Color& color) const
         {
             return {
                 .id = bodyEl.getID(),
-                .groupId = MiIDs::BodyGroup(),
-                .mesh = m_SphereMesh,
-                .transform = SphereMeshToSceneSphereTransform(sphereAtTranslation(bodyEl.getXForm().translation)),
+                .group_id = MiIDs::BodyGroup(),
+                .mesh = sphere_mesh_,
+                .transform = sphere_mesh_to_scene_sphere_transform(sphere_at_translation(bodyEl.getXForm().translation)),
                 .shading = color,
             };
         }
 
-        DrawableThing generateGroundSphere(const Color& color) const
+        DrawableThing generate_ground_sphere(const Color& color) const
         {
             return {
                 .id = MiIDs::Ground(),
-                .groupId = MiIDs::GroundGroup(),
-                .mesh = m_SphereMesh,
-                .transform = SphereMeshToSceneSphereTransform(sphereAtTranslation({0.0f, 0.0f, 0.0f})),
+                .group_id = MiIDs::GroundGroup(),
+                .mesh = sphere_mesh_,
+                .transform = sphere_mesh_to_scene_sphere_transform(sphere_at_translation({0.0f, 0.0f, 0.0f})),
                 .shading = color,
             };
         }
 
-        DrawableThing generateStationSphere(const MiStation& el, const Color& color) const
+        DrawableThing generate_station_sphere(const MiStation& el, const Color& color) const
         {
             return {
                 .id = el.getID(),
-                .groupId = MiIDs::StationGroup(),
-                .mesh = m_SphereMesh,
-                .transform = SphereMeshToSceneSphereTransform(sphereAtTranslation(el.getPos(getModelGraph()))),
+                .group_id = MiIDs::StationGroup(),
+                .mesh = sphere_mesh_,
+                .transform = sphere_mesh_to_scene_sphere_transform(sphere_at_translation(el.getPos(get_model_graph()))),
                 .shading = color,
             };
         }
 
-        Color RedifyColor(const Color& srcColor) const
+        Color redify_color(const Color& srcColor) const
         {
             constexpr float factor = 0.8f;
             return {srcColor.r, factor * srcColor.g, factor * srcColor.b, factor * srcColor.a};
@@ -1413,7 +1413,7 @@ namespace osc
 
         // returns a transform that maps a sphere mesh (defined to be @ 0,0,0 with radius 1)
         // to some sphere in the scene (e.g. a body/ground)
-        Transform SphereMeshToSceneSphereTransform(const Sphere& sceneSphere) const
+        Transform sphere_mesh_to_scene_sphere_transform(const Sphere& sceneSphere) const
         {
             return {
                 .scale = Vector3{sceneSphere.radius},
@@ -1423,7 +1423,7 @@ namespace osc
 
         // returns a camera controller that is in the initial position the camera
         // should be in for the mesh importer ui
-        OrbitCameraController CreateDefaultCameraController() const
+        OrbitCameraController create_default_camera_controller() const
         {
             OrbitCameraController rv;
             rv.phi = 45_deg;
@@ -1433,46 +1433,46 @@ namespace osc
         }
 
         // in-memory model graph (snapshots) that the user is manipulating
-        MiUndoableDocument m_ModelGraphSnapshots;
+        MiUndoableDocument model_graph_snapshots_;
 
         // (maybe) the filesystem location where the model graph should be saved
-        std::filesystem::path m_MaybeModelGraphExportLocation;
+        std::filesystem::path maybe_model_graph_export_location_;
 
         // (maybe) the UID of the model graph when it was last successfully saved to disk (used for dirty checking)
-        UID m_MaybeModelGraphExportedUID = m_ModelGraphSnapshots.head_id();
+        UID maybe_model_graph_exported_uid_ = model_graph_snapshots_.head_id();
 
         // a batch of files that the user drag-dropped into the UI in the last frame
-        std::vector<std::filesystem::path> m_DroppedFiles;
+        std::vector<std::filesystem::path> dropped_files_;
 
         // loads meshes in a background thread
-        MeshLoader m_MeshLoader;
+        MeshLoader mesh_loader_;
 
         // sphere mesh used by various scene elements
-        osc::Mesh m_SphereMesh = SphereGeometry{{.num_width_segments = 12, .num_height_segments = 12}};
+        osc::Mesh sphere_mesh_ = SphereGeometry{{.num_width_segments = 12, .num_height_segments = 12}};
 
         // cylinder mesh used by various scene elements
-        osc::Mesh m_CylinderMesh = CylinderGeometry{{.height = 2.0f, .num_radial_segments = 32}};
+        osc::Mesh cylinder_mesh_ = CylinderGeometry{{.height = 2.0f, .num_radial_segments = 32}};
 
         // cone mesh used to render scene elements
-        osc::Mesh m_ConeMesh = ConeGeometry{{.radius = 1.0f, .height = 2.0f, .num_radial_segments = 16}};
+        osc::Mesh cone_mesh_ = ConeGeometry{{.radius = 1.0f, .height = 2.0f, .num_radial_segments = 16}};
 
         // material used to draw the floor grid
-        MeshBasicMaterial m_FloorMaterial;
+        MeshBasicMaterial floor_material_;
 
         // main 3D scene camera controller
-        OrbitCameraController m_CameraController = CreateDefaultCameraController();
+        OrbitCameraController camera_controller_ = create_default_camera_controller();
 
         // main 3D scene camera
-        Camera m_Camera = [this]
+        Camera camera_ = [this]
         {
             Camera rv;
             rv.set_vertical_field_of_view(Degrees{35.0f});
-            m_CameraController.update_camera(rv);
+            camera_controller_.update_camera(rv);
             return rv;
         }();
 
         // screen space rect where the 3D scene is currently being drawn to
-        Rect m_3DSceneRect = {};
+        Rect scene_ui_rect_ = {};
 
         // renderer that draws the scene
         SceneRenderer scene_renderer_{
@@ -1486,10 +1486,10 @@ namespace osc
             Color ground{196.0f/255.0f, 196.0f/255.0f, 196.0f/255.0f, 1.0f};
             Color meshes{1.0f, 1.0f, 1.0f, 1.0f};
             Color stations{196.0f/255.0f, 0.0f, 0.0f, 1.0f};
-            Color connectionLines{0.6f, 0.6f, 0.6f, 1.0f};
-            Color sceneBackground{48.0f/255.0f, 48.0f/255.0f, 48.0f/255.0f, 1.0f};
-            Color gridLines{0.7f, 0.7f, 0.7f, 0.15f};
-        } m_Colors;
+            Color connection_lines{0.6f, 0.6f, 0.6f, 1.0f};
+            Color scene_background{48.0f/255.0f, 48.0f/255.0f, 48.0f/255.0f, 1.0f};
+            Color grid_lines{0.7f, 0.7f, 0.7f, 0.15f};
+        } colors_;
         static constexpr auto c_ColorNames = std::to_array<const char*>(
         {
             "ground",
@@ -1499,7 +1499,7 @@ namespace osc
             "scene background",
             "grid lines",
         });
-        static_assert(c_ColorNames.size() == sizeof(decltype(m_Colors))/sizeof(Color));
+        static_assert(c_ColorNames.size() == sizeof(decltype(colors_))/sizeof(Color));
 
         // VISIBILITY
         //
@@ -1510,12 +1510,12 @@ namespace osc
             bool bodies = true;
             bool joints = true;
             bool stations = true;
-            bool jointConnectionLines = true;
-            bool meshConnectionLines = true;
-            bool bodyToGroundConnectionLines = true;
-            bool stationConnectionLines = true;
+            bool joint_connection_lines = true;
+            bool mesh_connection_lines = true;
+            bool body_to_ground_connection_lines = true;
+            bool station_connection_lines = true;
             bool floor = true;
-        } m_VisibilityFlags;
+        } visibility_flags_;
         static constexpr auto c_VisibilityFlagNames = std::to_array<const char*>(
         {
             "ground",
@@ -1529,7 +1529,7 @@ namespace osc
             "station connection lines",
             "grid lines",
         });
-        static_assert(c_VisibilityFlagNames.size() == sizeof(decltype(m_VisibilityFlags))/sizeof(bool));
+        static_assert(c_VisibilityFlagNames.size() == sizeof(decltype(visibility_flags_))/sizeof(bool));
 
         // LOCKING
         //
@@ -1540,7 +1540,7 @@ namespace osc
             bool bodies = true;
             bool joints = true;
             bool stations = true;
-        } m_InteractivityFlags;
+        } interactivity_flags_;
         static constexpr auto c_InteractivityFlagNames = std::to_array<const char*>(
         {
             "ground",
@@ -1549,13 +1549,13 @@ namespace osc
             "joints",
             "stations",
         });
-        static_assert(c_InteractivityFlagNames.size() == sizeof(decltype(m_InteractivityFlags))/sizeof(bool));
+        static_assert(c_InteractivityFlagNames.size() == sizeof(decltype(interactivity_flags_))/sizeof(bool));
 
         // WINDOWS
         //
         // these are runtime-editable flags that dictate which panels are open
         static inline constexpr size_t c_NumPanelStates = 4;
-        std::array<bool, c_NumPanelStates> m_PanelStates{false, true, false, false};
+        std::array<bool, c_NumPanelStates> panel_states_{false, true, false, false};
         static constexpr auto c_OpenedPanelNames = std::to_array<const char*>(
         {
             "History",
@@ -1565,8 +1565,8 @@ namespace osc
         });
         static_assert(c_OpenedPanelNames.size() == c_NumPanelStates);
         static_assert(num_options_v<PanelIndex> == c_NumPanelStates);
-        LogViewer m_Logviewer;
-        PerfPanel m_PerfPanel;
+        LogViewer logviewer_;
+        PerfPanel perf_panel_;
 
         // scale factor for all non-mesh, non-overlay scene elements (e.g.
         // the floor, bodies)
@@ -1575,27 +1575,27 @@ namespace osc
         // scene elements need to be scaled accordingly (e.g. without this, a body
         // sphere end up being much larger than a mesh instance). Imagine if the
         // mesh was the leg of a fly
-        float m_SceneScaleFactor = 1.0f;
+        float scene_scale_factor_ = 1.0f;
 
         // buffer containing issues found in the modelgraph
-        std::vector<std::string> m_IssuesBuffer;
+        std::vector<std::string> issues_buffer_;
 
         // model created by this wizard
         //
         // `nullptr` until the model is successfully created
-        std::unique_ptr<OpenSim::Model> m_MaybeOutputModel = nullptr;
+        std::unique_ptr<OpenSim::Model> maybe_output_model_ = nullptr;
 
         // set to true after drawing the ui::Image
-        bool m_IsRenderHovered = false;
+        bool is_render_hovered_ = false;
 
         // true if the implementation wants the host to close the mesh importer UI
-        bool m_CloseRequested = false;
+        bool close_requested_ = false;
 
         // true if the implementation wants the host to open a new mesh importer
-        bool m_NewTabRequested = false;
+        bool new_tab_requested_ = false;
 
         // changes how a model is created
-        ModelCreationFlags m_ModelCreationFlags = ModelCreationFlags::None;
+        ModelCreationFlags model_creation_flags_ = ModelCreationFlags::None;
 
         static constexpr float c_ConnectionLineWidth = 1.0f;
     };

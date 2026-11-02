@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-osc::MeshLoadResponse osc::respondToMeshloadRequest(MeshLoadRequest msg)  // NOLINT(performance-unnecessary-value-param)
+osc::MeshLoadResponse osc::respond_to_meshload_request(MeshLoadRequest msg)  // NOLINT(performance-unnecessary-value-param)
 {
     std::vector<LoadedMesh> loadedMeshes;
     loadedMeshes.reserve(msg.paths.size());
@@ -36,5 +36,5 @@ osc::MeshLoadResponse osc::respondToMeshloadRequest(MeshLoadRequest msg)  // NOL
     // ensure the UI thread redraws after the mesh is loaded
     App::upd().request_redraw();
 
-    return MeshLoadOKResponse{msg.preferredAttachmentPoint, std::move(loadedMeshes)};
+    return MeshLoadOKResponse{msg.preferred_attachment_point, std::move(loadedMeshes)};
 }

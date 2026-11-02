@@ -15,12 +15,12 @@ namespace osc
     public:
         virtual ~MeshImporterUILayerHost() noexcept = default;
 
-        void requestPop(MeshImporterUILayer& layer)
+        void request_pop(MeshImporterUILayer& layer)
         {
-            implRequestPop(layer);
+            impl_request_pop(layer);
         }
 
     private:
-        virtual void implRequestPop(MeshImporterUILayer&) = 0;
+        virtual void impl_request_pop(MeshImporterUILayer&) = 0;
     };
 }

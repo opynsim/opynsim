@@ -34,26 +34,26 @@ namespace osc
     struct ChooseElLayerOptions final {
 
         // types of elements the user can choose in this screen
-        bool canChooseBodies = true;
-        bool canChooseGround = true;
-        bool canChooseMeshes = true;
-        bool canChooseJoints = true;
-        bool canChooseStations = false;
+        bool can_choose_bodies = true;
+        bool can_choose_ground = true;
+        bool can_choose_meshes = true;
+        bool can_choose_joints = true;
+        bool can_choose_stations = false;
 
         // (maybe) elements the assignment is ultimately assigning
-        std::unordered_set<UID> maybeElsAttachingTo;
+        std::unordered_set<UID> maybe_els_attaching_to;
 
         // false implies the user is attaching "away from" what they select (used for drawing arrows)
-        bool isAttachingTowardEl = true;
+        bool is_attaching_toward_el = true;
 
         // (maybe) elements that are being replaced by the user's choice
-        std::unordered_set<UID> maybeElsBeingReplacedByChoice;
+        std::unordered_set<UID> maybe_els_being_replaced_by_choice;
 
         // the number of elements the user must click before OnUserChoice is called
-        int numElementsUserMustChoose = 1;
+        int num_elements_user_must_choose = 1;
 
         // function that returns true if the "caller" is happy with the user's choice
-        std::function<bool(std::span<UID>)> onUserChoice = [](std::span<UID>)
+        std::function<bool(std::span<UID>)> on_user_choice = [](std::span<UID>)
         {
             return true;
         };
@@ -73,116 +73,116 @@ namespace osc
             ChooseElLayerOptions options) :
 
             MeshImporterUILayer{parent},
-            m_Shared{std::move(shared)},
-            m_Options{std::move(options)}
+            shared_{std::move(shared)},
+            options_{std::move(options)}
         {
         }
 
     private:
         // returns true if the user's mouse is hovering over the given scene element
-        bool isHovered(const MiObject& el) const
+        bool is_hovered(const MiObject& el) const
         {
-            return el.getID() == m_MaybeHover.ID;
+            return el.getID() == maybe_hover_.id;
         }
 
         // returns true if the user has already selected the given scene element
-        bool isSelected(const MiObject& el) const
+        bool is_selected(const MiObject& el) const
         {
-            return cpp23::contains(m_SelectedObjectIDs, el.getID());
+            return cpp23::contains(selected_object_ids_, el.getID());
         }
 
         // returns true if the user can (de)select the given element
-        bool isSelectable(const MiObject& el) const
+        bool is_selectable(const MiObject& el) const
         {
-            if (m_Options.maybeElsAttachingTo.contains(el.getID()))
+            if (options_.maybe_els_attaching_to.contains(el.getID()))
             {
                 return false;
             }
 
             return std::visit(Overload
             {
-                [this](const MiGround&)  { return m_Options.canChooseGround; },
-                [this](const MiMesh&)    { return m_Options.canChooseMeshes; },
-                [this](const MiBody&)    { return m_Options.canChooseBodies; },
-                [this](const MiJoint&)   { return m_Options.canChooseJoints; },
-                [this](const MiStation&) { return m_Options.canChooseStations; },
+                [this](const MiGround&)  { return options_.can_choose_ground; },
+                [this](const MiMesh&)    { return options_.can_choose_meshes; },
+                [this](const MiBody&)    { return options_.can_choose_bodies; },
+                [this](const MiJoint&)   { return options_.can_choose_joints; },
+                [this](const MiStation&) { return options_.can_choose_stations; },
             }, el.toVariant());
         }
 
         void select(const MiObject& el)
         {
-            if (!isSelectable(el))
+            if (!is_selectable(el))
             {
                 return;
             }
 
-            if (isSelected(el))
+            if (is_selected(el))
             {
                 return;
             }
 
-            m_SelectedObjectIDs.push_back(el.getID());
+            selected_object_ids_.push_back(el.getID());
         }
 
-        void deSelect(const MiObject& el)
+        void de_select(const MiObject& el)
         {
-            if (!isSelectable(el))
+            if (!is_selectable(el))
             {
                 return;
             }
 
-            std::erase_if(m_SelectedObjectIDs, [elID = el.getID()](UID id) { return id == elID; } );
+            std::erase_if(selected_object_ids_, [elID = el.getID()](UID id) { return id == elID; } );
         }
 
-        void tryToggleSelectionStateOf(const MiObject& el)
+        void try_toggle_selection_state_of(const MiObject& el)
         {
-            isSelected(el) ? deSelect(el) : select(el);
+            is_selected(el) ? de_select(el) : select(el);
         }
 
-        void tryToggleSelectionStateOf(UID id)
+        void try_toggle_selection_state_of(UID id)
         {
-            const MiObject* el = m_Shared->getModelGraph().tryGetByID(id);
+            const MiObject* el = shared_->get_model_graph().tryGetByID(id);
 
             if (el)
             {
-                tryToggleSelectionStateOf(*el);
+                try_toggle_selection_state_of(*el);
             }
         }
 
-        SceneDecorationFlags computeFlags(const MiObject& el) const
+        SceneDecorationFlags compute_flags(const MiObject& el) const
         {
             SceneDecorationFlags rv = SceneDecorationFlag::None;
-            if (isSelected(el)) {
+            if (is_selected(el)) {
                 rv |= SceneDecorationFlag::RimHighlight0;
             }
-            if (isHovered(el)) {
+            if (is_hovered(el)) {
                 rv |= SceneDecorationFlag::RimHighlight1;
             }
             return rv;
         }
 
         // returns a list of 3D drawable scene objects for this layer
-        std::vector<DrawableThing>& generateDrawables()
+        std::vector<DrawableThing>& generate_drawables()
         {
-            m_DrawablesBuffer.clear();
+            drawables_buffer_.clear();
 
-            const MiDocument& mg = m_Shared->getModelGraph();
+            const MiDocument& mg = shared_->get_model_graph();
 
             float fadedAlpha = 0.2f;
-            float animScale = ease_out_elastic(m_AnimationFraction);
+            float animScale = ease_out_elastic(animation_fraction_);
 
             for (const MiObject& el : mg.iter())
             {
-                size_t start = m_DrawablesBuffer.size();
-                m_Shared->appendDrawables(el, m_DrawablesBuffer);
-                size_t end = m_DrawablesBuffer.size();
+                size_t start = drawables_buffer_.size();
+                shared_->append_drawables(el, drawables_buffer_);
+                size_t end = drawables_buffer_.size();
 
-                bool isSelectableEl = isSelectable(el);
-                SceneDecorationFlags flags = computeFlags(el);
+                bool isSelectableEl = is_selectable(el);
+                SceneDecorationFlags flags = compute_flags(el);
 
                 for (size_t i = start; i < end; ++i)
                 {
-                    DrawableThing& d = m_DrawablesBuffer[i];
+                    DrawableThing& d = drawables_buffer_[i];
                     d.flags = flags;
 
                     if (not isSelectableEl) {
@@ -190,7 +190,7 @@ namespace osc
                             std::get<Color>(d.shading).a = fadedAlpha;   // fade non-selectable colored scene elements
                         }
                         d.id = MiIDs::Empty();
-                        d.groupId = MiIDs::Empty();
+                        d.group_id = MiIDs::Empty();
                     }
                     else
                     {
@@ -200,21 +200,21 @@ namespace osc
             }
 
             // floor
-            m_DrawablesBuffer.push_back(m_Shared->generateFloorDrawable());
+            drawables_buffer_.push_back(shared_->generate_floor_drawable());
 
-            return m_DrawablesBuffer;
+            return drawables_buffer_;
         }
 
-        void handlePossibleCompletion()
+        void handle_possible_completion()
         {
-            if (static_cast<int>(m_SelectedObjectIDs.size()) < m_Options.numElementsUserMustChoose)
+            if (static_cast<int>(selected_object_ids_.size()) < options_.num_elements_user_must_choose)
             {
                 return;  // user hasn't selected enough stuff yet
             }
 
-            if (m_Options.onUserChoice(m_SelectedObjectIDs))
+            if (options_.on_user_choice(selected_object_ids_))
             {
-                requestPop();
+                request_pop();
             }
             else
             {
@@ -223,31 +223,31 @@ namespace osc
         }
 
         // handle any side-effects from the user's mouse hover
-        void handleHovertestSideEffects()
+        void handle_hovertest_side_effects()
         {
-            if (!m_MaybeHover)
+            if (!maybe_hover_)
             {
                 return;
             }
 
-            drawHoverTooltip();
+            draw_hover_tooltip();
 
             if (ui::is_mouse_clicked(MouseButton::Left))
             {
-                tryToggleSelectionStateOf(m_MaybeHover.ID);
-                handlePossibleCompletion();
+                try_toggle_selection_state_of(maybe_hover_.id);
+                handle_possible_completion();
             }
         }
 
         // draw 2D tooltip that pops up when user is hovered over something in the scene
-        void drawHoverTooltip() const
+        void draw_hover_tooltip() const
         {
-            if (!m_MaybeHover)
+            if (!maybe_hover_)
             {
                 return;
             }
 
-            const MiObject* se = m_Shared->getModelGraph().tryGetByID(m_MaybeHover.ID);
+            const MiObject* se = shared_->get_model_graph().tryGetByID(maybe_hover_.id);
 
             if (se)
             {
@@ -262,121 +262,121 @@ namespace osc
         // draw 2D connection overlay lines that show what's connected to what in the graph
         //
         // depends on layer options
-        void drawConnectionLines() const
+        void draw_connection_lines() const
         {
-            if (!m_MaybeHover)
+            if (!maybe_hover_)
             {
                 // user isn't hovering anything, so just draw all existing connection
                 // lines, but faintly
-                m_Shared->drawConnectionLines(FaintifyColor(m_Shared->getColorConnectionLine()));
+                shared_->draw_connection_lines(faintify_color(shared_->get_color_connection_line()));
                 return;
             }
 
             // else: user is hovering *something*
 
             // draw all other connection lines but exclude the thing being assigned (if any)
-            m_Shared->drawConnectionLines(FaintifyColor(m_Shared->getColorConnectionLine()), m_Options.maybeElsBeingReplacedByChoice);
+            shared_->draw_connection_lines(faintify_color(shared_->get_color_connection_line()), options_.maybe_els_being_replaced_by_choice);
 
             // draw strong connection line between the things being attached to and the hover
-            for (UID elAttachingTo : m_Options.maybeElsAttachingTo)
+            for (UID elAttachingTo : options_.maybe_els_attaching_to)
             {
-                Vector3 parentPos = m_Shared->getModelGraph().getPosByID(elAttachingTo);
-                Vector3 childPos = m_Shared->getModelGraph().getPosByID(m_MaybeHover.ID);
+                Vector3 parentPos = shared_->get_model_graph().getPosByID(elAttachingTo);
+                Vector3 childPos = shared_->get_model_graph().getPosByID(maybe_hover_.id);
 
-                if (!m_Options.isAttachingTowardEl)
+                if (!options_.is_attaching_toward_el)
                 {
                     std::swap(parentPos, childPos);
                 }
 
-                m_Shared->drawConnectionLine(m_Shared->getColorConnectionLine(), parentPos, childPos);
+                shared_->draw_connection_line(shared_->get_color_connection_line(), parentPos, childPos);
             }
         }
 
         // draw 2D header text in top-left corner of the screen
-        void drawHeaderText() const
+        void draw_header_text() const
         {
-            if (m_Options.header.empty())
+            if (options_.header.empty())
             {
                 return;
             }
 
             const Vector2 padding = Vector2{10.0f, 10.0f};
-            const Vector2 pos = m_Shared->get3DSceneUiRect().ypd_top_left() + padding;
-            ui::get_panel_draw_list().add_text(pos, Color::white(), m_Options.header);
+            const Vector2 pos = shared_->scene_ui_rect().ypd_top_left() + padding;
+            ui::get_panel_draw_list().add_text(pos, Color::white(), options_.header);
         }
 
         // draw a user-clickable button for cancelling out of this choosing state
-        void drawCancelButton()
+        void draw_cancel_button()
         {
             ui::push_style_var(ui::StyleVar::FramePadding, {10.0f, 10.0f});
             ui::push_style_color(ui::ColorVar::Button, Color::dark_grey());
 
             const CStringView text = MSMICONS_ARROW_LEFT " Cancel (ESC)";
             const Vector2 margin = {25.0f, 35.0f};
-            const Vector2 buttonTopLeft = m_Shared->get3DSceneUiRect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
+            const Vector2 buttonTopLeft = shared_->scene_ui_rect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
 
             ui::set_cursor_ui_position(buttonTopLeft);
             if (ui::draw_button(text))
             {
-                requestPop();
+                request_pop();
             }
 
             ui::pop_style_color();
             ui::pop_style_var();
         }
 
-        bool implOnEvent(Event& e) final
+        bool impl_on_event(Event& e) final
         {
-            return m_Shared->onEvent(e);
+            return shared_->on_event(e);
         }
 
-        void implTick(float dt) final
+        void impl_tick(float dt) final
         {
-            m_Shared->tick(dt);
+            shared_->tick(dt);
 
             if (ui::is_key_pressed(Key::Escape))
             {
                 // ESC: user cancelled out
-                requestPop();
+                request_pop();
             }
 
-            bool isRenderHovered = m_Shared->isRenderHovered();
+            bool isRenderHovered = shared_->is_render_hovered();
 
             if (isRenderHovered)
             {
                 const bool controllerUpdated = ui::update_orbit_controller_from_mouse_inputs(
-                    m_Shared->updCameraController(),
-                    m_Shared->getCamera(),
-                    m_Shared->get3DSceneDims()
+                    shared_->upd_camera_controller(),
+                    shared_->get_camera(),
+                    shared_->scene_dims()
                 );
                 if (controllerUpdated) {
-                    m_Shared->getCameraController().update_camera(m_Shared->updCamera());
+                    shared_->get_camera_controller().update_camera(shared_->upd_camera());
                 }
             }
 
-            if (m_AnimationFraction < 1.0f)
+            if (animation_fraction_ < 1.0f)
             {
-                m_AnimationFraction = saturate(m_AnimationFraction + 0.5f*dt);
+                animation_fraction_ = saturate(animation_fraction_ + 0.5f*dt);
                 App::upd().request_redraw();
             }
         }
 
-        void implOnDraw() final
+        void impl_on_draw() final
         {
-            m_Shared->setContentRegionAvailAsSceneRect();
+            shared_->set_content_region_avail_as_scene_rect();
 
-            std::vector<DrawableThing>& drawables = generateDrawables();
+            std::vector<DrawableThing>& drawables = generate_drawables();
 
-            m_MaybeHover = m_Shared->doHovertest(drawables);
-            handleHovertestSideEffects();
+            maybe_hover_ = shared_->do_hovertest(drawables);
+            handle_hovertest_side_effects();
 
-            m_Shared->drawScene(drawables);
-            drawConnectionLines();
-            drawHeaderText();
-            drawCancelButton();
+            shared_->draw_scene(drawables);
+            draw_connection_lines();
+            draw_header_text();
+            draw_cancel_button();
         }
 
-        Color FaintifyColor(const Color& srcColor) const
+        Color faintify_color(const Color& srcColor) const
         {
             Color color = srcColor;
             color.a *= 0.2f;
@@ -384,21 +384,21 @@ namespace osc
         }
 
         // data that's shared between other UI states
-        std::shared_ptr<MeshImporterSharedState> m_Shared;
+        std::shared_ptr<MeshImporterSharedState> shared_;
 
         // options for this state
-        ChooseElLayerOptions m_Options;
+        ChooseElLayerOptions options_;
 
         // (maybe) user mouse hover
-        MeshImporterHover m_MaybeHover;
+        MeshImporterHover maybe_hover_;
 
         // elements selected by user
-        std::vector<UID> m_SelectedObjectIDs;
+        std::vector<UID> selected_object_ids_;
 
         // buffer that's filled with drawable geometry during a drawcall
-        std::vector<DrawableThing> m_DrawablesBuffer;
+        std::vector<DrawableThing> drawables_buffer_;
 
         // fraction that the system is through its animation cycle: ranges from 0.0 to 1.0 inclusive
-        float m_AnimationFraction = 0.0f;
+        float animation_fraction_ = 0.0f;
     };
 }

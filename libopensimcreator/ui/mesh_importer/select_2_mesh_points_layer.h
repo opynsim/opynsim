@@ -28,7 +28,7 @@ namespace osc
         // been clicked
         //
         // the function should return `true` if the points are accepted
-        std::function<bool(Vector3, Vector3)> onTwoPointsChosen = [](Vector3, Vector3)
+        std::function<bool(Vector3, Vector3)> on_two_points_chosen = [](Vector3, Vector3)
         {
             return true;
         };
@@ -46,88 +46,88 @@ namespace osc
             Select2MeshPointsOptions options) :
 
             MeshImporterUILayer{parent},
-            m_Shared{std::move(shared)},
-            m_Options{std::move(options)}
+            shared_{std::move(shared)},
+            options_{std::move(options)}
         {
         }
 
     private:
 
-        bool isBothPointsSelected() const
+        bool is_both_points_selected() const
         {
-            return m_MaybeFirstLocation && m_MaybeSecondLocation;
+            return maybe_first_location_ && maybe_second_location_;
         }
 
-        bool isAnyPointSelected() const
+        bool is_any_point_selected() const
         {
-            return m_MaybeFirstLocation || m_MaybeSecondLocation;
+            return maybe_first_location_ || maybe_second_location_;
         }
 
         // handle the transition that may occur after the user clicks two points
-        void handlePossibleTransitionToNextStep()
+        void handle_possible_transition_to_next_step()
         {
-            if (!isBothPointsSelected())
+            if (!is_both_points_selected())
             {
                 return;  // user hasn't selected two points yet
             }
 
-            bool pointsAccepted = m_Options.onTwoPointsChosen(*m_MaybeFirstLocation, *m_MaybeSecondLocation);
+            bool pointsAccepted = options_.on_two_points_chosen(*maybe_first_location_, *maybe_second_location_);
 
             if (pointsAccepted)
             {
-                requestPop();
+                request_pop();
             }
             else
             {
                 // points were rejected, so reset them
-                m_MaybeFirstLocation.reset();
-                m_MaybeSecondLocation.reset();
+                maybe_first_location_.reset();
+                maybe_second_location_.reset();
             }
         }
 
         // handle any side-effects of the user interacting with whatever they are
         // hovered over
-        void handleHovertestSideEffects()
+        void handle_hovertest_side_effects()
         {
-            if (!m_MaybeCurrentHover)
+            if (!maybe_current_hover_)
             {
                 return;  // nothing hovered
             }
             else if (ui::is_mouse_clicked(MouseButton::Left))
             {
                 // LEFT CLICK: set first mouse location
-                m_MaybeFirstLocation = m_MaybeCurrentHover.Pos;
-                handlePossibleTransitionToNextStep();
+                maybe_first_location_ = maybe_current_hover_.pos;
+                handle_possible_transition_to_next_step();
             }
             else if (ui::is_mouse_clicked(MouseButton::Right))
             {
                 // RIGHT CLICK: set second mouse location
-                m_MaybeSecondLocation = m_MaybeCurrentHover.Pos;
-                handlePossibleTransitionToNextStep();
+                maybe_second_location_ = maybe_current_hover_.pos;
+                handle_possible_transition_to_next_step();
             }
         }
 
         // generate 3D drawable geometry for this particular layer
-        std::vector<DrawableThing>& generateDrawables()
+        std::vector<DrawableThing>& generate_drawables()
         {
-            m_DrawablesBuffer.clear();
+            drawables_buffer_.clear();
 
-            const MiDocument& mg = m_Shared->getModelGraph();
+            const MiDocument& mg = shared_->get_model_graph();
 
             for (const MiMesh& meshEl : mg.iter<MiMesh>())
             {
-                m_DrawablesBuffer.emplace_back(m_Shared->generateMeshDrawable(meshEl));
+                drawables_buffer_.emplace_back(shared_->generate_mesh_drawable(meshEl));
             }
 
-            m_DrawablesBuffer.push_back(m_Shared->generateFloorDrawable());
+            drawables_buffer_.push_back(shared_->generate_floor_drawable());
 
-            return m_DrawablesBuffer;
+            return drawables_buffer_;
         }
 
         // draw tooltip that pops up when user is moused over a mesh
-        void drawHoverTooltip()
+        void draw_hover_tooltip()
         {
-            if (!m_MaybeCurrentHover)
+            if (!maybe_current_hover_)
             {
                 return;
             }
@@ -139,7 +139,7 @@ namespace osc
                 ss.precision(4);
                 ss << '(' << position.x() << ", " << position.y() << ", " << position.z() << ')';
                 return std::move(ss).str();
-            }(m_MaybeCurrentHover.Pos);
+            }(maybe_current_hover_.pos);
 
             ui::begin_tooltip_nowrap();
             ui::draw_text(pos);
@@ -148,124 +148,124 @@ namespace osc
         }
 
         // draw 2D overlay over the render, things like connection lines, dots, etc.
-        void drawOverlay()
+        void draw_overlay()
         {
-            if (!isAnyPointSelected())
+            if (!is_any_point_selected())
             {
                 return;
             }
 
-            Vector3 clickedWorldPos = m_MaybeFirstLocation ? *m_MaybeFirstLocation : *m_MaybeSecondLocation;
-            Vector2 clickedScrPos = m_Shared->worldPosToUiPos(clickedWorldPos);
+            Vector3 clickedWorldPos = maybe_first_location_ ? *maybe_first_location_ : *maybe_second_location_;
+            Vector2 clickedScrPos = shared_->world_pos_to_ui_pos(clickedWorldPos);
 
             auto color = Color::black();
 
             ui::DrawListView dl = ui::get_panel_draw_list();
             dl.add_circle_filled({clickedScrPos, 5.0f}, color);
 
-            if (!m_MaybeCurrentHover) {
+            if (!maybe_current_hover_) {
                 return;
             }
 
-            Vector2 hoverScrPos = m_Shared->worldPosToUiPos(m_MaybeCurrentHover.Pos);
+            Vector2 hoverScrPos = shared_->world_pos_to_ui_pos(maybe_current_hover_.pos);
 
             dl.add_circle_filled({hoverScrPos, 5.0f}, color);
             dl.add_line(clickedScrPos, hoverScrPos, color, 5.0f);
         }
 
         // draw 2D "choose something" text at the top of the render
-        void drawHeaderText() const
+        void draw_header_text() const
         {
-            if (m_Options.header.empty())
+            if (options_.header.empty())
             {
                 return;
             }
 
             const Vector2 padding{10.0f, 10.0f};
-            const Vector2 position = m_Shared->get3DSceneUiRect().ypd_top_left() + padding;
-            ui::get_panel_draw_list().add_text(position, Color::white(), m_Options.header);
+            const Vector2 position = shared_->scene_ui_rect().ypd_top_left() + padding;
+            ui::get_panel_draw_list().add_text(position, Color::white(), options_.header);
         }
 
         // draw a user-clickable button for cancelling out of this choosing state
-        void drawCancelButton()
+        void draw_cancel_button()
         {
             ui::push_style_var(ui::StyleVar::FramePadding, {10.0f, 10.0f});
             ui::push_style_color(ui::ColorVar::Button, Color::dark_grey());
 
             const CStringView text = MSMICONS_ARROW_LEFT " Cancel (ESC)";
             const Vector2 margin = {25.0f, 35.0f};
-            const Vector2 buttonTopLeft = m_Shared->get3DSceneUiRect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
+            const Vector2 buttonTopLeft = shared_->scene_ui_rect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
 
             ui::set_cursor_ui_position(buttonTopLeft);
             if (ui::draw_button(text))
             {
-                requestPop();
+                request_pop();
             }
 
             ui::pop_style_color();
             ui::pop_style_var();
         }
 
-        bool implOnEvent(Event& e) final
+        bool impl_on_event(Event& e) final
         {
-            return m_Shared->onEvent(e);
+            return shared_->on_event(e);
         }
 
-        void implTick(float dt) final
+        void impl_tick(float dt) final
         {
-            m_Shared->tick(dt);
+            shared_->tick(dt);
 
             if (ui::is_key_pressed(Key::Escape))
             {
                 // ESC: user cancelled out
-                requestPop();
+                request_pop();
             }
 
-            bool isRenderHovered = m_Shared->isRenderHovered();
+            bool isRenderHovered = shared_->is_render_hovered();
 
             if (isRenderHovered)
             {
                 const bool controllerUpdated = ui::update_orbit_controller_from_mouse_inputs(
-                    m_Shared->updCameraController(),
-                    m_Shared->getCamera(),
-                    m_Shared->get3DSceneDims()
+                    shared_->upd_camera_controller(),
+                    shared_->get_camera(),
+                    shared_->scene_dims()
                 );
                 if (controllerUpdated) {
-                    m_Shared->getCameraController().update_camera(m_Shared->updCamera());
+                    shared_->get_camera_controller().update_camera(shared_->upd_camera());
                 }
             }
         }
 
-        void implOnDraw() final
+        void impl_on_draw() final
         {
-            m_Shared->setContentRegionAvailAsSceneRect();
-            std::vector<DrawableThing>& drawables = generateDrawables();
-            m_MaybeCurrentHover = m_Shared->doHovertest(drawables);
-            handleHovertestSideEffects();
+            shared_->set_content_region_avail_as_scene_rect();
+            std::vector<DrawableThing>& drawables = generate_drawables();
+            maybe_current_hover_ = shared_->do_hovertest(drawables);
+            handle_hovertest_side_effects();
 
-            m_Shared->drawScene(drawables);
-            drawOverlay();
-            drawHoverTooltip();
-            drawHeaderText();
-            drawCancelButton();
+            shared_->draw_scene(drawables);
+            draw_overlay();
+            draw_hover_tooltip();
+            draw_header_text();
+            draw_cancel_button();
         }
 
         // data that's shared between other UI states
-        std::shared_ptr<MeshImporterSharedState> m_Shared;
+        std::shared_ptr<MeshImporterSharedState> shared_;
 
         // options for this state
-        Select2MeshPointsOptions m_Options;
+        Select2MeshPointsOptions options_;
 
         // (maybe) user mouse hover
-        MeshImporterHover m_MaybeCurrentHover;
+        MeshImporterHover maybe_current_hover_;
 
         // (maybe) first mesh location
-        std::optional<Vector3> m_MaybeFirstLocation;
+        std::optional<Vector3> maybe_first_location_;
 
         // (maybe) second mesh location
-        std::optional<Vector3> m_MaybeSecondLocation;
+        std::optional<Vector3> maybe_second_location_;
 
         // buffer that's filled with drawable geometry during a drawcall
-        std::vector<DrawableThing> m_DrawablesBuffer;
+        std::vector<DrawableThing> drawables_buffer_;
     };
 }
