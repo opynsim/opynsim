@@ -25,8 +25,8 @@ using namespace osc;
 // bricked the documentation models
 TEST(DocumentationModels, CanAllBeLoadedAndInitializedWithoutThrowingAnException)
 {
-    GloballyInitOpenSim();
-    GloballyAddDirectoryToOpenSimGeometrySearchPath(std::filesystem::path{OSC_RESOURCES_DIR} / "geometry");
+    globally_init_open_sim();
+    globally_add_directory_to_open_sim_geometry_search_path(std::filesystem::path{OSC_RESOURCES_DIR} / "geometry");
 
     SceneCache cache;
     opyn::OpenSimDecorationOptions options;

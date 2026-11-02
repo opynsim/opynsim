@@ -12,11 +12,11 @@ namespace osc
     // manually ensure OpenSim is initialized
     //
     // e.g. initializes OpenSim logging, registering components, etc.
-    bool GloballyInitOpenSim();
+    bool globally_init_open_sim();
 
     // adds the given filesystem path to a directory to OpenSim's global
     // search list that it uses when searching for mesh files
-    void GloballyAddDirectoryToOpenSimGeometrySearchPath(const std::filesystem::path&);
+    void globally_add_directory_to_open_sim_geometry_search_path(const std::filesystem::path&);
 
     // an `App` that:
     //

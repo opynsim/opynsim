@@ -195,7 +195,7 @@ TEST(tps3d, adjusting_warping_penalty_reduces_point_r2_but_increases_affine_tran
         .scale = {1.5, 0.2, 1.4},
         .transform = {
             SimTK::Rotation{33.0*osc::deg_to_rad_v<double>, SimTK::CoordinateAxis::XCoordinateAxis{}},
-            SimTK::Vec3{-0.5, 0.3, 0.33}
+            SimTK::Vec3{-0.5, 0.3, 0.33},
         },
     };
 

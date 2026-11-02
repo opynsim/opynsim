@@ -71,7 +71,7 @@ TEST(OpenSimActions, ActionUpdateModelFromBackingFileReturnsFalseIfFileDoesNotEx
 // upstream
 TEST(OpenSimActions, ActionApplyRangeDeletionPropertyEditReturnsFalseToIndicateFailure)
 {
-    GloballyInitOpenSim();  // ensure component registry is populated
+    globally_init_open_sim();  // ensure component registry is populated
 
     // create undoable model with one body + joint
     auto undoableModel = []()

@@ -63,7 +63,7 @@ namespace
     }
 }
 
-bool osc::GloballyInitOpenSim()
+bool osc::globally_init_open_sim()
 {
     static const bool s_OpenSimInitialized = []{
         opyn::set_log_level(osc::LogLevel::info);  // The desktop app logs a little bit more by default
@@ -72,7 +72,7 @@ bool osc::GloballyInitOpenSim()
     return s_OpenSimInitialized;
 }
 
-void osc::GloballyAddDirectoryToOpenSimGeometrySearchPath(const std::filesystem::path& p)
+void osc::globally_add_directory_to_open_sim_geometry_search_path(const std::filesystem::path& p)
 {
     if (std::filesystem::exists(p) and std::filesystem::is_directory(p)) {
         opyn::prepend_search_path(p);
@@ -96,10 +96,10 @@ osc::OpenSimCreatorApp::OpenSimCreatorApp() :
 osc::OpenSimCreatorApp::OpenSimCreatorApp(const AppMetadata& metadata) :
     App{metadata}
 {
-    GloballyInitOpenSim();
+    globally_init_open_sim();
     const ResourcePath geometryDirectoryPath{"OpenSimCreator/geometry"};
     if (const auto geometryDirectory = resource_filepath(geometryDirectoryPath)) {
-        GloballyAddDirectoryToOpenSimGeometrySearchPath(*geometryDirectory);
+        globally_add_directory_to_open_sim_geometry_search_path(*geometryDirectory);
     } else {
         log_error("{}: cannot find geometry directory resource: falling back to not using one at all. You might need to update the osc.toml configuration file.", geometryDirectoryPath.string());
     }

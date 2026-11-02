@@ -30,8 +30,8 @@ TEST(BasicModelStatePairWithSharedEnvironment, HasAFullyRealizedStateWhenCopied)
 
 TEST(BasicModelStatePairWithSharedEnvironment, CanGenerateDecorationsFromCopy)
 {
-    GloballyInitOpenSim();
-    GloballyAddDirectoryToOpenSimGeometrySearchPath(std::filesystem::path{OSC_RESOURCES_DIR} / "geometry");
+    globally_init_open_sim();
+    globally_add_directory_to_open_sim_geometry_search_path(std::filesystem::path{OSC_RESOURCES_DIR} / "geometry");
 
     const std::filesystem::path modelPath = std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/models/Arm26/arm26.osim";
 

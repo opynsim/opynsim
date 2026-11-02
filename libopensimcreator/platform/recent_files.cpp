@@ -34,7 +34,7 @@ namespace
 
     void SortNewestToOldest(std::vector<RecentFile>& files)
     {
-        rgs::sort(files, rgs::greater{}, [](const RecentFile& rf) { return rf.lastOpenedUnixTimestamp; });
+        rgs::sort(files, rgs::greater{}, [](const RecentFile& rf) { return rf.last_opened_unix_timestamp; });
     }
 
     // load the "recent files" file that the application persists to disk
@@ -90,50 +90,50 @@ namespace
 }
 
 osc::RecentFiles::RecentFiles() :
-    m_DiskLocation{GetRecentFilesFilePath(App::get().user_data_directory())},
-    m_Files{LoadRecentFilesFile(m_DiskLocation)}
+    disk_location_{GetRecentFilesFilePath(App::get().user_data_directory())},
+    files_{LoadRecentFilesFile(disk_location_)}
 {
 }
 
 osc::RecentFiles::RecentFiles(std::filesystem::path recentFilesFile) :
-    m_DiskLocation{std::move(recentFilesFile)},
-    m_Files{LoadRecentFilesFile(m_DiskLocation)}
+    disk_location_{std::move(recentFilesFile)},
+    files_{LoadRecentFilesFile(disk_location_)}
 {
 }
 
 void osc::RecentFiles::push_back(const std::filesystem::path& path)
 {
     // remove duplicates
-    std::erase_if(m_Files, [&path](const RecentFile& f)
+    std::erase_if(files_, [&path](const RecentFile& f)
     {
         return f.path == path;
     });
 
-    m_Files.push_back(RecentFile
+    files_.push_back(RecentFile
     {
         std::filesystem::exists(path),
         get_current_time_as_unix_timestamp(),
         path,
     });
 
-    ::SortNewestToOldest(m_Files);
+    ::SortNewestToOldest(files_);
 }
 
 void osc::RecentFiles::sync()
 {
     // write by truncating existing list file
-    std::ofstream fd{m_DiskLocation, std::ios::trunc};
+    std::ofstream fd{disk_location_, std::ios::trunc};
     if (!fd)
     {
-        log_error("{}: could not be opened for writing: cannot update recent files list", m_DiskLocation.string());
+        log_error("{}: could not be opened for writing: cannot update recent files list", disk_location_.string());
         return;
     }
 
     // write up-to the first 10 entries
-    const size_t numFilesToWrite = min(m_Files.size(), c_MaxRecentFileEntries);
+    const size_t numFilesToWrite = min(files_.size(), c_MaxRecentFileEntries);
     for (size_t i = 0; i < numFilesToWrite; ++i)
     {
-        const RecentFile& rf = m_Files[i];
-        fd << rf.lastOpenedUnixTimestamp.count() << ' ' << rf.path << '\n';
+        const RecentFile& rf = files_[i];
+        fd << rf.last_opened_unix_timestamp.count() << ' ' << rf.path << '\n';
     }
 }

@@ -26,8 +26,8 @@ TEST(UndoableModelStatePair, CanLoadAndRenderAllUserFacingExampleFiles)
     // ensure the OpenSim API is initialized and the meshes are loadable from
     // the central `geometry/` directory
     {
-        GloballyInitOpenSim();
-        GloballyAddDirectoryToOpenSimGeometrySearchPath(std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/geometry");
+        globally_init_open_sim();
+        globally_add_directory_to_open_sim_geometry_search_path(std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/geometry");
     }
 
     SceneCache meshCache;
@@ -78,8 +78,8 @@ TEST(UndoableModelStatePair, canWriteRajagopalModelToDAE)
     // ensure the OpenSim API is initialized and the meshes are loadable from
     // the central `geometry/` directory
     {
-        GloballyInitOpenSim();
-        GloballyAddDirectoryToOpenSimGeometrySearchPath(std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/geometry");
+        globally_init_open_sim();
+        globally_add_directory_to_open_sim_geometry_search_path(std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/geometry");
     }
 
     // load model
@@ -165,7 +165,7 @@ TEST(UndoableModelStatePair, CanCommitWhenModelContainsExternalLoads)
 // load and initialize those kinds of models.
 TEST(UndoableModelStatePair, CanLoadModelWithMuscleEquilibrationProblems)
 {
-    GloballyInitOpenSim();  // for loading the osim
+    globally_init_open_sim();  // for loading the osim
 
     const std::filesystem::path brokenFilePath =
         std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "opensim-creator_1070_repro.osim";

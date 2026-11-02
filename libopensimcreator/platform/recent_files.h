@@ -25,22 +25,22 @@ namespace osc
 
         [[nodiscard]] bool empty() const
         {
-            return m_Files.empty();
+            return files_.empty();
         }
 
         std::vector<RecentFile>::const_iterator begin() const
         {
-            return m_Files.begin();
+            return files_.begin();
         }
 
         std::vector<RecentFile>::const_iterator end() const
         {
-            return m_Files.end();
+            return files_.end();
         }
 
         void sync();
     private:
-        std::filesystem::path m_DiskLocation;
-        std::vector<RecentFile> m_Files;
+        std::filesystem::path disk_location_;
+        std::vector<RecentFile> files_;
     };
 }
