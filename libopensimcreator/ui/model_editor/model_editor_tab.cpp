@@ -410,15 +410,15 @@ private:
 
     bool onKeydownEvent(const KeyEvent& e)
     {
-        if (e.combination() == (KeyModifier::Ctrl | KeyModifier::Shift | Key::Z)) {
+        if (e.combination() == (ModifierKey::Ctrl | ModifierKey::Shift | Key::Z)) {
             m_Model->doRedo();
             return true;
         }
-        else if (e.combination() == (KeyModifier::Ctrl | Key::Z)) {
+        else if (e.combination() == (ModifierKey::Ctrl | Key::Z)) {
             m_Model->doUndo();
             return true;
         }
-        else if (e.combination() == (KeyModifier::Ctrl | Key::R)) {
+        else if (e.combination() == (ModifierKey::Ctrl | Key::R)) {
             return ActionStartSimulatingModel(owner(), *m_Model);
         }
         else if (e.combination() == Key::Backspace or e.combination() == Key::Delete) {

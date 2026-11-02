@@ -113,8 +113,8 @@ public:
 
     bool onUnhandledKeyUp(const KeyEvent& e)
     {
-        if (e.combination() == (KeyModifier::Ctrl | Key::PageUp) or
-            e.combination() == (KeyModifier::Ctrl | KeyModifier::Alt | Key::LeftArrow)) {
+        if (e.combination() == (ModifierKey::Ctrl | Key::PageUp) or
+            e.combination() == (ModifierKey::Ctrl | ModifierKey::Alt | Key::LeftArrow)) {
             // `Ctrl+PageUp` or `Ctrl+Alt+Left`: focus the tab to the left of the currently-active tab
             auto it = findTabByID(m_ActiveTabID);
             if (it != m_Tabs.begin() and it != m_Tabs.end()) {
@@ -123,8 +123,8 @@ public:
             }
             return true;
         }
-        if (e.combination() == (KeyModifier::Ctrl | Key::PageDown) or
-            e.combination() == (KeyModifier::Ctrl | KeyModifier::Alt | Key::RightArrow)) {
+        if (e.combination() == (ModifierKey::Ctrl | Key::PageDown) or
+            e.combination() == (ModifierKey::Ctrl | ModifierKey::Alt | Key::RightArrow)) {
             // `Ctrl+PageDown` or `Ctrl+Alt+Right`: focus the tab to the right of the currently-active tab
             auto it = findTabByID(m_ActiveTabID);
             if (it != m_Tabs.end()-1) {
@@ -133,7 +133,7 @@ public:
             }
             return true;
         }
-        if (e.combination() == (KeyModifier::Ctrl | Key::W) and m_Tabs.size() > 1 and m_ActiveTabID != m_Tabs.front()->id()) {
+        if (e.combination() == (ModifierKey::Ctrl | Key::W) and m_Tabs.size() > 1 and m_ActiveTabID != m_Tabs.front()->id()) {
             // `Ctrl+W`: close the current tab - unless it's the splash tab
             impl_close_tab(m_ActiveTabID);
             return true;
@@ -220,7 +220,7 @@ public:
 
         bool handled = false;
 
-        if (e.type() == EventType::KeyUp and dynamic_cast<const KeyEvent&>(e).combination() == (KeyModifier::Ctrl | Key::P)) {
+        if (e.type() == EventType::KeyUp and dynamic_cast<const KeyEvent&>(e).combination() == (ModifierKey::Ctrl | Key::P)) {
             // `Ctrl+P`: "take a screenshot"
             m_MaybeScreenshotRequest = App::upd().main_window_request_screenshot();
             handled = true;

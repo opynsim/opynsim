@@ -1,7 +1,7 @@
 #pragma once
 
 #include <liboscar/platform/mouse_button.h>
-#include <liboscar/platform/key_modifier.h>
+#include <liboscar/platform/modifier_key.h>
 #include <liboscar/utilities/hash_helpers.h>
 
 #include <cstddef>
@@ -9,13 +9,13 @@
 
 namespace osc
 {
-    // Represents a combination of a single `MouseButton` with zero or more `KeyModifier`s.
+    // Represents a combination of a single `MouseButton` with `ModifierKeys`.
     class MouseCombination final {
     public:
         constexpr MouseCombination(MouseButton mouse_button = MouseButton::None) :
             mouse_button_{mouse_button}
         {}
-        constexpr MouseCombination(KeyModifiers modifiers, MouseButton mouse_button) :
+        constexpr MouseCombination(ModifierKeys modifiers, MouseButton mouse_button) :
             modifiers_{modifiers},
             mouse_button_{mouse_button}
         {}
@@ -23,13 +23,13 @@ namespace osc
         friend bool operator==(const MouseCombination&, const MouseCombination&) = default;
 
         constexpr MouseButton mouse_button() const { return mouse_button_; }
-        constexpr KeyModifiers modifiers() const { return modifiers_; }
+        constexpr ModifierKeys modifiers() const { return modifiers_; }
     private:
-        KeyModifiers modifiers_{};
+        ModifierKeys modifiers_{};
         MouseButton mouse_button_ = MouseButton::None;
     };
 
-    constexpr MouseCombination operator|(KeyModifiers modifiers, MouseButton mouse_button)
+    constexpr MouseCombination operator|(ModifierKeys modifiers, MouseButton mouse_button)
     {
         return MouseCombination{modifiers, mouse_button};
     }

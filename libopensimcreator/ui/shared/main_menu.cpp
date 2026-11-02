@@ -156,13 +156,13 @@ void osc::MainMenuFileTab::onDraw(std::shared_ptr<opyn::ModelStatePair> maybeMod
         return;
     }
 
-    if (ui::draw_menu_item(MSMICONS_FILE " New", KeyModifier::Ctrl | Key::N)) {
+    if (ui::draw_menu_item(MSMICONS_FILE " New", ModifierKey::Ctrl | Key::N)) {
         if (parent()) {
             ActionNewModel(*parent());
         }
     }
 
-    if (ui::draw_menu_item(MSMICONS_FOLDER_OPEN " Open", KeyModifier::Ctrl | Key::O)) {
+    if (ui::draw_menu_item(MSMICONS_FOLDER_OPEN " Open", ModifierKey::Ctrl | Key::O)) {
         if (parent()) {
             ActionOpenModel(*parent());
         }
@@ -208,13 +208,13 @@ void osc::MainMenuFileTab::onDraw(std::shared_ptr<opyn::ModelStatePair> maybeMod
 
     ui::draw_separator();
 
-    if (ui::draw_menu_item(MSMICONS_SAVE " Save", KeyModifier::Ctrl | Key::S, false, undoableModel != nullptr)) {
+    if (ui::draw_menu_item(MSMICONS_SAVE " Save", ModifierKey::Ctrl | Key::S, false, undoableModel != nullptr)) {
         if (undoableModel) {
             ActionSaveModelAsync(undoableModel);
         }
     }
 
-    if (ui::draw_menu_item(MSMICONS_SAVE " Save As", KeyModifier::Ctrl | KeyModifier::Shift | Key::S, false, undoableModel != nullptr)) {
+    if (ui::draw_menu_item(MSMICONS_SAVE " Save As", ModifierKey::Ctrl | ModifierKey::Shift | Key::S, false, undoableModel != nullptr)) {
         if (undoableModel) {
             ActionSaveCurrentModelAs(undoableModel);
         }
@@ -224,7 +224,7 @@ void osc::MainMenuFileTab::onDraw(std::shared_ptr<opyn::ModelStatePair> maybeMod
         Tab* parentTab = first_ancestor_of_type<Tab>();
         // HACK: `SplashTab` is the only not-closeable tab
         const bool enabled = (undoableModel != nullptr) and (dynamic_cast<const SplashTab*>(parentTab) == nullptr);
-        if (ui::draw_menu_item(MSMICONS_TIMES " Close", KeyModifier::Ctrl | Key::W, false, enabled)) {
+        if (ui::draw_menu_item(MSMICONS_TIMES " Close", ModifierKey::Ctrl | Key::W, false, enabled)) {
             App::post_event<CloseTabEvent>(*parentTab, parentTab->id());
         }
     }
@@ -277,7 +277,7 @@ void osc::MainMenuFileTab::onDraw(std::shared_ptr<opyn::ModelStatePair> maybeMod
 
     ui::draw_separator();
 
-    if (ui::draw_menu_item(MSMICONS_TIMES_CIRCLE " Quit", KeyModifier::Ctrl | Key::Q)) {
+    if (ui::draw_menu_item(MSMICONS_TIMES_CIRCLE " Quit", ModifierKey::Ctrl | Key::Q)) {
         App::upd().request_quit();
     }
 

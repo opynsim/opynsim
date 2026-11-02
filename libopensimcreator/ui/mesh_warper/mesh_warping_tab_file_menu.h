@@ -33,7 +33,7 @@ namespace osc
     private:
         void drawContent()
         {
-            if (ui::draw_menu_item(MSMICONS_FILE " New", KeyModifier::Ctrl | Key::N))
+            if (ui::draw_menu_item(MSMICONS_FILE " New", ModifierKey::Ctrl | Key::N))
             {
                 ActionCreateNewDocument(m_State->updUndoable());
             }
@@ -50,12 +50,12 @@ namespace osc
                 ui::end_menu();
             }
 
-            if (ui::draw_menu_item(MSMICONS_TIMES " Close", KeyModifier::Ctrl | Key::W))
+            if (ui::draw_menu_item(MSMICONS_TIMES " Close", ModifierKey::Ctrl | Key::W))
             {
                 m_State->closeTab();
             }
 
-            if (ui::draw_menu_item(MSMICONS_TIMES_CIRCLE " Quit", KeyModifier::Ctrl | Key::Q))
+            if (ui::draw_menu_item(MSMICONS_TIMES_CIRCLE " Quit", ModifierKey::Ctrl | Key::Q))
             {
                 App::upd().request_quit();
             }

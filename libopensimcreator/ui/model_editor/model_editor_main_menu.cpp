@@ -55,13 +55,13 @@ private:
     {
         if (ui::begin_menu("Edit")) {
             auto* undoable = dynamic_cast<UndoableModelStatePair*>(m_Model.get());
-            if (ui::draw_menu_item(MSMICONS_UNDO " Undo", KeyModifier::Ctrl | Key::Z, false, undoable != nullptr and undoable->canUndo())) {
+            if (ui::draw_menu_item(MSMICONS_UNDO " Undo", ModifierKey::Ctrl | Key::Z, false, undoable != nullptr and undoable->canUndo())) {
                 if (undoable) {
                     undoable->doUndo();
                 }
             }
 
-            if (ui::draw_menu_item(MSMICONS_REDO " Redo", KeyModifier::Ctrl | KeyModifier::Shift | Key::Z, false, undoable != nullptr and undoable->canRedo())) {
+            if (ui::draw_menu_item(MSMICONS_REDO " Redo", ModifierKey::Ctrl | ModifierKey::Shift | Key::Z, false, undoable != nullptr and undoable->canRedo())) {
                 if (undoable) {
                     undoable->doRedo();
                 }
@@ -88,7 +88,7 @@ private:
     void drawMainMenuToolsTab()
     {
         if (ui::begin_menu("Tools")) {
-            if (ui::draw_menu_item(MSMICONS_PLAY " Simulate", KeyModifier::Ctrl | Key::R)) {
+            if (ui::draw_menu_item(MSMICONS_PLAY " Simulate", ModifierKey::Ctrl | Key::R)) {
                 ActionStartSimulatingModel(owner(), *m_Model);
             }
 

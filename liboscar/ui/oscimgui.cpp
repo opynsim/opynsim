@@ -1080,13 +1080,13 @@ namespace
             const auto& key_event = dynamic_cast<const KeyEvent&>(e);
 
             // ImGui internally contains MacOS correction code, so pass
-            // the key modifiers "in the raw" (PhysicalKeyModifier, opensim-creator#1069).
+            // the key modifiers "in the raw" (PhysicalModifierKey, opensim-creator#1069).
             //
             // see: ImGuiIO's `ConfigMacOSXBehaviors`
-            io.AddKeyEvent(ImGuiMod_Ctrl,  key_event.has_modifier(PhysicalKeyModifier::Ctrl));
-            io.AddKeyEvent(ImGuiMod_Shift, key_event.has_modifier(PhysicalKeyModifier::Shift));
-            io.AddKeyEvent(ImGuiMod_Alt,   key_event.has_modifier(PhysicalKeyModifier::Alt));
-            io.AddKeyEvent(ImGuiMod_Super, key_event.has_modifier(PhysicalKeyModifier::Meta));
+            io.AddKeyEvent(ImGuiMod_Ctrl,  key_event.has_modifier(PhysicalModifierKey::Ctrl));
+            io.AddKeyEvent(ImGuiMod_Shift, key_event.has_modifier(PhysicalModifierKey::Shift));
+            io.AddKeyEvent(ImGuiMod_Alt,   key_event.has_modifier(PhysicalModifierKey::Alt));
+            io.AddKeyEvent(ImGuiMod_Super, key_event.has_modifier(PhysicalModifierKey::Meta));
 
             io.AddKeyEvent(to<ImGuiKey>(key_event.key()), key_event.type() == EventType::KeyDown);
             return true;
@@ -1311,11 +1311,11 @@ namespace
         imgui_oscar_platform_update_mouse_cursor(app);
     }
 
-    constexpr auto c_combo_lut = std::to_array<std::pair<PhysicalKeyModifier, std::string_view>>({
-        {PhysicalKeyModifier::Shift, "Shift "},
-        {PhysicalKeyModifier::Ctrl, "Ctrl "},
-        {PhysicalKeyModifier::Meta, "Command "},
-        {PhysicalKeyModifier::Alt, "Alt "},
+    constexpr auto c_combo_lut = std::to_array<std::pair<PhysicalModifierKey, std::string_view>>({
+        {PhysicalModifierKey::Shift, "Shift "},
+        {PhysicalModifierKey::Ctrl, "Ctrl "},
+        {PhysicalModifierKey::Meta, "Command "},
+        {PhysicalModifierKey::Alt, "Alt "},
     });
 
     std::string_view to_human_readable(Key key)
@@ -1446,9 +1446,9 @@ namespace
         }
     }
 
-    std::string to_human_readable(KeyModifiers modifiers)
+    std::string to_human_readable(ModifierKeys modifiers)
     {
-        const auto user_modifiers = to<PhysicalKeyModifiers>(modifiers);
+        const auto user_modifiers = to<PhysicalModifierKeys>(modifiers);
         std::string rv;
         for (const auto& [mod, label] : c_combo_lut) {
             if (mod & user_modifiers) {

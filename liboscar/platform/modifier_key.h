@@ -8,15 +8,15 @@ namespace osc
 {
     // Represents a single keyboard key modifier.
     //
-    // `KeyModifier`s are virtual, which means that don't necessarily
+    // `ModifierKey`s are virtual, which means that don't necessarily
     // represent what's physically written on the keyboard. For
     // example, MacOS tends to use the Command key in place of the
     // Ctrl key for many application keybinds. With this in mind, the
-    // backend maps (virtualizes) the Command key to `KeyModifier::Ctrl`
+    // backend maps (virtualizes) the Command key to `ModifierKey::Ctrl`
     // so that application code can just write keybinds "as if" only
-    // writing for Windows/Linux. See `PhysicalKeyModifier` (and related
+    // writing for Windows/Linux. See `PhysicalModifierKey` (and related
     // `Converter`s) if you need to know the underlying physical key.
-    enum class KeyModifier : uint16_t {
+    enum class ModifierKey : uint16_t {
         // No modifier key is pressed.
         None         = 0,
 
@@ -48,10 +48,10 @@ namespace osc
 
         NUM_FLAGS    =    4,
     };
-    using KeyModifiers = Flags<KeyModifier>;
+    using ModifierKeys = Flags<ModifierKey>;
 
-    constexpr KeyModifiers operator|(KeyModifier lhs, KeyModifier rhs)
+    constexpr ModifierKeys operator|(ModifierKey lhs, ModifierKey rhs)
     {
-        return KeyModifiers{lhs, rhs};
+        return ModifierKeys{lhs, rhs};
     }
 }

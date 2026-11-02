@@ -6,7 +6,7 @@
 #include <libopensimcreator/ui/shared/basic_widgets.h>
 
 #include <liboscar/maths/ray_collision.h>
-#include <liboscar/platform/key_modifier.h>
+#include <liboscar/platform/modifier_key.h>
 #include <liboscar/platform/mouse_combination.h>
 #include <liboscar/platform/mouse_button.h>
 #include <liboscar/ui/popups/popup.h>
@@ -45,7 +45,7 @@ namespace osc
             if (ui::draw_menu_item("Place landmark", MouseButton::Left)) {
                 ActionAddLandmark(m_State->updUndoable(), m_DocumentIdentifier, m_MeshCollision.position);
             }
-            if (ui::draw_menu_item("Place Non-Participating Landmark",  KeyModifier::Ctrl | MouseButton::Left, false, m_DocumentIdentifier == MiDocumentInputIdentifier::Source)) {
+            if (ui::draw_menu_item("Place Non-Participating Landmark",  ModifierKey::Ctrl | MouseButton::Left, false, m_DocumentIdentifier == MiDocumentInputIdentifier::Source)) {
                 ActionAddNonParticipatingLandmark(m_State->updUndoable(), m_MeshCollision.position);
             }
             if (ui::draw_menu_item("Move Selection Here", std::nullopt, false, m_State->hasSelection(m_DocumentIdentifier))) {
