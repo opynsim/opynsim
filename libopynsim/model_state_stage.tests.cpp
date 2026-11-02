@@ -11,7 +11,7 @@ using namespace opyn;
 TEST(ModelStateStage, to_string_view_returns_expected_results)
 {
 
-    static_assert(osc::num_options<ModelStateStage>() == 9);
+    static_assert(osc::num_options_v<ModelStateStage> == 9);
     ASSERT_EQ(to_string_view(ModelStateStage::topology),     "ModelStateStage.TOPOLOGY");
     ASSERT_EQ(to_string_view(ModelStateStage::model),        "ModelStateStage.MODEL");
     ASSERT_EQ(to_string_view(ModelStateStage::instance),     "ModelStateStage.INSTANCE");
@@ -25,14 +25,14 @@ TEST(ModelStateStage, to_string_view_returns_expected_results)
 
 TEST(ModelStateStage, to_string_view_returns_invalid_when_given_invalid_value)
 {
-    static_assert(osc::num_options<ModelStateStage>() == 9);
+    static_assert(osc::num_options_v<ModelStateStage> == 9);
     ASSERT_EQ(to_string_view(static_cast<ModelStateStage>(1337)), "ModelStateStage.INVALID");
 }
 
 TEST(ModelStateStage, formatter_returns_expected_results)
 {
 
-    static_assert(osc::num_options<ModelStateStage>() == 9);
+    static_assert(osc::num_options_v<ModelStateStage> == 9);
     ASSERT_EQ(std::format("{}", ModelStateStage::topology),     "ModelStateStage.TOPOLOGY");
     ASSERT_EQ(std::format("{}", ModelStateStage::model),        "ModelStateStage.MODEL");
     ASSERT_EQ(std::format("{}", ModelStateStage::instance),     "ModelStateStage.INSTANCE");
@@ -46,6 +46,6 @@ TEST(ModelStateStage, formatter_returns_expected_results)
 
 TEST(ModelStateStage, to_string_view_returns_INVALID_when_given_invalid_value)
 {
-    static_assert(osc::num_options<ModelStateStage>() == 9);
+    static_assert(osc::num_options_v<ModelStateStage> == 9);
     ASSERT_EQ(std::format("{}", static_cast<ModelStateStage>(1337)), "ModelStateStage.INVALID");
 }

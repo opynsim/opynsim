@@ -197,7 +197,7 @@ namespace
         const opyn::IntegratorMethod& method,
         const SimTK::MultibodySystem& system)
     {
-        static_assert(osc::num_options<opyn::IntegratorMethod>() == 7);
+        static_assert(osc::num_options_v<opyn::IntegratorMethod> == 7);
         switch (method) {
         case opyn::IntegratorMethod::RungeKuttaMerson:   return std::make_unique<SimTK::RungeKuttaMersonIntegrator>(system);
         case opyn::IntegratorMethod::ExplicitEuler:      return std::make_unique<SimTK::ExplicitEulerIntegrator>(system);

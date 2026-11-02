@@ -42,7 +42,7 @@ namespace opyn
 
     constexpr OverlayDecorationOptionFlags ith_option(size_t i)
     {
-        i = i < osc::num_flags<OverlayDecorationOptionFlags>() ? i : 0;
+        i = i < osc::num_flags_v<OverlayDecorationOptionFlags> ? i : 0;
         return static_cast<OverlayDecorationOptionFlags>(1<<i);
     }
 

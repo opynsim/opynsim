@@ -20,7 +20,7 @@ namespace
 {
     OutputExtractorDataType calc_output_type(const SharedOutputExtractor& a, const SharedOutputExtractor& b)
     {
-        static_assert(osc::num_options<OutputExtractorDataType>() == 3);
+        static_assert(osc::num_options_v<OutputExtractorDataType> == 3);
 
         const OutputExtractorDataType a_type = a.output_type();
         const OutputExtractorDataType b_type = b.output_type();
@@ -38,7 +38,7 @@ namespace
         const SharedOutputExtractor& a,
         const SharedOutputExtractor& b)
     {
-        static_assert(osc::num_options<OutputExtractorDataType>() == 3);
+        static_assert(osc::num_options_v<OutputExtractorDataType> == 3);
 
         if (concatenated_type == OutputExtractorDataType::Vector2) {
             return std::format("{} vs. {}", a.name(), b.name());
@@ -61,7 +61,7 @@ opyn::ConcatenatingOutputExtractor::ConcatenatingOutputExtractor(
 
 OutputValueExtractor opyn::ConcatenatingOutputExtractor::impl_output_value_extractor(const OpenSim::Component& comp) const
 {
-    static_assert(osc::num_options<OutputExtractorDataType>() == 3);
+    static_assert(osc::num_options_v<OutputExtractorDataType> == 3);
 
     if (output_type_ == OutputExtractorDataType::Vector2) {
         auto extractor = [lhs = first_.output_value_extractor(comp), rhs = second_.output_value_extractor(comp)](const StateViewWithMetadata& state)

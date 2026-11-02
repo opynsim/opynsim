@@ -81,7 +81,7 @@ namespace
         AbstractSimulation& simulation,
         const opyn::SharedOutputExtractor& oneDimensionalOutputExtractor)
     {
-        static_assert(num_options<opyn::OutputExtractorDataType>() == 3);
+        static_assert(num_options_v<opyn::OutputExtractorDataType> == 3);
         OSC_ASSERT(oneDimensionalOutputExtractor.output_type() == opyn::OutputExtractorDataType::Float);
 
         // HACK: pre-acquire the environment, because `*simulation.getModel()` acquires the model
@@ -175,7 +175,7 @@ public:
 
     void onDraw()
     {
-        static_assert(num_options<opyn::OutputExtractorDataType>() == 3);
+        static_assert(num_options_v<opyn::OutputExtractorDataType> == 3);
 
         const ptrdiff_t nReports = m_API->updSimulation().getNumReports();
         opyn::OutputExtractorDataType outputType = m_OutputExtractor.output_type();

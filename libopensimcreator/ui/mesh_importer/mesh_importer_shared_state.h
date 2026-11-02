@@ -796,7 +796,7 @@ namespace osc
 
         size_t num_toggleable_panels() const
         {
-            return num_options<PanelIndex>();
+            return num_options_v<PanelIndex>;
         }
 
         CStringView getNthPanelName(size_t n) const
@@ -1564,7 +1564,7 @@ namespace osc
             "Performance",
         });
         static_assert(c_OpenedPanelNames.size() == c_NumPanelStates);
-        static_assert(num_options<PanelIndex>() == c_NumPanelStates);
+        static_assert(num_options_v<PanelIndex> == c_NumPanelStates);
         LogViewer m_Logviewer;
         PerfPanel m_PerfPanel;
 

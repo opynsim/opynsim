@@ -59,7 +59,7 @@ namespace osc
             }
             else
             {
-                static_assert(num_options<MiDocumentInputIdentifier>() == 2);
+                static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
                 ui::draw_text_disabled("(Click: add a landmark)");
             }
         }

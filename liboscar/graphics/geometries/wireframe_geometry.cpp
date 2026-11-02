@@ -29,7 +29,7 @@ osc::WireframeGeometry::WireframeGeometry(const Mesh& mesh)
     //
     // https://threejs.org/docs/#api/en/geometries/WireframeGeometry
 
-    static_assert(num_options<MeshTopology>() == 2);
+    static_assert(num_options_v<MeshTopology> == 2);
 
     if (mesh.topology() == MeshTopology::Lines) {
         mesh_ = mesh;

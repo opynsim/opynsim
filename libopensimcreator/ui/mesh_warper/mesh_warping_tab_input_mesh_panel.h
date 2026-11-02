@@ -646,7 +646,7 @@ namespace osc
 
         bool isUserPlacingNonParticipatingLandmark() const
         {
-            static_assert(num_options<MiDocumentInputIdentifier>() == 2);
+            static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
             const bool isSourceMesh = m_DocumentIdentifier == MiDocumentInputIdentifier::Source;
             const bool isCtrlPressed = ui::any_of_keys_down({Key::LeftCtrl, Key::RightCtrl});
             return isSourceMesh && isCtrlPressed;

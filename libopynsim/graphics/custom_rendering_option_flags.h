@@ -38,7 +38,7 @@ namespace opyn
 
     constexpr CustomRenderingOptionFlags custom_rendering_ith_option(size_t i)
     {
-        i = i < osc::num_flags<CustomRenderingOptionFlags>() ? i : 0;
+        i = i < osc::num_flags_v<CustomRenderingOptionFlags> ? i : 0;
         return static_cast<CustomRenderingOptionFlags>(1<<i);
     }
 

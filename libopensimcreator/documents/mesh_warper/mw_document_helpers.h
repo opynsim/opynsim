@@ -53,14 +53,14 @@ namespace osc
     // returns the (mutable) source/destination of the given landmark pair, if available
     inline std::optional<Vector3>& UpdLocation(MwDocumentLandmarkPair& landmarkPair, MiDocumentInputIdentifier which)
     {
-        static_assert(num_options<MiDocumentInputIdentifier>() == 2);
+        static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
         return which == MiDocumentInputIdentifier::Source ? landmarkPair.maybeSourceLocation : landmarkPair.maybeDestinationLocation;
     }
 
     // returns the source/destination of the given landmark pair, if available
     inline std::optional<Vector3> const& GetLocation(const MwDocumentLandmarkPair& landmarkPair, MiDocumentInputIdentifier which)
     {
-        static_assert(num_options<MiDocumentInputIdentifier>() == 2);
+        static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
         return which == MiDocumentInputIdentifier::Source ? landmarkPair.maybeSourceLocation : landmarkPair.maybeDestinationLocation;
     }
 
@@ -73,14 +73,14 @@ namespace osc
     // returns the (mutable) source/destination mesh in the given document
     inline Mesh& UpdMesh(MwDocument& doc, MiDocumentInputIdentifier which)
     {
-        static_assert(num_options<MiDocumentInputIdentifier>() == 2);
+        static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
         return which == MiDocumentInputIdentifier::Source ? doc.sourceMesh : doc.destinationMesh;
     }
 
     // returns the source/destination mesh in the given document
     inline const Mesh& GetMesh(const MwDocument& doc, MiDocumentInputIdentifier which)
     {
-        static_assert(num_options<MiDocumentInputIdentifier>() == 2);
+        static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
         return which == MiDocumentInputIdentifier::Source ? doc.sourceMesh : doc.destinationMesh;
     }
 

@@ -93,11 +93,11 @@ namespace
 
 std::optional<Vector3> osc::FindLandmarkLocation(const MwDocument& doc, UID uid, MiDocumentInputIdentifier input, MwDocumentElementType elementType)
 {
-    static_assert(num_options<MwDocumentElementType>() == 2);
+    static_assert(num_options_v<MwDocumentElementType> == 2);
     switch (elementType) {
     case MwDocumentElementType::Landmark: {
         if (const MwDocumentLandmarkPair* p = FindLandmarkPair(doc, uid)) {
-            static_assert(num_options<MiDocumentInputIdentifier>() == 2);
+            static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
             return input == MiDocumentInputIdentifier::Source ? p->maybeSourceLocation : p->maybeDestinationLocation;
         }
         break;
@@ -120,11 +120,11 @@ bool osc::TranslateLandmarkByID(
     MwDocumentElementType elementType,
     const Vector3& translation)
 {
-    static_assert(num_options<MwDocumentElementType>() == 2);
+    static_assert(num_options_v<MwDocumentElementType> == 2);
     switch (elementType) {
     case MwDocumentElementType::Landmark: {
         if (MwDocumentLandmarkPair* p = FindLandmarkPair(doc, uid)) {
-            static_assert(num_options<MiDocumentInputIdentifier>() == 2);
+            static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
             if (auto& pos = input == MiDocumentInputIdentifier::Source ? p->maybeSourceLocation : p->maybeDestinationLocation) {
                 *pos += translation;
                 return true;
@@ -151,11 +151,11 @@ bool osc::SetLandmarkLocationByID(
     MwDocumentElementType elementType,
     const Vector3& location)
 {
-    static_assert(num_options<MwDocumentElementType>() == 2);
+    static_assert(num_options_v<MwDocumentElementType> == 2);
     switch (elementType) {
         case MwDocumentElementType::Landmark: {
             if (MwDocumentLandmarkPair* p = FindLandmarkPair(doc, uid)) {
-                static_assert(num_options<MiDocumentInputIdentifier>() == 2);
+                static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
                 if (auto& pos = input == MiDocumentInputIdentifier::Source ? p->maybeSourceLocation : p->maybeDestinationLocation) {
                     *pos = location;
                     return true;
@@ -197,7 +197,7 @@ MwDocumentNonParticipatingLandmark* osc::FindNonParticipatingLandmark(MwDocument
 
 const MwDocumentElement* osc::FindElement(const MwDocument& doc, const MwDocumentElementID& id)
 {
-    static_assert(num_options<MwDocumentElementType>() == 2);
+    static_assert(num_options_v<MwDocumentElementType> == 2);
 
     switch (id.type) {
     case MwDocumentElementType::Landmark:
@@ -378,7 +378,7 @@ void osc::AddNonParticipatingLandmark(
 
 bool osc::DeleteElementByID(MwDocument& doc, const MwDocumentElementID& id)
 {
-    static_assert(num_options<MwDocumentElementType>() == 2);
+    static_assert(num_options_v<MwDocumentElementType> == 2);
 
     if (id.type == MwDocumentElementType::Landmark)
     {

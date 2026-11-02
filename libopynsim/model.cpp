@@ -351,7 +351,7 @@ public:
 
     void realize(ModelState& state, ModelStateStage stage) const
     {
-        static_assert(osc::num_options<ModelStateStage>() == 9);
+        static_assert(osc::num_options_v<ModelStateStage> == 9);
         model_.getSystem().realize(state.simbody_state(), to_simbody_stage(stage));
     }
 

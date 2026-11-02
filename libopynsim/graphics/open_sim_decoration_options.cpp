@@ -63,7 +63,7 @@ void opyn::OpenSimDecorationOptions::set_muscle_color_source_scaling(MuscleColor
 
 size_t opyn::OpenSimDecorationOptions::get_num_options() const
 {
-    return osc::num_flags<OpenSimDecorationOptionFlag>();
+    return osc::num_flags_v<OpenSimDecorationOptionFlag>;
 }
 
 bool opyn::OpenSimDecorationOptions::get_option_value(ptrdiff_t i) const
@@ -228,7 +228,7 @@ void opyn::OpenSimDecorationOptions::for_each_option_as_app_setting_value(
     callback("muscle_coloring_style",   osc::Variant{get_muscle_coloring_style_metadata(muscle_color_source_).id});
     callback("muscle_sizing_style",     osc::Variant{get_muscle_sizing_style_metadata(muscle_sizing_style_).id});
     callback("muscle_color_scaling",    osc::Variant{get_muscle_color_source_scaling_metadata(muscle_colour_source_scaling_).id});
-    for (size_t i = 0; i < osc::num_flags<OpenSimDecorationOptionFlag>(); ++i) {
+    for (size_t i = 0; i < osc::num_flags_v<OpenSimDecorationOptionFlag>; ++i) {
         const auto& meta = get_ith_option_metadata(i);
         callback(meta.id, osc::Variant{flags_.get(get_ith_option(i))});
     }
@@ -286,7 +286,7 @@ void opyn::OpenSimDecorationOptions::try_upd_from_values(
         }
     }
 
-    for (size_t i = 0; i < osc::num_flags<OpenSimDecorationOptionFlag>(); ++i) {
+    for (size_t i = 0; i < osc::num_flags_v<OpenSimDecorationOptionFlag>; ++i) {
         const auto& metadata = get_ith_option_metadata(i);
         if (auto* app_val = lookup(metadata.id); app_val and app_val->type() == osc::VariantType::Bool) {
             flags_.set(get_ith_option(i), to<bool>(*app_val));

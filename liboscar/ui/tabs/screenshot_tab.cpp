@@ -232,7 +232,7 @@ private:
             }
             open_file_in_os_default_application(*p);
         }, format == ScreenshotFileFormat::jpeg ? "jpeg" : "png");
-        static_assert(num_options<ScreenshotFileFormat>() == 2);
+        static_assert(num_options_v<ScreenshotFileFormat> == 2);
     }
 
     Texture2D render_annotated_screenshot()

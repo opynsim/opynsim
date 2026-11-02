@@ -13,7 +13,7 @@ using namespace opyn;
 opyn::ModelStateStage opyn::to_opynsim_stage(SimTK::Stage simbody_stage)
 {
     static_assert(SimTK::Stage::HighestValid == SimTK::Stage::Infinity);
-    static_assert(osc::num_options<ModelStateStage>() == 9);
+    static_assert(osc::num_options_v<ModelStateStage> == 9);
 
     switch (simbody_stage) {
     case SimTK::Stage::Topology:     return ModelStateStage::topology;
@@ -40,7 +40,7 @@ opyn::ModelStateStage opyn::to_opynsim_stage(SimTK::Stage simbody_stage)
 SimTK::Stage opyn::to_simbody_stage(ModelStateStage model_state_stage)
 {
     static_assert(SimTK::Stage::HighestValid == SimTK::Stage::Infinity);
-    static_assert(osc::num_options<ModelStateStage>() == 9);
+    static_assert(osc::num_options_v<ModelStateStage> == 9);
 
     switch (model_state_stage) {
     case ModelStateStage::topology:     return SimTK::Stage::Topology;

@@ -21,7 +21,7 @@ namespace
 {
     osc::LogLevel to_oscar_log_level(int python_logging_level)
     {
-        static_assert(osc::num_options<osc::LogLevel>() == 7, "review this code if oscar levels change");
+        static_assert(osc::num_options_v<osc::LogLevel> == 7, "review this code if oscar levels change");
 
         // These are dictated by the python documentation: https://docs.python.org/3/library/logging.html#logging-levels
         switch (python_logging_level) {
@@ -37,7 +37,7 @@ namespace
 
     int to_python_log_level(osc::LogLevel oscar_logging_level)
     {
-        static_assert(osc::num_options<osc::LogLevel>() == 7, "review this code if oscar levels change");
+        static_assert(osc::num_options_v<osc::LogLevel> == 7, "review this code if oscar levels change");
 
         // These are dictated by the python documentation: https://docs.python.org/3/library/logging.html#logging-levels
         switch (oscar_logging_level) {

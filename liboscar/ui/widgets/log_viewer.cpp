@@ -20,7 +20,7 @@ namespace
 {
     Color to_color(LogLevel log_level)
     {
-        static_assert(num_options<LogLevel>() == 7);
+        static_assert(num_options_v<LogLevel> == 7);
         switch (log_level) {
         case LogLevel::trace:    return {0.5f, 0.5f, 0.5f, 1.0f};
         case LogLevel::debug:    return {0.8f, 0.8f, 0.8f, 1.0f};

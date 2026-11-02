@@ -94,8 +94,8 @@ struct osc::Converter<Rect, SDL_Rect> final {
 PhysicalModifierKeys osc::Converter<ModifierKeys, PhysicalModifierKeys>::operator()(ModifierKeys modifiers) const
 {
     // Ensure the remapping/casting tricks being done in this function are valid.
-    static_assert(num_flags<ModifierKey>() == num_flags<PhysicalModifierKey>());
-    static_assert(num_flags<ModifierKey>() == 4);
+    static_assert(num_flags_v<ModifierKey> == num_flags_v<PhysicalModifierKey>);
+    static_assert(num_flags_v<ModifierKey> == 4);
     static_assert(std::to_underlying(ModifierKey::Shift) == std::to_underlying(PhysicalModifierKey::Shift));
     static_assert(std::to_underlying(ModifierKey::Ctrl)  == std::to_underlying(PhysicalModifierKey::Ctrl));
     static_assert(std::to_underlying(ModifierKey::Meta)  == std::to_underlying(PhysicalModifierKey::Meta));
@@ -115,8 +115,8 @@ PhysicalModifierKeys osc::Converter<ModifierKeys, PhysicalModifierKeys>::operato
 ModifierKeys osc::Converter<PhysicalModifierKeys, ModifierKeys>::operator()(PhysicalModifierKeys modifiers) const
 {
     // Ensure the remapping/casting tricks being done in this function are valid.
-    static_assert(num_flags<ModifierKey>() == num_flags<PhysicalModifierKey>());
-    static_assert(num_flags<ModifierKey>() == 4);
+    static_assert(num_flags_v<ModifierKey> == num_flags_v<PhysicalModifierKey>);
+    static_assert(num_flags_v<ModifierKey> == 4);
     static_assert(std::to_underlying(ModifierKey::Shift) == std::to_underlying(PhysicalModifierKey::Shift));
     static_assert(std::to_underlying(ModifierKey::Ctrl)  == std::to_underlying(PhysicalModifierKey::Ctrl));
     static_assert(std::to_underlying(ModifierKey::Meta)  == std::to_underlying(PhysicalModifierKey::Meta));
@@ -164,7 +164,7 @@ template<>
 struct osc::Converter<SDL_Keycode, Key> final {
     Key operator()(SDL_Keycode code) const
     {
-        static_assert(num_options<Key>() == 120);
+        static_assert(num_options_v<Key> == 120);
 
         switch (code) {
         case SDLK_TAB:          return Key::Tab;
@@ -664,7 +664,7 @@ namespace
             return std::make_unique<DisplayStateChangeEvent>();
         }
         else if (SDL_EVENT_WINDOW_FIRST <= e.type and e.type <= SDL_EVENT_WINDOW_LAST) {
-            static_assert(num_options<WindowEventType>() == 9);
+            static_assert(num_options_v<WindowEventType> == 9);
             OSC_ASSERT(SDL_EVENT_WINDOW_FIRST <= e.type and e.type <= SDL_EVENT_WINDOW_LAST);
 
             const WindowEventType window_event_type = parse_as_window_event_type(e.type);
@@ -726,7 +726,7 @@ namespace
     public:
         SystemCursor& operator[](CursorShape shape) { return cursors_.at(to_index(shape)); }
     private:
-        std::array<SystemCursor, num_options<CursorShape>()> cursors_ = std::to_array({
+        std::array<SystemCursor, num_options_v<CursorShape>> cursors_ = std::to_array({
             SystemCursor(SDL_SYSTEM_CURSOR_DEFAULT),      // CursorShape::Arrow
             SystemCursor(SDL_SYSTEM_CURSOR_TEXT),         // CursorShape::IBeam
             SystemCursor(SDL_SYSTEM_CURSOR_MOVE),         // CursorShape::ResizeAll

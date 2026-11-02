@@ -193,7 +193,7 @@ public:
             );
         }
         // else: orthographic
-        static_assert(osc::num_options<CameraProjection>() == 2);
+        static_assert(osc::num_options_v<CameraProjection> == 2);
         const float height = orthographic_size_;
         const float width = height * safe_aspect_ratio;
 
@@ -236,7 +236,7 @@ public:
             projection_matrix(aspect_ratio_of(ui_rect))
         );
 
-        static_assert(num_options<CameraProjection>() == 2);
+        static_assert(num_options_v<CameraProjection> == 2);
         if (projection() == CameraProjection::Orthographic) {
             return Ray{origin, direction()};
         } else {
@@ -246,7 +246,7 @@ public:
 
     float view_volume_height_at_depth(float depth) const
     {
-        static_assert(num_options<CameraProjection>() == 2);
+        static_assert(num_options_v<CameraProjection> == 2);
         if (projection_ == CameraProjection::Orthographic) {
             return orthographic_size_;
         }

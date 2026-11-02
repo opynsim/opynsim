@@ -1103,7 +1103,7 @@ namespace {
 
     void def_model_state_stage(nb::module_& m)
     {
-        static_assert(osc::num_options<ModelStateStage>() == 9);
+        static_assert(osc::num_options_v<ModelStateStage> == 9);
         nb::enum_<ModelStateStage> model_state_stage_class(
             m,
             "ModelStateStage",

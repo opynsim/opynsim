@@ -134,7 +134,7 @@ template<>
 struct osc::Converter<Key, ImGuiKey> final {
     ImGuiKey operator()(Key key) const
     {
-        static_assert(num_options<Key>() == 120);
+        static_assert(num_options_v<Key> == 120);
 
         switch (key) {
         case Key::Tab: return ImGuiKey_Tab;
@@ -420,7 +420,7 @@ namespace
             caller_config{std::move(config)},
             window_id{window_id}
         {
-            static_assert(osc::num_flags<MouseButton>() == 5);
+            static_assert(osc::num_flags_v<MouseButton> == 5);
 
             ui_material.set_transparent(true);
             ui_material.set_cull_mode(CullMode::Off);
@@ -792,7 +792,7 @@ namespace
     public:
         constexpr FlagMapper(std::initializer_list<std::pair<SourceFlagType, DestinationImGuiFlagsType>> mappings)
         {
-            if (mappings.size() != num_flags<SourceFlagType>()) {
+            if (mappings.size() != num_flags_v<SourceFlagType>) {
                 throw std::runtime_error{"invalid number of flags passed to a FlagMapper"};
             }
 
@@ -815,7 +815,7 @@ namespace
             return rv;
         }
     private:
-        std::array<DestinationImGuiFlagsType, num_flags<SourceFlagType>()> lut_{};
+        std::array<DestinationImGuiFlagsType, num_flags_v<SourceFlagType>> lut_{};
     };
 }
 
@@ -1320,7 +1320,7 @@ namespace
 
     std::string_view to_human_readable(Key key)
     {
-        static_assert(num_options<Key>() == 120);
+        static_assert(num_options_v<Key> == 120);
         switch (key) {
         case Key::Tab: return "Tab";
         case Key::LeftArrow: return "LeftArrow";
@@ -1470,7 +1470,7 @@ template<>
 struct osc::Converter<ui::GizmoOperation, ui::gizmo::detail::Operation> final {
     ui::gizmo::detail::Operation operator()(ui::GizmoOperation op) const
     {
-        static_assert(num_flags<ui::GizmoOperation>() == 3);
+        static_assert(num_flags_v<ui::GizmoOperation> == 3);
         switch (op) {
         case ui::GizmoOperation::Scale:     return ui::gizmo::detail::Operation::Scale;
         case ui::GizmoOperation::Rotate:    return ui::gizmo::detail::Operation::Rotate;
@@ -1484,7 +1484,7 @@ template<>
 struct osc::Converter<ui::GizmoMode, ui::gizmo::detail::Mode> final {
     ui::gizmo::detail::Mode operator()(ui::GizmoMode mode) const
     {
-        static_assert(num_options<ui::GizmoMode>() == 2);
+        static_assert(num_options_v<ui::GizmoMode> == 2);
         switch (mode) {
         case ui::GizmoMode::Local: return ui::gizmo::detail::Mode::Local;
         case ui::GizmoMode::World:
@@ -1524,7 +1524,7 @@ struct osc::Converter<MouseButton, std::optional<ImGuiMouseButton>> final {
     std::optional<ImGuiMouseButton> operator()(MouseButton button) const
     {
         static_assert(ImGuiMouseButton_COUNT == 5);
-        static_assert(num_flags<MouseButton>() == 5);
+        static_assert(num_flags_v<MouseButton> == 5);
 
         switch (button) {
         case MouseButton::Left:   return ImGuiMouseButton_Left;
@@ -1553,7 +1553,7 @@ template<>
 struct osc::Converter<ui::DataType, ImGuiDataType> final {
     ImGuiDataType operator()(ui::DataType) const
     {
-        static_assert(num_options<ui::DataType>() == 1);
+        static_assert(num_options_v<ui::DataType> == 1);
         return ImGuiDataType_Float;
     }
 };
@@ -1626,7 +1626,7 @@ template<>
 struct osc::Converter<ui::Conditional, ImGuiCond> final {
     ImGuiCond operator()(ui::Conditional conditional) const
     {
-        static_assert(num_options<ui::Conditional>() == 3);
+        static_assert(num_options_v<ui::Conditional> == 3);
 
         switch (conditional) {
         case ui::Conditional::Always:    return ImGuiCond_Always;
@@ -1720,7 +1720,7 @@ template<>
 struct osc::Converter<ui::ColorVar, ImGuiCol> final {
     ImGuiCol operator()(ui::ColorVar option) const
     {
-        static_assert(num_options<ui::ColorVar>() == 11);
+        static_assert(num_options_v<ui::ColorVar> == 11);
 
         switch (option) {
         case ui::ColorVar::Text:           return ImGuiCol_Text;
@@ -1743,7 +1743,7 @@ template<>
 struct osc::Converter<ui::StyleVar, ImGuiStyleVar> final {
     ImGuiStyleVar operator()(ui::StyleVar option) const
     {
-        static_assert(num_options<ui::StyleVar>() == 10);
+        static_assert(num_options_v<ui::StyleVar> == 10);
 
         switch (option) {
         case ui::StyleVar::Alpha:            return ImGuiStyleVar_Alpha;
@@ -1765,7 +1765,7 @@ template<>
 struct osc::Converter<ImGuiSortDirection, ui::SortDirection> final {
     ui::SortDirection operator()(ImGuiSortDirection option) const
     {
-        static_assert(num_options<ui::SortDirection>() == 3);
+        static_assert(num_options_v<ui::SortDirection> == 3);
 
         switch (option) {
         case ImGuiSortDirection_None:       return ui::SortDirection::None;
@@ -4182,7 +4182,7 @@ namespace
 
     constexpr ImPlotStyleVar to_ImPlotStyleVar(plot::PlotStyleVar var)  // NOLINT(readability-identifier-naming)
     {
-        static_assert(num_options<plot::PlotStyleVar>() == 4);
+        static_assert(num_options_v<plot::PlotStyleVar> == 4);
         switch (var) {
         case plot::PlotStyleVar::FitPadding:        return ImPlotStyleVar_FitPadding;
         case plot::PlotStyleVar::PlotPadding:       return ImPlotStyleVar_PlotPadding;
@@ -4194,7 +4194,7 @@ namespace
 
     constexpr ImPlotCol to_ImPlotCol(plot::PlotColorVar var)  // NOLINT(readability-identifier-naming)
     {
-        static_assert(num_options<plot::PlotColorVar>() == 2);
+        static_assert(num_options_v<plot::PlotColorVar> == 2);
         switch (var) {
         case plot::PlotColorVar::Line:           return ImPlotCol_Line;
         case plot::PlotColorVar::PlotBackground: return ImPlotCol_PlotBg;
@@ -4204,7 +4204,7 @@ namespace
 
     constexpr ImAxis to_ImAxis(plot::Axis axis)  // NOLINT(readability-identifier-naming)
     {
-        static_assert(num_options<plot::Axis>() == 2);
+        static_assert(num_options_v<plot::Axis> == 2);
         switch (axis) {
         case plot::Axis::X1: return ImAxis_X1;
         case plot::Axis::Y1: return ImAxis_Y1;
@@ -4231,7 +4231,7 @@ namespace
 
     constexpr ImPlotCond to_ImPlotCond(plot::Condition condition)  // NOLINT(readability-identifier-naming)
     {
-        static_assert(num_options<plot::Condition>() == 2);
+        static_assert(num_options_v<plot::Condition> == 2);
         switch (condition) {
         case plot::Condition::Always: return ImPlotCond_Always;
         case plot::Condition::Once:   return ImPlotCond_Once;
@@ -4241,7 +4241,7 @@ namespace
 
     constexpr ImPlotMarker to_ImPlotMarker(plot::MarkerType marker_type)  // NOLINT(readability-identifier-naming)
     {
-        static_assert(num_options<plot::MarkerType>() == 2);
+        static_assert(num_options_v<plot::MarkerType> == 2);
         switch (marker_type) {
         case plot::MarkerType::None:   return ImPlotMarker_None;
         case plot::MarkerType::Circle: return ImPlotMarker_Circle;
@@ -4254,13 +4254,13 @@ namespace
         static_assert(std::to_underlying(plot::DragToolFlag::None) == ImPlotDragToolFlags_None);
         static_assert(std::to_underlying(plot::DragToolFlag::NoFit) == ImPlotDragToolFlags_NoFit);
         static_assert(std::to_underlying(plot::DragToolFlag::NoInputs) == ImPlotDragToolFlags_NoInputs);
-        static_assert(num_flags<plot::DragToolFlag>() == 2);
+        static_assert(num_flags_v<plot::DragToolFlag> == 2);
         return static_cast<ImPlotDragToolFlags>(flags.underlying_value());
     }
 
     constexpr ImPlotLocation to_ImPlotLocation(plot::Location location)  // NOLINT(readability-identifier-naming)
     {
-        static_assert(num_options<plot::Location>() == 9);
+        static_assert(num_options_v<plot::Location> == 9);
         switch (location) {
         case plot::Location::Center:    return ImPlotLocation_Center;
         case plot::Location::North:     return ImPlotLocation_North;

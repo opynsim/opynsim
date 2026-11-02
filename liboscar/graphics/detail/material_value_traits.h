@@ -21,7 +21,7 @@ namespace osc::detail
     // Returns the `ShaderPropertyType` (sampler) for the given `TextureDimensionality`.
     constexpr ShaderPropertyType to_sampler_shader_property(TextureDimensionality d)
     {
-        static_assert(num_options<TextureDimensionality>() == 2);
+        static_assert(num_options_v<TextureDimensionality> == 2);
         return d == TextureDimensionality::Tex2D ? ShaderPropertyType::Sampler2D : ShaderPropertyType::SamplerCube;
     }
 

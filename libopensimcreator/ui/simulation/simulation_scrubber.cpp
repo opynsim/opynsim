@@ -71,7 +71,7 @@ private:
 
     void drawLoopButton()
     {
-        static_assert(num_options<SimulationUILoopingState>() == 2);
+        static_assert(num_options_v<SimulationUILoopingState> == 2);
         bool looping = m_SimulatorAPI->getSimulationLoopingState() == SimulationUILoopingState::Looping;
         if (ui::draw_checkbox("loop", &looping)) {
             if (looping) {
@@ -90,7 +90,7 @@ private:
         const SimulationClock::time_point tCur = m_SimulatorAPI->getSimulationScrubTime();
         const SimulationUIPlaybackState state = m_SimulatorAPI->getSimulationPlaybackState();
 
-        static_assert(num_options<SimulationUIPlaybackState>() == 2);
+        static_assert(num_options_v<SimulationUIPlaybackState> == 2);
         if (state == SimulationUIPlaybackState::Playing) {
             // if playing, the only option is to stop
 

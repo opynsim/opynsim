@@ -35,7 +35,7 @@ namespace
         "skybox_front.jpg",
         "skybox_back.jpg",
     });
-    static_assert(c_skybox_texture_filenames.size() == num_options<CubemapFace>());
+    static_assert(c_skybox_texture_filenames.size() == num_options_v<CubemapFace>);
 
     Cubemap load_cubemap(ResourceLoader& loader)
     {
@@ -49,7 +49,7 @@ namespace
         OSC_ASSERT(texture_dimensions.x() == texture_dimensions.y());
 
         // load all face data into the cubemap
-        static_assert(num_options<CubemapFace>() == c_skybox_texture_filenames.size());
+        static_assert(num_options_v<CubemapFace> == c_skybox_texture_filenames.size());
 
         const auto cubemap_faces = make_option_iterable<CubemapFace>();
         auto face_iterator = cubemap_faces.begin();

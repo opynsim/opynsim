@@ -11,7 +11,7 @@
 
 size_t opyn::OverlayDecorationOptions::get_num_options() const
 {
-    return osc::num_flags<OverlayDecorationOptionFlags>();
+    return osc::num_flags_v<OverlayDecorationOptionFlags>;
 }
 
 bool opyn::OverlayDecorationOptions::get_option_value(ptrdiff_t i) const
@@ -106,7 +106,7 @@ void opyn::OverlayDecorationOptions::try_upd_from_values(
     std::string_view key_prefix,
     const std::unordered_map<std::string, osc::Variant>& lut)
 {
-    for (size_t i = 0; i < osc::num_flags<OverlayDecorationOptionFlags>(); ++i)
+    for (size_t i = 0; i < osc::num_flags_v<OverlayDecorationOptionFlags>; ++i)
     {
         const auto& metadata = osc::at(get_all_overlay_decoration_option_flags_metadata(), i);
 

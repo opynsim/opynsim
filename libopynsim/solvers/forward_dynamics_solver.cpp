@@ -24,7 +24,7 @@ namespace
         const IntegratorMethod& method,
         const SimTK::MultibodySystem& system)
     {
-        static_assert(osc::num_options<IntegratorMethod>() == 7);
+        static_assert(osc::num_options_v<IntegratorMethod> == 7);
         switch (method) {
         case IntegratorMethod::RungeKuttaMerson:   return std::make_unique<SimTK::RungeKuttaMersonIntegrator>(system);
         case IntegratorMethod::ExplicitEuler:      return std::make_unique<SimTK::ExplicitEulerIntegrator>(system);

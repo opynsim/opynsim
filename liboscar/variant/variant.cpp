@@ -71,7 +71,7 @@ namespace
 
 osc::Variant::Variant() : data_{std::monostate{}}
 {
-    static_assert(std::variant_size_v<decltype(data_)> == num_options<VariantType>());
+    static_assert(std::variant_size_v<decltype(data_)> == num_options_v<VariantType>);
 }
 osc::Variant::Variant(const Variant&) = default;
 osc::Variant::Variant(Variant&&) noexcept = default;

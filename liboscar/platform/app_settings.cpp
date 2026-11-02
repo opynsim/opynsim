@@ -305,7 +305,7 @@ R"(# configuration options
         std::string_view key,
         const Variant& value)
     {
-        static_assert(num_options<VariantType>() == 10);
+        static_assert(num_options_v<VariantType> == 10);
 
         switch (value.type()) {
         case VariantType::None:
@@ -333,7 +333,7 @@ R"(# configuration options
         std::unordered_map<std::string, toml::table*> node_lookup;
         for (const auto& [key, value] : app_settings_lookup) {
 
-            static_assert(num_options<AppSettingScope>() == 2);
+            static_assert(num_options_v<AppSettingScope> == 2);
             if (value.scope() != AppSettingScope::User) {
                 continue;  // skip non-user-enacted values
             }
@@ -391,7 +391,7 @@ R"(# configuration options
                 return std::nullopt;
             }
 
-            static_assert(num_options<AppSettingScope>() == 2);
+            static_assert(num_options_v<AppSettingScope> == 2);
             switch (*scope) {
             case AppSettingScope::System: return system_config_path_;
             case AppSettingScope::User:   return user_config_path_;

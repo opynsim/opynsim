@@ -655,7 +655,7 @@ TEST(GenerateModelDecorations, MusclesObeyAppearanceOpacity)
     opyn::OpenSimDecorationOptions options;
     options.set_muscle_color_source(MuscleColorSource::AppearanceProperty);
 
-    static_assert(osc::num_options<MuscleDecorationStyle>() == 3);
+    static_assert(osc::num_options_v<MuscleDecorationStyle> == 3);
     for (const auto& style : {MuscleDecorationStyle::LinesOfAction, MuscleDecorationStyle::FibersAndTendons}) {
         options.set_muscle_decoration_style(style);
 
@@ -691,7 +691,7 @@ TEST(GenerateModelDecorations, GeometryPathsObeyAppearanceOpacity)
     opyn::OpenSimDecorationOptions options;
     options.set_muscle_color_source(MuscleColorSource::AppearanceProperty);
 
-    static_assert(osc::num_options<MuscleDecorationStyle>() == 3);
+    static_assert(osc::num_options_v<MuscleDecorationStyle> == 3);
     for (const auto& style : {MuscleDecorationStyle::LinesOfAction, MuscleDecorationStyle::FibersAndTendons}) {
         options.set_muscle_decoration_style(style);
 
@@ -727,7 +727,7 @@ TEST(GenerateModelDecorations, MusclesObeyWireframeRepresentation)
     opyn::OpenSimDecorationOptions options;
     options.set_muscle_color_source(MuscleColorSource::AppearanceProperty);
 
-    static_assert(osc::num_options<MuscleDecorationStyle>() == 3);
+    static_assert(osc::num_options_v<MuscleDecorationStyle> == 3);
     for (const auto& style : {MuscleDecorationStyle::LinesOfAction, MuscleDecorationStyle::FibersAndTendons}) {
         options.set_muscle_decoration_style(style);
 

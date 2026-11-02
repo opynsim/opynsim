@@ -39,7 +39,7 @@ namespace
 
     OutputValueExtractor make_null_extractor(OutputExtractorDataType type)
     {
-        static_assert(osc::num_options<OutputExtractorDataType>() == 3);
+        static_assert(osc::num_options_v<OutputExtractorDataType> == 3);
         switch (type) {
         case OutputExtractorDataType::Float:   return OutputValueExtractor::constant(osc::quiet_nan_v<float>);
         case OutputExtractorDataType::Vector2: return OutputValueExtractor::constant(osc::Vector2{osc::quiet_nan_v<float>});

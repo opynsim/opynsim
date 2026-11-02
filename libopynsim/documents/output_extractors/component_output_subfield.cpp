@@ -14,7 +14,7 @@ using namespace opyn;
 // constants
 namespace
 {
-    constexpr std::array<ComponentOutputSubfield, osc::num_flags<ComponentOutputSubfield>()> output_subfields_lut = std::to_array(
+    constexpr std::array<ComponentOutputSubfield, osc::num_flags_v<ComponentOutputSubfield>> output_subfields_lut = std::to_array(
     {
         ComponentOutputSubfield::X,
         ComponentOutputSubfield::Y,
@@ -149,7 +149,7 @@ namespace
 
 std::optional<osc::CStringView> opyn::get_output_subfield_label(ComponentOutputSubfield subfield)
 {
-    static_assert(osc::num_flags<ComponentOutputSubfield>() == 8);
+    static_assert(osc::num_flags_v<ComponentOutputSubfield> == 8);
 
     switch (subfield) {
     case ComponentOutputSubfield::X:          return "X";

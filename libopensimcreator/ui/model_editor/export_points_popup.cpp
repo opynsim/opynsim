@@ -167,7 +167,7 @@ namespace
         {
             if (opyn::can_extract_point_info_from(component, state) && predicate(component))
             {
-                static_assert(num_options<SelectionState>() == 2u);
+                static_assert(num_options_v<SelectionState> == 2u);
                 switch (selectionState)
                 {
                 case SelectionState::Selected:

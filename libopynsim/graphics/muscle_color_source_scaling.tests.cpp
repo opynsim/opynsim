@@ -10,7 +10,7 @@ using namespace opyn;
 
 TEST(MuscleColorSourceScaling, GetAllPossibleMuscleColorSourceScalingMetadataReturnsExpectedNumberOfEntries)
 {
-    ASSERT_EQ(get_all_possible_muscle_color_source_scaling_metadata().size(), osc::num_options<MuscleColorSourceScaling>());
+    ASSERT_EQ(get_all_possible_muscle_color_source_scaling_metadata().size(), osc::num_options_v<MuscleColorSourceScaling>);
 }
 
 TEST(MuscleColorSourceScaling,  GetMuscleColorSourceScalingMetadataWorksForAllOptions)

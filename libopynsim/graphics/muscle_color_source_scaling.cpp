@@ -23,7 +23,7 @@ namespace
             MuscleColorSourceScaling::ModelWide,
         },
     });
-    static_assert(c_metadata.size() == osc::num_options<MuscleColorSourceScaling>());
+    static_assert(c_metadata.size() == osc::num_options_v<MuscleColorSourceScaling>);
 }
 
 std::span<const MuscleColorSourceScalingMetadata> opyn::get_all_possible_muscle_color_source_scaling_metadata()

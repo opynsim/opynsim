@@ -270,7 +270,7 @@ public:
 private:
     void togglePlaybackMode()
     {
-        static_assert(num_options<SimulationUIPlaybackState>() == 2);
+        static_assert(num_options_v<SimulationUIPlaybackState> == 2);
         if (m_PlaybackState == SimulationUIPlaybackState::Playing) {
             // pause
             setSimulationPlaybackState(SimulationUIPlaybackState::Stopped);

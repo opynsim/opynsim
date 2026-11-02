@@ -20,7 +20,7 @@ void osc::WriteOutputsAsCSV(
     // header line
     out << "time";
     for (const opyn::SharedOutputExtractor& o : outputs) {
-        static_assert(num_options<opyn::OutputExtractorDataType>() == 3);
+        static_assert(num_options_v<opyn::OutputExtractorDataType> == 3);
         if (o.output_type() == opyn::OutputExtractorDataType::Vector2) {
             out << ',' << o.name() << "/0";
             out << ',' << o.name() << "/1";
@@ -35,7 +35,7 @@ void osc::WriteOutputsAsCSV(
     for (const SimulationReport& report : reports) {
         out << report.state().getTime();  // time column
         for (const opyn::SharedOutputExtractor& o : outputs) {
-            static_assert(num_options<opyn::OutputExtractorDataType>() == 3);
+            static_assert(num_options_v<opyn::OutputExtractorDataType> == 3);
             if (o.output_type() == opyn::OutputExtractorDataType::Vector2) {
                 const auto v = o.value<Vector2>(root, report);
                 out << ',' << v.x() << ',' << v.y();

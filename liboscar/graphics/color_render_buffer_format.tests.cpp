@@ -12,7 +12,7 @@ using namespace osc;
 
 TEST(ColorRenderBufferFormat, any_value_can_be_written_to_an_ostream)
 {
-    for (size_t i = 0; i < num_options<ColorRenderBufferFormat>(); ++i) {
+    for (size_t i = 0; i < num_options_v<ColorRenderBufferFormat>; ++i) {
         const auto format = static_cast<ColorRenderBufferFormat>(i);
         std::stringstream ss;
         ss << format;

@@ -5,7 +5,7 @@
 
 osc::CStringView opyn::label_for(const IntegratorMethod& integrator_method)
 {
-    static_assert(osc::num_options<IntegratorMethod>() == 7);
+    static_assert(osc::num_options_v<IntegratorMethod> == 7);
     switch (integrator_method) {
     case IntegratorMethod::RungeKuttaMerson:   return "Runge Kutta Merson";
     case IntegratorMethod::ExplicitEuler:      return "Explicit Euler";

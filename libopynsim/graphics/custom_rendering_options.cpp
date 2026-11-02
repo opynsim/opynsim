@@ -13,7 +13,7 @@
 
 size_t opyn::CustomRenderingOptions::get_num_options() const
 {
-    return osc::num_flags<CustomRenderingOptionFlags>();
+    return osc::num_flags_v<CustomRenderingOptionFlags>;
 }
 
 bool opyn::CustomRenderingOptions::get_option_value(ptrdiff_t i) const

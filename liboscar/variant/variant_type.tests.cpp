@@ -30,7 +30,7 @@ namespace
         {VariantType::Vector3, "Vector3"},
         {VariantType::VariantArray, "VariantArray"},
     });
-    static_assert(num_options<VariantType>() == std::tuple_size<decltype(c_expected_variant_type_strings)>());
+    static_assert(num_options_v<VariantType> == std::tuple_size<decltype(c_expected_variant_type_strings)>());
 }
 
 TEST(VariantType, pipe_to_ostream_works_as_intended)

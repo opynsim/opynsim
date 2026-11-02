@@ -87,7 +87,7 @@ namespace
         },
     });
 
-    static_assert(c_custom_decoration_option_labels.size() == osc::num_flags<OpenSimDecorationOptionFlag>());
+    static_assert(c_custom_decoration_option_labels.size() == osc::num_flags_v<OpenSimDecorationOptionFlag>);
 }
 
 
@@ -98,7 +98,7 @@ const OpenSimDecorationOptionMetadata& opyn::get_ith_option_metadata(size_t i)
 
 OpenSimDecorationOptionFlag opyn::get_ith_option(size_t i)
 {
-    auto v = 1u << osc::min(i, osc::num_flags<OpenSimDecorationOptionFlag>()-1);
+    auto v = 1u << osc::min(i, osc::num_flags_v<OpenSimDecorationOptionFlag>-1);
     return static_cast<OpenSimDecorationOptionFlag>(v);
 }
 

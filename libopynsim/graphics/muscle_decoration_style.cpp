@@ -28,7 +28,7 @@ namespace
             MuscleDecorationStyle::Hidden,
         },
     });
-    static_assert(c_metadata.size() == osc::num_options<MuscleDecorationStyle>());
+    static_assert(c_metadata.size() == osc::num_options_v<MuscleDecorationStyle>);
 }
 
 std::span<const MuscleDecorationStyleMetadata> opyn::get_all_muscle_decoration_style_metadata()

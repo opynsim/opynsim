@@ -111,7 +111,7 @@ void opyn::generate_decorations(
     const auto data = extract_data_point(time, storage, annotation);
     OSC_ASSERT_ALWAYS(data.size() == num_elements_in(annotation.data_type));
 
-    static_assert(osc::num_options<DataPointType>() == 5);
+    static_assert(osc::num_options_v<DataPointType> == 5);
     switch (annotation.data_type) {
     case DataPointType::Point:       ::generate_decorations<DataPointType::Point>(       std::span<const double, num_elements_in(DataPointType::Point)>{data},       out); break;
     case DataPointType::ForcePoint:  ::generate_decorations<DataPointType::ForcePoint>(  std::span<const double, num_elements_in(DataPointType::ForcePoint)>{data},  out); break;

@@ -80,7 +80,7 @@ using osc::literals::operator ""_deg;
 using osc::log_warn;
 using osc::max;
 using osc::min;
-using osc::num_options;
+using osc::num_options_v;
 using osc::pi_v;
 using osc::saturate;
 using osc::sqrt;
@@ -229,7 +229,7 @@ namespace
             const MuscleColorFactorGetter& getter,
             MuscleColorSourceScaling scaling)
         {
-            static_assert(num_options<MuscleColorSourceScaling>() == 2);
+            static_assert(num_options_v<MuscleColorSourceScaling> == 2);
 
             switch (scaling) {
             case MuscleColorSourceScaling::None:      return unit_interval<float>();
