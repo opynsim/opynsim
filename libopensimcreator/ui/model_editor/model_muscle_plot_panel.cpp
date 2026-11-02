@@ -5,7 +5,7 @@
 #include <libopensimcreator/documents/model/undoable_model_state_pair.h>
 #include <libopensimcreator/platform/msmicons.h>
 #include <libopensimcreator/platform/open_sim_creator_colors.h>
-#include <libopensimcreator/ui/events/add_muscle_plot_event.h>
+#include <libopensimcreator/ui/shared//add_muscle_plot_event.h>
 
 #include <libopynsim/utilities/open_sim_helpers.h>
 #include <liboscar/formats/csv.h>

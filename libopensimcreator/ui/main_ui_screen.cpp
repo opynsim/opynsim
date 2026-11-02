@@ -1,7 +1,6 @@
 #include "main_ui_screen.h"
 
 #include <libopensimcreator/platform/msmicons.h>
-#include <libopensimcreator/ui/events/open_file_event.h>
 #include <libopensimcreator/ui/loading_tab.h>
 #include <libopensimcreator/ui/mesh_importer/mesh_importer_tab.h>
 #include <libopensimcreator/ui/model_editor/model_editor_tab.h>
@@ -34,6 +33,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <filesystem>
 #include <functional>
 #include <iterator>
 #include <limits>
@@ -100,6 +100,19 @@ namespace
         }
         return rv;
     }
+
+    class OpenFileEvent : public Event {
+    public:
+        explicit OpenFileEvent(std::filesystem::path path) :
+            m_Path{std::move(path)}
+        {
+            enable_propagation();
+        }
+
+        const std::filesystem::path& path() { return m_Path; }
+    private:
+        std::filesystem::path m_Path;
+    };
 }
 
 class osc::MainUIScreen::Impl final : public WidgetPrivate {

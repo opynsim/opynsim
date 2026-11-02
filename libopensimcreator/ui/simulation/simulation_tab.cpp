@@ -6,7 +6,6 @@
 #include <libopensimcreator/documents/simulation/simulation_model_state_pair.h>
 #include <libopensimcreator/documents/simulation/simulation_report.h>
 #include <libopensimcreator/platform/msmicons.h>
-#include <libopensimcreator/ui/events/open_component_context_menu_event.h>
 #include <libopensimcreator/ui/shared/component_context_menu.h>
 #include <libopensimcreator/ui/shared/coordinate_editor_panel.h>
 #include <libopensimcreator/ui/shared/model_status_bar.h>
@@ -14,6 +13,7 @@
 #include <libopensimcreator/ui/shared/model_viewer_panel_parameters.h>
 #include <libopensimcreator/ui/shared/model_viewer_panel_right_click_event.h>
 #include <libopensimcreator/ui/shared/navigator_panel.h>
+#include <libopensimcreator/ui/shared/open_component_context_menu_event.h>
 #include <libopensimcreator/ui/shared/properties_panel.h>
 #include <libopensimcreator/ui/simulation/simulator_ui_api.h>
 #include <libopensimcreator/ui/simulation/output_plots_panel.h>

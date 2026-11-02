@@ -2,7 +2,7 @@
 
 #include <libopensimcreator/documents/model/undoable_model_actions.h>
 #include <libopensimcreator/platform/msmicons.h>
-#include <libopensimcreator/ui/events/open_component_context_menu_event.h>
+#include <libopensimcreator/ui/shared/open_component_context_menu_event.h>
 #include <libopensimcreator/ui/shared/object_properties_editor.h>
 
 #include <libopynsim/documents/model/model_state_pair.h>

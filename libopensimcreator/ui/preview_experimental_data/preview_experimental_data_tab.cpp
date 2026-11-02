@@ -4,7 +4,6 @@
 #include <libopensimcreator/documents/model/undoable_model_actions.h>
 #include <libopensimcreator/documents/model/undoable_model_state_pair.h>
 #include <libopensimcreator/platform/msmicons.h>
-#include <libopensimcreator/ui/events/open_component_context_menu_event.h>
 #include <libopensimcreator/ui/shared/basic_widgets.h>
 #include <libopensimcreator/ui/shared/component_context_menu.h>
 #include <libopensimcreator/ui/shared/coordinate_editor_panel.h>
@@ -13,6 +12,7 @@
 #include <libopensimcreator/ui/shared/model_viewer_panel_parameters.h>
 #include <libopensimcreator/ui/shared/model_viewer_panel_right_click_event.h>
 #include <libopensimcreator/ui/shared/navigator_panel.h>
+#include <libopensimcreator/ui/shared/open_component_context_menu_event.h>
 #include <libopensimcreator/ui/shared/output_watches_panel.h>
 #include <libopensimcreator/ui/shared/properties_panel.h>
 

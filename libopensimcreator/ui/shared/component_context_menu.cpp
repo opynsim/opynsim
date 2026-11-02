@@ -3,8 +3,8 @@
 #include <libopensimcreator/documents/model/environment.h>
 #include <libopensimcreator/documents/model/model_state_pair_with_shared_environment.h>
 #include <libopensimcreator/documents/model/undoable_model_actions.h>
-#include <libopensimcreator/ui/events/add_muscle_plot_event.h>
 #include <libopensimcreator/ui/model_editor/reassign_socket_popup.h>
+#include <libopensimcreator/ui/shared/add_muscle_plot_event.h>
 #include <libopensimcreator/ui/shared/basic_widgets.h>
 #include <libopensimcreator/ui/shared/model_add_menu_items.h>
 
