@@ -49,7 +49,7 @@ namespace osc
         // (maybe) elements that are being replaced by the user's choice
         std::unordered_set<UID> maybe_els_being_replaced_by_choice;
 
-        // the number of elements the user must click before OnUserChoice is called
+        // the number of elements the user must click before on_user_choice is called
         int num_elements_user_must_choose = 1;
 
         // function that returns true if the "caller" is happy with the user's choice
