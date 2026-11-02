@@ -1908,7 +1908,7 @@ namespace
             // then "scrub" through the output in the model
             //
             // this is handy for users to visually see how the independent variable affects the model
-            if (maybeMouseX and ui::is_mouse_down(ui::MouseButton::Left)) {
+            if (maybeMouseX and ui::is_mouse_down(MouseButton::Left)) {
                 if (isModelLocked()) {
                     ui::draw_tooltip("scrubbing disabled", "the model is locked");
                 }
@@ -1923,7 +1923,7 @@ namespace
 
             // when the user stops dragging their left-mouse around, commit the scrubbed-to
             // coordinate to model storage
-            if (maybeMouseX && ui::is_mouse_released(ui::MouseButton::Left)) {
+            if (maybeMouseX && ui::is_mouse_released(MouseButton::Left)) {
                 if (isModelLocked()) {
                     ui::draw_tooltip("scrubbing disabled", "the model is locked");
                 }

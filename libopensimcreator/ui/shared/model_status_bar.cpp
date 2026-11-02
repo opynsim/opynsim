@@ -80,7 +80,7 @@ private:
             ui::draw_text_disabled(c.getConcreteClassName());
             ui::end_tooltip();
         }
-        if (ui::is_item_clicked(ui::MouseButton::Right)) {
+        if (ui::is_item_clicked(MouseButton::Right)) {
             if (parent()) {
                 auto menu = std::make_unique<ComponentContextMenu>(
                     parent(),

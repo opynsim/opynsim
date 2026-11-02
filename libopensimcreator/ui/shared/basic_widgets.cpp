@@ -506,7 +506,7 @@ void osc::DrawOutputNameColumn(
             maybeActiveSate->set_hovered(opyn::find_component(maybeActiveSate->get_model(), co->component_abs_path()));
         }
 
-        if (ui::is_item_clicked(ui::MouseButton::Left))
+        if (ui::is_item_clicked(MouseButton::Left))
         {
             maybeActiveSate->set_selected(opyn::find_component(maybeActiveSate->get_model(), co->component_abs_path()));
         }

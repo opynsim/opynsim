@@ -283,8 +283,8 @@ private:
 
             // handle tree node user interaction
             const bool userHoveringThisTreeNode = ui::is_item_hovered();
-            const bool userLeftClickedThisTreeNode = ui::is_item_clicked(ui::MouseButton::Left);
-            const bool userRightClickedThisTreeNode = ui::is_item_clicked(ui::MouseButton::Right);
+            const bool userLeftClickedThisTreeNode = ui::is_item_clicked(MouseButton::Left);
+            const bool userRightClickedThisTreeNode = ui::is_item_clicked(MouseButton::Right);
 
             if (userHoveringThisTreeNode) {
                 rv.type = ResponseType::HoverChanged;

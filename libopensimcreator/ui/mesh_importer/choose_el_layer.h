@@ -232,7 +232,7 @@ namespace osc
 
             drawHoverTooltip();
 
-            if (ui::is_mouse_clicked(ui::MouseButton::Left))
+            if (ui::is_mouse_clicked(MouseButton::Left))
             {
                 tryToggleSelectionStateOf(m_MaybeHover.ID);
                 handlePossibleCompletion();

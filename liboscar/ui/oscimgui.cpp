@@ -1520,17 +1520,17 @@ private:
 };
 
 template<>
-struct osc::Converter<ui::MouseButton, ImGuiMouseButton> final {
-    ImGuiMouseButton operator()(ui::MouseButton button) const
+struct osc::Converter<MouseButton, std::optional<ImGuiMouseButton>> final {
+    std::optional<ImGuiMouseButton> operator()(MouseButton button) const
     {
         static_assert(ImGuiMouseButton_COUNT == 5);
-        static_assert(num_options<ui::MouseButton>() == 3);
+        static_assert(num_flags<MouseButton>() == 5);
 
         switch (button) {
-        case ui::MouseButton::Left:   return ImGuiMouseButton_Left;
-        case ui::MouseButton::Right:  return ImGuiMouseButton_Right;
-        case ui::MouseButton::Middle: return ImGuiMouseButton_Middle;
-        default:                      return ImGuiMouseButton_Left;  // shouldn't happen
+        case MouseButton::Left:   return ImGuiMouseButton_Left;
+        case MouseButton::Right:  return ImGuiMouseButton_Right;
+        case MouseButton::Middle: return ImGuiMouseButton_Middle;
+        default:                  return std::nullopt;
         }
     }
 };
@@ -2083,27 +2083,42 @@ void osc::ui::same_line(float offset_from_start_x, float spacing)
 
 bool osc::ui::is_mouse_clicked(MouseButton button, bool repeat)
 {
-    return ImGui::IsMouseClicked(to<ImGuiMouseButton>(button), repeat);
+    if (const auto imgui_button = to<std::optional<ImGuiMouseButton>>(button); imgui_button) {
+        return ImGui::IsMouseClicked(*imgui_button, repeat);
+    }
+    return false;
 }
 
 bool osc::ui::is_mouse_clicked(MouseButton button, ID owner_id)
 {
-    return ImGui::IsMouseClicked(to<ImGuiMouseButton>(button), ImGuiInputFlags_None,  owner_id.value());
+    if (const auto imgui_button = to<std::optional<ImGuiMouseButton>>(button); imgui_button) {
+        return ImGui::IsMouseClicked(*imgui_button, ImGuiInputFlags_None,  owner_id.value());
+    }
+    return false;
 }
 
 bool osc::ui::is_mouse_released(MouseButton button)
 {
-    return ImGui::IsMouseReleased(to<ImGuiMouseButton>(button));
+    if (const auto imgui_button = to<std::optional<ImGuiMouseButton>>(button); imgui_button) {
+        return ImGui::IsMouseReleased(*imgui_button);
+    }
+    return false;
 }
 
 bool osc::ui::is_mouse_down(MouseButton button)
 {
-    return ImGui::IsMouseDown(to<ImGuiMouseButton>(button));
+    if (const auto imgui_button = to<std::optional<ImGuiMouseButton>>(button); imgui_button) {
+        return ImGui::IsMouseDown(*imgui_button);
+    }
+    return false;
 }
 
 bool osc::ui::is_mouse_dragging(MouseButton button, float lock_threshold)
 {
-    return ImGui::IsMouseDragging(to<ImGuiMouseButton>(button), lock_threshold);
+    if (const auto imgui_button = to<std::optional<ImGuiMouseButton>>(button); imgui_button) {
+        return ImGui::IsMouseDragging(*imgui_button, lock_threshold);
+    }
+    return false;
 }
 
 bool osc::ui::draw_selectable(CStringView label, bool* p_selected)
@@ -2582,7 +2597,10 @@ void osc::ui::pop_item_flag()
 
 bool osc::ui::is_item_clicked(MouseButton mouse_button)
 {
-    return ImGui::IsItemClicked(to<ImGuiMouseButton>(mouse_button));
+    if (const auto imgui_button = to<std::optional<ImGuiMouseButton>>(mouse_button); imgui_button) {
+        return ImGui::IsItemClicked(*imgui_button);
+    }
+    return false;
 }
 
 bool osc::ui::is_item_hovered(HoveredFlags flags)
@@ -3292,9 +3310,12 @@ bool osc::ui::is_mouse_released_without_dragging(MouseButton mouse_button, float
     if (not ui::is_mouse_released(mouse_button)) {
         return false;
     }
+    const auto imgui_mouse_button = to<std::optional<ImGuiMouseButton>>(mouse_button);
+    if (not imgui_mouse_button) {
+        return false;
+    }
 
-    const Vector2 drag_delta = ImGui::GetMouseDragDelta(to<ImGuiMouseButton>(mouse_button));
-
+    const Vector2 drag_delta = ImGui::GetMouseDragDelta(*imgui_mouse_button);
     return length(drag_delta) < threshold;
 }
 
@@ -4426,7 +4447,10 @@ void osc::ui::plot::setup_legend(Location location, LegendFlags flags)
 
 bool osc::ui::plot::begin_legend_popup(CStringView label_id, MouseButton mouse_button)
 {
-    return ImPlot::BeginLegendPopup(label_id.c_str(), to<ImGuiMouseButton>(mouse_button));
+    if (const auto imgui_button = to<std::optional<ImGuiMouseButton>>(mouse_button); imgui_button) {
+        return ImPlot::BeginLegendPopup(label_id.c_str(), *imgui_button);
+    }
+    return false;
 }
 
 void osc::ui::plot::end_legend_popup()

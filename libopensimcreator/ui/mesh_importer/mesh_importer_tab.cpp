@@ -1648,7 +1648,7 @@ private:
                 m_MaybeHover = {id, {}};
             }
 
-            if (ui::is_item_clicked(ui::MouseButton::Left))
+            if (ui::is_item_clicked(MouseButton::Left))
             {
                 if (!ui::is_shift_down())
                 {
@@ -1657,7 +1657,7 @@ private:
                 m_Shared->updModelGraph().select(id);
             }
 
-            if (ui::is_item_clicked(ui::MouseButton::Right))
+            if (ui::is_item_clicked(MouseButton::Right))
             {
                 m_MaybeOpenedContextMenu = MeshImporterHover{id, {}};
                 ui::open_popup("##maincontextmenu");
@@ -1911,7 +1911,7 @@ private:
             m_Shared->updCameraController().phi = 0_deg;
             m_Shared->getCameraController().update_camera(m_Shared->updCamera());
         }
-        if (ui::is_item_clicked(ui::MouseButton::Right))
+        if (ui::is_item_clicked(MouseButton::Right))
         {
             m_Shared->updCameraController().theta = -90_deg;
             m_Shared->updCameraController().phi = 0_deg;
@@ -1927,7 +1927,7 @@ private:
             m_Shared->updCameraController().phi = 90_deg;
             m_Shared->getCameraController().update_camera(m_Shared->updCamera());
         }
-        if (ui::is_item_clicked(ui::MouseButton::Right))
+        if (ui::is_item_clicked(MouseButton::Right))
         {
             m_Shared->updCameraController().theta = 0_deg;
             m_Shared->updCameraController().phi = -90_deg;
@@ -1943,7 +1943,7 @@ private:
             m_Shared->updCameraController().phi = 0_deg;
             m_Shared->getCameraController().update_camera(m_Shared->updCamera());
         }
-        if (ui::is_item_clicked(ui::MouseButton::Right))
+        if (ui::is_item_clicked(MouseButton::Right))
         {
             m_Shared->updCameraController().theta = 180_deg;
             m_Shared->updCameraController().phi = 0_deg;
@@ -2156,7 +2156,7 @@ private:
             return;  // nothing hovered
         }
 
-        const bool lcClicked = ui::is_mouse_released_without_dragging(ui::MouseButton::Left);
+        const bool lcClicked = ui::is_mouse_released_without_dragging(MouseButton::Left);
         const bool shiftDown = ui::is_shift_down();
         const bool altDown = ui::is_alt_down();
         const bool isUsingGizmo = m_Gizmo.is_using();
@@ -2225,7 +2225,7 @@ private:
 
         // draw 3D scene (effectively, as an ui::Image)
         m_Shared->drawScene(MIObjects);
-        if (m_Shared->isRenderHovered() && ui::is_mouse_released_without_dragging(ui::MouseButton::Right) && !m_Gizmo.is_using())
+        if (m_Shared->isRenderHovered() && ui::is_mouse_released_without_dragging(MouseButton::Right) && !m_Gizmo.is_using())
         {
             m_MaybeOpenedContextMenu = m_MaybeHover;
             ui::open_popup("##maincontextmenu");

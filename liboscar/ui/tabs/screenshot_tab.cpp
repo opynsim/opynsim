@@ -182,7 +182,7 @@ private:
         const Color& selected_color)
     {
         const Vector2 mouse_ui_pos = ui::get_mouse_ui_position();
-        const bool left_click_released = ui::is_mouse_released(ui::MouseButton::Left);
+        const bool left_click_released = ui::is_mouse_released(MouseButton::Left);
         const Vector2 screenshot_dimensions = screenshot_.dimensions();
 
         for (const ScreenshotAnnotation& annotation : screenshot_.annotations()) {

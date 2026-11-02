@@ -86,7 +86,7 @@ bool osc::CameraViewAxes::draw(OrbitCameraController& camera_controller, const C
                 draw_list.add_circle_filled(circ, color);
                 draw_list.add_text(end - 0.5f*label_size, text_color, labels[axis.index()]);
 
-                if (hovered and ui::is_mouse_clicked(ui::MouseButton::Left, id)) {
+                if (hovered and ui::is_mouse_clicked(MouseButton::Left, id)) {
                     camera_controller.focus_along(axis);
                     edited = true;
                 }
@@ -109,7 +109,7 @@ bool osc::CameraViewAxes::draw(OrbitCameraController& camera_controller, const C
 
                 draw_list.add_circle_filled(circ, color);
 
-                if (hovered and ui::is_mouse_clicked(ui::MouseButton::Left, id)) {
+                if (hovered and ui::is_mouse_clicked(MouseButton::Left, id)) {
                     camera_controller.focus_along(-axis);
                     edited = true;
                 }

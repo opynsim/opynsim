@@ -93,13 +93,13 @@ namespace osc
             {
                 return;  // nothing hovered
             }
-            else if (ui::is_mouse_clicked(ui::MouseButton::Left))
+            else if (ui::is_mouse_clicked(MouseButton::Left))
             {
                 // LEFT CLICK: set first mouse location
                 m_MaybeFirstLocation = m_MaybeCurrentHover.Pos;
                 handlePossibleTransitionToNextStep();
             }
-            else if (ui::is_mouse_clicked(ui::MouseButton::Right))
+            else if (ui::is_mouse_clicked(MouseButton::Right))
             {
                 // RIGHT CLICK: set second mouse location
                 m_MaybeSecondLocation = m_MaybeCurrentHover.Pos;

@@ -22,13 +22,13 @@ void osc::GuiRuler::on_draw(
     }
 
     // users can exit measuring through these actions
-    if (ui::is_key_down(Key::Escape) or ui::is_mouse_released(ui::MouseButton::Right)) {
+    if (ui::is_key_down(Key::Escape) or ui::is_mouse_released(MouseButton::Right)) {
         stop_measuring();
         return;
     }
 
     // users can "finish" the measurement through these actions
-    if (state_ == State::WaitingForSecondPoint and ui::is_mouse_released(ui::MouseButton::Left)) {
+    if (state_ == State::WaitingForSecondPoint and ui::is_mouse_released(MouseButton::Left)) {
         stop_measuring();
         return;
     }
@@ -67,7 +67,7 @@ void osc::GuiRuler::on_draw(
             // mousing over something
             draw_list.add_circle_filled(Circle{mouse_ui_pos, circle_radius}, circle_color);
 
-            if (ui::is_mouse_released(ui::MouseButton::Left)) {
+            if (ui::is_mouse_released(MouseButton::Left)) {
                 state_ = State::WaitingForSecondPoint;
                 start_world_pos_ = maybe_mouseover->world_position;
             }

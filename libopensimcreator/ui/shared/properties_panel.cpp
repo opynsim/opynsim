@@ -39,7 +39,7 @@ namespace
         ui::draw_help_marker("Shows a menu containing extra actions that can be performed on this component.\n\nYou can also access the same menu by right-clicking the component in the 3D viewer, bottom status bar, or navigator panel.");
         ui::next_column();
         ui::push_style_color(ui::ColorVar::Text, Color::yellow());
-        if (ui::draw_button(MSMICONS_BOLT) or ui::is_item_clicked(ui::MouseButton::Right)) {
+        if (ui::draw_button(MSMICONS_BOLT) or ui::is_item_clicked(MouseButton::Right)) {
             App::post_event<OpenComponentContextMenuEvent>(parent, opyn::get_absolute_path(*selection));
         }
         ui::pop_style_color();

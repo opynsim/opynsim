@@ -51,6 +51,7 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - OpenSim Creator's mesh warping workflow now has a right-click context menu
   for the mesh, which includes a new "Move Selection Here" option, enabling moving existing
   landmarks to the click location.
+- `osc::ui::MouseButton` was merged into `osc::MouseButton`, to reduce enum/type duplication.
 
   
 

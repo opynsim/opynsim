@@ -12,6 +12,7 @@
 #include <liboscar/maths/vector.h>
 #include <liboscar/platform/key.h>
 #include <liboscar/platform/key_combination.h>
+#include <liboscar/platform/mouse_button.h>
 #include <liboscar/platform/mouse_combination.h>
 #include <liboscar/platform/resource_path.h>
 #include <liboscar/utilities/copy_on_upd_ptr.h>
@@ -184,13 +185,6 @@ namespace osc::ui
     // Places the cursor on the same line as the previous item, with the given
     // offset/spacing in device-independent pixels.
     void same_line(float offset_from_start_x = 0.0f, float spacing = -1.0f);
-
-    enum class MouseButton {
-        Left,
-        Right,
-        Middle,
-        NUM_OPTIONS,
-    };
 
     struct ID final {
     public:
