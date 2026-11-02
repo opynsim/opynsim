@@ -52,6 +52,7 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   for the mesh, which includes a new "Move Selection Here" option, enabling moving existing
   landmarks to the click location.
 - `osc::ui::MouseButton` was merged into `osc::MouseButton`, to reduce enum/type duplication.
+- Refactored `osc::num_options<T>()` `constexpr` function to a `constexpr` typedef `osc::num_options_v<T>`.
 
   
 
