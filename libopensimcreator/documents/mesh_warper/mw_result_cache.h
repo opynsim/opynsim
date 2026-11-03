@@ -23,56 +23,56 @@ namespace osc
     /// more quickly between user edits.
     class MwResultCache final {
     public:
-        const Mesh& getWarpedMesh(const MwDocument& doc)
+        const Mesh& get_warped_mesh(const MwDocument& doc)
         {
-            updateAll(doc);
-            return m_CachedResultMesh;
+            update_all(doc);
+            return cached_result_mesh_;
         }
 
-        std::span<const Vector3> getWarpedNonParticipatingLandmarkLocations(const MwDocument& doc)
+        std::span<const Vector3> get_warped_non_participating_landmark_locations(const MwDocument& doc)
         {
-            updateAll(doc);
-            static_assert(alignof(decltype(m_CachedResultNonParticipatingLandmarks.front())) == alignof(SimTK::fVec3));
-            static_assert(sizeof(decltype(m_CachedResultNonParticipatingLandmarks.front())) == sizeof(SimTK::fVec3));
-            const auto* ptr = std::launder(reinterpret_cast<const Vector3*>(m_CachedResultNonParticipatingLandmarks.data()));
-            return {ptr, m_CachedResultNonParticipatingLandmarks.size()};
+            update_all(doc);
+            static_assert(alignof(decltype(cached_result_non_participating_landmarks_.front())) == alignof(SimTK::fVec3));
+            static_assert(sizeof(decltype(cached_result_non_participating_landmarks_.front())) == sizeof(SimTK::fVec3));
+            const auto* ptr = std::launder(reinterpret_cast<const Vector3*>(cached_result_non_participating_landmarks_.data()));
+            return {ptr, cached_result_non_participating_landmarks_.size()};
         }
 
     private:
-        void updateAll(const MwDocument& doc)
+        void update_all(const MwDocument& doc)
         {
-            const bool updatedCoefficients = updateCoefficients(doc);
-            const bool updatedNonParticipatingLandmarks = updateSourceNonParticipatingLandmarks(doc);
-            const bool updatedMesh = updateInputMesh(doc);
-            const bool updatedBlendingFactor = updateBlendingFactor(doc);
-            const bool updatedRecalculateNormalsState = updateRecalculateNormalsState(doc);
+            const bool updatedCoefficients = update_coefficients(doc);
+            const bool updatedNonParticipatingLandmarks = update_source_non_participating_landmarks(doc);
+            const bool updatedMesh = update_input_mesh(doc);
+            const bool updatedBlendingFactor = update_blending_factor(doc);
+            const bool updatedRecalculateNormalsState = update_recalculate_normals_state(doc);
 
             if (updatedCoefficients || updatedNonParticipatingLandmarks || updatedMesh || updatedBlendingFactor || updatedRecalculateNormalsState)
             {
-                m_CachedResultMesh = tps3d_warp_mesh(m_CachedCoefficients, m_CachedSourceMesh, m_CachedBlendingFactor);
-                if (m_CachedRecalculateNormalsState) {
-                    m_CachedResultMesh.recalculate_normals();
+                cached_result_mesh_ = tps3d_warp_mesh(cached_coefficients_, cached_source_mesh_, cached_blending_factor_);
+                if (cached_recalculate_normals_state_) {
+                    cached_result_mesh_.recalculate_normals();
                 }
-                m_CachedResultNonParticipatingLandmarks = opyn::tps3d_warp_points(m_CachedCoefficients, m_CachedSourceNonParticipatingLandmarks, m_CachedBlendingFactor);
+                cached_result_non_participating_landmarks_ = opyn::tps3d_warp_points(cached_coefficients_, cached_source_non_participating_landmarks_, cached_blending_factor_);
             }
         }
 
         // returns `true` if cached inputs were updated; otherwise, returns the cached inputs
-        bool updateInputs(const MwDocument& doc)
+        bool update_inputs(const MwDocument& doc)
         {
-            opyn::TPSCoefficientSolverInputs3D newInputs{GetLandmarkPairs(doc)};
+            opyn::TPSCoefficientSolverInputs3D newInputs{get_landmark_pairs(doc)};
             for (auto& [source, destination] : newInputs.landmarks) {
-                source *= doc.sourceLandmarksPrescale;
-                destination *= doc.destinationLandmarksPrescale;
+                source *= doc.source_landmarks_prescale;
+                destination *= doc.destination_landmarks_prescale;
             }
-            newInputs.warping_penalty = doc.warpingPenalty;
-            newInputs.apply_affine_translation = doc.applyAffineTranslation;
-            newInputs.apply_affine_scale = doc.applyAffineScale;
-            newInputs.apply_affine_rotation = doc.applyAffineRotation;
-            newInputs.apply_non_affine_warp = doc.applyNonAffineWarp;
+            newInputs.warping_penalty = doc.warping_penalty;
+            newInputs.apply_affine_translation = doc.apply_affine_translation;
+            newInputs.apply_affine_scale = doc.apply_affine_scale;
+            newInputs.apply_affine_rotation = doc.apply_affine_rotation;
+            newInputs.apply_non_affine_warp = doc.apply_non_affine_warp;
 
-            if (newInputs != m_CachedInputs) {
-                m_CachedInputs = std::move(newInputs);
+            if (newInputs != cached_inputs_) {
+                cached_inputs_ = std::move(newInputs);
                 return true;
             }
             else {
@@ -81,19 +81,19 @@ namespace osc
         }
 
         // returns `true` if cached coefficients were updated
-        bool updateCoefficients(const MwDocument& doc)
+        bool update_coefficients(const MwDocument& doc)
         {
-            if (!updateInputs(doc))
+            if (!update_inputs(doc))
             {
                 // cache: the inputs have not been updated, so the coefficients will not change
                 return false;
             }
 
-            opyn::TPSCoefficients3D newCoefficients = tps3d_solve_coefficients(m_CachedInputs);
+            opyn::TPSCoefficients3D newCoefficients = tps3d_solve_coefficients(cached_inputs_);
 
-            if (newCoefficients != m_CachedCoefficients)
+            if (newCoefficients != cached_coefficients_)
             {
-                m_CachedCoefficients = std::move(newCoefficients);
+                cached_coefficients_ = std::move(newCoefficients);
                 return true;
             }
             else
@@ -103,13 +103,13 @@ namespace osc
         }
 
 
-        bool updateSourceNonParticipatingLandmarks(const MwDocument& doc)
+        bool update_source_non_participating_landmarks(const MwDocument& doc)
         {
-            const auto& docLandmarks = doc.nonParticipatingLandmarks;
+            const auto& docLandmarks = doc.non_participating_landmarks;
 
             const bool samePositions = rgs::equal(
                 docLandmarks,
-                m_CachedSourceNonParticipatingLandmarks,
+                cached_source_non_participating_landmarks_,
                 [](const MwDocumentNonParticipatingLandmark& lm, const SimTK::fVec3& position)
                 {
                     return lm.location.x() == position[0] and lm.location.y() == position[1] and lm.location.z() == position[2];
@@ -118,10 +118,10 @@ namespace osc
 
             if (!samePositions)
             {
-                m_CachedSourceNonParticipatingLandmarks.clear();
+                cached_source_non_participating_landmarks_.clear();
                 rgs::transform(
                     docLandmarks,
-                    std::back_inserter(m_CachedSourceNonParticipatingLandmarks),
+                    std::back_inserter(cached_source_non_participating_landmarks_),
                     [](const auto& lm) { return to<SimTK::fVec3>(lm.location); }
                 );
                 return true;
@@ -133,11 +133,11 @@ namespace osc
         }
 
         // returns `true` if `m_CachedSourceMesh` is updated
-        bool updateInputMesh(const MwDocument& doc)
+        bool update_input_mesh(const MwDocument& doc)
         {
-            if (m_CachedSourceMesh != doc.sourceMesh)
+            if (cached_source_mesh_ != doc.source_mesh)
             {
-                m_CachedSourceMesh = doc.sourceMesh;
+                cached_source_mesh_ = doc.source_mesh;
                 return true;
             }
             else
@@ -146,10 +146,10 @@ namespace osc
             }
         }
 
-        bool updateBlendingFactor(const MwDocument& doc)
+        bool update_blending_factor(const MwDocument& doc)
         {
-            if (m_CachedBlendingFactor != doc.blendingFactor) {
-                m_CachedBlendingFactor = doc.blendingFactor;
+            if (cached_blending_factor_ != doc.blending_factor) {
+                cached_blending_factor_ = doc.blending_factor;
                 return true;
             }
             else {
@@ -157,10 +157,10 @@ namespace osc
             }
         }
 
-        bool updateRecalculateNormalsState(const MwDocument& doc)
+        bool update_recalculate_normals_state(const MwDocument& doc)
         {
-            if (m_CachedRecalculateNormalsState != doc.recalculateNormals) {
-                m_CachedRecalculateNormalsState = doc.recalculateNormals;
+            if (cached_recalculate_normals_state_ != doc.recalculate_normals) {
+                cached_recalculate_normals_state_ = doc.recalculate_normals;
                 return true;
             }
             else {
@@ -168,13 +168,13 @@ namespace osc
             }
         }
 
-        opyn::TPSCoefficientSolverInputs3D<float> m_CachedInputs;
-        opyn::TPSCoefficients3D<float> m_CachedCoefficients;
-        Mesh m_CachedSourceMesh;
-        float m_CachedBlendingFactor = 1.0f;
-        bool m_CachedRecalculateNormalsState = false;
-        Mesh m_CachedResultMesh;
-        std::vector<SimTK::fVec3> m_CachedSourceNonParticipatingLandmarks;
-        std::vector<SimTK::fVec3> m_CachedResultNonParticipatingLandmarks;
+        opyn::TPSCoefficientSolverInputs3D<float> cached_inputs_;
+        opyn::TPSCoefficients3D<float> cached_coefficients_;
+        Mesh cached_source_mesh_;
+        float cached_blending_factor_ = 1.0f;
+        bool cached_recalculate_normals_state_ = false;
+        Mesh cached_result_mesh_;
+        std::vector<SimTK::fVec3> cached_source_non_participating_landmarks_;
+        std::vector<SimTK::fVec3> cached_result_non_participating_landmarks_;
     };
 }

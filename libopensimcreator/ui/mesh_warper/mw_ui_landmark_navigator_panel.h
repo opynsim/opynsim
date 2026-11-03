@@ -33,7 +33,7 @@ namespace osc
         {
             ui::draw_text("Landmarks:");
             ui::draw_separator();
-            if (ContainsLandmarks(state_->get_scratch())) {
+            if (contains_landmarks(state_->get_scratch())) {
                 draw_landmarks_table();
             }
             else {
@@ -44,7 +44,7 @@ namespace osc
 
             ui::draw_text("Non-Participating Landmarks:");
             ui::draw_separator();
-            if (ContainsNonParticipatingLandmarks(state_->get_scratch())) {
+            if (contains_non_participating_landmarks(state_->get_scratch())) {
                 draw_non_pariticpating_landmarks_table();
             }
             else {
@@ -68,7 +68,7 @@ namespace osc
             ui::table_setup_column("Destination", {}, 0.15f*ui::get_content_region_available().x());
 
             int id = 0;
-            for (const auto& lm : state_->get_scratch().landmarkPairs) {
+            for (const auto& lm : state_->get_scratch().landmark_pairs) {
                 ui::push_id(++id);
                 draw_landmarks_table_row(lm);
                 ui::pop_id();
@@ -88,22 +88,22 @@ namespace osc
             // source column
             ui::table_set_column_index(1);
             const Circle srcCircle = draw_landmark_circle(
-                state_->is_selected(p.sourceID()),
-                state_->is_hovered(p.sourceID()),
-                IsFullyPaired(p),
-                p.maybeSourceLocation.has_value()
+                state_->is_selected(p.source_id()),
+                state_->is_hovered(p.source_id()),
+                is_fully_paired(p),
+                p.maybe_source_location.has_value()
             );
 
             // destination column
             ui::table_set_column_index(2);
             const Circle destCircle = draw_landmark_circle(
-                state_->is_selected(p.destinationID()),
-                state_->is_hovered(p.destinationID()),
-                IsFullyPaired(p),
-                p.maybeDestinationLocation.has_value()
+                state_->is_selected(p.destination_id()),
+                state_->is_hovered(p.destination_id()),
+                is_fully_paired(p),
+                p.maybe_destination_location.has_value()
             );
 
-            if (IsFullyPaired(p)) {
+            if (is_fully_paired(p)) {
                 draw_connecting_line(srcCircle, destCircle);
             }
         }
@@ -173,7 +173,7 @@ namespace osc
             ui::table_setup_column("Location", {}, 0.3f*ui::get_content_region_available().x());
 
             int id = 0;
-            for (const auto& npl : state_->get_scratch().nonParticipatingLandmarks) {
+            for (const auto& npl : state_->get_scratch().non_participating_landmarks) {
                 ui::push_id(++id);
                 draw_non_participating_landmarks_table_row(npl);
                 ui::pop_id();
@@ -193,8 +193,8 @@ namespace osc
             // source column
             ui::table_set_column_index(1);
             draw_non_participating_landmark_circle(
-                state_->is_selected(npl.getID()),
-                state_->is_hovered(npl.getID())
+                state_->is_selected(npl.get_id()),
+                state_->is_hovered(npl.get_id())
             );
         }
 

@@ -40,13 +40,13 @@ namespace osc
 
         void draw_clear_landmarks_menu_item()
         {
-            const bool hasLandmarks = ContainsLandmarks(state_->get_scratch());
+            const bool hasLandmarks = contains_landmarks(state_->get_scratch());
 
             if (not hasLandmarks) {
                 ui::begin_disabled();
             }
             if (ui::draw_menu_item(MSMICONS_ERASER " clear landmarks")) {
-                ActionClearAllLandmarks(state_->upd_undoable());
+                action_clear_all_landmarks(state_->upd_undoable());
             }
             if (not hasLandmarks) {
                 ui::end_disabled();
@@ -56,13 +56,13 @@ namespace osc
         void draw_clear_non_participating_landmarks_menu_item()
         {
             const bool hasNonParticipatingLandmarks =
-                ContainsNonParticipatingLandmarks(state_->get_scratch());
+                contains_non_participating_landmarks(state_->get_scratch());
 
             if (not hasNonParticipatingLandmarks) {
                 ui::begin_disabled();
             }
             if (ui::draw_menu_item(MSMICONS_ERASER " clear non-participating landmarks")) {
-                ActionClearAllNonParticipatingLandmarks(state_->upd_undoable());
+                action_clear_all_non_participating_landmarks(state_->upd_undoable());
             }
             if (not hasNonParticipatingLandmarks) {
                 ui::end_disabled();

@@ -39,7 +39,7 @@ namespace osc
     private:
         void impl_draw_content() final
         {
-            const MwDocumentElement* el = FindElement(state_->get_scratch(), element_id_);
+            const MwDocumentElement* el = find_element(state_->get_scratch(), element_id_);
             if (!el)
             {
                 request_close();  // element cannot be found in document (deleted? renamed?)
@@ -72,20 +72,20 @@ namespace osc
             ui::draw_string_input("name", *active_name_edit_);
             if (ui::should_save_last_drawn_item_value())
             {
-                ActionRenameLandmark(state_->upd_undoable(), lm.uid, *active_name_edit_);
+                action_rename_landmark(state_->upd_undoable(), lm.uid, *active_name_edit_);
                 active_name_edit_.reset();
             }
 
-            if (lm.maybeSourceLocation)
+            if (lm.maybe_source_location)
             {
                 if (!active_position_edit_)
                 {
-                    active_position_edit_ = lm.maybeSourceLocation;
+                    active_position_edit_ = lm.maybe_source_location;
                 }
                 ui::draw_float3_meters_input("source           ", *active_position_edit_);  // (padded to align with `destination`)
                 if (ui::should_save_last_drawn_item_value())
                 {
-                    ActionSetLandmarkPosition(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Source, *active_position_edit_);
+                    action_set_landmark_position(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Source, *active_position_edit_);
                     active_position_edit_.reset();
                 }
             }
@@ -93,20 +93,20 @@ namespace osc
             {
                 if (ui::draw_button("add source"))
                 {
-                    ActionSetLandmarkPosition(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Source, Vector3{});
+                    action_set_landmark_position(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Source, Vector3{});
                 }
             }
 
-            if (lm.maybeDestinationLocation)
+            if (lm.maybe_destination_location)
             {
                 if (!active_destination_position_edit_)
                 {
-                    active_destination_position_edit_ = lm.maybeDestinationLocation;
+                    active_destination_position_edit_ = lm.maybe_destination_location;
                 }
                 ui::draw_float3_meters_input("destination", *active_destination_position_edit_);
                 if (ui::should_save_last_drawn_item_value())
                 {
-                    ActionSetLandmarkPosition(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Destination, *active_destination_position_edit_);
+                    action_set_landmark_position(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Destination, *active_destination_position_edit_);
                     active_position_edit_.reset();
                 }
             }
@@ -114,7 +114,7 @@ namespace osc
             {
                 if (ui::draw_button_centered("add destination"))
                 {
-                    ActionSetLandmarkPosition(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Destination, Vector3{});
+                    action_set_landmark_position(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Destination, Vector3{});
                 }
             }
 
@@ -122,7 +122,7 @@ namespace osc
 
             if (ui::draw_menu_item(MSMICONS_TRASH " Delete", Key::Delete))
             {
-                ActionDeleteElementByID(state_->upd_undoable(), lm.uid);
+                action_delete_element_by_id(state_->upd_undoable(), lm.uid);
                 return;  // CARE: `lm` is now dead
             }
         }
@@ -141,7 +141,7 @@ namespace osc
             ui::draw_string_input("name", *active_name_edit_);
             if (ui::should_save_last_drawn_item_value())
             {
-                ActionRenameNonParticipatingLandmark(state_->upd_undoable(), npl.uid, *active_name_edit_);
+                action_rename_non_participating_landmark(state_->upd_undoable(), npl.uid, *active_name_edit_);
                 active_name_edit_.reset();
             }
 
@@ -152,7 +152,7 @@ namespace osc
             ui::draw_float3_meters_input("location", *active_position_edit_);
             if (ui::should_save_last_drawn_item_value())
             {
-                ActionSetNonParticipatingLandmarkPosition(state_->upd_undoable(), npl.uid, *active_position_edit_);
+                action_set_non_participating_landmark_position(state_->upd_undoable(), npl.uid, *active_position_edit_);
                 active_position_edit_.reset();
             }
 
@@ -160,7 +160,7 @@ namespace osc
 
             if (ui::draw_menu_item(MSMICONS_TRASH " Delete", Key::Delete))
             {
-                ActionDeleteElementByID(state_->upd_undoable(), npl.uid);
+                action_delete_element_by_id(state_->upd_undoable(), npl.uid);
                 return;  // CARE: `npl` is now dead
             }
         }

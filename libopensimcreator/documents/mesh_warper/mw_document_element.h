@@ -17,8 +17,8 @@ namespace osc
     public:
         virtual ~MwDocumentElement() noexcept = default;
 
-        CStringView getName() const { return implGetName(); }
+        CStringView get_name() const { return impl_get_name(); }
     private:
-        virtual CStringView implGetName() const = 0;
+        virtual CStringView impl_get_name() const = 0;
     };
 }

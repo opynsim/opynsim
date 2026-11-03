@@ -153,7 +153,7 @@ private:
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::N)) {
-            ActionCreateNewDocument(m_Shared->upd_undoable());
+            action_create_new_document(m_Shared->upd_undoable());
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::Q)) {

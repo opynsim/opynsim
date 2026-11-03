@@ -51,7 +51,7 @@ namespace osc
             ui::same_line();
             if (hover.is_hovering_a_scene_element())
             {
-                ui::draw_text_disabled("(Click: select {})", FindElementNameOr(state_->get_scratch(), hover.get_scene_element_id().value()));
+                ui::draw_text_disabled("(Click: select {})", find_element_name_or(state_->get_scratch(), hover.get_scene_element_id().value()));
             }
             else if (hover.get_input() == MiDocumentInputIdentifier::Source)
             {

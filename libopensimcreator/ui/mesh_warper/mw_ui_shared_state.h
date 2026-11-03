@@ -88,7 +88,7 @@ namespace osc
 
         const Mesh& get_scratch_mesh(MiDocumentInputIdentifier which) const
         {
-            return GetMesh(get_scratch(), which);
+            return get_mesh(get_scratch(), which);
         }
 
         const BVH& get_scratch_mesh_bvh(MiDocumentInputIdentifier which)
@@ -105,12 +105,12 @@ namespace osc
         // returns a (potentially cached) post-TPS-warp mesh
         const Mesh& get_result_mesh()
         {
-            return warping_cache_.getWarpedMesh(undoable_tps_document_->scratch());
+            return warping_cache_.get_warped_mesh(undoable_tps_document_->scratch());
         }
 
         std::span<const Vector3> get_result_non_participating_landmark_locations()
         {
-            return warping_cache_.getWarpedNonParticipatingLandmarkLocations(undoable_tps_document_->scratch());
+            return warping_cache_.get_warped_non_participating_landmark_locations(undoable_tps_document_->scratch());
         }
 
         bool is_hovering_something() const
@@ -148,7 +148,7 @@ namespace osc
             // TODO: should probably gc the selection
             return std::ranges::any_of(user_selection_, [this](const MwDocumentElementID& el)
             {
-                return FindElement(get_scratch(), el);
+                return find_element(get_scratch(), el);
             });
         }
 
@@ -157,7 +157,7 @@ namespace osc
             // TODO: should probably gc the selection
             return std::ranges::any_of(user_selection_, [this, input](const MwDocumentElementID& el)
             {
-                return el.input == input and FindElement(get_scratch(), el);
+                return el.input == input and find_element(get_scratch(), el);
             });
         }
 
@@ -166,7 +166,7 @@ namespace osc
             std::vector<Vector3> rv;
             for (const auto& el : user_selection_) {
                 if (el.input == input) {
-                    if (auto loc = FindLandmarkLocation(get_scratch(), el.uid, el.input, el.type)) {
+                    if (auto loc = find_landmark_location(get_scratch(), el.uid, el.input, el.type)) {
                         rv.push_back(*loc);
                     }
                 }
@@ -202,7 +202,7 @@ namespace osc
 
         void select_all()
         {
-            for (const auto& el : GetAllElementIDs(undoable_tps_document_->scratch())) {
+            for (const auto& el : get_all_element_ids(undoable_tps_document_->scratch())) {
                 user_selection_.select(el);
             }
         }
@@ -309,7 +309,7 @@ namespace osc
         {
             Camera camera;
             camera.set_vertical_field_of_view(Degrees{35.0f});
-            return OrbitCameraController::focused_on(undoable_tps_document_->scratch().sourceMesh.bounds().value_or(AABB{}), camera);
+            return OrbitCameraController::focused_on(undoable_tps_document_->scratch().source_mesh.bounds().value_or(AABB{}), camera);
         }();
 
         // shared scene cache, to minimize rendering effort when redrawing

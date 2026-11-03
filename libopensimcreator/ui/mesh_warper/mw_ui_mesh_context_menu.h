@@ -43,13 +43,13 @@ namespace osc
             draw_context_menu_separator();
 
             if (ui::draw_menu_item("Place landmark", MouseButton::Left)) {
-                ActionAddLandmark(state_->upd_undoable(), document_identifier_, mesh_collision_.position);
+                action_add_landmark(state_->upd_undoable(), document_identifier_, mesh_collision_.position);
             }
             if (ui::draw_menu_item("Place Non-Participating Landmark",  ModifierKey::Ctrl | MouseButton::Left, false, document_identifier_ == MiDocumentInputIdentifier::Source)) {
-                ActionAddNonParticipatingLandmark(state_->upd_undoable(), mesh_collision_.position);
+                action_add_non_participating_landmark(state_->upd_undoable(), mesh_collision_.position);
             }
             if (ui::draw_menu_item("Move Selection Here", std::nullopt, false, state_->has_selection(document_identifier_))) {
-                ActionSetLandmarkLocations(state_->upd_undoable(), state_->get_selected(document_identifier_), mesh_collision_.position);
+                action_set_landmark_locations(state_->upd_undoable(), state_->get_selected(document_identifier_), mesh_collision_.position);
             }
         }
 

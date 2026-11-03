@@ -13,18 +13,18 @@ namespace osc
     struct MwDocument final {
         MwDocument();
 
-        Mesh sourceMesh;
-        Mesh destinationMesh;
-        std::vector<MwDocumentLandmarkPair> landmarkPairs;
-        std::vector<MwDocumentNonParticipatingLandmark> nonParticipatingLandmarks;
-        float blendingFactor;
-        bool recalculateNormals;
-        float sourceLandmarksPrescale;
-        float destinationLandmarksPrescale;
-        float warpingPenalty;
-        bool applyAffineTranslation;
-        bool applyAffineScale;
-        bool applyAffineRotation;
-        bool applyNonAffineWarp;
+        Mesh source_mesh;
+        Mesh destination_mesh;
+        std::vector<MwDocumentLandmarkPair> landmark_pairs;
+        std::vector<MwDocumentNonParticipatingLandmark> non_participating_landmarks;
+        float blending_factor;
+        bool recalculate_normals;
+        float source_landmarks_prescale;
+        float destination_landmarks_prescale;
+        float warping_penalty;
+        bool apply_affine_translation;
+        bool apply_affine_scale;
+        bool apply_affine_rotation;
+        bool apply_non_affine_warp;
     };
 }

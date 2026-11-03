@@ -30,27 +30,27 @@ namespace osc
             std::optional<Vector3> maybeDestinationLocation_) :
 
             name{std::forward<StringLike>(name_)},
-            maybeSourceLocation{std::move(maybeSourceLocation_)},
-            maybeDestinationLocation{std::move(maybeDestinationLocation_)}
+            maybe_source_location{std::move(maybeSourceLocation_)},
+            maybe_destination_location{std::move(maybeDestinationLocation_)}
         {}
 
-        MwDocumentElementID sourceID() const
+        MwDocumentElementID source_id() const
         {
             return MwDocumentElementID{uid, MwDocumentElementType::Landmark, MiDocumentInputIdentifier::Source};
         }
 
-        MwDocumentElementID destinationID() const
+        MwDocumentElementID destination_id() const
         {
             return MwDocumentElementID{uid, MwDocumentElementType::Landmark, MiDocumentInputIdentifier::Destination};
         }
 
         UID uid;
         StringName name;
-        std::optional<Vector3> maybeSourceLocation;
-        std::optional<Vector3> maybeDestinationLocation;
+        std::optional<Vector3> maybe_source_location;
+        std::optional<Vector3> maybe_destination_location;
 
     private:
-        CStringView implGetName() const final
+        CStringView impl_get_name() const final
         {
             return name;
         }

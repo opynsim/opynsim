@@ -26,7 +26,7 @@ namespace osc
         {
         }
 
-        MwDocumentElementID getID() const
+        MwDocumentElementID get_id() const
         {
             return MwDocumentElementID{uid, MwDocumentElementType::NonParticipatingLandmark};
         }
@@ -36,7 +36,7 @@ namespace osc
         Vector3 location;
 
     private:
-        CStringView implGetName() const final
+        CStringView impl_get_name() const final
         {
             return name;
         }

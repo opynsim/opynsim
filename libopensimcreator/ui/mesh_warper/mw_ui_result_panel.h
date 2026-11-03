@@ -99,9 +99,9 @@ namespace osc
             ui::draw_checkbox("overlay destination mesh", &show_destination_mesh_);
             ui::same_line();
             {
-                bool recalculatingNormals = state_->get_scratch().recalculateNormals;
+                bool recalculatingNormals = state_->get_scratch().recalculate_normals;
                 if (ui::draw_checkbox("recalculate mesh's normals", &recalculatingNormals)) {
-                    ActionSetRecalculatingNormals(state_->upd_undoable(), recalculatingNormals);
+                    action_set_recalculating_normals(state_->upd_undoable(), recalculatingNormals);
                 }
             }
         }
@@ -154,23 +154,23 @@ namespace osc
             {
                 if (ui::draw_menu_item("Mesh to OBJ"))
                 {
-                    ActionPromptUserToSaveMeshToObjFile(state_->get_result_mesh(), OBJWriterFlag::Default);
+                    action_prompt_user_to_save_mesh_to_obj_file(state_->get_result_mesh(), OBJWriterFlag::Default);
                 }
                 if (ui::draw_menu_item("Mesh to OBJ (no normals)"))
                 {
-                    ActionPromptUserToSaveMeshToObjFile(state_->get_result_mesh(), OBJWriterFlag::NoWriteNormals);
+                    action_prompt_user_to_save_mesh_to_obj_file(state_->get_result_mesh(), OBJWriterFlag::NoWriteNormals);
                 }
                 if (ui::draw_menu_item("Mesh to STL"))
                 {
-                    ActionPromptUserToMeshToStlFile(state_->get_result_mesh());
+                    action_prompt_user_to_mesh_to_stl_file(state_->get_result_mesh());
                 }
                 if (ui::draw_menu_item("Warped Non-Participating Landmarks to CSV"))
                 {
-                    ActionPromptUserToSaveWarpedNonParticipatingLandmarksToCSV(state_->get_scratch(), state_->upd_result_cache());
+                    action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(state_->get_scratch(), state_->upd_result_cache());
                 }
                 if (ui::draw_menu_item("Warped Non-Participating Landmark Positions to CSV"))
                 {
-                    ActionPromptUserToSaveWarpedNonParticipatingLandmarksToCSV(
+                    action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
                         state_->get_scratch(),
                         state_->upd_result_cache(),
                         opyn::LandmarkCSVFlags::NoHeader | opyn::LandmarkCSVFlags::NoNames
@@ -178,11 +178,11 @@ namespace osc
                 }
                 if (ui::draw_menu_item("Landmark Pairs to CSV"))
                 {
-                    ActionPromptUserToSavePairedLandmarksToCSV(state_->get_scratch());
+                    action_prompt_user_to_save_paired_landmarks_to_csv(state_->get_scratch());
                 }
                 if (ui::draw_menu_item("Landmark Pairs to CSV (no names)"))
                 {
-                    ActionPromptUserToSavePairedLandmarksToCSV(state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
+                    action_prompt_user_to_save_paired_landmarks_to_csv(state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
                 }
                 ui::end_popup();
             }
@@ -225,62 +225,62 @@ namespace osc
             const CStringView label = "blending factor  ";  // deliberate trailing spaces (for alignment with "landmark radius")
             ui::set_next_item_width(ui::get_content_region_available().x() - ui::calc_text_size(label).x() - ui::get_style_item_inner_spacing().x() - overlay_padding_.x());
 
-            float factor = state_->get_scratch().blendingFactor;
+            float factor = state_->get_scratch().blending_factor;
             if (ui::draw_float_slider(label, &factor, 0.0f, 1.0f))
             {
-                ActionSetBlendFactorWithoutCommitting(state_->upd_undoable(), factor);
+                action_set_blend_factor_without_committing(state_->upd_undoable(), factor);
             }
             if (ui::is_item_deactivated_after_edit())
             {
-                ActionSetBlendFactor(state_->upd_undoable(), factor);
+                action_set_blend_factor(state_->upd_undoable(), factor);
             }
         }
 
         void draw_prescale_inputs()
         {
-            float warpingPenalty = state_->get_scratch().warpingPenalty;
+            float warpingPenalty = state_->get_scratch().warping_penalty;
             ui::set_cursor_panel_x(cursor_x_at_export_button_);
             ui::draw_float_input("warping penalty", &warpingPenalty);
             if (ui::is_item_deactivated_after_edit()) {
-                ActionSetWarpingPenalty(state_->upd_undoable(), warpingPenalty);
+                action_set_warping_penalty(state_->upd_undoable(), warpingPenalty);
             }
 
-            float sourcePrescale = state_->get_scratch().sourceLandmarksPrescale;
+            float sourcePrescale = state_->get_scratch().source_landmarks_prescale;
             ui::set_cursor_panel_x(cursor_x_at_export_button_);
             ui::draw_float_input("source landmarks prescale", &sourcePrescale);
             if (ui::is_item_deactivated_after_edit()) {
-                ActionSetSourceLandmarksPrescale(state_->upd_undoable(), sourcePrescale);
+                action_set_source_landmarks_prescale(state_->upd_undoable(), sourcePrescale);
             }
-            float destinationPrescale = state_->get_scratch().destinationLandmarksPrescale;
+            float destinationPrescale = state_->get_scratch().destination_landmarks_prescale;
             ui::set_cursor_panel_x(cursor_x_at_export_button_);
             ui::draw_float_input("destination prescale", &destinationPrescale);
             if (ui::is_item_deactivated_after_edit()) {
-                ActionSetDestinationLandmarksPrescale(state_->upd_undoable(), destinationPrescale);
+                action_set_destination_landmarks_prescale(state_->upd_undoable(), destinationPrescale);
             }
 
             ui::set_cursor_panel_x(cursor_x_at_export_button_);
-            bool affineScale = state_->get_scratch().applyAffineScale;
+            bool affineScale = state_->get_scratch().apply_affine_scale;
             ui::draw_checkbox("scale", &affineScale);
             if (ui::is_item_deactivated_after_edit()) {
-                state_->upd_undoable().upd_scratch().applyAffineScale = affineScale;  // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().apply_affine_scale = affineScale;  // TODO: undo/redo
             }
             ui::same_line();
-            bool affineRotation = state_->get_scratch().applyAffineRotation;
+            bool affineRotation = state_->get_scratch().apply_affine_rotation;
             ui::draw_checkbox("rotate", &affineRotation);
             if (ui::is_item_deactivated_after_edit()) {
-                state_->upd_undoable().upd_scratch().applyAffineRotation = affineRotation;  // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().apply_affine_rotation = affineRotation;  // TODO: undo/redo
             }
             ui::same_line();
-            bool affineTranslation = state_->get_scratch().applyAffineTranslation;
+            bool affineTranslation = state_->get_scratch().apply_affine_translation;
             ui::draw_checkbox("translate", &affineTranslation);
             if (ui::is_item_deactivated_after_edit()) {
-                state_->upd_undoable().upd_scratch().applyAffineTranslation = affineTranslation;  // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().apply_affine_translation = affineTranslation;  // TODO: undo/redo
             }
             ui::same_line();
-            bool nonAffineWarp = state_->get_scratch().applyNonAffineWarp;
+            bool nonAffineWarp = state_->get_scratch().apply_non_affine_warp;
             ui::draw_checkbox("warp", &nonAffineWarp);
             if (ui::is_item_deactivated_after_edit()) {
-                state_->upd_undoable().upd_scratch().applyNonAffineWarp = nonAffineWarp;  // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().apply_non_affine_warp = nonAffineWarp;  // TODO: undo/redo
             }
         }
 
@@ -301,7 +301,7 @@ namespace osc
             if (show_destination_mesh_)
             {
                 decorationConsumer(SceneDecoration{
-                    .mesh = state_->get_scratch().destinationMesh,
+                    .mesh = state_->get_scratch().destination_mesh,
                     .shading = Color::red().with_alpha(0.5f),
                 });
             }

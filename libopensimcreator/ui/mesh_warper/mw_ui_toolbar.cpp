@@ -78,7 +78,7 @@ private:
     void drawNewDocumentButton()
     {
         if (ui::draw_button(MSMICONS_FILE)) {
-            ActionCreateNewDocument(m_State->upd_undoable());
+            action_create_new_document(m_State->upd_undoable());
         }
         ui::draw_tooltip_if_item_hovered(
             "Create New Document",
@@ -91,10 +91,10 @@ private:
         ui::draw_button(MSMICONS_FOLDER_OPEN);
         if (ui::begin_popup_context_menu("##OpenFolder", ui::PopupFlag::MouseButtonLeft)) {
             if (ui::draw_menu_item("Load Source Mesh")) {
-                ActionPromptUserToLoadMeshFile(m_State->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
+                action_prompt_user_to_load_mesh_file(m_State->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
             }
             if (ui::draw_menu_item("Load Destination Mesh")) {
-                ActionPromptUserToLoadMeshFile(m_State->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
+                action_prompt_user_to_load_mesh_file(m_State->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
             }
             ui::end_popup();
         }
@@ -107,7 +107,7 @@ private:
     void drawSaveLandmarksButton()
     {
         if (ui::draw_button(MSMICONS_SAVE)) {
-            ActionPromptUserToSavePairedLandmarksToCSV(m_State->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
+            action_prompt_user_to_save_paired_landmarks_to_csv(m_State->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
         }
         ui::draw_tooltip_if_item_hovered(
             "Save Landmarks to CSV (no names)",
@@ -160,7 +160,7 @@ private:
     void drawSwapSourceDestinationButton()
     {
         if (ui::draw_button("swap source <-> destination")) {
-            ActionSwapSourceDestination(m_State->upd_undoable());
+            action_swap_source_destination(m_State->upd_undoable());
         }
         ui::draw_tooltip_if_item_hovered("Swap Source <-> Destination", "Swaps the source mesh with the destination mesh.\n\nNote: non-participating landmarks will be left in the source mesh, because they must always be there.");
     }

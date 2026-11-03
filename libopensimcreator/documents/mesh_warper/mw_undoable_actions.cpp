@@ -34,52 +34,52 @@
 
 using osc::Vector3;
 
-void osc::ActionAddLandmark(
+void osc::action_add_landmark(
     MwUndoableDocument& doc,
     MiDocumentInputIdentifier which,
     const Vector3& position)
 {
-    AddLandmarkToInput(doc.upd_scratch(), which, position);
+    add_landmark_to_input(doc.upd_scratch(), which, position);
     doc.commit_scratch("added landmark");
 }
 
-void osc::ActionAddNonParticipatingLandmark(
+void osc::action_add_non_participating_landmark(
     MwUndoableDocument& doc,
     const Vector3& position)
 {
-    AddNonParticipatingLandmark(doc.upd_scratch(), position);
+    add_non_participating_landmark(doc.upd_scratch(), position);
     doc.commit_scratch("added non-participating landmark");
 }
 
-void osc::ActionSetLandmarkPosition(
+void osc::action_set_landmark_position(
     MwUndoableDocument& doc,
     UID id,
     MiDocumentInputIdentifier side,
     const Vector3& newPosition)
 {
-    MwDocumentLandmarkPair* p = FindLandmarkPair(doc.upd_scratch(), id);
+    MwDocumentLandmarkPair* p = find_landmark_pair(doc.upd_scratch(), id);
     if (!p)
     {
         return;
     }
 
-    UpdLocation(*p, side) = newPosition;
+    upd_location(*p, side) = newPosition;
     doc.commit_scratch("set landmark position");
 }
 
-void osc::ActionRenameLandmark(
+void osc::action_rename_landmark(
     MwUndoableDocument& doc,
     UID id,
     std::string_view newName)
 {
-    MwDocumentLandmarkPair* p = FindLandmarkPair(doc.upd_scratch(), id);
+    MwDocumentLandmarkPair* p = find_landmark_pair(doc.upd_scratch(), id);
     if (!p)
     {
         return;
     }
 
     StringName name{newName};
-    if (ContainsElementWithName(doc.scratch(), name))
+    if (contains_element_with_name(doc.scratch(), name))
     {
         return;  // cannot rename (already taken)
     }
@@ -88,12 +88,12 @@ void osc::ActionRenameLandmark(
     doc.commit_scratch("set landmark name");
 }
 
-void osc::ActionSetNonParticipatingLandmarkPosition(
+void osc::action_set_non_participating_landmark_position(
     MwUndoableDocument& doc,
     UID id,
     const Vector3& newPosition)
 {
-    auto* lm = FindNonParticipatingLandmark(doc.upd_scratch(), id);
+    auto* lm = find_non_participating_landmark(doc.upd_scratch(), id);
     if (!lm)
     {
         return;
@@ -103,19 +103,19 @@ void osc::ActionSetNonParticipatingLandmarkPosition(
     doc.commit_scratch("change non-participating landmark position");
 }
 
-void osc::ActionRenameNonParticipatingLandmark(
+void osc::action_rename_non_participating_landmark(
     MwUndoableDocument& doc,
     UID id,
     std::string_view newName)
 {
-    auto* lm = FindNonParticipatingLandmark(doc.upd_scratch(), id);
+    auto* lm = find_non_participating_landmark(doc.upd_scratch(), id);
     if (!lm)
     {
         return;  // cannot find to-be-renamed element in document
     }
 
     StringName name{newName};
-    if (ContainsElementWithName(doc.scratch(), name))
+    if (contains_element_with_name(doc.scratch(), name))
     {
         return;  // cannot rename to new name (already taken)
     }
@@ -124,63 +124,63 @@ void osc::ActionRenameNonParticipatingLandmark(
     doc.commit_scratch("set non-participating landmark name");
 }
 
-void osc::ActionSetBlendFactorWithoutCommitting(MwUndoableDocument& doc, float factor)
+void osc::action_set_blend_factor_without_committing(MwUndoableDocument& doc, float factor)
 {
-    doc.upd_scratch().blendingFactor = factor;
+    doc.upd_scratch().blending_factor = factor;
 }
 
-void osc::ActionSetBlendFactor(MwUndoableDocument& doc, float factor)
+void osc::action_set_blend_factor(MwUndoableDocument& doc, float factor)
 {
-    ActionSetBlendFactorWithoutCommitting(doc, factor);
+    action_set_blend_factor_without_committing(doc, factor);
     doc.commit_scratch("changed blend factor");
 }
 
-void osc::ActionSetRecalculatingNormals(MwUndoableDocument& doc, bool newState)
+void osc::action_set_recalculating_normals(MwUndoableDocument& doc, bool newState)
 {
-    doc.upd_scratch().recalculateNormals = newState;
+    doc.upd_scratch().recalculate_normals = newState;
     const std::string_view msg = newState ?
         "enabled recalculating normals" :
         "disabled recalculating normals";
     doc.commit_scratch(msg);
 }
 
-void osc::ActionSetWarpingPenalty(MwUndoableDocument& doc, float newWarpingPenalty)
+void osc::action_set_warping_penalty(MwUndoableDocument& doc, float newWarpingPenalty)
 {
-    doc.upd_scratch().warpingPenalty = newWarpingPenalty;
+    doc.upd_scratch().warping_penalty = newWarpingPenalty;
     doc.commit_scratch(std::format("Set warping penalty to {}", newWarpingPenalty));
 }
 
-void osc::ActionSetSourceLandmarksPrescale(MwUndoableDocument& doc, float newSourceLandmarksPrescale)
+void osc::action_set_source_landmarks_prescale(MwUndoableDocument& doc, float newSourceLandmarksPrescale)
 {
-    doc.upd_scratch().sourceLandmarksPrescale = newSourceLandmarksPrescale;
+    doc.upd_scratch().source_landmarks_prescale = newSourceLandmarksPrescale;
     doc.commit_scratch("changed source prescale factor");
 }
 
-void osc::ActionSetDestinationLandmarksPrescale(MwUndoableDocument& doc, float newDestinationLandmarksPrescale)
+void osc::action_set_destination_landmarks_prescale(MwUndoableDocument& doc, float newDestinationLandmarksPrescale)
 {
-    doc.upd_scratch().destinationLandmarksPrescale = newDestinationLandmarksPrescale;
+    doc.upd_scratch().destination_landmarks_prescale = newDestinationLandmarksPrescale;
     doc.commit_scratch("changed destination prescale factor");
 }
 
-void osc::ActionCreateNewDocument(MwUndoableDocument& doc)
+void osc::action_create_new_document(MwUndoableDocument& doc)
 {
     doc.upd_scratch() = MwDocument{};
     doc.commit_scratch("created new document");
 }
 
-void osc::ActionClearAllLandmarks(MwUndoableDocument& doc)
+void osc::action_clear_all_landmarks(MwUndoableDocument& doc)
 {
-    doc.upd_scratch().landmarkPairs.clear();
+    doc.upd_scratch().landmark_pairs.clear();
     doc.commit_scratch("cleared all landmarks");
 }
 
-void osc::ActionClearAllNonParticipatingLandmarks(MwUndoableDocument& doc)
+void osc::action_clear_all_non_participating_landmarks(MwUndoableDocument& doc)
 {
-    doc.upd_scratch().nonParticipatingLandmarks.clear();
+    doc.upd_scratch().non_participating_landmarks.clear();
     doc.commit_scratch("cleared all non-participating landmarks");
 }
 
-void osc::ActionDeleteSceneElementsByID(
+void osc::action_delete_scene_elements_by_id(
     MwUndoableDocument& doc,
     const std::unordered_set<MwDocumentElementID>& elementIDs)
 {
@@ -188,7 +188,7 @@ void osc::ActionDeleteSceneElementsByID(
     bool somethingDeleted = false;
     for (const MwDocumentElementID& id : elementIDs)
     {
-        somethingDeleted = DeleteElementByID(scratch, id) || somethingDeleted;
+        somethingDeleted = delete_element_by_id(scratch, id) || somethingDeleted;
     }
 
     if (somethingDeleted)
@@ -197,24 +197,24 @@ void osc::ActionDeleteSceneElementsByID(
     }
 }
 
-void osc::ActionDeleteElementByID(MwUndoableDocument& doc, UID id)
+void osc::action_delete_element_by_id(MwUndoableDocument& doc, UID id)
 {
-    if (DeleteElementByID(doc.upd_scratch(), id))
+    if (delete_element_by_id(doc.upd_scratch(), id))
     {
         doc.commit_scratch("deleted element");
     }
 }
 
-void osc::ActionLoadMesh(
+void osc::action_load_mesh(
     MwUndoableDocument& doc,
     const Mesh& mesh,
     MiDocumentInputIdentifier which)
 {
-    UpdMesh(doc.upd_scratch(), which) = mesh;
+    upd_mesh(doc.upd_scratch(), which) = mesh;
     doc.commit_scratch("changed mesh");
 }
 
-void osc::ActionPromptUserToLoadMeshFile(
+void osc::action_prompt_user_to_load_mesh_file(
     const std::shared_ptr<MwUndoableDocument>& doc,
     MiDocumentInputIdentifier which)
 {
@@ -226,7 +226,7 @@ void osc::ActionPromptUserToLoadMeshFile(
             }
             try {
                 const auto mesh = opyn::load_mesh_via_simbody(response.front());
-                ActionLoadMesh(*doc, mesh, which);
+                action_load_mesh(*doc, mesh, which);
             }
             catch (const std::exception& ex) {
                 log_error("Error importing {}: {}", response.front().string(), ex.what());
@@ -236,7 +236,7 @@ void osc::ActionPromptUserToLoadMeshFile(
     );
 }
 
-void osc::ActionPromptUserToLoadLandmarksFromCSV(
+void osc::action_prompt_user_to_load_landmarks_from_csv(
     const std::shared_ptr<MwUndoableDocument>& doc,
     MiDocumentInputIdentifier which)
 {
@@ -254,7 +254,7 @@ void osc::ActionPromptUserToLoadLandmarksFromCSV(
 
             opyn::read_landmarks_from_csv(fin, [&doc, which](auto&& landmark)
             {
-                AddLandmarkToInput(doc->upd_scratch(), which, landmark.position, std::move(landmark.maybe_name));
+                add_landmark_to_input(doc->upd_scratch(), which, landmark.position, std::move(landmark.maybe_name));
             });
 
             doc->commit_scratch("loaded landmarks");
@@ -266,7 +266,7 @@ void osc::ActionPromptUserToLoadLandmarksFromCSV(
     );
 }
 
-void osc::ActionPromptUserToLoadNonParticipatingLandmarksFromCSV(const std::shared_ptr<MwUndoableDocument>& doc)
+void osc::action_prompt_user_to_load_non_participating_landmarks_from_csv(const std::shared_ptr<MwUndoableDocument>& doc)
 {
     App::upd().prompt_user_to_select_file_async(
         [doc](const FileDialogResponse& response)
@@ -282,7 +282,7 @@ void osc::ActionPromptUserToLoadNonParticipatingLandmarksFromCSV(const std::shar
 
             opyn::read_landmarks_from_csv(fin, [&doc](auto&& landmark)
             {
-                AddNonParticipatingLandmark(doc->upd_scratch(), landmark.position, std::move(landmark.maybe_name));
+                add_non_participating_landmark(doc->upd_scratch(), landmark.position, std::move(landmark.maybe_name));
             });
 
             doc->commit_scratch("added non-participating landmarks");
@@ -294,12 +294,12 @@ void osc::ActionPromptUserToLoadNonParticipatingLandmarksFromCSV(const std::shar
     );
 }
 
-void osc::ActionPromptUserToSaveLandmarksToCSV(
+void osc::action_prompt_user_to_save_landmarks_to_csv(
     const MwDocument& doc,
     MiDocumentInputIdentifier which,
     opyn::LandmarkCSVFlags flags)
 {
-    App::upd().prompt_user_to_save_file_with_extension_async([pairs = doc.landmarkPairs, which, flags](std::optional<std::filesystem::path> p) mutable
+    App::upd().prompt_user_to_save_file_with_extension_async([pairs = doc.landmark_pairs, which, flags](std::optional<std::filesystem::path> p) mutable
     {
         if (not p) {
             return;  // user cancelled out of the prompt
@@ -310,11 +310,11 @@ void osc::ActionPromptUserToSaveLandmarksToCSV(
             return;  // couldn't open file for writing
         }
 
-        ActionWriteLandmarksAsCSV(pairs, which, flags, fout);
+        action_write_landmarks_as_csv(pairs, which, flags, fout);
     }, "csv");
 }
 
-void osc::ActionWriteLandmarksAsCSV(
+void osc::action_write_landmarks_as_csv(
     std::span<const MwDocumentLandmarkPair> pairs,
     MiDocumentInputIdentifier which,
     opyn::LandmarkCSVFlags flags,
@@ -324,7 +324,7 @@ void osc::ActionWriteLandmarksAsCSV(
     {
         while (it != end) {
             const auto& pair = *it++;
-            if (const auto location = GetLocation(pair, which)) {
+            if (const auto location = get_location(pair, which)) {
                 return opyn::Landmark{std::string{pair.name}, *location};
             }
         }
@@ -332,11 +332,11 @@ void osc::ActionWriteLandmarksAsCSV(
     }, flags);
 }
 
-void osc::ActionPromptUserToSaveNonParticipatingLandmarksToCSV(
+void osc::action_prompt_user_to_save_non_participating_landmarks_to_csv(
     const MwDocument& doc,
     opyn::LandmarkCSVFlags flags)
 {
-    App::upd().prompt_user_to_save_file_with_extension_async([nplms = doc.nonParticipatingLandmarks, flags](std::optional<std::filesystem::path> p)
+    App::upd().prompt_user_to_save_file_with_extension_async([nplms = doc.non_participating_landmarks, flags](std::optional<std::filesystem::path> p)
     {
         if (not p) {
             return;  // user cancelled out of the prompt
@@ -359,9 +359,9 @@ void osc::ActionPromptUserToSaveNonParticipatingLandmarksToCSV(
     }, "csv");
 }
 
-void osc::ActionPromptUserToSavePairedLandmarksToCSV(const MwDocument& doc, opyn::LandmarkCSVFlags flags)
+void osc::action_prompt_user_to_save_paired_landmarks_to_csv(const MwDocument& doc, opyn::LandmarkCSVFlags flags)
 {
-    App::upd().prompt_user_to_save_file_with_extension_async([pairs = GetNamedLandmarkPairs(doc), flags](std::optional<std::filesystem::path> maybePath)
+    App::upd().prompt_user_to_save_file_with_extension_async([pairs = get_named_landmark_pairs(doc), flags](std::optional<std::filesystem::path> maybePath)
     {
         if (not maybePath) {
             return;  // user cancelled out of the prompt
@@ -404,7 +404,7 @@ void osc::ActionPromptUserToSavePairedLandmarksToCSV(const MwDocument& doc, opyn
     }, "csv");
 }
 
-void osc::ActionPromptUserToSaveMeshToObjFile(const Mesh& mesh, OBJWriterFlags flags)
+void osc::action_prompt_user_to_save_mesh_to_obj_file(const Mesh& mesh, OBJWriterFlags flags)
 {
     App::upd().prompt_user_to_save_file_with_extension_async([mesh, flags](std::optional<std::filesystem::path> p)
     {
@@ -424,7 +424,7 @@ void osc::ActionPromptUserToSaveMeshToObjFile(const Mesh& mesh, OBJWriterFlags f
     }, "obj");
 }
 
-void osc::ActionPromptUserToMeshToStlFile(const Mesh& mesh)
+void osc::action_prompt_user_to_mesh_to_stl_file(const Mesh& mesh)
 {
     App::upd().prompt_user_to_save_file_with_extension_async([mesh](std::optional<std::filesystem::path> p)
     {
@@ -445,16 +445,16 @@ void osc::ActionPromptUserToMeshToStlFile(const Mesh& mesh)
     }, "stl");
 }
 
-void osc::ActionPromptUserToSaveWarpedNonParticipatingLandmarksToCSV(
+void osc::action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
     const MwDocument& doc,
     MwResultCache& cache,
     opyn::LandmarkCSVFlags flags)
 {
-    const auto span = cache.getWarpedNonParticipatingLandmarkLocations(doc);
+    const auto span = cache.get_warped_non_participating_landmark_locations(doc);
 
     App::upd().prompt_user_to_save_file_with_extension_async([
         warpedNplms = std::vector<Vector3>(span.begin(), span.end()),
-        nplms = doc.nonParticipatingLandmarks,
+        nplms = doc.non_participating_landmarks,
         flags](std::optional<std::filesystem::path> p)
     {
         if (not p) {
@@ -478,46 +478,46 @@ void osc::ActionPromptUserToSaveWarpedNonParticipatingLandmarksToCSV(
     });
 }
 
-void osc::ActionSwapSourceDestination(MwUndoableDocument& doc)
+void osc::action_swap_source_destination(MwUndoableDocument& doc)
 {
     using std::swap;
 
     MwDocument& scratch = doc.upd_scratch();
-    swap(scratch.destinationLandmarksPrescale, scratch.sourceLandmarksPrescale);
-    swap(scratch.sourceMesh, scratch.destinationMesh);
-    for (auto& lmp : scratch.landmarkPairs) {
-        swap(lmp.maybeSourceLocation, lmp.maybeDestinationLocation);
+    swap(scratch.destination_landmarks_prescale, scratch.source_landmarks_prescale);
+    swap(scratch.source_mesh, scratch.destination_mesh);
+    for (auto& lmp : scratch.landmark_pairs) {
+        swap(lmp.maybe_source_location, lmp.maybe_destination_location);
     }
 
     doc.commit_scratch("Swapped source <--> destination");
 }
 
-void osc::ActionTranslateLandmarksDontSave(
+void osc::action_translate_landmarks_dont_save(
     MwUndoableDocument& doc,
     const std::unordered_set<MwDocumentElementID>& landmarkIDs,
     const Vector3& translation)
 {
     MwDocument& scratch = doc.upd_scratch();
     for (const MwDocumentElementID& id : landmarkIDs) {
-        TranslateLandmarkByID(scratch, id.uid, id.input, id.type, translation);
+        translate_landmark_by_id(scratch, id.uid, id.input, id.type, translation);
     }
 }
 
-void osc::ActionSaveLandmarkTranslation(MwUndoableDocument& doc, const std::unordered_set<MwDocumentElementID>& landmarkIDs)
+void osc::action_save_landmark_translation(MwUndoableDocument& doc, const std::unordered_set<MwDocumentElementID>& landmarkIDs)
 {
     std::stringstream ss;
     ss << "Translated " << landmarkIDs.size() << " landmarks";
     doc.commit_scratch(std::move(ss).str());
 }
 
-void osc::ActionSetLandmarkLocations(
+void osc::action_set_landmark_locations(
     MwUndoableDocument& doc,
     const std::unordered_set<MwDocumentElementID>& landmarkIDs,
     const Vector3& location)
 {
     MwDocument& scratch = doc.upd_scratch();
     for (const MwDocumentElementID& id : landmarkIDs) {
-        SetLandmarkLocationByID(scratch, id.uid, id.input, id.type, location);
+        set_landmark_location_by_id(scratch, id.uid, id.input, id.type, location);
     }
     doc.commit_scratch(std::format("Relocated {} landmarks", landmarkIDs.size()));
 }

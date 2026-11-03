@@ -35,7 +35,7 @@ namespace osc
         {
             if (ui::draw_menu_item(MSMICONS_FILE " New", ModifierKey::Ctrl | Key::N))
             {
-                ActionCreateNewDocument(state_->upd_undoable());
+                action_create_new_document(state_->upd_undoable());
             }
 
             if (ui::begin_menu(MSMICONS_FILE_IMPORT " Import"))
@@ -65,23 +65,23 @@ namespace osc
         {
             if (ui::draw_menu_item("Source Mesh"))
             {
-                ActionPromptUserToLoadMeshFile(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
+                action_prompt_user_to_load_mesh_file(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
             }
             if (ui::draw_menu_item("Destination Mesh"))
             {
-                ActionPromptUserToLoadMeshFile(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
+                action_prompt_user_to_load_mesh_file(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
             }
             if (ui::draw_menu_item("Source Landmarks from CSV"))
             {
-                ActionPromptUserToLoadLandmarksFromCSV(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
+                action_prompt_user_to_load_landmarks_from_csv(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
             }
             if (ui::draw_menu_item("Destination Landmarks from CSV"))
             {
-                ActionPromptUserToLoadLandmarksFromCSV(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
+                action_prompt_user_to_load_landmarks_from_csv(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
             }
             if (ui::draw_menu_item("Non-Participating Landmarks from CSV"))
             {
-                ActionPromptUserToLoadNonParticipatingLandmarksFromCSV(state_->get_undoable_shared_ptr());
+                action_prompt_user_to_load_non_participating_landmarks_from_csv(state_->get_undoable_shared_ptr());
             }
         }
 
@@ -89,23 +89,23 @@ namespace osc
         {
             if (ui::draw_menu_item("Source Landmarks to CSV"))
             {
-                ActionPromptUserToSaveLandmarksToCSV(state_->get_scratch(), MiDocumentInputIdentifier::Source);
+                action_prompt_user_to_save_landmarks_to_csv(state_->get_scratch(), MiDocumentInputIdentifier::Source);
             }
             if (ui::draw_menu_item("Destination Landmarks to CSV"))
             {
-                ActionPromptUserToSaveLandmarksToCSV(state_->get_scratch(), MiDocumentInputIdentifier::Destination);
+                action_prompt_user_to_save_landmarks_to_csv(state_->get_scratch(), MiDocumentInputIdentifier::Destination);
             }
             if (ui::draw_menu_item("Landmark Pairs to CSV"))
             {
-                ActionPromptUserToSavePairedLandmarksToCSV(state_->get_scratch());
+                action_prompt_user_to_save_paired_landmarks_to_csv(state_->get_scratch());
             }
             if (ui::draw_menu_item("Landmark Pairs to CSV (no names)"))
             {
-                ActionPromptUserToSavePairedLandmarksToCSV(state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
+                action_prompt_user_to_save_paired_landmarks_to_csv(state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
             }
             if (ui::draw_menu_item("Non-Participating Landmarks to CSV"))
             {
-                ActionPromptUserToSaveNonParticipatingLandmarksToCSV(state_->get_scratch());
+                action_prompt_user_to_save_non_participating_landmarks_to_csv(state_->get_scratch());
             }
         }
 
