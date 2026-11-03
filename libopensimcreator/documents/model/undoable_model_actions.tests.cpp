@@ -439,7 +439,7 @@ TEST(OpenSimActions, ActionZeroAllCoordinatesZeroesAllCoordinatesInAModel)
     ASSERT_EQ(fj.getCoordinate(OpenSim::FreeJoint::Coord::TranslationY).get_default_value(), 0.0);
 }
 
-// Test `ActionBakeStationDefinedFrames` feature (#1004) simple usage pattern.
+// Test `action_bake_station_defined_frames` feature (#1004) simple usage pattern.
 TEST(OpenSimActions, ActionBakeStationDefinedFramesWorksInTrivialCase)
 {
     // Build basic model with SDF
@@ -493,7 +493,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesWorksInTrivialCase)
     ASSERT_EQ(offsetTransform.R().convertRotationToBodyFixedXYZ(), sdfTransform.R().convertRotationToBodyFixedXYZ());
 }
 
-// Test `ActionBakeStationDefinedFrames` feature (#1004) also copies any attached geometry.
+// Test `action_bake_station_defined_frames` feature (#1004) also copies any attached geometry.
 TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesAttachedGeometry)
 {
     // Build basic model with SDF
@@ -546,7 +546,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesAttachedGeometry)
     }
 }
 
-// Test `ActionBakeStationDefinedFrames` feature (#1004) also copies any associated wrap objects.
+// Test `action_bake_station_defined_frames` feature (#1004) also copies any associated wrap objects.
 TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesWrapObjects)
 {
     // Build basic model with SDF
@@ -593,7 +593,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesWrapObjects)
     ASSERT_NE(dynamic_cast<const OpenSim::WrapCylinder*>(&pof.getWrapObjectSet()[1]), nullptr);
 }
 
-// Test `ActionBakeStationDefinedFrames` feature (#1004) also copies any subcomponents.
+// Test `action_bake_station_defined_frames` feature (#1004) also copies any subcomponents.
 TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesSubcomponents)
 {
     // Build basic model with SDF

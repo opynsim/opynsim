@@ -2537,7 +2537,7 @@ bool osc::action_translate_contact_hint(
         }
         mutObstacle->set_contact_hint(mutObstacle->get_contact_hint() + to<SimTK::Vec3>(deltaPosition));
         // Don't update state or reinitialize model: the wrapping requires a full rebuild, which happens
-        // during `ActionSetContactHintAndSave`
+        // during `action_translate_contact_hint_and_save`.
         return true;
     }
     catch (const std::exception&) {

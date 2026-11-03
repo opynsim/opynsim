@@ -117,7 +117,7 @@ TEST(UndoableModelStatePair, canWriteRajagopalModelToDAE)
 
 // related issue: #890
 //
-// calling `setModel` with an `OpenSim::Model` should retain the scene scale factor of
+// calling `set_model` with an `OpenSim::Model` should retain the scene scale factor of
 // the current scratch space
 TEST(UndoableModelStatePair, setModelRetainsSceneScaleFactor)
 {
