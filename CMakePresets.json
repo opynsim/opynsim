@@ -32,6 +32,7 @@
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/third_party/Development/install",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Development/install",
 
+                "OPYN_BUILD_DOCS": "ON",
                 "OPYN_FORCE_ASSERTS_ENABLED": "ON",
                 "OPYN_BUILD_OPYNSIM_DEBUGGER": "ON",
                 "OPYN_USE_STRICT_COMPILER_FLAGS": "OFF",
