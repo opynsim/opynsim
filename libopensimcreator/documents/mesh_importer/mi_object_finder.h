@@ -19,9 +19,9 @@ namespace osc
 
         const MiObject* find(UID id) const
         {
-            return implFind(id);
+            return impl_find(id);
         }
     private:
-        virtual const MiObject* implFind(UID) const = 0;
+        virtual const MiObject* impl_find(UID) const = 0;
     };
 }

@@ -68,18 +68,18 @@ namespace
         // create a POF that attaches to the body
         auto meshPhysOffsetFrame = std::make_unique<OpenSim::PhysicalOffsetFrame>();
         meshPhysOffsetFrame->setParentFrame(parentPhysFrame);
-        meshPhysOffsetFrame->setName(std::string{meshEl.getLabel()} + "_offset");
+        meshPhysOffsetFrame->setName(std::string{meshEl.get_label()} + "_offset");
 
         // set the POFs transform to be equivalent to the mesh's (in-ground) transform,
         // but in the parent frame
-        const auto mesh2ground = to<SimTK::Transform>(meshEl.getXForm());
+        const auto mesh2ground = to<SimTK::Transform>(meshEl.get_x_form());
         const auto parent2ground = to<SimTK::Transform>(parentXform);
         meshPhysOffsetFrame->setOffsetTransform(parent2ground.invert() * mesh2ground);
 
         // attach the mesh data to the transformed POF
-        auto mesh = std::make_unique<OpenSim::Mesh>(meshEl.getPath().string());
-        mesh->setName(std::string{meshEl.getLabel()});
-        mesh->set_scale_factors(to<SimTK::Vec3>(meshEl.getXForm().scale));
+        auto mesh = std::make_unique<OpenSim::Mesh>(meshEl.get_path().string());
+        mesh->setName(std::string{meshEl.get_label()});
+        mesh->set_scale_factors(to<SimTK::Vec3>(meshEl.get_x_form().scale));
         opyn::attach_geometry(*meshPhysOffsetFrame, std::move(mesh));
 
         // make it a child of the parent's physical frame
@@ -95,15 +95,15 @@ namespace
     {
         auto addedBody = std::make_unique<OpenSim::Body>();
 
-        addedBody->setName(std::string{bodyEl.getLabel()});
-        addedBody->setMass(bodyEl.getMass());
+        addedBody->setName(std::string{bodyEl.get_label()});
+        addedBody->setMass(bodyEl.get_mass());
 
         // set the inertia of the emitted body to be nonzero
         //
         // the reason we do this is because having a zero inertia on a body can cause
         // the simulator to freak out in some scenarios.
         {
-            const double moment = 0.01 * bodyEl.getMass();
+            const double moment = 0.01 * bodyEl.get_mass();
             const SimTK::Vec3 moments{moment, moment, moment};
             const SimTK::Vec3 products{0.0, 0.0, 0.0};
             addedBody->setInertia(SimTK::Inertia{moments, products});
@@ -115,9 +115,9 @@ namespace
         // relevant offset frames etc.)
         for (const MiMesh& mesh : doc.iter<MiMesh>())
         {
-            if (mesh.getParentID() == bodyEl.getID())
+            if (mesh.get_parent_id() == bodyEl.get_id())
             {
-                AttachMeshElToFrame(mesh, bodyEl.getXForm(), *addedBody);
+                AttachMeshElToFrame(mesh, bodyEl.get_x_form(), *addedBody);
             }
         }
 
@@ -153,7 +153,7 @@ namespace
         // - found, not visited before (make it, add it to the model, cache it)
 
         JointAttachmentCachedLookupResult rv;
-        rv.bodyEl = doc.tryGetByID<MiBody>(elID);
+        rv.bodyEl = doc.try_get_by_id<MiBody>(elID);
         rv.createdBody = nullptr;
         rv.physicalFrame = nullptr;
 
@@ -192,9 +192,9 @@ namespace
         const OpenSim::PhysicalFrame& parentFrame,
         const OpenSim::PhysicalFrame& childFrame)
     {
-        if (!jointEl.getUserAssignedName().empty())
+        if (!jointEl.get_user_assigned_name().empty())
         {
-            return std::string{jointEl.getUserAssignedName()};
+            return std::string{jointEl.get_user_assigned_name()};
         }
         else
         {
@@ -270,7 +270,7 @@ namespace
         std::unordered_set<UID>& visitedJoints)
     {
         {
-            const bool wasInserted = visitedJoints.emplace(joint.getID()).second;
+            const bool wasInserted = visitedJoints.emplace(joint.get_id()).second;
             if (!wasInserted)
             {
                 // graph cycle detected: joint was already previously visited and shouldn't be traversed again
@@ -279,14 +279,14 @@ namespace
         }
 
         // lookup each side of the joint, creating the bodies if necessary
-        const JointAttachmentCachedLookupResult parent = LookupPhysFrame(doc, model, visitedBodies, joint.getParentID());
-        JointAttachmentCachedLookupResult child = LookupPhysFrame(doc, model, visitedBodies, joint.getChildID());
+        const JointAttachmentCachedLookupResult parent = LookupPhysFrame(doc, model, visitedBodies, joint.get_parent_id());
+        JointAttachmentCachedLookupResult child = LookupPhysFrame(doc, model, visitedBodies, joint.get_child_id());
 
         // create the parent OpenSim::PhysicalOffsetFrame
         auto parentPOF = std::make_unique<OpenSim::PhysicalOffsetFrame>();
         parentPOF->setName(parent.physicalFrame->getName() + "_offset");
         parentPOF->setParentFrame(*parent.physicalFrame);
-        Matrix4x4 toParentPofInParent =  inverse_matrix4x4_cast(IgnoreScale(doc.getXFormByID(joint.getParentID()))) * matrix4x4_cast(IgnoreScale(joint.getXForm()));
+        Matrix4x4 toParentPofInParent =  inverse_matrix4x4_cast(IgnoreScale(doc.get_x_form_by_id(joint.get_parent_id()))) * matrix4x4_cast(IgnoreScale(joint.get_x_form()));
         parentPOF->set_translation(to<SimTK::Vec3>(Vector3{toParentPofInParent[3]}));
         parentPOF->set_orientation(to<SimTK::Vec3>(extract_eulers_xyz(toParentPofInParent)));
 
@@ -294,12 +294,12 @@ namespace
         auto childPOF = std::make_unique<OpenSim::PhysicalOffsetFrame>();
         childPOF->setName(child.physicalFrame->getName() + "_offset");
         childPOF->setParentFrame(*child.physicalFrame);
-        const Matrix4x4 toChildPofInChild = inverse_matrix4x4_cast(IgnoreScale(doc.getXFormByID(joint.getChildID()))) * matrix4x4_cast(IgnoreScale(joint.getXForm()));
+        const Matrix4x4 toChildPofInChild = inverse_matrix4x4_cast(IgnoreScale(doc.get_x_form_by_id(joint.get_child_id()))) * matrix4x4_cast(IgnoreScale(joint.get_x_form()));
         childPOF->set_translation(to<SimTK::Vec3>(Vector3{toChildPofInChild[3]}));
         childPOF->set_orientation(to<SimTK::Vec3>(extract_eulers_xyz(toChildPofInChild)));
 
         // create a relevant OpenSim::Joint (based on the type index, e.g. could be a FreeJoint)
-        auto jointUniqPtr = opyn::get_component_registry<OpenSim::Joint>().entry_with_classname(joint.getSpecificTypeName()).instantiate();
+        auto jointUniqPtr = opyn::get_component_registry<OpenSim::Joint>().entry_with_classname(joint.get_specific_type_name()).instantiate();
 
         // set its name
         const std::string jointName = CalcJointName(joint, *parent.physicalFrame, *child.physicalFrame);
@@ -330,9 +330,9 @@ namespace
         // if there are any meshes attached to the joint, attach them to the parent
         for (const MiMesh& mesh : doc.iter<MiMesh>())
         {
-            if (mesh.getParentID() == joint.getID())
+            if (mesh.get_parent_id() == joint.get_id())
             {
-                AttachMeshElToFrame(mesh, joint.getXForm(), parentRef);
+                AttachMeshElToFrame(mesh, joint.get_x_form(), parentRef);
             }
         }
 
@@ -340,7 +340,7 @@ namespace
         OSC_ASSERT_ALWAYS(child.bodyEl != nullptr && "child should always be an identifiable body object");
         for (const MiJoint& otherJoint : doc.iter<MiJoint>())
         {
-            if (otherJoint.getParentID() == child.bodyEl->getID())
+            if (otherJoint.get_parent_id() == child.bodyEl->get_id())
             {
                 AttachJointRecursive(doc, model, otherJoint, visitedBodies, visitedJoints);
             }
@@ -360,12 +360,12 @@ namespace
         auto childFrame = std::make_unique<OpenSim::PhysicalOffsetFrame>();
 
         // set names
-        weldJoint->setName(std::string{bodyEl.getLabel()} + "_to_ground");
+        weldJoint->setName(std::string{bodyEl.get_label()} + "_to_ground");
         parentFrame->setName("ground_offset");
-        childFrame->setName(std::string{bodyEl.getLabel()} + "_offset");
+        childFrame->setName(std::string{bodyEl.get_label()} + "_offset");
 
         // make the parent have the same coordinate frame as the placed body
-        parentFrame->setOffsetTransform(to<SimTK::Transform>(bodyEl.getXForm()));
+        parentFrame->setOffsetTransform(to<SimTK::Transform>(bodyEl.get_x_form()));
 
         // attach the parent directly to ground and the child directly to the body
         // and make them the two attachments of the joint
@@ -375,7 +375,7 @@ namespace
         weldJoint->connectSocket_child_frame(*childFrame);
 
         // populate the "already visited bodies" cache
-        visitedBodies[bodyEl.getID()] = addedBody.get();
+        visitedBodies[bodyEl.get_id()] = addedBody.get();
 
         // add the components into the OpenSim::Model
         opyn::add_frame(*weldJoint, std::move(parentFrame));
@@ -392,23 +392,23 @@ namespace
         std::unordered_map<UID, OpenSim::Body*>& visitedBodies)
     {
 
-        const JointAttachmentCachedLookupResult res = LookupPhysFrame(doc, model, visitedBodies, stationEl.getParentID());
+        const JointAttachmentCachedLookupResult res = LookupPhysFrame(doc, model, visitedBodies, stationEl.get_parent_id());
         OSC_ASSERT_ALWAYS(res.physicalFrame != nullptr && "all physical frames should have been added by this point in the model-building process");
 
-        const auto parentXform = to<SimTK::Transform>(doc.getByID(stationEl.getParentID()).getXForm(doc));
-        const auto stationXform = to<SimTK::Transform>(stationEl.getXForm());
+        const auto parentXform = to<SimTK::Transform>(doc.get_by_id(stationEl.get_parent_id()).get_x_form(doc));
+        const auto stationXform = to<SimTK::Transform>(stationEl.get_x_form());
         const SimTK::Vec3 locationInParent = (parentXform.invert() * stationXform).p();
 
         if (flags & ModelCreationFlags::ExportStationsAsMarkers)
         {
             // export as markers in the model's markerset (overridden behavior)
-            opyn::add_marker(model, to_string(stationEl.getLabel()), *res.physicalFrame, locationInParent);
+            opyn::add_marker(model, to_string(stationEl.get_label()), *res.physicalFrame, locationInParent);
         }
         else
         {
             // export as stations in the given frame (default behavior)
             auto station = std::make_unique<OpenSim::Station>(*res.physicalFrame, locationInParent);
-            station->setName(to_string(stationEl.getLabel()));
+            station->setName(to_string(stationEl.get_label()));
 
             opyn::add_component(*res.physicalFrame, std::move(station));
         }
@@ -478,9 +478,9 @@ namespace
             const auto xform = to<Transform>(b.getTransformInGround(st));
 
             auto& el = rv.emplace<MiBody>(UID{}, name, xform);
-            el.setMass(b.getMass());
+            el.set_mass(b.getMass());
 
-            bodyLookup.emplace(&b, el.getID());
+            bodyLookup.emplace(&b, el.get_id());
         }
 
         // then try and import all the joints (by looking at their connectivity)
@@ -498,10 +498,10 @@ namespace
                 continue;
             }
 
-            UID parent = MiIDs::Empty();
+            UID parent = MiIDs::empty();
             if (dynamic_cast<const OpenSim::Ground*>(parentBodyOrGround))
             {
-                parent = MiIDs::Ground();
+                parent = MiIDs::ground();
             }
             else
             {
@@ -513,7 +513,7 @@ namespace
                 }
             }
 
-            UID child = MiIDs::Empty();
+            UID child = MiIDs::empty();
             if (dynamic_cast<const OpenSim::Ground*>(childBodyOrGround))
             {
                 // ground can't be a child in a joint
@@ -529,7 +529,7 @@ namespace
                 }
             }
 
-            if (parent == MiIDs::Empty() || child == MiIDs::Empty())
+            if (parent == MiIDs::empty() || child == MiIDs::empty())
             {
                 // something horrible happened above
                 continue;
@@ -538,7 +538,7 @@ namespace
             const auto xform = to<Transform>(parentFrame.getTransformInGround(st));
 
             auto& jointEl = rv.emplace<MiJoint>(UID{}, j.getConcreteClassName(), j.getName(), parent, child, xform);
-            jointLookup.emplace(&j, jointEl.getID());
+            jointLookup.emplace(&j, jointEl.get_id());
         }
 
 
@@ -574,10 +574,10 @@ namespace
                 continue;
             }
 
-            UID attachment = MiIDs::Empty();
+            UID attachment = MiIDs::empty();
             if (dynamic_cast<const OpenSim::Ground*>(frameBodyOrGround))
             {
-                attachment = MiIDs::Ground();
+                attachment = MiIDs::ground();
             }
             else
             {
@@ -589,7 +589,7 @@ namespace
                 }
             }
 
-            if (attachment == MiIDs::Empty())
+            if (attachment == MiIDs::empty())
             {
                 // couldn't figure out what to attach to
                 continue;
@@ -599,8 +599,8 @@ namespace
             auto newTransform = to<Transform>(frame.getTransformInGround(st));
             newTransform.scale = to<Vector3>(mesh.get_scale_factors());
 
-            el.setXform(newTransform);
-            el.setLabel(mesh.getName());
+            el.set_xform(newTransform);
+            el.set_label(mesh.getName());
         }
 
         // then try to import all the stations
@@ -620,10 +620,10 @@ namespace
             const OpenSim::PhysicalFrame& frame = station.getParentFrame();
             const OpenSim::PhysicalFrame* const frameBodyOrGround = TryInclusiveRecurseToBodyOrGround(frame);
 
-            UID attachment = MiIDs::Empty();
+            UID attachment = MiIDs::empty();
             if (dynamic_cast<const OpenSim::Ground*>(frameBodyOrGround))
             {
-                attachment = MiIDs::Ground();
+                attachment = MiIDs::ground();
             }
             else
             {
@@ -638,7 +638,7 @@ namespace
                 }
             }
 
-            if (attachment == MiIDs::Empty())
+            if (attachment == MiIDs::empty())
             {
                 // can't figure out what to attach to
                 continue;
@@ -654,17 +654,17 @@ namespace
     }
 }
 
-MiDocument osc::CreateModelFromOsimFile(const std::filesystem::path& p)
+MiDocument osc::create_model_from_osim_file(const std::filesystem::path& p)
 {
     return CreateMeshImporterDocumentFromModel(opyn::load_model(p));
 }
 
-std::unique_ptr<OpenSim::Model> osc::CreateOpenSimModelFromMeshImporterDocument(
+std::unique_ptr<OpenSim::Model> osc::create_open_sim_model_from_mesh_importer_document(
     const MiDocument& doc,
     ModelCreationFlags flags,
     std::vector<std::string>& issuesOut)
 {
-    if (GetIssues(doc, issuesOut))
+    if (get_issues(doc, issuesOut))
     {
         log_error("cannot create an osim model: issues detected");
         for (const std::string& issue : issuesOut)
@@ -681,7 +681,7 @@ std::unique_ptr<OpenSim::Model> osc::CreateOpenSimModelFromMeshImporterDocument(
     // add any meshes that are directly connected to ground (i.e. meshes that are not attached to a body)
     for (const MiMesh& meshEl : doc.iter<MiMesh>())
     {
-        if (meshEl.getParentID() == MiIDs::Ground())
+        if (meshEl.get_parent_id() == MiIDs::ground())
         {
             AttachMeshElToFrame(meshEl, Transform{}, model->updGround());
         }
@@ -694,7 +694,7 @@ std::unique_ptr<OpenSim::Model> osc::CreateOpenSimModelFromMeshImporterDocument(
     // directly connect any bodies that participate in no joints into the model with a default joint
     for (const MiBody& bodyEl : doc.iter<MiBody>())
     {
-        if (!IsAChildAttachmentInAnyJoint(doc, bodyEl))
+        if (!is_a_child_attachment_in_any_joint(doc, bodyEl))
         {
             AttachBodyDirectlyToGround(doc, *model, bodyEl, visitedBodies);
         }
@@ -705,7 +705,7 @@ std::unique_ptr<OpenSim::Model> osc::CreateOpenSimModelFromMeshImporterDocument(
     // note: these bodies may use the non-participating bodies (above) as parents
     for (const MiJoint& jointEl : doc.iter<MiJoint>())
     {
-        if (jointEl.getParentID() == MiIDs::Ground() || visitedBodies.contains(jointEl.getParentID()))
+        if (jointEl.get_parent_id() == MiIDs::ground() || visitedBodies.contains(jointEl.get_parent_id()))
         {
             AttachJointRecursive(doc, *model, jointEl, visitedBodies, visitedJoints);
         }
@@ -739,12 +739,12 @@ std::unique_ptr<OpenSim::Model> osc::CreateOpenSimModelFromMeshImporterDocument(
     return model;
 }
 
-Vector3 osc::GetJointAxisLengths(const MiJoint& joint)
+Vector3 osc::get_joint_axis_lengths(const MiJoint& joint)
 {
     const auto& registry = opyn::get_component_registry<OpenSim::Joint>();
 
     JointDegreesOfFreedom dofs{};
-    if (const auto idx = opyn::index_of(registry, joint.getSpecificTypeName())) {
+    if (const auto idx = opyn::index_of(registry, joint.get_specific_type_name())) {
         dofs = GetDegreesOfFreedom(registry[*idx].prototype());
     }
 

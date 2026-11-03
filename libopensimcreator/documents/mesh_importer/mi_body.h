@@ -25,25 +25,25 @@ namespace osc
             const Transform& xform
         );
 
-        double getMass() const
+        double get_mass() const
         {
-            return Mass;
+            return mass_;
         }
 
-        void setMass(double newMass)
+        void set_mass(double newMass)
         {
-            Mass = newMass;
+            mass_ = newMass;
         }
 
-        Transform getXForm() const
+        Transform get_x_form() const
         {
-            return m_Xform;
+            return xform_;
         }
     private:
         friend class MiObjectCRTP<MiBody>;
-        static MiClass CreateClass();
+        static MiClass create_class();
 
-        MiObjectFlags implGetFlags() const final
+        MiObjectFlags impl_get_flags() const final
         {
             return
                 MiObjectFlags::CanChangeLabel |
@@ -53,39 +53,39 @@ namespace osc
                 MiObjectFlags::CanSelect;
         }
 
-        UID implGetID() const final
+        UID impl_get_id() const final
         {
-            return m_ID;
+            return id_;
         }
 
-        std::ostream& implWriteToStream(std::ostream&) const final;
+        std::ostream& impl_write_to_stream(std::ostream&) const final;
 
-        CStringView implGetLabel() const final
+        CStringView impl_get_label() const final
         {
-            return m_Name;
+            return name_;
         }
 
-        void implSetLabel(std::string_view sv) final;
+        void impl_set_label(std::string_view sv) final;
 
-        Transform implGetXform(const MiObjectFinder&) const final
+        Transform impl_get_xform(const MiObjectFinder&) const final
         {
-            return getXForm();
+            return get_x_form();
         }
 
-        void implSetXform(const MiObjectFinder&, const Transform& newXform) final
+        void impl_set_xform(const MiObjectFinder&, const Transform& newXform) final
         {
-            m_Xform = newXform;
-            m_Xform.scale = {1.0f, 1.0f, 1.0f};
+            xform_ = newXform;
+            xform_.scale = {1.0f, 1.0f, 1.0f};
         }
 
-        std::optional<AABB> implCalcBounds(const MiObjectFinder&) const final
+        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const final
         {
-            return bounding_aabb_of(m_Xform.translation);
+            return bounding_aabb_of(xform_.translation);
         }
 
-        UID m_ID;
-        std::string m_Name;
-        Transform m_Xform;
-        double Mass = 1.0f;  // OpenSim goes bananas if a body has a mass <= 0
+        UID id_;
+        std::string name_;
+        Transform xform_;
+        double mass_ = 1.0f;  // OpenSim goes bananas if a body has a mass <= 0
     };
 }

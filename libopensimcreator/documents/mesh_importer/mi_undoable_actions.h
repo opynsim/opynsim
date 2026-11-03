@@ -26,19 +26,19 @@ namespace osc
         UID other
     );
 
-    bool TryAssignMeshAttachments(
+    bool try_assign_mesh_attachments(
         MiUndoableDocument&,
         const std::unordered_set<UID>& meshIDs,
         UID newAttachment
     );
 
-    bool TryCreateJoint(
+    bool try_create_joint(
         MiUndoableDocument&,
         UID childID,
         UID parentID
     );
 
-    bool TryOrientObjectAxisAlongTwoPoints(
+    bool try_orient_object_axis_along_two_points(
         MiUndoableDocument&,
         UID id,
         int axis,
@@ -46,7 +46,7 @@ namespace osc
         Vector3 p2
     );
 
-    bool TryOrientObjectAxisAlongTwoObjects(
+    bool try_orient_object_axis_along_two_objects(
         MiUndoableDocument&,
         UID id,
         int axis,
@@ -54,96 +54,96 @@ namespace osc
         UID obj2
     );
 
-    bool TryTranslateObjectBetweenTwoPoints(
+    bool try_translate_object_between_two_points(
         MiUndoableDocument&,
         UID id,
         const Vector3&,
         const Vector3&
     );
 
-    bool TryTranslateBetweenTwoObjects(
+    bool try_translate_between_two_objects(
         MiUndoableDocument&,
         UID id,
         UID a,
         UID b
     );
 
-    bool TryTranslateObjectToAnotherObject(
+    bool try_translate_object_to_another_object(
         MiUndoableDocument&,
         UID id,
         UID other
     );
 
-    bool TryTranslateToMeshAverageCenter(
+    bool try_translate_to_mesh_average_center(
         MiUndoableDocument&,
         UID id,
         UID meshID
     );
 
-    bool TryTranslateToMeshBoundsCenter(
+    bool try_translate_to_mesh_bounds_center(
         MiUndoableDocument&,
         UID id,
         UID meshID
     );
 
-    bool TryTranslateToMeshMassCenter(
+    bool try_translate_to_mesh_mass_center(
         MiUndoableDocument&,
         UID id,
         UID meshID
     );
 
-    bool TryReassignCrossref(
+    bool try_reassign_crossref(
         MiUndoableDocument&,
         UID id,
         int crossref,
         UID other
     );
 
-    bool DeleteSelected(
+    bool delete_selected(
         MiUndoableDocument&
     );
 
-    bool DeleteObject(
+    bool delete_object(
         MiUndoableDocument&,
         UID id
     );
 
-    void RotateAxis(
+    void rotate_axis(
         MiUndoableDocument&,
         MiObject& el,
         int axis,
         Radians radians
     );
 
-    bool TryCopyOrientation(
+    bool try_copy_orientation(
         MiUndoableDocument&,
         UID id,
         UID other
     );
 
-    UID AddBody(
+    UID add_body(
         MiUndoableDocument&,
         const Vector3&,
         UID andTryAttach
     );
 
-    UID AddBody(
+    UID add_body(
         MiUndoableDocument&
     );
 
-    bool AddStationAtLocation(
+    bool add_station_at_location(
         MiUndoableDocument&,
         const MiObject& obj,
         const Vector3&
     );
 
-    bool AddStationAtLocation(
+    bool add_station_at_location(
         MiUndoableDocument&,
         UID attachment,
         const Vector3&
     );
 
-    void ActionImportLandmarks(
+    void action_import_landmarks(
         MiUndoableDocument&,
         std::span<const opyn::NamedLandmark>,
         std::optional<std::string> maybeName = std::nullopt

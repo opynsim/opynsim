@@ -36,16 +36,16 @@ namespace osc
         return static_cast<ModelCreationFlags>(std::to_underlying(lhs) & ~std::to_underlying(rhs));
     }
 
-    MiDocument CreateModelFromOsimFile(const std::filesystem::path&);
+    MiDocument create_model_from_osim_file(const std::filesystem::path&);
 
     // if there are no issues, returns a new OpenSim::Model created from the document
     //
     // otherwise, returns nullptr and issuesOut will be populated with issue messages
-    std::unique_ptr<OpenSim::Model> CreateOpenSimModelFromMeshImporterDocument(
+    std::unique_ptr<OpenSim::Model> create_open_sim_model_from_mesh_importer_document(
         const MiDocument&,
         ModelCreationFlags,
         std::vector<std::string>& issuesOut
     );
 
-    Vector3 GetJointAxisLengths(const MiJoint&);
+    Vector3 get_joint_axis_lengths(const MiJoint&);
 }

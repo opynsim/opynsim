@@ -113,7 +113,7 @@ namespace osc
         {
             try
             {
-                maybe_output_model_ = CreateOpenSimModelFromMeshImporterDocument(get_model_graph(), model_creation_flags_, issues_buffer_);
+                maybe_output_model_ = create_open_sim_model_from_mesh_importer_document(get_model_graph(), model_creation_flags_, issues_buffer_);
             }
             catch (const std::exception& ex)
             {
@@ -146,7 +146,7 @@ namespace osc
                     // data and we don't want the exception to propagate all the way up to the
                     // event loop (#1050).
                     try {
-                        state->model_graph_snapshots_ = MiUndoableDocument{CreateModelFromOsimFile(response.front())};
+                        state->model_graph_snapshots_ = MiUndoableDocument{create_model_from_osim_file(response.front())};
                         state->maybe_model_graph_export_location_ = response.front();
                         state->maybe_model_graph_exported_uid_ = state->model_graph_snapshots_.head_id();
                     }
@@ -275,39 +275,39 @@ namespace osc
 
         const std::unordered_set<UID>& get_current_selection() const
         {
-            return get_model_graph().getSelected();
+            return get_model_graph().get_selected();
         }
 
         void select_all()
         {
-            upd_model_graph().selectAll();
+            upd_model_graph().select_all();
         }
 
         void de_select_all()
         {
-            upd_model_graph().deSelectAll();
+            upd_model_graph().de_select_all();
         }
 
         bool has_selection() const
         {
-            return get_model_graph().hasSelection();
+            return get_model_graph().has_selection();
         }
 
         bool is_selected(UID id) const
         {
-            return get_model_graph().isSelected(id);
+            return get_model_graph().is_selected(id);
         }
 
         //
         // MESH LOADING STUFF
         //
 
-        void push_mesh_load_requests(std::vector<std::filesystem::path> paths, UID attachmentPoint = MiIDs::Ground())
+        void push_mesh_load_requests(std::vector<std::filesystem::path> paths, UID attachmentPoint = MiIDs::ground())
         {
             mesh_loader_.send(MeshLoadRequest{attachmentPoint, std::move(paths)});
         }
 
-        void prompt_user_for_mesh_files_and_push_them_onto_mesh_loader(UID attachmentPoint = MiIDs::Ground())
+        void prompt_user_for_mesh_files_and_push_them_onto_mesh_loader(UID attachmentPoint = MiIDs::ground())
         {
             if (not shared_from_this()) {
                 log_critical("cannot open mesh import dialog because the mesh importer's state isn't reference-counted");
@@ -332,10 +332,10 @@ namespace osc
         {
             for (auto& mesh : model_graph_snapshots_.upd_scratch().iter<MiMesh>()) {
                 try {
-                    mesh.reloadMeshDataFromDisk();
+                    mesh.reload_mesh_data_from_disk();
                 }
                 catch (const std::exception& ex) {
-                    log_info("{}: error reloading: {}", mesh.getLabel(), ex.what());
+                    log_info("{}: error reloading: {}", mesh.get_label(), ex.what());
                 }
             }
         }
@@ -369,7 +369,7 @@ namespace osc
 
             for (const MiObject& el : mg.iter())
             {
-                UID id = el.getID();
+                UID id = el.get_id();
 
                 if (excludedIDs.contains(id))
                 {
@@ -381,11 +381,11 @@ namespace osc
                     continue;
                 }
 
-                if (el.getNumCrossReferences() > 0)
+                if (el.get_num_cross_references() > 0)
                 {
                     draw_connection_lines(el, color, excludedIDs);
                 }
-                else if (!IsAChildAttachmentInAnyJoint(mg, el))
+                else if (!is_a_child_attachment_in_any_joint(mg, el))
                 {
                     draw_connection_line_to_ground(el, color);
                 }
@@ -403,9 +403,9 @@ namespace osc
 
             for (const MiObject& el : mg.iter())
             {
-                UID id = el.getID();
+                UID id = el.get_id();
 
-                if (id != currentHover.id && !el.isCrossReferencing(currentHover.id))
+                if (id != currentHover.id && !el.is_cross_referencing(currentHover.id))
                 {
                     continue;
                 }
@@ -415,11 +415,11 @@ namespace osc
                     continue;
                 }
 
-                if (el.getNumCrossReferences() > 0)
+                if (el.get_num_cross_references() > 0)
                 {
                     draw_connection_lines(el, colors_.connection_lines);
                 }
-                else if (!IsAChildAttachmentInAnyJoint(mg, el))
+                else if (!is_a_child_attachment_in_any_joint(mg, el))
                 {
                     draw_connection_line_to_ground(el, colors_.connection_lines);
                 }
@@ -576,8 +576,8 @@ namespace osc
             props.set_color(colors_.grid_lines);
 
             return DrawableThing{
-                .id = MiIDs::Empty(),
-                .group_id = MiIDs::Empty(),
+                .id = MiIDs::empty(),
+                .group_id = MiIDs::empty(),
                 .mesh = App::singleton<SceneCache>(App::resource_loader())->grid_mesh(),
                 .transform = {
                     .scale = 0.5f * Vector3{scene_scale_factor_ * 100.0f, scene_scale_factor_ * 100.0f, 1.0f},
@@ -639,36 +639,36 @@ namespace osc
             const bool hittestGround = is_ground_interactable();
             const bool hittestStations = is_stations_interactable();
 
-            UID closestID = MiIDs::Empty();
+            UID closestID = MiIDs::empty();
             float closestDist = std::numeric_limits<float>::max();
             for (const DrawableThing& drawable : drawables)
             {
-                if (drawable.id == MiIDs::Empty())
+                if (drawable.id == MiIDs::empty())
                 {
                     continue;  // no hittest data
                 }
 
-                if (drawable.group_id == MiIDs::BodyGroup() && !hittestBodies)
+                if (drawable.group_id == MiIDs::body_group() && !hittestBodies)
                 {
                     continue;
                 }
 
-                if (drawable.group_id == MiIDs::MeshGroup() && !hittestMeshes)
+                if (drawable.group_id == MiIDs::mesh_group() && !hittestMeshes)
                 {
                     continue;
                 }
 
-                if (drawable.group_id == MiIDs::JointGroup() && !hittestJointCenters)
+                if (drawable.group_id == MiIDs::joint_group() && !hittestJointCenters)
                 {
                     continue;
                 }
 
-                if (drawable.group_id == MiIDs::GroundGroup() && !hittestGround)
+                if (drawable.group_id == MiIDs::ground_group() && !hittestGround)
                 {
                     continue;
                 }
 
-                if (drawable.group_id == MiIDs::StationGroup() && !hittestStations)
+                if (drawable.group_id == MiIDs::station_group() && !hittestStations)
                 {
                     continue;
                 }
@@ -687,7 +687,7 @@ namespace osc
                 }
             }
 
-            const Vector3 hitPos = closestID != MiIDs::Empty() ? ray.origin + closestDist*ray.direction : Vector3{};
+            const Vector3 hitPos = closestID != MiIDs::empty() ? ray.origin + closestDist*ray.direction : Vector3{};
 
             return MeshImporterHover{closestID, hitPos};
         }
@@ -713,11 +713,11 @@ namespace osc
         DrawableThing generate_mesh_drawable(const MiMesh& el) const
         {
             return DrawableThing{
-                .id = el.getID(),
-                .group_id = MiIDs::MeshGroup(),
-                .mesh = el.getMeshData(),
-                .transform = el.getXForm(),
-                .shading = el.getParentID() == MiIDs::Ground() || el.getParentID() == MiIDs::Empty() ? redify_color(get_color_mesh()) : get_color_mesh(),
+                .id = el.get_id(),
+                .group_id = MiIDs::mesh_group(),
+                .mesh = el.get_mesh_data(),
+                .transform = el.get_x_form(),
+                .shading = el.get_parent_id() == MiIDs::ground() || el.get_parent_id() == MiIDs::empty() ? redify_color(get_color_mesh()) : get_color_mesh(),
             };
         }
 
@@ -762,13 +762,13 @@ namespace osc
                     }
 
                     append_as_frame(
-                        el.getID(),
-                        MiIDs::JointGroup(),
-                        el.getXForm(),
+                        el.get_id(),
+                        MiIDs::joint_group(),
+                        el.get_x_form(),
                         appendOut,
                         1.0f,
                         SceneDecorationFlag::Default,
-                        GetJointAxisLengths(el)
+                        get_joint_axis_lengths(el)
                     );
                 },
                 [this, &appendOut](const MiStation& el)
@@ -780,7 +780,7 @@ namespace osc
 
                     appendOut.push_back(generate_station_sphere(el, get_color_station()));
                 },
-            }, e.toVariant());
+            }, e.to_variant());
         }
 
         //
@@ -854,7 +854,7 @@ namespace osc
             // pop any background-loaded meshes
             pop_mesh_loader();
 
-            model_graph_snapshots_.upd_scratch().garbageCollect();
+            model_graph_snapshots_.upd_scratch().garbage_collect();
         }
 
     private:
@@ -864,7 +864,7 @@ namespace osc
             std::unique_ptr<OpenSim::Model> m;
 
             try {
-                m = CreateOpenSimModelFromMeshImporterDocument(get_model_graph(), model_creation_flags_, issues);
+                m = create_open_sim_model_from_mesh_importer_document(get_model_graph(), model_creation_flags_, issues);
             }
             catch (const std::exception& ex) {
                 log_error("error occurred while trying to create an OpenSim model from the mesh editor scene: {}", ex.what());
@@ -906,16 +906,16 @@ namespace osc
 
             // add each loaded mesh into the model graph
             MiDocument& mg = upd_model_graph();
-            mg.deSelectAll();
+            mg.de_select_all();
 
             for (const LoadedMesh& lm : ok.meshes)
             {
-                const MiObject* el = mg.tryUpdByID(ok.preferred_attachment_point);
+                const MiObject* el = mg.try_upd_by_id(ok.preferred_attachment_point);
 
                 if (el)
                 {
                     auto& mesh = mg.emplace<MiMesh>(UID{}, ok.preferred_attachment_point, lm.mesh_data, lm.path);
-                    mesh.setXform(el->getXForm(mg));
+                    mesh.set_xform(el->get_x_form(mg));
                     mg.select(mesh);
                     mg.select(*el);
                 }
@@ -998,26 +998,26 @@ namespace osc
             const std::unordered_set<UID>& excludedIDs) const
         {
             const MiDocument& mg = get_model_graph();
-            for (int i = 0, len = el.getNumCrossReferences(); i < len; ++i)
+            for (int i = 0, len = el.get_num_cross_references(); i < len; ++i)
             {
-                UID refID = el.getCrossReferenceConnecteeID(i);
+                UID refID = el.get_cross_reference_connectee_id(i);
 
                 if (excludedIDs.contains(refID))
                 {
                     continue;
                 }
 
-                const MiObject* other = mg.tryGetByID(refID);
+                const MiObject* other = mg.try_get_by_id(refID);
 
                 if (!other)
                 {
                     continue;
                 }
 
-                Vector3 child = el.getPos(mg);
-                Vector3 parent = other->getPos(mg);
+                Vector3 child = el.get_pos(mg);
+                Vector3 parent = other->get_pos(mg);
 
-                if (el.getCrossReferenceDirection(i) == MiCrossrefDirection::ToChild)
+                if (el.get_cross_reference_direction(i) == MiCrossrefDirection::ToChild)
                 {
                     std::swap(parent, child);
                 }
@@ -1033,12 +1033,12 @@ namespace osc
 
         void draw_connection_line_to_ground(const MiObject& el, const Color& color) const
         {
-            if (el.getID() == MiIDs::Ground())
+            if (el.get_id() == MiIDs::ground())
             {
                 return;
             }
 
-            draw_connection_line(color, Vector3{}, el.getPos(get_model_graph()));
+            draw_connection_line(color, Vector3{}, el.get_pos(get_model_graph()));
         }
 
         bool should_show_connection_lines(const MiObject& el) const
@@ -1050,7 +1050,7 @@ namespace osc
                 [this](const MiBody&)    { return this->is_showing_body_connection_lines(); },
                 [this](const MiJoint&)   { return this->is_showing_joint_connection_lines(); },
                 [this](const MiStation&) { return this->is_showing_mesh_connection_lines(); },
-            }, el.toVariant());
+            }, el.to_variant());
         }
 
         void set_is_render_hovered(bool newIsHovered)
@@ -1369,16 +1369,16 @@ namespace osc
 
         void append_body_el_as_cube_thing(const MiBody& bodyEl, std::vector<DrawableThing>& appendOut) const
         {
-            append_as_cube_thing(bodyEl.getID(), MiIDs::BodyGroup(), bodyEl.getXForm(), appendOut);
+            append_as_cube_thing(bodyEl.get_id(), MiIDs::body_group(), bodyEl.get_x_form(), appendOut);
         }
 
         DrawableThing generate_body_el_sphere(const MiBody& bodyEl, const Color& color) const
         {
             return {
-                .id = bodyEl.getID(),
-                .group_id = MiIDs::BodyGroup(),
+                .id = bodyEl.get_id(),
+                .group_id = MiIDs::body_group(),
                 .mesh = sphere_mesh_,
-                .transform = sphere_mesh_to_scene_sphere_transform(sphere_at_translation(bodyEl.getXForm().translation)),
+                .transform = sphere_mesh_to_scene_sphere_transform(sphere_at_translation(bodyEl.get_x_form().translation)),
                 .shading = color,
             };
         }
@@ -1386,8 +1386,8 @@ namespace osc
         DrawableThing generate_ground_sphere(const Color& color) const
         {
             return {
-                .id = MiIDs::Ground(),
-                .group_id = MiIDs::GroundGroup(),
+                .id = MiIDs::ground(),
+                .group_id = MiIDs::ground_group(),
                 .mesh = sphere_mesh_,
                 .transform = sphere_mesh_to_scene_sphere_transform(sphere_at_translation({0.0f, 0.0f, 0.0f})),
                 .shading = color,
@@ -1397,10 +1397,10 @@ namespace osc
         DrawableThing generate_station_sphere(const MiStation& el, const Color& color) const
         {
             return {
-                .id = el.getID(),
-                .group_id = MiIDs::StationGroup(),
+                .id = el.get_id(),
+                .group_id = MiIDs::station_group(),
                 .mesh = sphere_mesh_,
-                .transform = sphere_mesh_to_scene_sphere_transform(sphere_at_translation(el.getPos(get_model_graph()))),
+                .transform = sphere_mesh_to_scene_sphere_transform(sphere_at_translation(el.get_pos(get_model_graph()))),
                 .shading = color,
             };
         }

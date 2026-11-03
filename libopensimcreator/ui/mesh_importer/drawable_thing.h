@@ -15,8 +15,8 @@ namespace osc
 {
     // something that is being drawn in the scene
     struct DrawableThing final {
-        UID id = MiIDs::Empty();
-        UID group_id = MiIDs::Empty();
+        UID id = MiIDs::empty();
+        UID group_id = MiIDs::empty();
         osc::Mesh mesh{};
         Transform transform{};
         SceneDecorationShading shading = Color::black();

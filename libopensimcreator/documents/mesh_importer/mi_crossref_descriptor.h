@@ -10,33 +10,32 @@ namespace osc
     class MiCrossrefDescriptor final {
     public:
         MiCrossrefDescriptor(
-            UID connecteeID_,
-            CStringView label_,
-            MiCrossrefDirection direction_) :
+            UID connectee_id,
+            CStringView label,
+            MiCrossrefDirection direction) :
 
-            m_ConnecteeID{connecteeID_},
-            m_Label{label_},
-            m_Direction{direction_}
+            connectee_id_{connectee_id},
+            label_{label},
+            direction_{direction}
+        {}
+
+        UID get_connectee_id() const
         {
+            return connectee_id_;
         }
 
-        UID getConnecteeID() const
+        CStringView get_label() const
         {
-            return m_ConnecteeID;
+            return label_;
         }
 
-        CStringView getLabel() const
+        MiCrossrefDirection get_direction() const
         {
-            return m_Label;
-        }
-
-        MiCrossrefDirection getDirection() const
-        {
-            return m_Direction;
+            return direction_;
         }
     private:
-        UID m_ConnecteeID;
-        CStringView m_Label;
-        MiCrossrefDirection m_Direction;
+        UID connectee_id_;
+        CStringView label_;
+        MiCrossrefDirection direction_;
     };
 }

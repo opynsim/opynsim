@@ -82,19 +82,19 @@ namespace osc
         // returns true if the user's mouse is hovering over the given scene element
         bool is_hovered(const MiObject& el) const
         {
-            return el.getID() == maybe_hover_.id;
+            return el.get_id() == maybe_hover_.id;
         }
 
         // returns true if the user has already selected the given scene element
         bool is_selected(const MiObject& el) const
         {
-            return cpp23::contains(selected_object_ids_, el.getID());
+            return cpp23::contains(selected_object_ids_, el.get_id());
         }
 
         // returns true if the user can (de)select the given element
         bool is_selectable(const MiObject& el) const
         {
-            if (options_.maybe_els_attaching_to.contains(el.getID()))
+            if (options_.maybe_els_attaching_to.contains(el.get_id()))
             {
                 return false;
             }
@@ -106,7 +106,7 @@ namespace osc
                 [this](const MiBody&)    { return options_.can_choose_bodies; },
                 [this](const MiJoint&)   { return options_.can_choose_joints; },
                 [this](const MiStation&) { return options_.can_choose_stations; },
-            }, el.toVariant());
+            }, el.to_variant());
         }
 
         void select(const MiObject& el)
@@ -121,7 +121,7 @@ namespace osc
                 return;
             }
 
-            selected_object_ids_.push_back(el.getID());
+            selected_object_ids_.push_back(el.get_id());
         }
 
         void de_select(const MiObject& el)
@@ -131,7 +131,7 @@ namespace osc
                 return;
             }
 
-            std::erase_if(selected_object_ids_, [elID = el.getID()](UID id) { return id == elID; } );
+            std::erase_if(selected_object_ids_, [elID = el.get_id()](UID id) { return id == elID; } );
         }
 
         void try_toggle_selection_state_of(const MiObject& el)
@@ -141,7 +141,7 @@ namespace osc
 
         void try_toggle_selection_state_of(UID id)
         {
-            const MiObject* el = shared_->get_model_graph().tryGetByID(id);
+            const MiObject* el = shared_->get_model_graph().try_get_by_id(id);
 
             if (el)
             {
@@ -189,8 +189,8 @@ namespace osc
                         if (std::holds_alternative<Color>(d.shading)) {
                             std::get<Color>(d.shading).a = fadedAlpha;   // fade non-selectable colored scene elements
                         }
-                        d.id = MiIDs::Empty();
-                        d.group_id = MiIDs::Empty();
+                        d.id = MiIDs::empty();
+                        d.group_id = MiIDs::empty();
                     }
                     else
                     {
@@ -247,14 +247,14 @@ namespace osc
                 return;
             }
 
-            const MiObject* se = shared_->get_model_graph().tryGetByID(maybe_hover_.id);
+            const MiObject* se = shared_->get_model_graph().try_get_by_id(maybe_hover_.id);
 
             if (se)
             {
                 ui::begin_tooltip_nowrap();
-                ui::draw_text(se->getLabel());
+                ui::draw_text(se->get_label());
                 ui::same_line();
-                ui::draw_text_disabled("({}, click to choose)", se->getClass().getName());
+                ui::draw_text_disabled("({}, click to choose)", se->get_class().get_name());
                 ui::end_tooltip_nowrap();
             }
         }
@@ -280,8 +280,8 @@ namespace osc
             // draw strong connection line between the things being attached to and the hover
             for (UID elAttachingTo : options_.maybe_els_attaching_to)
             {
-                Vector3 parentPos = shared_->get_model_graph().getPosByID(elAttachingTo);
-                Vector3 childPos = shared_->get_model_graph().getPosByID(maybe_hover_.id);
+                Vector3 parentPos = shared_->get_model_graph().get_pos_by_id(elAttachingTo);
+                Vector3 childPos = shared_->get_model_graph().get_pos_by_id(maybe_hover_.id);
 
                 if (!options_.is_attaching_toward_el)
                 {

@@ -19,18 +19,18 @@ osc::MiBody::MiBody(
     const std::string& name,
     const Transform& xform) :
 
-    m_ID{id},
-    m_Name{opyn::sanitize_to_open_sim_component_name(name)},
-    m_Xform{xform}
+    id_{id},
+    name_{opyn::sanitize_to_open_sim_component_name(name)},
+    xform_{xform}
 {
 }
 
-void osc::MiBody::implSetLabel(std::string_view sv)
+void osc::MiBody::impl_set_label(std::string_view sv)
 {
-    m_Name = opyn::sanitize_to_open_sim_component_name(sv);
+    name_ = opyn::sanitize_to_open_sim_component_name(sv);
 }
 
-MiClass osc::MiBody::CreateClass()
+MiClass osc::MiBody::create_class()
 {
     return
     {
@@ -42,11 +42,11 @@ MiClass osc::MiBody::CreateClass()
     };
 }
 
-std::ostream& osc::MiBody::implWriteToStream(std::ostream& o) const
+std::ostream& osc::MiBody::impl_write_to_stream(std::ostream& o) const
 {
-    return o << "MiBody(ID = " << m_ID
-        << ", Name = " << m_Name
-        << ", m_Transform = " << m_Xform
-        << ", Mass = " << Mass
+    return o << "MiBody(ID = " << id_
+        << ", Name = " << name_
+        << ", m_Transform = " << xform_
+        << ", Mass = " << mass_
         << ')';
 }

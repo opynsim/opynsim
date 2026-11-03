@@ -28,56 +28,56 @@ namespace osc
             std::filesystem::path path
         );
 
-        const osc::Mesh& getMeshData() const
+        const osc::Mesh& get_mesh_data() const
         {
-            return m_MeshData;
+            return mesh_data_;
         }
 
-        const std::filesystem::path& getPath() const
+        const std::filesystem::path& get_path() const
         {
-            return m_Path;
+            return path_;
         }
 
-        UID getParentID() const
+        UID get_parent_id() const
         {
-            return m_Attachment;
+            return attachment_;
         }
 
-        void setParentID(UID newParent)
+        void set_parent_id(UID newParent)
         {
-            m_Attachment = newParent;
+            attachment_ = newParent;
         }
 
-        Transform getXForm() const
+        Transform get_x_form() const
         {
-            return m_Transform;
+            return transform_;
         }
 
-        void setXform(const Transform& t)
+        void set_xform(const Transform& t)
         {
-            m_Transform = t;
+            transform_ = t;
         }
 
-        std::optional<AABB> calcBounds() const;
+        std::optional<AABB> calc_bounds() const;
 
-        void reloadMeshDataFromDisk();
+        void reload_mesh_data_from_disk();
 
     private:
         friend class MiObjectCRTP<MiMesh>;
-        static MiClass CreateClass();
+        static MiClass create_class();
 
-        std::vector<MiCrossrefDescriptor> implGetCrossReferences() const final;
+        std::vector<MiCrossrefDescriptor> impl_get_cross_references() const final;
 
-        void implSetCrossReferenceConnecteeID(int i, UID id) final
+        void impl_set_cross_reference_connectee_id(int i, UID id) final
         {
             if (i != 0)
             {
                 throw std::runtime_error{"invalid index accessed for cross reference"};
             }
-            m_Attachment = id;
+            attachment_ = id;
         }
 
-        MiObjectFlags implGetFlags() const final
+        MiObjectFlags impl_get_flags() const final
         {
             return
                 MiObjectFlags::CanChangeLabel |
@@ -89,40 +89,40 @@ namespace osc
                 MiObjectFlags::HasPhysicalSize;
         }
 
-        UID implGetID() const final
+        UID impl_get_id() const final
         {
-            return m_ID;
+            return id_;
         }
 
-        std::ostream& implWriteToStream(std::ostream&) const final;
+        std::ostream& impl_write_to_stream(std::ostream&) const final;
 
-        CStringView implGetLabel() const final
+        CStringView impl_get_label() const final
         {
-            return m_Name;
+            return name_;
         }
 
-        void implSetLabel(std::string_view sv) final;
+        void impl_set_label(std::string_view sv) final;
 
-        Transform implGetXform(const MiObjectFinder&) const final
+        Transform impl_get_xform(const MiObjectFinder&) const final
         {
-            return getXForm();
+            return get_x_form();
         }
 
-        void implSetXform(const MiObjectFinder&, const Transform& t) final
+        void impl_set_xform(const MiObjectFinder&, const Transform& t) final
         {
-            setXform(t);
+            set_xform(t);
         }
 
-        std::optional<AABB> implCalcBounds(const MiObjectFinder&) const final
+        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const final
         {
-            return calcBounds();
+            return calc_bounds();
         }
 
-        UID m_ID;
-        UID m_Attachment;  // can be MiIDs::Ground()
-        Transform m_Transform;
-        osc::Mesh m_MeshData;
-        std::filesystem::path m_Path;
-        std::string m_Name;
+        UID id_;
+        UID attachment_;  // can be MiIDs::Ground()
+        Transform transform_;
+        osc::Mesh mesh_data_;
+        std::filesystem::path path_;
+        std::string name_;
     };
 }

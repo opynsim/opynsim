@@ -31,57 +31,57 @@ namespace osc
             const Transform& xform
         );
 
-        CStringView getSpecificTypeName() const
+        CStringView get_specific_type_name() const
         {
-            return m_JointTypeName;
+            return joint_type_name_;
         }
 
-        void setSpecificTypeName(std::string_view newName)
+        void set_specific_type_name(std::string_view newName)
         {
-            m_JointTypeName = newName;
+            joint_type_name_ = newName;
         }
 
-        UID getParentID() const
+        UID get_parent_id() const
         {
-            return m_Parent;
+            return parent_;
         }
 
-        UID getChildID() const
+        UID get_child_id() const
         {
-            return m_Child;
+            return child_;
         }
 
-        CStringView getUserAssignedName() const
+        CStringView get_user_assigned_name() const
         {
-            return m_UserAssignedName;
+            return user_assigned_name_;
         }
 
-        Transform getXForm() const
+        Transform get_x_form() const
         {
-            return m_Xform;
+            return xform_;
         }
 
     private:
         friend class MiObjectCRTP<MiJoint>;
-        static MiClass CreateClass();
+        static MiClass create_class();
 
-        std::vector<MiCrossrefDescriptor> implGetCrossReferences() const final;
+        std::vector<MiCrossrefDescriptor> impl_get_cross_references() const final;
 
-        void implSetCrossReferenceConnecteeID(int i, UID id) final
+        void impl_set_cross_reference_connectee_id(int i, UID id) final
         {
             switch (i) {
             case 0:
-                m_Parent = id;
+                parent_ = id;
                 break;
             case 1:
-                m_Child = id;
+                child_ = id;
                 break;
             default:
                 throw std::runtime_error{"invalid index accessed for cross reference"};
             }
         }
 
-        MiObjectFlags implGetFlags() const final
+        MiObjectFlags impl_get_flags() const final
         {
             return
                 MiObjectFlags::CanChangeLabel |
@@ -91,41 +91,41 @@ namespace osc
                 MiObjectFlags::CanSelect;
         }
 
-        UID implGetID() const final
+        UID impl_get_id() const final
         {
-            return m_ID;
+            return id_;
         }
 
-        std::ostream& implWriteToStream(std::ostream&) const final;
+        std::ostream& impl_write_to_stream(std::ostream&) const final;
 
-        CStringView implGetLabel() const final
+        CStringView impl_get_label() const final
         {
-            return m_UserAssignedName.empty() ? getSpecificTypeName() : m_UserAssignedName;
+            return user_assigned_name_.empty() ? get_specific_type_name() : user_assigned_name_;
         }
 
-        void implSetLabel(std::string_view) final;
+        void impl_set_label(std::string_view) final;
 
-        Transform implGetXform(const MiObjectFinder&) const final
+        Transform impl_get_xform(const MiObjectFinder&) const final
         {
-            return getXForm();
+            return get_x_form();
         }
 
-        void implSetXform(const MiObjectFinder&, const Transform& t) final
+        void impl_set_xform(const MiObjectFinder&, const Transform& t) final
         {
-            m_Xform = t;
-            m_Xform.scale = {1.0f, 1.0f, 1.0f};
+            xform_ = t;
+            xform_.scale = {1.0f, 1.0f, 1.0f};
         }
 
-        std::optional<AABB> implCalcBounds(const MiObjectFinder&) const final
+        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const final
         {
-            return bounding_aabb_of(m_Xform.translation);
+            return bounding_aabb_of(xform_.translation);
         }
 
-        UID m_ID;
-        std::string m_JointTypeName;
-        std::string m_UserAssignedName;
-        UID m_Parent;  // can be ground
-        UID m_Child;
-        Transform m_Xform;  // joint center
+        UID id_;
+        std::string joint_type_name_;
+        std::string user_assigned_name_;
+        UID parent_;  // can be ground
+        UID child_;
+        Transform xform_;  // joint center
     };
 }

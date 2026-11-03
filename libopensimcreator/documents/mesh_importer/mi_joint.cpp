@@ -26,15 +26,15 @@ osc::MiJoint::MiJoint(
     UID child,
     const Transform& xform) :
 
-    m_ID{id},
-    m_JointTypeName{std::move(jointTypeName)},
-    m_UserAssignedName{opyn::sanitize_to_open_sim_component_name(userAssignedName)},
-    m_Parent{parent},
-    m_Child{child},
-    m_Xform{xform}
+    id_{id},
+    joint_type_name_{std::move(jointTypeName)},
+    user_assigned_name_{opyn::sanitize_to_open_sim_component_name(userAssignedName)},
+    parent_{parent},
+    child_{child},
+    xform_{xform}
 {}
 
-MiClass osc::MiJoint::CreateClass()
+MiClass osc::MiJoint::create_class()
 {
     return
     {
@@ -46,27 +46,27 @@ MiClass osc::MiJoint::CreateClass()
     };
 }
 
-std::vector<MiCrossrefDescriptor> osc::MiJoint::implGetCrossReferences() const
+std::vector<MiCrossrefDescriptor> osc::MiJoint::impl_get_cross_references() const
 {
     return
     {
-        {m_Parent, MiStrings::c_JointParentCrossrefName, MiCrossrefDirection::ToParent},
-        {m_Child,  MiStrings::c_JointChildCrossrefName,  MiCrossrefDirection::ToChild },
+        {parent_, MiStrings::c_JointParentCrossrefName, MiCrossrefDirection::ToParent},
+        {child_,  MiStrings::c_JointChildCrossrefName,  MiCrossrefDirection::ToChild },
     };
 }
 
-std::ostream& osc::MiJoint::implWriteToStream(std::ostream& o) const
+std::ostream& osc::MiJoint::impl_write_to_stream(std::ostream& o) const
 {
-    return o << "MiJoint(ID = " << m_ID
-        << ", JointTypeName = " << m_JointTypeName
-        << ", UserAssignedName = " << m_UserAssignedName
-        << ", Parent = " << m_Parent
-        << ", Child = " << m_Child
-        << ", Transform = " << m_Xform
+    return o << "MiJoint(ID = " << id_
+        << ", JointTypeName = " << joint_type_name_
+        << ", UserAssignedName = " << user_assigned_name_
+        << ", Parent = " << parent_
+        << ", Child = " << child_
+        << ", Transform = " << xform_
         << ')';
 }
 
-void osc::MiJoint::implSetLabel(std::string_view sv)
+void osc::MiJoint::impl_set_label(std::string_view sv)
 {
-    m_UserAssignedName = opyn::sanitize_to_open_sim_component_name(sv);
+    user_assigned_name_ = opyn::sanitize_to_open_sim_component_name(sv);
 }

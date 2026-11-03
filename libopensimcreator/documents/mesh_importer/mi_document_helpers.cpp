@@ -26,29 +26,29 @@
 
 using namespace osc;
 
-bool osc::IsAChildAttachmentInAnyJoint(const MiDocument& doc, const MiObject& obj)
+bool osc::is_a_child_attachment_in_any_joint(const MiDocument& doc, const MiObject& obj)
 {
-    return cpp23::contains(doc.iter<MiJoint>(), obj.getID(), &MiJoint::getChildID);
+    return cpp23::contains(doc.iter<MiJoint>(), obj.get_id(), &MiJoint::get_child_id);
 }
 
-bool osc::IsGarbageJoint(const MiDocument& doc, const MiJoint& joint)
+bool osc::is_garbage_joint(const MiDocument& doc, const MiJoint& joint)
 {
-    if (joint.getChildID() == MiIDs::Ground())
+    if (joint.get_child_id() == MiIDs::ground())
     {
         return true;  // ground cannot be a child in a joint
     }
 
-    if (joint.getParentID() == joint.getChildID())
+    if (joint.get_parent_id() == joint.get_child_id())
     {
         return true;  // is directly attached to itself
     }
 
-    if (joint.getParentID() != MiIDs::Ground() && !doc.contains<MiBody>(joint.getParentID()))
+    if (joint.get_parent_id() != MiIDs::ground() && !doc.contains<MiBody>(joint.get_parent_id()))
     {
         return true;  // has a parent ID that's invalid for this document
     }
 
-    if (!doc.contains<MiBody>(joint.getChildID()))
+    if (!doc.contains<MiBody>(joint.get_child_id()))
     {
         return true;  // has a child ID that's invalid for this document
     }
@@ -56,29 +56,29 @@ bool osc::IsGarbageJoint(const MiDocument& doc, const MiJoint& joint)
     return false;
 }
 
-bool osc::IsJointAttachedToGround(
+bool osc::is_joint_attached_to_ground(
     const MiDocument& doc,
     const MiJoint& joint,
     std::unordered_set<UID>& previousVisits)
 {
-    OSC_ASSERT_ALWAYS(!IsGarbageJoint(doc, joint));
+    OSC_ASSERT_ALWAYS(!is_garbage_joint(doc, joint));
 
-    if (joint.getParentID() == MiIDs::Ground())
+    if (joint.get_parent_id() == MiIDs::ground())
     {
         return true;  // it's directly attached to ground
     }
 
-    const auto* const parent = doc.tryGetByID<MiBody>(joint.getParentID());
+    const auto* const parent = doc.try_get_by_id<MiBody>(joint.get_parent_id());
     if (!parent)
     {
         return false;  // joint's parent is garbage
     }
 
     // else: recurse to parent
-    return IsBodyAttachedToGround(doc, *parent, previousVisits);
+    return is_body_attached_to_ground(doc, *parent, previousVisits);
 }
 
-bool osc::IsBodyAttachedToGround(
+bool osc::is_body_attached_to_ground(
     const MiDocument& doc,
     const MiBody& body,
     std::unordered_set<UID>& previouslyVisitedJoints)
@@ -87,19 +87,19 @@ bool osc::IsBodyAttachedToGround(
 
     for (const MiJoint& joint : doc.iter<MiJoint>())
     {
-        OSC_ASSERT(!IsGarbageJoint(doc, joint));
+        OSC_ASSERT(!is_garbage_joint(doc, joint));
 
-        if (joint.getChildID() == body.getID())
+        if (joint.get_child_id() == body.get_id())
         {
             childInAtLeastOneJoint = true;
 
-            const bool alreadyVisited = !previouslyVisitedJoints.emplace(joint.getID()).second;
+            const bool alreadyVisited = !previouslyVisitedJoints.emplace(joint.get_id()).second;
             if (alreadyVisited)
             {
                 continue;  // skip this joint: was previously visited
             }
 
-            if (IsJointAttachedToGround(doc, joint, previouslyVisitedJoints))
+            if (is_joint_attached_to_ground(doc, joint, previouslyVisitedJoints))
             {
                 return true;  // recurse
             }
@@ -109,7 +109,7 @@ bool osc::IsBodyAttachedToGround(
     return !childInAtLeastOneJoint;
 }
 
-bool osc::GetIssues(
+bool osc::get_issues(
     const MiDocument& doc,
     std::vector<std::string>& issuesOut)
 {
@@ -117,10 +117,10 @@ bool osc::GetIssues(
 
     for (const MiJoint& joint : doc.iter<MiJoint>())
     {
-        if (IsGarbageJoint(doc, joint))
+        if (is_garbage_joint(doc, joint))
         {
             std::stringstream ss;
-            ss << joint.getLabel() << ": joint is garbage (this is an implementation error)";
+            ss << joint.get_label() << ": joint is garbage (this is an implementation error)";
             throw std::runtime_error{std::move(ss).str()};
         }
     }
@@ -128,10 +128,10 @@ bool osc::GetIssues(
     for (const MiBody& body : doc.iter<MiBody>())
     {
         std::unordered_set<UID> previouslyVisitedJoints;
-        if (!IsBodyAttachedToGround(doc, body, previouslyVisitedJoints))
+        if (!is_body_attached_to_ground(doc, body, previouslyVisitedJoints))
         {
             std::stringstream ss;
-            ss << body.getLabel() << ": body is not attached to ground: it is connected by a joint that, itself, does not connect to ground";
+            ss << body.get_label() << ": body is not attached to ground: it is connected by a joint that, itself, does not connect to ground";
             issuesOut.push_back(std::move(ss).str());
         }
     }
@@ -139,7 +139,7 @@ bool osc::GetIssues(
     return !issuesOut.empty();
 }
 
-std::string osc::GetContextMenuSubHeaderText(
+std::string osc::get_context_menu_sub_header_text(
     const MiDocument& doc,
     const MiObject& obj)
 {
@@ -152,30 +152,30 @@ std::string osc::GetContextMenuSubHeaderText(
         },
         [&ss, &doc](const MiMesh& m)
         {
-            ss << '(' << m.getClass().getName() << ", " << m.getPath().filename().string() << ", attached to " << doc.getLabelByID(m.getParentID()) << ')';
+            ss << '(' << m.get_class().get_name() << ", " << m.get_path().filename().string() << ", attached to " << doc.get_label_by_id(m.get_parent_id()) << ')';
         },
         [&ss](const MiBody& b)
         {
-            ss << '(' << b.getClass().getName() << ')';
+            ss << '(' << b.get_class().get_name() << ')';
         },
         [&ss, &doc](const MiJoint& j)
         {
-            ss << '(' << j.getSpecificTypeName() << ", " << doc.getLabelByID(j.getChildID()) << " --> " << doc.getLabelByID(j.getParentID()) << ')';
+            ss << '(' << j.get_specific_type_name() << ", " << doc.get_label_by_id(j.get_child_id()) << " --> " << doc.get_label_by_id(j.get_parent_id()) << ')';
         },
         [&ss, &doc](const MiStation& s)
         {
-            ss << '(' << s.getClass().getName() << ", attached to " << doc.getLabelByID(s.getParentID()) << ')';
+            ss << '(' << s.get_class().get_name() << ", attached to " << doc.get_label_by_id(s.get_parent_id()) << ')';
         },
-    }, obj.toVariant());
+    }, obj.to_variant());
     return std::move(ss).str();
 }
 
-bool osc::IsInSelectionGroupOf(
+bool osc::is_in_selection_group_of(
     const MiDocument& doc,
     UID parent,
     UID id)
 {
-    if (id == MiIDs::Empty() || parent == MiIDs::Empty())
+    if (id == MiIDs::empty() || parent == MiIDs::empty())
     {
         return false;
     }
@@ -186,13 +186,13 @@ bool osc::IsInSelectionGroupOf(
     }
 
     const MiBody* body = nullptr;
-    if (const auto* be = doc.tryGetByID<MiBody>(parent))
+    if (const auto* be = doc.try_get_by_id<MiBody>(parent))
     {
         body = be;
     }
-    else if (const auto* me = doc.tryGetByID<MiMesh>(parent))
+    else if (const auto* me = doc.try_get_by_id<MiMesh>(parent))
     {
-        body = doc.tryGetByID<MiBody>(me->getParentID());
+        body = doc.try_get_by_id<MiBody>(me->get_parent_id());
     }
 
     if (!body)
@@ -200,13 +200,13 @@ bool osc::IsInSelectionGroupOf(
         return false;  // parent isn't attached to any body (or isn't a body)
     }
 
-    if (const auto* be = doc.tryGetByID<MiBody>(id))
+    if (const auto* be = doc.try_get_by_id<MiBody>(id))
     {
-        return be->getID() == body->getID();
+        return be->get_id() == body->get_id();
     }
-    else if (const auto* me = doc.tryGetByID<MiMesh>(id))
+    else if (const auto* me = doc.try_get_by_id<MiMesh>(id))
     {
-        return me->getParentID() == body->getID();
+        return me->get_parent_id() == body->get_id();
     }
     else
     {
@@ -214,24 +214,24 @@ bool osc::IsInSelectionGroupOf(
     }
 }
 
-void osc::SelectAnythingGroupedWith(MiDocument& doc, UID id)
+void osc::select_anything_grouped_with(MiDocument& doc, UID id)
 {
-    ForEachIDInSelectionGroup(doc, id, [&doc](UID other)
+    for_each_id_in_selection_group(doc, id, [&doc](UID other)
     {
         doc.select(other);
     });
 }
 
-UID osc::GetStationAttachmentParent(const MiDocument& doc, const MiObject& obj)
+UID osc::get_station_attachment_parent(const MiDocument& doc, const MiObject& obj)
 {
     return std::visit(Overload
     {
-        [](const MiGround&) { return MiIDs::Ground(); },
-        [&doc](const MiMesh& meshEl) { return doc.contains<MiBody>(meshEl.getParentID()) ? meshEl.getParentID() : MiIDs::Ground(); },
-        [](const MiBody& bodyEl) { return bodyEl.getID(); },
-        [](const MiJoint&) { return MiIDs::Ground(); },
-        [](const MiStation&) { return MiIDs::Ground(); },
-    }, obj.toVariant());
+        [](const MiGround&) { return MiIDs::ground(); },
+        [&doc](const MiMesh& meshEl) { return doc.contains<MiBody>(meshEl.get_parent_id()) ? meshEl.get_parent_id() : MiIDs::ground(); },
+        [](const MiBody& bodyEl) { return bodyEl.get_id(); },
+        [](const MiJoint&) { return MiIDs::ground(); },
+        [](const MiStation&) { return MiIDs::ground(); },
+    }, obj.to_variant());
 }
 
 void osc::point_axis_towards(
@@ -240,27 +240,27 @@ void osc::point_axis_towards(
     int axis,
     UID other)
 {
-    const Vector3 choicePos = doc.getPosByID(other);
-    const Transform sourceXform = {.translation = doc.getPosByID(id)};
+    const Vector3 choicePos = doc.get_pos_by_id(other);
+    const Transform sourceXform = {.translation = doc.get_pos_by_id(id)};
 
-    doc.updByID(id).setXform(doc, point_axis_towards(sourceXform, axis, choicePos));
+    doc.upd_by_id(id).set_xform(doc, point_axis_towards(sourceXform, axis, choicePos));
 }
 
-SceneDecorationFlags osc::computeFlags(
+SceneDecorationFlags osc::compute_flags(
     const MiDocument& doc,
     UID id,
     std::optional<UID> maybeHoverID)
 {
-    if (id == MiIDs::Empty()) {
+    if (id == MiIDs::empty()) {
         return SceneDecorationFlag::Default;
     }
 
-    const UID hoverID = maybeHoverID ? *maybeHoverID : MiIDs::Empty();
+    const UID hoverID = maybeHoverID ? *maybeHoverID : MiIDs::empty();
     SceneDecorationFlags rv = SceneDecorationFlag::Default;
-    if (doc.isSelected(id)) {
+    if (doc.is_selected(id)) {
         rv |= SceneDecorationFlag::RimHighlight0;
     }
-    if (id == hoverID or IsInSelectionGroupOf(doc, hoverID, id)) {
+    if (id == hoverID or is_in_selection_group_of(doc, hoverID, id)) {
         rv |= SceneDecorationFlag::RimHighlight1;
     }
     return rv;

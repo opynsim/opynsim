@@ -14,7 +14,7 @@ using osc::MiClass;
 using osc::CStringView;
 using osc::UID;
 
-MiClass osc::MiGround::CreateClass()
+MiClass osc::MiGround::create_class()
 {
     return
     {
@@ -26,17 +26,17 @@ MiClass osc::MiGround::CreateClass()
     };
 }
 
-UID osc::MiGround::implGetID() const
+UID osc::MiGround::impl_get_id() const
 {
-    return MiIDs::Ground();
+    return MiIDs::ground();
 }
 
-std::ostream& osc::MiGround::implWriteToStream(std::ostream& o) const
+std::ostream& osc::MiGround::impl_write_to_stream(std::ostream& o) const
 {
     return o << MiStrings::c_GroundLabel << "()";
 }
 
-CStringView osc::MiGround::implGetLabel() const
+CStringView osc::MiGround::impl_get_label() const
 {
     return MiStrings::c_GroundLabel;
 }

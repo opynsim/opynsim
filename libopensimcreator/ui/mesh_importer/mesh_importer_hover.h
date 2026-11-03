@@ -10,7 +10,7 @@ namespace osc
     class MeshImporterHover final {
     public:
         MeshImporterHover() :
-            id{MiIDs::Empty()},
+            id{MiIDs::empty()},
             pos{}
         {
         }
@@ -23,7 +23,7 @@ namespace osc
 
         explicit operator bool () const
         {
-            return id != MiIDs::Empty();
+            return id != MiIDs::empty();
         }
 
         void reset()

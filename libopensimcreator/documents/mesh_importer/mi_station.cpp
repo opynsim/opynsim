@@ -24,25 +24,23 @@ osc::MiStation::MiStation(
     const Vector3& position,
     const std::string& name) :
 
-    m_ID{id},
-    m_Attachment{attachment},
-    m_Position{position},
-    m_Name{opyn::sanitize_to_open_sim_component_name(name)}
-{
-}
+    id_{id},
+    attachment_{attachment},
+    position_{position},
+    name_{opyn::sanitize_to_open_sim_component_name(name)}
+{}
 
 osc::MiStation::MiStation(
     UID attachment,
     const Vector3& position,
     const std::string& name) :
 
-    m_Attachment{attachment},
-    m_Position{position},
-    m_Name{opyn::sanitize_to_open_sim_component_name(name)}
-{
-}
+    attachment_{attachment},
+    position_{position},
+    name_{opyn::sanitize_to_open_sim_component_name(name)}
+{}
 
-MiClass osc::MiStation::CreateClass()
+MiClass osc::MiStation::create_class()
 {
     return
     {
@@ -54,25 +52,25 @@ MiClass osc::MiStation::CreateClass()
     };
 }
 
-std::vector<MiCrossrefDescriptor> osc::MiStation::implGetCrossReferences() const
+std::vector<MiCrossrefDescriptor> osc::MiStation::impl_get_cross_references() const
 {
     return
     {
-        {m_Attachment, MiStrings::c_StationParentCrossrefName, MiCrossrefDirection::ToParent},
+        {attachment_, MiStrings::c_StationParentCrossrefName, MiCrossrefDirection::ToParent},
     };
 }
 
-std::ostream& osc::MiStation::implWriteToStream(std::ostream& o) const
+std::ostream& osc::MiStation::impl_write_to_stream(std::ostream& o) const
 {
     return o << "MiStation("
-        << "ID = " << m_ID
-        << ", Attachment = " << m_Attachment
-        << ", Position = " << m_Position
-        << ", Name = " << m_Name
+        << "ID = " << id_
+        << ", Attachment = " << attachment_
+        << ", Position = " << position_
+        << ", Name = " << name_
         << ')';
 }
 
-void osc::MiStation::implSetLabel(std::string_view sv)
+void osc::MiStation::impl_set_label(std::string_view sv)
 {
-    m_Name = opyn::sanitize_to_open_sim_component_name(sv);
+    name_ = opyn::sanitize_to_open_sim_component_name(sv);
 }

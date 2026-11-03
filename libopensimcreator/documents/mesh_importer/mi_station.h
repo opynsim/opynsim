@@ -33,32 +33,32 @@ namespace osc
             const std::string& name
         );
 
-        UID getParentID() const
+        UID get_parent_id() const
         {
-            return m_Attachment;
+            return attachment_;
         }
 
-        Transform getXForm() const
+        Transform get_x_form() const
         {
-            return Transform{.translation = m_Position};
+            return Transform{.translation = position_};
         }
 
     private:
         friend class MiObjectCRTP<MiStation>;
-        static MiClass CreateClass();
+        static MiClass create_class();
 
-        std::vector<MiCrossrefDescriptor> implGetCrossReferences() const final;
+        std::vector<MiCrossrefDescriptor> impl_get_cross_references() const final;
 
-        void implSetCrossReferenceConnecteeID(int i, UID id) final
+        void impl_set_cross_reference_connectee_id(int i, UID id) final
         {
             if (i != 0)
             {
                 throw std::runtime_error{"invalid index accessed for cross reference"};
             }
-            m_Attachment = id;
+            attachment_ = id;
         }
 
-        MiObjectFlags implGetFlags() const final
+        MiObjectFlags impl_get_flags() const final
         {
             return
                 MiObjectFlags::CanChangeLabel |
@@ -67,38 +67,38 @@ namespace osc
                 MiObjectFlags::CanSelect;
         }
 
-        UID implGetID() const final
+        UID impl_get_id() const final
         {
-            return m_ID;
+            return id_;
         }
 
-        std::ostream& implWriteToStream(std::ostream&) const final;
+        std::ostream& impl_write_to_stream(std::ostream&) const final;
 
-        CStringView implGetLabel() const final
+        CStringView impl_get_label() const final
         {
-            return m_Name;
+            return name_;
         }
 
-        void implSetLabel(std::string_view) final;
+        void impl_set_label(std::string_view) final;
 
-        Transform implGetXform(const MiObjectFinder&) const final
+        Transform impl_get_xform(const MiObjectFinder&) const final
         {
-            return getXForm();
+            return get_x_form();
         }
 
-        void implSetXform(const MiObjectFinder&, const Transform& t) final
+        void impl_set_xform(const MiObjectFinder&, const Transform& t) final
         {
-            m_Position = t.translation;
+            position_ = t.translation;
         }
 
-        std::optional<AABB> implCalcBounds(const MiObjectFinder&) const final
+        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const final
         {
-            return bounding_aabb_of(m_Position);
+            return bounding_aabb_of(position_);
         }
 
-        UID m_ID;
-        UID m_Attachment;  // can be MiIDs::Ground()
-        Vector3 m_Position{};
-        std::string m_Name;
+        UID id_;
+        UID attachment_;  // can be MiIDs::Ground()
+        Vector3 position_{};
+        std::string name_;
     };
 }

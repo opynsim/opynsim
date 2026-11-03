@@ -304,7 +304,7 @@ private:
             return;
         }
 
-        SelectAnythingGroupedWith(m_Shared->upd_model_graph(), m_MaybeHover.id);
+        select_anything_grouped_with(m_Shared->upd_model_graph(), m_MaybeHover.id);
     }
 
     // add a body element to whatever's currently hovered at the hover (raycast) position
@@ -315,7 +315,7 @@ private:
             return;
         }
 
-        AddBody(m_Shared->upd_committable_model_graph(), m_MaybeHover.pos, {m_MaybeHover.id});
+        add_body(m_Shared->upd_committable_model_graph(), m_MaybeHover.pos, {m_MaybeHover.id});
     }
 
     void tryCreatingJointFromHoveredElement()
@@ -327,21 +327,21 @@ private:
 
         const MiDocument& mg = m_Shared->get_model_graph();
 
-        const MiObject* hoveredMIObject = mg.tryGetByID(m_MaybeHover.id);
+        const MiObject* hoveredMIObject = mg.try_get_by_id(m_MaybeHover.id);
 
         if (!hoveredMIObject)
         {
             return;  // current hover isn't in the current model graph
         }
 
-        UID maybeID = GetStationAttachmentParent(mg, *hoveredMIObject);
+        UID maybeID = get_station_attachment_parent(mg, *hoveredMIObject);
 
-        if (maybeID == MiIDs::Ground() || maybeID == MiIDs::Empty())
+        if (maybeID == MiIDs::ground() || maybeID == MiIDs::empty())
         {
             return;  // can't attach to it as-if it were a body
         }
 
-        const auto* bodyEl = mg.tryGetByID<MiBody>(maybeID);
+        const auto* bodyEl = mg.try_get_by_id<MiBody>(maybeID);
         if (!bodyEl)
         {
             return;  // suggested attachment parent isn't in the current model graph?
@@ -356,7 +356,7 @@ private:
         const MiDocument& mg = m_Shared->get_model_graph();
 
         std::unordered_set<UID> meshes;
-        meshes.insert(mg.getSelected().begin(), mg.getSelected().end());
+        meshes.insert(mg.get_selected().begin(), mg.get_selected().end());
         if (m_MaybeHover)
         {
             meshes.insert(m_MaybeHover.id);
@@ -372,7 +372,7 @@ private:
         std::unordered_set<UID> attachments;
         for (UID meshID : meshes)
         {
-            attachments.insert(mg.getByID<MiMesh>(meshID).getParentID());
+            attachments.insert(mg.get_by_id<MiMesh>(meshID).get_parent_id());
         }
 
         transitionToAssigningMeshesNextFrame(meshes, attachments);
@@ -385,7 +385,7 @@ private:
             return;
         }
 
-        AddStationAtLocation(m_Shared->upd_committable_model_graph(), m_MaybeHover.id, m_MaybeHover.pos);
+        add_station_at_location(m_Shared->upd_committable_model_graph(), m_MaybeHover.id, m_MaybeHover.pos);
     }
 
     //
@@ -413,7 +413,7 @@ private:
                 return false;
             }
 
-            return TryAssignMeshAttachments(shared->upd_committable_model_graph(), meshes, choices.front());
+            return try_assign_mesh_attachments(shared->upd_committable_model_graph(), meshes, choices.front());
         };
 
         // request a state transition
@@ -429,16 +429,16 @@ private:
         opts.can_choose_joints = false;
         opts.can_choose_meshes = false;
         opts.header = "choose joint parent (ESC to cancel)";
-        opts.maybe_els_attaching_to = {child.getID()};
+        opts.maybe_els_attaching_to = {child.get_id()};
         opts.is_attaching_toward_el = false;  // away from the body
-        opts.on_user_choice = [shared = m_Shared, childID = child.getID()](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, childID = child.get_id()](std::span<UID> choices)
         {
             if (choices.empty())
             {
                 return false;
             }
 
-            return TryCreateJoint(shared->upd_committable_model_graph(), childID, choices.front());
+            return try_create_joint(shared->upd_committable_model_graph(), childID, choices.front());
         };
         m_Maybe3DViewerModal = std::make_shared<ChooseElLayer>(*this, m_Shared, opts);
     }
@@ -453,9 +453,9 @@ private:
         opts.can_choose_joints = true;
         opts.can_choose_meshes = false;
         opts.can_choose_stations = true;
-        opts.maybe_els_attaching_to = {el.getID()};
+        opts.maybe_els_attaching_to = {el.get_id()};
         opts.header = "choose what to point towards (ESC to cancel)";
-        opts.on_user_choice = [shared = m_Shared, id = el.getID(), axis](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, id = el.get_id(), axis](std::span<UID> choices)
         {
             if (choices.empty())
             {
@@ -478,17 +478,17 @@ private:
         opts.can_choose_joints = true;
         opts.can_choose_meshes = false;
         opts.can_choose_stations = true;
-        opts.maybe_els_attaching_to = {el.getID()};
+        opts.maybe_els_attaching_to = {el.get_id()};
         opts.header = "choose two elements to align the axis along (ESC to cancel)";
         opts.num_elements_user_must_choose = 2;
-        opts.on_user_choice = [shared = m_Shared, id = el.getID(), axis](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, id = el.get_id(), axis](std::span<UID> choices)
         {
             if (choices.size() < 2)
             {
                 return false;
             }
 
-            return TryOrientObjectAxisAlongTwoObjects(
+            return try_orient_object_axis_along_two_objects(
                 shared->upd_committable_model_graph(),
                 id,
                 axis,
@@ -507,16 +507,16 @@ private:
         opts.can_choose_joints = true;
         opts.can_choose_meshes = false;
         opts.can_choose_stations = true;
-        opts.maybe_els_attaching_to = {el.getID()};
+        opts.maybe_els_attaching_to = {el.get_id()};
         opts.header = "choose what to translate to (ESC to cancel)";
-        opts.on_user_choice = [shared = m_Shared, id = el.getID()](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, id = el.get_id()](std::span<UID> choices)
         {
             if (choices.empty())
             {
                 return false;
             }
 
-            return TryTranslateObjectToAnotherObject(shared->upd_committable_model_graph(), id, choices.front());
+            return try_translate_object_to_another_object(shared->upd_committable_model_graph(), id, choices.front());
         };
         m_Maybe3DViewerModal = std::make_shared<ChooseElLayer>(*this, m_Shared, opts);
     }
@@ -529,17 +529,17 @@ private:
         opts.can_choose_joints = true;
         opts.can_choose_meshes = false;
         opts.can_choose_stations = true;
-        opts.maybe_els_attaching_to = {el.getID()};
+        opts.maybe_els_attaching_to = {el.get_id()};
         opts.header = "choose two elements to translate between (ESC to cancel)";
         opts.num_elements_user_must_choose = 2;
-        opts.on_user_choice = [shared = m_Shared, id = el.getID()](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, id = el.get_id()](std::span<UID> choices)
         {
             if (choices.size() < 2)
             {
                 return false;
             }
 
-            return TryTranslateBetweenTwoObjects(
+            return try_translate_between_two_objects(
                 shared->upd_committable_model_graph(),
                 id,
                 choices[0],
@@ -556,16 +556,16 @@ private:
         opts.can_choose_ground = true;
         opts.can_choose_joints = true;
         opts.can_choose_meshes = true;
-        opts.maybe_els_attaching_to = {el.getID()};
+        opts.maybe_els_attaching_to = {el.get_id()};
         opts.header = "choose which orientation to copy (ESC to cancel)";
-        opts.on_user_choice = [shared = m_Shared, id = el.getID()](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, id = el.get_id()](std::span<UID> choices)
         {
             if (choices.empty())
             {
                 return false;
             }
 
-            return TryCopyOrientation(shared->upd_committable_model_graph(), id, choices.front());
+            return try_copy_orientation(shared->upd_committable_model_graph(), id, choices.front());
         };
         m_Maybe3DViewerModal = std::make_shared<ChooseElLayer>(*this, m_Shared, opts);
     }
@@ -575,9 +575,9 @@ private:
     void transitionToOrientingElementAlongTwoMeshPoints(MiObject& el, int axis)
     {
         Select2MeshPointsOptions opts;
-        opts.on_two_points_chosen = [shared = m_Shared, id = el.getID(), axis](Vector3 a, Vector3 b)
+        opts.on_two_points_chosen = [shared = m_Shared, id = el.get_id(), axis](Vector3 a, Vector3 b)
         {
-            return TryOrientObjectAxisAlongTwoPoints(shared->upd_committable_model_graph(), id, axis, a, b);
+            return try_orient_object_axis_along_two_points(shared->upd_committable_model_graph(), id, axis, a, b);
         };
         m_Maybe3DViewerModal = std::make_shared<Select2MeshPointsLayer>(*this, m_Shared, opts);
     }
@@ -587,9 +587,9 @@ private:
     void transitionToTranslatingElementAlongTwoMeshPoints(MiObject& el)
     {
         Select2MeshPointsOptions opts;
-        opts.on_two_points_chosen = [shared = m_Shared, id = el.getID()](Vector3 a, Vector3 b)
+        opts.on_two_points_chosen = [shared = m_Shared, id = el.get_id()](Vector3 a, Vector3 b)
         {
-            return TryTranslateObjectBetweenTwoPoints(shared->upd_committable_model_graph(), id, a, b);
+            return try_translate_object_between_two_points(shared->upd_committable_model_graph(), id, a, b);
         };
         m_Maybe3DViewerModal = std::make_shared<Select2MeshPointsLayer>(*this, m_Shared, opts);
     }
@@ -602,14 +602,14 @@ private:
         opts.can_choose_joints = false;
         opts.can_choose_meshes = true;
         opts.header = "choose a mesh (ESC to cancel)";
-        opts.on_user_choice = [shared = m_Shared, id = el.getID()](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, id = el.get_id()](std::span<UID> choices)
         {
             if (choices.empty())
             {
                 return false;
             }
 
-            return TryTranslateToMeshAverageCenter(shared->upd_committable_model_graph(), id, choices.front());
+            return try_translate_to_mesh_average_center(shared->upd_committable_model_graph(), id, choices.front());
         };
         m_Maybe3DViewerModal = std::make_shared<ChooseElLayer>(*this, m_Shared, opts);
     }
@@ -622,14 +622,14 @@ private:
         opts.can_choose_joints = false;
         opts.can_choose_meshes = true;
         opts.header = "choose a mesh (ESC to cancel)";
-        opts.on_user_choice = [shared = m_Shared, id = el.getID()](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, id = el.get_id()](std::span<UID> choices)
         {
             if (choices.empty())
             {
                 return false;
             }
 
-            return TryTranslateToMeshBoundsCenter(shared->upd_committable_model_graph(), id, choices.front());
+            return try_translate_to_mesh_bounds_center(shared->upd_committable_model_graph(), id, choices.front());
         };
         m_Maybe3DViewerModal = std::make_shared<ChooseElLayer>(*this, m_Shared, opts);
     }
@@ -642,14 +642,14 @@ private:
         opts.can_choose_joints = false;
         opts.can_choose_meshes = true;
         opts.header = "choose a mesh (ESC to cancel)";
-        opts.on_user_choice = [shared = m_Shared, id = el.getID()](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, id = el.get_id()](std::span<UID> choices)
         {
             if (choices.empty())
             {
                 return false;
             }
 
-            return TryTranslateToMeshMassCenter(shared->upd_committable_model_graph(), id, choices.front());
+            return try_translate_to_mesh_mass_center(shared->upd_committable_model_graph(), id, choices.front());
         };
         m_Maybe3DViewerModal = std::make_shared<ChooseElLayer>(*this, m_Shared, opts);
     }
@@ -663,30 +663,30 @@ private:
         opts.can_choose_ground = true;
         opts.can_choose_joints = true;
         opts.can_choose_meshes = true;
-        opts.maybe_els_attaching_to = {el.getID()};
+        opts.maybe_els_attaching_to = {el.get_id()};
         opts.header = "choose where to place it (ESC to cancel)";
-        opts.on_user_choice = [shared = m_Shared, id = el.getID()](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, id = el.get_id()](std::span<UID> choices)
         {
             if (choices.empty())
             {
                 return false;
             }
 
-            return TryTranslateObjectToAnotherObject(shared->upd_committable_model_graph(), id, choices.front());
+            return try_translate_object_to_another_object(shared->upd_committable_model_graph(), id, choices.front());
         };
         m_Maybe3DViewerModal = std::make_shared<ChooseElLayer>(*this, m_Shared, opts);
     }
 
     void transitionToReassigningCrossRef(MiObject& el, int crossrefIdx)
     {
-        int nRefs = el.getNumCrossReferences();
+        int nRefs = el.get_num_cross_references();
 
         if (crossrefIdx < 0 || crossrefIdx >= nRefs)
         {
             return;  // invalid index?
         }
 
-        const MiObject* old = m_Shared->get_model_graph().tryGetByID(el.getCrossReferenceConnecteeID(crossrefIdx));
+        const MiObject* old = m_Shared->get_model_graph().try_get_by_id(el.get_cross_reference_connectee_id(crossrefIdx));
 
         if (!old)
         {
@@ -698,15 +698,15 @@ private:
         opts.can_choose_ground = (dynamic_cast<const MiBody*>(old) != nullptr) || (dynamic_cast<const MiGround*>(old) != nullptr);
         opts.can_choose_joints = dynamic_cast<const MiJoint*>(old) != nullptr;
         opts.can_choose_meshes = dynamic_cast<const Mesh*>(old) != nullptr;
-        opts.maybe_els_attaching_to = {el.getID()};
+        opts.maybe_els_attaching_to = {el.get_id()};
         opts.header = "choose what to attach to";
-        opts.on_user_choice = [shared = m_Shared, id = el.getID(), crossrefIdx](std::span<UID> choices)
+        opts.on_user_choice = [shared = m_Shared, id = el.get_id(), crossrefIdx](std::span<UID> choices)
         {
             if (choices.empty())
             {
                 return false;
             }
-            return TryReassignCrossref(shared->upd_committable_model_graph(), id, crossrefIdx, choices.front());
+            return try_reassign_crossref(shared->upd_committable_model_graph(), id, crossrefIdx, choices.front());
         };
         m_Maybe3DViewerModal = std::make_shared<ChooseElLayer>(*this, m_Shared, opts);
     }
@@ -730,14 +730,14 @@ private:
     // delete currently-selected scene elements
     void deleteSelected()
     {
-        DeleteSelected(m_Shared->upd_committable_model_graph());
+        delete_selected(m_Shared->upd_committable_model_graph());
         garbageCollectStaleRefs();
     }
 
     // delete a particular scene element
     void deleteEl(UID elID)
     {
-        DeleteObject(m_Shared->upd_committable_model_graph(), elID);
+        delete_object(m_Shared->upd_committable_model_graph(), elID);
         garbageCollectStaleRefs();
     }
 
@@ -855,11 +855,11 @@ private:
 
     void drawMIObjectContextMenuContentHeader(const MiObject& e)
     {
-        ui::draw_text("{} {}", e.getClass().getIconUTF8(), e.getLabel());
+        ui::draw_text("{} {}", e.get_class().get_icon_utf8(), e.get_label());
         ui::same_line();
-        ui::draw_text_disabled(GetContextMenuSubHeaderText(m_Shared->get_model_graph(), e));
+        ui::draw_text_disabled(get_context_menu_sub_header_text(m_Shared->get_model_graph(), e));
         ui::same_line();
-        ui::draw_help_marker(e.getClass().getName(), e.getClass().getDescription());
+        ui::draw_help_marker(e.get_class().get_name(), e.get_class().get_description());
         ui::draw_separator();
     }
 
@@ -868,17 +868,17 @@ private:
         MiDocument& mg = m_Shared->upd_model_graph();
 
         // label/name editor
-        if (e.canChangeLabel())
+        if (e.can_change_label())
         {
-            std::string buf{static_cast<std::string_view>(e.getLabel())};
+            std::string buf{static_cast<std::string_view>(e.get_label())};
             if (ui::draw_string_input("Name", buf))
             {
-                mg.updByID(e.getID()).setLabel(buf);
+                mg.upd_by_id(e.get_id()).set_label(buf);
             }
             if (ui::is_item_deactivated_after_edit())
             {
                 std::stringstream ss;
-                ss << "changed " << e.getClass().getName() << " name";
+                ss << "changed " << e.get_class().get_name() << " name";
                 m_Shared->commit_current_model_graph(std::move(ss).str());
             }
             ui::same_line();
@@ -886,17 +886,17 @@ private:
         }
 
         // position editor
-        if (e.canChangePosition())
+        if (e.can_change_position())
         {
-            Vector3 translation = e.getPos(mg);
+            Vector3 translation = e.get_pos(mg);
             if (ui::draw_vector3_input("Translation", translation, "%.6f"))
             {
-                mg.updByID(e.getID()).setPos(mg, translation);
+                mg.upd_by_id(e.get_id()).set_pos(mg, translation);
             }
             if (ui::is_item_deactivated_after_edit())
             {
                 std::stringstream ss;
-                ss << "changed " << e.getLabel() << "'s translation";
+                ss << "changed " << e.get_label() << "'s translation";
                 m_Shared->commit_current_model_graph(std::move(ss).str());
             }
             ui::same_line();
@@ -904,19 +904,19 @@ private:
         }
 
         // rotation editor
-        if (e.canChangeRotation())
+        if (e.can_change_rotation())
         {
             EulerAngles eulers = to_euler_angles(normalize(e.rotation(m_Shared->get_model_graph())));
 
             if (ui::draw_angle3_input("Rotation", eulers, "%.6f"))
             {
                 const Quaternion rotationRadians = osc::to_world_space_rotation_quaternion(eulers);
-                mg.updByID(e.getID()).set_rotation(mg, rotationRadians);
+                mg.upd_by_id(e.get_id()).set_rotation(mg, rotationRadians);
             }
             if (ui::is_item_deactivated_after_edit())
             {
                 std::stringstream ss;
-                ss << "changed " << e.getLabel() << "'s rotation";
+                ss << "changed " << e.get_label() << "'s rotation";
                 m_Shared->commit_current_model_graph(std::move(ss).str());
             }
             ui::same_line();
@@ -924,17 +924,17 @@ private:
         }
 
         // scale factor editor
-        if (e.canChangeScale())
+        if (e.can_change_scale())
         {
-            Vector3 scaleFactors = e.getScale(mg);
+            Vector3 scaleFactors = e.get_scale(mg);
             if (ui::draw_vector3_input("Scale", scaleFactors, "%.6f"))
             {
-                mg.updByID(e.getID()).setScale(mg, scaleFactors);
+                mg.upd_by_id(e.get_id()).set_scale(mg, scaleFactors);
             }
             if (ui::is_item_deactivated_after_edit())
             {
                 std::stringstream ss;
-                ss << "changed " << e.getLabel() << "'s scale";
+                ss << "changed " << e.get_label() << "'s scale";
                 m_Shared->commit_current_model_graph(std::move(ss).str());
             }
             ui::same_line();
@@ -952,36 +952,36 @@ private:
         ui::push_id(imguiID++);
         const ScopeExit g2{[]{ ui::pop_id(); }};
 
-        if (CanAttachMeshTo(el))
+        if (can_attach_mesh_to(el))
         {
             if (ui::draw_menu_item(MSMICONS_CUBE " Meshes"))
             {
-                m_Shared->prompt_user_for_mesh_files_and_push_them_onto_mesh_loader(el.getID());
+                m_Shared->prompt_user_for_mesh_files_and_push_them_onto_mesh_loader(el.get_id());
             }
             ui::draw_tooltip_if_item_hovered("Add Meshes", MiStrings::c_MeshDescription);
         }
         ui::pop_id();
 
         ui::push_id(imguiID++);
-        if (el.hasPhysicalSize())
+        if (el.has_physical_size())
         {
             if (ui::begin_menu(MSMICONS_CIRCLE " Body"))
             {
                 if (ui::draw_menu_item(MSMICONS_COMPRESS_ARROWS_ALT " at center"))
                 {
-                    AddBody(m_Shared->upd_committable_model_graph(), el.getPos(m_Shared->get_model_graph()), el.getID());
+                    add_body(m_Shared->upd_committable_model_graph(), el.get_pos(m_Shared->get_model_graph()), el.get_id());
                 }
                 ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
 
                 if (ui::draw_menu_item(MSMICONS_MOUSE_POINTER " at click position"))
                 {
-                    AddBody(m_Shared->upd_committable_model_graph(), clickPos, el.getID());
+                    add_body(m_Shared->upd_committable_model_graph(), clickPos, el.get_id());
                 }
                 ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
 
                 if (ui::draw_menu_item(MSMICONS_DOT_CIRCLE " at ground"))
                 {
-                    AddBody(m_Shared->upd_committable_model_graph());
+                    add_body(m_Shared->upd_committable_model_graph());
                 }
                 ui::draw_tooltip_if_item_hovered("Add body", MiStrings::c_BodyDescription);
 
@@ -989,23 +989,23 @@ private:
                 {
                     if (ui::draw_menu_item(MSMICONS_BORDER_ALL " at bounds center"))
                     {
-                        const AABB bounds = mesh->calcBounds().value_or(AABB{});
+                        const AABB bounds = mesh->calc_bounds().value_or(AABB{});
                         const Vector3 location = centroid_of(bounds);
-                        AddBody(m_Shared->upd_committable_model_graph(), location, mesh->getID());
+                        add_body(m_Shared->upd_committable_model_graph(), location, mesh->get_id());
                     }
                     ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
 
                     if (ui::draw_menu_item(MSMICONS_DIVIDE " at mesh average center"))
                     {
-                        const Vector3 location = AverageCenter(*mesh);
-                        AddBody(m_Shared->upd_committable_model_graph(), location, mesh->getID());
+                        const Vector3 location = average_center(*mesh);
+                        add_body(m_Shared->upd_committable_model_graph(), location, mesh->get_id());
                     }
                     ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
 
                     if (ui::draw_menu_item(MSMICONS_WEIGHT " at mesh mass center"))
                     {
                         const Vector3 location = mass_center_of(*mesh);
-                        AddBody(m_Shared->upd_committable_model_graph(), location, mesh->getID());
+                        add_body(m_Shared->upd_committable_model_graph(), location, mesh->get_id());
                     }
                     ui::draw_tooltip_if_item_hovered("Add body", MiStrings::c_BodyDescription);
                 }
@@ -1017,7 +1017,7 @@ private:
         {
             if (ui::draw_menu_item(MSMICONS_CIRCLE " Body"))
             {
-                AddBody(m_Shared->upd_committable_model_graph(), el.getPos(m_Shared->get_model_graph()), el.getID());
+                add_body(m_Shared->upd_committable_model_graph(), el.get_pos(m_Shared->get_model_graph()), el.get_id());
             }
             ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
         }
@@ -1035,27 +1035,27 @@ private:
         ui::pop_id();
 
         ui::push_id(imguiID++);
-        if (CanAttachStationTo(el))
+        if (can_attach_station_to(el))
         {
-            if (el.hasPhysicalSize())
+            if (el.has_physical_size())
             {
                 if (ui::begin_menu(MSMICONS_MAP_PIN " Station"))
                 {
                     if (ui::draw_menu_item(MSMICONS_COMPRESS_ARROWS_ALT " at center"))
                     {
-                        AddStationAtLocation(m_Shared->upd_committable_model_graph(), el, el.getPos(m_Shared->get_model_graph()));
+                        add_station_at_location(m_Shared->upd_committable_model_graph(), el, el.get_pos(m_Shared->get_model_graph()));
                     }
                     ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_StationDescription);
 
                     if (ui::draw_menu_item(MSMICONS_MOUSE_POINTER " at click position"))
                     {
-                        AddStationAtLocation(m_Shared->upd_committable_model_graph(), el, clickPos);
+                        add_station_at_location(m_Shared->upd_committable_model_graph(), el, clickPos);
                     }
                     ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_StationDescription);
 
                     if (ui::draw_menu_item(MSMICONS_DOT_CIRCLE " at ground"))
                     {
-                        AddStationAtLocation(m_Shared->upd_committable_model_graph(), el, Vector3{});
+                        add_station_at_location(m_Shared->upd_committable_model_graph(), el, Vector3{});
                     }
                     ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_StationDescription);
 
@@ -1063,7 +1063,7 @@ private:
                     {
                         if (ui::draw_menu_item(MSMICONS_BORDER_ALL " at bounds center"))
                         {
-                            AddStationAtLocation(m_Shared->upd_committable_model_graph(), el, centroid_of(el.calcBounds(m_Shared->get_model_graph()).value_or(AABB{})));
+                            add_station_at_location(m_Shared->upd_committable_model_graph(), el, centroid_of(el.calc_bounds(m_Shared->get_model_graph()).value_or(AABB{})));
                         }
                         ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_StationDescription);
                     }
@@ -1075,7 +1075,7 @@ private:
             {
                 if (ui::draw_menu_item(MSMICONS_MAP_PIN " Station"))
                 {
-                    AddStationAtLocation(m_Shared->upd_committable_model_graph(), el, el.getPos(m_Shared->get_model_graph()));
+                    add_station_at_location(m_Shared->upd_committable_model_graph(), el, el.get_pos(m_Shared->get_model_graph()));
                 }
                 ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_StationDescription);
             }
@@ -1103,7 +1103,7 @@ private:
     {
         if (ui::draw_menu_item(MSMICONS_CAMERA " Focus camera on this"))
         {
-            m_Shared->focus_camera_on(centroid_of(el.calcBounds(m_Shared->get_model_graph()).value_or(AABB{})));
+            m_Shared->focus_camera_on(centroid_of(el.calc_bounds(m_Shared->get_model_graph()).value_or(AABB{})));
         }
         ui::draw_tooltip_if_item_hovered("Focus camera on this scene element", "Focuses the scene camera on this element. This is useful for tracking the camera around that particular object in the scene");
 
@@ -1122,11 +1122,11 @@ private:
             ui::draw_tooltip_if_item_hovered("Creating Joints", "Create a joint from this body (the \"child\") to some other body in the model (the \"parent\").\n\nAll bodies in an OpenSim model must eventually connect to ground via joints. If no joint is added to the body then OpenSim Creator will automatically add a WeldJoint between the body and ground.");
         }
 
-        if (el.canDelete())
+        if (el.can_delete())
         {
             if (ui::draw_menu_item(MSMICONS_TRASH " Delete"))
             {
-                DeleteObject(m_Shared->upd_committable_model_graph(), el.getID());
+                delete_object(m_Shared->upd_committable_model_graph(), el.get_id());
                 garbageCollectStaleRefs();
                 ui::close_current_popup();
             }
@@ -1137,7 +1137,7 @@ private:
     // draw the "Translate" menu for any generic `MiObject`
     void drawTranslateMenu(MiObject& el)
     {
-        if (!el.canChangePosition())
+        if (!el.can_change_position())
         {
             return;  // can't change its position
         }
@@ -1149,12 +1149,12 @@ private:
 
         ui::push_style_var(ui::StyleVar::ItemSpacing, {10.0f, 10.0f});
 
-        for (int i = 0, len = el.getNumCrossReferences(); i < len; ++i)
+        for (int i = 0, len = el.get_num_cross_references(); i < len; ++i)
         {
-            std::string label = "To " + el.getCrossReferenceLabel(i);
+            std::string label = "To " + el.get_cross_reference_label(i);
             if (ui::draw_menu_item(label))
             {
-                TryTranslateObjectToAnotherObject(m_Shared->upd_committable_model_graph(), el.getID(), el.getCrossReferenceConnecteeID(i));
+                try_translate_object_to_another_object(m_Shared->upd_committable_model_graph(), el.get_id(), el.get_cross_reference_connectee_id(i));
             }
         }
 
@@ -1163,14 +1163,14 @@ private:
             transitionToChoosingWhichElementToTranslateTo(el);
         }
 
-        if (el.getNumCrossReferences() == 2)
+        if (el.get_num_cross_references() == 2)
         {
-            std::string label = "Between " + el.getCrossReferenceLabel(0) + " and " + el.getCrossReferenceLabel(1);
+            std::string label = "Between " + el.get_cross_reference_label(0) + " and " + el.get_cross_reference_label(1);
             if (ui::draw_menu_item(label))
             {
-                UID a = el.getCrossReferenceConnecteeID(0);
-                UID b = el.getCrossReferenceConnecteeID(1);
-                TryTranslateBetweenTwoObjects(m_Shared->upd_committable_model_graph(), el.getID(), a, b);
+                UID a = el.get_cross_reference_connectee_id(0);
+                UID b = el.get_cross_reference_connectee_id(1);
+                try_translate_between_two_objects(m_Shared->upd_committable_model_graph(), el.get_id(), a, b);
             }
         }
 
@@ -1209,7 +1209,7 @@ private:
     // draw the "Reorient" menu for any generic `MiObject`
     void drawReorientMenu(MiObject& el)
     {
-        if (!el.canChangeRotation())
+        if (!el.can_change_rotation())
         {
             return;  // can't change its rotation
         }
@@ -1224,13 +1224,13 @@ private:
         {
             auto DrawMenuContent = [&](int axis)
             {
-                for (int i = 0, len = el.getNumCrossReferences(); i < len; ++i)
+                for (int i = 0, len = el.get_num_cross_references(); i < len; ++i)
                 {
-                    std::string label = "Towards " + el.getCrossReferenceLabel(i);
+                    std::string label = "Towards " + el.get_cross_reference_label(i);
 
                     if (ui::draw_menu_item(label))
                     {
-                        point_axis_towards(m_Shared->upd_committable_model_graph(), el.getID(), axis, el.getCrossReferenceConnecteeID(i));
+                        point_axis_towards(m_Shared->upd_committable_model_graph(), el.get_id(), axis, el.get_cross_reference_connectee_id(i));
                     }
                 }
 
@@ -1246,12 +1246,12 @@ private:
 
                 if (ui::draw_menu_item("90 degress"))
                 {
-                    RotateAxis(m_Shared->upd_committable_model_graph(), el, axis, 90_deg);
+                    rotate_axis(m_Shared->upd_committable_model_graph(), el, axis, 90_deg);
                 }
 
                 if (ui::draw_menu_item("180 degrees"))
                 {
-                    RotateAxis(m_Shared->upd_committable_model_graph(), el, axis, 180_deg);
+                    rotate_axis(m_Shared->upd_committable_model_graph(), el, axis, 180_deg);
                 }
 
                 if (ui::draw_menu_item("Along two mesh points"))
@@ -1286,8 +1286,8 @@ private:
 
         if (ui::draw_menu_item("reset"))
         {
-            el.setXform(m_Shared->get_model_graph(), Transform{.translation = el.getPos(m_Shared->get_model_graph())});
-            m_Shared->commit_current_model_graph("reset " + el.getLabel() + " orientation");
+            el.set_xform(m_Shared->get_model_graph(), Transform{.translation = el.get_pos(m_Shared->get_model_graph())});
+            m_Shared->commit_current_model_graph("reset " + el.get_label() + " orientation");
         }
 
         ui::pop_style_var();
@@ -1297,10 +1297,10 @@ private:
     // draw the "Mass" editor for a `BodyEl`
     void drawMassEditor(const MiBody& bodyEl)
     {
-        auto curMass = static_cast<float>(bodyEl.getMass());
+        auto curMass = static_cast<float>(bodyEl.get_mass());
         if (ui::draw_float_input("Mass", &curMass, 0.0f, 0.0f, "%.6f"))
         {
-            m_Shared->upd_model_graph().updByID<MiBody>(bodyEl.getID()).setMass(static_cast<double>(curMass));
+            m_Shared->upd_model_graph().upd_by_id<MiBody>(bodyEl.get_id()).set_mass(static_cast<double>(curMass));
         }
         if (ui::is_item_deactivated_after_edit())
         {
@@ -1313,10 +1313,10 @@ private:
     // draw the "Joint Type" editor for a `JointEl`
     void drawJointTypeEditor(const MiJoint& jointEl)
     {
-        if (ui::begin_combobox("Joint Type", jointEl.getSpecificTypeName())) {
+        if (ui::begin_combobox("Joint Type", jointEl.get_specific_type_name())) {
             for (const auto& joint : opyn::get_component_registry<OpenSim::Joint>()) {
-                if (ui::draw_selectable(joint.name(), joint.name() == jointEl.getSpecificTypeName())) {
-                    m_Shared->upd_model_graph().updByID<MiJoint>(jointEl.getID()).setSpecificTypeName(joint.name());
+                if (ui::draw_selectable(joint.name(), joint.name() == jointEl.get_specific_type_name())) {
+                    m_Shared->upd_model_graph().upd_by_id<MiJoint>(jointEl.get_id()).set_specific_type_name(joint.name());
                     m_Shared->commit_current_model_graph("changed joint type");
                 }
             }
@@ -1329,7 +1329,7 @@ private:
     // draw the "Reassign Connection" menu, which lets users change an element's cross reference
     void drawReassignCrossrefMenu(MiObject& el)
     {
-        int nRefs = el.getNumCrossReferences();
+        int nRefs = el.get_num_cross_references();
 
         if (nRefs == 0)
         {
@@ -1342,7 +1342,7 @@ private:
 
             for (int i = 0; i < nRefs; ++i)
             {
-                CStringView label = el.getCrossReferenceLabel(i);
+                CStringView label = el.get_cross_reference_label(i);
                 if (ui::draw_menu_item(label))
                 {
                     transitionToReassigningCrossRef(el, i);
@@ -1418,29 +1418,29 @@ private:
             ui::draw_separator();
             for (const MiObject& MIObject : m_Shared->get_model_graph().iter())
             {
-                if (ui::begin_menu(MIObject.getLabel()))
+                if (ui::begin_menu(MIObject.get_label()))
                 {
                     ui::draw_text_disabled("Format:");
                     ui::draw_separator();
 
                     if (ui::draw_menu_item(".obj"))
                     {
-                        const Transform MIObjectToGround = MIObject.getXForm(m_Shared->get_model_graph());
-                        const Transform meshVertToGround = el.getXForm();
+                        const Transform MIObjectToGround = MIObject.get_x_form(m_Shared->get_model_graph());
+                        const Transform meshVertToGround = el.get_x_form();
                         const Matrix4x4 meshVertToMIObjectVert = inverse_matrix4x4_cast(MIObjectToGround) * matrix4x4_cast(meshVertToGround);
 
-                        osc::Mesh mesh = el.getMeshData();
+                        osc::Mesh mesh = el.get_mesh_data();
                         mesh.transform_vertices(meshVertToMIObjectVert);
                         actionPromptUserToSaveMeshAsOBJ(mesh);
                     }
 
                     if (ui::draw_menu_item(".stl"))
                     {
-                        const Transform MIObjectToGround = MIObject.getXForm(m_Shared->get_model_graph());
-                        const Transform meshVertToGround = el.getXForm();
+                        const Transform MIObjectToGround = MIObject.get_x_form(m_Shared->get_model_graph());
+                        const Transform meshVertToGround = el.get_x_form();
                         const Matrix4x4 meshVertToMIObjectVert = inverse_matrix4x4_cast(MIObjectToGround) * matrix4x4_cast(meshVertToGround);
 
-                        osc::Mesh mesh = el.getMeshData();
+                        osc::Mesh mesh = el.get_mesh_data();
                         mesh.transform_vertices(meshVertToMIObjectVert);
                         actionPromptUserToSaveMeshAsSTL(mesh);
                     }
@@ -1562,7 +1562,7 @@ private:
             [this, &clickPos](MiBody& el)      { this->drawContextMenuContent(el, clickPos); },
             [this, &clickPos](MiJoint& el)     { this->drawContextMenuContent(el, clickPos); },
             [this, &clickPos](MiStation& el) { this->drawContextMenuContent(el, clickPos); },
-        }, el.toVariant());
+        }, el.to_variant());
     }
 
     // draw a context menu for the current state (if applicable)
@@ -1575,17 +1575,17 @@ private:
             const ScopeExit g{[]{ ui::pop_id(); }};
             drawNothingContextMenuContent();
         }
-        else if (m_MaybeOpenedContextMenu.id == MiIDs::RightClickedNothing())
+        else if (m_MaybeOpenedContextMenu.id == MiIDs::right_clicked_nothing())
         {
             // context menu was opened on "nothing" specifically
             ui::push_id(UID::empty());
             const ScopeExit g{[]{ ui::pop_id(); }};
             drawNothingContextMenuContent();
         }
-        else if (MiObject* el = m_Shared->upd_model_graph().tryUpdByID(m_MaybeOpenedContextMenu.id))
+        else if (MiObject* el = m_Shared->upd_model_graph().try_upd_by_id(m_MaybeOpenedContextMenu.id))
         {
             // context menu was opened on a scene element that exists in the modelgraph
-            ui::push_id(el->getID());
+            ui::push_id(el->get_id());
             const ScopeExit g{[]{ ui::pop_id(); }};
             drawContextMenuContent(*el, m_MaybeOpenedContextMenu.pos);
         }
@@ -1609,23 +1609,23 @@ private:
     {
         MiDocument& mg = m_Shared->upd_model_graph();
 
-        ui::draw_text("{} {}", c.getIconUTF8(), c.getNamePluralized());
+        ui::draw_text("{} {}", c.get_icon_utf8(), c.get_name_pluralized());
         ui::same_line();
-        ui::draw_help_marker(c.getNamePluralized(), c.getDescription());
+        ui::draw_help_marker(c.get_name_pluralized(), c.get_description());
         ui::draw_vertical_spacer(5.0f/15.0f);
         ui::indent();
 
         bool empty = true;
         for (const MiObject& el : mg.iter())
         {
-            if (el.getClass() != c)
+            if (el.get_class() != c)
             {
                 continue;
             }
 
             empty = false;
 
-            UID id = el.getID();
+            UID id = el.get_id();
             int styles = 0;
 
             if (id == m_MaybeHover.id)
@@ -1639,7 +1639,7 @@ private:
                 ++styles;
             }
 
-            ui::draw_text(el.getLabel());
+            ui::draw_text(el.get_label());
 
             ui::pop_style_color(styles);
 
@@ -1652,7 +1652,7 @@ private:
             {
                 if (!ui::is_shift_down())
                 {
-                    m_Shared->upd_model_graph().deSelectAll();
+                    m_Shared->upd_model_graph().de_select_all();
                 }
                 m_Shared->upd_model_graph().select(id);
             }
@@ -1666,14 +1666,14 @@ private:
         }
 
         if (empty) {
-            ui::draw_text_disabled("(no {})", c.getNamePluralized());
+            ui::draw_text_disabled("(no {})", c.get_name_pluralized());
         }
         ui::unindent();
     }
 
     void drawNavigatorPanelContent()
     {
-        for (const MiClass& c : GetSceneElClasses())
+        for (const MiClass& c : get_scene_el_classes())
         {
             drawNavigatorElement(c);
             ui::draw_vertical_spacer(5.0f/15.0f);
@@ -1701,17 +1701,17 @@ private:
 
         if (ui::draw_menu_item(MSMICONS_CIRCLE " Body"))
         {
-            AddBody(m_Shared->upd_committable_model_graph());
+            add_body(m_Shared->upd_committable_model_graph());
         }
         ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
 
         if (ui::draw_menu_item(MSMICONS_MAP_PIN " Station"))
         {
             MiDocument& mg = m_Shared->upd_model_graph();
-            auto& e = mg.emplace<MiStation>(UID{}, MiIDs::Ground(), Vector3{}, MiStation::Class().generateName());
-            mg.selectOnly(e);
+            auto& e = mg.emplace<MiStation>(UID{}, MiIDs::ground(), Vector3{}, MiStation::get_class().generate_name());
+            mg.select_only(e);
         }
-        ui::draw_tooltip_if_item_hovered("Add Station", MiStation::Class().getDescription());
+        ui::draw_tooltip_if_item_hovered("Add Station", MiStation::get_class().get_description());
 
         ui::pop_style_var();
     }
@@ -1847,7 +1847,7 @@ private:
     {
         return bounding_aabb_of(m_DrawablesBuffer, [](const DrawableThing& drawable) -> std::optional<AABB>
         {
-            if (drawable.id != MiIDs::Empty()) {
+            if (drawable.id != MiIDs::empty()) {
                 return calc_bounds(drawable);
             }
             return std::nullopt;
@@ -2026,9 +2026,9 @@ private:
     void drawMIObjectTooltip(const MiObject& e) const
     {
         ui::begin_tooltip_nowrap();
-        ui::draw_text("{} {}", e.getClass().getIconUTF8(), e.getLabel());
+        ui::draw_text("{} {}", e.get_class().get_icon_utf8(), e.get_label());
         ui::same_line();
-        ui::draw_text_disabled(GetContextMenuSubHeaderText(m_Shared->get_model_graph(), e));
+        ui::draw_text_disabled(get_context_menu_sub_header_text(m_Shared->get_model_graph(), e));
         ui::end_tooltip_nowrap();
     }
 
@@ -2039,7 +2039,7 @@ private:
             return;  // nothing is hovered
         }
 
-        if (const MiObject* e = m_Shared->get_model_graph().tryGetByID(m_MaybeHover.id))
+        if (const MiObject* e = m_Shared->get_model_graph().try_get_by_id(m_MaybeHover.id))
         {
             drawMIObjectTooltip(*e);
         }
@@ -2070,13 +2070,13 @@ private:
 
             int n = 0;
 
-            Transform ras = mg.getXFormByID(*it);
+            Transform ras = mg.get_x_form_by_id(*it);
             ++it;
             ++n;
 
 
             while (it != end) {
-                const Transform t = mg.getXFormByID(*it);
+                const Transform t = mg.get_x_form_by_id(*it);
                 ras.translation += t.translation;
                 ras.rotation += t.rotation;
                 ras.scale += t.scale;
@@ -2114,17 +2114,17 @@ private:
         }
 
         for (UID id : m_Shared->get_current_selection()) {
-            MiObject& el = m_Shared->upd_model_graph().updByID(id);
+            MiObject& el = m_Shared->upd_model_graph().upd_by_id(id);
             switch (m_Gizmo.operation()) {
             case ui::GizmoOperation::Rotate:
-                el.applyRotation(m_Shared->get_model_graph(), extract_eulers_xyz(userManipulation->rotation), Vector3{m_GizmoModelMatrix[3]});
+                el.apply_rotation(m_Shared->get_model_graph(), extract_eulers_xyz(userManipulation->rotation), Vector3{m_GizmoModelMatrix[3]});
                 break;
             case ui::GizmoOperation::Translate: {
-                el.applyTranslation(m_Shared->get_model_graph(), userManipulation->translation);
+                el.apply_translation(m_Shared->get_model_graph(), userManipulation->translation);
                 break;
             }
             case ui::GizmoOperation::Scale:
-                el.applyScale(m_Shared->get_model_graph(), userManipulation->scale);
+                el.apply_scale(m_Shared->get_model_graph(), userManipulation->scale);
                 break;
             default:
                 break;
@@ -2220,7 +2220,7 @@ private:
         // assign rim highlights based on hover
         for (DrawableThing& dt : MIObjects)
         {
-            dt.flags = computeFlags(m_Shared->get_model_graph(), dt.id, m_MaybeHover.id);
+            dt.flags = compute_flags(m_Shared->get_model_graph(), dt.id, m_MaybeHover.id);
         }
 
         // draw 3D scene (effectively, as an ui::Image)
@@ -2287,7 +2287,7 @@ private:
                     "Import Stations from CSV",
                     [state = m_Shared](auto data)
                     {
-                        ActionImportLandmarks(
+                        action_import_landmarks(
                             state->upd_committable_model_graph(),
                             data.landmarks,
                             data.maybe_label
