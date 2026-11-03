@@ -84,7 +84,7 @@ namespace
         static_assert(num_options_v<opyn::OutputExtractorDataType> == 3);
         OSC_ASSERT(oneDimensionalOutputExtractor.output_type() == opyn::OutputExtractorDataType::Float);
 
-        // HACK: pre-acquire the environment, because `*simulation.getModel()` acquires the model
+        // HACK: pre-acquire the environment, because `*simulation.get_model()` acquires the model
         //       mutex for the entire duration of the `for_each_component_inclusive`, and acquiring
         //       the environment inside this function then causes a recursion error/deadlock (#969)
         auto environment = simulation.try_upd_environment();
