@@ -32,12 +32,12 @@ namespace
 }
 
 
-std::span<const SimulationStatus> osc::GetAllSimulationStatuses()
+std::span<const SimulationStatus> osc::get_all_simulation_statuses()
 {
     return c_SimulatorStatuses;
 }
 
-std::span<const CStringView> osc::GetAllSimulationStatusStrings()
+std::span<const CStringView> osc::get_all_simulation_status_strings()
 {
     return c_SimulatorStatusStrings;
 }

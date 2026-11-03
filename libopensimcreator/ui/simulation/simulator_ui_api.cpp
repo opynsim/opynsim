@@ -30,8 +30,8 @@ namespace
         // dependent on a bunch of state.
         std::stringstream ss;
         {
-            const auto guard = simulation.getModel();
-            WriteOutputsAsCSV(*guard, outputs, simulation.getAllSimulationReports(), ss);
+            const auto guard = simulation.get_model();
+            write_outputs_as_csv(*guard, outputs, simulation.get_all_simulation_reports(), ss);
         }
 
         // Asynchronously prompt the user to select a save location and write the CSV

@@ -43,30 +43,30 @@ private:
             return;
         }
 
-        if (ui::begin_menu("Change End Time", m_Simulation->canChangeEndTime())) {
+        if (ui::begin_menu("Change End Time", m_Simulation->can_change_end_time())) {
             if (ui::draw_menu_item("0.1x")) {
-                m_Simulation->requestNewEndTime(m_Simulation->getStartTime() + (0.1 * m_Simulation->getDuration()));
+                m_Simulation->request_new_end_time(m_Simulation->get_start_time() + (0.1 * m_Simulation->get_duration()));
             }
             if (ui::draw_menu_item("0.25x")) {
-                m_Simulation->requestNewEndTime(m_Simulation->getStartTime() + (0.25 * m_Simulation->getDuration()));
+                m_Simulation->request_new_end_time(m_Simulation->get_start_time() + (0.25 * m_Simulation->get_duration()));
             }
             if (ui::draw_menu_item("0.5x")) {
-                m_Simulation->requestNewEndTime(m_Simulation->getStartTime() + (0.5 * m_Simulation->getDuration()));
+                m_Simulation->request_new_end_time(m_Simulation->get_start_time() + (0.5 * m_Simulation->get_duration()));
             }
             if (ui::draw_menu_item("2x")) {
-                m_Simulation->requestNewEndTime(m_Simulation->getStartTime() + (2 * m_Simulation->getDuration()));
+                m_Simulation->request_new_end_time(m_Simulation->get_start_time() + (2 * m_Simulation->get_duration()));
             }
             if (ui::draw_menu_item("4x")) {
-                m_Simulation->requestNewEndTime(m_Simulation->getStartTime() + (4 * m_Simulation->getDuration()));
+                m_Simulation->request_new_end_time(m_Simulation->get_start_time() + (4 * m_Simulation->get_duration()));
             }
             if (ui::draw_menu_item("10x")) {
-                m_Simulation->requestNewEndTime(m_Simulation->getStartTime() + (10 * m_Simulation->getDuration()));
+                m_Simulation->request_new_end_time(m_Simulation->get_start_time() + (10 * m_Simulation->get_duration()));
             }
             {
                 auto count = m_NewCustomEndTime.count();
                 ui::draw_double_input("custom end time", &count);
                 if (ui::should_save_last_drawn_item_value()) {
-                    m_Simulation->requestNewEndTime(m_Simulation->getStartTime() + SimulationClock::duration{count});
+                    m_Simulation->request_new_end_time(m_Simulation->get_start_time() + SimulationClock::duration{count});
                 }
             }
 
@@ -82,7 +82,7 @@ private:
     MainMenuFileTab m_MainMenuFileTab;
     MainMenuAboutTab m_MainMenuAboutTab;
     WindowMenu m_MainMenuWindowTab;
-    SimulationClock::duration m_NewCustomEndTime = 2 * (m_Simulation->getEndTime() - m_Simulation->getStartTime());
+    SimulationClock::duration m_NewCustomEndTime = 2 * (m_Simulation->get_end_time() - m_Simulation->get_start_time());
 };
 
 osc::SimulationTabMainMenu::SimulationTabMainMenu(

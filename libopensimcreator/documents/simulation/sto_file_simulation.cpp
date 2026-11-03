@@ -137,8 +137,8 @@ private:
     mutable std::mutex m_ModelMutex;
     std::unique_ptr<OpenSim::Model> m_Model;
     std::vector<SimulationReport> m_SimulationReports;
-    SimulationClock::time_point m_Start = m_SimulationReports.empty() ? SimulationClock::start() : m_SimulationReports.front().getTime();
-    SimulationClock::time_point m_End = m_SimulationReports.empty() ? SimulationClock::start() : m_SimulationReports.back().getTime();
+    SimulationClock::time_point m_Start = m_SimulationReports.empty() ? SimulationClock::start() : m_SimulationReports.front().get_time();
+    SimulationClock::time_point m_End = m_SimulationReports.empty() ? SimulationClock::start() : m_SimulationReports.back().get_time();
     ParamBlock m_ParamBlock;
     float m_FixupScaleFactor = 1.0f;
     std::shared_ptr<Environment> m_Environment;
@@ -149,63 +149,63 @@ osc::StoFileSimulation::StoFileSimulation(
     const std::filesystem::path& stoFilePath,
     float fixupScaleFactor,
     std::shared_ptr<Environment> environment) :
-    m_Impl{std::make_unique<Impl>(std::move(model), stoFilePath, fixupScaleFactor, std::move(environment))}
+    impl_{std::make_unique<Impl>(std::move(model), stoFilePath, fixupScaleFactor, std::move(environment))}
 {}
 osc::StoFileSimulation::StoFileSimulation(StoFileSimulation&&) noexcept = default;
 osc::StoFileSimulation& osc::StoFileSimulation::operator=(StoFileSimulation&&) noexcept = default;
 osc::StoFileSimulation::~StoFileSimulation() noexcept = default;
 
-SynchronizedValueGuard<const OpenSim::Model> osc::StoFileSimulation::implGetModel() const
+SynchronizedValueGuard<const OpenSim::Model> osc::StoFileSimulation::impl_get_model() const
 {
-    return m_Impl->getModel();
+    return impl_->getModel();
 }
 
-ptrdiff_t osc::StoFileSimulation::implGetNumReports() const
+ptrdiff_t osc::StoFileSimulation::impl_get_num_reports() const
 {
-    return m_Impl->getNumReports();
+    return impl_->getNumReports();
 }
 
-SimulationReport osc::StoFileSimulation::implGetSimulationReport(ptrdiff_t reportIndex) const
+SimulationReport osc::StoFileSimulation::impl_get_simulation_report(ptrdiff_t reportIndex) const
 {
-    return m_Impl->getSimulationReport(reportIndex);
+    return impl_->getSimulationReport(reportIndex);
 }
 
-std::vector<SimulationReport> osc::StoFileSimulation::implGetAllSimulationReports() const
+std::vector<SimulationReport> osc::StoFileSimulation::impl_get_all_simulation_reports() const
 {
-    return m_Impl->getAllSimulationReports();
+    return impl_->getAllSimulationReports();
 }
 
-SimulationStatus osc::StoFileSimulation::implGetStatus() const
+SimulationStatus osc::StoFileSimulation::impl_get_status() const
 {
-    return m_Impl->getStatus();
+    return impl_->getStatus();
 }
 
-SimulationClocks osc::StoFileSimulation::implGetClocks() const
+SimulationClocks osc::StoFileSimulation::impl_get_clocks() const
 {
-    return m_Impl->getClocks();
+    return impl_->getClocks();
 }
 
-const ParamBlock& osc::StoFileSimulation::implGetParams() const
+const ParamBlock& osc::StoFileSimulation::impl_get_params() const
 {
-    return m_Impl->getParams();
+    return impl_->getParams();
 }
 
-std::span<const opyn::SharedOutputExtractor> osc::StoFileSimulation::implGetOutputExtractors() const
+std::span<const opyn::SharedOutputExtractor> osc::StoFileSimulation::impl_get_output_extractors() const
 {
-    return m_Impl->getOutputExtractors();
+    return impl_->getOutputExtractors();
 }
 
-float osc::StoFileSimulation::implGetFixupScaleFactor() const
+float osc::StoFileSimulation::impl_get_fixup_scale_factor() const
 {
-    return m_Impl->getFixupScaleFactor();
+    return impl_->getFixupScaleFactor();
 }
 
-void osc::StoFileSimulation::implSetFixupScaleFactor(float v)
+void osc::StoFileSimulation::impl_set_fixup_scale_factor(float v)
 {
-    m_Impl->setFixupScaleFactor(v);
+    impl_->setFixupScaleFactor(v);
 }
 
-std::shared_ptr<Environment> osc::StoFileSimulation::implUpdAssociatedEnvironment()
+std::shared_ptr<Environment> osc::StoFileSimulation::impl_upd_associated_environment()
 {
-    return m_Impl->implUpdAssociatedEnvironment();
+    return impl_->implUpdAssociatedEnvironment();
 }

@@ -215,12 +215,12 @@ namespace
         const ForwardDynamicSimulatorParams& params = input.getParams();
 
         // create + init an integrator
-        auto integ = ConstructIntegratorWithMethod(input.getParams().integratorMethodUsed, input.getMultiBodySystem());
-        integ->setInternalStepLimit(params.integratorStepLimit);
-        integ->setMinimumStepSize(params.integratorMinimumStepSize.count());
-        integ->setMaximumStepSize(params.integratorMaximumStepSize.count());
-        integ->setAccuracy(params.integratorAccuracy);
-        integ->setFinalTime(params.finalTime.time_since_epoch().count());
+        auto integ = ConstructIntegratorWithMethod(input.getParams().integrator_method_used, input.getMultiBodySystem());
+        integ->setInternalStepLimit(params.integrator_step_limit);
+        integ->setMinimumStepSize(params.integrator_minimum_step_size.count());
+        integ->setMaximumStepSize(params.integrator_maximum_step_size.count());
+        integ->setAccuracy(params.integrator_accuracy);
+        integ->setFinalTime(params.final_time.time_since_epoch().count());
         integ->setReturnEveryInternalStep(true);  // so that cancellations/interrupts work
         integ->initialize(input.getState());
         return integ;
@@ -314,7 +314,7 @@ namespace
             }
 
             // calculate next reporting time
-            const SimulationClock::time_point tNext = tStart + step*params.reportingInterval;
+            const SimulationClock::time_point tNext = tStart + step*params.reporting_interval;
 
             // perform an integration step
             const auto tStepStart = PerfClock::now();
@@ -345,7 +345,7 @@ namespace
                 // (1 % of step size), then *also* report the simulation end time. Otherwise,
                 // assume that there's an adjacent-enough report
                 const SimulationClock::time_point t = GetSimulationTime(*integ);
-                if ((tLastReport + 0.01*params.reportingInterval) < t)
+                if ((tLastReport + 0.01*params.reporting_interval) < t)
                 {
                     const std::chrono::duration<float> wallDur = tStepEnd - tSimStart;
                     const std::chrono::duration<float> stepDur = tStepEnd - tStepStart;
@@ -454,12 +454,12 @@ private:
 
 // public API
 
-int osc::GetNumFdSimulatorOutputExtractors()
+int osc::get_num_fd_simulator_output_extractors()
 {
     return static_cast<int>(GetSimulatorOutputExtractors().size());
 }
 
-opyn::SharedOutputExtractor osc::GetFdSimulatorOutputExtractor(int idx)
+opyn::SharedOutputExtractor osc::get_fd_simulator_output_extractor(int idx)
 {
     return GetSimulatorOutputExtractors().at(static_cast<size_t>(idx));
 }
@@ -469,33 +469,33 @@ osc::ForwardDynamicSimulator::ForwardDynamicSimulator(
     const ForwardDynamicSimulatorParams& params,
     std::function<void(SimulationReport)> onReportFromBgThread) :
 
-    m_Impl{std::make_unique<Impl>(std::move(msp), params, std::move(onReportFromBgThread))}
+    impl_{std::make_unique<Impl>(std::move(msp), params, std::move(onReportFromBgThread))}
 {}
 osc::ForwardDynamicSimulator::ForwardDynamicSimulator(ForwardDynamicSimulator&&) noexcept = default;
 osc::ForwardDynamicSimulator& osc::ForwardDynamicSimulator::operator=(ForwardDynamicSimulator&&) noexcept = default;
 osc::ForwardDynamicSimulator::~ForwardDynamicSimulator() noexcept = default;
 
-SimulationStatus osc::ForwardDynamicSimulator::getStatus() const
+SimulationStatus osc::ForwardDynamicSimulator::get_status() const
 {
-    return m_Impl->getStatus();
+    return impl_->getStatus();
 }
 
 void osc::ForwardDynamicSimulator::join()
 {
-    m_Impl->join();
+    impl_->join();
 }
 
-void osc::ForwardDynamicSimulator::requestStop()
+void osc::ForwardDynamicSimulator::request_stop()
 {
-    m_Impl->requestStop();
+    impl_->requestStop();
 }
 
 void osc::ForwardDynamicSimulator::stop()
 {
-    m_Impl->stop();
+    impl_->stop();
 }
 
 const ForwardDynamicSimulatorParams& osc::ForwardDynamicSimulator::params() const
 {
-    return m_Impl->params();
+    return impl_->params();
 }

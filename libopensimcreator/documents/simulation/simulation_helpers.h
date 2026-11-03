@@ -9,7 +9,7 @@ namespace osc { class SimulationReport; }
 
 namespace osc
 {
-    void WriteOutputsAsCSV(
+    void write_outputs_as_csv(
         const OpenSim::Component&,
         std::span<const opyn::SharedOutputExtractor>,
         std::span<const SimulationReport>,

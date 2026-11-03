@@ -58,7 +58,7 @@ private:
     void drawBackwardsButtons()
     {
         if (ui::draw_button(MSMICONS_FAST_BACKWARD)) {
-            m_SimulatorAPI->set_simulation_scrub_time(m_Simulation->getStartTime());
+            m_SimulatorAPI->set_simulation_scrub_time(m_Simulation->get_start_time());
         }
         ui::draw_tooltip_if_item_hovered("Go to First State");
         ui::same_line();
@@ -85,8 +85,8 @@ private:
 
     void drawPlayOrPauseOrReplayButton()
     {
-        const SimulationClock::time_point tStart = m_Simulation->getStartTime();
-        const SimulationClock::time_point tEnd = m_Simulation->getEndTime();
+        const SimulationClock::time_point tStart = m_Simulation->get_start_time();
+        const SimulationClock::time_point tEnd = m_Simulation->get_end_time();
         const SimulationClock::time_point tCur = m_SimulatorAPI->get_simulation_scrub_time();
         const SimulationUIPlaybackState state = m_SimulatorAPI->get_simulation_playback_state();
 
@@ -129,14 +129,14 @@ private:
         ui::same_line();
 
         if (ui::draw_button(MSMICONS_FAST_FORWARD)) {
-            m_SimulatorAPI->set_simulation_scrub_time(m_Simulation->getEndTime());
+            m_SimulatorAPI->set_simulation_scrub_time(m_Simulation->get_end_time());
         }
         ui::draw_tooltip_if_item_hovered("Go to Last State");
     }
 
     void drawStartTimeText()
     {
-        const SimulationClock::time_point tStart = m_Simulation->getStartTime();
+        const SimulationClock::time_point tStart = m_Simulation->get_start_time();
         ui::draw_text_disabled("{:.2f}", tStart.time_since_epoch().count());
     }
 
@@ -152,8 +152,8 @@ private:
 
     void drawScrubber()
     {
-        const SimulationClock::time_point tStart = m_Simulation->getStartTime();
-        const SimulationClock::time_point tEnd = m_Simulation->getEndTime();
+        const SimulationClock::time_point tStart = m_Simulation->get_start_time();
+        const SimulationClock::time_point tEnd = m_Simulation->get_end_time();
         const SimulationClock::time_point tCur = m_SimulatorAPI->get_simulation_scrub_time();
 
         ui::set_next_item_width(ui::get_font_base_size() * 20.0f);
@@ -182,7 +182,7 @@ private:
 
     void drawEndTimeText()
     {
-        const SimulationClock::time_point tEnd = m_Simulation->getEndTime();
+        const SimulationClock::time_point tEnd = m_Simulation->get_end_time();
         ui::draw_text_disabled("{:.2f}", tEnd.time_since_epoch().count());
     }
 

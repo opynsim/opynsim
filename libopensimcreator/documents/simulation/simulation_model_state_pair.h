@@ -26,11 +26,11 @@ namespace osc
         SimulationModelStatePair& operator=(SimulationModelStatePair&&) noexcept;
         ~SimulationModelStatePair() noexcept override;
 
-        std::shared_ptr<Simulation> updSimulation();
-        void setSimulation(std::shared_ptr<Simulation>);
+        std::shared_ptr<Simulation> upd_simulation();
+        void set_simulation(std::shared_ptr<Simulation>);
 
-        SimulationReport getSimulationReport() const;
-        void setSimulationReport(SimulationReport);
+        SimulationReport get_simulation_report() const;
+        void set_simulation_report(SimulationReport);
 
     private:
         const OpenSim::Model& impl_get_model() const final;
@@ -51,6 +51,6 @@ namespace osc
         std::shared_ptr<Environment> impl_upd_associated_environment() const final;
 
         class Impl;
-        std::unique_ptr<Impl> m_Impl;
+        std::unique_ptr<Impl> impl_;
     };
 }

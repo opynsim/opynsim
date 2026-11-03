@@ -79,10 +79,10 @@ private:
         ui::same_line();
 
         {
-            float scaleFactor = m_Simulation->getFixupScaleFactor();
+            float scaleFactor = m_Simulation->get_fixup_scale_factor();
             ui::set_next_item_width(ui::calc_text_size("0.00000").x());
             if (ui::draw_float_input("##scaleinput", &scaleFactor)) {
-                m_Simulation->setFixupScaleFactor(scaleFactor);
+                m_Simulation->set_fixup_scale_factor(scaleFactor);
             }
         }
         ui::pop_style_var();
@@ -90,11 +90,11 @@ private:
 
     void drawSimulationStatusGroup()
     {
-        const SimulationStatus status = m_Simulation->getStatus();
+        const SimulationStatus status = m_Simulation->get_status();
         ui::draw_text_disabled("simulator status:");
         ui::same_line();
         ui::push_style_color(ui::ColorVar::Text, CalcStatusColor(status));
-        ui::draw_text(GetAllSimulationStatusStrings()[static_cast<size_t>(status)]);
+        ui::draw_text(get_all_simulation_status_strings()[static_cast<size_t>(status)]);
         ui::pop_style_color();
     }
 

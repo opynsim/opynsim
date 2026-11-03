@@ -25,8 +25,8 @@ namespace osc
         SimulationReport& operator=(SimulationReport&&) noexcept;
         ~SimulationReport() noexcept;
 
-        SimulationClock::time_point getTime() const;
-        SimTK::State& updStateHACK();  // necessary because of a bug in OpenSim PathWrap
+        SimulationClock::time_point get_time() const;
+        SimTK::State& upd_state_hack();  // necessary because of a bug in OpenSim PathWrap
 
         friend bool operator==(const SimulationReport&, const SimulationReport&) = default;
     private:
@@ -34,6 +34,6 @@ namespace osc
         std::optional<float> impl_get_auxiliary_value(UID) const final;
 
         class Impl;
-        std::shared_ptr<Impl> m_Impl;
+        std::shared_ptr<Impl> impl_;
     };
 }

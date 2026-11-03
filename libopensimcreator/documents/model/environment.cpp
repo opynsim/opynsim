@@ -14,7 +14,7 @@
 using namespace osc;
 
 osc::Environment::Environment() :
-    param_block_{ToParamBlock(ForwardDynamicSimulatorParams{})}
+    param_block_{to_param_block(ForwardDynamicSimulatorParams{})}
 {}
 
 const opyn::SharedOutputExtractor& osc::Environment::get_user_output_extractor(int index) const

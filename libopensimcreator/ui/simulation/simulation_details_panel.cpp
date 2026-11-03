@@ -49,14 +49,14 @@ public:
             ui::set_num_columns(2);
             ui::draw_text("num reports");
             ui::next_column();
-            ui::draw_text("{}", m_Simulation->getNumReports());
+            ui::draw_text("{}", m_Simulation->get_num_reports());
             ui::next_column();
             ui::set_num_columns();
         }
 
         {
             OSC_PERF("draw simulation params");
-            draw_simulation_params(m_Simulation->getParams());
+            draw_simulation_params(m_Simulation->get_params());
         }
 
         ui::draw_vertical_spacer(10.0f/15.0f);
@@ -70,7 +70,7 @@ public:
 private:
     void drawSimulationStatPlots(const Simulation& sim)
     {
-        auto outputs = sim.getOutputs();
+        auto outputs = sim.get_outputs();
 
         if (outputs.empty()) {
             ui::draw_text_disabled_and_centered("(no simulator output plots)");
@@ -106,7 +106,7 @@ private:
 
         int imguiID = 0;
         ui::set_num_columns(2);
-        for (const opyn::SharedOutputExtractor& output : sim.getOutputs()) {
+        for (const opyn::SharedOutputExtractor& output : sim.get_outputs()) {
             ui::push_id(imguiID++);
             draw_output_name_column(output, false);
             ui::next_column();

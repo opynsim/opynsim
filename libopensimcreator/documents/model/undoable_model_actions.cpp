@@ -442,7 +442,7 @@ bool osc::action_start_simulating_model(
     const ModelStatePairWithSharedEnvironment& uim)
 {
     BasicModelStatePairWithSharedEnvironment modelState{uim};
-    ForwardDynamicSimulatorParams params = FromParamBlock(uim.try_upd_environment()->get_simulation_params());
+    ForwardDynamicSimulatorParams params = from_param_block(uim.try_upd_environment()->get_simulation_params());
 
     auto simulation = std::make_shared<Simulation>(ForwardDynamicSimulation{std::move(modelState), params});
     auto tab = std::make_unique<SimulationTab>(&parent, std::move(simulation));

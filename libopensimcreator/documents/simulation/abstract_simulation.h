@@ -42,120 +42,120 @@ namespace osc
         //
         // this can lead to mayhem if (e.g.) the model is actually being mutated by
         // multiple threads concurrently
-        SynchronizedValueGuard<const OpenSim::Model> getModel() const
+        SynchronizedValueGuard<const OpenSim::Model> get_model() const
         {
-            return implGetModel();
+            return impl_get_model();
         }
 
-        size_t getNumReports() const
+        size_t get_num_reports() const
         {
-            return implGetNumReports();
+            return impl_get_num_reports();
         }
 
-        SimulationReport getSimulationReport(ptrdiff_t reportIndex) const
+        SimulationReport get_simulation_report(ptrdiff_t reportIndex) const
         {
-            return implGetSimulationReport(reportIndex);
+            return impl_get_simulation_report(reportIndex);
         }
 
-        std::vector<SimulationReport> getAllSimulationReports() const
+        std::vector<SimulationReport> get_all_simulation_reports() const
         {
-            return implGetAllSimulationReports();
+            return impl_get_all_simulation_reports();
         }
 
-        SimulationStatus getStatus() const
+        SimulationStatus get_status() const
         {
-            return implGetStatus();
+            return impl_get_status();
         }
 
-        SimulationClock::time_point getCurTime() const
+        SimulationClock::time_point get_cur_time() const
         {
-            return implGetClocks().current();
+            return impl_get_clocks().current();
         }
 
-        SimulationClock::time_point getStartTime() const
+        SimulationClock::time_point get_start_time() const
         {
-            return implGetClocks().start();
+            return impl_get_clocks().start();
         }
 
-        SimulationClock::time_point getEndTime() const
+        SimulationClock::time_point get_end_time() const
         {
-            return implGetClocks().end();
+            return impl_get_clocks().end();
         }
 
-        SimulationClock::duration getDuration() const
+        SimulationClock::duration get_duration() const
         {
-            const auto clocks = implGetClocks();
+            const auto clocks = impl_get_clocks();
             return clocks.end() - clocks.start();
         }
 
-        bool canChangeEndTime() const
+        bool can_change_end_time() const
         {
-            return implCanChangeEndTime();
+            return impl_can_change_end_time();
         }
 
-        void requestNewEndTime(SimulationClock::time_point t)
+        void request_new_end_time(SimulationClock::time_point t)
         {
-            implRequestNewEndTime(t);
+            impl_request_new_end_time(t);
         }
 
-        float getProgress() const
+        float get_progress() const
         {
-            return implGetClocks().progress();
+            return impl_get_clocks().progress();
         }
 
-        const ParamBlock& getParams() const
+        const ParamBlock& get_params() const
         {
-            return implGetParams();
+            return impl_get_params();
         }
 
-        std::span<const opyn::SharedOutputExtractor> getOutputExtractors() const
+        std::span<const opyn::SharedOutputExtractor> get_output_extractors() const
         {
-            return implGetOutputExtractors();
+            return impl_get_output_extractors();
         }
 
-        void requestStop()
+        void request_stop()
         {
-            implRequestStop();
+            impl_request_stop();
         }
 
         void stop()
         {
-            implStop();
+            impl_stop();
         }
 
-        float getFixupScaleFactor() const
+        float get_fixup_scale_factor() const
         {
-            return implGetFixupScaleFactor();
+            return impl_get_fixup_scale_factor();
         }
 
-        void setFixupScaleFactor(float newScaleFactor)
+        void set_fixup_scale_factor(float newScaleFactor)
         {
-            implSetFixupScaleFactor(newScaleFactor);
+            impl_set_fixup_scale_factor(newScaleFactor);
         }
 
-        std::shared_ptr<Environment> tryUpdEnvironment() { return implUpdAssociatedEnvironment(); }
+        std::shared_ptr<Environment> try_upd_environment() { return impl_upd_associated_environment(); }
     private:
         // TODO: this shouldn't be mutex-xed: it can cause runtime issues
-        virtual SynchronizedValueGuard<const OpenSim::Model> implGetModel() const = 0;
+        virtual SynchronizedValueGuard<const OpenSim::Model> impl_get_model() const = 0;
 
-        virtual ptrdiff_t implGetNumReports() const = 0;
-        virtual SimulationReport implGetSimulationReport(ptrdiff_t) const = 0;
-        virtual std::vector<SimulationReport> implGetAllSimulationReports() const = 0;
+        virtual ptrdiff_t impl_get_num_reports() const = 0;
+        virtual SimulationReport impl_get_simulation_report(ptrdiff_t) const = 0;
+        virtual std::vector<SimulationReport> impl_get_all_simulation_reports() const = 0;
 
-        virtual SimulationStatus implGetStatus() const = 0;
-        virtual SimulationClocks implGetClocks() const = 0;
-        virtual const ParamBlock& implGetParams() const = 0;
-        virtual std::span<const opyn::SharedOutputExtractor> implGetOutputExtractors() const = 0;
+        virtual SimulationStatus impl_get_status() const = 0;
+        virtual SimulationClocks impl_get_clocks() const = 0;
+        virtual const ParamBlock& impl_get_params() const = 0;
+        virtual std::span<const opyn::SharedOutputExtractor> impl_get_output_extractors() const = 0;
 
-        virtual bool implCanChangeEndTime() const { return false; }
-        virtual void implRequestNewEndTime(SimulationClock::time_point) {}
+        virtual bool impl_can_change_end_time() const { return false; }
+        virtual void impl_request_new_end_time(SimulationClock::time_point) {}
 
-        virtual void implRequestStop() {}  // only applicable for "live" simulations
-        virtual void implStop() {}  // only applicable for "live" simulations
+        virtual void impl_request_stop() {}  // only applicable for "live" simulations
+        virtual void impl_stop() {}  // only applicable for "live" simulations
 
-        virtual float implGetFixupScaleFactor() const = 0;
-        virtual void implSetFixupScaleFactor(float) = 0;
+        virtual float impl_get_fixup_scale_factor() const = 0;
+        virtual void impl_set_fixup_scale_factor(float) = 0;
 
-        virtual std::shared_ptr<Environment> implUpdAssociatedEnvironment() = 0;
+        virtual std::shared_ptr<Environment> impl_upd_associated_environment() = 0;
     };
 }

@@ -77,63 +77,63 @@ private:
 
 
 osc::SingleStateSimulation::SingleStateSimulation(BasicModelStatePairWithSharedEnvironment modelState) :
-    m_Impl{std::make_unique<Impl>(std::move(modelState))}
+    impl_{std::make_unique<Impl>(std::move(modelState))}
 {}
 osc::SingleStateSimulation::SingleStateSimulation(SingleStateSimulation&&) noexcept = default;
 osc::SingleStateSimulation& osc::SingleStateSimulation::operator=(SingleStateSimulation&&) noexcept = default;
 osc::SingleStateSimulation::~SingleStateSimulation() noexcept = default;
 
-SynchronizedValueGuard<const OpenSim::Model> osc::SingleStateSimulation::implGetModel() const
+SynchronizedValueGuard<const OpenSim::Model> osc::SingleStateSimulation::impl_get_model() const
 {
-    return m_Impl->getModel();
+    return impl_->getModel();
 }
 
-ptrdiff_t osc::SingleStateSimulation::implGetNumReports() const
+ptrdiff_t osc::SingleStateSimulation::impl_get_num_reports() const
 {
-    return m_Impl->getNumReports();
+    return impl_->getNumReports();
 }
 
-SimulationReport osc::SingleStateSimulation::implGetSimulationReport(ptrdiff_t reportIndex) const
+SimulationReport osc::SingleStateSimulation::impl_get_simulation_report(ptrdiff_t reportIndex) const
 {
-    return m_Impl->getSimulationReport(reportIndex);
+    return impl_->getSimulationReport(reportIndex);
 }
 
-std::vector<SimulationReport> osc::SingleStateSimulation::implGetAllSimulationReports() const
+std::vector<SimulationReport> osc::SingleStateSimulation::impl_get_all_simulation_reports() const
 {
-    return m_Impl->getAllSimulationReports();
+    return impl_->getAllSimulationReports();
 }
 
-SimulationStatus osc::SingleStateSimulation::implGetStatus() const
+SimulationStatus osc::SingleStateSimulation::impl_get_status() const
 {
-    return m_Impl->getStatus();
+    return impl_->getStatus();
 }
 
-SimulationClocks osc::SingleStateSimulation::implGetClocks() const
+SimulationClocks osc::SingleStateSimulation::impl_get_clocks() const
 {
-    return m_Impl->getClocks();
+    return impl_->getClocks();
 }
 
-const ParamBlock& osc::SingleStateSimulation::implGetParams() const
+const ParamBlock& osc::SingleStateSimulation::impl_get_params() const
 {
-    return m_Impl->getParams();
+    return impl_->getParams();
 }
 
-std::span<const opyn::SharedOutputExtractor> osc::SingleStateSimulation::implGetOutputExtractors() const
+std::span<const opyn::SharedOutputExtractor> osc::SingleStateSimulation::impl_get_output_extractors() const
 {
-    return m_Impl->getOutputExtractors();
+    return impl_->getOutputExtractors();
 }
 
-float osc::SingleStateSimulation::implGetFixupScaleFactor() const
+float osc::SingleStateSimulation::impl_get_fixup_scale_factor() const
 {
-    return m_Impl->getFixupScaleFactor();
+    return impl_->getFixupScaleFactor();
 }
 
-void osc::SingleStateSimulation::implSetFixupScaleFactor(float v)
+void osc::SingleStateSimulation::impl_set_fixup_scale_factor(float v)
 {
-    m_Impl->setFixupScaleFactor(v);
+    impl_->setFixupScaleFactor(v);
 }
 
-std::shared_ptr<Environment> osc::SingleStateSimulation::implUpdAssociatedEnvironment()
+std::shared_ptr<Environment> osc::SingleStateSimulation::impl_upd_associated_environment()
 {
-    return m_Impl->implUpdAssociatedEnvironment();
+    return impl_->implUpdAssociatedEnvironment();
 }

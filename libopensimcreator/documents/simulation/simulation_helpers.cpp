@@ -11,7 +11,7 @@
 #include <ostream>
 #include <span>
 
-void osc::WriteOutputsAsCSV(
+void osc::write_outputs_as_csv(
     const OpenSim::Component& root,
     std::span<const opyn::SharedOutputExtractor> outputs,
     std::span<const SimulationReport> reports,

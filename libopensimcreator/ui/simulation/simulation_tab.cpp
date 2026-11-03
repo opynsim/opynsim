@@ -137,7 +137,7 @@ public:
                 return std::make_shared<OutputPlotsPanel>(
                     parent,
                     panelName,
-                    m_Simulation->tryUpdEnvironment(),
+                    m_Simulation->try_upd_environment(),
                     this
                 );
             }
@@ -199,15 +199,15 @@ public:
 
             const SimulationClock::time_point playbackPos = impl_get_simulation_scrub_time();
 
-            if ((m_PlaybackSpeed >= 0.0f and playbackPos < m_Simulation->getEndTime()) ||
-                (m_PlaybackSpeed  < 0.0f and playbackPos > m_Simulation->getStartTime())) {
+            if ((m_PlaybackSpeed >= 0.0f and playbackPos < m_Simulation->get_end_time()) ||
+                (m_PlaybackSpeed  < 0.0f and playbackPos > m_Simulation->get_start_time())) {
 
                 // if there's still something to playback, ensure the screen is re-rendered to show it
                 App::upd().request_redraw();
             }
             else if (m_LoopingState == SimulationUILoopingState::Looping) {
                 // there's nothing to playback, but the UI wants to loop the playback, so loop it
-                set_simulation_scrub_time(m_Simulation->getStartTime());
+                set_simulation_scrub_time(m_Simulation->get_start_time());
             }
             else {
                 // there's nothing to playback, so put playback into the stopped state
@@ -275,9 +275,9 @@ private:
             // pause
             set_simulation_playback_state(SimulationUIPlaybackState::Stopped);
         }
-        else if (get_simulation_scrub_time() >= m_Simulation->getEndTime()) {
+        else if (get_simulation_scrub_time() >= m_Simulation->get_end_time()) {
             // replay
-            set_simulation_scrub_time(m_Simulation->getStartTime());
+            set_simulation_scrub_time(m_Simulation->get_start_time());
             set_simulation_playback_state(SimulationUIPlaybackState::Playing);
         }
         else {
@@ -288,7 +288,7 @@ private:
 
     std::optional<SimulationReport> tryFindNthReportAfter(SimulationClock::time_point t, int offset = 0)
     {
-        const ptrdiff_t numSimulationReports = m_Simulation->getNumReports();
+        const ptrdiff_t numSimulationReports = m_Simulation->get_num_reports();
 
         if (numSimulationReports == 0) {
             return std::nullopt;
@@ -296,8 +296,8 @@ private:
 
         ptrdiff_t zeroethReportIndex = static_cast<ptrdiff_t>(numSimulationReports) - 1;
         for (ptrdiff_t i = 0; i < numSimulationReports; ++i) {
-            const SimulationReport r = m_Simulation->getSimulationReport(i);
-            if (r.getTime() >= t) {
+            const SimulationReport r = m_Simulation->get_simulation_report(i);
+            if (r.get_time() >= t) {
                 zeroethReportIndex = i;
                 break;
             }
@@ -305,7 +305,7 @@ private:
 
         const ptrdiff_t reportIndex = zeroethReportIndex + offset;
         if (0 <= reportIndex and reportIndex < numSimulationReports) {
-            return m_Simulation->getSimulationReport(reportIndex);
+            return m_Simulation->get_simulation_report(reportIndex);
         }
         else {
             return std::nullopt;
@@ -367,9 +367,9 @@ private:
 
         // else: map the computer's wall time onto simulation time
 
-        const ptrdiff_t nReports = m_Simulation->getNumReports();
+        const ptrdiff_t nReports = m_Simulation->get_num_reports();
         if (nReports <= 0) {
-            return m_Simulation->getStartTime();
+            return m_Simulation->get_start_time();
         }
         else {
             const auto wallNow = std::chrono::steady_clock::now();
@@ -377,8 +377,8 @@ private:
 
             const SimulationClock::duration simDur = m_PlaybackSpeed * SimulationClock::duration{wallDur};
             const SimulationClock::time_point simNow = m_PlaybackStartSimtime + simDur;
-            const SimulationClock::time_point simEarliest = m_Simulation->getSimulationReport(0).getTime();
-            const SimulationClock::time_point simLatest = m_Simulation->getSimulationReport(nReports - 1).getTime();
+            const SimulationClock::time_point simEarliest = m_Simulation->get_simulation_report(0).get_time();
+            const SimulationClock::time_point simLatest = m_Simulation->get_simulation_report(nReports - 1).get_time();
 
             if (simNow < simEarliest) {
                 return simEarliest;
@@ -402,7 +402,7 @@ private:
     {
         const std::optional<SimulationReport> maybePrev = tryFindNthReportAfter(get_simulation_scrub_time(), -1);
         if (maybePrev) {
-            set_simulation_scrub_time(maybePrev->getTime());
+            set_simulation_scrub_time(maybePrev->get_time());
         }
     }
 
@@ -410,7 +410,7 @@ private:
     {
         const std::optional<SimulationReport> maybeNext = tryFindNthReportAfter(get_simulation_scrub_time(), 1);
         if (maybeNext) {
-            set_simulation_scrub_time(maybeNext->getTime());
+            set_simulation_scrub_time(maybeNext->get_time());
         }
     }
 
@@ -431,8 +431,8 @@ private:
         // only draw content if a simulation report is available
         const std::optional<SimulationReport> maybeReport = try_select_report_based_on_scrubbing();
         if (maybeReport) {
-            m_ShownModelState->setSimulation(m_Simulation);
-            m_ShownModelState->setSimulationReport(*maybeReport);
+            m_ShownModelState->set_simulation(m_Simulation);
+            m_ShownModelState->set_simulation_report(*maybeReport);
 
             OSC_PERF("draw simulation screen");
             m_PanelManager->on_draw();
@@ -465,7 +465,7 @@ private:
     SimulationUIPlaybackState m_PlaybackState = SimulationUIPlaybackState::Playing;
     SimulationUILoopingState m_LoopingState = SimulationUILoopingState::PlayOnce;
     float m_PlaybackSpeed = 1.0f;
-    SimulationClock::time_point m_PlaybackStartSimtime = m_Simulation->getStartTime();
+    SimulationClock::time_point m_PlaybackStartSimtime = m_Simulation->get_start_time();
     std::chrono::steady_clock::time_point m_PlaybackStartWallTime = std::chrono::steady_clock::now();
 
     // manager for toggleable and spawnable UI panels

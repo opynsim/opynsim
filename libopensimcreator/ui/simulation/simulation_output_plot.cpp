@@ -87,10 +87,10 @@ namespace
         // HACK: pre-acquire the environment, because `*simulation.getModel()` acquires the model
         //       mutex for the entire duration of the `for_each_component_inclusive`, and acquiring
         //       the environment inside this function then causes a recursion error/deadlock (#969)
-        auto environment = simulation.tryUpdEnvironment();
+        auto environment = simulation.try_upd_environment();
 
         int id = 0;
-        opyn::for_each_component_inclusive(*simulation.getModel(), [&oneDimensionalOutputExtractor, environment, &id](const auto& component)
+        opyn::for_each_component_inclusive(*simulation.get_model(), [&oneDimensionalOutputExtractor, environment, &id](const auto& component)
         {
             const auto numOutputs = component.getNumOutputs();
             if (numOutputs <= 0) {
@@ -149,14 +149,14 @@ namespace
         if (dataType == opyn::OutputExtractorDataType::Float) {
             DrawExportToCSVMenuItems(api, output);
             DrawPlotAgainstOtherOutputMenuItem(sim, output);
-            DrawToggleWatchOutputMenuItem(*sim.tryUpdEnvironment(), output);
+            DrawToggleWatchOutputMenuItem(*sim.try_upd_environment(), output);
         }
         else if (dataType == opyn::OutputExtractorDataType::Vector2) {
             DrawExportToCSVMenuItems(api, output);
-            DrawToggleWatchOutputMenuItem(*sim.tryUpdEnvironment(), output);
+            DrawToggleWatchOutputMenuItem(*sim.try_upd_environment(), output);
         }
         else {
-            DrawToggleWatchOutputMenuItem(*sim.tryUpdEnvironment(), output);
+            DrawToggleWatchOutputMenuItem(*sim.try_upd_environment(), output);
 
         }
 
@@ -177,7 +177,7 @@ public:
     {
         static_assert(num_options_v<opyn::OutputExtractorDataType> == 3);
 
-        const ptrdiff_t nReports = m_API->upd_simulation().getNumReports();
+        const ptrdiff_t nReports = m_API->upd_simulation().get_num_reports();
         opyn::OutputExtractorDataType outputType = m_OutputExtractor.output_type();
 
         if (nReports <= 0) {
@@ -204,7 +204,7 @@ private:
 
         AbstractSimulation& sim = m_API->upd_simulation();
 
-        const ptrdiff_t nReports = sim.getNumReports();
+        const ptrdiff_t nReports = sim.get_num_reports();
         if (nReports <= 0) {
             ui::draw_text("no data (yet)");
             return;
@@ -214,8 +214,8 @@ private:
         std::vector<float> buf;
         {
             OSC_PERF("collect output data");
-            const std::vector<SimulationReport> reports = sim.getAllSimulationReports();
-            buf = m_OutputExtractor.slurp_values<float>(*sim.getModel(), reports);
+            const std::vector<SimulationReport> reports = sim.get_all_simulation_reports();
+            buf = m_OutputExtractor.slurp_values<float>(*sim.get_model(), reports);
         }
 
         // setup drawing area for drawing
@@ -265,8 +265,8 @@ private:
 
         // figure out mapping between screen space and plot space
 
-        const SimulationClock::time_point simStartTime = sim.getSimulationReport(0).getTime();
-        const SimulationClock::time_point simEndTime = sim.getSimulationReport(nReports-1).getTime();
+        const SimulationClock::time_point simStartTime = sim.get_simulation_report(0).get_time();
+        const SimulationClock::time_point simEndTime = sim.get_simulation_report(nReports-1).get_time();
         const SimulationClock::duration simTimeStep = (simEndTime-simStartTime)/nReports;
         const SimulationClock::time_point simScrubTime = m_API->get_simulation_scrub_time();
 
@@ -321,10 +321,10 @@ private:
     void drawStringOutputUI()
     {
         AbstractSimulation& sim = m_API->upd_simulation();
-        const ptrdiff_t nReports = m_API->upd_simulation().getNumReports();
-        const SimulationReport r = m_API->try_select_report_based_on_scrubbing().value_or(sim.getSimulationReport(nReports - 1));
+        const ptrdiff_t nReports = m_API->upd_simulation().get_num_reports();
+        const SimulationReport r = m_API->try_select_report_based_on_scrubbing().value_or(sim.get_simulation_report(nReports - 1));
 
-        ui::draw_text_centered(m_OutputExtractor.value<std::string>(*sim.getModel(), r));
+        ui::draw_text_centered(m_OutputExtractor.value<std::string>(*sim.get_model(), r));
         TryDrawOutputContextMenuForLastItem(*m_API, sim, m_OutputExtractor);
     }
 
@@ -334,7 +334,7 @@ private:
 
         AbstractSimulation& sim = m_API->upd_simulation();
 
-        const ptrdiff_t nReports = sim.getNumReports();
+        const ptrdiff_t nReports = sim.get_num_reports();
         if (nReports <= 0) {
             ui::draw_text("no data (yet)");
             return;
@@ -344,8 +344,8 @@ private:
         std::vector<Vector2> buf;
         {
             OSC_PERF("collect output data");
-            std::vector<SimulationReport> reports = sim.getAllSimulationReports();
-            buf = m_OutputExtractor.slurp_values<Vector2>(*sim.getModel(), reports);
+            std::vector<SimulationReport> reports = sim.get_all_simulation_reports();
+            buf = m_OutputExtractor.slurp_values<Vector2>(*sim.get_model(), reports);
         }
 
         // setup drawing area for drawing
@@ -376,8 +376,8 @@ private:
 
                 // overlays
                 {
-                    SimulationReport currentReport = m_API->try_select_report_based_on_scrubbing().value_or(sim.getSimulationReport(nReports - 1));
-                    Vector2d currentVal = m_OutputExtractor.value<Vector2>(*sim.getModel(), currentReport);
+                    SimulationReport currentReport = m_API->try_select_report_based_on_scrubbing().value_or(sim.get_simulation_report(nReports - 1));
+                    Vector2d currentVal = m_OutputExtractor.value<Vector2>(*sim.get_model(), currentReport);
                     // ensure the annotation doesn't occlude the line too heavily
                     auto annotationColor = ui::get_style_color(ui::ColorVar::PopupBg).with_alpha(0.5f);
                     plot::draw_annotation(currentVal, annotationColor, {10.0f, 10.0f}, true, "(%f, %f)", currentVal.x(), currentVal.y());

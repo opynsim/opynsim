@@ -46,10 +46,10 @@ namespace
     std::vector<opyn::SharedOutputExtractor> GetFdSimulatorOutputExtractorsAsVector()
     {
         std::vector<opyn::SharedOutputExtractor> rv;
-        const int nOutputExtractors = GetNumFdSimulatorOutputExtractors();
+        const int nOutputExtractors = get_num_fd_simulator_output_extractors();
         rv.reserve(nOutputExtractors);
         for (int i = 0; i < nOutputExtractors; ++i) {
-            rv.push_back(GetFdSimulatorOutputExtractor(i));
+            rv.push_back(get_fd_simulator_output_extractor(i));
         }
         return rv;
     }
@@ -62,7 +62,7 @@ public:
         m_ModelState{std::move(p)},
         m_Simulation{MakeSimulation(*m_ModelState.lock(), params, m_ReportQueue)},
         m_Params{params},
-        m_ParamsAsParamBlock{ToParamBlock(params)},
+        m_ParamsAsParamBlock{to_param_block(params)},
         m_SimulatorOutputExtractors(GetFdSimulatorOutputExtractorsAsVector())
     {}
 
@@ -96,7 +96,7 @@ public:
 
     SimulationStatus getStatus() const
     {
-        return m_Simulation.getStatus();
+        return m_Simulation.get_status();
     }
 
     SimulationClock::time_point getStartTime() const
@@ -119,7 +119,7 @@ public:
     SimulationClocks getClocks() const
     {
         auto start = getStartTime();
-        auto end = m_Params.finalTime;
+        auto end = m_Params.final_time;
         return SimulationClocks{{start, end}, getCurTime()};
     }
 
@@ -153,7 +153,7 @@ public:
 
             const auto reportBeforeOrEqualToNewEndTime = [new_end_time](const SimulationReport& r)
             {
-                return r.getTime() <= new_end_time;
+                return r.get_time() <= new_end_time;
             };
             const auto it = find_if(m_Reports.rbegin(), m_Reports.rend(), reportBeforeOrEqualToNewEndTime);
             m_Reports.erase(it.base(), m_Reports.end());
@@ -161,13 +161,13 @@ public:
 
         // update the simulation parameters to reflect the new end-time
         {
-            m_Params.finalTime = new_end_time;
-            m_ParamsAsParamBlock = ToParamBlock(m_Params);
+            m_Params.final_time = new_end_time;
+            m_ParamsAsParamBlock = to_param_block(m_Params);
         }
 
         // edge-case: if the latest available report has an end-time equal to `t`, then
         // our work is complete
-        if (not m_Reports.empty() and m_Reports.back().getTime() == new_end_time) {
+        if (not m_Reports.empty() and m_Reports.back().get_time() == new_end_time) {
             return;
         }
 
@@ -191,7 +191,7 @@ public:
 
     void requestStop()
     {
-        m_Simulation.requestStop();
+        m_Simulation.request_stop();
     }
 
     void stop()
@@ -228,7 +228,7 @@ private:
         // the time of each incoming reports against the latest already collected
         std::optional<SimulationClock::time_point> latestReportTime;
         if (not reports.empty()) {
-            latestReportTime = reports.back().getTime();
+            latestReportTime = reports.back().get_time();
         }
 
         const size_t nReportsBefore = reports.size();
@@ -239,7 +239,7 @@ private:
             auto guard = const_cast<SynchronizedValue<std::vector<SimulationReport>>&>(m_ReportQueue).lock();
             reports.reserve(reports.size() + guard->size());
             for (SimulationReport& report : *guard) {
-                if (report.getTime() == latestReportTime) {
+                if (report.get_time() == latestReportTime) {
                     continue;  // filter out duplicate reports (e.g. due to `requestNewEndTime`)
                 }
 
@@ -256,7 +256,7 @@ private:
         // ensure all reports are realized on the UI model
         auto modelLock = m_ModelState.lock();
         for (auto it = reports.begin() + nReportsBefore; it != reports.end(); ++it) {
-            modelLock->get_model().realizeReport(it->updStateHACK());
+            modelLock->get_model().realizeReport(it->upd_state_hack());
         }
     }
 
@@ -271,7 +271,7 @@ private:
 
 
 osc::ForwardDynamicSimulation::ForwardDynamicSimulation(BasicModelStatePairWithSharedEnvironment ms, const ForwardDynamicSimulatorParams& params) :
-    m_Impl{std::make_unique<Impl>(std::move(ms), params)}
+    impl_{std::make_unique<Impl>(std::move(ms), params)}
 {}
 osc::ForwardDynamicSimulation::ForwardDynamicSimulation(ForwardDynamicSimulation&&) noexcept = default;
 osc::ForwardDynamicSimulation& osc::ForwardDynamicSimulation::operator=(ForwardDynamicSimulation&&) noexcept = default;
@@ -279,75 +279,75 @@ osc::ForwardDynamicSimulation::~ForwardDynamicSimulation() noexcept = default;
 
 void osc::ForwardDynamicSimulation::join()
 {
-    m_Impl->join();
+    impl_->join();
 }
 
-SynchronizedValueGuard<const OpenSim::Model> osc::ForwardDynamicSimulation::implGetModel() const
+SynchronizedValueGuard<const OpenSim::Model> osc::ForwardDynamicSimulation::impl_get_model() const
 {
-    return m_Impl->getModel();
+    return impl_->getModel();
 }
 
-ptrdiff_t osc::ForwardDynamicSimulation::implGetNumReports() const
+ptrdiff_t osc::ForwardDynamicSimulation::impl_get_num_reports() const
 {
-    return m_Impl->getNumReports();
+    return impl_->getNumReports();
 }
 
-SimulationReport osc::ForwardDynamicSimulation::implGetSimulationReport(ptrdiff_t reportIndex) const
+SimulationReport osc::ForwardDynamicSimulation::impl_get_simulation_report(ptrdiff_t reportIndex) const
 {
-    return m_Impl->getSimulationReport(reportIndex);
+    return impl_->getSimulationReport(reportIndex);
 }
 
-std::vector<SimulationReport> osc::ForwardDynamicSimulation::implGetAllSimulationReports() const
+std::vector<SimulationReport> osc::ForwardDynamicSimulation::impl_get_all_simulation_reports() const
 {
-    return m_Impl->getAllSimulationReports();
+    return impl_->getAllSimulationReports();
 }
 
-SimulationStatus osc::ForwardDynamicSimulation::implGetStatus() const
+SimulationStatus osc::ForwardDynamicSimulation::impl_get_status() const
 {
-    return m_Impl->getStatus();
+    return impl_->getStatus();
 }
 
-SimulationClocks osc::ForwardDynamicSimulation::implGetClocks() const
+SimulationClocks osc::ForwardDynamicSimulation::impl_get_clocks() const
 {
-    return m_Impl->getClocks();
+    return impl_->getClocks();
 }
 
-const ParamBlock& osc::ForwardDynamicSimulation::implGetParams() const
+const ParamBlock& osc::ForwardDynamicSimulation::impl_get_params() const
 {
-    return m_Impl->getParams();
+    return impl_->getParams();
 }
 
-std::span<const opyn::SharedOutputExtractor> osc::ForwardDynamicSimulation::implGetOutputExtractors() const
+std::span<const opyn::SharedOutputExtractor> osc::ForwardDynamicSimulation::impl_get_output_extractors() const
 {
-    return m_Impl->getOutputExtractors();
+    return impl_->getOutputExtractors();
 }
 
-void osc::ForwardDynamicSimulation::implRequestNewEndTime(SimulationClock::time_point t)
+void osc::ForwardDynamicSimulation::impl_request_new_end_time(SimulationClock::time_point t)
 {
-    m_Impl->requestNewEndTime(t);
+    impl_->requestNewEndTime(t);
 }
 
-void osc::ForwardDynamicSimulation::implRequestStop()
+void osc::ForwardDynamicSimulation::impl_request_stop()
 {
-    m_Impl->requestStop();
+    impl_->requestStop();
 }
 
-void osc::ForwardDynamicSimulation::implStop()
+void osc::ForwardDynamicSimulation::impl_stop()
 {
-    m_Impl->stop();
+    impl_->stop();
 }
 
-float osc::ForwardDynamicSimulation::implGetFixupScaleFactor() const
+float osc::ForwardDynamicSimulation::impl_get_fixup_scale_factor() const
 {
-    return m_Impl->getFixupScaleFactor();
+    return impl_->getFixupScaleFactor();
 }
 
-void osc::ForwardDynamicSimulation::implSetFixupScaleFactor(float v)
+void osc::ForwardDynamicSimulation::impl_set_fixup_scale_factor(float v)
 {
-    m_Impl->setFixupScaleFactor(v);
+    impl_->setFixupScaleFactor(v);
 }
 
-std::shared_ptr<Environment> osc::ForwardDynamicSimulation::implUpdAssociatedEnvironment()
+std::shared_ptr<Environment> osc::ForwardDynamicSimulation::impl_upd_associated_environment()
 {
-    return m_Impl->implUpdAssociatedEnvironment();
+    return impl_->implUpdAssociatedEnvironment();
 }

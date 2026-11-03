@@ -31,7 +31,7 @@ TEST(SimulationHelpers, WriteOutputsAsCSVWritesFloatDataCorrectly)
     });
 
     std::stringstream out;
-    WriteOutputsAsCSV(model, extractors,reports, out);
+    write_outputs_as_csv(model, extractors,reports, out);
 
     const auto row0 = CSV::read_row(out);
     const auto row1 = CSV::read_row(out);
@@ -59,7 +59,7 @@ TEST(SimulationHelpers, WriteOutputsAsCSVWritesVector2DataCorrectly)
     });
 
     std::stringstream out;
-    WriteOutputsAsCSV(model, extractors,reports, out);
+    write_outputs_as_csv(model, extractors,reports, out);
 
     const auto row0 = CSV::read_row(out);
     const auto row1 = CSV::read_row(out);
