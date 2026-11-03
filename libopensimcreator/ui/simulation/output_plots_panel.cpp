@@ -21,8 +21,8 @@ namespace
 {
     bool IsAnyOutputExportableToCSV(const Environment& env)
     {
-        for (int i = 0; i < env.getNumUserOutputExtractors(); ++i) {
-            if (is_numeric(env.getUserOutputExtractor(i).output_type())) {
+        for (int i = 0; i < env.get_num_user_output_extractors(); ++i) {
+            if (is_numeric(env.get_user_output_extractor(i).output_type())) {
                 return true;
             }
         }
@@ -46,7 +46,7 @@ public:
 
     void draw_content()
     {
-        if (m_Environment->getNumUserOutputExtractors() <= 0) {
+        if (m_Environment->get_num_user_output_extractors() <= 0) {
             ui::draw_text_disabled_and_panel_centered("No outputs being watched");
             ui::draw_text_disabled_and_centered("(Right-click a component and 'Watch Output')");
             return;
@@ -56,11 +56,11 @@ public:
             ui::draw_button(MSMICONS_SAVE " Save All " MSMICONS_CARET_DOWN);
             if (ui::begin_popup_context_menu("##exportoptions", ui::PopupFlag::MouseButtonLeft)) {
                 if (ui::draw_menu_item("as CSV")) {
-                    m_SimulatorUIAPI->try_prompt_to_save_all_outputs_as_csv(m_Environment->getAllUserOutputExtractors());
+                    m_SimulatorUIAPI->try_prompt_to_save_all_outputs_as_csv(m_Environment->get_all_user_output_extractors());
                 }
 
                 if (ui::draw_menu_item("as CSV (and open)")) {
-                    m_SimulatorUIAPI->try_prompt_to_save_all_outputs_as_csv(m_Environment->getAllUserOutputExtractors(), true);
+                    m_SimulatorUIAPI->try_prompt_to_save_all_outputs_as_csv(m_Environment->get_all_user_output_extractors(), true);
                 }
 
                 ui::end_popup();
@@ -70,8 +70,8 @@ public:
         ui::draw_separator();
         ui::draw_vertical_spacer(5.0f/15.0f);
 
-        for (int i = 0; i < m_Environment->getNumUserOutputExtractors(); ++i) {
-            opyn::SharedOutputExtractor output = m_Environment->getUserOutputExtractor(i);
+        for (int i = 0; i < m_Environment->get_num_user_output_extractors(); ++i) {
+            opyn::SharedOutputExtractor output = m_Environment->get_user_output_extractor(i);
 
             ui::push_id(i);
             SimulationOutputPlot plot{m_SimulatorUIAPI, output, 128.0f};
@@ -80,7 +80,7 @@ public:
             draw_output_name_column(output, true, m_SimulatorUIAPI->try_get_current_simulation_state());
             ui::same_line();
             if (ui::draw_button(MSMICONS_TRASH)) {
-                m_Environment->removeUserOutputExtractor(output);
+                m_Environment->remove_user_output_extractor(output);
                 --i;
             }
             ui::pop_id();

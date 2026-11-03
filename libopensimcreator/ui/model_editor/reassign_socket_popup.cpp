@@ -200,7 +200,7 @@ public:
 
             const OpenSim::Component* selected = opyn::find_component(m_Model->get_model(), *m_UserSelectionAbsPath);
 
-            if (selected && ActionReassignComponentSocket(*m_Model, m_Params.componentPath, m_Params.socketName, *selected, flags, m_Error))
+            if (selected && action_reassign_component_socket(*m_Model, m_Params.componentPath, m_Params.socketName, *selected, flags, m_Error))
             {
                 request_close();
                 return;

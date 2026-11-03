@@ -41,9 +41,9 @@ namespace osc
         float impl_get_fixup_scale_factor() const final;
         void impl_set_fixup_scale_factor(float) final;
 
-        std::shared_ptr<Environment> implUpdAssociatedEnvironment() const final;
+        std::shared_ptr<Environment> impl_upd_associated_environment() const final;
 
         class Impl;
-        ClonePtr<Impl> m_Impl;
+        ClonePtr<Impl> impl_;
     };
 }

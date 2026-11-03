@@ -460,7 +460,7 @@ private:
             std::unique_ptr<OpenSim::Component> rv = tryCreateComponentFromState();
             if (rv) {
                 try {
-                    if (ActionAddComponentToModel(*m_Model, std::move(rv), m_MaybeTargetComponent)) {
+                    if (action_add_component_to_model(*m_Model, std::move(rv), m_MaybeTargetComponent)) {
                         request_close();
                     }
                 }

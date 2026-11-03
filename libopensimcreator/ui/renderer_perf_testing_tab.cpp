@@ -156,7 +156,7 @@ private:
         } else {
             log_error("{}: no such resource found: falling back to a blank model", rajagopalPath.string());
         }
-        ActionEnableAllWrappingSurfaces(msp);
+        action_enable_all_wrapping_surfaces(msp);
         return msp;
     }();
 

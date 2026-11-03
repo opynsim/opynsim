@@ -67,7 +67,7 @@ public:
 
     std::shared_ptr<Environment> implUpdAssociatedEnvironment()
     {
-        return m_ModelState.lock()->tryUpdEnvironment();
+        return m_ModelState.lock()->try_upd_environment();
     }
 
 private:

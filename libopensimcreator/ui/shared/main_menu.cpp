@@ -74,7 +74,7 @@ namespace
 
                     std::shared_ptr<Environment> env;
                     if (auto modelWithEnv = std::dynamic_pointer_cast<ModelStatePairWithSharedEnvironment>(model)) {
-                        env = modelWithEnv->tryUpdEnvironment();
+                        env = modelWithEnv->try_upd_environment();
                     }
                     else {
                         env = std::make_shared<Environment>();
@@ -133,22 +133,22 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybeMo
 
         if (mod and ui::is_key_pressed(Key::N)) {
             if (parent()) {
-                ActionNewModel(*parent());
+                action_new_model(*parent());
             }
         }
         else if (mod and ui::is_key_pressed(Key::O)) {
             if (parent()) {
-                ActionOpenModel(*parent());
+                action_open_model(*parent());
             }
         }
         else if (undoableModel and mod and ui::is_shift_down() and ui::is_key_pressed(Key::S)) {
-            ActionSaveCurrentModelAs(undoableModel);
+            action_save_current_model_as(undoableModel);
         }
         else if (undoableModel and mod and ui::is_key_pressed(Key::S)) {
-            ActionSaveModelAsync(undoableModel);
+            action_save_model_async(undoableModel);
         }
         else if (undoableModel and ui::is_key_pressed(Key::F5)) {
-            ActionReloadOsimFromDisk(*undoableModel, *App::singleton<SceneCache>());
+            action_reload_osim_from_disk(*undoableModel, *App::singleton<SceneCache>());
         }
     }
 
@@ -158,13 +158,13 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybeMo
 
     if (ui::draw_menu_item(MSMICONS_FILE " New", ModifierKey::Ctrl | Key::N)) {
         if (parent()) {
-            ActionNewModel(*parent());
+            action_new_model(*parent());
         }
     }
 
     if (ui::draw_menu_item(MSMICONS_FOLDER_OPEN " Open", ModifierKey::Ctrl | Key::O)) {
         if (parent()) {
-            ActionOpenModel(*parent());
+            action_open_model(*parent());
         }
     }
 
@@ -177,7 +177,7 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybeMo
             ui::push_id(++imgui_id);
             if (ui::draw_menu_item(rf.path.filename().string())) {
                 if (parent()) {
-                    ActionOpenModel(*parent(), rf.path);
+                    action_open_model(*parent(), rf.path);
                 }
             }
             ui::pop_id();
@@ -191,7 +191,7 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybeMo
             ui::push_id(++imgui_id);
             if (ui::draw_menu_item(ex.filename().string())) {
                 if (parent()) {
-                    ActionOpenModel(*parent(), ex);
+                    action_open_model(*parent(), ex);
                 }
             }
             ui::pop_id();
@@ -210,13 +210,13 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybeMo
 
     if (ui::draw_menu_item(MSMICONS_SAVE " Save", ModifierKey::Ctrl | Key::S, false, undoableModel != nullptr)) {
         if (undoableModel) {
-            ActionSaveModelAsync(undoableModel);
+            action_save_model_async(undoableModel);
         }
     }
 
     if (ui::draw_menu_item(MSMICONS_SAVE " Save As", ModifierKey::Ctrl | ModifierKey::Shift | Key::S, false, undoableModel != nullptr)) {
         if (undoableModel) {
-            ActionSaveCurrentModelAs(undoableModel);
+            action_save_current_model_as(undoableModel);
         }
     }
 
@@ -235,21 +235,21 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybeMo
         const bool modelHasBackingFile = maybeModel != nullptr && opyn::has_input_file_name(maybeModel->get_model());
 
         if (ui::draw_menu_item(MSMICONS_RECYCLE " Reload", Key::F5, false, undoableModel != nullptr and undoableModel->can_upd_model() and modelHasBackingFile) and undoableModel != nullptr) {
-            ActionReloadOsimFromDisk(*undoableModel, *App::singleton<SceneCache>());
+            action_reload_osim_from_disk(*undoableModel, *App::singleton<SceneCache>());
         }
         ui::draw_tooltip_if_item_hovered("Reload", "Attempts to reload the osim file from scratch. This can be useful if (e.g.) editing third-party files that OpenSim Creator doesn't automatically track.");
 
         if (ui::draw_menu_item(MSMICONS_CLIPBOARD " Copy .osim path to clipboard", std::nullopt, false, undoableModel != nullptr and modelHasBackingFile) and undoableModel != nullptr) {
-            ActionCopyModelPathToClipboard(*undoableModel);
+            action_copy_model_path_to_clipboard(*undoableModel);
         }
         ui::draw_tooltip_if_item_hovered("Copy .osim path to clipboard", "Copies the absolute path to the model's .osim file into your clipboard.\n\nThis is handy if you want to (e.g.) load the osim via a script, open it from the command line in another app, etc.");
 
         if (ui::draw_menu_item(MSMICONS_FOLDER " Open .osim's parent directory", std::nullopt, false, modelHasBackingFile) && maybeModel) {
-            ActionOpenOsimParentDirectory(*maybeModel);
+            action_open_osim_parent_directory(*maybeModel);
         }
 
         if (ui::draw_menu_item(MSMICONS_LINK " Open .osim in external editor", std::nullopt, false, modelHasBackingFile) && maybeModel) {
-            ActionOpenOsimInExternalEditor(*maybeModel);
+            action_open_osim_in_external_editor(*maybeModel);
         }
         ui::draw_tooltip_if_item_hovered("Open .osim in external editor", "Open the .osim file currently being edited in an external text editor. The editor that's used depends on your operating system's default for opening .osim files.");
     }

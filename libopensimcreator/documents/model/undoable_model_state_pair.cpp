@@ -236,7 +236,7 @@ public:
     bool canUndo() const
     {
         const ModelStateCommit* c = tryGetCommitByID(m_CurrentHead);
-        return c ? hasCommit(c->getParentID()) : false;
+        return c ? hasCommit(c->get_parent_id()) : false;
     }
 
     void doUndo()
@@ -273,12 +273,12 @@ public:
 
     bool tryCheckout(const ModelStateCommit& commit)
     {
-        if (!m_Commits.contains(commit.getID()))
+        if (!m_Commits.contains(commit.get_id()))
         {
             return false;  // commit isn't in this model's storage (is it from another model?)
         }
 
-        m_CurrentHead = commit.getID();
+        m_CurrentHead = commit.get_id();
         checkout();
         return true;
     }
@@ -375,7 +375,7 @@ private:
     UID doCommit(std::string_view message)
     {
         auto commit = ModelStateCommit{m_Scratch, message, m_CurrentHead};
-        UID commitID = commit.getID();
+        UID commitID = commit.get_id();
 
         m_Commits.try_emplace(commitID, std::move(commit));
         m_CurrentHead = commitID;
@@ -404,7 +404,7 @@ private:
     UID tryGetParentIDOrEmpty(UID id) const
     {
         const ModelStateCommit* commit = tryGetCommitByID(id);
-        return commit ? commit->getParentID() : UID::empty();
+        return commit ? commit->get_parent_id() : UID::empty();
     }
 
     // returns `true` if a commit with the given ID has been stored
@@ -455,11 +455,11 @@ private:
         }
 
         int i = 1;
-        c = tryGetCommitByID(c->getParentID());
+        c = tryGetCommitByID(c->get_parent_id());
 
         while (c && i < n)
         {
-            c = tryGetCommitByID(c->getParentID());
+            c = tryGetCommitByID(c->get_parent_id());
             i++;
         }
 
@@ -470,7 +470,7 @@ private:
     UID nthAncestorID(UID a, int n) const
     {
         const ModelStateCommit* c = nthAncestor(a, n);
-        return c ? c->getID() : UID::empty();
+        return c ? c->get_id() : UID::empty();
     }
 
     // returns `true` if `maybeAncestor` is an ancestor of `id`
@@ -478,9 +478,9 @@ private:
     {
         const ModelStateCommit* c = tryGetCommitByID(id);
 
-        while (c != nullptr && c->getID() != maybeAncestor)
+        while (c != nullptr && c->get_id() != maybeAncestor)
         {
-            c = tryGetCommitByID(c->getParentID());
+            c = tryGetCommitByID(c->get_parent_id());
         }
 
         return c != nullptr;
@@ -491,9 +491,9 @@ private:
     {
         auto it = m_Commits.find(start);
 
-        while (it != m_Commits.end() && it->second.getID() != end)
+        while (it != m_Commits.end() && it->second.get_id() != end)
         {
-            UID parent = it->second.getParentID();
+            UID parent = it->second.get_parent_id();
             m_Commits.erase(it);
 
             it = m_Commits.find(parent);
@@ -562,7 +562,7 @@ private:
 
         if (c)
         {
-            UiModelStatePair newScratch{std::make_unique<OpenSim::Model>(*c->getModel())};
+            UiModelStatePair newScratch{std::make_unique<OpenSim::Model>(*c->get_model())};
             CopySelectedAndHovered(m_Scratch, newScratch);
             newScratch.set_fixup_scale_factor(m_Scratch.get_fixup_scale_factor());
             m_Scratch = std::move(newScratch);
@@ -581,7 +581,7 @@ private:
             return;
         }
 
-        const ModelStateCommit* parent = tryGetCommitByID(c->getParentID());
+        const ModelStateCommit* parent = tryGetCommitByID(c->get_parent_id());
 
         if (!parent)
         {
@@ -592,12 +592,12 @@ private:
         //
         // - user's selection state should be "sticky" between undo/redo
         // - user's scene scale factor should be "sticky" between undo/redo
-        UiModelStatePair newModel{std::make_unique<OpenSim::Model>(*parent->getModel())};
+        UiModelStatePair newModel{std::make_unique<OpenSim::Model>(*parent->get_model())};
         CopySelectedAndHovered(m_Scratch, newModel);
         newModel.set_fixup_scale_factor(m_Scratch.get_fixup_scale_factor());
 
         m_Scratch = std::move(newModel);
-        m_CurrentHead = parent->getID();
+        m_CurrentHead = parent->get_id();
     }
 
     // performs a redo, if possible
@@ -621,12 +621,12 @@ private:
         //
         // - user's selection state should be "sticky" between undo/redo
         // - user's scene scale factor should be "sticky" between undo/redo
-        UiModelStatePair newModel{std::make_unique<OpenSim::Model>(*c->getModel())};
+        UiModelStatePair newModel{std::make_unique<OpenSim::Model>(*c->get_model())};
         CopySelectedAndHovered(m_Scratch, newModel);
         newModel.set_fixup_scale_factor(m_Scratch.get_fixup_scale_factor());
 
         m_Scratch = std::move(newModel);
-        m_CurrentHead = c->getID();
+        m_CurrentHead = c->get_id();
     }
 
     std::filesystem::path getFilesystemLocation() const
@@ -670,27 +670,27 @@ private:
 // public API (PIMPL)
 
 osc::UndoableModelStatePair::UndoableModelStatePair() :
-    m_Impl{std::make_unique<Impl>()}
+    impl_{std::make_unique<Impl>()}
 {
 }
 
 osc::UndoableModelStatePair::UndoableModelStatePair(const OpenSim::Model& model) :
-    m_Impl{std::make_unique<Impl>(model)}
+    impl_{std::make_unique<Impl>(model)}
 {
 }
 
 osc::UndoableModelStatePair::UndoableModelStatePair(std::unique_ptr<OpenSim::Model> model) :
-    m_Impl{std::make_unique<Impl>(std::move(model))}
+    impl_{std::make_unique<Impl>(std::move(model))}
 {
 }
 
 osc::UndoableModelStatePair::UndoableModelStatePair(const std::filesystem::path& osimPath) :
-    m_Impl{std::make_unique<Impl>(osimPath)}
+    impl_{std::make_unique<Impl>(osimPath)}
 {
 }
 
 osc::UndoableModelStatePair::UndoableModelStatePair(const UndoableModelStatePair& src) :
-    m_Impl{std::make_unique<Impl>(*src.m_Impl)}
+    impl_{std::make_unique<Impl>(*src.impl_)}
 {
 }
 
@@ -700,8 +700,8 @@ UndoableModelStatePair& osc::UndoableModelStatePair::operator=(const UndoableMod
 {
     if (&src != this)
     {
-        std::unique_ptr<Impl> cpy = std::make_unique<Impl>(*src.m_Impl);
-        std::swap(m_Impl, cpy);
+        std::unique_ptr<Impl> cpy = std::make_unique<Impl>(*src.impl_);
+        std::swap(impl_, cpy);
     }
 
     return *this;
@@ -710,138 +710,138 @@ UndoableModelStatePair& osc::UndoableModelStatePair::operator=(const UndoableMod
 UndoableModelStatePair& osc::UndoableModelStatePair::operator=(UndoableModelStatePair&&) noexcept = default;
 osc::UndoableModelStatePair::~UndoableModelStatePair() noexcept = default;
 
-bool osc::UndoableModelStatePair::isUpToDateWithFilesystem() const
+bool osc::UndoableModelStatePair::is_up_to_date_with_filesystem() const
 {
-    return m_Impl->isUpToDateWithFilesystem();
+    return impl_->isUpToDateWithFilesystem();
 }
 
-std::filesystem::file_time_type osc::UndoableModelStatePair::getLastFilesystemWriteTime() const
+std::filesystem::file_time_type osc::UndoableModelStatePair::get_last_filesystem_write_time() const
 {
-    return m_Impl->getLastFilesystemWriteTime();
+    return impl_->getLastFilesystemWriteTime();
 }
 
 
-ModelStateCommit osc::UndoableModelStatePair::getLatestCommit() const
+ModelStateCommit osc::UndoableModelStatePair::get_latest_commit() const
 {
-    return m_Impl->getLatestCommit();
+    return impl_->getLatestCommit();
 }
 
-bool osc::UndoableModelStatePair::canUndo() const
+bool osc::UndoableModelStatePair::can_undo() const
 {
-    return m_Impl->canUndo();
+    return impl_->canUndo();
 }
 
-void osc::UndoableModelStatePair::doUndo()
+void osc::UndoableModelStatePair::do_undo()
 {
-    m_Impl->doUndo();
+    impl_->doUndo();
 }
 
-bool osc::UndoableModelStatePair::canRedo() const
+bool osc::UndoableModelStatePair::can_redo() const
 {
-    return m_Impl->canRedo();
+    return impl_->canRedo();
 }
 
-void osc::UndoableModelStatePair::doRedo()
+void osc::UndoableModelStatePair::do_redo()
 {
-    m_Impl->doRedo();
+    impl_->doRedo();
 }
 
 void osc::UndoableModelStatePair::rollback()
 {
-    m_Impl->rollback();
+    impl_->rollback();
 }
 
-bool osc::UndoableModelStatePair::tryCheckout(const ModelStateCommit& commit)
+bool osc::UndoableModelStatePair::try_checkout(const ModelStateCommit& commit)
 {
-    return m_Impl->tryCheckout(commit);
+    return impl_->tryCheckout(commit);
 }
 
-void osc::UndoableModelStatePair::setModel(std::unique_ptr<OpenSim::Model> newModel)
+void osc::UndoableModelStatePair::set_model(std::unique_ptr<OpenSim::Model> newModel)
 {
-    m_Impl->setModel(std::move(newModel));
+    impl_->setModel(std::move(newModel));
 }
 
-void osc::UndoableModelStatePair::resetModel()
+void osc::UndoableModelStatePair::reset_model()
 {
-    m_Impl->resetModel();
+    impl_->resetModel();
 }
 
-void osc::UndoableModelStatePair::loadModel(const std::filesystem::path& p)
+void osc::UndoableModelStatePair::load_model(const std::filesystem::path& p)
 {
-    m_Impl->loadModel(p);
+    impl_->loadModel(p);
 }
 
 void osc::UndoableModelStatePair::impl_set_model_version(UID version)
 {
-    m_Impl->setModelVersion(version);
+    impl_->setModelVersion(version);
 }
 
 const OpenSim::Model& osc::UndoableModelStatePair::impl_get_model() const
 {
-    return m_Impl->getModel();
+    return impl_->getModel();
 }
 
 const SimTK::State& osc::UndoableModelStatePair::impl_get_state() const
 {
-    return m_Impl->getState();
+    return impl_->getState();
 }
 
 OpenSim::Model& osc::UndoableModelStatePair::impl_upd_model()
 {
-    return m_Impl->updModel();
+    return impl_->updModel();
 }
 
 void osc::UndoableModelStatePair::impl_commit(std::string_view commitMessage)
 {
-    m_Impl->commit(commitMessage);
+    impl_->commit(commitMessage);
 }
 
 UID osc::UndoableModelStatePair::impl_get_model_version() const
 {
-    return m_Impl->getModelVersion();
+    return impl_->getModelVersion();
 }
 
 UID osc::UndoableModelStatePair::impl_get_state_version() const
 {
-    return m_Impl->getStateVersion();
+    return impl_->getStateVersion();
 }
 
 float osc::UndoableModelStatePair::impl_get_fixup_scale_factor() const
 {
-    return m_Impl->getFixupScaleFactor();
+    return impl_->getFixupScaleFactor();
 }
 
 void osc::UndoableModelStatePair::impl_set_fixup_scale_factor(float v)
 {
-    m_Impl->setFixupScaleFactor(v);
+    impl_->setFixupScaleFactor(v);
 }
 
 const OpenSim::Component* osc::UndoableModelStatePair::impl_get_selected() const
 {
-    return m_Impl->getSelected();
+    return impl_->getSelected();
 }
 
 void osc::UndoableModelStatePair::impl_set_selected(const OpenSim::Component* c)
 {
-    m_Impl->setSelected(c);
+    impl_->setSelected(c);
 }
 
 const OpenSim::Component* osc::UndoableModelStatePair::impl_get_hovered() const
 {
-    return m_Impl->getHovered();
+    return impl_->getHovered();
 }
 
 void osc::UndoableModelStatePair::impl_set_hovered(const OpenSim::Component* c)
 {
-    m_Impl->setHovered(c);
+    impl_->setHovered(c);
 }
 
-std::shared_ptr<Environment> osc::UndoableModelStatePair::implUpdAssociatedEnvironment() const
+std::shared_ptr<Environment> osc::UndoableModelStatePair::impl_upd_associated_environment() const
 {
-    return m_Impl->implUpdAssociatedEnvironment();
+    return impl_->implUpdAssociatedEnvironment();
 }
 
 void osc::UndoableModelStatePair::impl_set_up_to_date_with_filesystem(std::filesystem::file_time_type t)
 {
-    m_Impl->setUpToDateWithFilesystem(t);
+    impl_->setUpToDateWithFilesystem(t);
 }

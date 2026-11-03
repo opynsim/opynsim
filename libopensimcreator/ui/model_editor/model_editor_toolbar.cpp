@@ -63,7 +63,7 @@ private:
         ui::push_style_color(ui::ColorVar::Text, Color::dark_green());
         if (ui::draw_button(MSMICONS_PLAY)) {
             if (parent()) {
-                ActionStartSimulatingModel(*parent(), *m_Model);
+                action_start_simulating_model(*parent(), *m_Model);
             }
         }
         ui::pop_style_color();
@@ -77,7 +77,7 @@ private:
             auto popup = std::make_unique<ParamBlockEditorPopup>(
                 &owner(),
                 "simulation parameters",
-                &m_Model->tryUpdEnvironment()->updSimulationParams()
+                &m_Model->try_upd_environment()->upd_simulation_params()
             );
             App::post_event<OpenPopupEvent>(owner(), std::move(popup));
         }

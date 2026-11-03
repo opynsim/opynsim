@@ -55,15 +55,15 @@ private:
     {
         if (ui::begin_menu("Edit")) {
             auto* undoable = dynamic_cast<UndoableModelStatePair*>(m_Model.get());
-            if (ui::draw_menu_item(MSMICONS_UNDO " Undo", ModifierKey::Ctrl | Key::Z, false, undoable != nullptr and undoable->canUndo())) {
+            if (ui::draw_menu_item(MSMICONS_UNDO " Undo", ModifierKey::Ctrl | Key::Z, false, undoable != nullptr and undoable->can_undo())) {
                 if (undoable) {
-                    undoable->doUndo();
+                    undoable->do_undo();
                 }
             }
 
-            if (ui::draw_menu_item(MSMICONS_REDO " Redo", ModifierKey::Ctrl | ModifierKey::Shift | Key::Z, false, undoable != nullptr and undoable->canRedo())) {
+            if (ui::draw_menu_item(MSMICONS_REDO " Redo", ModifierKey::Ctrl | ModifierKey::Shift | Key::Z, false, undoable != nullptr and undoable->can_redo())) {
                 if (undoable) {
-                    undoable->doRedo();
+                    undoable->do_redo();
                 }
             }
 
@@ -89,7 +89,7 @@ private:
     {
         if (ui::begin_menu("Tools")) {
             if (ui::draw_menu_item(MSMICONS_PLAY " Simulate", ModifierKey::Ctrl | Key::R)) {
-                ActionStartSimulatingModel(owner(), *m_Model);
+                action_start_simulating_model(owner(), *m_Model);
             }
 
             if (ui::draw_menu_item(MSMICONS_EDIT " Edit simulation settings")) {
@@ -97,7 +97,7 @@ private:
                     auto popup = std::make_unique<ParamBlockEditorPopup>(
                         &owner(),
                         "simulation parameters",
-                        &m_Model->tryUpdEnvironment()->updSimulationParams()
+                        &m_Model->try_upd_environment()->upd_simulation_params()
                     );
                     App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
                 }
@@ -110,7 +110,7 @@ private:
                         "Import Points",
                         [model = m_Model](auto lms)
                         {
-                            ActionImportLandmarks(
+                            action_import_landmarks(
                                 *model,
                                 lms.landmarks,
                                 lms.maybe_label,
@@ -132,21 +132,21 @@ private:
 
             if (ui::begin_menu("         Experimental Tools")) {
                 if (ui::draw_menu_item("Export Model Graph as Dotviz")) {
-                    ActionExportModelGraphToDotviz(m_Model);
+                    action_export_model_graph_to_dotviz(m_Model);
                 }
                 ui::draw_tooltip_if_item_hovered("Writes the model's data topology graph in dotviz format, so that it can be visualized in external tooling such as Graphviz Online");
 
                 if (ui::draw_menu_item("Export Model Graph as Dotviz (clipboard)")) {
-                    ActionExportModelGraphToDotvizClipboard(*m_Model);
+                    action_export_model_graph_to_dotviz_clipboard(*m_Model);
                 }
 
                 if (ui::draw_menu_item("Export Model Multibody System as Dotviz (clipboard)")) {
-                    ActionExportModelMultibodySystemAsDotviz(*m_Model);
+                    action_export_model_multibody_system_as_dotviz(*m_Model);
                 }
                 ui::draw_tooltip_if_item_hovered("Writes the model's multibody system (kinematic chain) in dotviz format, so that it can be visualized in external tooling such as Graphviz Online");
 
                 if (ui::draw_menu_item("WIP: Bake Station Defined Frames")) {
-                    ActionBakeStationDefinedFrames(*m_Model);
+                    action_bake_station_defined_frames(*m_Model);
                 }
                 ui::draw_tooltip_if_item_hovered("WORK IN PROGRESS (WIP): Converts any `StationDefinedFrame`s in the model into `PhysicalOffsetFrame`s. Effectively, \"baking\" the current (station-defined) frame transform.\n\nThe main reason to do this is backwards compatibility, OpenSim <= v4.5 doesn't have native support for `StationDefinedFrame`s (later versions should: see opensim-core/#3694)");
 
@@ -161,11 +161,11 @@ private:
     {
         if (ui::begin_menu("Actions")) {
             if (ui::draw_menu_item("Disable all wrapping surfaces", {}, nullptr, m_Model->can_upd_model())) {
-                ActionDisableAllWrappingSurfaces(*m_Model);
+                action_disable_all_wrapping_surfaces(*m_Model);
             }
 
             if (ui::draw_menu_item("Enable all wrapping surfaces", {}, nullptr, m_Model->can_upd_model())) {
-                ActionEnableAllWrappingSurfaces(*m_Model);
+                action_enable_all_wrapping_surfaces(*m_Model);
             }
 
             ui::end_menu();

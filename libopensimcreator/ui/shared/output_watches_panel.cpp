@@ -62,15 +62,15 @@ public:
     {
         UpdateCachedSimulationReportIfNecessary(*m_Model, m_CachedReport);
 
-        std::shared_ptr<Environment> env = m_Model->tryUpdEnvironment();
-        if (env->getNumUserOutputExtractors() > 0 and ui::begin_table("##OutputWatchesTable", 3, ui::TableFlag::SizingStretchProp)) {
+        std::shared_ptr<Environment> env = m_Model->try_upd_environment();
+        if (env->get_num_user_output_extractors() > 0 and ui::begin_table("##OutputWatchesTable", 3, ui::TableFlag::SizingStretchProp)) {
             ui::table_setup_column("##Actions");
             ui::table_setup_column("Output", ui::ColumnFlag::WidthStretch);
             ui::table_setup_column("Value");
             ui::table_headers_row();
 
-            for (int outputIdx = 0; outputIdx < env->getNumUserOutputExtractors(); ++outputIdx) {
-                opyn::SharedOutputExtractor o = env->getUserOutputExtractor(outputIdx);
+            for (int outputIdx = 0; outputIdx < env->get_num_user_output_extractors(); ++outputIdx) {
+                opyn::SharedOutputExtractor o = env->get_user_output_extractor(outputIdx);
 
                 ui::push_id(outputIdx);
                 ui::table_next_row();
@@ -80,7 +80,7 @@ public:
                 // Column: actions
                 ui::table_set_column_index(column++);
                 if (ui::draw_button(MSMICONS_TRASH)) {
-                    env->removeUserOutputExtractor(outputIdx);
+                    env->remove_user_output_extractor(outputIdx);
                 }
                 ui::draw_tooltip_if_item_hovered("Remove watch");
 

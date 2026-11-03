@@ -49,14 +49,14 @@ namespace
         Environment& env,
         const opyn::SharedOutputExtractor& output)
     {
-        if (env.hasUserOutputExtractor(output)) {
+        if (env.has_user_output_extractor(output)) {
             if (ui::draw_menu_item(MSMICONS_TIMES " Stop Watching")) {
-                env.removeUserOutputExtractor(output);
+                env.remove_user_output_extractor(output);
             }
         }
         else {
             if (ui::draw_menu_item(MSMICONS_EYE " Watch Output")) {
-                env.addUserOutputExtractor(output);
+                env.add_user_output_extractor(output);
             }
             ui::draw_tooltip_if_item_hovered("Watch Output", "Watch the selected output. This makes it appear in the 'Output Watches' window in the editor panel and the 'Output Plots' window during a simulation");
         }
@@ -113,7 +113,7 @@ namespace
                         draw_request_output_menu_or_menu_item(output, [&oneDimensionalOutputExtractor, &environment](const opyn::SharedOutputExtractor& rhs)
                         {
                             opyn::SharedOutputExtractor concatenating = opyn::SharedOutputExtractor{opyn::ConcatenatingOutputExtractor{oneDimensionalOutputExtractor, rhs}};
-                            environment->overwriteOrAddNewUserOutputExtractor(oneDimensionalOutputExtractor, concatenating);
+                            environment->overwrite_or_add_new_user_output_extractor(oneDimensionalOutputExtractor, concatenating);
                         });
                         ui::pop_id();
                     }

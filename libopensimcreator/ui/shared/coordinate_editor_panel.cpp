@@ -113,7 +113,7 @@ private:
             // Draw a button that can be used to zero all coordinates, which can be a cheap way
             // of resetting a model's pose (#957).
             if (ui::draw_menu_item("Zero All Coordinates")) {
-                ActionZeroAllCoordinates(*m_Model);
+                action_zero_all_coordinates(*m_Model);
             }
             ui::end_popup();
         }
@@ -200,7 +200,7 @@ private:
         ui::push_style_var(ui::StyleVar::FramePadding, {0.0f, ui::get_style_frame_padding().y()});
         if (ui::draw_button(c.getLocked(m_Model->get_state()) ? MSMICONS_LOCK : MSMICONS_UNLOCK)) {
             const bool newValue = !c.getLocked(m_Model->get_state());
-            ActionSetCoordinateLockedAndSave(*m_Model, c, newValue);
+            action_set_coordinate_locked_and_save(*m_Model, c, newValue);
         }
         ui::pop_style_var();
         ui::pop_style_color();
@@ -225,7 +225,7 @@ private:
         }
         if (ui::draw_float_circular_slider("##coordinatevalueeditor", &displayedValue, minValue, maxValue)) {
             const double storedValue = opyn::convert_coord_display_value_to_storage_value(c, displayedValue);
-            ActionSetCoordinateValue(*m_Model, c, storedValue);
+            action_set_coordinate_value(*m_Model, c, storedValue);
         }
         if (coordinateLocked) {
             ui::end_disabled();
@@ -233,7 +233,7 @@ private:
         }
         if (ui::is_item_deactivated_after_edit()) {
             const double storedValue = opyn::convert_coord_display_value_to_storage_value(c, displayedValue);
-            ActionSetCoordinateValueAndSave(*m_Model, c, storedValue);
+            action_set_coordinate_value_and_save(*m_Model, c, storedValue);
         }
         ui::draw_tooltip_body_only_if_item_hovered("Ctrl-click the slider to edit");
     }
@@ -245,12 +245,12 @@ private:
         ui::set_next_item_width(ui::get_content_region_available().x());
         if (ui::draw_float_meters_input("##coordinatespeededitor", displayedSpeed)) {
             const double storedSpeed = opyn::convert_coord_display_value_to_storage_value(c, displayedSpeed);
-            ActionSetCoordinateSpeed(*m_Model, c, storedSpeed);
+            action_set_coordinate_speed(*m_Model, c, storedSpeed);
         }
 
         if (ui::is_item_deactivated_after_edit()) {
             const double storedSpeed = opyn::convert_coord_display_value_to_storage_value(c, displayedSpeed);
-            ActionSetCoordinateSpeedAndSave(*m_Model, c, storedSpeed);
+            action_set_coordinate_speed_and_save(*m_Model, c, storedSpeed);
         }
     }
 

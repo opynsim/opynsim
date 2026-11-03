@@ -78,43 +78,43 @@ private:
 
 
 osc::ModelStateCommit::ModelStateCommit(const opyn::ModelStatePair& p, std::string_view message) :
-    m_Impl{std::make_shared<Impl>(p, message)}
+    impl_{std::make_shared<Impl>(p, message)}
 {}
 osc::ModelStateCommit::ModelStateCommit(const opyn::ModelStatePair& p, std::string_view message, UID parent) :
-    m_Impl{std::make_shared<Impl>(p, message, parent)}
+    impl_{std::make_shared<Impl>(p, message, parent)}
 {}
 
-UID osc::ModelStateCommit::getID() const
+UID osc::ModelStateCommit::get_id() const
 {
-    return m_Impl->getID();
+    return impl_->getID();
 }
 
-bool osc::ModelStateCommit::hasParent() const
+bool osc::ModelStateCommit::has_parent() const
 {
-    return m_Impl->hasParent();
+    return impl_->hasParent();
 }
 
-UID osc::ModelStateCommit::getParentID() const
+UID osc::ModelStateCommit::get_parent_id() const
 {
-    return m_Impl->getParentID();
+    return impl_->getParentID();
 }
 
-CStringView osc::ModelStateCommit::getCommitMessage() const
+CStringView osc::ModelStateCommit::get_commit_message() const
 {
-    return m_Impl->getCommitMessage();
+    return impl_->getCommitMessage();
 }
 
-SynchronizedValueGuard<const OpenSim::Model> osc::ModelStateCommit::getModel() const
+SynchronizedValueGuard<const OpenSim::Model> osc::ModelStateCommit::get_model() const
 {
-    return m_Impl->getModel();
+    return impl_->getModel();
 }
 
-UID osc::ModelStateCommit::getModelVersion() const
+UID osc::ModelStateCommit::get_model_version() const
 {
-    return m_Impl->getModelVersion();
+    return impl_->getModelVersion();
 }
 
-float osc::ModelStateCommit::getFixupScaleFactor() const
+float osc::ModelStateCommit::get_fixup_scale_factor() const
 {
-    return m_Impl->getFixupScaleFactor();
+    return impl_->getFixupScaleFactor();
 }

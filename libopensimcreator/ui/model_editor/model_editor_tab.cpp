@@ -176,14 +176,14 @@ public:
 
     bool isUnsaved() const
     {
-        return !m_Model->isUpToDateWithFilesystem();
+        return !m_Model->is_up_to_date_with_filesystem();
     }
 
     std::future<TabSaveResult> trySave()
     {
         auto promise = std::make_shared<std::promise<TabSaveResult>>();
         std::future<TabSaveResult> future = promise->get_future();
-        ActionSaveModelAsync(m_Model, [promise](bool ok) mutable
+        action_save_model_async(m_Model, [promise](bool ok) mutable
         {
             promise->set_value(ok ? TabSaveResult::Done : TabSaveResult::Cancelled);
         });
@@ -280,7 +280,7 @@ public:
         // auto-reloading (#1000)
         if (App::settings().find_value<bool>("model_editor/monitor_osim_changes").value_or(true)) {
             if (m_FileChangePoller.change_detected(m_Model->get_model().getInputFileName())) {
-                ActionUpdateModelFromBackingFile(*m_Model);
+                action_update_model_from_backing_file(*m_Model);
             }
         }
 
@@ -325,14 +325,14 @@ public:
         log_error("Exceptions typically happen when an invalid edit is made to the model");
 
         if (m_ExceptionThrownLastFrame) {
-            if (m_Model->canUndo()) {
+            if (m_Model->can_undo()) {
                 // exception was thrown last frame, indicating the model in the undo/redo buffer is also
                 // damaged, so try undoing
 
                 log_error("an exception was also thrown last frame, indicating model damage: attempting to undo to an earlier version of the model to try and fix the model");
 
                 try {
-                    m_Model->doUndo();  // TODO: add `doUndoWithNoRedoStorage` so that the user's redo buffer isn't tainted
+                    m_Model->do_undo();  // TODO: add `doUndoWithNoRedoStorage` so that the user's redo buffer isn't tainted
                 }
                 catch (const std::exception& ex2) {
                     log_error("undoing the model also failed with an error");
@@ -396,7 +396,7 @@ private:
     bool onDropEvent(const DropFileEvent& e)
     {
         if (e.path().extension() == ".sto") {
-            return ActionLoadSTOFileAgainstModel(owner(), *m_Model, e.path());
+            return action_load_sto_file_against_model(owner(), *m_Model, e.path());
         }
         else if (opyn::has_model_file_extension(e.path())) {
             // if the user drops an osim file on this tab then it should be loaded
@@ -411,18 +411,18 @@ private:
     bool onKeydownEvent(const KeyEvent& e)
     {
         if (e.combination() == (ModifierKey::Ctrl | ModifierKey::Shift | Key::Z)) {
-            m_Model->doRedo();
+            m_Model->do_redo();
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::Z)) {
-            m_Model->doUndo();
+            m_Model->do_undo();
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::R)) {
-            return ActionStartSimulatingModel(owner(), *m_Model);
+            return action_start_simulating_model(owner(), *m_Model);
         }
         else if (e.combination() == Key::Backspace or e.combination() == Key::Delete) {
-            ActionTryDeleteSelectionFromEditedModel(*m_Model);
+            action_try_delete_selection_from_edited_model(*m_Model);
             return true;
         }
         else if (e.combination() == Key::Escape) {

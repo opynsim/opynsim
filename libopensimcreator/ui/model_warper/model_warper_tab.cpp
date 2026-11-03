@@ -255,7 +255,7 @@ namespace
 
             // If the user requests it, bake the SDFs after finishing everything else
             if (getBakeSDFs()) {
-                ActionBakeStationDefinedFrames(*undoableModel);
+                action_bake_station_defined_frames(*undoableModel);
             }
 
             auto editor = std::make_unique<ModelEditorTab>(parent_, std::move(undoableModel));

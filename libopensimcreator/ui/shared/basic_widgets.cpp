@@ -1364,7 +1364,7 @@ void osc::draw_new_model_button(Widget& api)
 {
     if (ui::draw_button(MSMICONS_FILE))
     {
-        ActionNewModel(api);
+        action_new_model(api);
     }
     ui::draw_tooltip_if_item_hovered("New Model", "Creates a new OpenSim model in a new tab");
 }
@@ -1409,10 +1409,10 @@ void osc::draw_open_model_button_with_recent_files_dropdown(Widget& api)
     draw_open_model_button_with_recent_files_dropdown([&api](auto maybeFile)
     {
         if (maybeFile) {
-            ActionOpenModel(api, *maybeFile);
+            action_open_model(api, *maybeFile);
         }
         else {
-            ActionOpenModel(api);
+            action_open_model(api);
         }
     });
 }
@@ -1420,7 +1420,7 @@ void osc::draw_open_model_button_with_recent_files_dropdown(Widget& api)
 void osc::draw_save_model_button(const std::shared_ptr<opyn::ModelStatePair>& model)
 {
     if (ui::draw_button(MSMICONS_SAVE)) {
-        ActionSaveModelAsync(model);
+        action_save_model_async(model);
     }
     ui::draw_tooltip_if_item_hovered("Save Model", "Saves the model to an osim file");
 }
@@ -1433,7 +1433,7 @@ void osc::draw_reload_model_button(UndoableModelStatePair& model)
         ui::begin_disabled();
     }
     if (ui::draw_button(MSMICONS_RECYCLE)) {
-        ActionReloadOsimFromDisk(model, *App::singleton<SceneCache>());
+        action_reload_osim_from_disk(model, *App::singleton<SceneCache>());
     }
     if (disable) {
         ui::end_disabled();
@@ -1444,13 +1444,13 @@ void osc::draw_reload_model_button(UndoableModelStatePair& model)
 void osc::draw_undo_button(opyn::ModelStatePair& model)
 {
     auto* undoable = dynamic_cast<UndoableModelStatePair*>(&model);
-    const bool disable = not (undoable != nullptr and undoable->canUndo());
+    const bool disable = not (undoable != nullptr and undoable->can_undo());
 
     if (disable) {
         ui::begin_disabled();
     }
     if (ui::draw_button(MSMICONS_UNDO) and undoable != nullptr) {
-        undoable->doUndo();
+        undoable->do_undo();
     }
     if (disable) {
         ui::end_disabled();
@@ -1461,13 +1461,13 @@ void osc::draw_undo_button(opyn::ModelStatePair& model)
 void osc::draw_redo_button(opyn::ModelStatePair& model)
 {
     auto* undoable = dynamic_cast<UndoableModelStatePair*>(&model);
-    const bool disable = not (undoable != nullptr and undoable->canRedo());
+    const bool disable = not (undoable != nullptr and undoable->can_redo());
 
     if (disable) {
         ui::begin_disabled();
     }
     if (ui::draw_button(MSMICONS_REDO) and undoable != nullptr) {
-        undoable->doRedo();
+        undoable->do_redo();
     }
     if (disable) {
         ui::end_disabled();
@@ -1490,7 +1490,7 @@ void osc::draw_toggle_frames_button(opyn::ModelStatePair& model, IconCache& icon
         ui::begin_disabled();
     }
     if (ui::draw_image_button("##toggleframes", icon.texture(), icon.dimensions(), icon.texture_coordinates())) {
-        ActionToggleFrames(model);
+        action_toggle_frames(model);
     }
     if (model.is_readonly()) {
         ui::end_disabled();
@@ -1505,7 +1505,7 @@ void osc::draw_toggle_markers_button(opyn::ModelStatePair& model, IconCache& ico
         ui::begin_disabled();
     }
     if (ui::draw_image_button("##togglemarkers", icon.texture(), icon.dimensions(), icon.texture_coordinates())) {
-        ActionToggleMarkers(model);
+        action_toggle_markers(model);
     }
     if (model.is_readonly()) {
         ui::end_disabled();
@@ -1520,7 +1520,7 @@ void osc::draw_toggle_wrap_geometry_button(opyn::ModelStatePair& model, IconCach
         ui::begin_disabled();
     }
     if (ui::draw_image_button("##togglewrapgeom", icon.texture(), icon.dimensions(), icon.texture_coordinates())) {
-        ActionToggleWrapGeometry(model);
+        action_toggle_wrap_geometry(model);
     }
     if (model.is_readonly()) {
         ui::end_disabled();
@@ -1535,7 +1535,7 @@ void osc::draw_toggle_contact_geometry_button(opyn::ModelStatePair& model, IconC
         ui::begin_disabled();
     }
     if (ui::draw_image_button("##togglecontactgeom", icon.texture(), icon.dimensions(), icon.texture_coordinates())) {
-        ActionToggleContactGeometry(model);
+        action_toggle_contact_geometry(model);
     }
     if (model.is_readonly()) {
         ui::end_disabled();
@@ -1550,7 +1550,7 @@ void osc::draw_toggle_forces_button(opyn::ModelStatePair& model, IconCache& icon
         ui::begin_disabled();
     }
     if (ui::draw_image_button("##toggleforces", icon.texture(), icon.dimensions(), icon.texture_coordinates())) {
-        ActionToggleForces(model);
+        action_toggle_forces(model);
     }
     if (model.is_readonly()) {
         ui::end_disabled();
@@ -1590,7 +1590,7 @@ void osc::draw_scene_scale_factor_editor_controls(opyn::ModelStatePair& model)
     ui::push_style_var(ui::StyleVar::ItemSpacing, {2.0f, 0.0f});
     ui::same_line();
     if (ui::draw_button(MSMICONS_EXPAND_ARROWS_ALT)) {
-        ActionAutoscaleSceneScaleFactor(model);
+        action_autoscale_scene_scale_factor(model);
     }
     ui::pop_style_var();
     ui::draw_tooltip_if_item_hovered("Autoscale Scale Factor", "Try to autoscale the model's scale factor based on the current dimensions of the model");

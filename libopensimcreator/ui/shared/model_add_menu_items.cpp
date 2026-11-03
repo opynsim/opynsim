@@ -113,11 +113,11 @@ private:
     void drawSpecializedContextualActions(const OpenSim::Joint& joint)
     {
         if (ui::draw_menu_item("Parent Offset Frame", {}, nullptr, m_Model->can_upd_model())) {
-            ActionAddParentOffsetFrameToJoint(*m_Model, joint.getAbsolutePath());
+            action_add_parent_offset_frame_to_joint(*m_Model, joint.getAbsolutePath());
         }
 
         if (ui::draw_menu_item("Child Offset Frame", {}, nullptr, m_Model->can_upd_model())) {
-            ActionAddChildOffsetFrameToJoint(*m_Model, joint.getAbsolutePath());
+            action_add_child_offset_frame_to_joint(*m_Model, joint.getAbsolutePath());
         }
     }
 
@@ -133,7 +133,7 @@ private:
         if (ui::draw_menu_item("Associated Contact Geometry", {}, nullptr, m_Model->can_upd_model())) {
             const auto onSelection = [model = m_Model, path = hcf.getAbsolutePath()](const OpenSim::ComponentPath& geomPath)
             {
-                ActionAssignContactGeometryToHCF(*model, path, geomPath);
+                action_assign_contact_geometry_to_hcf(*model, path, geomPath);
             };
             const auto filter = [](const OpenSim::Component& c) -> bool
             {
@@ -154,7 +154,7 @@ private:
         if (ui::draw_menu_item("Path Point", {}, nullptr, m_Model->can_upd_model())) {
             auto onSelection = [model = m_Model, path = pa.getAbsolutePath()](const OpenSim::ComponentPath& pfPath)
             {
-                ActionAddPathPointToPathActuator(*model, path, pfPath);
+                action_add_path_point_to_path_actuator(*model, path, pfPath);
             };
             auto popup = std::make_unique<Select1PFPopup>(parent(), "Select Physical Frame", m_Model, onSelection);
             App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
@@ -178,7 +178,7 @@ private:
         if (ui::draw_menu_item("Path Point", {}, nullptr, m_Model->can_upd_model())) {
             auto onSelection = [model = m_Model, path = geometryPath.getAbsolutePath()](const OpenSim::ComponentPath& pfPath)
             {
-                ActionAddPathPointToGeometryPath(*model, path, pfPath);
+                action_add_path_point_to_geometry_path(*model, path, pfPath);
             };
             auto popup = std::make_unique<Select1PFPopup>(parent(), "Select Physical Frame", m_Model, onSelection);
             App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
@@ -194,7 +194,7 @@ private:
                 path = frame.getAbsolutePath(),
                 pptr = parent()](auto geom)
             {
-                ActionAttachGeometryToPhysicalFrame(*model, path, std::move(geom));
+                action_attach_geometry_to_physical_frame(*model, path, std::move(geom));
             };
             auto popup = std::make_unique<SelectGeometryPopup>(
                 parent(),
@@ -207,7 +207,7 @@ private:
         ui::draw_tooltip_if_item_hovered("Add Geometry", "Add geometry to this component. Geometry can be removed by selecting it in the navigator and pressing DELETE");
 
         if (ui::draw_menu_item("Offset Frame", {}, nullptr, m_Model->can_upd_model())) {
-            ActionAddOffsetFrameToPhysicalFrame(*m_Model, frame.getAbsolutePath());
+            action_add_offset_frame_to_physical_frame(*m_Model, frame.getAbsolutePath());
         }
         ui::draw_tooltip_if_item_hovered("Add Offset Frame", "Add an OpenSim::OffsetFrame as a child of this Component. Other components in the model can then connect to this OffsetFrame, rather than the base Component, so that it can connect at some offset that is relative to the parent Component");
 
@@ -227,10 +227,10 @@ private:
             bool selected = enabled;
             if (ui::draw_menu_item(wo.getName(), {}, &selected, m_Model->can_upd_model())) {
                 if (enabled) {
-                    ActionRemoveWrapObjectFromGeometryPathWraps(*m_Model, gp, wo);
+                    action_remove_wrap_object_from_geometry_path_wraps(*m_Model, gp, wo);
                 }
                 else {
-                    ActionAddWrapObjectToGeometryPathWraps(*m_Model, gp, wo);
+                    action_add_wrap_object_to_geometry_path_wraps(*m_Model, gp, wo);
                 }
             }
             ui::pop_id();
@@ -244,7 +244,7 @@ private:
         for (const auto& entry : registry) {
             ui::push_id(&entry);
             if (ui::draw_menu_item(entry.name(), {}, nullptr, m_Model->can_upd_model())) {
-                ActionAddWrapObjectToPhysicalFrame(
+                action_add_wrap_object_to_physical_frame(
                     *m_Model,
                     physicalFrameAbsPath,
                     entry.instantiate()

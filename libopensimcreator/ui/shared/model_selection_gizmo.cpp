@@ -213,12 +213,12 @@ namespace
             const SimTK::InverseRotation& groundToParentRotation = parentToGroundRotation.invert();
             const auto translationInParent = to<Vector3>(groundToParentRotation * transformInGround.p());
 
-            ActionTranslateStation(getUndoableModel(), station, translationInParent);
+            action_translate_station(getUndoableModel(), station, translationInParent);
         }
 
         void implOnSave(const OpenSim::Station& station) final
         {
-            ActionTranslateStationAndSave(getUndoableModel(), station, {});
+            action_translate_station_and_save(getUndoableModel(), station, {});
         }
     };
 
@@ -257,12 +257,12 @@ namespace
             const SimTK::InverseRotation& groundToParentRotation = parentToGroundRotation.invert();
             const auto translationInParent = to<Vector3>(groundToParentRotation * transformInGround.p());
 
-            ActionTranslatePathPoint(getUndoableModel(), pathPoint, translationInParent);
+            action_translate_path_point(getUndoableModel(), pathPoint, translationInParent);
         }
 
         void implOnSave(const OpenSim::PathPoint& pathPoint) final
         {
-            ActionTranslatePathPointAndSave(getUndoableModel(), pathPoint, {});
+            action_translate_path_point_and_save(getUndoableModel(), pathPoint, {});
         }
     };
 
@@ -325,7 +325,7 @@ namespace
                 const SimTK::Transform& M_pofg = pof.getTransformInGround(getState());
                 const SimTK::Transform M_p = pof.findTransformBetween(getState(), pof.getParentFrame());
                 const SimTK::Transform X = (M_pofg.invert() * M_n * M_pofg * M_p.invert()).invert();
-                ActionTransformPofV2(
+                action_transform_pof_v2(
                     getUndoableModel(),
                     pof,
                     to<Vector3>(X.p()),
@@ -348,7 +348,7 @@ namespace
                 const SimTK::Transform M_g = pof.getParentFrame().getTransformInGround(getState());
                 const SimTK::Transform M_p = pof.findTransformBetween(getState(), pof.getParentFrame());
                 const SimTK::Transform X = M_g.invert() * M_n * M_g * M_p;
-                ActionTransformPofV2(
+                action_transform_pof_v2(
                     getUndoableModel(),
                     pof,
                     to<Vector3>(X.p()),
@@ -431,7 +431,7 @@ namespace
             const SimTK::Transform M_g = wrapObj.getFrame().getTransformInGround(getState());
             const SimTK::Transform& M_w = wrapObj.getTransform();
             const SimTK::Transform X = M_g.invert() * M_n * M_g * M_w;
-            ActionTransformWrapObject(
+            action_transform_wrap_object(
                 getUndoableModel(),
                 wrapObj,
                 to<Vector3>(X.p() - M_w.p()),
@@ -482,7 +482,7 @@ namespace
             const SimTK::Transform M_g = contactGeom.getFrame().getTransformInGround(getState());
             const SimTK::Transform M_w = contactGeom.getTransform();
             const SimTK::Transform X = M_g.invert() * M_n * M_g * M_w;
-            ActionTransformContactGeometry(
+            action_transform_contact_geometry(
                 getUndoableModel(),
                 contactGeom,
                 to<Vector3>(X.p() - M_w.p()),
@@ -583,7 +583,7 @@ namespace
                 // M_n * M_g * M_ppof1 * v = M_g * X * v
                 const SimTK::Transform M_g = parentPOF.getParentFrame().getTransformInGround(getState());
                 const SimTK::Transform X = M_g.invert() * M_n * M_g * M_ppof1;
-                ActionTransformPofV2(
+                action_transform_pof_v2(
                     getUndoableModel(),
                     parentPOF,
                     to<Vector3>(X.p()),
@@ -601,7 +601,7 @@ namespace
             const SimTK::Transform M_cpof2 = (M_j.invert() * M_ppof2.invert() * M_ppof1 * M_j * M_cpof1.invert()).invert();
 
             // decompse `M_cpof2` into the child `OpenSim::PhysicalOffsetFrame`'s properties
-            ActionTransformPofV2(
+            action_transform_pof_v2(
                 getUndoableModel(),
                 childPOF,
                 to<Vector3>(M_cpof2.p()),
@@ -667,12 +667,12 @@ namespace
             // ignores `rotation`
             const OpenSim::ContactGeometry& geom = obstacle.getContactGeometry();
             const SimTK::Vec3 translationInContactGeom = (geom.getFrame().getTransformInGround(getState()) * geom.getTransform()).R().invert() * transformInGround.p();
-            ActionTranslateContactHint(getUndoableModel(), obstacle, to<Vector3>(translationInContactGeom));
+            action_translate_contact_hint(getUndoableModel(), obstacle, to<Vector3>(translationInContactGeom));
         }
 
         void implOnSave([[maybe_unused]]const OpenSim::Scholz2015GeometryPathObstacle& obstacle) final
         {
-            ActionTranslateContactHintAndSave(getUndoableModel(), obstacle, {});
+            action_translate_contact_hint_and_save(getUndoableModel(), obstacle, {});
         }
     };
 

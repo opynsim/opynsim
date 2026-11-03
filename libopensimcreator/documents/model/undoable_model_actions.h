@@ -41,22 +41,22 @@ namespace osc { class Widget; }
 namespace osc
 {
     // prompt the user for a save location and then save the model to the specified location
-    void ActionSaveCurrentModelAs(
+    void action_save_current_model_as(
         const std::shared_ptr<opyn::ModelStatePair>&
     );
 
     // create a new model and show it in a new tab
-    void ActionNewModel(
+    void action_new_model(
         Widget& parent
     );
 
     // prompt a user to open a model file and open it in a new tab
-    void ActionOpenModel(
+    void action_open_model(
         Widget&
     );
 
     // open the specified model in a loading tab
-    void ActionOpenModel(
+    void action_open_model(
         Widget&,
         const std::filesystem::path&
     );
@@ -64,7 +64,7 @@ namespace osc
     // Tries to save the given model, potentially asynchronously, as an on-disk file
     // then calls `callback` with `true` if the save was successful; otherwise, calls it
     // with `false`.
-    void ActionSaveModelAsync(
+    void action_save_model_async(
         const std::shared_ptr<opyn::ModelStatePair>&,
         std::function<void(bool)> callback = [](bool){}
     );
@@ -72,158 +72,158 @@ namespace osc
     // try to delete an undoable-model's current selection
     //
     // "try", because some things are difficult to delete from OpenSim models
-    void ActionTryDeleteSelectionFromEditedModel(
+    void action_try_delete_selection_from_edited_model(
         opyn::ModelStatePair&
     );
 
     // disable all wrapping surfaces in the current model
-    void ActionDisableAllWrappingSurfaces(
+    void action_disable_all_wrapping_surfaces(
         opyn::ModelStatePair&
     );
 
     // enable all wrapping surfaces in the current model
-    void ActionEnableAllWrappingSurfaces(
+    void action_enable_all_wrapping_surfaces(
         opyn::ModelStatePair&
     );
 
     // loads an STO file against the current model and opens it in a new tab
-    bool ActionLoadSTOFileAgainstModel(
+    bool action_load_sto_file_against_model(
         Widget&,
         const ModelStatePairWithSharedEnvironment&,
         const std::filesystem::path& stoPath
     );
 
     // start simulating the given model in a forward-dynamic simulator tab
-    bool ActionStartSimulatingModel(
+    bool action_start_simulating_model(
         Widget&,
         const ModelStatePairWithSharedEnvironment&
     );
 
     // reload the given model from its backing file (if applicable)
-    bool ActionUpdateModelFromBackingFile(
+    bool action_update_model_from_backing_file(
         UndoableModelStatePair&
     );
 
     // copies the full absolute path to the osim to the clipboard
-    bool ActionCopyModelPathToClipboard(
+    bool action_copy_model_path_to_clipboard(
         const opyn::ModelStatePair&
     );
 
     // try to automatically set the model's scale factor based on how big the scene is
-    bool ActionAutoscaleSceneScaleFactor(
+    bool action_autoscale_scene_scale_factor(
         opyn::ModelStatePair&
     );
 
     // toggle model frame visibility
-    bool ActionToggleFrames(
+    bool action_toggle_frames(
         opyn::ModelStatePair&
     );
 
     // toggle model marker visibility
-    bool ActionToggleMarkers(
+    bool action_toggle_markers(
         opyn::ModelStatePair&
     );
 
     // toggle contact geometry visibility
-    bool ActionToggleContactGeometry(
+    bool action_toggle_contact_geometry(
         opyn::ModelStatePair&
     );
 
     // toggle force visibility (#887)
-    bool ActionToggleForces(
+    bool action_toggle_forces(
         opyn::ModelStatePair&
     );
 
     // toggle model wrap geometry visibility
-    bool ActionToggleWrapGeometry(
+    bool action_toggle_wrap_geometry(
         opyn::ModelStatePair&
     );
 
     // open the parent directory of the model's backing file (if applicable) in an OS file explorer window
-    bool ActionOpenOsimParentDirectory(const OpenSim::Model&);
+    bool action_open_osim_parent_directory(const OpenSim::Model&);
 
     // open the model's backing file (if applicable) in an OS-determined default for osims
-    bool ActionOpenOsimInExternalEditor(const OpenSim::Model&);
+    bool action_open_osim_in_external_editor(const OpenSim::Model&);
 
     // force a reload of the model, and its associated assets, from its backing file
-    bool ActionReloadOsimFromDisk(
+    bool action_reload_osim_from_disk(
         UndoableModelStatePair&,
         SceneCache&
     );
 
     // add an offset frame to the current selection (if applicable)
-    bool ActionAddOffsetFrameToPhysicalFrame(
+    bool action_add_offset_frame_to_physical_frame(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& physFramePath
     );
 
     // returns true if the specified joint (if valid) can be re-zeroed
-    bool CanRezeroJoint(
+    bool can_rezero_joint(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& jointPath
     );
 
     // re-zeroes the selected joint (if applicable)
-    bool ActionRezeroJoint(
+    bool action_rezero_joint(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& jointPath
     );
 
     // adds a parent offset frame to the selected joint (if applicable)
-    bool ActionAddParentOffsetFrameToJoint(
+    bool action_add_parent_offset_frame_to_joint(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& jointPath
     );
 
     // adds a child offset frame to the selected joint (if applicable)
-    bool ActionAddChildOffsetFrameToJoint(
+    bool action_add_child_offset_frame_to_joint(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& jointPath
     );
 
     // sets the name of the selected component (if applicable)
-    bool ActionSetComponentName(
+    bool action_set_component_name(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& componentPath,
         const std::string&
     );
 
     // changes the type of the selected joint (if applicable) to the provided joint
-    bool ActionChangeJointTypeTo(
+    bool action_change_joint_type_to(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& jointPath,
         std::unique_ptr<OpenSim::Joint>
     );
 
     // attaches geometry to the selected physical frame (if applicable)
-    bool ActionAttachGeometryToPhysicalFrame(
+    bool action_attach_geometry_to_physical_frame(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& physFramePath,
         std::unique_ptr<OpenSim::Geometry>
     );
 
     // assigns contact geometry to the selected HCF (if applicable)
-    bool ActionAssignContactGeometryToHCF(
+    bool action_assign_contact_geometry_to_hcf(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& hcfPath,
         const OpenSim::ComponentPath& contactGeomPath
     );
 
     // applies a property edit to the model
-    bool ActionApplyPropertyEdit(
+    bool action_apply_property_edit(
         opyn::ModelStatePair&,
         ObjectPropertyEdit&
     );
 
     // adds a path point to the selected geometry path
-    bool ActionAddPathPointToGeometryPath(
+    bool action_add_path_point_to_geometry_path(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& geometryPathPath,
         const OpenSim::ComponentPath& pointPhysFrame
     );
 
     // adds a path point to the selected path actuator (if applicable)
-    bool ActionAddPathPointToPathActuator(
+    bool action_add_path_point_to_path_actuator(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& pathActuatorPath,
         const OpenSim::ComponentPath& pointPhysFrame
@@ -240,7 +240,7 @@ namespace osc
     }
 
     // attempts to reassign a component's socket connection (returns false and writes to `error` on failure)
-    bool ActionReassignComponentSocket(
+    bool action_reassign_component_socket(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& componentAbsPath,
         const std::string& socketName,
@@ -254,27 +254,27 @@ namespace osc
 
         BodyDetails();
 
-        Vector3 centerOfMass;
+        Vector3 center_of_mass;
         Vector3 inertia;
         float mass;
-        std::string parentFrameAbsPath;
-        std::string bodyName;
-        size_t jointTypeIndex;
-        std::string jointName;
-        std::unique_ptr<OpenSim::Geometry> maybeGeometry;
-        bool addOffsetFrames;
+        std::string parent_frame_abs_path;
+        std::string body_name;
+        size_t joint_type_index;
+        std::string joint_name;
+        std::unique_ptr<OpenSim::Geometry> maybe_geometry;
+        bool add_offset_frames;
     };
 
     // add a new body to the model
-    bool ActionAddBodyToModel(opyn::ModelStatePair&, const BodyDetails&);
+    bool action_add_body_to_model(opyn::ModelStatePair&, const BodyDetails&);
 
     // add the given component into the model graph, or throw
-    bool ActionAddComponentToModel(opyn::ModelStatePair&, std::unique_ptr<OpenSim::Component>);
-    bool ActionAddComponentToModel(opyn::ModelStatePair&, std::unique_ptr<OpenSim::Component>, const OpenSim::ComponentPath& desiredParent);
+    bool action_add_component_to_model(opyn::ModelStatePair&, std::unique_ptr<OpenSim::Component>);
+    bool action_add_component_to_model(opyn::ModelStatePair&, std::unique_ptr<OpenSim::Component>, const OpenSim::ComponentPath& desiredParent);
 
     // add the given `OpenSim::WrapObject` to the `WrapObjectSet` of
     // the `OpenSim::PhysicalFrame` located at `physicalFramePath`
-    bool ActionAddWrapObjectToPhysicalFrame(
+    bool action_add_wrap_object_to_physical_frame(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath& physicalFramePath,
         std::unique_ptr<OpenSim::WrapObject> wrapObjPtr
@@ -282,7 +282,7 @@ namespace osc
 
     // add the given `OpenSim::WrapObject` to the `OpenSim::GeometryPath`'s
     // wrap object set, which makes the path wrap around the wrap object
-    bool ActionAddWrapObjectToGeometryPathWraps(
+    bool action_add_wrap_object_to_geometry_path_wraps(
         opyn::ModelStatePair&,
         const OpenSim::GeometryPath&,
         const OpenSim::WrapObject&
@@ -292,7 +292,7 @@ namespace osc
     // wrap object set
     //
     // does nothing if the `OpenSim::WrapObject` isn't in the path's wrap set
-    bool ActionRemoveWrapObjectFromGeometryPathWraps(
+    bool action_remove_wrap_object_from_geometry_path_wraps(
         opyn::ModelStatePair&,
         const OpenSim::GeometryPath&,
         const OpenSim::WrapObject&
@@ -300,47 +300,47 @@ namespace osc
 
     // Zeroes all `OpenSim::Coordinates` in the model. If a coordinate is clamped
     // then this tries to get as close to zero as possible while obeying the clamp
-    bool ActionZeroAllCoordinates(
+    bool action_zero_all_coordinates(
         opyn::ModelStatePair&
     );
 
     // set the speed of a coordinate
-    bool ActionSetCoordinateSpeed(
+    bool action_set_coordinate_speed(
         opyn::ModelStatePair&,
         const OpenSim::Coordinate&,
         double newSpeed
     );
 
     // set the speed of a coordinate and ensure it is saved
-    bool ActionSetCoordinateSpeedAndSave(
+    bool action_set_coordinate_speed_and_save(
         opyn::ModelStatePair&,
         const OpenSim::Coordinate&,
         double newSpeed
     );
 
     // set a coordinate (un)locked
-    bool ActionSetCoordinateLockedAndSave(
+    bool action_set_coordinate_locked_and_save(
         opyn::ModelStatePair&,
         const OpenSim::Coordinate&,
         bool
     );
 
     // set the value of a coordinate
-    bool ActionSetCoordinateValue(
+    bool action_set_coordinate_value(
         opyn::ModelStatePair&,
         const OpenSim::Coordinate&,
         double newValue
     );
 
     // set the value of a coordinate and ensure it is saved
-    bool ActionSetCoordinateValueAndSave(
+    bool action_set_coordinate_value_and_save(
         opyn::ModelStatePair&,
         const OpenSim::Coordinate&,
         double newValue
     );
 
     // sets the `Appearance` property of the pointed-to component, and all its children, to have visible = bool
-    bool ActionSetComponentAndAllChildrensIsVisibleTo(
+    bool action_set_component_and_all_childrens_is_visible_to(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath&,
         bool newVisibility
@@ -348,14 +348,14 @@ namespace osc
 
     // sets the `Appearance` property of all components in the model to `visible = false`, followed by setting the
     // `Appearance` property of the pointed-to component, and all its children, to `visible = true`
-    bool ActionShowOnlyComponentAndAllChildren(
+    bool action_show_only_component_and_all_children(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath&
     );
 
     // sets the `Appearance` property of all components in the model to `visible = visible` if that component has
     // the given concrete class name
-    bool ActionSetComponentAndAllChildrenWithGivenConcreteClassNameIsVisibleTo(
+    bool action_set_component_and_all_children_with_given_concrete_class_name_is_visible_to(
         opyn::ModelStatePair&,
         const OpenSim::ComponentPath&,
         std::string_view concreteClassName,
@@ -365,7 +365,7 @@ namespace osc
     // sets the location of the given station in its parent frame to its old location plus the provided delta
     //
     // (does not save the change to undo/redo storage)
-    bool ActionTranslateStation(
+    bool action_translate_station(
         opyn::ModelStatePair&,
         const OpenSim::Station&,
         const Vector3& deltaPosition
@@ -374,7 +374,7 @@ namespace osc
     // sets the location of the given station in its parent frame to its old location plus the provided vector
     //
     // (saves the change to undo/redo storage)
-    bool ActionTranslateStationAndSave(
+    bool action_translate_station_and_save(
         opyn::ModelStatePair&,
         const OpenSim::Station&,
         const Vector3& deltaPosition
@@ -383,7 +383,7 @@ namespace osc
     // sets the location of the given path point in its parent frame to its old location plus the provided delta
     //
     // (does not save the change to undo/redo storage)
-    bool ActionTranslatePathPoint(
+    bool action_translate_path_point(
         opyn::ModelStatePair&,
         const OpenSim::PathPoint&,
         const Vector3& deltaPosition
@@ -392,45 +392,45 @@ namespace osc
     // sets the location of the given path point in its parent frame to its old location plus the provided delta
     //
     // (saves the change to undo/redo storage)
-    bool ActionTranslatePathPointAndSave(
+    bool action_translate_path_point_and_save(
         opyn::ModelStatePair&,
         const OpenSim::PathPoint&,
         const Vector3& deltaPosition
     );
 
-    bool ActionTransformPofV2(
+    bool action_transform_pof_v2(
         opyn::ModelStatePair&,
         const OpenSim::PhysicalOffsetFrame&,
         const Vector3& newTranslation,
         const EulerAngles& newEulers
     );
-    bool ActionTransformWrapObject(
+    bool action_transform_wrap_object(
         opyn::ModelStatePair&,
         const OpenSim::WrapObject&,
         const Vector3& deltaPosition,
         const EulerAngles& newEulers
     );
-    bool ActionTransformContactGeometry(
+    bool action_transform_contact_geometry(
         opyn::ModelStatePair&,
         const OpenSim::ContactGeometry&,
         const Vector3& deltaPosition,
         const EulerAngles& newEulers
     );
-    bool ActionFitSphereToMesh(opyn::ModelStatePair&, const OpenSim::Mesh&);
-    bool ActionFitEllipsoidToMesh(opyn::ModelStatePair&, const OpenSim::Mesh&);
-    bool ActionFitPlaneToMesh(opyn::ModelStatePair&, const OpenSim::Mesh&);
-    bool ActionImportLandmarks(
+    bool action_fit_sphere_to_mesh(opyn::ModelStatePair&, const OpenSim::Mesh&);
+    bool action_fit_ellipsoid_to_mesh(opyn::ModelStatePair&, const OpenSim::Mesh&);
+    bool action_fit_plane_to_mesh(opyn::ModelStatePair&, const OpenSim::Mesh&);
+    bool action_import_landmarks(
         opyn::ModelStatePair&,
         std::span<const opyn::NamedLandmark>,
         std::optional<std::string> maybeName,
         std::optional<std::string> maybeTargetFrameAbsPath
     );
-    void ActionExportModelGraphToDotviz(const std::shared_ptr<opyn::ModelStatePair>&);
-    bool ActionExportModelGraphToDotvizClipboard(const OpenSim::Model&);
-    bool ActionExportModelMultibodySystemAsDotviz(const OpenSim::Model&);
-    bool ActionBakeStationDefinedFrames(opyn::ModelStatePair&);
-    bool ActionMoveMarkerToModelMarkerSet(opyn::ModelStatePair&, const OpenSim::Marker&);
+    void action_export_model_graph_to_dotviz(const std::shared_ptr<opyn::ModelStatePair>&);
+    bool action_export_model_graph_to_dotviz_clipboard(const OpenSim::Model&);
+    bool action_export_model_multibody_system_as_dotviz(const OpenSim::Model&);
+    bool action_bake_station_defined_frames(opyn::ModelStatePair&);
+    bool action_move_marker_to_model_marker_set(opyn::ModelStatePair&, const OpenSim::Marker&);
 
-    bool ActionTranslateContactHint(opyn::ModelStatePair&, const OpenSim::Scholz2015GeometryPathObstacle&, const Vector3& deltaPosition);
-    bool ActionTranslateContactHintAndSave(opyn::ModelStatePair&, const OpenSim::Scholz2015GeometryPathObstacle&, const Vector3& deltaPosition);
+    bool action_translate_contact_hint(opyn::ModelStatePair&, const OpenSim::Scholz2015GeometryPathObstacle&, const Vector3& deltaPosition);
+    bool action_translate_contact_hint_and_save(opyn::ModelStatePair&, const OpenSim::Scholz2015GeometryPathObstacle&, const Vector3& deltaPosition);
 }

@@ -88,7 +88,7 @@ namespace
 
         void loadModelFile(const std::filesystem::path& p)
         {
-            m_Model->loadModel(p);
+            m_Model->load_model(p);
             reinitializeModelFromBackingData("loaded model", ReinitializationFlag::RecalculateTimeRange);
             m_TabNameOverride = p.filename().string();
         }
@@ -100,10 +100,10 @@ namespace
             // reload/reset model
             if (opyn::has_input_file_name(m_Model->get_model())) {
                 SceneCache dummy;
-                ActionReloadOsimFromDisk(*m_Model, dummy);
+                action_reload_osim_from_disk(*m_Model, dummy);
             }
             else {
-                m_Model->resetModel();
+                m_Model->reset_model();
             }
 
             // if applicable, reload associated trajectory

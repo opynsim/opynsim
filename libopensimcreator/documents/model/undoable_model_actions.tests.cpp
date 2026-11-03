@@ -39,10 +39,10 @@ TEST(OpenSimActions, ActionAddBodyToModelThrowsIfBodyNameIsInvalid)
     UndoableModelStatePair model;
 
     BodyDetails details;
-    details.bodyName = "test 1";
-    details.parentFrameAbsPath = "/ground";  // this is what the dialog defaults to
+    details.body_name = "test 1";
+    details.parent_frame_abs_path = "/ground";  // this is what the dialog defaults to
 
-    ASSERT_ANY_THROW({ ActionAddBodyToModel(model, details); });
+    ASSERT_ANY_THROW({ action_add_body_to_model(model, details); });
 }
 
 // repro for #495
@@ -56,13 +56,13 @@ TEST(OpenSimActions, ActionUpdateModelFromBackingFileReturnsFalseIfFileDoesNotEx
     UndoableModelStatePair model;
 
     // it just returns `false` if there's no backing file
-    ASSERT_FALSE(ActionUpdateModelFromBackingFile(model));
+    ASSERT_FALSE(action_update_model_from_backing_file(model));
 
     // ... but if you say it has an invalid backing file path...
     model.upd_model().setInputFileName("doesnt-exist");
 
     // then it should just return `false`, rather than (e.g.) exploding
-    ASSERT_FALSE(ActionUpdateModelFromBackingFile(model));
+    ASSERT_FALSE(action_update_model_from_backing_file(model));
 }
 
 // repro for #654
@@ -98,7 +98,7 @@ TEST(OpenSimActions, ActionApplyRangeDeletionPropertyEditReturnsFalseToIndicateF
         },
     };
 
-    ASSERT_EQ(ActionApplyPropertyEdit(undoableModel, edit), false);
+    ASSERT_EQ(action_apply_property_edit(undoableModel, edit), false);
 
     // hacky extra test: you can remove this, it's just reminder code
     undoableModel.upd_model().updComponent<OpenSim::Coordinate>("/jointset/joint/rotation").updProperty_range().clear();
@@ -123,7 +123,7 @@ TEST(OpenSimActions, ActionSetComponentNameOnModelWithUnusualJointTopologyDoesNo
     for (size_t i = 0; i < 25; ++i)
     {
         UndoableModelStatePair model = loadedModel;
-        ActionSetComponentName(
+        action_set_component_name(
             model,
             std::string{"/bodyset/humerus_b"},
             "newName"
@@ -144,7 +144,7 @@ TEST(OpenSimActions, ActionFitSphereToMeshFitsASphereToAMeshInTheModelAndSelects
     opyn::initialize_model(model.upd_model());
     opyn::initialize_state(model.upd_model());
 
-    ActionFitSphereToMesh(model, mesh);
+    action_fit_sphere_to_mesh(model, mesh);
     ASSERT_TRUE(model.get_selected());
     ASSERT_TRUE(dynamic_cast<const OpenSim::Sphere*>(model.get_selected()));
     ASSERT_EQ(&dynamic_cast<const OpenSim::Sphere*>(model.get_selected())->getFrame().findBaseFrame(), &body.findBaseFrame());
@@ -167,10 +167,10 @@ TEST(OpenSimActions, ActionFitSphereToMeshAppliesMeshesScaleFactorsCorrectly)
     opyn::initialize_model(model.upd_model());
     opyn::initialize_state(model.upd_model());
 
-    ActionFitSphereToMesh(model, unscaledMesh);
+    action_fit_sphere_to_mesh(model, unscaledMesh);
     ASSERT_TRUE(dynamic_cast<const OpenSim::Sphere*>(model.get_selected()));
     const double unscaledRadius = dynamic_cast<const OpenSim::Sphere&>(*model.get_selected()).get_radius();
-    ActionFitSphereToMesh(model, scaledMesh);
+    action_fit_sphere_to_mesh(model, scaledMesh);
     ASSERT_TRUE(dynamic_cast<const OpenSim::Sphere*>(model.get_selected()));
     const double scaledRadius = dynamic_cast<const OpenSim::Sphere&>(*model.get_selected()).get_radius();
 
@@ -192,7 +192,7 @@ TEST(OpenSimActions, ActionAddParentOffsetFrameToJointWorksInNormalCase)
     ASSERT_EQ(&joint.getParentFrame(), &um.get_model().getGround());
 
     // and now we ask for a new `PhysicalOffsetFrame` to be injected into the parent, which works
-    ASSERT_TRUE(ActionAddParentOffsetFrameToJoint(um, joint.getAbsolutePath()));
+    ASSERT_TRUE(action_add_parent_offset_frame_to_joint(um, joint.getAbsolutePath()));
 
     // the joint's parent frame is now a `PhysicalOffsetFrame` that's attached to ground
     const OpenSim::PhysicalFrame& parent1 = joint.getParentFrame();
@@ -220,7 +220,7 @@ TEST(OpenSimActions, ActionAddParentOffsetFrameToJointWorksInChainedCase)
     ASSERT_EQ(&joint.getParentFrame(), &um.get_model().getGround());
 
     // and now we ask for a new PhysicalOffsetFrame to be injected into the parent, which should work
-    ASSERT_TRUE(ActionAddParentOffsetFrameToJoint(um, joint.getAbsolutePath()));
+    ASSERT_TRUE(action_add_parent_offset_frame_to_joint(um, joint.getAbsolutePath()));
 
     // the joint's parent frame is now a `PhysicalOffsetFrame` that's attached to ground
     const OpenSim::PhysicalFrame& parent1 = joint.getParentFrame();
@@ -229,7 +229,7 @@ TEST(OpenSimActions, ActionAddParentOffsetFrameToJointWorksInChainedCase)
     ASSERT_EQ(&dynamic_cast<const OpenSim::PhysicalOffsetFrame&>(parent1).getParentFrame(), &um.get_model().getGround());
 
     // repeating the process creates a chain of `PhysicalOffsetFrame`s
-    ASSERT_TRUE(ActionAddParentOffsetFrameToJoint(um, joint.getAbsolutePath()));
+    ASSERT_TRUE(action_add_parent_offset_frame_to_joint(um, joint.getAbsolutePath()));
 
     const OpenSim::PhysicalFrame& parent2 = joint.getParentFrame();
     ASSERT_NE(&parent1, &parent2);
@@ -252,7 +252,7 @@ TEST(OpenSimActions, ActionAddChildOffsetFrameToJointWorksInNormalCase)
     ASSERT_EQ(&joint.getChildFrame(), &body);
 
     // and now we ask for a new `PhysicalOffsetFrame` to be injected into the child, which should work
-    ASSERT_TRUE(ActionAddChildOffsetFrameToJoint(um, joint.getAbsolutePath()));
+    ASSERT_TRUE(action_add_child_offset_frame_to_joint(um, joint.getAbsolutePath()));
 
     // the joint's child frame is now a `PhysicalOffsetFrame` that's attached to the body
     const OpenSim::PhysicalFrame& child1 = joint.getChildFrame();
@@ -280,7 +280,7 @@ TEST(OpenSimActions, ActionAddChildOffsetFrameToJointWorksInChainedCase)
     ASSERT_EQ(&joint.getChildFrame(), &body);
 
     // and now we ask for a new `PhysicalOffsetFrame` to be injected into the child, which should work
-    ASSERT_TRUE(ActionAddChildOffsetFrameToJoint(um, joint.getAbsolutePath()));
+    ASSERT_TRUE(action_add_child_offset_frame_to_joint(um, joint.getAbsolutePath()));
 
     // the joint's child frame is now a `PhysicalOffsetFrame` that's attached to the body
     const OpenSim::PhysicalFrame& child1 = joint.getChildFrame();
@@ -289,7 +289,7 @@ TEST(OpenSimActions, ActionAddChildOffsetFrameToJointWorksInChainedCase)
     ASSERT_EQ(&dynamic_cast<const OpenSim::PhysicalOffsetFrame&>(child1).getParentFrame(), &body);
 
     // repeating the process creates a chain of `PhysicalOffsetFrame`s
-    ASSERT_TRUE(ActionAddChildOffsetFrameToJoint(um, joint.getAbsolutePath()));
+    ASSERT_TRUE(action_add_child_offset_frame_to_joint(um, joint.getAbsolutePath()));
 
     const OpenSim::PhysicalFrame& child2 = joint.getChildFrame();
     ASSERT_NE(&child2, &child1);
@@ -304,7 +304,7 @@ TEST(OpenSimActions, ActionAddWrapObjectToPhysicalFrameCanAddWrapCylinderToGroun
     auto wrapCylinder = std::make_unique<OpenSim::WrapCylinder>();
     wrapCylinder->setName("should_be_findable_in_model");
 
-    ASSERT_TRUE(ActionAddWrapObjectToPhysicalFrame(um, um.get_model().getGround().getAbsolutePath(), std::move(wrapCylinder)));
+    ASSERT_TRUE(action_add_wrap_object_to_physical_frame(um, um.get_model().getGround().getAbsolutePath(), std::move(wrapCylinder)));
     ASSERT_TRUE(um.get_model().findComponent("should_be_findable_in_model"));
 }
 
@@ -314,7 +314,7 @@ TEST(OpenSimActions, ActionAddWrapObjectToPhysicalFrameCanAddAllRegisteredWrapOb
     const OpenSim::ComponentPath groundPath = um.get_model().getGround().getAbsolutePath();
 
     for (const auto& entry : opyn::get_component_registry<OpenSim::WrapObject>()) {
-        ASSERT_TRUE(ActionAddWrapObjectToPhysicalFrame(um, groundPath, entry.instantiate()));
+        ASSERT_TRUE(action_add_wrap_object_to_physical_frame(um, groundPath, entry.instantiate()));
     }
 
     size_t numWrapsInModel = 0;
@@ -353,7 +353,7 @@ TEST(OpenSimActions, ActionAddPathWrapToGeometryPathWorksInExampleCase)
 
     ASSERT_NEAR(path.getLength(state2), 1.0, epsilon_v<double>) << "the wrap object hasn't been added to the model yet";
 
-    ActionAddWrapObjectToGeometryPathWraps(um, path, sphere);
+    action_add_wrap_object_to_geometry_path_wraps(um, path, sphere);
 
     ASSERT_GT(path.getLength(um.get_state()), 1.1)  << "path should start wrapping";
 }
@@ -379,7 +379,7 @@ TEST(OpenSimActions, ActionRemoveWrapObjectFromGeometryPathWrapsWorksInExampleCa
 
     ASSERT_GT(path.getLength(um.get_state()), 1.1)  << "initial state of model includes wrapping";
 
-    ActionRemoveWrapObjectFromGeometryPathWraps(um, path, sphere);
+    action_remove_wrap_object_from_geometry_path_wraps(um, path, sphere);
 
     ASSERT_NEAR(path.getLength(um.get_state()), 1.0, epsilon_v<double>)  << "should stop wrapping";
 }
@@ -394,7 +394,7 @@ TEST(OpenSimActions, ActionUpdateModelFromBackingFileShouldRetainSceneScaleFacto
     const std::filesystem::path backingFile = std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "models" / "Blank" / "blank.osim";
 
     UndoableModelStatePair model{backingFile};
-    model.set_up_to_date_with_filesystem(model.getLastFilesystemWriteTime() - std::chrono::seconds{1});  // ensure it's invalid
+    model.set_up_to_date_with_filesystem(model.get_last_filesystem_write_time() - std::chrono::seconds{1});  // ensure it's invalid
 
     ASSERT_TRUE(opyn::has_input_file_name(model.get_model()));
 
@@ -404,7 +404,7 @@ TEST(OpenSimActions, ActionUpdateModelFromBackingFileShouldRetainSceneScaleFacto
     ASSERT_EQ(model.get_fixup_scale_factor(), 0.5f);
 
     // reload the model from disk
-    ASSERT_TRUE(ActionUpdateModelFromBackingFile(model)) << "this should work fine";
+    ASSERT_TRUE(action_update_model_from_backing_file(model)) << "this should work fine";
 
     ASSERT_EQ(model.get_fixup_scale_factor(), 0.5f) << "the scene scale factor should be retained after a reload";
 }
@@ -416,9 +416,9 @@ TEST(OpenSimActions, ActionToggleForcesTogglesTheForces)
 {
     UndoableModelStatePair model;
     ASSERT_TRUE(opyn::is_showing_forces(model.get_model()));
-    ActionToggleForces(model);
+    action_toggle_forces(model);
     ASSERT_FALSE(opyn::is_showing_forces(model.get_model()));
-    model.doUndo();
+    model.do_undo();
     ASSERT_TRUE(opyn::is_showing_forces(model.get_model()));
 }
 
@@ -435,7 +435,7 @@ TEST(OpenSimActions, ActionZeroAllCoordinatesZeroesAllCoordinatesInAModel)
     fj.updCoordinate(OpenSim::FreeJoint::Coord::TranslationY).set_default_value(1.0);
 
     ASSERT_EQ(fj.getCoordinate(OpenSim::FreeJoint::Coord::TranslationY).get_default_value(), 1.0);
-    ActionZeroAllCoordinates(model);
+    action_zero_all_coordinates(model);
     ASSERT_EQ(fj.getCoordinate(OpenSim::FreeJoint::Coord::TranslationY).get_default_value(), 0.0);
 }
 
@@ -475,7 +475,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesWorksInTrivialCase)
     }
 
     // Bake the frames
-    ActionBakeStationDefinedFrames(model);
+    action_bake_station_defined_frames(model);
 
     // Ensure counts are within expectations after baking
     {
@@ -523,7 +523,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesAttachedGeometry)
     ASSERT_EQ(sdf.getProperty_attached_geometry().size(), 2);
 
     // Bake the frames
-    ActionBakeStationDefinedFrames(model);
+    action_bake_station_defined_frames(model);
 
     // Find the baked `PhysicalOffsetFrame`
     auto pofs = model->getComponentList<OpenSim::PhysicalOffsetFrame>();
@@ -576,7 +576,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesWrapObjects)
     ASSERT_EQ(sdf.getWrapObjectSet().getSize(), 2);
 
     // Bake the SDF
-    ActionBakeStationDefinedFrames(model);
+    action_bake_station_defined_frames(model);
 
     // Find the baked `PhysicalOffsetFrame`
     auto pofs = model->getComponentList<OpenSim::PhysicalOffsetFrame>();
@@ -633,7 +633,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesSubcomponents)
     }
 
     // Bake the SDF
-    ActionBakeStationDefinedFrames(model);
+    action_bake_station_defined_frames(model);
 
     // Find the baked `PhysicalOffsetFrame`
     auto pofs = model->getComponentList<OpenSim::PhysicalOffsetFrame>();
@@ -666,7 +666,7 @@ TEST(OpenSimActions, ActionAddPathPointToGeometryPathWorksAsExpected)
     const auto gpPath = gp.getAbsolutePath();
     const auto groundPath = model.get_model().getGround().getAbsolutePath();
 
-    ASSERT_TRUE(ActionAddPathPointToGeometryPath(model, gpPath, groundPath)) << "should work";
+    ASSERT_TRUE(action_add_path_point_to_geometry_path(model, gpPath, groundPath)) << "should work";
     ASSERT_EQ(gp.getPathPointSet().getSize(), 3);
 }
 
@@ -702,7 +702,7 @@ TEST(OpenSimActions, ActionMoveMarkerToModelMarkerSet_MovesMarker)
     ASSERT_EQ(&marker.getParentFrame(), &pof);
     ASSERT_EQ(&marker.getOwner(), &pof);
 
-    ActionMoveMarkerToModelMarkerSet(model, marker);
+    action_move_marker_to_model_marker_set(model, marker);
 
     ASSERT_EQ(marker.getLocationInGround(state), pofOffset + markerOffset);
     ASSERT_EQ(&marker.getParentFrame(), &pof);
@@ -752,14 +752,14 @@ TEST(OpenSimActions, ActionSetCoordinateLockedAndSave_EnsuresValueCanBeEditedAft
     SimTK::State& state = opyn::initialize_state(model.upd_model());
 
     ASSERT_TRUE(coordinate.getLocked(state));
-    ActionSetCoordinateLockedAndSave(model, coordinate, false);  // Unlock coordinate using UI action
+    action_set_coordinate_locked_and_save(model, coordinate, false);  // Unlock coordinate using UI action
     ASSERT_FALSE(coordinate.getLocked(state));
 
     const double originalValue = coordinate.getValue(state);
     const double newValue = originalValue + 1.1;
 
     // This is what moving the slider, but not letting go, does.
-    ActionSetCoordinateValue(model, coordinate, newValue);
+    action_set_coordinate_value(model, coordinate, newValue);
 
     ASSERT_EQ(coordinate.getValue(state), newValue) << "This should be updated, if it isn't the unlocking might be causing issues?";
 }

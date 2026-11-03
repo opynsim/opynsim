@@ -206,7 +206,7 @@ void osc::SimulationModelStatePair::impl_set_fixup_scale_factor(float v)
     m_Impl->setFixupScaleFactor(v);
 }
 
-std::shared_ptr<Environment> osc::SimulationModelStatePair::implUpdAssociatedEnvironment() const
+std::shared_ptr<Environment> osc::SimulationModelStatePair::impl_upd_associated_environment() const
 {
     return m_Impl->implUpdAssociatedEnvironment();
 }

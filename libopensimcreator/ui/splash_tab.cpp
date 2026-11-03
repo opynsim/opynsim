@@ -254,10 +254,10 @@ private:
     void drawActionsMenuSectionContent()
     {
         if (ui::draw_menu_item(MSMICONS_FILE " New Model")) {
-            ActionNewModel(*parent());
+            action_new_model(*parent());
         }
         if (ui::draw_menu_item(MSMICONS_FOLDER_OPEN " Open Model")) {
-            ActionOpenModel(*parent());
+            action_open_model(*parent());
         }
         if (ui::draw_menu_item(MSMICONS_FILE_IMPORT " Import Meshes")) {
             auto tab = std::make_unique<MeshImporterTab>(parent());

@@ -448,7 +448,7 @@ namespace
         }
 
         // create a local copy of the model
-        std::unique_ptr<OpenSim::Model> model = std::make_unique<OpenSim::Model>(*params.getCommit().getModel());
+        std::unique_ptr<OpenSim::Model> model = std::make_unique<OpenSim::Model>(*params.getCommit().get_model());
 
         if (stopToken.stop_requested())
         {
@@ -610,7 +610,7 @@ namespace
         // assumed to be a plot that is probably being computed elsewhere
         explicit Plot(const PlotParameters& parameters) :
             m_Parameters{parameters},
-            m_Name{parameters.getCommit().getCommitMessage()}
+            m_Name{parameters.getCommit().get_commit_message()}
         {
             m_DataPoints.lock()->reserve(m_Parameters->getNumRequestedDataPoints());
         }
@@ -675,7 +675,7 @@ namespace
             if (m_Parameters)
             {
                 m_Parameters->setCommit(commit);
-                m_Name = m_Parameters->getCommit().getCommitMessage();
+                m_Name = m_Parameters->getCommit().get_commit_message();
             }
         }
 
@@ -1082,7 +1082,7 @@ namespace
             const PlotParameters* maybeParams = ptr->tryGetParameters();
 
             // try to revert the current model to use the plot's commit
-            if (maybeParams && model.tryCheckout(maybeParams->getCommit()))
+            if (maybeParams && model.try_checkout(maybeParams->getCommit()))
             {
                 // it checked out successfully, so update this plotting widget
                 // accordingly
@@ -1462,7 +1462,7 @@ namespace
 
             m_Parent{&parent},
             m_Model{std::move(uim)},
-            m_PlotParams{m_Model->getLatestCommit(), coordPath, musclePath, GetDefaultMuscleOutput(), c_DefaultNumPlotPoints}
+            m_PlotParams{m_Model->get_latest_commit(), coordPath, musclePath, GetDefaultMuscleOutput(), c_DefaultNumPlotPoints}
         {}
 
         const PlotParameters& getPlotParams() const { return m_PlotParams; }
@@ -1485,7 +1485,7 @@ namespace
         Widget* m_Parent = nullptr;
         std::shared_ptr<UndoableModelStatePair> m_Model;
         PlotParameters m_PlotParams{
-            m_Model->getLatestCommit(),
+            m_Model->get_latest_commit(),
             OpenSim::ComponentPath{},
             OpenSim::ComponentPath{},
             GetDefaultMuscleOutput(),
@@ -1551,7 +1551,7 @@ namespace
             }
 
             const PlotParameters& latestParams = getShared().getPlotParams();
-            auto modelGuard = latestParams.getCommit().getModel();
+            auto modelGuard = latestParams.getCommit().get_model();
 
             const auto* maybeCoord = opyn::find_component<OpenSim::Coordinate>(*modelGuard, latestParams.getCoordinatePath());
             if (!maybeCoord) {
@@ -1611,7 +1611,7 @@ namespace
             m_LegendPopupIsOpen = false;
 
             // ensure latest requested params reflects the latest version of the model
-            updShared().updPlotParams().setCommit(getShared().getModel().getLatestCommit());
+            updShared().updPlotParams().setCommit(getShared().getModel().get_latest_commit());
 
             // ensure plot lines are valid, given the current model + desired params
             m_Lines->onBeforeDrawing(getShared().getModel(), getShared().getPlotParams());
@@ -1917,7 +1917,7 @@ namespace
                 }
                 else {
                     const double storedValue = opyn::convert_coord_display_value_to_storage_value(coord, *maybeMouseX);
-                    ActionSetCoordinateValue(updShared().updModel(), coord, storedValue);
+                    action_set_coordinate_value(updShared().updModel(), coord, storedValue);
                 }
             }
 
@@ -1932,11 +1932,11 @@ namespace
                 }
                 else {
                     const double storedValue = opyn::convert_coord_display_value_to_storage_value(coord, *maybeMouseX);
-                    ActionSetCoordinateValueAndSave(updShared().updModel(), coord, storedValue);
+                    action_set_coordinate_value_and_save(updShared().updModel(), coord, storedValue);
 
                     // trick: we "know" that the last edit to the model was a coordinate edit in this plot's
                     //        independent variable, so we can skip recomputing it
-                    const ModelStateCommit commitAfter = getShared().getModel().getLatestCommit();
+                    const ModelStateCommit commitAfter = getShared().getModel().get_latest_commit();
                     m_Lines->setActivePlotCommit(commitAfter);
                 }
             }

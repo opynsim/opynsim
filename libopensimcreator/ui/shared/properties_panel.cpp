@@ -85,7 +85,7 @@ namespace
             ui::set_next_item_width(ui::get_content_region_available().x());
             ui::draw_string_input("##nameeditor", m_EditedName);
             if (ui::should_save_last_drawn_item_value()) {
-                ActionSetComponentName(*m_Model, opyn::get_absolute_path(*selected), m_EditedName);
+                action_set_component_name(*m_Model, opyn::get_absolute_path(*selected), m_EditedName);
             }
             ui::add_screenshot_annotation_to_last_drawn_item("PropertiesPanel/name");
 
@@ -143,7 +143,7 @@ public:
         {
             auto maybeUpdater = m_SelectionPropertiesEditor.on_draw();
             if (maybeUpdater) {
-                ActionApplyPropertyEdit(*m_Model, *maybeUpdater);
+                action_apply_property_edit(*m_Model, *maybeUpdater);
             }
         }
     }

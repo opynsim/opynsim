@@ -127,7 +127,7 @@ TEST(UndoableModelStatePair, setModelRetainsSceneScaleFactor)
     model.set_fixup_scale_factor(0.5f);
     ASSERT_EQ(model.get_fixup_scale_factor(), 0.5f);
 
-    model.setModel(std::make_unique<OpenSim::Model>());
+    model.set_model(std::make_unique<OpenSim::Model>());
     ASSERT_EQ(model.get_fixup_scale_factor(), 0.5f);
 }
 
@@ -139,7 +139,7 @@ TEST(UndoableModelStatePair, resetModelRetainsSceneScaleFactor)
     model.set_fixup_scale_factor(0.5f);
     ASSERT_EQ(model.get_fixup_scale_factor(), 0.5f);
 
-    model.resetModel();
+    model.reset_model();
     ASSERT_EQ(model.get_fixup_scale_factor(), 0.5f);
 }
 

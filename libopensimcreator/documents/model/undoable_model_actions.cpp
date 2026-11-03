@@ -148,9 +148,9 @@ namespace
         const OpenSim::PhysicalFrame& selectedPf)
     {
         std::unique_ptr<OpenSim::Joint> copy = clone(jointPrototype);
-        copy->setName(details.jointName);
+        copy->setName(details.joint_name);
 
-        if (!details.addOffsetFrames)
+        if (!details.add_offset_frames)
         {
             copy->connectSocket_parent_frame(selectedPf);
             copy->connectSocket_child_frame(b);
@@ -241,7 +241,7 @@ namespace
     }
 }
 
-void osc::ActionSaveCurrentModelAs(const std::shared_ptr<ModelStatePair>& uim)
+void osc::action_save_current_model_as(const std::shared_ptr<ModelStatePair>& uim)
 {
     App::upd().prompt_user_to_save_file_with_extension_async([uim](std::optional<std::filesystem::path> p)
     {
@@ -266,23 +266,23 @@ void osc::ActionSaveCurrentModelAs(const std::shared_ptr<ModelStatePair>& uim)
     }, "osim");
 }
 
-void osc::ActionNewModel(Widget& parent)
+void osc::action_new_model(Widget& parent)
 {
     auto tab = std::make_unique<ModelEditorTab>(&parent);
     App::post_event<OpenTabEvent>(parent, std::move(tab));
 }
 
-void osc::ActionOpenModel(Widget& api)
+void osc::action_open_model(Widget& api)
 {
     DoOpenFileViaDialog(api);
 }
 
-void osc::ActionOpenModel(Widget& api, const std::filesystem::path& path)
+void osc::action_open_model(Widget& api, const std::filesystem::path& path)
 {
     OpenOsimInLoadingTab(api, path);
 }
 
-void osc::ActionSaveModelAsync(
+void osc::action_save_model_async(
     const std::shared_ptr<ModelStatePair>& model,
     std::function<void(bool)> callback)
 {
@@ -332,7 +332,7 @@ void osc::ActionSaveModelAsync(
     }
 }
 
-void osc::ActionTryDeleteSelectionFromEditedModel(ModelStatePair& uim)
+void osc::action_try_delete_selection_from_edited_model(ModelStatePair& uim)
 {
     if (uim.is_readonly()) {
         return;
@@ -374,7 +374,7 @@ void osc::ActionTryDeleteSelectionFromEditedModel(ModelStatePair& uim)
     }
 }
 
-void osc::ActionDisableAllWrappingSurfaces(ModelStatePair& model)
+void osc::action_disable_all_wrapping_surfaces(ModelStatePair& model)
 {
     if (model.is_readonly()) {
         return;
@@ -392,7 +392,7 @@ void osc::ActionDisableAllWrappingSurfaces(ModelStatePair& model)
     }
 }
 
-void osc::ActionEnableAllWrappingSurfaces(ModelStatePair& model)
+void osc::action_enable_all_wrapping_surfaces(ModelStatePair& model)
 {
     if (model.is_readonly()) {
         return;
@@ -410,7 +410,7 @@ void osc::ActionEnableAllWrappingSurfaces(ModelStatePair& model)
     }
 }
 
-bool osc::ActionLoadSTOFileAgainstModel(
+bool osc::action_load_sto_file_against_model(
     Widget& parent,
     const ModelStatePairWithSharedEnvironment& uim,
     const std::filesystem::path& stoPath)
@@ -424,7 +424,7 @@ bool osc::ActionLoadSTOFileAgainstModel(
             std::move(modelCopy),
             stoPath,
             uim.get_fixup_scale_factor(),
-            uim.tryUpdEnvironment()
+            uim.try_upd_environment()
         });
         auto tab = std::make_unique<SimulationTab>(&parent, simulation);
         App::post_event<OpenTabEvent>(parent, std::move(tab));
@@ -437,12 +437,12 @@ bool osc::ActionLoadSTOFileAgainstModel(
     }
 }
 
-bool osc::ActionStartSimulatingModel(
+bool osc::action_start_simulating_model(
     Widget& parent,
     const ModelStatePairWithSharedEnvironment& uim)
 {
     BasicModelStatePairWithSharedEnvironment modelState{uim};
-    ForwardDynamicSimulatorParams params = FromParamBlock(uim.tryUpdEnvironment()->getSimulationParams());
+    ForwardDynamicSimulatorParams params = FromParamBlock(uim.try_upd_environment()->get_simulation_params());
 
     auto simulation = std::make_shared<Simulation>(ForwardDynamicSimulation{std::move(modelState), params});
     auto tab = std::make_unique<SimulationTab>(&parent, std::move(simulation));
@@ -451,7 +451,7 @@ bool osc::ActionStartSimulatingModel(
     return true;
 }
 
-bool osc::ActionUpdateModelFromBackingFile(UndoableModelStatePair& uim)
+bool osc::action_update_model_from_backing_file(UndoableModelStatePair& uim)
 {
     const auto path = try_find_input_file(uim.get_model());
 
@@ -463,7 +463,7 @@ bool osc::ActionUpdateModelFromBackingFile(UndoableModelStatePair& uim)
         return false;  // the file does not exist? (e.g. because the user deleted it externally - #495)
     }
 
-    const auto currentTimestamp = uim.getLastFilesystemWriteTime();
+    const auto currentTimestamp = uim.get_last_filesystem_write_time();
     const auto lastSaveTime = std::filesystem::last_write_time(*path);
 
     if (currentTimestamp >= lastSaveTime) {
@@ -481,7 +481,7 @@ bool osc::ActionUpdateModelFromBackingFile(UndoableModelStatePair& uim)
 
         log_info("loaded updated file");
 
-        uim.setModel(std::move(loadedModel));
+        uim.set_model(std::move(loadedModel));
         uim.commit("reloaded osim");
         uim.set_up_to_date_with_filesystem(lastSaveTime);
 
@@ -494,7 +494,7 @@ bool osc::ActionUpdateModelFromBackingFile(UndoableModelStatePair& uim)
     }
 }
 
-bool osc::ActionCopyModelPathToClipboard(const ModelStatePair& uim)
+bool osc::action_copy_model_path_to_clipboard(const ModelStatePair& uim)
 {
     auto path = try_find_input_file(uim.get_model());
 
@@ -507,7 +507,7 @@ bool osc::ActionCopyModelPathToClipboard(const ModelStatePair& uim)
     return true;
 }
 
-bool osc::ActionAutoscaleSceneScaleFactor(ModelStatePair& uim)
+bool osc::action_autoscale_scene_scale_factor(ModelStatePair& uim)
 {
     const float sf = get_recommended_scale_factor(
         *App::singleton<SceneCache>(App::resource_loader()),
@@ -519,7 +519,7 @@ bool osc::ActionAutoscaleSceneScaleFactor(ModelStatePair& uim)
     return true;
 }
 
-bool osc::ActionToggleFrames(ModelStatePair& uim)
+bool osc::action_toggle_frames(ModelStatePair& uim)
 {
     if (uim.is_readonly()) {
         return false;
@@ -540,7 +540,7 @@ bool osc::ActionToggleFrames(ModelStatePair& uim)
     }
 }
 
-bool osc::ActionToggleMarkers(ModelStatePair& uim)
+bool osc::action_toggle_markers(ModelStatePair& uim)
 {
     if (uim.is_readonly()) {
         return false;
@@ -561,7 +561,7 @@ bool osc::ActionToggleMarkers(ModelStatePair& uim)
     }
 }
 
-bool osc::ActionToggleContactGeometry(ModelStatePair& uim)
+bool osc::action_toggle_contact_geometry(ModelStatePair& uim)
 {
     if (uim.is_readonly()) {
         return false;
@@ -582,7 +582,7 @@ bool osc::ActionToggleContactGeometry(ModelStatePair& uim)
     }
 }
 
-bool osc::ActionToggleForces(ModelStatePair& uim)
+bool osc::action_toggle_forces(ModelStatePair& uim)
 {
     if (uim.is_readonly()) {
         return false;
@@ -603,7 +603,7 @@ bool osc::ActionToggleForces(ModelStatePair& uim)
     }
 }
 
-bool osc::ActionToggleWrapGeometry(ModelStatePair& uim)
+bool osc::action_toggle_wrap_geometry(ModelStatePair& uim)
 {
     if (uim.is_readonly()) {
         return false;
@@ -624,7 +624,7 @@ bool osc::ActionToggleWrapGeometry(ModelStatePair& uim)
     }
 }
 
-bool osc::ActionOpenOsimParentDirectory(const OpenSim::Model& model)
+bool osc::action_open_osim_parent_directory(const OpenSim::Model& model)
 {
     if (not has_input_file_name(model)) {
         return false;
@@ -635,7 +635,7 @@ bool osc::ActionOpenOsimParentDirectory(const OpenSim::Model& model)
     return true;
 }
 
-bool osc::ActionOpenOsimInExternalEditor(const OpenSim::Model& model)
+bool osc::action_open_osim_in_external_editor(const OpenSim::Model& model)
 {
     if (!has_input_file_name(model)) {
         return false;
@@ -645,7 +645,7 @@ bool osc::ActionOpenOsimInExternalEditor(const OpenSim::Model& model)
     return true;
 }
 
-bool osc::ActionReloadOsimFromDisk(UndoableModelStatePair& uim, SceneCache& meshCache)
+bool osc::action_reload_osim_from_disk(UndoableModelStatePair& uim, SceneCache& meshCache)
 {
     const auto inputFile = try_find_input_file(uim.get_model());
 
@@ -659,7 +659,7 @@ bool osc::ActionReloadOsimFromDisk(UndoableModelStatePair& uim, SceneCache& mesh
         auto p = load_model(*inputFile);
         log_info("loaded updated file");
 
-        uim.setModel(std::move(p));
+        uim.set_model(std::move(p));
         uim.commit("reloaded from filesystem");
         uim.set_up_to_date_with_filesystem(std::filesystem::last_write_time(*inputFile));
 
@@ -678,7 +678,7 @@ bool osc::ActionReloadOsimFromDisk(UndoableModelStatePair& uim, SceneCache& mesh
     }
 }
 
-bool osc::ActionAddOffsetFrameToPhysicalFrame(
+bool osc::action_add_offset_frame_to_physical_frame(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& path)
 {
@@ -722,7 +722,7 @@ bool osc::ActionAddOffsetFrameToPhysicalFrame(
     }
 }
 
-bool osc::CanRezeroJoint(ModelStatePair& uim, const OpenSim::ComponentPath& jointPath)
+bool osc::can_rezero_joint(ModelStatePair& uim, const OpenSim::ComponentPath& jointPath)
 {
     if (uim.is_readonly()) {
         return false;
@@ -741,7 +741,7 @@ bool osc::CanRezeroJoint(ModelStatePair& uim, const OpenSim::ComponentPath& join
     return dynamic_cast<const OpenSim::PhysicalOffsetFrame*>(&joint->getParentFrame()) != nullptr;
 }
 
-bool osc::ActionRezeroJoint(
+bool osc::action_rezero_joint(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& jointPath)
 {
@@ -810,7 +810,7 @@ bool osc::ActionRezeroJoint(
     }
 }
 
-bool osc::ActionAddParentOffsetFrameToJoint(
+bool osc::action_add_parent_offset_frame_to_joint(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& jointPath)
 {
@@ -854,7 +854,7 @@ bool osc::ActionAddParentOffsetFrameToJoint(
     }
 }
 
-bool osc::ActionAddChildOffsetFrameToJoint(
+bool osc::action_add_child_offset_frame_to_joint(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& jointPath)
 {
@@ -897,7 +897,7 @@ bool osc::ActionAddChildOffsetFrameToJoint(
     }
 }
 
-bool osc::ActionSetComponentName(
+bool osc::action_set_component_name(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& path,
     const std::string& newName)
@@ -944,7 +944,7 @@ bool osc::ActionSetComponentName(
     }
 }
 
-bool osc::ActionChangeJointTypeTo(
+bool osc::action_change_joint_type_to(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& jointPath,
     std::unique_ptr<OpenSim::Joint> newType)
@@ -1017,7 +1017,7 @@ bool osc::ActionChangeJointTypeTo(
     }
 }
 
-bool osc::ActionAttachGeometryToPhysicalFrame(
+bool osc::action_attach_geometry_to_physical_frame(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& physFramePath,
     std::unique_ptr<OpenSim::Geometry> geom)
@@ -1060,7 +1060,7 @@ bool osc::ActionAttachGeometryToPhysicalFrame(
     }
 }
 
-bool osc::ActionAssignContactGeometryToHCF(
+bool osc::action_assign_contact_geometry_to_hcf(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& hcfPath,
     const OpenSim::ComponentPath& contactGeomPath)
@@ -1108,7 +1108,7 @@ bool osc::ActionAssignContactGeometryToHCF(
     }
 }
 
-bool osc::ActionApplyPropertyEdit(ModelStatePair& uim, ObjectPropertyEdit& resp)
+bool osc::action_apply_property_edit(ModelStatePair& uim, ObjectPropertyEdit& resp)
 {
     if (uim.is_readonly()) {
         return false;
@@ -1151,7 +1151,7 @@ bool osc::ActionApplyPropertyEdit(ModelStatePair& uim, ObjectPropertyEdit& resp)
     }
 }
 
-bool osc::ActionAddPathPointToGeometryPath(
+bool osc::action_add_path_point_to_geometry_path(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& geometryPathPath,
     const OpenSim::ComponentPath& pointPhysFrame)
@@ -1212,7 +1212,7 @@ bool osc::ActionAddPathPointToGeometryPath(
     }
 }
 
-bool osc::ActionAddPathPointToPathActuator(
+bool osc::action_add_path_point_to_path_actuator(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& pathActuatorPath,
     const OpenSim::ComponentPath& pointPhysFrame)
@@ -1281,7 +1281,7 @@ bool osc::ActionAddPathPointToPathActuator(
     }
 }
 
-bool osc::ActionReassignComponentSocket(
+bool osc::action_reassign_component_socket(
     ModelStatePair& uim,
     const OpenSim::ComponentPath& componentAbsPath,
     const std::string& socketName,
@@ -1348,40 +1348,40 @@ bool osc::ActionReassignComponentSocket(
 }
 
 osc::BodyDetails::BodyDetails() :
-    centerOfMass{0.0f, 0.0f, 0.0f},
+    center_of_mass{0.0f, 0.0f, 0.0f},
     inertia{1.0f, 1.0f, 1.0f},
     mass{1.0f},
-    bodyName{"new_body"},
-    jointTypeIndex{index_of<OpenSim::WeldJoint>(get_component_registry<OpenSim::Joint>()).value_or(0)},
-    maybeGeometry{nullptr},
-    addOffsetFrames{true}
+    body_name{"new_body"},
+    joint_type_index{index_of<OpenSim::WeldJoint>(get_component_registry<OpenSim::Joint>()).value_or(0)},
+    maybe_geometry{nullptr},
+    add_offset_frames{true}
 {}
 
-bool osc::ActionAddBodyToModel(ModelStatePair& uim, const BodyDetails& details)
+bool osc::action_add_body_to_model(ModelStatePair& uim, const BodyDetails& details)
 {
     if (uim.is_readonly()) {
         return false;
     }
 
-    const auto* const parent = find_component<OpenSim::PhysicalFrame>(uim.get_model(), details.parentFrameAbsPath);
+    const auto* const parent = find_component<OpenSim::PhysicalFrame>(uim.get_model(), details.parent_frame_abs_path);
     if (not parent) {
         return false;
     }
 
-    const auto com = to<SimTK::Vec3>(details.centerOfMass);
+    const auto com = to<SimTK::Vec3>(details.center_of_mass);
     const auto inertia = to<SimTK::Inertia>(details.inertia);
     const auto mass = static_cast<double>(details.mass);
 
     // create body
-    auto body = std::make_unique<OpenSim::Body>(details.bodyName, mass, com, inertia);
+    auto body = std::make_unique<OpenSim::Body>(details.body_name, mass, com, inertia);
 
     // create joint between body and whatever the frame is
-    const OpenSim::Joint& jointProto = get_component_registry<OpenSim::Joint>().at(details.jointTypeIndex).prototype();
+    const OpenSim::Joint& jointProto = get_component_registry<OpenSim::Joint>().at(details.joint_type_index).prototype();
     std::unique_ptr<OpenSim::Joint> joint = MakeJoint(details, *body, jointProto, *parent);
 
     // attach decorative geom
-    if (details.maybeGeometry) {
-        attach_geometry(*body, clone(*details.maybeGeometry));
+    if (details.maybe_geometry) {
+        attach_geometry(*body, clone(*details.maybe_geometry));
     }
 
     // mutate the model and perform the edit
@@ -1407,14 +1407,14 @@ bool osc::ActionAddBodyToModel(ModelStatePair& uim, const BodyDetails& details)
     }
 }
 
-bool osc::ActionAddComponentToModel(
+bool osc::action_add_component_to_model(
     ModelStatePair& model,
     std::unique_ptr<OpenSim::Component> c)
 {
-    return ActionAddComponentToModel(model, std::move(c), OpenSim::ComponentPath{});
+    return action_add_component_to_model(model, std::move(c), OpenSim::ComponentPath{});
 }
 
-bool osc::ActionAddComponentToModel(
+bool osc::action_add_component_to_model(
     ModelStatePair& model,
     std::unique_ptr<OpenSim::Component> c,
     const OpenSim::ComponentPath& desiredParent)
@@ -1460,7 +1460,7 @@ bool osc::ActionAddComponentToModel(
     }
 }
 
-bool osc::ActionAddWrapObjectToPhysicalFrame(
+bool osc::action_add_wrap_object_to_physical_frame(
     ModelStatePair& model,
     const OpenSim::ComponentPath& physicalFramePath,
     std::unique_ptr<OpenSim::WrapObject> wrapObjPtr)
@@ -1498,7 +1498,7 @@ bool osc::ActionAddWrapObjectToPhysicalFrame(
     }
 }
 
-bool osc::ActionAddWrapObjectToGeometryPathWraps(
+bool osc::action_add_wrap_object_to_geometry_path_wraps(
     ModelStatePair& model,
     const OpenSim::GeometryPath& geomPath,
     const OpenSim::WrapObject& wrapObject)
@@ -1530,7 +1530,7 @@ bool osc::ActionAddWrapObjectToGeometryPathWraps(
     }
 }
 
-bool osc::ActionRemoveWrapObjectFromGeometryPathWraps(
+bool osc::action_remove_wrap_object_from_geometry_path_wraps(
     ModelStatePair& model,
     const OpenSim::GeometryPath& geomPath,
     const OpenSim::WrapObject& wrapObject)
@@ -1577,7 +1577,7 @@ bool osc::ActionRemoveWrapObjectFromGeometryPathWraps(
     }
 }
 
-bool osc::ActionZeroAllCoordinates(ModelStatePair& model)
+bool osc::action_zero_all_coordinates(ModelStatePair& model)
 {
     if (model.is_readonly()) {
         return false;
@@ -1601,7 +1601,7 @@ bool osc::ActionZeroAllCoordinates(ModelStatePair& model)
     }
 }
 
-bool osc::ActionSetCoordinateSpeed(
+bool osc::action_set_coordinate_speed(
     ModelStatePair& model,
     const OpenSim::Coordinate& coord,
     double newSpeed)
@@ -1637,7 +1637,7 @@ bool osc::ActionSetCoordinateSpeed(
     }
 }
 
-bool osc::ActionSetCoordinateSpeedAndSave(
+bool osc::action_set_coordinate_speed_and_save(
     ModelStatePair& model,
     const OpenSim::Coordinate& coord,
     double newSpeed)
@@ -1646,7 +1646,7 @@ bool osc::ActionSetCoordinateSpeedAndSave(
         return false;
     }
 
-    if (ActionSetCoordinateSpeed(model, coord, newSpeed)) {
+    if (action_set_coordinate_speed(model, coord, newSpeed)) {
         OpenSim::Model& mutModel = model.upd_model();
         initialize_model(mutModel);
         initialize_state(mutModel);
@@ -1662,7 +1662,7 @@ bool osc::ActionSetCoordinateSpeedAndSave(
     }
 }
 
-bool osc::ActionSetCoordinateLockedAndSave(
+bool osc::action_set_coordinate_locked_and_save(
     ModelStatePair& model,
     const OpenSim::Coordinate& coord,
     bool v)
@@ -1701,7 +1701,7 @@ bool osc::ActionSetCoordinateLockedAndSave(
 }
 
 // set the value of a coordinate, but don't save it to the model (yet)
-bool osc::ActionSetCoordinateValue(
+bool osc::action_set_coordinate_value(
     ModelStatePair& model,
     const OpenSim::Coordinate& coord,
     double newValue)
@@ -1745,7 +1745,7 @@ bool osc::ActionSetCoordinateValue(
     }
 }
 
-bool osc::ActionSetCoordinateValueAndSave(
+bool osc::action_set_coordinate_value_and_save(
     ModelStatePair& model,
     const OpenSim::Coordinate& coord,
     double newValue)
@@ -1754,7 +1754,7 @@ bool osc::ActionSetCoordinateValueAndSave(
         return false;
     }
 
-    if (ActionSetCoordinateValue(model, coord, newValue)) {
+    if (action_set_coordinate_value(model, coord, newValue)) {
         OpenSim::Model& mutModel = model.upd_model();
 
         // CAREFUL: ensure that *all* coordinate's default values are updated to reflect
@@ -1783,7 +1783,7 @@ bool osc::ActionSetCoordinateValueAndSave(
     }
 }
 
-bool osc::ActionSetComponentAndAllChildrensIsVisibleTo(
+bool osc::action_set_component_and_all_childrens_is_visible_to(
     ModelStatePair& model,
     const OpenSim::ComponentPath& path,
     bool newVisibility)
@@ -1823,7 +1823,7 @@ bool osc::ActionSetComponentAndAllChildrensIsVisibleTo(
     }
 }
 
-bool osc::ActionShowOnlyComponentAndAllChildren(
+bool osc::action_show_only_component_and_all_children(
     ModelStatePair& model,
     const OpenSim::ComponentPath& path)
 {
@@ -1871,7 +1871,7 @@ bool osc::ActionShowOnlyComponentAndAllChildren(
     }
 }
 
-bool osc::ActionSetComponentAndAllChildrenWithGivenConcreteClassNameIsVisibleTo(
+bool osc::action_set_component_and_all_children_with_given_concrete_class_name_is_visible_to(
     ModelStatePair& model,
     const OpenSim::ComponentPath& root,
     std::string_view concreteClassName,
@@ -1926,7 +1926,7 @@ bool osc::ActionSetComponentAndAllChildrenWithGivenConcreteClassNameIsVisibleTo(
     }
 }
 
-bool osc::ActionTranslateStation(
+bool osc::action_translate_station(
     ModelStatePair& model,
     const OpenSim::Station& station,
     const Vector3& deltaPosition)
@@ -1966,7 +1966,7 @@ bool osc::ActionTranslateStation(
     }
 }
 
-bool osc::ActionTranslateStationAndSave(
+bool osc::action_translate_station_and_save(
     ModelStatePair& model,
     const OpenSim::Station& station,
     const Vector3& deltaPosition)
@@ -1975,7 +1975,7 @@ bool osc::ActionTranslateStationAndSave(
         return false;
     }
 
-    if (ActionTranslateStation(model, station, deltaPosition)) {
+    if (action_translate_station(model, station, deltaPosition)) {
         OpenSim::Model& mutModel = model.upd_model();
         initialize_model(mutModel);
         initialize_state(mutModel);
@@ -1991,7 +1991,7 @@ bool osc::ActionTranslateStationAndSave(
     }
 }
 
-bool osc::ActionTranslatePathPoint(
+bool osc::action_translate_path_point(
     ModelStatePair& model,
     const OpenSim::PathPoint& pathPoint,
     const Vector3& deltaPosition)
@@ -2026,7 +2026,7 @@ bool osc::ActionTranslatePathPoint(
     }
 }
 
-bool osc::ActionTranslatePathPointAndSave(
+bool osc::action_translate_path_point_and_save(
     ModelStatePair& model,
     const OpenSim::PathPoint& pathPoint,
     const Vector3& deltaPosition)
@@ -2035,7 +2035,7 @@ bool osc::ActionTranslatePathPointAndSave(
         return false;
     }
 
-    if (ActionTranslatePathPoint(model, pathPoint, deltaPosition)) {
+    if (action_translate_path_point(model, pathPoint, deltaPosition)) {
         OpenSim::Model& mutModel = model.upd_model();
         initialize_model(mutModel);
         initialize_state(mutModel);
@@ -2051,7 +2051,7 @@ bool osc::ActionTranslatePathPointAndSave(
     }
 }
 
-bool osc::ActionTransformPofV2(
+bool osc::action_transform_pof_v2(
     ModelStatePair& model,
     const OpenSim::PhysicalOffsetFrame& pof,
     const Vector3& newTranslation,
@@ -2087,7 +2087,7 @@ bool osc::ActionTransformPofV2(
     return false;
 }
 
-bool osc::ActionTransformWrapObject(
+bool osc::action_transform_wrap_object(
     ModelStatePair& model,
     const OpenSim::WrapObject& wo,
     const Vector3& deltaPosition,
@@ -2126,7 +2126,7 @@ bool osc::ActionTransformWrapObject(
     return false;
 }
 
-bool osc::ActionTransformContactGeometry(
+bool osc::action_transform_contact_geometry(
     ModelStatePair& model,
     const OpenSim::ContactGeometry& contactGeom,
     const Vector3& deltaPosition,
@@ -2165,7 +2165,7 @@ bool osc::ActionTransformContactGeometry(
     return false;
 }
 
-bool osc::ActionFitSphereToMesh(ModelStatePair& model, const OpenSim::Mesh& openSimMesh)
+bool osc::action_fit_sphere_to_mesh(ModelStatePair& model, const OpenSim::Mesh& openSimMesh)
 {
     if (model.is_readonly()) {
         return false;
@@ -2228,7 +2228,7 @@ bool osc::ActionFitSphereToMesh(ModelStatePair& model, const OpenSim::Mesh& open
     return true;
 }
 
-bool osc::ActionFitEllipsoidToMesh(ModelStatePair& model, const OpenSim::Mesh& openSimMesh)
+bool osc::action_fit_ellipsoid_to_mesh(ModelStatePair& model, const OpenSim::Mesh& openSimMesh)
 {
     if (model.is_readonly()) {
         return false;
@@ -2303,7 +2303,7 @@ bool osc::ActionFitEllipsoidToMesh(ModelStatePair& model, const OpenSim::Mesh& o
     return true;
 }
 
-bool osc::ActionFitPlaneToMesh(ModelStatePair& model, const OpenSim::Mesh& openSimMesh)
+bool osc::action_fit_plane_to_mesh(ModelStatePair& model, const OpenSim::Mesh& openSimMesh)
 {
     if (model.is_readonly()) {
         return false;
@@ -2372,7 +2372,7 @@ bool osc::ActionFitPlaneToMesh(ModelStatePair& model, const OpenSim::Mesh& openS
     return true;
 }
 
-bool osc::ActionImportLandmarks(
+bool osc::action_import_landmarks(
     ModelStatePair& model,
     std::span<const opyn::NamedLandmark> landmarks,
     std::optional<std::string> maybeName,
@@ -2423,7 +2423,7 @@ bool osc::ActionImportLandmarks(
     }
 }
 
-void osc::ActionExportModelGraphToDotviz(const std::shared_ptr<ModelStatePair>& model)
+void osc::action_export_model_graph_to_dotviz(const std::shared_ptr<ModelStatePair>& model)
 {
     App::upd().prompt_user_to_save_file_with_extension_async([model](std::optional<std::filesystem::path> p)
     {
@@ -2440,7 +2440,7 @@ void osc::ActionExportModelGraphToDotviz(const std::shared_ptr<ModelStatePair>& 
     }, "dot");
 }
 
-bool osc::ActionExportModelGraphToDotvizClipboard(const OpenSim::Model& model)
+bool osc::action_export_model_graph_to_dotviz_clipboard(const OpenSim::Model& model)
 {
     std::stringstream ss;
     write_component_topology_graph_as_dot_viz(model.getModel(), ss);
@@ -2448,7 +2448,7 @@ bool osc::ActionExportModelGraphToDotvizClipboard(const OpenSim::Model& model)
     return true;
 }
 
-bool osc::ActionExportModelMultibodySystemAsDotviz(const OpenSim::Model& model)
+bool osc::action_export_model_multibody_system_as_dotviz(const OpenSim::Model& model)
 {
     std::stringstream ss;
     write_model_multibody_system_graph_as_dot_viz(model.getModel(), ss);
@@ -2456,7 +2456,7 @@ bool osc::ActionExportModelMultibodySystemAsDotviz(const OpenSim::Model& model)
     return true;
 }
 
-bool osc::ActionBakeStationDefinedFrames(ModelStatePair& model)
+bool osc::action_bake_station_defined_frames(ModelStatePair& model)
 {
     if (model.is_readonly()) {
         return false;
@@ -2477,7 +2477,7 @@ bool osc::ActionBakeStationDefinedFrames(ModelStatePair& model)
     return true;
 }
 
-bool osc::ActionMoveMarkerToModelMarkerSet(ModelStatePair& model, const OpenSim::Marker& marker)
+bool osc::action_move_marker_to_model_marker_set(ModelStatePair& model, const OpenSim::Marker& marker)
 {
     if (model.is_readonly()) {
         return false;
@@ -2520,7 +2520,7 @@ bool osc::ActionMoveMarkerToModelMarkerSet(ModelStatePair& model, const OpenSim:
     return true;
 }
 
-bool osc::ActionTranslateContactHint(
+bool osc::action_translate_contact_hint(
     ModelStatePair& model,
     const OpenSim::Scholz2015GeometryPathObstacle& obstacle,
     const Vector3& deltaPosition)
@@ -2546,12 +2546,12 @@ bool osc::ActionTranslateContactHint(
     }
 }
 
-bool osc::ActionTranslateContactHintAndSave(
+bool osc::action_translate_contact_hint_and_save(
     ModelStatePair& model,
     const OpenSim::Scholz2015GeometryPathObstacle& obstacle,
     const Vector3& deltaPosition)
 {
-    if (ActionTranslateContactHint(model, obstacle, deltaPosition)) {
+    if (action_translate_contact_hint(model, obstacle, deltaPosition)) {
         OpenSim::Model& mutModel = model.upd_model();
         initialize_model(mutModel);
         initialize_state(mutModel);

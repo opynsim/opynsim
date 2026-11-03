@@ -49,31 +49,31 @@ namespace osc
         // returns `true` if the current model commit is up to date with its on-disk representation
         //
         // returns `false` if the model has no on-disk location
-        bool isUpToDateWithFilesystem() const;
+        bool is_up_to_date_with_filesystem() const;
 
         // gets the last time when the model was set as up to date with the filesystem
-        std::filesystem::file_time_type getLastFilesystemWriteTime() const;
+        std::filesystem::file_time_type get_last_filesystem_write_time() const;
 
         // returns latest *comitted* model state (i.e. not the one being actively edited, but the one saved into
         // the safer undo/redo buffer)
-        ModelStateCommit getLatestCommit() const;
+        ModelStateCommit get_latest_commit() const;
 
         // manipulate undo/redo state
-        bool canUndo() const;
-        void doUndo();
-        bool canRedo() const;
-        void doRedo();
+        bool can_undo() const;
+        void do_undo();
+        bool can_redo() const;
+        void do_redo();
 
         // try to rollback the model to a recent-as-possible state
         void rollback();
 
         // try to checkout the given commit as the latest commit
-        bool tryCheckout(const ModelStateCommit&);
+        bool try_checkout(const ModelStateCommit&);
 
         // read/manipulate underlying OpenSim::Model
-        void setModel(std::unique_ptr<OpenSim::Model>);
-        void resetModel();
-        void loadModel(const std::filesystem::path&);
+        void set_model(std::unique_ptr<OpenSim::Model>);
+        void reset_model();
+        void load_model(const std::filesystem::path&);
 
     private:
         const OpenSim::Model& impl_get_model() const final;
@@ -97,11 +97,11 @@ namespace osc
         const OpenSim::Component* impl_get_hovered() const final;
         void impl_set_hovered(const OpenSim::Component* c) final;
 
-        std::shared_ptr<Environment> implUpdAssociatedEnvironment() const final;
+        std::shared_ptr<Environment> impl_upd_associated_environment() const final;
 
         void impl_set_up_to_date_with_filesystem(std::filesystem::file_time_type) final;
 
         class Impl;
-        std::unique_ptr<Impl> m_Impl;
+        std::unique_ptr<Impl> impl_;
     };
 }

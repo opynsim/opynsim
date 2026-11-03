@@ -76,7 +76,7 @@ namespace
 
         if (selectedIdx and *selectedIdx < std::ssize(registry)) {
             // copy + fixup  a prototype of the user's selection
-            ActionChangeJointTypeTo(
+            action_change_joint_type_to(
                 model,
                 jointPath,
                 registry[*selectedIdx].instantiate()
@@ -107,8 +107,8 @@ namespace
     {
         DrawSelectionJointTypeSwitcher(modelState, jointPath);
 
-        if (ui::draw_menu_item("Rezero Joint", {}, nullptr, CanRezeroJoint(modelState, jointPath))) {
-            ActionRezeroJoint(modelState, jointPath);
+        if (ui::draw_menu_item("Rezero Joint", {}, nullptr, can_rezero_joint(modelState, jointPath))) {
+            action_rezero_joint(modelState, jointPath);
         }
         ui::draw_tooltip_if_item_hovered("Re-zero the joint", "Given the joint's current geometry due to joint defaults, coordinate defaults, and any coordinate edits made in the coordinates panel, this will reorient the joint's parent (if it's an offset frame) to match the child's transformation. Afterwards, it will then resets all of the joints coordinates to zero. This effectively sets the 'zero point' of the joint (i.e. the geometry when all coordinates are zero) to match whatever the current geometry is.");
     }
@@ -147,7 +147,7 @@ namespace
             bool disabled = (owner != nullptr) and opyn::get_owner<OpenSim::Model>(*owner) == &modelState.get_model();
 
             if (ui::draw_menu_item("/markerset", std::nullopt, nullptr, not disabled)) {
-                ActionMoveMarkerToModelMarkerSet(modelState, marker);
+                action_move_marker_to_model_marker_set(modelState, marker);
             }
             if (disabled and ui::is_item_hovered(ui::HoveredFlag::AllowWhenDisabled)) {
                 ui::draw_tooltip_body_only("This marker is already part of /markerset");
@@ -189,15 +189,15 @@ namespace
             ui::draw_help_marker("Uses shape-fitting algorithms to fit analytic geometry to the points in the given mesh.\n\nThe 'htbad'-suffixed algorithms were adapted (potentially, with bugs - report them) from the MATLAB code in:\n\n        Bishop P., How to build a dinosaur..., doi:10.1017/pab.2020.46");
 
             if (ui::draw_menu_item("Sphere (htbad)", {}, nullptr, modelState.can_upd_model())) {
-                ActionFitSphereToMesh(modelState, mesh);
+                action_fit_sphere_to_mesh(modelState, mesh);
             }
 
             if (ui::draw_menu_item("Ellipsoid (htbad)", {}, nullptr, modelState.can_upd_model())) {
-                ActionFitEllipsoidToMesh(modelState, mesh);
+                action_fit_ellipsoid_to_mesh(modelState, mesh);
             }
 
             if (ui::draw_menu_item("Plane (htbad)", {}, nullptr, modelState.can_upd_model())) {
-                ActionFitPlaneToMesh(modelState, mesh);
+                action_fit_plane_to_mesh(modelState, mesh);
             }
 
             ui::end_menu();
@@ -271,7 +271,7 @@ public:
             // in the model (#422)
             if (ui::begin_menu("Display", m_Model->can_upd_model())) {
                 if (ui::draw_menu_item("Show All")) {
-                    ActionSetComponentAndAllChildrensIsVisibleTo(*m_Model, opyn::get_root_component_path(), true);
+                    action_set_component_and_all_childrens_is_visible_to(*m_Model, opyn::get_root_component_path(), true);
                 }
                 ui::draw_tooltip_if_item_hovered("Show All", "Sets the visiblity of all components within the model to 'visible', handy for undoing selective hiding etc.");
                 ui::draw_vertical_spacer(0.5f);
@@ -309,7 +309,7 @@ public:
         if (auto* modelWithEnv = dynamic_cast<ModelStatePairWithSharedEnvironment*>(m_Model.get())) {
             draw_watch_output_menu(*c, [this, modelWithEnv](const opyn::SharedOutputExtractor& outputExtractor)
             {
-                modelWithEnv->tryUpdEnvironment()->addUserOutputExtractor(outputExtractor);
+                modelWithEnv->try_upd_environment()->add_user_output_extractor(outputExtractor);
 
                 // when the user asks to watch an output, make sure the "Output Watches" panel is
                 // open, so that they can immediately see the side-effect of watching an output (#567)
@@ -382,15 +382,15 @@ private:
         // togges that are specific to this components (+ its descendants)
 
         if (ui::draw_menu_item("Show", {}, nullptr, isEnabled)) {
-            ActionSetComponentAndAllChildrensIsVisibleTo(*m_Model, opyn::get_absolute_path(c), true);
+            action_set_component_and_all_childrens_is_visible_to(*m_Model, opyn::get_absolute_path(c), true);
         }
 
         if (ui::draw_menu_item("Show Only This", {}, nullptr, isEnabled)) {
-            ActionShowOnlyComponentAndAllChildren(*m_Model, opyn::get_absolute_path(c));
+            action_show_only_component_and_all_children(*m_Model, opyn::get_absolute_path(c));
         }
 
         if (ui::draw_menu_item("Hide", {}, nullptr, isEnabled)) {
-            ActionSetComponentAndAllChildrensIsVisibleTo(*m_Model, opyn::get_absolute_path(c), false);
+            action_set_component_and_all_childrens_is_visible_to(*m_Model, opyn::get_absolute_path(c), false);
         }
 
         // add a seperator between probably commonly-used, simple, diplay toggles and the more
@@ -401,7 +401,7 @@ private:
         // to "know" that they need to right-click in the middle of nowhere or on the
         // model
         if (ui::draw_menu_item("Show All", {}, nullptr, isEnabled)) {
-            ActionSetComponentAndAllChildrensIsVisibleTo(*m_Model, opyn::get_root_component_path(), true);
+            action_set_component_and_all_childrens_is_visible_to(*m_Model, opyn::get_root_component_path(), true);
         }
 
         {
@@ -409,7 +409,7 @@ private:
             ss << "Show All '" << c.getConcreteClassName() << "' Components";
             const std::string label = std::move(ss).str();
             if (ui::draw_menu_item(label, {}, nullptr, isEnabled)) {
-                ActionSetComponentAndAllChildrenWithGivenConcreteClassNameIsVisibleTo(
+                action_set_component_and_all_children_with_given_concrete_class_name_is_visible_to(
                     *m_Model,
                     opyn::get_absolute_path(m_Model->get_model()),
                     c.getConcreteClassName(),
@@ -423,7 +423,7 @@ private:
             ss << "Hide All '" << c.getConcreteClassName() << "' Components";
             const std::string label = std::move(ss).str();
             if (ui::draw_menu_item(label, {}, nullptr, isEnabled)) {
-                ActionSetComponentAndAllChildrenWithGivenConcreteClassNameIsVisibleTo(
+                action_set_component_and_all_children_with_given_concrete_class_name_is_visible_to(
                     *m_Model,
                     opyn::get_absolute_path(m_Model->get_model()),
                     c.getConcreteClassName(),
