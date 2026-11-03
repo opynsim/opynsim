@@ -54,7 +54,7 @@ namespace
         {"panels/Result Model/enabled", true},
     });
 
-    void InitializeOpenSimCreatorSpecificSettingDefaults(AppSettings& settings)
+    void initialize_open_sim_creator_specific_setting_defaults(AppSettings& settings)
     {
         for (const auto& [setting_id, default_state] : c_default_panel_states) {
             settings.set_value_if_not_found(setting_id, default_state, AppSettingScope::System);
@@ -65,11 +65,11 @@ namespace
 
 bool osc::globally_init_open_sim()
 {
-    static const bool s_OpenSimInitialized = []{
+    static const bool s_open_sim_initialized = []{
         opyn::set_log_level(osc::LogLevel::info);  // The desktop app logs a little bit more by default
         return opyn::init();
     }();
-    return s_OpenSimInitialized;
+    return s_open_sim_initialized;
 }
 
 void osc::globally_add_directory_to_open_sim_geometry_search_path(const std::filesystem::path& p)
@@ -97,14 +97,14 @@ osc::OpenSimCreatorApp::OpenSimCreatorApp(const AppMetadata& metadata) :
     App{metadata}
 {
     globally_init_open_sim();
-    const ResourcePath geometryDirectoryPath{"OpenSimCreator/geometry"};
-    if (const auto geometryDirectory = resource_filepath(geometryDirectoryPath)) {
-        globally_add_directory_to_open_sim_geometry_search_path(*geometryDirectory);
+    const ResourcePath geometry_directory_path{"OpenSimCreator/geometry"};
+    if (const auto geometry_directory = resource_filepath(geometry_directory_path)) {
+        globally_add_directory_to_open_sim_geometry_search_path(*geometry_directory);
     } else {
-        log_error("{}: cannot find geometry directory resource: falling back to not using one at all. You might need to update the osc.toml configuration file.", geometryDirectoryPath.string());
+        log_error("{}: cannot find geometry directory resource: falling back to not using one at all. You might need to update the osc.toml configuration file.", geometry_directory_path.string());
     }
     register_open_sim_creator_tabs(upd_tab_registry());
-    InitializeOpenSimCreatorSpecificSettingDefaults(upd_settings());
+    initialize_open_sim_creator_specific_setting_defaults(upd_settings());
     g_opensimcreator_app_global = this;
 }
 

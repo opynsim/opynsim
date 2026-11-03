@@ -11,7 +11,7 @@ namespace osc
     class RecentFiles final {
     public:
         RecentFiles();
-        explicit RecentFiles(std::filesystem::path recentFilesFile);
+        explicit RecentFiles(std::filesystem::path recent_files_file);
         RecentFiles(RecentFiles&&) noexcept = default;
         RecentFiles(const RecentFiles&) = delete;
         RecentFiles& operator=(const RecentFiles&) = delete;

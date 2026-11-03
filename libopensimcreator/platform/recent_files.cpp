@@ -24,7 +24,7 @@ namespace rgs = std::ranges;
 
 namespace
 {
-    constexpr size_t c_MaxRecentFileEntries = 10;
+    constexpr size_t c_max_recent_file_entries = 10;
 
     // returns a unix timestamp in seconds since the epoch
     std::chrono::seconds get_current_time_as_unix_timestamp()
@@ -32,13 +32,13 @@ namespace
         return std::chrono::seconds(std::time(nullptr));
     }
 
-    void SortNewestToOldest(std::vector<RecentFile>& files)
+    void sort_newest_to_oldest(std::vector<RecentFile>& files)
     {
         rgs::sort(files, rgs::greater{}, [](const RecentFile& rf) { return rf.last_opened_unix_timestamp; });
     }
 
     // load the "recent files" file that the application persists to disk
-    std::vector<RecentFile> LoadRecentFilesFile(const std::filesystem::path& p)
+    std::vector<RecentFile> load_recent_files_file(const std::filesystem::path& p)
     {
         if (!std::filesystem::exists(p))
         {
@@ -72,32 +72,32 @@ namespace
 
             // calc tertiary data
             const bool exists = std::filesystem::exists(path);
-            const std::chrono::seconds timestampSecs{timestamp};
+            const std::chrono::seconds timestamp_secs{timestamp};
 
-            rv.push_back(RecentFile{exists, timestampSecs, std::move(path)});
+            rv.push_back(RecentFile{exists, timestamp_secs, std::move(path)});
         }
 
-        SortNewestToOldest(rv);
+        sort_newest_to_oldest(rv);
 
         return rv;
     }
 
     // returns the filesystem path to the "recent files" file
-    std::filesystem::path GetRecentFilesFilePath(const std::filesystem::path& userDataDirPath)
+    std::filesystem::path get_recent_files_file_path(const std::filesystem::path& user_data_dir_path)
     {
-        return userDataDirPath / "recent_files.txt";
+        return user_data_dir_path / "recent_files.txt";
     }
 }
 
 osc::RecentFiles::RecentFiles() :
-    disk_location_{GetRecentFilesFilePath(App::get().user_data_directory())},
-    files_{LoadRecentFilesFile(disk_location_)}
+    disk_location_{get_recent_files_file_path(App::get().user_data_directory())},
+    files_{load_recent_files_file(disk_location_)}
 {
 }
 
-osc::RecentFiles::RecentFiles(std::filesystem::path recentFilesFile) :
-    disk_location_{std::move(recentFilesFile)},
-    files_{LoadRecentFilesFile(disk_location_)}
+osc::RecentFiles::RecentFiles(std::filesystem::path recent_files_file) :
+    disk_location_{std::move(recent_files_file)},
+    files_{load_recent_files_file(disk_location_)}
 {
 }
 
@@ -116,7 +116,7 @@ void osc::RecentFiles::push_back(const std::filesystem::path& path)
         path,
     });
 
-    ::SortNewestToOldest(files_);
+    ::sort_newest_to_oldest(files_);
 }
 
 void osc::RecentFiles::sync()
@@ -130,8 +130,8 @@ void osc::RecentFiles::sync()
     }
 
     // write up-to the first 10 entries
-    const size_t numFilesToWrite = min(files_.size(), c_MaxRecentFileEntries);
-    for (size_t i = 0; i < numFilesToWrite; ++i)
+    const size_t num_files_to_write = min(files_.size(), c_max_recent_file_entries);
+    for (size_t i = 0; i < num_files_to_write; ++i)
     {
         const RecentFile& rf = files_[i];
         fd << rf.last_opened_unix_timestamp.count() << ' ' << rf.path << '\n';
