@@ -27,7 +27,7 @@ namespace
 
         auto fv = static_cast<float>(v);
         if (ui::draw_float_input("##", &fv, 0.0f, 0.0f, "%.9f")) {
-            b.setValue(idx, static_cast<double>(fv));
+            b.set_value(idx, static_cast<double>(fv));
             return true;
         }
         else {
@@ -38,7 +38,7 @@ namespace
     bool DrawEditor(ParamBlock& b, int idx, int v)
     {
         if (ui::draw_int_input("##", &v)) {
-            b.setValue(idx, v);
+            b.set_value(idx, v);
             return true;
         }
         else {
@@ -52,7 +52,7 @@ namespace
         if (ui::begin_combobox("##", opyn::label_for(im))) {
             for (opyn::IntegratorMethod m : osc::make_option_iterable<opyn::IntegratorMethod>()) {
                 if (ui::draw_selectable(opyn::label_for(m), m == im)) {
-                    b.setValue(idx, m);
+                    b.set_value(idx, m);
                     rv = true;
                 }
             }
@@ -65,7 +65,7 @@ namespace
     {
         return std::visit(Overload{
             [&b, idx](const auto& val) { return DrawEditor(b, idx, val); },
-        }, b.getValue(idx));
+        }, b.get_value(idx));
     }
 }
 
@@ -91,9 +91,9 @@ public:
         for (int i = 0, len = m_LocalCopy.size(); i < len; ++i) {
             ui::push_id(i);
 
-            ui::draw_text(m_LocalCopy.getName(i));
+            ui::draw_text(m_LocalCopy.get_name(i));
             ui::same_line();
-            ui::draw_help_marker(m_LocalCopy.getName(i), m_LocalCopy.getDescription(i));
+            ui::draw_help_marker(m_LocalCopy.get_name(i), m_LocalCopy.get_description(i));
             ui::next_column();
 
             if (DrawEditor(m_LocalCopy, i)) {

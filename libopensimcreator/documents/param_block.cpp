@@ -129,7 +129,7 @@ private:
 };
 
 
-osc::ParamBlock::ParamBlock() : m_Impl{std::make_unique<Impl>()} {}
+osc::ParamBlock::ParamBlock() : impl_{std::make_unique<Impl>()} {}
 osc::ParamBlock::ParamBlock(const ParamBlock&) = default;
 osc::ParamBlock::ParamBlock(ParamBlock&&) noexcept = default;
 osc::ParamBlock& osc::ParamBlock::operator=(const ParamBlock&) = default;
@@ -138,40 +138,40 @@ osc::ParamBlock::~ParamBlock() noexcept = default;
 
 int osc::ParamBlock::size() const
 {
-    return m_Impl->size();
+    return impl_->size();
 }
 
-const std::string& osc::ParamBlock::getName(int idx) const
+const std::string& osc::ParamBlock::get_name(int idx) const
 {
-    return m_Impl->getName(idx);
+    return impl_->getName(idx);
 }
 
-const std::string& osc::ParamBlock::getDescription(int idx) const
+const std::string& osc::ParamBlock::get_description(int idx) const
 {
-    return m_Impl->getDescription(idx);
+    return impl_->getDescription(idx);
 }
 
-const ParamValue& osc::ParamBlock::getValue(int idx) const
+const ParamValue& osc::ParamBlock::get_value(int idx) const
 {
-    return m_Impl->getValue(idx);
+    return impl_->getValue(idx);
 }
 
-std::optional<ParamValue> osc::ParamBlock::findValue(std::string_view name) const
+std::optional<ParamValue> osc::ParamBlock::find_value(std::string_view name) const
 {
-    return m_Impl->findValue(name);
+    return impl_->findValue(name);
 }
 
-void osc::ParamBlock::pushParam(std::string_view name, std::string_view description, ParamValue value)
+void osc::ParamBlock::push_param(std::string_view name, std::string_view description, ParamValue value)
 {
-    m_Impl->pushParam(name, description, value);
+    impl_->pushParam(name, description, value);
 }
 
-void osc::ParamBlock::setValue(int idx, ParamValue value)
+void osc::ParamBlock::set_value(int idx, ParamValue value)
 {
-    m_Impl->setValue(idx, value);
+    impl_->setValue(idx, value);
 }
 
-void osc::ParamBlock::setValue(const std::string& name, ParamValue value)
+void osc::ParamBlock::set_value(const std::string& name, ParamValue value)
 {
-    m_Impl->setValue(name, value);
+    impl_->setValue(name, value);
 }

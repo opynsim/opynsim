@@ -457,9 +457,9 @@ void osc::draw_simulation_params(const ParamBlock& params)
     ui::set_num_columns(2);
     for (int i = 0, len = params.size(); i < len; ++i)
     {
-        const std::string& name = params.getName(i);
-        const std::string& description = params.getDescription(i);
-        const ParamValue& value = params.getValue(i);
+        const std::string& name = params.get_name(i);
+        const std::string& description = params.get_description(i);
+        const ParamValue& value = params.get_value(i);
 
         ui::draw_text(name);
         ui::same_line();
