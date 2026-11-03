@@ -21,10 +21,10 @@ namespace osc
         SimulationScrubber& operator=(SimulationScrubber&&) noexcept;
         ~SimulationScrubber() noexcept;
 
-        void onDraw();
+        void on_draw();
 
     private:
         class Impl;
-        std::unique_ptr<Impl> m_Impl;
+        std::unique_ptr<Impl> impl_;
     };
 }

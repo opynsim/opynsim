@@ -56,11 +56,11 @@ public:
             ui::draw_button(MSMICONS_SAVE " Save All " MSMICONS_CARET_DOWN);
             if (ui::begin_popup_context_menu("##exportoptions", ui::PopupFlag::MouseButtonLeft)) {
                 if (ui::draw_menu_item("as CSV")) {
-                    m_SimulatorUIAPI->tryPromptToSaveAllOutputsAsCSV(m_Environment->getAllUserOutputExtractors());
+                    m_SimulatorUIAPI->try_prompt_to_save_all_outputs_as_csv(m_Environment->getAllUserOutputExtractors());
                 }
 
                 if (ui::draw_menu_item("as CSV (and open)")) {
-                    m_SimulatorUIAPI->tryPromptToSaveAllOutputsAsCSV(m_Environment->getAllUserOutputExtractors(), true);
+                    m_SimulatorUIAPI->try_prompt_to_save_all_outputs_as_csv(m_Environment->getAllUserOutputExtractors(), true);
                 }
 
                 ui::end_popup();
@@ -75,9 +75,9 @@ public:
 
             ui::push_id(i);
             SimulationOutputPlot plot{m_SimulatorUIAPI, output, 128.0f};
-            plot.onDraw();
+            plot.on_draw();
 
-            draw_output_name_column(output, true, m_SimulatorUIAPI->tryGetCurrentSimulationState());
+            draw_output_name_column(output, true, m_SimulatorUIAPI->try_get_current_simulation_state());
             ui::same_line();
             if (ui::draw_button(MSMICONS_TRASH)) {
                 m_Environment->removeUserOutputExtractor(output);

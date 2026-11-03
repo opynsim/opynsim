@@ -197,7 +197,7 @@ public:
     {
         if (m_PlaybackState == SimulationUIPlaybackState::Playing) {
 
-            const SimulationClock::time_point playbackPos = implGetSimulationScrubTime();
+            const SimulationClock::time_point playbackPos = impl_get_simulation_scrub_time();
 
             if ((m_PlaybackSpeed >= 0.0f and playbackPos < m_Simulation->getEndTime()) ||
                 (m_PlaybackSpeed  < 0.0f and playbackPos > m_Simulation->getStartTime())) {
@@ -207,7 +207,7 @@ public:
             }
             else if (m_LoopingState == SimulationUILoopingState::Looping) {
                 // there's nothing to playback, but the UI wants to loop the playback, so loop it
-                setSimulationScrubTime(m_Simulation->getStartTime());
+                set_simulation_scrub_time(m_Simulation->getStartTime());
             }
             else {
                 // there's nothing to playback, so put playback into the stopped state
@@ -273,16 +273,16 @@ private:
         static_assert(num_options_v<SimulationUIPlaybackState> == 2);
         if (m_PlaybackState == SimulationUIPlaybackState::Playing) {
             // pause
-            setSimulationPlaybackState(SimulationUIPlaybackState::Stopped);
+            set_simulation_playback_state(SimulationUIPlaybackState::Stopped);
         }
-        else if (getSimulationScrubTime() >= m_Simulation->getEndTime()) {
+        else if (get_simulation_scrub_time() >= m_Simulation->getEndTime()) {
             // replay
-            setSimulationScrubTime(m_Simulation->getStartTime());
-            setSimulationPlaybackState(SimulationUIPlaybackState::Playing);
+            set_simulation_scrub_time(m_Simulation->getStartTime());
+            set_simulation_playback_state(SimulationUIPlaybackState::Playing);
         }
         else {
             // unpause
-            setSimulationPlaybackState(SimulationUIPlaybackState::Playing);
+            set_simulation_playback_state(SimulationUIPlaybackState::Playing);
         }
     }
 
@@ -312,54 +312,54 @@ private:
         }
     }
 
-    const AbstractSimulation& implGetSimulation() const final
+    const AbstractSimulation& impl_get_simulation() const final
     {
         return *m_Simulation;
     }
 
-    AbstractSimulation& implUpdSimulation() final
+    AbstractSimulation& impl_upd_simulation() final
     {
         return *m_Simulation;
     }
 
-    SimulationUIPlaybackState implGetSimulationPlaybackState() final
+    SimulationUIPlaybackState impl_get_simulation_playback_state() final
     {
         return m_PlaybackState;
     }
 
-    void implSetSimulationPlaybackState(SimulationUIPlaybackState newState) final
+    void impl_set_simulation_playback_state(SimulationUIPlaybackState newState) final
     {
         if (newState == SimulationUIPlaybackState::Playing) {
             m_PlaybackStartWallTime = std::chrono::steady_clock::now();
             m_PlaybackState = newState;
         }
         else {
-            m_PlaybackStartSimtime = getSimulationScrubTime();
+            m_PlaybackStartSimtime = get_simulation_scrub_time();
             m_PlaybackState = newState;
         }
     }
 
-    SimulationUILoopingState implGetSimulationLoopingState() const final
+    SimulationUILoopingState impl_get_simulation_looping_state() const final
     {
         return m_LoopingState;
     }
 
-    void implSetSimulationLoopingState(SimulationUILoopingState s) final
+    void impl_set_simulation_looping_state(SimulationUILoopingState s) final
     {
         m_LoopingState = s;
     }
 
-    float implGetSimulationPlaybackSpeed() final
+    float impl_get_simulation_playback_speed() final
     {
         return m_PlaybackSpeed;
     }
 
-    void implSetSimulationPlaybackSpeed(float v) final
+    void impl_set_simulation_playback_speed(float v) final
     {
         m_PlaybackSpeed = v;
     }
 
-    SimulationClock::time_point implGetSimulationScrubTime() final
+    SimulationClock::time_point impl_get_simulation_scrub_time() final
     {
         if (m_PlaybackState == SimulationUIPlaybackState::Stopped) {
             return m_PlaybackStartSimtime;
@@ -392,44 +392,44 @@ private:
         }
     }
 
-    void implSetSimulationScrubTime(SimulationClock::time_point t) final
+    void impl_set_simulation_scrub_time(SimulationClock::time_point t) final
     {
         m_PlaybackStartSimtime = t;
         m_PlaybackStartWallTime = std::chrono::steady_clock::now();
     }
 
-    void implStepBack() final
+    void impl_step_back() final
     {
-        const std::optional<SimulationReport> maybePrev = tryFindNthReportAfter(getSimulationScrubTime(), -1);
+        const std::optional<SimulationReport> maybePrev = tryFindNthReportAfter(get_simulation_scrub_time(), -1);
         if (maybePrev) {
-            setSimulationScrubTime(maybePrev->getTime());
+            set_simulation_scrub_time(maybePrev->getTime());
         }
     }
 
-    void implStepForward() final
+    void impl_step_forward() final
     {
-        const std::optional<SimulationReport> maybeNext = tryFindNthReportAfter(getSimulationScrubTime(), 1);
+        const std::optional<SimulationReport> maybeNext = tryFindNthReportAfter(get_simulation_scrub_time(), 1);
         if (maybeNext) {
-            setSimulationScrubTime(maybeNext->getTime());
+            set_simulation_scrub_time(maybeNext->getTime());
         }
     }
 
-    std::optional<SimulationReport> implTrySelectReportBasedOnScrubbing() final
+    std::optional<SimulationReport> impl_try_select_report_based_on_scrubbing() final
     {
-        return tryFindNthReportAfter(getSimulationScrubTime());
+        return tryFindNthReportAfter(get_simulation_scrub_time());
     }
 
-    SimulationModelStatePair* implTryGetCurrentSimulationState() final
+    SimulationModelStatePair* impl_try_get_current_simulation_state() final
     {
         return m_ShownModelState.get();
     }
 
     void drawContent()
     {
-        m_Toolbar.onDraw();
+        m_Toolbar.on_draw();
 
         // only draw content if a simulation report is available
-        const std::optional<SimulationReport> maybeReport = trySelectReportBasedOnScrubbing();
+        const std::optional<SimulationReport> maybeReport = try_select_report_based_on_scrubbing();
         if (maybeReport) {
             m_ShownModelState->setSimulation(m_Simulation);
             m_ShownModelState->setSimulationReport(*maybeReport);

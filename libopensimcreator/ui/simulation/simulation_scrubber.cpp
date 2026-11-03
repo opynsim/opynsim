@@ -58,13 +58,13 @@ private:
     void drawBackwardsButtons()
     {
         if (ui::draw_button(MSMICONS_FAST_BACKWARD)) {
-            m_SimulatorAPI->setSimulationScrubTime(m_Simulation->getStartTime());
+            m_SimulatorAPI->set_simulation_scrub_time(m_Simulation->getStartTime());
         }
         ui::draw_tooltip_if_item_hovered("Go to First State");
         ui::same_line();
 
         if (ui::draw_button(MSMICONS_STEP_BACKWARD)) {
-            m_SimulatorAPI->stepBack();
+            m_SimulatorAPI->step_back();
         }
         ui::draw_tooltip_if_item_hovered("Previous State");
     }
@@ -72,13 +72,13 @@ private:
     void drawLoopButton()
     {
         static_assert(num_options_v<SimulationUILoopingState> == 2);
-        bool looping = m_SimulatorAPI->getSimulationLoopingState() == SimulationUILoopingState::Looping;
+        bool looping = m_SimulatorAPI->get_simulation_looping_state() == SimulationUILoopingState::Looping;
         if (ui::draw_checkbox("loop", &looping)) {
             if (looping) {
-                m_SimulatorAPI->setSimulationLoopingState(SimulationUILoopingState::Looping);
+                m_SimulatorAPI->set_simulation_looping_state(SimulationUILoopingState::Looping);
             }
             else {
-                m_SimulatorAPI->setSimulationLoopingState(SimulationUILoopingState::PlayOnce);
+                m_SimulatorAPI->set_simulation_looping_state(SimulationUILoopingState::PlayOnce);
             }
         }
     }
@@ -87,15 +87,15 @@ private:
     {
         const SimulationClock::time_point tStart = m_Simulation->getStartTime();
         const SimulationClock::time_point tEnd = m_Simulation->getEndTime();
-        const SimulationClock::time_point tCur = m_SimulatorAPI->getSimulationScrubTime();
-        const SimulationUIPlaybackState state = m_SimulatorAPI->getSimulationPlaybackState();
+        const SimulationClock::time_point tCur = m_SimulatorAPI->get_simulation_scrub_time();
+        const SimulationUIPlaybackState state = m_SimulatorAPI->get_simulation_playback_state();
 
         static_assert(num_options_v<SimulationUIPlaybackState> == 2);
         if (state == SimulationUIPlaybackState::Playing) {
             // if playing, the only option is to stop
 
             if (ui::draw_button(MSMICONS_PAUSE)) {
-                m_SimulatorAPI->setSimulationPlaybackState(SimulationUIPlaybackState::Stopped);
+                m_SimulatorAPI->set_simulation_playback_state(SimulationUIPlaybackState::Stopped);
             }
             ui::draw_tooltip_if_item_hovered("Pause (Space)");
         }
@@ -105,14 +105,14 @@ private:
 
             if (tCur >= tEnd) {
                 if (ui::draw_button(MSMICONS_REDO)) {
-                    m_SimulatorAPI->setSimulationScrubTime(tStart);
-                    m_SimulatorAPI->setSimulationPlaybackState(SimulationUIPlaybackState::Playing);
+                    m_SimulatorAPI->set_simulation_scrub_time(tStart);
+                    m_SimulatorAPI->set_simulation_playback_state(SimulationUIPlaybackState::Playing);
                 }
                 ui::draw_tooltip_if_item_hovered("Replay (Space)");
             }
             else {
                 if (ui::draw_button(MSMICONS_PLAY)) {
-                    m_SimulatorAPI->setSimulationPlaybackState(SimulationUIPlaybackState::Playing);  // i.e. unpause
+                    m_SimulatorAPI->set_simulation_playback_state(SimulationUIPlaybackState::Playing);  // i.e. unpause
                 }
                 ui::draw_tooltip_if_item_hovered("Play (Space)");
             }
@@ -122,14 +122,14 @@ private:
     void drawForwardsButtons()
     {
         if (ui::draw_button(MSMICONS_STEP_FORWARD)){
-            m_SimulatorAPI->stepForward();
+            m_SimulatorAPI->step_forward();
         }
         ui::draw_tooltip_if_item_hovered("Next State");
 
         ui::same_line();
 
         if (ui::draw_button(MSMICONS_FAST_FORWARD)) {
-            m_SimulatorAPI->setSimulationScrubTime(m_Simulation->getEndTime());
+            m_SimulatorAPI->set_simulation_scrub_time(m_Simulation->getEndTime());
         }
         ui::draw_tooltip_if_item_hovered("Go to Last State");
     }
@@ -143,10 +143,10 @@ private:
     void drawPlaybackSpeedSelector()
     {
         ui::set_next_item_width(ui::calc_text_size("0.000x").x() + 2.0f*ui::get_style_frame_padding().x());
-        float speed = m_SimulatorAPI->getSimulationPlaybackSpeed();
+        float speed = m_SimulatorAPI->get_simulation_playback_speed();
         ui::draw_float_input("speed", &speed, 0.0f, 0.0f, "%.3f");
         if (ui::is_item_deactivated_after_edit()) {
-            m_SimulatorAPI->setSimulationPlaybackSpeed(speed);
+            m_SimulatorAPI->set_simulation_playback_speed(speed);
         }
     }
 
@@ -154,7 +154,7 @@ private:
     {
         const SimulationClock::time_point tStart = m_Simulation->getStartTime();
         const SimulationClock::time_point tEnd = m_Simulation->getEndTime();
-        const SimulationClock::time_point tCur = m_SimulatorAPI->getSimulationScrubTime();
+        const SimulationClock::time_point tCur = m_SimulatorAPI->get_simulation_scrub_time();
 
         ui::set_next_item_width(ui::get_font_base_size() * 20.0f);
         float v = static_cast<float>(tCur.time_since_epoch().count());
@@ -169,7 +169,7 @@ private:
         ui::same_line();
 
         if (userScrubbed) {
-            m_SimulatorAPI->setSimulationScrubTime(SimulationClock::start() + SimulationClock::duration{static_cast<double>(v)});
+            m_SimulatorAPI->set_simulation_scrub_time(SimulationClock::start() + SimulationClock::duration{static_cast<double>(v)});
         }
 
         if (ui::is_item_hovered()) {
@@ -197,9 +197,9 @@ osc::SimulationScrubber::SimulationScrubber(
     SimulatorUIAPI* simulatorAPI,
     std::shared_ptr<const Simulation> simulation) :
 
-    m_Impl{std::make_unique<Impl>(label, simulatorAPI, std::move(simulation))}
+    impl_{std::make_unique<Impl>(label, simulatorAPI, std::move(simulation))}
 {}
 osc::SimulationScrubber::SimulationScrubber(SimulationScrubber&&) noexcept = default;
 osc::SimulationScrubber& osc::SimulationScrubber::operator=(SimulationScrubber&&) noexcept = default;
 osc::SimulationScrubber::~SimulationScrubber() noexcept = default;
-void osc::SimulationScrubber::onDraw() { m_Impl->onDraw(); }
+void osc::SimulationScrubber::on_draw() { impl_->onDraw(); }

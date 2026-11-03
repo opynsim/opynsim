@@ -21,10 +21,10 @@ namespace osc
         SimulationOutputPlot& operator=(SimulationOutputPlot&&) noexcept;
         ~SimulationOutputPlot() noexcept;
 
-        void onDraw();
+        void on_draw();
 
     private:
         class Impl;
-        std::unique_ptr<Impl> m_Impl;
+        std::unique_ptr<Impl> impl_;
     };
 }

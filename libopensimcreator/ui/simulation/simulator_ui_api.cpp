@@ -60,12 +60,12 @@ namespace
     }
 }
 
-void osc::SimulatorUIAPI::tryPromptToSaveOutputsAsCSV(std::span<const opyn::SharedOutputExtractor> outputs, bool openInDefaultApp) const
+void osc::SimulatorUIAPI::try_prompt_to_save_outputs_as_csv(std::span<const opyn::SharedOutputExtractor> outputs, bool openInDefaultApp) const
 {
-    TryExportOutputsToCSV(getSimulation(), outputs, openInDefaultApp);
+    TryExportOutputsToCSV(get_simulation(), outputs, openInDefaultApp);
 }
 
-void osc::SimulatorUIAPI::tryPromptToSaveAllOutputsAsCSV(std::span<const opyn::SharedOutputExtractor> outputs, bool openInDefaultApp) const
+void osc::SimulatorUIAPI::try_prompt_to_save_all_outputs_as_csv(std::span<const opyn::SharedOutputExtractor> outputs, bool openInDefaultApp) const
 {
-    TryExportOutputsToCSV(getSimulation(), outputs, openInDefaultApp);
+    TryExportOutputsToCSV(get_simulation(), outputs, openInDefaultApp);
 }

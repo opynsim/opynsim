@@ -68,11 +68,11 @@ namespace
         const opyn::SharedOutputExtractor& output)
     {
         if (ui::draw_menu_item(MSMICONS_SAVE "Save as CSV")) {
-            api.tryPromptToSaveOutputsAsCSV({output}, false);
+            api.try_prompt_to_save_outputs_as_csv({output}, false);
         }
 
         if (ui::draw_menu_item(MSMICONS_SAVE "Save as CSV (and open)")) {
-            api.tryPromptToSaveOutputsAsCSV({output}, true);
+            api.try_prompt_to_save_outputs_as_csv({output}, true);
         }
     }
 
@@ -177,7 +177,7 @@ public:
     {
         static_assert(num_options_v<opyn::OutputExtractorDataType> == 3);
 
-        const ptrdiff_t nReports = m_API->updSimulation().getNumReports();
+        const ptrdiff_t nReports = m_API->upd_simulation().getNumReports();
         opyn::OutputExtractorDataType outputType = m_OutputExtractor.output_type();
 
         if (nReports <= 0) {
@@ -202,7 +202,7 @@ private:
     {
         OSC_ASSERT(m_OutputExtractor.output_type() == opyn::OutputExtractorDataType::Float && "should've been checked before calling this function");
 
-        AbstractSimulation& sim = m_API->updSimulation();
+        AbstractSimulation& sim = m_API->upd_simulation();
 
         const ptrdiff_t nReports = sim.getNumReports();
         if (nReports <= 0) {
@@ -268,7 +268,7 @@ private:
         const SimulationClock::time_point simStartTime = sim.getSimulationReport(0).getTime();
         const SimulationClock::time_point simEndTime = sim.getSimulationReport(nReports-1).getTime();
         const SimulationClock::duration simTimeStep = (simEndTime-simStartTime)/nReports;
-        const SimulationClock::time_point simScrubTime = m_API->getSimulationScrubTime();
+        const SimulationClock::time_point simScrubTime = m_API->get_simulation_scrub_time();
 
         const float simScrubPct = static_cast<float>(static_cast<double>((simScrubTime - simStartTime)/(simEndTime - simStartTime)));
 
@@ -313,16 +313,16 @@ private:
             // if the user presses their left mouse while hovering over the plot,
             // change the current sim scrub time to match their press location
             if (ui::is_mouse_down(MouseButton::Left)) {
-                m_API->setSimulationScrubTime(timeLoc);
+                m_API->set_simulation_scrub_time(timeLoc);
             }
         }
     }
 
     void drawStringOutputUI()
     {
-        AbstractSimulation& sim = m_API->updSimulation();
-        const ptrdiff_t nReports = m_API->updSimulation().getNumReports();
-        const SimulationReport r = m_API->trySelectReportBasedOnScrubbing().value_or(sim.getSimulationReport(nReports - 1));
+        AbstractSimulation& sim = m_API->upd_simulation();
+        const ptrdiff_t nReports = m_API->upd_simulation().getNumReports();
+        const SimulationReport r = m_API->try_select_report_based_on_scrubbing().value_or(sim.getSimulationReport(nReports - 1));
 
         ui::draw_text_centered(m_OutputExtractor.value<std::string>(*sim.getModel(), r));
         TryDrawOutputContextMenuForLastItem(*m_API, sim, m_OutputExtractor);
@@ -332,7 +332,7 @@ private:
     {
         OSC_ASSERT(m_OutputExtractor.output_type() == opyn::OutputExtractorDataType::Vector2);
 
-        AbstractSimulation& sim = m_API->updSimulation();
+        AbstractSimulation& sim = m_API->upd_simulation();
 
         const ptrdiff_t nReports = sim.getNumReports();
         if (nReports <= 0) {
@@ -376,7 +376,7 @@ private:
 
                 // overlays
                 {
-                    SimulationReport currentReport = m_API->trySelectReportBasedOnScrubbing().value_or(sim.getSimulationReport(nReports - 1));
+                    SimulationReport currentReport = m_API->try_select_report_based_on_scrubbing().value_or(sim.getSimulationReport(nReports - 1));
                     Vector2d currentVal = m_OutputExtractor.value<Vector2>(*sim.getModel(), currentReport);
                     // ensure the annotation doesn't occlude the line too heavily
                     auto annotationColor = ui::get_style_color(ui::ColorVar::PopupBg).with_alpha(0.5f);
@@ -407,9 +407,9 @@ osc::SimulationOutputPlot::SimulationOutputPlot(
     opyn::SharedOutputExtractor outputExtractor,
     float height) :
 
-    m_Impl{std::make_unique<Impl>(api, std::move(outputExtractor), height)}
+    impl_{std::make_unique<Impl>(api, std::move(outputExtractor), height)}
 {}
 osc::SimulationOutputPlot::SimulationOutputPlot(SimulationOutputPlot&&) noexcept = default;
 osc::SimulationOutputPlot& osc::SimulationOutputPlot::operator=(SimulationOutputPlot&&) noexcept = default;
 osc::SimulationOutputPlot::~SimulationOutputPlot() noexcept = default;
-void osc::SimulationOutputPlot::onDraw() { m_Impl->onDraw(); }
+void osc::SimulationOutputPlot::on_draw() { impl_->onDraw(); }

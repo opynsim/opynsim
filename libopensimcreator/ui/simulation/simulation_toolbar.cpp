@@ -62,7 +62,7 @@ private:
         ui::draw_vertical_separator();
         ui::same_line();
 
-        m_Scrubber.onDraw();
+        m_Scrubber.on_draw();
 
         ui::same_line();
         ui::draw_vertical_separator();
@@ -111,9 +111,9 @@ osc::SimulationToolbar::SimulationToolbar(
     SimulatorUIAPI* simulatorAPI,
     std::shared_ptr<Simulation> simulation) :
 
-    m_Impl{std::make_unique<Impl>(label, simulatorAPI, std::move(simulation))}
+    impl_{std::make_unique<Impl>(label, simulatorAPI, std::move(simulation))}
 {}
 osc::SimulationToolbar::SimulationToolbar(SimulationToolbar&&) noexcept = default;
 osc::SimulationToolbar& osc::SimulationToolbar::operator=(SimulationToolbar&&) noexcept = default;
 osc::SimulationToolbar::~SimulationToolbar() noexcept = default;
-void osc::SimulationToolbar::onDraw() { m_Impl->onDraw(); }
+void osc::SimulationToolbar::on_draw() { impl_->onDraw(); }
