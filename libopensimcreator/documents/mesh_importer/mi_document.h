@@ -249,7 +249,7 @@ namespace osc
 
                 // move object into deletion set, rather than deleting it immediately,
                 // so that code that relies on references to the to-be-deleted object
-                // still works until an explicit `.GarbageCollect()` call
+                // still works until an explicit `.garbage_collect()` call
                 if (const auto it = objects_.find(deletedID); it != objects_.end())
                 {
                     deleted_objects_.push_back(std::move(it->second));

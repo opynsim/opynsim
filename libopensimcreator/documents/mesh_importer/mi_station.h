@@ -22,13 +22,13 @@ namespace osc
     public:
         MiStation(
             UID id,
-            UID attachment,  // can be MiIDs::Ground()
+            UID attachment,  // can be MiIDs::ground()
             const Vector3& position,
             const std::string& name
         );
 
         MiStation(
-            UID attachment,  // can be MiIDs::Ground()
+            UID attachment,  // can be MiIDs::ground()
             const Vector3& position,
             const std::string& name
         );
@@ -97,7 +97,7 @@ namespace osc
         }
 
         UID id_;
-        UID attachment_;  // can be MiIDs::Ground()
+        UID attachment_;  // can be MiIDs::ground()
         Vector3 position_{};
         std::string name_;
     };

@@ -23,7 +23,7 @@ namespace osc
     public:
         MiMesh(
             UID id,
-            UID attachment,  // can be MiIDs::Ground()
+            UID attachment,  // can be MiIDs::ground()
             osc::Mesh meshData,
             std::filesystem::path path
         );
@@ -119,7 +119,7 @@ namespace osc
         }
 
         UID id_;
-        UID attachment_;  // can be MiIDs::Ground()
+        UID attachment_;  // can be MiIDs::ground()
         Transform transform_;
         osc::Mesh mesh_data_;
         std::filesystem::path path_;
