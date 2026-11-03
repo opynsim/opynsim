@@ -31,26 +31,26 @@ namespace osc
             MwDocumentElementID rightClickedID_) :
 
             Popup{parent, label_},
-            m_State{std::move(shared_)},
-            m_ElementID{std::move(rightClickedID_)}
+            state_{std::move(shared_)},
+            element_id_{std::move(rightClickedID_)}
         {
             set_modal(false);
         }
     private:
         void impl_draw_content() final
         {
-            const MwDocumentElement* el = FindElement(m_State->getScratch(), m_ElementID);
+            const MwDocumentElement* el = FindElement(state_->get_scratch(), element_id_);
             if (!el)
             {
                 request_close();  // element cannot be found in document (deleted? renamed?)
             }
             else if (const auto* landmarkPair = dynamic_cast<const MwDocumentLandmarkPair*>(el))
             {
-                drawContextMenu(*landmarkPair);
+                draw_context_menu(*landmarkPair);
             }
             else if (const auto* npl = dynamic_cast<const MwDocumentNonParticipatingLandmark*>(el))
             {
-                drawContextMenu(*npl);
+                draw_context_menu(*npl);
             }
             else
             {
@@ -58,63 +58,63 @@ namespace osc
             }
         }
 
-        void drawContextMenu(const MwDocumentLandmarkPair& lm)
+        void draw_context_menu(const MwDocumentLandmarkPair& lm)
         {
             // header
             DrawContextMenuHeader(truncate_with_ellipsis(lm.name, 15), "Landmark");
             DrawContextMenuSeparator();
 
             // name editor
-            if (!m_ActiveNameEdit)
+            if (!active_name_edit_)
             {
-                m_ActiveNameEdit = lm.name;
+                active_name_edit_ = lm.name;
             }
-            ui::draw_string_input("name", *m_ActiveNameEdit);
+            ui::draw_string_input("name", *active_name_edit_);
             if (ui::should_save_last_drawn_item_value())
             {
-                ActionRenameLandmark(m_State->updUndoable(), lm.uid, *m_ActiveNameEdit);
-                m_ActiveNameEdit.reset();
+                ActionRenameLandmark(state_->upd_undoable(), lm.uid, *active_name_edit_);
+                active_name_edit_.reset();
             }
 
             if (lm.maybeSourceLocation)
             {
-                if (!m_ActivePositionEdit)
+                if (!active_position_edit_)
                 {
-                    m_ActivePositionEdit = lm.maybeSourceLocation;
+                    active_position_edit_ = lm.maybeSourceLocation;
                 }
-                ui::draw_float3_meters_input("source           ", *m_ActivePositionEdit);  // (padded to align with `destination`)
+                ui::draw_float3_meters_input("source           ", *active_position_edit_);  // (padded to align with `destination`)
                 if (ui::should_save_last_drawn_item_value())
                 {
-                    ActionSetLandmarkPosition(m_State->updUndoable(), lm.uid, MiDocumentInputIdentifier::Source, *m_ActivePositionEdit);
-                    m_ActivePositionEdit.reset();
+                    ActionSetLandmarkPosition(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Source, *active_position_edit_);
+                    active_position_edit_.reset();
                 }
             }
             else
             {
                 if (ui::draw_button("add source"))
                 {
-                    ActionSetLandmarkPosition(m_State->updUndoable(), lm.uid, MiDocumentInputIdentifier::Source, Vector3{});
+                    ActionSetLandmarkPosition(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Source, Vector3{});
                 }
             }
 
             if (lm.maybeDestinationLocation)
             {
-                if (!m_ActiveDestinationPositionEdit)
+                if (!active_destination_position_edit_)
                 {
-                    m_ActiveDestinationPositionEdit = lm.maybeDestinationLocation;
+                    active_destination_position_edit_ = lm.maybeDestinationLocation;
                 }
-                ui::draw_float3_meters_input("destination", *m_ActiveDestinationPositionEdit);
+                ui::draw_float3_meters_input("destination", *active_destination_position_edit_);
                 if (ui::should_save_last_drawn_item_value())
                 {
-                    ActionSetLandmarkPosition(m_State->updUndoable(), lm.uid, MiDocumentInputIdentifier::Destination, *m_ActiveDestinationPositionEdit);
-                    m_ActivePositionEdit.reset();
+                    ActionSetLandmarkPosition(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Destination, *active_destination_position_edit_);
+                    active_position_edit_.reset();
                 }
             }
             else
             {
                 if (ui::draw_button_centered("add destination"))
                 {
-                    ActionSetLandmarkPosition(m_State->updUndoable(), lm.uid, MiDocumentInputIdentifier::Destination, Vector3{});
+                    ActionSetLandmarkPosition(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Destination, Vector3{});
                 }
             }
 
@@ -122,53 +122,53 @@ namespace osc
 
             if (ui::draw_menu_item(MSMICONS_TRASH " Delete", Key::Delete))
             {
-                ActionDeleteElementByID(m_State->updUndoable(), lm.uid);
+                ActionDeleteElementByID(state_->upd_undoable(), lm.uid);
                 return;  // CARE: `lm` is now dead
             }
         }
 
-        void drawContextMenu(const MwDocumentNonParticipatingLandmark& npl)
+        void draw_context_menu(const MwDocumentNonParticipatingLandmark& npl)
         {
             // header
             DrawContextMenuHeader(truncate_with_ellipsis(npl.name, 15), "Non-Participating Landmark");
             DrawContextMenuSeparator();
 
             // name editor
-            if (!m_ActiveNameEdit)
+            if (!active_name_edit_)
             {
-                m_ActiveNameEdit = npl.name;
+                active_name_edit_ = npl.name;
             }
-            ui::draw_string_input("name", *m_ActiveNameEdit);
+            ui::draw_string_input("name", *active_name_edit_);
             if (ui::should_save_last_drawn_item_value())
             {
-                ActionRenameNonParticipatingLandmark(m_State->updUndoable(), npl.uid, *m_ActiveNameEdit);
-                m_ActiveNameEdit.reset();
+                ActionRenameNonParticipatingLandmark(state_->upd_undoable(), npl.uid, *active_name_edit_);
+                active_name_edit_.reset();
             }
 
-            if (!m_ActivePositionEdit)
+            if (!active_position_edit_)
             {
-                m_ActivePositionEdit = npl.location;
+                active_position_edit_ = npl.location;
             }
-            ui::draw_float3_meters_input("location", *m_ActivePositionEdit);
+            ui::draw_float3_meters_input("location", *active_position_edit_);
             if (ui::should_save_last_drawn_item_value())
             {
-                ActionSetNonParticipatingLandmarkPosition(m_State->updUndoable(), npl.uid, *m_ActivePositionEdit);
-                m_ActivePositionEdit.reset();
+                ActionSetNonParticipatingLandmarkPosition(state_->upd_undoable(), npl.uid, *active_position_edit_);
+                active_position_edit_.reset();
             }
 
             DrawContextMenuSeparator();
 
             if (ui::draw_menu_item(MSMICONS_TRASH " Delete", Key::Delete))
             {
-                ActionDeleteElementByID(m_State->updUndoable(), npl.uid);
+                ActionDeleteElementByID(state_->upd_undoable(), npl.uid);
                 return;  // CARE: `npl` is now dead
             }
         }
 
-        std::shared_ptr<MwUiSharedState> m_State;
-        MwDocumentElementID m_ElementID;
-        std::optional<std::string> m_ActiveNameEdit;
-        std::optional<Vector3> m_ActivePositionEdit;
-        std::optional<Vector3> m_ActiveDestinationPositionEdit;
+        std::shared_ptr<MwUiSharedState> state_;
+        MwDocumentElementID element_id_;
+        std::optional<std::string> active_name_edit_;
+        std::optional<Vector3> active_position_edit_;
+        std::optional<Vector3> active_destination_position_edit_;
     };
 }

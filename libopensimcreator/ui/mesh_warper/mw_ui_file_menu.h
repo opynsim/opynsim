@@ -19,40 +19,40 @@ namespace osc
     public:
         explicit MwUiFileMenu(
             std::shared_ptr<MwUiSharedState> tabState_) :
-            m_State{std::move(tabState_)}
+            state_{std::move(tabState_)}
         {}
 
-        void onDraw()
+        void on_draw()
         {
             if (ui::begin_menu("File"))
             {
-                drawContent();
+                draw_content();
                 ui::end_menu();
             }
         }
     private:
-        void drawContent()
+        void draw_content()
         {
             if (ui::draw_menu_item(MSMICONS_FILE " New", ModifierKey::Ctrl | Key::N))
             {
-                ActionCreateNewDocument(m_State->updUndoable());
+                ActionCreateNewDocument(state_->upd_undoable());
             }
 
             if (ui::begin_menu(MSMICONS_FILE_IMPORT " Import"))
             {
-                drawImportMenuContent();
+                draw_import_menu_content();
                 ui::end_menu();
             }
 
             if (ui::begin_menu(MSMICONS_FILE_EXPORT " Export"))
             {
-                drawExportMenuContent();
+                draw_export_menu_content();
                 ui::end_menu();
             }
 
             if (ui::draw_menu_item(MSMICONS_TIMES " Close", ModifierKey::Ctrl | Key::W))
             {
-                m_State->closeTab();
+                state_->close_tab();
             }
 
             if (ui::draw_menu_item(MSMICONS_TIMES_CIRCLE " Quit", ModifierKey::Ctrl | Key::Q))
@@ -61,54 +61,54 @@ namespace osc
             }
         }
 
-        void drawImportMenuContent()
+        void draw_import_menu_content()
         {
             if (ui::draw_menu_item("Source Mesh"))
             {
-                ActionPromptUserToLoadMeshFile(m_State->getUndoableSharedPtr(), MiDocumentInputIdentifier::Source);
+                ActionPromptUserToLoadMeshFile(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
             }
             if (ui::draw_menu_item("Destination Mesh"))
             {
-                ActionPromptUserToLoadMeshFile(m_State->getUndoableSharedPtr(), MiDocumentInputIdentifier::Destination);
+                ActionPromptUserToLoadMeshFile(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
             }
             if (ui::draw_menu_item("Source Landmarks from CSV"))
             {
-                ActionPromptUserToLoadLandmarksFromCSV(m_State->getUndoableSharedPtr(), MiDocumentInputIdentifier::Source);
+                ActionPromptUserToLoadLandmarksFromCSV(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
             }
             if (ui::draw_menu_item("Destination Landmarks from CSV"))
             {
-                ActionPromptUserToLoadLandmarksFromCSV(m_State->getUndoableSharedPtr(), MiDocumentInputIdentifier::Destination);
+                ActionPromptUserToLoadLandmarksFromCSV(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
             }
             if (ui::draw_menu_item("Non-Participating Landmarks from CSV"))
             {
-                ActionPromptUserToLoadNonParticipatingLandmarksFromCSV(m_State->getUndoableSharedPtr());
+                ActionPromptUserToLoadNonParticipatingLandmarksFromCSV(state_->get_undoable_shared_ptr());
             }
         }
 
-        void drawExportMenuContent()
+        void draw_export_menu_content()
         {
             if (ui::draw_menu_item("Source Landmarks to CSV"))
             {
-                ActionPromptUserToSaveLandmarksToCSV(m_State->getScratch(), MiDocumentInputIdentifier::Source);
+                ActionPromptUserToSaveLandmarksToCSV(state_->get_scratch(), MiDocumentInputIdentifier::Source);
             }
             if (ui::draw_menu_item("Destination Landmarks to CSV"))
             {
-                ActionPromptUserToSaveLandmarksToCSV(m_State->getScratch(), MiDocumentInputIdentifier::Destination);
+                ActionPromptUserToSaveLandmarksToCSV(state_->get_scratch(), MiDocumentInputIdentifier::Destination);
             }
             if (ui::draw_menu_item("Landmark Pairs to CSV"))
             {
-                ActionPromptUserToSavePairedLandmarksToCSV(m_State->getScratch());
+                ActionPromptUserToSavePairedLandmarksToCSV(state_->get_scratch());
             }
             if (ui::draw_menu_item("Landmark Pairs to CSV (no names)"))
             {
-                ActionPromptUserToSavePairedLandmarksToCSV(m_State->getScratch(), opyn::LandmarkCSVFlags::NoNames);
+                ActionPromptUserToSavePairedLandmarksToCSV(state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
             }
             if (ui::draw_menu_item("Non-Participating Landmarks to CSV"))
             {
-                ActionPromptUserToSaveNonParticipatingLandmarksToCSV(m_State->getScratch());
+                ActionPromptUserToSaveNonParticipatingLandmarksToCSV(state_->get_scratch());
             }
         }
 
-        std::shared_ptr<MwUiSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> state_;
     };
 }

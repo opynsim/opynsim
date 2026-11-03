@@ -32,18 +32,18 @@ namespace osc
     public:
         explicit MwUiResultPanel(
             Widget* parent,
-            std::string_view panelName_,
-            std::shared_ptr<MwUiSharedState> state_) :
+            std::string_view panel_name,
+            std::shared_ptr<MwUiSharedState> state) :
 
-            MwUiPanel{parent, panelName_},
-            m_State{std::move(state_)}
+            MwUiPanel{parent, panel_name},
+            state_{std::move(state)}
         {
-            m_Camera.set_vertical_field_of_view(Degrees{35.0f});
-            m_CameraController.focus_on(
-                m_State->getResultMesh().bounds().value_or(AABB{}),
-                m_Camera
+            camera_.set_vertical_field_of_view(Degrees{35.0f});
+            camera_controller_.focus_on(
+                state_->get_result_mesh().bounds().value_or(AABB{}),
+                camera_
             );
-            m_CameraController.update_camera(m_Camera);
+            camera_controller_.update_camera(camera_);
         }
     private:
         void impl_draw_content() final
@@ -51,63 +51,63 @@ namespace osc
             // fill the entire available region with the render
             const Vector2 dims = ui::get_content_region_available();
 
-            updateCamera();
+            update_camera();
 
             // render it via ImGui and hittest it
-            RenderTexture& renderTexture = renderScene(dims);
+            RenderTexture& renderTexture = render_scene(dims);
             ui::draw_image(renderTexture);
-            m_LastTextureHittestResult = ui::hittest_last_drawn_item();
+            last_texture_hittest_result_ = ui::hittest_last_drawn_item();
 
-            drawOverlays(m_LastTextureHittestResult.item_ui_rect);
+            draw_overlays(last_texture_hittest_result_.item_ui_rect);
         }
 
-        void updateCamera()
+        void update_camera()
         {
             // if cameras are linked together, ensure all cameras match the "base" camera
-            if (m_State->updateLocalCameraControllerFromLinkedBase(m_CameraController)) {
-                m_CameraController.update_camera(m_Camera);
+            if (state_->update_local_camera_controller_from_linked_base(camera_controller_)) {
+                camera_controller_.update_camera(camera_);
             }
 
             // update camera if user drags it around etc.
-            if (m_LastTextureHittestResult.is_hovered)
+            if (last_texture_hittest_result_.is_hovered)
             {
-                if (ui::update_orbit_controller_from_mouse_inputs(m_CameraController, m_Camera, m_LastTextureHittestResult.item_ui_rect.dimensions()))
+                if (ui::update_orbit_controller_from_mouse_inputs(camera_controller_, camera_, last_texture_hittest_result_.item_ui_rect.dimensions()))
                 {
-                    m_CameraController.update_camera(m_Camera);
-                    m_State->setLinkedCameraController(m_CameraController);  // reflects latest modification
+                    camera_controller_.update_camera(camera_);
+                    state_->set_linked_camera_controller(camera_controller_);  // reflects latest modification
                 }
             }
         }
 
         // draw ImGui overlays over a result panel
-        void drawOverlays(const Rect& renderRect)
+        void draw_overlays(const Rect& renderRect)
         {
             // ImGui: set cursor to draw over the top-right of the render texture (with padding)
-            ui::set_cursor_ui_position(renderRect.ypd_top_left() + m_OverlayPadding);
+            ui::set_cursor_ui_position(renderRect.ypd_top_left() + overlay_padding_);
 
-            drawInformationIcon();
+            draw_information_icon();
             ui::same_line();
-            drawExportButton();
+            draw_export_button();
             ui::same_line();
-            drawAutoFitCameraButton();
+            draw_auto_fit_camera_button();
             ui::same_line();
-            drawLandmarkRadiusSlider();
-            drawBlendingFactorSlider();
-            drawPrescaleInputs();
+            draw_landmark_radius_slider();
+            draw_blending_factor_slider();
+            draw_prescale_inputs();
 
-            ui::set_cursor_panel_x(m_CursorXAtExportButton);  // align with "export" button in row above
-            ui::draw_checkbox("overlay destination mesh", &m_ShowDestinationMesh);
+            ui::set_cursor_panel_x(cursor_x_at_export_button_);  // align with "export" button in row above
+            ui::draw_checkbox("overlay destination mesh", &show_destination_mesh_);
             ui::same_line();
             {
-                bool recalculatingNormals = m_State->getScratch().recalculateNormals;
+                bool recalculatingNormals = state_->get_scratch().recalculateNormals;
                 if (ui::draw_checkbox("recalculate mesh's normals", &recalculatingNormals)) {
-                    ActionSetRecalculatingNormals(m_State->updUndoable(), recalculatingNormals);
+                    ActionSetRecalculatingNormals(state_->upd_undoable(), recalculatingNormals);
                 }
             }
         }
 
         // draws a information icon that shows basic mesh info when hovered
-        void drawInformationIcon()
+        void draw_information_icon()
         {
             ui::draw_button_nobg(MSMICONS_INFO_CIRCLE);
             if (ui::is_item_hovered())
@@ -115,14 +115,14 @@ namespace osc
                 ui::begin_tooltip();
 
                 ui::draw_text_disabled("Result Information:");
-                drawInformationTable();
+                draw_information_table();
 
                 ui::end_tooltip();
             }
         }
 
         // draws a table containing useful input information (handy for debugging)
-        void drawInformationTable()
+        void draw_information_table()
         {
             if (ui::begin_table("##inputinfo", 2))
             {
@@ -133,72 +133,72 @@ namespace osc
                 ui::table_set_column_index(0);
                 ui::draw_text("# vertices");
                 ui::table_set_column_index(1);
-                ui::draw_text("{}", m_State->getResultMesh().num_vertices());
+                ui::draw_text("{}", state_->get_result_mesh().num_vertices());
 
                 ui::table_next_row();
                 ui::table_set_column_index(0);
                 ui::draw_text("# triangles");
                 ui::table_set_column_index(1);
-                ui::draw_text("{}", m_State->getResultMesh().num_indices()/3);
+                ui::draw_text("{}", state_->get_result_mesh().num_indices()/3);
 
                 ui::end_table();
             }
         }
 
         // draws an export button that enables the user to export things from this input
-        void drawExportButton()
+        void draw_export_button()
         {
-            m_CursorXAtExportButton = ui::get_cursor_panel_x();  // needed to align the blending factor slider
+            cursor_x_at_export_button_ = ui::get_cursor_panel_x();  // needed to align the blending factor slider
             ui::draw_button(MSMICONS_FILE_EXPORT " export" MSMICONS_CARET_DOWN);
             if (ui::begin_popup_context_menu("##exportcontextmenu", ui::PopupFlag::MouseButtonLeft))
             {
                 if (ui::draw_menu_item("Mesh to OBJ"))
                 {
-                    ActionPromptUserToSaveMeshToObjFile(m_State->getResultMesh(), OBJWriterFlag::Default);
+                    ActionPromptUserToSaveMeshToObjFile(state_->get_result_mesh(), OBJWriterFlag::Default);
                 }
                 if (ui::draw_menu_item("Mesh to OBJ (no normals)"))
                 {
-                    ActionPromptUserToSaveMeshToObjFile(m_State->getResultMesh(), OBJWriterFlag::NoWriteNormals);
+                    ActionPromptUserToSaveMeshToObjFile(state_->get_result_mesh(), OBJWriterFlag::NoWriteNormals);
                 }
                 if (ui::draw_menu_item("Mesh to STL"))
                 {
-                    ActionPromptUserToMeshToStlFile(m_State->getResultMesh());
+                    ActionPromptUserToMeshToStlFile(state_->get_result_mesh());
                 }
                 if (ui::draw_menu_item("Warped Non-Participating Landmarks to CSV"))
                 {
-                    ActionPromptUserToSaveWarpedNonParticipatingLandmarksToCSV(m_State->getScratch(), m_State->updResultCache());
+                    ActionPromptUserToSaveWarpedNonParticipatingLandmarksToCSV(state_->get_scratch(), state_->upd_result_cache());
                 }
                 if (ui::draw_menu_item("Warped Non-Participating Landmark Positions to CSV"))
                 {
                     ActionPromptUserToSaveWarpedNonParticipatingLandmarksToCSV(
-                        m_State->getScratch(),
-                        m_State->updResultCache(),
+                        state_->get_scratch(),
+                        state_->upd_result_cache(),
                         opyn::LandmarkCSVFlags::NoHeader | opyn::LandmarkCSVFlags::NoNames
                     );
                 }
                 if (ui::draw_menu_item("Landmark Pairs to CSV"))
                 {
-                    ActionPromptUserToSavePairedLandmarksToCSV(m_State->getScratch());
+                    ActionPromptUserToSavePairedLandmarksToCSV(state_->get_scratch());
                 }
                 if (ui::draw_menu_item("Landmark Pairs to CSV (no names)"))
                 {
-                    ActionPromptUserToSavePairedLandmarksToCSV(m_State->getScratch(), opyn::LandmarkCSVFlags::NoNames);
+                    ActionPromptUserToSavePairedLandmarksToCSV(state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
                 }
                 ui::end_popup();
             }
         }
 
         // draws a button that auto-fits the camera to the 3D scene
-        void drawAutoFitCameraButton()
+        void draw_auto_fit_camera_button()
         {
             if (ui::draw_button(MSMICONS_EXPAND_ARROWS_ALT)) {
-                m_CameraController.focus_on(
-                    m_State->getResultMesh().bounds().value_or(AABB{}),
-                    m_Camera,
-                    aspect_ratio_of(m_LastTextureHittestResult.item_ui_rect)
+                camera_controller_.focus_on(
+                    state_->get_result_mesh().bounds().value_or(AABB{}),
+                    camera_,
+                    aspect_ratio_of(last_texture_hittest_result_.item_ui_rect)
                 );
-                m_CameraController.update_camera(m_Camera);
-                m_State->setLinkedCameraController(m_CameraController);
+                camera_controller_.update_camera(camera_);
+                state_->set_linked_camera_controller(camera_controller_);
             }
             ui::draw_tooltip_if_item_hovered(
                 "Autoscale Scene",
@@ -207,115 +207,115 @@ namespace osc
         }
 
         // draws a slider that lets the user edit how large the landmarks are
-        void drawLandmarkRadiusSlider()
+        void draw_landmark_radius_slider()
         {
             // note: log scale is important: some users have meshes that
             // are in different scales (e.g. millimeters)
             const ui::SliderFlags flags = ui::SliderFlag::Logarithmic;
 
             const CStringView label = "landmark radius";
-            ui::set_next_item_width(ui::get_content_region_available().x() - ui::calc_text_size(label).x() - ui::get_style_item_inner_spacing().x() - m_State->getOverlayPadding().x());
-            ui::draw_float_slider(label, &m_LandmarkRadius, 0.0001f, 100.0f, "%.4f", flags);
+            ui::set_next_item_width(ui::get_content_region_available().x() - ui::calc_text_size(label).x() - ui::get_style_item_inner_spacing().x() - state_->get_overlay_padding().x());
+            ui::draw_float_slider(label, &landmark_radius_, 0.0001f, 100.0f, "%.4f", flags);
         }
 
-        void drawBlendingFactorSlider()
+        void draw_blending_factor_slider()
         {
-            ui::set_cursor_panel_x(m_CursorXAtExportButton);  // align with "export" button in row above
+            ui::set_cursor_panel_x(cursor_x_at_export_button_);  // align with "export" button in row above
 
             const CStringView label = "blending factor  ";  // deliberate trailing spaces (for alignment with "landmark radius")
-            ui::set_next_item_width(ui::get_content_region_available().x() - ui::calc_text_size(label).x() - ui::get_style_item_inner_spacing().x() - m_OverlayPadding.x());
+            ui::set_next_item_width(ui::get_content_region_available().x() - ui::calc_text_size(label).x() - ui::get_style_item_inner_spacing().x() - overlay_padding_.x());
 
-            float factor = m_State->getScratch().blendingFactor;
+            float factor = state_->get_scratch().blendingFactor;
             if (ui::draw_float_slider(label, &factor, 0.0f, 1.0f))
             {
-                ActionSetBlendFactorWithoutCommitting(m_State->updUndoable(), factor);
+                ActionSetBlendFactorWithoutCommitting(state_->upd_undoable(), factor);
             }
             if (ui::is_item_deactivated_after_edit())
             {
-                ActionSetBlendFactor(m_State->updUndoable(), factor);
+                ActionSetBlendFactor(state_->upd_undoable(), factor);
             }
         }
 
-        void drawPrescaleInputs()
+        void draw_prescale_inputs()
         {
-            float warpingPenalty = m_State->getScratch().warpingPenalty;
-            ui::set_cursor_panel_x(m_CursorXAtExportButton);
+            float warpingPenalty = state_->get_scratch().warpingPenalty;
+            ui::set_cursor_panel_x(cursor_x_at_export_button_);
             ui::draw_float_input("warping penalty", &warpingPenalty);
             if (ui::is_item_deactivated_after_edit()) {
-                ActionSetWarpingPenalty(m_State->updUndoable(), warpingPenalty);
+                ActionSetWarpingPenalty(state_->upd_undoable(), warpingPenalty);
             }
 
-            float sourcePrescale = m_State->getScratch().sourceLandmarksPrescale;
-            ui::set_cursor_panel_x(m_CursorXAtExportButton);
+            float sourcePrescale = state_->get_scratch().sourceLandmarksPrescale;
+            ui::set_cursor_panel_x(cursor_x_at_export_button_);
             ui::draw_float_input("source landmarks prescale", &sourcePrescale);
             if (ui::is_item_deactivated_after_edit()) {
-                ActionSetSourceLandmarksPrescale(m_State->updUndoable(), sourcePrescale);
+                ActionSetSourceLandmarksPrescale(state_->upd_undoable(), sourcePrescale);
             }
-            float destinationPrescale = m_State->getScratch().destinationLandmarksPrescale;
-            ui::set_cursor_panel_x(m_CursorXAtExportButton);
+            float destinationPrescale = state_->get_scratch().destinationLandmarksPrescale;
+            ui::set_cursor_panel_x(cursor_x_at_export_button_);
             ui::draw_float_input("destination prescale", &destinationPrescale);
             if (ui::is_item_deactivated_after_edit()) {
-                ActionSetDestinationLandmarksPrescale(m_State->updUndoable(), destinationPrescale);
+                ActionSetDestinationLandmarksPrescale(state_->upd_undoable(), destinationPrescale);
             }
 
-            ui::set_cursor_panel_x(m_CursorXAtExportButton);
-            bool affineScale = m_State->getScratch().applyAffineScale;
+            ui::set_cursor_panel_x(cursor_x_at_export_button_);
+            bool affineScale = state_->get_scratch().applyAffineScale;
             ui::draw_checkbox("scale", &affineScale);
             if (ui::is_item_deactivated_after_edit()) {
-                m_State->updUndoable().upd_scratch().applyAffineScale = affineScale;  // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().applyAffineScale = affineScale;  // TODO: undo/redo
             }
             ui::same_line();
-            bool affineRotation = m_State->getScratch().applyAffineRotation;
+            bool affineRotation = state_->get_scratch().applyAffineRotation;
             ui::draw_checkbox("rotate", &affineRotation);
             if (ui::is_item_deactivated_after_edit()) {
-                m_State->updUndoable().upd_scratch().applyAffineRotation = affineRotation;  // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().applyAffineRotation = affineRotation;  // TODO: undo/redo
             }
             ui::same_line();
-            bool affineTranslation = m_State->getScratch().applyAffineTranslation;
+            bool affineTranslation = state_->get_scratch().applyAffineTranslation;
             ui::draw_checkbox("translate", &affineTranslation);
             if (ui::is_item_deactivated_after_edit()) {
-                m_State->updUndoable().upd_scratch().applyAffineTranslation = affineTranslation;  // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().applyAffineTranslation = affineTranslation;  // TODO: undo/redo
             }
             ui::same_line();
-            bool nonAffineWarp = m_State->getScratch().applyNonAffineWarp;
+            bool nonAffineWarp = state_->get_scratch().applyNonAffineWarp;
             ui::draw_checkbox("warp", &nonAffineWarp);
             if (ui::is_item_deactivated_after_edit()) {
-                m_State->updUndoable().upd_scratch().applyNonAffineWarp = nonAffineWarp;  // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().applyNonAffineWarp = nonAffineWarp;  // TODO: undo/redo
             }
         }
 
         // returns 3D decorations for the given result panel
-        std::vector<SceneDecoration> generateDecorations() const
+        std::vector<SceneDecoration> generate_decorations() const
         {
             std::vector<SceneDecoration> decorations;
             const std::function<void(SceneDecoration&&)> decorationConsumer =
                 [&decorations](SceneDecoration&& dec) { decorations.push_back(std::move(dec)); };
 
-            AppendCommonDecorations(
-                *m_State,
-                m_State->getResultMesh(),
-                m_State->isWireframeModeEnabled(),
+            append_common_decorations(
+                *state_,
+                state_->get_result_mesh(),
+                state_->is_wireframe_mode_enabled(),
                 decorationConsumer
             );
 
-            if (m_ShowDestinationMesh)
+            if (show_destination_mesh_)
             {
                 decorationConsumer(SceneDecoration{
-                    .mesh = m_State->getScratch().destinationMesh,
+                    .mesh = state_->get_scratch().destinationMesh,
                     .shading = Color::red().with_alpha(0.5f),
                 });
             }
 
             // draw non-participating landmarks
-            for (const Vector3& nonParticipatingLandmarkPos : m_State->getResultNonParticipatingLandmarkLocations())
+            for (const Vector3& nonParticipatingLandmarkPos : state_->get_result_non_participating_landmark_locations())
             {
                 decorationConsumer(SceneDecoration{
-                    .mesh = m_State->getLandmarkSphereMesh(),
+                    .mesh = state_->get_landmark_sphere_mesh(),
                     .transform = {
-                        .scale = Vector3{GetNonParticipatingLandmarkScaleFactor()*m_LandmarkRadius},
+                        .scale = Vector3{get_non_participating_landmark_scale_factor()*landmark_radius_},
                         .translation = nonParticipatingLandmarkPos,
                     },
-                    .shading = m_State->getNonParticipatingLandmarkColor(),
+                    .shading = state_->get_non_participating_landmark_color(),
                 });
             }
 
@@ -323,29 +323,29 @@ namespace osc
         }
 
         // renders a panel to a texture via its renderer and returns a reference to the rendered texture
-        RenderTexture& renderScene(Vector2 dims)
+        RenderTexture& render_scene(Vector2 dims)
         {
-            const std::vector<SceneDecoration> decorations = generateDecorations();
+            const std::vector<SceneDecoration> decorations = generate_decorations();
             SceneRendererParams params = calc_standard_dark_scene_render_params(
-                m_Camera,
+                camera_,
                 App::get().anti_aliasing_level(),
                 dims,
                 App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio()
             );
-            m_State->getCustomRenderingOptions().apply_to(params);
-            return m_CachedRenderer.render(decorations, params);
+            state_->get_custom_rendering_options().apply_to(params);
+            return cached_renderer_.render(decorations, params);
         }
 
-        std::shared_ptr<MwUiSharedState> m_State;
-        Camera m_Camera;
-        OrbitCameraController m_CameraController;
-        CachedSceneRenderer m_CachedRenderer{
+        std::shared_ptr<MwUiSharedState> state_;
+        Camera camera_;
+        OrbitCameraController camera_controller_;
+        CachedSceneRenderer cached_renderer_{
             *App::singleton<SceneCache>(App::resource_loader()),
         };
-        ui::HittestResult m_LastTextureHittestResult;
-        bool m_ShowDestinationMesh = false;
-        Vector2 m_OverlayPadding = {10.0f, 10.0f};
-        float m_LandmarkRadius = 0.05f;
-        float m_CursorXAtExportButton = 0.0f;
+        ui::HittestResult last_texture_hittest_result_;
+        bool show_destination_mesh_ = false;
+        Vector2 overlay_padding_ = {10.0f, 10.0f};
+        float landmark_radius_ = 0.05f;
+        float cursor_x_at_export_button_ = 0.0f;
     };
 }

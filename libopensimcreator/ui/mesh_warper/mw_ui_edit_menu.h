@@ -14,42 +14,42 @@ namespace osc
     public:
         explicit MwUiEditMenu(
             std::shared_ptr<MwUiSharedState> tabState_) :
-            m_State{std::move(tabState_)}
+            state_{std::move(tabState_)}
         {
         }
 
-        void onDraw()
+        void on_draw()
         {
             if (ui::begin_menu("Edit"))
             {
-                drawContent();
+                draw_content();
                 ui::end_menu();
             }
         }
 
     private:
 
-        void drawContent()
+        void draw_content()
         {
-            if (ui::draw_menu_item("Undo", ModifierKey::Ctrl | Key::Z, nullptr, m_State->canUndo()))
+            if (ui::draw_menu_item("Undo", ModifierKey::Ctrl | Key::Z, nullptr, state_->can_undo()))
             {
-                m_State->undo();
+                state_->undo();
             }
-            if (ui::draw_menu_item("Redo", ModifierKey::Ctrl | ModifierKey::Shift | Key::Z, nullptr, m_State->canRedo()))
+            if (ui::draw_menu_item("Redo", ModifierKey::Ctrl | ModifierKey::Shift | Key::Z, nullptr, state_->can_redo()))
             {
-                m_State->redo();
+                state_->redo();
             }
             ui::draw_separator();
             if (ui::draw_menu_item("Select All", ModifierKey::Ctrl | Key::A))
             {
-                m_State->selectAll();
+                state_->select_all();
             }
-            if (ui::draw_menu_item("Deselect", Key::Escape, nullptr, m_State->hasSelection()))
+            if (ui::draw_menu_item("Deselect", Key::Escape, nullptr, state_->has_selection()))
             {
-                m_State->clearSelection();
+                state_->clear_selection();
             }
         }
 
-        std::shared_ptr<MwUiSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> state_;
     };
 }

@@ -26,15 +26,15 @@ namespace osc
             std::shared_ptr<MwUiSharedState> shared_) :
 
             Panel{parent, label_},
-            m_State{std::move(shared_)}
+            state_{std::move(shared_)}
         {}
     private:
         void impl_draw_content() final
         {
             ui::draw_text("Landmarks:");
             ui::draw_separator();
-            if (ContainsLandmarks(m_State->getScratch())) {
-                drawLandmarksTable();
+            if (ContainsLandmarks(state_->get_scratch())) {
+                draw_landmarks_table();
             }
             else {
                 ui::draw_text_disabled_and_centered("(none in the scene)");
@@ -44,8 +44,8 @@ namespace osc
 
             ui::draw_text("Non-Participating Landmarks:");
             ui::draw_separator();
-            if (ContainsNonParticipatingLandmarks(m_State->getScratch())) {
-                drawNonPariticpatingLandmarksTable();
+            if (ContainsNonParticipatingLandmarks(state_->get_scratch())) {
+                draw_non_pariticpating_landmarks_table();
             }
             else {
                 ui::draw_text_disabled_and_centered("(none in the scene)");
@@ -57,9 +57,9 @@ namespace osc
         //
         // - named landmarks
         // - whether they have source/destination location, or are paired
-        void drawLandmarksTable()
+        void draw_landmarks_table()
         {
-            if (not ui::begin_table("##LandmarksTable", 3, getTableFlags())) {
+            if (not ui::begin_table("##LandmarksTable", 3, get_table_flags())) {
                 return;
             }
 
@@ -68,16 +68,16 @@ namespace osc
             ui::table_setup_column("Destination", {}, 0.15f*ui::get_content_region_available().x());
 
             int id = 0;
-            for (const auto& lm : m_State->getScratch().landmarkPairs) {
+            for (const auto& lm : state_->get_scratch().landmarkPairs) {
                 ui::push_id(++id);
-                drawLandmarksTableRow(lm);
+                draw_landmarks_table_row(lm);
                 ui::pop_id();
             }
 
             ui::end_table();
         }
 
-        void drawLandmarksTableRow(const MwDocumentLandmarkPair& p)
+        void draw_landmarks_table_row(const MwDocumentLandmarkPair& p)
         {
             // name column
             ui::table_next_row();
@@ -87,35 +87,35 @@ namespace osc
 
             // source column
             ui::table_set_column_index(1);
-            const Circle srcCircle = drawLandmarkCircle(
-                m_State->isSelected(p.sourceID()),
-                m_State->isHovered(p.sourceID()),
+            const Circle srcCircle = draw_landmark_circle(
+                state_->is_selected(p.sourceID()),
+                state_->is_hovered(p.sourceID()),
                 IsFullyPaired(p),
                 p.maybeSourceLocation.has_value()
             );
 
             // destination column
             ui::table_set_column_index(2);
-            const Circle destCircle = drawLandmarkCircle(
-                m_State->isSelected(p.destinationID()),
-                m_State->isHovered(p.destinationID()),
+            const Circle destCircle = draw_landmark_circle(
+                state_->is_selected(p.destinationID()),
+                state_->is_hovered(p.destinationID()),
                 IsFullyPaired(p),
                 p.maybeDestinationLocation.has_value()
             );
 
             if (IsFullyPaired(p)) {
-                drawConnectingLine(srcCircle, destCircle);
+                draw_connecting_line(srcCircle, destCircle);
             }
         }
 
-        Circle drawLandmarkCircle(
+        Circle draw_landmark_circle(
             bool isSelected,
             bool isHovered,
             bool isPaired,
             bool hasLocation)
         {
-            const Circle circle{.origin = calcColumnMidpointScreenPos(), .radius = calcCircleRadius()};
-            const Color color = landmarkDotColor(hasLocation, isPaired);
+            const Circle circle{.origin = calc_column_midpoint_screen_pos(), .radius = calc_circle_radius()};
+            const Color color = landmark_dot_color(hasLocation, isPaired);
 
             ui::DrawListView dl = ui::get_panel_draw_list();
             if (hasLocation) {
@@ -125,12 +125,12 @@ namespace osc
                 dl.add_circle(circle, color);
             }
 
-            tryDrawCircleHighlight(circle, isSelected, isHovered);
+            try_draw_circle_highlight(circle, isSelected, isHovered);
 
             return circle;
         }
 
-        void tryDrawCircleHighlight(const Circle& circle, bool isSelected, bool isHovered)
+        void try_draw_circle_highlight(const Circle& circle, bool isSelected, bool isHovered)
         {
             ui::DrawListView dl = ui::get_panel_draw_list();
             const float thickness = 2.0f;
@@ -142,7 +142,7 @@ namespace osc
             }
         }
 
-        void drawConnectingLine(const Circle& src, const Circle& dest)
+        void draw_connecting_line(const Circle& src, const Circle& dest)
         {
             const float pad = ui::get_style_item_inner_spacing().x();
 
@@ -163,9 +163,9 @@ namespace osc
         }
 
         // draws non-participating landmarks table
-        void drawNonPariticpatingLandmarksTable()
+        void draw_non_pariticpating_landmarks_table()
         {
-            if (not ui::begin_table("##NonParticipatingLandmarksTable", 2, getTableFlags())) {
+            if (not ui::begin_table("##NonParticipatingLandmarksTable", 2, get_table_flags())) {
                 return;
             }
 
@@ -173,16 +173,16 @@ namespace osc
             ui::table_setup_column("Location", {}, 0.3f*ui::get_content_region_available().x());
 
             int id = 0;
-            for (const auto& npl : m_State->getScratch().nonParticipatingLandmarks) {
+            for (const auto& npl : state_->get_scratch().nonParticipatingLandmarks) {
                 ui::push_id(++id);
-                drawNonParticipatingLandmarksTableRow(npl);
+                draw_non_participating_landmarks_table_row(npl);
                 ui::pop_id();
             }
 
             ui::end_table();
         }
 
-        void drawNonParticipatingLandmarksTableRow(const MwDocumentNonParticipatingLandmark& npl)
+        void draw_non_participating_landmarks_table_row(const MwDocumentNonParticipatingLandmark& npl)
         {
             // name column
             ui::table_next_row();
@@ -192,54 +192,54 @@ namespace osc
 
             // source column
             ui::table_set_column_index(1);
-            drawNonParticipatingLandmarkCircle(
-                m_State->isSelected(npl.getID()),
-                m_State->isHovered(npl.getID())
+            draw_non_participating_landmark_circle(
+                state_->is_selected(npl.getID()),
+                state_->is_hovered(npl.getID())
             );
         }
 
-        void drawNonParticipatingLandmarkCircle(
+        void draw_non_participating_landmark_circle(
             bool isSelected,
             bool isHovered)
         {
-            const Circle circle{.origin = calcColumnMidpointScreenPos(), .radius = calcCircleRadius()};
+            const Circle circle{.origin = calc_column_midpoint_screen_pos(), .radius = calc_circle_radius()};
 
             ui::get_panel_draw_list().add_circle_filled(
                 circle,
-                m_State->getNonParticipatingLandmarkColor()
+                state_->get_non_participating_landmark_color()
             );
 
-            tryDrawCircleHighlight(circle, isSelected, isHovered);
+            try_draw_circle_highlight(circle, isSelected, isHovered);
         }
 
-        Color landmarkDotColor(bool hasLocation, bool isPaired) const
+        Color landmark_dot_color(bool hasLocation, bool isPaired) const
         {
             if (hasLocation) {
                 if (isPaired) {
-                    return m_State->getPairedLandmarkColor();
+                    return state_->get_paired_landmark_color();
                 }
                 else {
-                    return m_State->getUnpairedLandmarkColor();
+                    return state_->get_unpaired_landmark_color();
                 }
             }
             return Color::dark_grey();
         }
 
-        ui::TableFlags getTableFlags() const
+        ui::TableFlags get_table_flags() const
         {
             return {ui::TableFlag::NoSavedSettings, ui::TableFlag::SizingStretchSame};
         }
 
-        float calcCircleRadius() const
+        float calc_circle_radius() const
         {
             return 0.4f*ui::get_text_line_height_in_current_panel();
         }
 
-        Vector2 calcColumnMidpointScreenPos() const
+        Vector2 calc_column_midpoint_screen_pos() const
         {
             return ui::get_cursor_ui_position() + 0.5f*Vector2{ui::get_column_width(), ui::get_text_line_height_in_current_panel()};
         }
 
-        std::shared_ptr<MwUiSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> state_;
     };
 }

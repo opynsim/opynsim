@@ -23,25 +23,25 @@ namespace osc
             const std::shared_ptr<PanelManager>& panelManager_) :
 
             Widget{parent},
-            m_FileMenu{tabState_},
-            m_EditMenu{tabState_},
-            m_ActionsMenu{tabState_},
-            m_WindowMenu{this, panelManager_}
+            file_menu_{tabState_},
+            edit_menu_{tabState_},
+            actions_menu_{tabState_},
+            window_menu_{this, panelManager_}
         {}
 
-        void onDraw()
+        void on_draw()
         {
-            m_FileMenu.onDraw();
-            m_EditMenu.onDraw();
-            m_ActionsMenu.onDraw();
-            m_WindowMenu.on_draw();
-            m_AboutTab.onDraw();
+            file_menu_.on_draw();
+            edit_menu_.on_draw();
+            actions_menu_.on_draw();
+            window_menu_.on_draw();
+            about_tab_.onDraw();
         }
     private:
-        MwUiFileMenu m_FileMenu;
-        MwUiEditMenu m_EditMenu;
-        MwUiActionsMenu m_ActionsMenu;
-        WindowMenu m_WindowMenu;
-        MainMenuAboutTab m_AboutTab;
+        MwUiFileMenu file_menu_;
+        MwUiEditMenu edit_menu_;
+        MwUiActionsMenu actions_menu_;
+        WindowMenu window_menu_;
+        MainMenuAboutTab about_tab_;
     };
 }

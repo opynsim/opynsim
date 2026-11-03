@@ -20,40 +20,40 @@ namespace osc
             std::string_view label,
             std::shared_ptr<const MwUiSharedState> tabState_) :
 
-            m_Label{label},
-            m_State{std::move(tabState_)}
+            label_{label},
+            state_{std::move(tabState_)}
         {
         }
 
-        void onDraw()
+        void on_draw()
         {
-            if (ui::begin_main_window_bottom_bar(m_Label))
+            if (ui::begin_main_window_bottom_bar(label_))
             {
-                drawContent();
+                draw_content();
             }
             ui::end_panel();
         }
 
     private:
-        void drawContent()
+        void draw_content()
         {
-            if (m_State->isHoveringSomething()) {
-                drawCurrentHoverInfo(m_State->getCurrentHover());
+            if (state_->is_hovering_something()) {
+                draw_current_hover_info(state_->get_current_hover());
             }
             else {
                 ui::draw_text_disabled("(nothing hovered)");
             }
         }
 
-        void drawCurrentHoverInfo(const MwUiHovertestResult& hover)
+        void draw_current_hover_info(const MwUiHovertestResult& hover)
         {
-            drawColorCodedXYZ(hover.getWorldSpaceLocation());
+            draw_color_coded_xyz(hover.get_world_space_location());
             ui::same_line();
-            if (hover.isHoveringASceneElement())
+            if (hover.is_hovering_a_scene_element())
             {
-                ui::draw_text_disabled("(Click: select {})", FindElementNameOr(m_State->getScratch(), hover.getSceneElementID().value()));
+                ui::draw_text_disabled("(Click: select {})", FindElementNameOr(state_->get_scratch(), hover.get_scene_element_id().value()));
             }
-            else if (hover.getInput() == MiDocumentInputIdentifier::Source)
+            else if (hover.get_input() == MiDocumentInputIdentifier::Source)
             {
                 ui::draw_text_disabled("(Click: add a landmark, Ctrl+Click: add non-participating landmark)");
             }
@@ -64,7 +64,7 @@ namespace osc
             }
         }
 
-        void drawColorCodedXYZ(Vector3 position)
+        void draw_color_coded_xyz(Vector3 position)
         {
             ui::draw_text("(");
             ui::same_line();
@@ -80,7 +80,7 @@ namespace osc
             ui::draw_text(")");
         }
 
-        std::string m_Label;
-        std::shared_ptr<const MwUiSharedState> m_State;
+        std::string label_;
+        std::shared_ptr<const MwUiSharedState> state_;
     };
 }

@@ -10,14 +10,14 @@ namespace osc
     /// Represents the user's current selection.
     struct MwUiSelection final {
 
-        size_t size() const { return m_SelectedSceneElements.size(); }
-        auto begin() const { return m_SelectedSceneElements.begin(); }
-        auto end() const { return m_SelectedSceneElements.end(); }
+        size_t size() const { return selected_scene_elements_.size(); }
+        auto begin() const { return selected_scene_elements_.begin(); }
+        auto end() const { return selected_scene_elements_.end(); }
 
-        void clear() { m_SelectedSceneElements.clear(); }
-        void select(MwDocumentElementID el) { m_SelectedSceneElements.insert(std::move(el)); }
-        bool contains(const MwDocumentElementID& el) const { return m_SelectedSceneElements.contains(el); }
+        void clear() { selected_scene_elements_.clear(); }
+        void select(MwDocumentElementID el) { selected_scene_elements_.insert(std::move(el)); }
+        bool contains(const MwDocumentElementID& el) const { return selected_scene_elements_.contains(el); }
     private:
-        std::unordered_set<MwDocumentElementID> m_SelectedSceneElements;
+        std::unordered_set<MwDocumentElementID> selected_scene_elements_;
     };
 }

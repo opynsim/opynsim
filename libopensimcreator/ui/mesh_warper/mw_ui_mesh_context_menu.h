@@ -30,9 +30,9 @@ namespace osc
             RayCollision mesh_collision_) :
 
             Popup{parent, label_},
-            m_State{std::move(shared_)},
-            m_DocumentIdentifier{mesh_identifier_},
-            m_MeshCollision{mesh_collision_}
+            state_{std::move(shared_)},
+            document_identifier_{mesh_identifier_},
+            mesh_collision_{mesh_collision_}
         {
             set_modal(false);
         }
@@ -43,18 +43,18 @@ namespace osc
             DrawContextMenuSeparator();
 
             if (ui::draw_menu_item("Place landmark", MouseButton::Left)) {
-                ActionAddLandmark(m_State->updUndoable(), m_DocumentIdentifier, m_MeshCollision.position);
+                ActionAddLandmark(state_->upd_undoable(), document_identifier_, mesh_collision_.position);
             }
-            if (ui::draw_menu_item("Place Non-Participating Landmark",  ModifierKey::Ctrl | MouseButton::Left, false, m_DocumentIdentifier == MiDocumentInputIdentifier::Source)) {
-                ActionAddNonParticipatingLandmark(m_State->updUndoable(), m_MeshCollision.position);
+            if (ui::draw_menu_item("Place Non-Participating Landmark",  ModifierKey::Ctrl | MouseButton::Left, false, document_identifier_ == MiDocumentInputIdentifier::Source)) {
+                ActionAddNonParticipatingLandmark(state_->upd_undoable(), mesh_collision_.position);
             }
-            if (ui::draw_menu_item("Move Selection Here", std::nullopt, false, m_State->hasSelection(m_DocumentIdentifier))) {
-                ActionSetLandmarkLocations(m_State->updUndoable(), m_State->getSelected(m_DocumentIdentifier), m_MeshCollision.position);
+            if (ui::draw_menu_item("Move Selection Here", std::nullopt, false, state_->has_selection(document_identifier_))) {
+                ActionSetLandmarkLocations(state_->upd_undoable(), state_->get_selected(document_identifier_), mesh_collision_.position);
             }
         }
 
-        std::shared_ptr<MwUiSharedState> m_State;
-        MiDocumentInputIdentifier m_DocumentIdentifier;
-        RayCollision m_MeshCollision;
+        std::shared_ptr<MwUiSharedState> state_;
+        MiDocumentInputIdentifier document_identifier_;
+        RayCollision mesh_collision_;
     };
 }

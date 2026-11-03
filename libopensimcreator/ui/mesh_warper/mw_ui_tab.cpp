@@ -60,7 +60,7 @@ public:
             "History",
             [state = m_Shared](Widget* parent, std::string_view panelName)
             {
-                return std::make_shared<UndoRedoPanel>(parent, panelName, state->getUndoableSharedPtr());
+                return std::make_shared<UndoRedoPanel>(parent, panelName, state->get_undoable_shared_ptr());
             },
             ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault
         );
@@ -120,7 +120,7 @@ public:
     void on_tick()
     {
         // re-perform hover test each frame
-        m_Shared->setHover(std::nullopt);
+        m_Shared->set_hover(std::nullopt);
 
         // garbage collect panel data
         m_PanelManager->on_tick();
@@ -128,7 +128,7 @@ public:
 
     void onDrawMainMenu()
     {
-        m_MainMenu.onDraw();
+        m_MainMenu.on_draw();
     }
 
     void onDraw()
@@ -137,7 +137,7 @@ public:
 
         m_TopToolbar.on_draw();
         m_PanelManager->on_draw();
-        m_StatusBar.onDraw();
+        m_StatusBar.on_draw();
         m_Shared->on_draw();
     }
 
@@ -153,7 +153,7 @@ private:
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::N)) {
-            ActionCreateNewDocument(m_Shared->updUndoable());
+            ActionCreateNewDocument(m_Shared->upd_undoable());
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::Q)) {
@@ -161,11 +161,11 @@ private:
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::A)) {
-            m_Shared->selectAll();
+            m_Shared->select_all();
             return true;
         }
         else if (e.combination() == Key::Escape) {
-            m_Shared->clearSelection();
+            m_Shared->clear_selection();
             return true;
         }
         else {

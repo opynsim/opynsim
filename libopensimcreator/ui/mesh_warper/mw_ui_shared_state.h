@@ -42,19 +42,19 @@ namespace osc
             Widget* parent_,
             std::shared_ptr<SceneCache> sceneCache_) :
 
-            m_TabID{tabID_},
-            m_Parent{parent_},
-            m_SceneCache{std::move(sceneCache_)}
+            tab_id_{tabID_},
+            parent_{parent_},
+            scene_cache_{std::move(sceneCache_)}
         {
-            OSC_ASSERT(m_SceneCache != nullptr);
-            m_OverlayDecorationOptions.set_draw_xz_grid(true);
-            m_OverlayDecorationOptions.set_draw_axis_lines(true);
-            m_CustomRenderingOptions.set_draw_floor(false);
+            OSC_ASSERT(scene_cache_ != nullptr);
+            overlay_decoration_options_.set_draw_xz_grid(true);
+            overlay_decoration_options_.set_draw_axis_lines(true);
+            custom_rendering_options_.set_draw_floor(false);
         }
 
         void on_mount()
         {
-            m_PopupManager.on_mount();
+            popup_manager_.on_mount();
         }
 
         void on_unmount()
@@ -63,110 +63,110 @@ namespace osc
         void on_draw()
         {
             // draw active popups over the UI
-            m_PopupManager.on_draw();
+            popup_manager_.on_draw();
         }
 
-        const MwDocument& getScratch() const
+        const MwDocument& get_scratch() const
         {
-            return m_UndoableTPSDocument->scratch();
+            return undoable_tps_document_->scratch();
         }
 
-        const MwUndoableDocument& getUndoable() const
+        const MwUndoableDocument& get_undoable() const
         {
-            return *m_UndoableTPSDocument;
+            return *undoable_tps_document_;
         }
 
-        MwUndoableDocument& updUndoable()
+        MwUndoableDocument& upd_undoable()
         {
-            return *m_UndoableTPSDocument;
+            return *undoable_tps_document_;
         }
 
-        std::shared_ptr<MwUndoableDocument> getUndoableSharedPtr()
+        std::shared_ptr<MwUndoableDocument> get_undoable_shared_ptr()
         {
-            return m_UndoableTPSDocument;
+            return undoable_tps_document_;
         }
 
-        const Mesh& getScratchMesh(MiDocumentInputIdentifier which) const
+        const Mesh& get_scratch_mesh(MiDocumentInputIdentifier which) const
         {
-            return GetMesh(getScratch(), which);
+            return GetMesh(get_scratch(), which);
         }
 
-        const BVH& getScratchMeshBVH(MiDocumentInputIdentifier which)
+        const BVH& get_scratch_mesh_bvh(MiDocumentInputIdentifier which)
         {
-            const Mesh& mesh = getScratchMesh(which);
-            return updSceneCache().get_bvh(mesh);
+            const Mesh& mesh = get_scratch_mesh(which);
+            return upd_scene_cache().get_bvh(mesh);
         }
 
-        MwResultCache& updResultCache()
+        MwResultCache& upd_result_cache()
         {
-            return m_WarpingCache;
+            return warping_cache_;
         }
 
         // returns a (potentially cached) post-TPS-warp mesh
-        const Mesh& getResultMesh()
+        const Mesh& get_result_mesh()
         {
-            return m_WarpingCache.getWarpedMesh(m_UndoableTPSDocument->scratch());
+            return warping_cache_.getWarpedMesh(undoable_tps_document_->scratch());
         }
 
-        std::span<const Vector3> getResultNonParticipatingLandmarkLocations()
+        std::span<const Vector3> get_result_non_participating_landmark_locations()
         {
-            return m_WarpingCache.getWarpedNonParticipatingLandmarkLocations(m_UndoableTPSDocument->scratch());
+            return warping_cache_.getWarpedNonParticipatingLandmarkLocations(undoable_tps_document_->scratch());
         }
 
-        bool isHoveringSomething() const
+        bool is_hovering_something() const
         {
-            return m_CurrentHover.has_value();
+            return current_hover_.has_value();
         }
 
-        const MwUiHovertestResult& getCurrentHover() const
+        const MwUiHovertestResult& get_current_hover() const
         {
-            return *m_CurrentHover;
+            return *current_hover_;
         }
 
-        bool isHovered(const MwDocumentElementID& id) const
+        bool is_hovered(const MwDocumentElementID& id) const
         {
-            return m_CurrentHover && m_CurrentHover->isHovering(id);
+            return current_hover_ && current_hover_->is_hovering(id);
         }
 
-        void setHover(const std::optional<MwUiHovertestResult>& newHover)
+        void set_hover(const std::optional<MwUiHovertestResult>& newHover)
         {
-            m_CurrentHover = newHover;
+            current_hover_ = newHover;
         }
 
-        void setHover(MiDocumentInputIdentifier id, const Vector3& position)
+        void set_hover(MiDocumentInputIdentifier id, const Vector3& position)
         {
-            m_CurrentHover.emplace(id, position);
+            current_hover_.emplace(id, position);
         }
 
-        void setHover(std::nullopt_t)
+        void set_hover(std::nullopt_t)
         {
-            m_CurrentHover.reset();
+            current_hover_.reset();
         }
 
-        bool hasSelection() const
+        bool has_selection() const
         {
             // TODO: should probably gc the selection
-            return std::ranges::any_of(m_UserSelection, [this](const MwDocumentElementID& el)
+            return std::ranges::any_of(user_selection_, [this](const MwDocumentElementID& el)
             {
-                return FindElement(getScratch(), el);
+                return FindElement(get_scratch(), el);
             });
         }
 
-        bool hasSelection(MiDocumentInputIdentifier input) const
+        bool has_selection(MiDocumentInputIdentifier input) const
         {
             // TODO: should probably gc the selection
-            return std::ranges::any_of(m_UserSelection, [this, input](const MwDocumentElementID& el)
+            return std::ranges::any_of(user_selection_, [this, input](const MwDocumentElementID& el)
             {
-                return el.input == input and FindElement(getScratch(), el);
+                return el.input == input and FindElement(get_scratch(), el);
             });
         }
 
-        std::vector<Vector3> getSelectionLandmarkLocations(MiDocumentInputIdentifier input) const
+        std::vector<Vector3> get_selection_landmark_locations(MiDocumentInputIdentifier input) const
         {
             std::vector<Vector3> rv;
-            for (const auto& el : m_UserSelection) {
+            for (const auto& el : user_selection_) {
                 if (el.input == input) {
-                    if (auto loc = FindLandmarkLocation(getScratch(), el.uid, el.input, el.type)) {
+                    if (auto loc = FindLandmarkLocation(get_scratch(), el.uid, el.input, el.type)) {
                         rv.push_back(*loc);
                     }
                 }
@@ -174,10 +174,10 @@ namespace osc
             return rv;
         }
 
-        std::unordered_set<MwDocumentElementID> getSelected(MiDocumentInputIdentifier input) const
+        std::unordered_set<MwDocumentElementID> get_selected(MiDocumentInputIdentifier input) const
         {
             std::unordered_set<MwDocumentElementID> rv;
-            for (const auto& el : m_UserSelection) {
+            for (const auto& el : user_selection_) {
                 if (el.input == input) {
                     rv.insert(el);
                 }
@@ -185,158 +185,158 @@ namespace osc
             return rv;
         }
 
-        bool isSelected(const MwDocumentElementID& id) const
+        bool is_selected(const MwDocumentElementID& id) const
         {
-            return m_UserSelection.contains(id);
+            return user_selection_.contains(id);
         }
 
         void select(const MwDocumentElementID& id)
         {
-            m_UserSelection.select(id);
+            user_selection_.select(id);
         }
 
-        void clearSelection()
+        void clear_selection()
         {
-            m_UserSelection.clear();
+            user_selection_.clear();
         }
 
-        void selectAll()
+        void select_all()
         {
-            for (const auto& el : GetAllElementIDs(m_UndoableTPSDocument->scratch())) {
-                m_UserSelection.select(el);
+            for (const auto& el : GetAllElementIDs(undoable_tps_document_->scratch())) {
+                user_selection_.select(el);
             }
         }
 
-        std::unordered_set<MwDocumentElementID> getUnderlyingSelectionSet() const
+        std::unordered_set<MwDocumentElementID> get_underlying_selection_set() const
         {
-            return {m_UserSelection.begin(), m_UserSelection.end()};
+            return {user_selection_.begin(), user_selection_.end()};
         }
 
-        void closeTab()
+        void close_tab()
         {
-            if (m_Parent) {
-                App::post_event<CloseTabEvent>(*m_Parent, m_TabID);
+            if (parent_) {
+                App::post_event<CloseTabEvent>(*parent_, tab_id_);
             }
         }
 
-        bool canUndo() const
+        bool can_undo() const
         {
-            return m_UndoableTPSDocument->can_undo();
+            return undoable_tps_document_->can_undo();
         }
 
         void undo()
         {
-            m_UndoableTPSDocument->undo();
+            undoable_tps_document_->undo();
         }
 
-        bool canRedo() const
+        bool can_redo() const
         {
-            return m_UndoableTPSDocument->can_redo();
+            return undoable_tps_document_->can_redo();
         }
 
         void redo()
         {
-            m_UndoableTPSDocument->redo();
+            undoable_tps_document_->redo();
         }
 
         template<std::derived_from<Popup> TPopup, class... Args>
         requires std::constructible_from<TPopup, Args&&...>
-        void emplacePopup(Args&&... args)
+        void emplace_popup(Args&&... args)
         {
-            m_PopupManager.emplace_back<TPopup>(std::forward<Args>(args)...).open();
+            popup_manager_.emplace_back<TPopup>(std::forward<Args>(args)...).open();
         }
 
-        const Material& wireframe_material() const { return m_WireframeMaterial; }
-        const Mesh& getLandmarkSphereMesh() const { return m_LandmarkSphere; }
-        SceneCache& updSceneCache() { return *m_SceneCache; }
+        const Material& wireframe_material() const { return wireframe_material_; }
+        const Mesh& get_landmark_sphere_mesh() const { return landmark_sphere_; }
+        SceneCache& upd_scene_cache() { return *scene_cache_; }
 
-        Vector2 getOverlayPadding() const { return {10.0f, 10.0f}; }
-        Color getPairedLandmarkColor() const { return Color::green(); }
-        Color getUnpairedLandmarkColor() const { return Color::red(); }
-        Color getNonParticipatingLandmarkColor() const { return Color::purple(); }
+        Vector2 get_overlay_padding() const { return {10.0f, 10.0f}; }
+        Color get_paired_landmark_color() const { return Color::green(); }
+        Color get_unpaired_landmark_color() const { return Color::red(); }
+        Color get_non_participating_landmark_color() const { return Color::purple(); }
 
-        const OrbitCameraController& getLinkedCameraController() const { return m_LinkedCameraController; }
-        void setLinkedCameraController(const OrbitCameraController& newController) { m_LinkedCameraController = newController; }
-        bool isCamerasLinked() const { return m_LinkCameras; }
-        void setCamerasLinked(bool v) { m_LinkCameras = v; }
-        bool isOnlyCameraRotationLinked() const { return m_OnlyLinkRotation; }
-        void setOnlyCameraRotationLinked(bool v) { m_OnlyLinkRotation = v; }
-        bool updateLocalCameraControllerFromLinkedBase(OrbitCameraController& controller)
+        const OrbitCameraController& get_linked_camera_controller() const { return linked_camera_controller_; }
+        void set_linked_camera_controller(const OrbitCameraController& newController) { linked_camera_controller_ = newController; }
+        bool is_cameras_linked() const { return link_cameras_; }
+        void set_cameras_linked(bool v) { link_cameras_ = v; }
+        bool is_only_camera_rotation_linked() const { return only_link_rotation_; }
+        void set_only_camera_rotation_linked(bool v) { only_link_rotation_ = v; }
+        bool update_local_camera_controller_from_linked_base(OrbitCameraController& controller)
         {
             // If the controllers are linked together, ensure the caller's is
             // updated from the linked camera this shared state holds.
-            if (isCamerasLinked() and controller != m_LinkedCameraController) {
-                if (isOnlyCameraRotationLinked()) {
-                    controller.phi = m_LinkedCameraController.phi;
-                    controller.theta = m_LinkedCameraController.theta;
+            if (is_cameras_linked() and controller != linked_camera_controller_) {
+                if (is_only_camera_rotation_linked()) {
+                    controller.phi = linked_camera_controller_.phi;
+                    controller.theta = linked_camera_controller_.theta;
                 }
                 else {
-                    controller = m_LinkedCameraController;
+                    controller = linked_camera_controller_;
                 }
                 return true;
             }
             return false;
         }
 
-        const opyn::CustomRenderingOptions& getCustomRenderingOptions() const { return m_CustomRenderingOptions; }
-        opyn::CustomRenderingOptions& updCustomRenderingOptions() { return m_CustomRenderingOptions; }
-        const opyn::OverlayDecorationOptions& getOverlayDecorationOptions() const { return m_OverlayDecorationOptions; }
-        opyn::OverlayDecorationOptions& updOverlayDecorationOptions() { return m_OverlayDecorationOptions; }
-        bool isWireframeModeEnabled() const { return m_WireframeMode; }
-        void setWireframeModeEnabled(bool v) { m_WireframeMode = v; }
+        const opyn::CustomRenderingOptions& get_custom_rendering_options() const { return custom_rendering_options_; }
+        opyn::CustomRenderingOptions& upd_custom_rendering_options() { return custom_rendering_options_; }
+        const opyn::OverlayDecorationOptions& get_overlay_decoration_options() const { return overlay_decoration_options_; }
+        opyn::OverlayDecorationOptions& upd_overlay_decoration_options() { return overlay_decoration_options_; }
+        bool is_wireframe_mode_enabled() const { return wireframe_mode_; }
+        void set_wireframe_mode_enabled(bool v) { wireframe_mode_ = v; }
 
     private:
         // ID of the top-level TPS3D tab
-        UID m_TabID;
+        UID tab_id_;
 
         // handle to the screen that owns the TPS3D tab
-        Widget* m_Parent;
+        Widget* parent_;
 
         // cached TPS3D algorithm result (to prevent recomputing it over and over)
-        MwResultCache m_WarpingCache;
+        MwResultCache warping_cache_;
 
         // the document that the user is editing
-        std::shared_ptr<MwUndoableDocument> m_UndoableTPSDocument = std::make_shared<MwUndoableDocument>();
+        std::shared_ptr<MwUndoableDocument> undoable_tps_document_ = std::make_shared<MwUndoableDocument>();
 
         // `true` if the user wants the cameras to be linked
-        bool m_LinkCameras = true;
+        bool link_cameras_ = true;
 
         // `true` if `LinkCameras` should only link the rotational parts of the cameras
-        bool m_OnlyLinkRotation = false;
+        bool only_link_rotation_ = false;
 
         // shared linked camera
-        OrbitCameraController m_LinkedCameraController = [this]
+        OrbitCameraController linked_camera_controller_ = [this]
         {
             Camera camera;
             camera.set_vertical_field_of_view(Degrees{35.0f});
-            return OrbitCameraController::focused_on(m_UndoableTPSDocument->scratch().sourceMesh.bounds().value_or(AABB{}), camera);
+            return OrbitCameraController::focused_on(undoable_tps_document_->scratch().sourceMesh.bounds().value_or(AABB{}), camera);
         }();
 
         // shared scene cache, to minimize rendering effort when redrawing
-        std::shared_ptr<SceneCache> m_SceneCache;
+        std::shared_ptr<SceneCache> scene_cache_;
 
         // wireframe material, used to draw scene elements in a wireframe style
-        MeshBasicMaterial m_WireframeMaterial = m_SceneCache->wireframe_material();
+        MeshBasicMaterial wireframe_material_ = scene_cache_->wireframe_material();
 
         // cached sphere mesh (to prevent re-generating a sphere over and over)
-        Mesh m_LandmarkSphere = m_SceneCache->sphere_mesh();
+        Mesh landmark_sphere_ = scene_cache_->sphere_mesh();
 
         // current user selection
-        MwUiSelection m_UserSelection;
+        MwUiSelection user_selection_;
 
         // current user hover: reset per-frame
-        std::optional<MwUiHovertestResult> m_CurrentHover;
+        std::optional<MwUiHovertestResult> current_hover_;
 
         // currently active tab-wide popups
-        PopupManager m_PopupManager;
+        PopupManager popup_manager_;
 
         // user-editable rendering options
-        opyn::CustomRenderingOptions m_CustomRenderingOptions;
+        opyn::CustomRenderingOptions custom_rendering_options_;
 
         // user-editable overlay decoration options
-        opyn::OverlayDecorationOptions m_OverlayDecorationOptions;
+        opyn::OverlayDecorationOptions overlay_decoration_options_;
 
         // user-editable wireframe mode rendering toggle
-        bool m_WireframeMode = true;
+        bool wireframe_mode_ = true;
     };
 }

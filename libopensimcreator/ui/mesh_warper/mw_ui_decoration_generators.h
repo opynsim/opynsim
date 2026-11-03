@@ -13,7 +13,7 @@
 namespace osc
 {
     // append decorations that are common to all panels to the given output vector
-    void AppendCommonDecorations(
+    void append_common_decorations(
         MwUiSharedState& sharedState,
         const Mesh& tpsSourceOrDestinationMesh,
         bool wireframeMode,
@@ -29,8 +29,8 @@ namespace osc
 
         // add overlay decorations
         generate_overlay_decorations(
-            sharedState.updSceneCache(),
-            sharedState.getOverlayDecorationOptions(),
+            sharedState.upd_scene_cache(),
+            sharedState.get_overlay_decoration_options(),
             BVH{},  // TODO: should have a scene BVH by this point
             1.0f,  // scale factor
             out
@@ -38,7 +38,7 @@ namespace osc
     }
 
     // returns the amount by which non-participating landmarks should be scaled w.r.t. pariticpating ones
-    constexpr float GetNonParticipatingLandmarkScaleFactor()
+    constexpr float get_non_participating_landmark_scale_factor()
     {
         return 0.75f;
     }

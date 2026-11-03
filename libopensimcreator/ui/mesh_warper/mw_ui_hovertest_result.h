@@ -15,48 +15,48 @@ namespace osc
         explicit MwUiHovertestResult(
             MiDocumentInputIdentifier input_,
             const Vector3& worldSpaceLocation_) :
-            m_Input{input_},
-            m_WorldSpaceLocation{worldSpaceLocation_}
+            input_{input_},
+            world_space_location_{worldSpaceLocation_}
         {}
 
         explicit MwUiHovertestResult(
             MwDocumentElementID sceneElementID_,
             const Vector3& worldSpaceLocation_) :
 
-            m_MaybeSceneElementID{std::move(sceneElementID_)},
-            m_Input{m_MaybeSceneElementID->input},
-            m_WorldSpaceLocation{worldSpaceLocation_}
+            maybe_scene_element_id_{std::move(sceneElementID_)},
+            input_{maybe_scene_element_id_->input},
+            world_space_location_{worldSpaceLocation_}
         {
         }
 
-        MiDocumentInputIdentifier getInput() const
+        MiDocumentInputIdentifier get_input() const
         {
-            return m_Input;
+            return input_;
         }
 
-        std::optional<MwDocumentElementID> getSceneElementID() const
+        std::optional<MwDocumentElementID> get_scene_element_id() const
         {
-            return m_MaybeSceneElementID;
+            return maybe_scene_element_id_;
         }
 
-        bool isHoveringASceneElement() const
+        bool is_hovering_a_scene_element() const
         {
-            return m_MaybeSceneElementID.has_value();
+            return maybe_scene_element_id_.has_value();
         }
 
-        bool isHovering(const MwDocumentElementID& el) const
+        bool is_hovering(const MwDocumentElementID& el) const
         {
-            return m_MaybeSceneElementID == el;
+            return maybe_scene_element_id_ == el;
         }
 
-        const Vector3& getWorldSpaceLocation() const
+        const Vector3& get_world_space_location() const
         {
-            return m_WorldSpaceLocation;
+            return world_space_location_;
         }
 
     private:
-        std::optional<MwDocumentElementID> m_MaybeSceneElementID;
-        MiDocumentInputIdentifier m_Input;
-        Vector3 m_WorldSpaceLocation;
+        std::optional<MwDocumentElementID> maybe_scene_element_id_;
+        MiDocumentInputIdentifier input_;
+        Vector3 world_space_location_;
     };
 }

@@ -78,7 +78,7 @@ private:
     void drawNewDocumentButton()
     {
         if (ui::draw_button(MSMICONS_FILE)) {
-            ActionCreateNewDocument(m_State->updUndoable());
+            ActionCreateNewDocument(m_State->upd_undoable());
         }
         ui::draw_tooltip_if_item_hovered(
             "Create New Document",
@@ -91,10 +91,10 @@ private:
         ui::draw_button(MSMICONS_FOLDER_OPEN);
         if (ui::begin_popup_context_menu("##OpenFolder", ui::PopupFlag::MouseButtonLeft)) {
             if (ui::draw_menu_item("Load Source Mesh")) {
-                ActionPromptUserToLoadMeshFile(m_State->getUndoableSharedPtr(), MiDocumentInputIdentifier::Source);
+                ActionPromptUserToLoadMeshFile(m_State->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
             }
             if (ui::draw_menu_item("Load Destination Mesh")) {
-                ActionPromptUserToLoadMeshFile(m_State->getUndoableSharedPtr(), MiDocumentInputIdentifier::Destination);
+                ActionPromptUserToLoadMeshFile(m_State->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
             }
             ui::end_popup();
         }
@@ -107,7 +107,7 @@ private:
     void drawSaveLandmarksButton()
     {
         if (ui::draw_button(MSMICONS_SAVE)) {
-            ActionPromptUserToSavePairedLandmarksToCSV(m_State->getScratch(), opyn::LandmarkCSVFlags::NoNames);
+            ActionPromptUserToSavePairedLandmarksToCSV(m_State->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
         }
         ui::draw_tooltip_if_item_hovered(
             "Save Landmarks to CSV (no names)",
@@ -118,21 +118,21 @@ private:
     void drawCameraLockCheckbox()
     {
         {
-            bool linked = m_State->isCamerasLinked();
+            bool linked = m_State->is_cameras_linked();
             if (ui::draw_checkbox("link cameras", &linked)) {
-                m_State->setCamerasLinked(linked);
+                m_State->set_cameras_linked(linked);
             }
         }
 
         ui::same_line();
 
-        const bool disabled = not m_State->isCamerasLinked();
+        const bool disabled = not m_State->is_cameras_linked();
         if (disabled) {
             ui::begin_disabled();
         }
-        bool linkRotation = m_State->isOnlyCameraRotationLinked();
+        bool linkRotation = m_State->is_only_camera_rotation_linked();
         if (ui::draw_checkbox("only link rotation", &linkRotation)) {
-            m_State->setOnlyCameraRotationLinked(linkRotation);
+            m_State->set_only_camera_rotation_linked(linkRotation);
         }
         if (disabled) {
             ui::end_disabled();
@@ -145,12 +145,12 @@ private:
             ui::open_popup("visualization_options_popup");
         }
         if (ui::begin_popup("visualization_options_popup", {ui::PanelFlag::AlwaysAutoResize, ui::PanelFlag::NoTitleBar, ui::PanelFlag::NoSavedSettings})) {
-            DrawRenderingOptionsEditor(m_State->updCustomRenderingOptions());
-            DrawOverlayOptionsEditor(m_State->updOverlayDecorationOptions());
+            DrawRenderingOptionsEditor(m_State->upd_custom_rendering_options());
+            DrawOverlayOptionsEditor(m_State->upd_overlay_decoration_options());
             {
-                bool wireframe = m_State->isWireframeModeEnabled();
+                bool wireframe = m_State->is_wireframe_mode_enabled();
                 if (ui::draw_checkbox("Wireframe", &wireframe)) {
-                    m_State->setWireframeModeEnabled(wireframe);
+                    m_State->set_wireframe_mode_enabled(wireframe);
                 }
             }
             ui::end_popup();
@@ -160,14 +160,14 @@ private:
     void drawSwapSourceDestinationButton()
     {
         if (ui::draw_button("swap source <-> destination")) {
-            ActionSwapSourceDestination(m_State->updUndoable());
+            ActionSwapSourceDestination(m_State->upd_undoable());
         }
         ui::draw_tooltip_if_item_hovered("Swap Source <-> Destination", "Swaps the source mesh with the destination mesh.\n\nNote: non-participating landmarks will be left in the source mesh, because they must always be there.");
     }
 
     std::shared_ptr<MwUiSharedState> m_State;
-    UndoButton m_UndoButton{&owner(), m_State->getUndoableSharedPtr(), MSMICONS_UNDO};
-    RedoButton m_RedoButton{&owner(), m_State->getUndoableSharedPtr(), MSMICONS_REDO};
+    UndoButton m_UndoButton{&owner(), m_State->get_undoable_shared_ptr(), MSMICONS_UNDO};
+    RedoButton m_RedoButton{&owner(), m_State->get_undoable_shared_ptr(), MSMICONS_REDO};
 };
 
 osc::MwUiToolbar::MwUiToolbar(

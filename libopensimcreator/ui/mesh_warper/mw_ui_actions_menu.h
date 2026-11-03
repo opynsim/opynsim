@@ -17,58 +17,58 @@ namespace osc
     public:
         explicit MwUiActionsMenu(
             std::shared_ptr<MwUiSharedState> tabState_) :
-            m_State{std::move(tabState_)}
+            state_{std::move(tabState_)}
         {
         }
 
-        void onDraw()
+        void on_draw()
         {
             if (ui::begin_menu("Actions"))
             {
-                drawContent();
+                draw_content();
                 ui::end_menu();
             }
         }
 
     private:
 
-        void drawContent()
+        void draw_content()
         {
-            drawClearLandmarksMenuItem();
-            drawClearNonParticipatingLandmarksMenuItem();
+            draw_clear_landmarks_menu_item();
+            draw_clear_non_participating_landmarks_menu_item();
         }
 
-        void drawClearLandmarksMenuItem()
+        void draw_clear_landmarks_menu_item()
         {
-            const bool hasLandmarks = ContainsLandmarks(m_State->getScratch());
+            const bool hasLandmarks = ContainsLandmarks(state_->get_scratch());
 
             if (not hasLandmarks) {
                 ui::begin_disabled();
             }
             if (ui::draw_menu_item(MSMICONS_ERASER " clear landmarks")) {
-                ActionClearAllLandmarks(m_State->updUndoable());
+                ActionClearAllLandmarks(state_->upd_undoable());
             }
             if (not hasLandmarks) {
                 ui::end_disabled();
             }
         }
 
-        void drawClearNonParticipatingLandmarksMenuItem()
+        void draw_clear_non_participating_landmarks_menu_item()
         {
             const bool hasNonParticipatingLandmarks =
-                ContainsNonParticipatingLandmarks(m_State->getScratch());
+                ContainsNonParticipatingLandmarks(state_->get_scratch());
 
             if (not hasNonParticipatingLandmarks) {
                 ui::begin_disabled();
             }
             if (ui::draw_menu_item(MSMICONS_ERASER " clear non-participating landmarks")) {
-                ActionClearAllNonParticipatingLandmarks(m_State->updUndoable());
+                ActionClearAllNonParticipatingLandmarks(state_->upd_undoable());
             }
             if (not hasNonParticipatingLandmarks) {
                 ui::end_disabled();
             }
         }
 
-        std::shared_ptr<MwUiSharedState> m_State;
+        std::shared_ptr<MwUiSharedState> state_;
     };
 }
