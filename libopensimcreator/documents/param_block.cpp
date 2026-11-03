@@ -17,10 +17,10 @@ namespace rgs = std::ranges;
 namespace
 {
     struct Param final {
-        Param(std::string_view name_, std::string_view description_, ParamValue value_) :
-            name{name_},
-            description{description_},
-            value{value_}
+        Param(std::string_view name, std::string_view description, ParamValue value) :
+            name{name},
+            description{description},
+            value{value}
         {}
 
         std::string name;
@@ -39,46 +39,46 @@ public:
 
     int size() const
     {
-        return static_cast<int>(m_Params.size());
+        return static_cast<int>(params_.size());
     }
 
-    const std::string& getName(int idx) const
+    const std::string& get_name(int idx) const
     {
         return get(idx).name;
     }
 
-    const std::string& getDescription(int idx) const
+    const std::string& get_description(int idx) const
     {
         return get(idx).description;
     }
 
-    const ParamValue& getValue(int idx) const
+    const ParamValue& get_value(int idx) const
     {
         return get(idx).value;
     }
 
-    std::optional<ParamValue> findValue(std::string_view name) const
+    std::optional<ParamValue> find_value(std::string_view name) const
     {
-        return findValue(std::string{name});
+        return find_value(std::string{name});
     }
 
-    void pushParam(std::string_view name, std::string_view description, ParamValue v)
+    void push_param(std::string_view name, std::string_view description, ParamValue v)
     {
         Param* p = find(std::string{name});
         if (p) {
             *p = Param{name, description, v};
         }
         else {
-            m_Params.emplace_back(name, description, v);
+            params_.emplace_back(name, description, v);
         }
     }
 
-    void setValue(int idx, ParamValue v)
+    void set_value(int idx, ParamValue v)
     {
         get(idx).value = v;
     }
 
-    void setValue(const std::string& name, ParamValue value)
+    void set_value(const std::string& name, ParamValue value)
     {
         Param* p = find(name);
 
@@ -91,7 +91,7 @@ public:
     }
 
 private:
-    std::optional<ParamValue> findValue(const std::string& name) const
+    std::optional<ParamValue> find_value(const std::string& name) const
     {
         const Param* p = find(name);
         return p ? std::optional<ParamValue>{p->value} : std::nullopt;
@@ -99,12 +99,12 @@ private:
 
     Param& get(int idx)
     {
-        return m_Params.at(static_cast<size_t>(idx));
+        return params_.at(static_cast<size_t>(idx));
     }
 
     const Param& get(int idx) const
     {
-        return m_Params.at(static_cast<size_t>(idx));
+        return params_.at(static_cast<size_t>(idx));
     }
 
 
@@ -117,15 +117,15 @@ private:
 
     Param* find(const std::string& name)
     {
-        return Impl::find(m_Params, name);
+        return Impl::find(params_, name);
     }
 
     const Param* find(const std::string& name) const
     {
-        return Impl::find(m_Params, name);
+        return Impl::find(params_, name);
     }
 
-    std::vector<Param> m_Params;
+    std::vector<Param> params_;
 };
 
 
@@ -143,35 +143,35 @@ int osc::ParamBlock::size() const
 
 const std::string& osc::ParamBlock::get_name(int idx) const
 {
-    return impl_->getName(idx);
+    return impl_->get_name(idx);
 }
 
 const std::string& osc::ParamBlock::get_description(int idx) const
 {
-    return impl_->getDescription(idx);
+    return impl_->get_description(idx);
 }
 
 const ParamValue& osc::ParamBlock::get_value(int idx) const
 {
-    return impl_->getValue(idx);
+    return impl_->get_value(idx);
 }
 
 std::optional<ParamValue> osc::ParamBlock::find_value(std::string_view name) const
 {
-    return impl_->findValue(name);
+    return impl_->find_value(name);
 }
 
 void osc::ParamBlock::push_param(std::string_view name, std::string_view description, ParamValue value)
 {
-    impl_->pushParam(name, description, value);
+    impl_->push_param(name, description, value);
 }
 
 void osc::ParamBlock::set_value(int idx, ParamValue value)
 {
-    impl_->setValue(idx, value);
+    impl_->set_value(idx, value);
 }
 
 void osc::ParamBlock::set_value(const std::string& name, ParamValue value)
 {
-    impl_->setValue(name, value);
+    impl_->set_value(name, value);
 }
