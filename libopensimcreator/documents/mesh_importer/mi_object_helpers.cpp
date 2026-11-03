@@ -45,7 +45,7 @@ bool osc::can_attach_station_to(const MiObject& e)
 
 const std::array<MiClass, std::variant_size_v<MiVariantReference>>& osc::get_scene_el_classes()
 {
-    static const auto s_Classes = std::to_array(
+    static const auto s_classes = std::to_array(
     {
         MiGround::get_class(),
         MiMesh::get_class(),
@@ -53,17 +53,17 @@ const std::array<MiClass, std::variant_size_v<MiVariantReference>>& osc::get_sce
         MiJoint::get_class(),
         MiStation::get_class(),
     });
-    return s_Classes;
+    return s_classes;
 }
 
 Vector3 osc::average_center(const MiMesh& el)
 {
-    const Vector3 centerpointInModelSpace = average_centroid_of(el.get_mesh_data());
-    return el.get_x_form() * centerpointInModelSpace;
+    const Vector3 centerpoint_in_model_space = average_centroid_of(el.get_mesh_data());
+    return el.get_x_form() * centerpoint_in_model_space;
 }
 
 Vector3 osc::mass_center_of(const MiMesh& el)
 {
-    const Vector3 massCenterInModelSpace = mass_center_of(el.get_mesh_data());
-    return el.get_x_form() * massCenterInModelSpace;
+    const Vector3 mass_center_in_model_space = mass_center_of(el.get_mesh_data());
+    return el.get_x_form() * mass_center_in_model_space;
 }

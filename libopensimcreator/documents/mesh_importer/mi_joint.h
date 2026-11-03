@@ -24,8 +24,8 @@ namespace osc
     public:
         MiJoint(
             UID id,
-            std::string jointTypeName,
-            const std::string& userAssignedName,  // can be empty
+            std::string joint_type_name,
+            const std::string& user_assigned_name,  // can be empty
             UID parent,
             UID child,
             const Transform& xform

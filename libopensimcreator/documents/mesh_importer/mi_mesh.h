@@ -24,11 +24,11 @@ namespace osc
         MiMesh(
             UID id,
             UID attachment,  // can be MiIDs::ground()
-            osc::Mesh meshData,
+            Mesh mesh_data,
             std::filesystem::path path
         );
 
-        const osc::Mesh& get_mesh_data() const
+        const Mesh& get_mesh_data() const
         {
             return mesh_data_;
         }
@@ -43,9 +43,9 @@ namespace osc
             return attachment_;
         }
 
-        void set_parent_id(UID newParent)
+        void set_parent_id(UID new_parent)
         {
-            attachment_ = newParent;
+            attachment_ = new_parent;
         }
 
         Transform get_x_form() const

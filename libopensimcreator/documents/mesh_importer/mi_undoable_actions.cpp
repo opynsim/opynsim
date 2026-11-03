@@ -37,17 +37,17 @@ bool osc::point_axis_towards(
 
 bool osc::try_assign_mesh_attachments(
     MiUndoableDocument& udoc,
-    const std::unordered_set<UID>& meshIDs,
-    UID newAttachment)
+    const std::unordered_set<UID>& mesh_ids,
+    UID new_attachment)
 {
     MiDocument& doc = udoc.upd_scratch();
 
-    if (newAttachment != MiIDs::ground() && !doc.contains<MiBody>(newAttachment))
+    if (new_attachment != MiIDs::ground() && !doc.contains<MiBody>(new_attachment))
     {
         return false;  // bogus ID passed
     }
 
-    for (const UID id : meshIDs)
+    for (const UID id : mesh_ids)
     {
         auto* const ptr = doc.try_upd_by_id<MiMesh>(id);
         if (!ptr)
@@ -55,41 +55,41 @@ bool osc::try_assign_mesh_attachments(
             continue;  // hardening: ignore invalid assignments
         }
 
-        ptr->set_parent_id(newAttachment);
+        ptr->set_parent_id(new_attachment);
     }
 
-    std::stringstream commitMsg;
-    commitMsg << "assigned mesh";
-    if (meshIDs.size() > 1)
+    std::stringstream commit_msg;
+    commit_msg << "assigned mesh";
+    if (mesh_ids.size() > 1)
     {
-        commitMsg << "es";
+        commit_msg << "es";
     }
-    commitMsg << " to " << doc.get_by_id(newAttachment).get_label();
+    commit_msg << " to " << doc.get_by_id(new_attachment).get_label();
 
 
-    udoc.commit_scratch(std::move(commitMsg).str());
+    udoc.commit_scratch(std::move(commit_msg).str());
 
     return true;
 }
 
 bool osc::try_create_joint(
     MiUndoableDocument& udoc,
-    UID childID,
-    UID parentID)
+    UID child_id,
+    UID parent_id)
 {
     MiDocument& doc = udoc.upd_scratch();
 
-    const Vector3 parentPos = doc.get_pos_by_id(parentID);
-    const Vector3 childPos = doc.get_pos_by_id(childID);
-    const Vector3 midPoint = midpoint(parentPos, childPos);
+    const Vector3 parent_pos = doc.get_pos_by_id(parent_id);
+    const Vector3 child_pos = doc.get_pos_by_id(child_id);
+    const Vector3 mid_point = midpoint(parent_pos, child_pos);
 
     const auto& joint = doc.emplace<MiJoint>(
         UID{},
         "WeldJoint",
         std::string{},
-        parentID,
-        childID,
-        Transform{.translation = midPoint}
+        parent_id,
+        child_id,
+        Transform{.translation = mid_point}
     );
     doc.select_only(joint);
 
@@ -171,19 +171,19 @@ bool osc::try_translate_between_two_objects(
         return false;
     }
 
-    const MiObject* const objA = doc.try_get_by_id(a);
-    if (!objA)
+    const MiObject* const obj_a = doc.try_get_by_id(a);
+    if (!obj_a)
     {
         return false;
     }
 
-    const MiObject* const objB = doc.try_get_by_id(b);
-    if (!objB)
+    const MiObject* const obj_b = doc.try_get_by_id(b);
+    if (!obj_b)
     {
         return false;
     }
 
-    obj->set_pos(doc, midpoint(objA->get_pos(doc), objB->get_pos(doc)));
+    obj->set_pos(doc, midpoint(obj_a->get_pos(doc), obj_b->get_pos(doc)));
     udoc.commit_scratch("translated " + obj->get_label());
 
     return true;
@@ -202,13 +202,13 @@ bool osc::try_translate_object_to_another_object(
         return false;
     }
 
-    const MiObject* const otherObj = doc.try_get_by_id(other);
-    if (!otherObj)
+    const MiObject* const other_obj = doc.try_get_by_id(other);
+    if (!other_obj)
     {
         return false;
     }
 
-    obj->set_pos(doc, otherObj->get_pos(doc));
+    obj->set_pos(doc, other_obj->get_pos(doc));
     udoc.commit_scratch("moved " + obj->get_label());
 
     return true;
@@ -217,7 +217,7 @@ bool osc::try_translate_object_to_another_object(
 bool osc::try_translate_to_mesh_average_center(
     MiUndoableDocument& udoc,
     UID id,
-    UID meshID)
+    UID mesh_id)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -227,7 +227,7 @@ bool osc::try_translate_to_mesh_average_center(
         return false;
     }
 
-    const auto* const mesh = doc.try_get_by_id<MiMesh>(meshID);
+    const auto* const mesh = doc.try_get_by_id<MiMesh>(mesh_id);
     if (!mesh)
     {
         return false;
@@ -242,7 +242,7 @@ bool osc::try_translate_to_mesh_average_center(
 bool osc::try_translate_to_mesh_bounds_center(
     MiUndoableDocument& udoc,
     UID id,
-    UID meshID)
+    UID mesh_id)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -252,7 +252,7 @@ bool osc::try_translate_to_mesh_bounds_center(
         return false;
     }
 
-    const auto* const mesh = doc.try_get_by_id<MiMesh>(meshID);
+    const auto* const mesh = doc.try_get_by_id<MiMesh>(mesh_id);
     if (!mesh)
     {
         return false;
@@ -264,9 +264,9 @@ bool osc::try_translate_to_mesh_bounds_center(
         return false;
     }
 
-    const Vector3 boundsMidpoint = centroid_of(*bounds);
+    const Vector3 bounds_midpoint = centroid_of(*bounds);
 
-    obj->set_pos(doc, boundsMidpoint);
+    obj->set_pos(doc, bounds_midpoint);
     udoc.commit_scratch("moved " + obj->get_label());
 
     return true;
@@ -275,7 +275,7 @@ bool osc::try_translate_to_mesh_bounds_center(
 bool osc::try_translate_to_mesh_mass_center(
     MiUndoableDocument& udoc,
     UID id,
-    UID meshID)
+    UID mesh_id)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -285,7 +285,7 @@ bool osc::try_translate_to_mesh_mass_center(
         return false;
     }
 
-    const auto* const mesh = doc.try_get_by_id<MiMesh>(meshID);
+    const auto* const mesh = doc.try_get_by_id<MiMesh>(mesh_id);
     if (!mesh)
     {
         return false;
@@ -384,13 +384,13 @@ bool osc::try_copy_orientation(
         return false;
     }
 
-    const MiObject* const otherObj = doc.try_get_by_id(other);
-    if (!otherObj)
+    const MiObject* const other_obj = doc.try_get_by_id(other);
+    if (!other_obj)
     {
         return false;
     }
 
-    obj->set_rotation(doc, otherObj->rotation(doc));
+    obj->set_rotation(doc, other_obj->rotation(doc));
     udoc.commit_scratch("reoriented " + obj->get_label());
 
     return true;
@@ -400,7 +400,7 @@ bool osc::try_copy_orientation(
 UID osc::add_body(
     MiUndoableDocument& udoc,
     const Vector3& position,
-    UID andTryAttach)
+    UID and_try_attach)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -408,7 +408,7 @@ UID osc::add_body(
     doc.de_select_all();
     doc.select(b.get_id());
 
-    auto* const obj = doc.try_upd_by_id<MiMesh>(andTryAttach);
+    auto* const obj = doc.try_upd_by_id<MiMesh>(and_try_attach);
     if (obj)
     {
         if (obj->get_parent_id() == MiIDs::ground() || obj->get_parent_id() == MiIDs::empty())
@@ -470,7 +470,7 @@ bool osc::add_station_at_location(
 void osc::action_import_landmarks(
     MiUndoableDocument& udoc,
     std::span<const opyn::NamedLandmark> landmarks,
-    std::optional<std::string> maybeName)
+    std::optional<std::string> maybe_name)
 {
     MiDocument& doc = udoc.upd_scratch();
     for (const auto& lm : landmarks)
@@ -484,6 +484,6 @@ void osc::action_import_landmarks(
     }
 
     std::stringstream ss;
-    ss << "imported " << std::move(maybeName).value_or("landmarks");
+    ss << "imported " << std::move(maybe_name).value_or("landmarks");
     udoc.commit_scratch(std::move(ss).str());
 }

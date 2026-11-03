@@ -8,11 +8,11 @@ namespace rgs = std::ranges;
 
 void osc::MiObject::apply_rotation(
     const MiObjectFinder& lookup,
-    const EulerAngles& eulerAngles,
-    const Vector3& rotationCenter)
+    const EulerAngles& euler_angles,
+    const Vector3& rotation_center)
 {
     Transform t = get_x_form(lookup);
-    apply_world_space_rotation(t, eulerAngles, rotationCenter);
+    apply_world_space_rotation(t, euler_angles, rotation_center);
     set_xform(lookup, t);
 }
 

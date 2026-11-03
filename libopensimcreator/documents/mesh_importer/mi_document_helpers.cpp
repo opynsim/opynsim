@@ -59,7 +59,7 @@ bool osc::is_garbage_joint(const MiDocument& doc, const MiJoint& joint)
 bool osc::is_joint_attached_to_ground(
     const MiDocument& doc,
     const MiJoint& joint,
-    std::unordered_set<UID>& previousVisits)
+    std::unordered_set<UID>& previous_visits)
 {
     OSC_ASSERT_ALWAYS(!is_garbage_joint(doc, joint));
 
@@ -75,15 +75,15 @@ bool osc::is_joint_attached_to_ground(
     }
 
     // else: recurse to parent
-    return is_body_attached_to_ground(doc, *parent, previousVisits);
+    return is_body_attached_to_ground(doc, *parent, previous_visits);
 }
 
 bool osc::is_body_attached_to_ground(
     const MiDocument& doc,
     const MiBody& body,
-    std::unordered_set<UID>& previouslyVisitedJoints)
+    std::unordered_set<UID>& previously_visited_joints)
 {
-    bool childInAtLeastOneJoint = false;
+    bool child_in_at_least_one_joint = false;
 
     for (const MiJoint& joint : doc.iter<MiJoint>())
     {
@@ -91,29 +91,29 @@ bool osc::is_body_attached_to_ground(
 
         if (joint.get_child_id() == body.get_id())
         {
-            childInAtLeastOneJoint = true;
+            child_in_at_least_one_joint = true;
 
-            const bool alreadyVisited = !previouslyVisitedJoints.emplace(joint.get_id()).second;
-            if (alreadyVisited)
+            const bool already_visited = !previously_visited_joints.emplace(joint.get_id()).second;
+            if (already_visited)
             {
                 continue;  // skip this joint: was previously visited
             }
 
-            if (is_joint_attached_to_ground(doc, joint, previouslyVisitedJoints))
+            if (is_joint_attached_to_ground(doc, joint, previously_visited_joints))
             {
                 return true;  // recurse
             }
         }
     }
 
-    return !childInAtLeastOneJoint;
+    return !child_in_at_least_one_joint;
 }
 
 bool osc::get_issues(
     const MiDocument& doc,
-    std::vector<std::string>& issuesOut)
+    std::vector<std::string>& issues_out)
 {
-    issuesOut.clear();
+    issues_out.clear();
 
     for (const MiJoint& joint : doc.iter<MiJoint>())
     {
@@ -127,16 +127,16 @@ bool osc::get_issues(
 
     for (const MiBody& body : doc.iter<MiBody>())
     {
-        std::unordered_set<UID> previouslyVisitedJoints;
-        if (!is_body_attached_to_ground(doc, body, previouslyVisitedJoints))
+        std::unordered_set<UID> previously_visited_joints;
+        if (!is_body_attached_to_ground(doc, body, previously_visited_joints))
         {
             std::stringstream ss;
             ss << body.get_label() << ": body is not attached to ground: it is connected by a joint that, itself, does not connect to ground";
-            issuesOut.push_back(std::move(ss).str());
+            issues_out.push_back(std::move(ss).str());
         }
     }
 
-    return !issuesOut.empty();
+    return !issues_out.empty();
 }
 
 std::string osc::get_context_menu_sub_header_text(
@@ -152,11 +152,11 @@ std::string osc::get_context_menu_sub_header_text(
         },
         [&ss, &doc](const MiMesh& m)
         {
-            ss << '(' << m.get_class().get_name() << ", " << m.get_path().filename().string() << ", attached to " << doc.get_label_by_id(m.get_parent_id()) << ')';
+            ss << '(' << MiMesh::get_class().get_name() << ", " << m.get_path().filename().string() << ", attached to " << doc.get_label_by_id(m.get_parent_id()) << ')';
         },
-        [&ss](const MiBody& b)
+        [&ss](const MiBody&)
         {
-            ss << '(' << b.get_class().get_name() << ')';
+            ss << '(' << MiBody::get_class().get_name() << ')';
         },
         [&ss, &doc](const MiJoint& j)
         {
@@ -164,7 +164,7 @@ std::string osc::get_context_menu_sub_header_text(
         },
         [&ss, &doc](const MiStation& s)
         {
-            ss << '(' << s.get_class().get_name() << ", attached to " << doc.get_label_by_id(s.get_parent_id()) << ')';
+            ss << '(' << MiStation::get_class().get_name() << ", attached to " << doc.get_label_by_id(s.get_parent_id()) << ')';
         },
     }, obj.to_variant());
     return std::move(ss).str();
@@ -227,8 +227,8 @@ UID osc::get_station_attachment_parent(const MiDocument& doc, const MiObject& ob
     return std::visit(Overload
     {
         [](const MiGround&) { return MiIDs::ground(); },
-        [&doc](const MiMesh& meshEl) { return doc.contains<MiBody>(meshEl.get_parent_id()) ? meshEl.get_parent_id() : MiIDs::ground(); },
-        [](const MiBody& bodyEl) { return bodyEl.get_id(); },
+        [&doc](const MiMesh& mesh_el) { return doc.contains<MiBody>(mesh_el.get_parent_id()) ? mesh_el.get_parent_id() : MiIDs::ground(); },
+        [](const MiBody& body_el) { return body_el.get_id(); },
         [](const MiJoint&) { return MiIDs::ground(); },
         [](const MiStation&) { return MiIDs::ground(); },
     }, obj.to_variant());
@@ -240,27 +240,27 @@ void osc::point_axis_towards(
     int axis,
     UID other)
 {
-    const Vector3 choicePos = doc.get_pos_by_id(other);
-    const Transform sourceXform = {.translation = doc.get_pos_by_id(id)};
+    const Vector3 choice_pos = doc.get_pos_by_id(other);
+    const Transform source_xform = {.translation = doc.get_pos_by_id(id)};
 
-    doc.upd_by_id(id).set_xform(doc, point_axis_towards(sourceXform, axis, choicePos));
+    doc.upd_by_id(id).set_xform(doc, point_axis_towards(source_xform, axis, choice_pos));
 }
 
 SceneDecorationFlags osc::compute_flags(
     const MiDocument& doc,
     UID id,
-    std::optional<UID> maybeHoverID)
+    std::optional<UID> maybe_hover_id)
 {
     if (id == MiIDs::empty()) {
         return SceneDecorationFlag::Default;
     }
 
-    const UID hoverID = maybeHoverID ? *maybeHoverID : MiIDs::empty();
+    const UID hover_id = maybe_hover_id ? *maybe_hover_id : MiIDs::empty();
     SceneDecorationFlags rv = SceneDecorationFlag::Default;
     if (doc.is_selected(id)) {
         rv |= SceneDecorationFlag::RimHighlight0;
     }
-    if (id == hoverID or is_in_selection_group_of(doc, hoverID, id)) {
+    if (id == hover_id or is_in_selection_group_of(doc, hover_id, id)) {
         rv |= SceneDecorationFlag::RimHighlight1;
     }
     return rv;

@@ -20,15 +20,15 @@ using osc::MiClass;
 
 osc::MiJoint::MiJoint(
     UID id,
-    std::string jointTypeName,
-    const std::string& userAssignedName,  // can be empty
+    std::string joint_type_name,
+    const std::string& user_assigned_name,  // can be empty
     UID parent,
     UID child,
     const Transform& xform) :
 
     id_{id},
-    joint_type_name_{std::move(jointTypeName)},
-    user_assigned_name_{opyn::sanitize_to_open_sim_component_name(userAssignedName)},
+    joint_type_name_{std::move(joint_type_name)},
+    user_assigned_name_{opyn::sanitize_to_open_sim_component_name(user_assigned_name)},
     parent_{parent},
     child_{child},
     xform_{xform}

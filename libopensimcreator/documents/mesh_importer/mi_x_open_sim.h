@@ -44,7 +44,7 @@ namespace osc
     std::unique_ptr<OpenSim::Model> create_open_sim_model_from_mesh_importer_document(
         const MiDocument&,
         ModelCreationFlags,
-        std::vector<std::string>& issuesOut
+        std::vector<std::string>& issues_out
     );
 
     Vector3 get_joint_axis_lengths(const MiJoint&);

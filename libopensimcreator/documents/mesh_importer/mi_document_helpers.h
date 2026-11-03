@@ -27,7 +27,7 @@ namespace osc
     bool is_body_attached_to_ground(
         const MiDocument&,
         const MiBody&,
-        std::unordered_set<UID>& previouslyVisitedJoints
+        std::unordered_set<UID>& previously_visited_joints
     );
 
     // returns `true` if `joint` is indirectly or directly attached to ground via its parent
@@ -98,6 +98,6 @@ namespace osc
     SceneDecorationFlags compute_flags(
         const MiDocument&,
         UID id,
-        std::optional<UID> maybeHoverID = std::nullopt
+        std::optional<UID> maybe_hover_id = std::nullopt
     );
 }

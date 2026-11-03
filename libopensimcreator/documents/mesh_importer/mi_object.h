@@ -64,9 +64,9 @@ namespace osc
             return impl_get_cross_references().at(i).get_connectee_id();
         }
 
-        void set_cross_reference_connectee_id(int i, UID newID)
+        void set_cross_reference_connectee_id(int i, UID new_id)
         {
-            impl_set_cross_reference_connectee_id(i, newID);
+            impl_set_cross_reference_connectee_id(i, new_id);
         }
 
         CStringView get_cross_reference_label(int i) const
@@ -94,27 +94,27 @@ namespace osc
             return impl_get_label();
         }
 
-        void set_label(std::string_view newLabel)
+        void set_label(std::string_view new_label)
         {
-            impl_set_label(newLabel);
+            impl_set_label(new_label);
         }
 
         Transform get_x_form(const MiObjectFinder& lookup) const
         {
             return impl_get_xform(lookup);
         }
-        void set_xform(const MiObjectFinder& lookup, const Transform& newTransform)
+        void set_xform(const MiObjectFinder& lookup, const Transform& new_transform)
         {
-            impl_set_xform(lookup, newTransform);
+            impl_set_xform(lookup, new_transform);
         }
 
         Vector3 get_pos(const MiObjectFinder& lookup) const
         {
             return get_x_form(lookup).translation;
         }
-        void set_pos(const MiObjectFinder& lookup, const Vector3& newPos)
+        void set_pos(const MiObjectFinder& lookup, const Vector3& new_pos)
         {
-            set_xform(lookup, get_x_form(lookup).with_translation(newPos));
+            set_xform(lookup, get_x_form(lookup).with_translation(new_pos));
         }
 
         Vector3 get_scale(const MiObjectFinder& lookup) const
@@ -122,9 +122,9 @@ namespace osc
             return get_x_form(lookup).scale;
         }
 
-        void set_scale(const MiObjectFinder& lookup, const Vector3& newScale)
+        void set_scale(const MiObjectFinder& lookup, const Vector3& new_scale)
         {
-            set_xform(lookup, get_x_form(lookup).with_scale(newScale));
+            set_xform(lookup, get_x_form(lookup).with_scale(new_scale));
         }
 
         Quaternion rotation(const MiObjectFinder& lookup) const
@@ -132,9 +132,9 @@ namespace osc
             return get_x_form(lookup).rotation;
         }
 
-        void set_rotation(const MiObjectFinder& lookup, const Quaternion& newRotation)
+        void set_rotation(const MiObjectFinder& lookup, const Quaternion& new_rotation)
         {
-            set_xform(lookup, get_x_form(lookup).with_rotation(newRotation));
+            set_xform(lookup, get_x_form(lookup).with_rotation(new_rotation));
         }
 
         std::optional<AABB> calc_bounds(const MiObjectFinder& lookup) const
@@ -149,13 +149,13 @@ namespace osc
 
         void apply_rotation(
             const MiObjectFinder& lookup,
-            const EulerAngles& eulerAngles,
-            const Vector3& rotationCenter
+            const EulerAngles& euler_angles,
+            const Vector3& rotation_center
         );
 
-        void apply_scale(const MiObjectFinder& lookup, const Vector3& scaleFactors)
+        void apply_scale(const MiObjectFinder& lookup, const Vector3& scale_factors)
         {
-            set_scale(lookup, get_scale(lookup) * scaleFactors);
+            set_scale(lookup, get_scale(lookup) * scale_factors);
         }
 
         bool can_change_label() const

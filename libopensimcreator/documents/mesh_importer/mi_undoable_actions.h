@@ -28,14 +28,14 @@ namespace osc
 
     bool try_assign_mesh_attachments(
         MiUndoableDocument&,
-        const std::unordered_set<UID>& meshIDs,
-        UID newAttachment
+        const std::unordered_set<UID>& mesh_ids,
+        UID new_attachment
     );
 
     bool try_create_joint(
         MiUndoableDocument&,
-        UID childID,
-        UID parentID
+        UID child_id,
+        UID parent_id
     );
 
     bool try_orient_object_axis_along_two_points(
@@ -77,19 +77,19 @@ namespace osc
     bool try_translate_to_mesh_average_center(
         MiUndoableDocument&,
         UID id,
-        UID meshID
+        UID mesh_id
     );
 
     bool try_translate_to_mesh_bounds_center(
         MiUndoableDocument&,
         UID id,
-        UID meshID
+        UID mesh_id
     );
 
     bool try_translate_to_mesh_mass_center(
         MiUndoableDocument&,
         UID id,
-        UID meshID
+        UID mesh_id
     );
 
     bool try_reassign_crossref(
@@ -124,7 +124,7 @@ namespace osc
     UID add_body(
         MiUndoableDocument&,
         const Vector3&,
-        UID andTryAttach
+        UID and_try_attach
     );
 
     UID add_body(
@@ -146,6 +146,6 @@ namespace osc
     void action_import_landmarks(
         MiUndoableDocument&,
         std::span<const opyn::NamedLandmark>,
-        std::optional<std::string> maybeName = std::nullopt
+        std::optional<std::string> maybe_name = std::nullopt
     );
 }

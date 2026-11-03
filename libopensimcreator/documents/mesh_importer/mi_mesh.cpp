@@ -24,21 +24,21 @@ using osc::AABB;
 osc::MiMesh::MiMesh(
     UID id,
     UID attachment,
-    osc::Mesh meshData,
+    Mesh mesh_data,
     std::filesystem::path path) :
 
     id_{id},
     attachment_{attachment},
-    mesh_data_{std::move(meshData)},
+    mesh_data_{std::move(mesh_data)},
     path_{std::move(path)},
     name_{opyn::sanitize_to_open_sim_component_name(path_.filename().replace_extension().string())}
 {}
 
 std::optional<AABB> osc::MiMesh::calc_bounds() const
 {
-    return mesh_data_.bounds().transform([this](const AABB& localBounds)
+    return mesh_data_.bounds().transform([this](const AABB& local_bounds)
     {
-        return transform_aabb(transform_, localBounds);
+        return transform_aabb(transform_, local_bounds);
     });
 }
 
