@@ -28,12 +28,12 @@ using namespace osc;
 namespace
 {
     // maximum distance between the current commit and the "root" commit (i.e. a commit with no parent)
-    inline constexpr int c_MaxUndo = 32;
+    inline constexpr int c_max_undo = 32;
 
     // maximum distance between the branch head and the current commit (i.e. how big the redo buffer can be)
-    inline constexpr int c_MaxRedo = 32;
+    inline constexpr int c_max_redo = 32;
 
-    std::unique_ptr<OpenSim::Model> makeNewModel()
+    std::unique_ptr<OpenSim::Model> make_new_model()
     {
         auto rv = std::make_unique<OpenSim::Model>();
         rv->updDisplayHints().set_show_frames(true);
@@ -44,29 +44,29 @@ namespace
     public:
 
         UiModelStatePair() :
-            UiModelStatePair{makeNewModel()}
+            UiModelStatePair{make_new_model()}
         {}
 
         explicit UiModelStatePair(const std::string& osim) :
             UiModelStatePair{opyn::load_model(osim)}
         {}
 
-        explicit UiModelStatePair(std::unique_ptr<OpenSim::Model> _model) :
-            m_Model{std::move(_model)},
-            m_FixupScaleFactor{1.0f}
+        explicit UiModelStatePair(std::unique_ptr<OpenSim::Model> model) :
+            model_{std::move(model)},
+            fixup_scale_factor_{1.0f}
         {
-            opyn::initialize_model(*m_Model);
-            opyn::initialize_state(*m_Model);
+            opyn::initialize_model(*model_);
+            opyn::initialize_state(*model_);
         }
 
         UiModelStatePair(const UiModelStatePair& other) :
-            m_Model{std::make_unique<OpenSim::Model>(*other.m_Model)},
-            m_FixupScaleFactor{other.m_FixupScaleFactor},
-            m_MaybeSelected{other.m_MaybeSelected},
-            m_MaybeHovered{other.m_MaybeHovered}
+            model_{std::make_unique<OpenSim::Model>(*other.model_)},
+            fixup_scale_factor_{other.fixup_scale_factor_},
+            maybe_selected_{other.maybe_selected_},
+            maybe_hovered_{other.maybe_hovered_}
         {
-            opyn::initialize_model(*m_Model);
-            opyn::initialize_state(*m_Model);
+            opyn::initialize_model(*model_);
+            opyn::initialize_state(*model_);
         }
 
         UiModelStatePair(UiModelStatePair&&) noexcept = default;
@@ -76,107 +76,107 @@ namespace
 
         const OpenSim::Model& impl_get_model() const final
         {
-            return *m_Model;
+            return *model_;
         }
 
-        OpenSim::Model& updModel()
+        OpenSim::Model& upd_model()
         {
-            m_ModelVersion = UID{};
-            return *m_Model;
+            model_version_ = UID{};
+            return *model_;
         }
 
         UID impl_get_model_version() const final
         {
-            return m_ModelVersion;
+            return model_version_;
         }
 
-        void setModelVersion(UID version)
+        void set_model_version(UID version)
         {
-            m_ModelVersion = version;
+            model_version_ = version;
         }
 
         const SimTK::State& impl_get_state() const final
         {
-            return m_Model->getWorkingState();
+            return model_->getWorkingState();
         }
 
         UID impl_get_state_version() const final
         {
-            return m_ModelVersion;
+            return model_version_;
         }
 
         float impl_get_fixup_scale_factor() const final
         {
-            return m_FixupScaleFactor;
+            return fixup_scale_factor_;
         }
 
         void impl_set_fixup_scale_factor(float sf) final
         {
-            m_FixupScaleFactor = sf;
+            fixup_scale_factor_ = sf;
         }
 
-        const OpenSim::ComponentPath& getSelectedPath() const
+        const OpenSim::ComponentPath& get_selected_path() const
         {
-            return m_MaybeSelected;
+            return maybe_selected_;
         }
 
-        void setSelectedPath(const OpenSim::ComponentPath& p)
+        void set_selected_path(const OpenSim::ComponentPath& p)
         {
-            m_MaybeSelected = p;
+            maybe_selected_ = p;
         }
 
         const OpenSim::Component* impl_get_selected() const final
         {
-            return opyn::find_component(*m_Model, m_MaybeSelected);
+            return opyn::find_component(*model_, maybe_selected_);
         }
 
         void impl_set_selected(const OpenSim::Component* c) final
         {
-            m_MaybeSelected = opyn::get_absolute_path_or_empty(c);
+            maybe_selected_ = opyn::get_absolute_path_or_empty(c);
         }
 
-        const OpenSim::ComponentPath& getHoveredPath() const
+        const OpenSim::ComponentPath& get_hovered_path() const
         {
-            return m_MaybeHovered;
+            return maybe_hovered_;
         }
 
-        void setHoveredPath(const OpenSim::ComponentPath& p)
+        void set_hovered_path(const OpenSim::ComponentPath& p)
         {
-            m_MaybeHovered = p;
+            maybe_hovered_ = p;
         }
 
         const OpenSim::Component* impl_get_hovered() const final
         {
-            return opyn::find_component(*m_Model, m_MaybeHovered);
+            return opyn::find_component(*model_, maybe_hovered_);
         }
 
         void impl_set_hovered(const OpenSim::Component* c) final
         {
-            m_MaybeHovered = opyn::get_absolute_path_or_empty(c);
+            maybe_hovered_ = opyn::get_absolute_path_or_empty(c);
         }
 
     private:
         // the model, finalized from its properties
-        std::unique_ptr<OpenSim::Model> m_Model;
-        UID m_ModelVersion;
+        std::unique_ptr<OpenSim::Model> model_;
+        UID model_version_;
 
         // fixup scale factor of the model
         //
         // this scales up/down the decorations of the model - used for extremely
         // undersized models (e.g. fly leg)
-        float m_FixupScaleFactor;
+        float fixup_scale_factor_;
 
         // (maybe) absolute path to the current selection (empty otherwise)
-        OpenSim::ComponentPath m_MaybeSelected;
+        OpenSim::ComponentPath maybe_selected_;
 
         // (maybe) absolute path to the current hover (empty otherwise)
-        OpenSim::ComponentPath m_MaybeHovered;
+        OpenSim::ComponentPath maybe_hovered_;
     };
 
-    void CopySelectedAndHovered(const UiModelStatePair& src, UiModelStatePair& dest)
+    void copy_selected_and_hovered(const UiModelStatePair& src, UiModelStatePair& dest)
     {
-        dest.setSelectedPath(src.getSelectedPath());
-        dest.setHoveredPath(src.getHoveredPath());
+        dest.set_selected_path(src.get_selected_path());
+        dest.set_hovered_path(src.get_hovered_path());
     }
 }
 
@@ -185,7 +185,7 @@ public:
 
     Impl()
     {
-        doCommit("created a new model");  // make initial commit
+        do_commit("created a new model");  // make initial commit
     }
 
     explicit Impl(const OpenSim::Model& m) :
@@ -194,67 +194,67 @@ public:
 
     // crete a new commit graph that contains a backup of the given model
     explicit Impl(std::unique_ptr<OpenSim::Model> m) :
-        m_Scratch{std::move(m)}
+        scratch_{std::move(m)}
     {
         std::stringstream ss;
-        if (auto inputPath = opyn::try_find_input_file(getModel())) {
-            ss << "loaded " << inputPath->filename().string();
+        if (auto input_path = opyn::try_find_input_file(get_model())) {
+            ss << "loaded " << input_path->filename().string();
         }
         else {
             ss << "loaded model";
         }
-        doCommit(std::move(ss).str());  // make initial commit
+        do_commit(std::move(ss).str());  // make initial commit
     }
 
-    explicit Impl(const std::filesystem::path& osimPath) :
-        Impl{opyn::load_model(osimPath)}
+    explicit Impl(const std::filesystem::path& osim_path) :
+        Impl{opyn::load_model(osim_path)}
     {
-        setUpToDateWithFilesystem(std::filesystem::last_write_time(osimPath));
+        set_up_to_date_with_filesystem(std::filesystem::last_write_time(osim_path));
     }
 
-    bool isUpToDateWithFilesystem() const
+    bool is_up_to_date_with_filesystem() const
     {
-        return getCheckoutID() == getFilesystemVersion();
+        return get_checkout_id() == get_filesystem_version();
     }
 
-    void setUpToDateWithFilesystem(std::filesystem::file_time_type t)
+    void set_up_to_date_with_filesystem(std::filesystem::file_time_type t)
     {
-        m_MaybeFilesystemTimestamp = t;
-        m_MaybeCommitSavedToDisk = m_CurrentHead;
+        maybe_filesystem_timestamp_ = t;
+        maybe_commit_saved_to_disk_ = current_head_;
     }
 
-    std::filesystem::file_time_type getLastFilesystemWriteTime() const
+    std::filesystem::file_time_type get_last_filesystem_write_time() const
     {
-        return m_MaybeFilesystemTimestamp;
+        return maybe_filesystem_timestamp_;
     }
 
-    ModelStateCommit getLatestCommit() const
+    ModelStateCommit get_latest_commit() const
     {
-        return getHeadCommit();
+        return get_head_commit();
     }
 
-    bool canUndo() const
+    bool can_undo() const
     {
-        const ModelStateCommit* c = tryGetCommitByID(m_CurrentHead);
-        return c ? hasCommit(c->get_parent_id()) : false;
+        const ModelStateCommit* c = try_get_commit_by_id(current_head_);
+        return c ? has_commit(c->get_parent_id()) : false;
     }
 
-    void doUndo()
+    void do_undo()
     {
-        if (canUndo())
+        if (can_undo())
         {
             undo();
         }
     }
 
-    bool canRedo() const
+    bool can_redo() const
     {
-        return distance(m_BranchHead, m_CurrentHead) > 0;
+        return distance(branch_head_, current_head_) > 0;
     }
 
-    void doRedo()
+    void do_redo()
     {
-        if (canRedo())
+        if (can_redo())
         {
             redo();
         }
@@ -263,7 +263,7 @@ public:
     void commit(std::string_view message)
     {
         OSC_PERF("commit model");
-        doCommit(message);
+        do_commit(message);
     }
 
     void rollback()
@@ -271,146 +271,146 @@ public:
         checkout();  // care: skip copying selection because a rollback is aggro
     }
 
-    bool tryCheckout(const ModelStateCommit& commit)
+    bool try_checkout(const ModelStateCommit& commit)
     {
-        if (!m_Commits.contains(commit.get_id()))
+        if (!commits_.contains(commit.get_id()))
         {
             return false;  // commit isn't in this model's storage (is it from another model?)
         }
 
-        m_CurrentHead = commit.get_id();
+        current_head_ = commit.get_id();
         checkout();
         return true;
     }
 
-    const OpenSim::Model& getModel() const
+    const OpenSim::Model& get_model() const
     {
-        return m_Scratch.get_model();
+        return scratch_.get_model();
     }
 
-    OpenSim::Model& updModel()
+    OpenSim::Model& upd_model()
     {
-        return m_Scratch.updModel();
+        return scratch_.upd_model();
     }
 
-    void setModel(std::unique_ptr<OpenSim::Model> newModel)
+    void set_model(std::unique_ptr<OpenSim::Model> new_model)
     {
-        UiModelStatePair p{std::move(newModel)};
-        CopySelectedAndHovered(m_Scratch, p);
-        p.set_fixup_scale_factor(m_Scratch.get_fixup_scale_factor());
-        m_Scratch = std::move(p);
+        UiModelStatePair p{std::move(new_model)};
+        copy_selected_and_hovered(scratch_, p);
+        p.set_fixup_scale_factor(scratch_.get_fixup_scale_factor());
+        scratch_ = std::move(p);
     }
 
-    void resetModel()
+    void reset_model()
     {
         UiModelStatePair p;
-        CopySelectedAndHovered(m_Scratch, p);
-        p.set_fixup_scale_factor(m_Scratch.get_fixup_scale_factor());
-        m_Scratch = std::move(p);
+        copy_selected_and_hovered(scratch_, p);
+        p.set_fixup_scale_factor(scratch_.get_fixup_scale_factor());
+        scratch_ = std::move(p);
     }
 
-    void loadModel(const std::filesystem::path& path)
+    void load_model(const std::filesystem::path& path)
     {
-        setModel(opyn::load_model(path));
-        setUpToDateWithFilesystem(std::filesystem::last_write_time(path));
+        set_model(opyn::load_model(path));
+        set_up_to_date_with_filesystem(std::filesystem::last_write_time(path));
     }
 
-    UID getModelVersion() const
+    UID get_model_version() const
     {
-        return m_Scratch.get_model_version();
+        return scratch_.get_model_version();
     }
 
-    void setModelVersion(UID version)
+    void set_model_version(UID version)
     {
-        m_Scratch.setModelVersion(version);
+        scratch_.set_model_version(version);
     }
 
-    const SimTK::State& getState() const
+    const SimTK::State& get_state() const
     {
-        return m_Scratch.get_state();
+        return scratch_.get_state();
     }
 
-    UID getStateVersion() const
+    UID get_state_version() const
     {
-        return m_Scratch.get_state_version();
+        return scratch_.get_state_version();
     }
 
-    float getFixupScaleFactor() const
+    float get_fixup_scale_factor() const
     {
-        return m_Scratch.get_fixup_scale_factor();
+        return scratch_.get_fixup_scale_factor();
     }
 
-    void setFixupScaleFactor(float v)
+    void set_fixup_scale_factor(float v)
     {
-        m_Scratch.set_fixup_scale_factor(v);
+        scratch_.set_fixup_scale_factor(v);
     }
 
-    const OpenSim::Component* getSelected() const
+    const OpenSim::Component* get_selected() const
     {
-        return m_Scratch.get_selected();
+        return scratch_.get_selected();
     }
 
-    void setSelected(const OpenSim::Component* c)
+    void set_selected(const OpenSim::Component* c)
     {
-        m_Scratch.set_selected(c);
+        scratch_.set_selected(c);
     }
 
-    const OpenSim::Component* getHovered() const
+    const OpenSim::Component* get_hovered() const
     {
-        return m_Scratch.get_hovered();
+        return scratch_.get_hovered();
     }
 
-    void setHovered(const OpenSim::Component* c)
+    void set_hovered(const OpenSim::Component* c)
     {
-        m_Scratch.set_hovered(c);
+        scratch_.set_hovered(c);
     }
 
-    std::shared_ptr<Environment> implUpdAssociatedEnvironment()
+    std::shared_ptr<Environment> impl_upd_associated_environment()
     {
-        return m_Environment;
+        return environment_;
     }
 
 private:
 
-    UID doCommit(std::string_view message)
+    UID do_commit(std::string_view message)
     {
-        auto commit = ModelStateCommit{m_Scratch, message, m_CurrentHead};
-        UID commitID = commit.get_id();
+        auto commit = ModelStateCommit{scratch_, message, current_head_};
+        UID commit_id = commit.get_id();
 
-        m_Commits.try_emplace(commitID, std::move(commit));
-        m_CurrentHead = commitID;
-        m_BranchHead = commitID;
+        commits_.try_emplace(commit_id, std::move(commit));
+        current_head_ = commit_id;
+        branch_head_ = commit_id;
 
-        garbageCollect();
+        garbage_collect();
 
-        return commitID;
+        return commit_id;
     }
 
     // try to lookup a commit by its ID
-    const ModelStateCommit* tryGetCommitByID(UID id) const
+    const ModelStateCommit* try_get_commit_by_id(UID id) const
     {
-        return lookup_or_nullptr(m_Commits, id);
+        return lookup_or_nullptr(commits_, id);
     }
 
-    const ModelStateCommit& getHeadCommit() const
+    const ModelStateCommit& get_head_commit() const
     {
-        OSC_ASSERT(m_CurrentHead != UID::empty());
-        OSC_ASSERT(hasCommit(m_CurrentHead));
+        OSC_ASSERT(current_head_ != UID::empty());
+        OSC_ASSERT(has_commit(current_head_));
 
-        return *tryGetCommitByID(m_CurrentHead);
+        return *try_get_commit_by_id(current_head_);
     }
 
     // try to lookup the *parent* of a given commit, or return an empty (senteniel) ID
-    UID tryGetParentIDOrEmpty(UID id) const
+    UID try_get_parent_id_or_empty(UID id) const
     {
-        const ModelStateCommit* commit = tryGetCommitByID(id);
+        const ModelStateCommit* commit = try_get_commit_by_id(id);
         return commit ? commit->get_parent_id() : UID::empty();
     }
 
     // returns `true` if a commit with the given ID has been stored
-    bool hasCommit(UID id) const
+    bool has_commit(UID id) const
     {
-        return tryGetCommitByID(id) != nullptr;
+        return try_get_commit_by_id(id) != nullptr;
     }
 
     // returns the number of hops between commit `a` and commit `b`
@@ -424,11 +424,11 @@ private:
         }
 
         int n = 1;
-        UID parent = tryGetParentIDOrEmpty(a);
+        UID parent = try_get_parent_id_or_empty(a);
 
         while (parent != b && parent != UID::empty())
         {
-            parent = tryGetParentIDOrEmpty(parent);
+            parent = try_get_parent_id_or_empty(parent);
             n++;
         }
 
@@ -440,14 +440,14 @@ private:
     // (e.g. n==0 returns `a`, n==1 returns `a`'s parent, n==2 returns `a`'s grandparent)
     //
     // returns `nullptr` if there are insufficient ancestors. `n` must be >= 0
-    const ModelStateCommit* nthAncestor(UID a, int n) const
+    const ModelStateCommit* nth_ancestor(UID a, int n) const
     {
         if (n < 0)
         {
             return nullptr;
         }
 
-        const ModelStateCommit* c = tryGetCommitByID(a);
+        const ModelStateCommit* c = try_get_commit_by_id(a);
 
         if (!c || n == 0)
         {
@@ -455,11 +455,11 @@ private:
         }
 
         int i = 1;
-        c = tryGetCommitByID(c->get_parent_id());
+        c = try_get_commit_by_id(c->get_parent_id());
 
         while (c && i < n)
         {
-            c = tryGetCommitByID(c->get_parent_id());
+            c = try_get_commit_by_id(c->get_parent_id());
             i++;
         }
 
@@ -467,86 +467,86 @@ private:
     }
 
     // returns the UID that is the nth ancestor from `a`, or empty if there are insufficient ancestors
-    UID nthAncestorID(UID a, int n) const
+    UID nth_ancestor_id(UID a, int n) const
     {
-        const ModelStateCommit* c = nthAncestor(a, n);
+        const ModelStateCommit* c = nth_ancestor(a, n);
         return c ? c->get_id() : UID::empty();
     }
 
     // returns `true` if `maybeAncestor` is an ancestor of `id`
-    bool isAncestor(UID maybeAncestor, UID id)
+    bool is_ancestor(UID maybe_ancestor, UID id)
     {
-        const ModelStateCommit* c = tryGetCommitByID(id);
+        const ModelStateCommit* c = try_get_commit_by_id(id);
 
-        while (c != nullptr && c->get_id() != maybeAncestor)
+        while (c != nullptr && c->get_id() != maybe_ancestor)
         {
-            c = tryGetCommitByID(c->get_parent_id());
+            c = try_get_commit_by_id(c->get_parent_id());
         }
 
         return c != nullptr;
     }
 
     // remove a range of commits from `start` (inclusive) to `end` (exclusive)
-    void eraseCommitRange(UID start, UID end)
+    void erase_commit_range(UID start, UID end)
     {
-        auto it = m_Commits.find(start);
+        auto it = commits_.find(start);
 
-        while (it != m_Commits.end() && it->second.get_id() != end)
+        while (it != commits_.end() && it->second.get_id() != end)
         {
             UID parent = it->second.get_parent_id();
-            m_Commits.erase(it);
+            commits_.erase(it);
 
-            it = m_Commits.find(parent);
+            it = commits_.find(parent);
         }
     }
 
     // garbage collect (erase) commits that fall outside the maximum undo depth
-    void garbageCollectMaxUndo()
+    void garbage_collect_max_undo()
     {
-        static_assert(c_MaxUndo >= 0);
+        static_assert(c_max_undo >= 0);
 
-        UID firstBadCommitIDOrEmpty = nthAncestorID(m_CurrentHead, c_MaxUndo + 1);
-        eraseCommitRange(firstBadCommitIDOrEmpty, UID::empty());
+        UID first_bad_commit_id_or_empty = nth_ancestor_id(current_head_, c_max_undo + 1);
+        erase_commit_range(first_bad_commit_id_or_empty, UID::empty());
     }
 
     // garbage collect (erase) commits that fall outside the maximum redo depth
-    void garbageCollectMaxRedo()
+    void garbage_collect_max_redo()
     {
-        static_assert(c_MaxRedo >= 0);
+        static_assert(c_max_redo >= 0);
 
-        int numRedos = distance(m_BranchHead, m_CurrentHead);
-        int numDeletions = numRedos - c_MaxRedo;
+        int num_redos = distance(branch_head_, current_head_);
+        int num_deletions = num_redos - c_max_redo;
 
-        if (numDeletions <= 0)
+        if (num_deletions <= 0)
         {
             return;
         }
 
-        UID newBranchHead = nthAncestorID(m_BranchHead, numDeletions);
-        eraseCommitRange(m_BranchHead, newBranchHead);
-        m_BranchHead = newBranchHead;
+        UID new_branch_head = nth_ancestor_id(branch_head_, num_deletions);
+        erase_commit_range(branch_head_, new_branch_head);
+        branch_head_ = new_branch_head;
     }
 
-    void garbageCollectUnreachable()
+    void garbage_collect_unreachable()
     {
-        std::erase_if(m_Commits, [this](const auto& p)
+        std::erase_if(commits_, [this](const auto& p)
         {
-            return !(p.first == m_BranchHead || isAncestor(p.first, m_BranchHead));
+            return !(p.first == branch_head_ || is_ancestor(p.first, branch_head_));
         });
     }
 
     // remove out-of-bounds, deleted, out-of-date, etc. commits
-    void garbageCollect()
+    void garbage_collect()
     {
-        garbageCollectMaxUndo();
-        garbageCollectMaxRedo();
-        garbageCollectUnreachable();
+        garbage_collect_max_undo();
+        garbage_collect_max_redo();
+        garbage_collect_unreachable();
     }
 
     // returns commit ID of the currently active checkout
-    UID getCheckoutID() const
+    UID get_checkout_id() const
     {
-        return m_CurrentHead;
+        return current_head_;
     }
 
     // checks out the current checkout to be active (scratch)
@@ -558,14 +558,14 @@ private:
         // scratch space - things like reset and scaling state, which the
         // user might expect to be maintained even if a crash happened
 
-        const ModelStateCommit* c = tryGetCommitByID(m_CurrentHead);
+        const ModelStateCommit* c = try_get_commit_by_id(current_head_);
 
         if (c)
         {
-            UiModelStatePair newScratch{std::make_unique<OpenSim::Model>(*c->get_model())};
-            CopySelectedAndHovered(m_Scratch, newScratch);
-            newScratch.set_fixup_scale_factor(m_Scratch.get_fixup_scale_factor());
-            m_Scratch = std::move(newScratch);
+            UiModelStatePair new_scratch{std::make_unique<OpenSim::Model>(*c->get_model())};
+            copy_selected_and_hovered(scratch_, new_scratch);
+            new_scratch.set_fixup_scale_factor(scratch_.get_fixup_scale_factor());
+            scratch_ = std::move(new_scratch);
         }
     }
 
@@ -574,14 +574,14 @@ private:
     // effectively, checks out HEAD~1
     void undo()
     {
-        const ModelStateCommit* c = tryGetCommitByID(m_CurrentHead);
+        const ModelStateCommit* c = try_get_commit_by_id(current_head_);
 
         if (!c)
         {
             return;
         }
 
-        const ModelStateCommit* parent = tryGetCommitByID(c->get_parent_id());
+        const ModelStateCommit* parent = try_get_commit_by_id(c->get_parent_id());
 
         if (!parent)
         {
@@ -592,25 +592,25 @@ private:
         //
         // - user's selection state should be "sticky" between undo/redo
         // - user's scene scale factor should be "sticky" between undo/redo
-        UiModelStatePair newModel{std::make_unique<OpenSim::Model>(*parent->get_model())};
-        CopySelectedAndHovered(m_Scratch, newModel);
-        newModel.set_fixup_scale_factor(m_Scratch.get_fixup_scale_factor());
+        UiModelStatePair new_model{std::make_unique<OpenSim::Model>(*parent->get_model())};
+        copy_selected_and_hovered(scratch_, new_model);
+        new_model.set_fixup_scale_factor(scratch_.get_fixup_scale_factor());
 
-        m_Scratch = std::move(newModel);
-        m_CurrentHead = parent->get_id();
+        scratch_ = std::move(new_model);
+        current_head_ = parent->get_id();
     }
 
     // performs a redo, if possible
     void redo()
     {
-        int dist = distance(m_BranchHead, m_CurrentHead);
+        int dist = distance(branch_head_, current_head_);
 
         if (dist < 1)
         {
             return;
         }
 
-        const ModelStateCommit* c = nthAncestor(m_BranchHead, dist - 1);
+        const ModelStateCommit* c = nth_ancestor(branch_head_, dist - 1);
 
         if (!c)
         {
@@ -621,49 +621,49 @@ private:
         //
         // - user's selection state should be "sticky" between undo/redo
         // - user's scene scale factor should be "sticky" between undo/redo
-        UiModelStatePair newModel{std::make_unique<OpenSim::Model>(*c->get_model())};
-        CopySelectedAndHovered(m_Scratch, newModel);
-        newModel.set_fixup_scale_factor(m_Scratch.get_fixup_scale_factor());
+        UiModelStatePair new_model{std::make_unique<OpenSim::Model>(*c->get_model())};
+        copy_selected_and_hovered(scratch_, new_model);
+        new_model.set_fixup_scale_factor(scratch_.get_fixup_scale_factor());
 
-        m_Scratch = std::move(newModel);
-        m_CurrentHead = c->get_id();
+        scratch_ = std::move(new_model);
+        current_head_ = c->get_id();
     }
 
-    std::filesystem::path getFilesystemLocation() const
+    std::filesystem::path get_filesystem_location() const
     {
-        return std::filesystem::path{getModel().getInputFileName()};
+        return std::filesystem::path{get_model().getInputFileName()};
     }
 
-    void setFilesystemLocation(const std::filesystem::path& p)
+    void set_filesystem_location(const std::filesystem::path& p)
     {
-        updModel().setInputFileName(p.string());
+        upd_model().setInputFileName(p.string());
     }
 
-    UID getFilesystemVersion() const
+    UID get_filesystem_version() const
     {
-        return m_MaybeCommitSavedToDisk;
+        return maybe_commit_saved_to_disk_;
     }
 
     // mutable staging area that calling code can mutate
-    UiModelStatePair m_Scratch;
+    UiModelStatePair scratch_;
 
     // where scratch will commit to (i.e. the parent of the scratch area)
-    UID m_CurrentHead = UID::empty();
+    UID current_head_ = UID::empty();
 
     // head of the current branch (i.e. "main") - may be ahead of current branch (undo/redo)
-    UID m_BranchHead = UID::empty();
+    UID branch_head_ = UID::empty();
 
     // underlying storage for immutable commits
-    std::unordered_map<UID, ModelStateCommit> m_Commits;
+    std::unordered_map<UID, ModelStateCommit> commits_;
 
     // the timestamp of the on-disk data (needed to know when to trigger a reload)
-    std::filesystem::file_time_type m_MaybeFilesystemTimestamp;
+    std::filesystem::file_time_type maybe_filesystem_timestamp_;
 
     // (maybe) the version of the model that was last saved to disk
-    UID m_MaybeCommitSavedToDisk = UID::empty();
+    UID maybe_commit_saved_to_disk_ = UID::empty();
 
     // the `Environment` that this model is associated with
-    std::shared_ptr<Environment> m_Environment = std::make_shared<Environment>();
+    std::shared_ptr<Environment> environment_ = std::make_shared<Environment>();
 };
 
 
@@ -684,8 +684,8 @@ osc::UndoableModelStatePair::UndoableModelStatePair(std::unique_ptr<OpenSim::Mod
 {
 }
 
-osc::UndoableModelStatePair::UndoableModelStatePair(const std::filesystem::path& osimPath) :
-    impl_{std::make_unique<Impl>(osimPath)}
+osc::UndoableModelStatePair::UndoableModelStatePair(const std::filesystem::path& osim_path) :
+    impl_{std::make_unique<Impl>(osim_path)}
 {
 }
 
@@ -712,38 +712,38 @@ osc::UndoableModelStatePair::~UndoableModelStatePair() noexcept = default;
 
 bool osc::UndoableModelStatePair::is_up_to_date_with_filesystem() const
 {
-    return impl_->isUpToDateWithFilesystem();
+    return impl_->is_up_to_date_with_filesystem();
 }
 
 std::filesystem::file_time_type osc::UndoableModelStatePair::get_last_filesystem_write_time() const
 {
-    return impl_->getLastFilesystemWriteTime();
+    return impl_->get_last_filesystem_write_time();
 }
 
 
 ModelStateCommit osc::UndoableModelStatePair::get_latest_commit() const
 {
-    return impl_->getLatestCommit();
+    return impl_->get_latest_commit();
 }
 
 bool osc::UndoableModelStatePair::can_undo() const
 {
-    return impl_->canUndo();
+    return impl_->can_undo();
 }
 
 void osc::UndoableModelStatePair::do_undo()
 {
-    impl_->doUndo();
+    impl_->do_undo();
 }
 
 bool osc::UndoableModelStatePair::can_redo() const
 {
-    return impl_->canRedo();
+    return impl_->can_redo();
 }
 
 void osc::UndoableModelStatePair::do_redo()
 {
-    impl_->doRedo();
+    impl_->do_redo();
 }
 
 void osc::UndoableModelStatePair::rollback()
@@ -753,95 +753,95 @@ void osc::UndoableModelStatePair::rollback()
 
 bool osc::UndoableModelStatePair::try_checkout(const ModelStateCommit& commit)
 {
-    return impl_->tryCheckout(commit);
+    return impl_->try_checkout(commit);
 }
 
-void osc::UndoableModelStatePair::set_model(std::unique_ptr<OpenSim::Model> newModel)
+void osc::UndoableModelStatePair::set_model(std::unique_ptr<OpenSim::Model> new_model)
 {
-    impl_->setModel(std::move(newModel));
+    impl_->set_model(std::move(new_model));
 }
 
 void osc::UndoableModelStatePair::reset_model()
 {
-    impl_->resetModel();
+    impl_->reset_model();
 }
 
 void osc::UndoableModelStatePair::load_model(const std::filesystem::path& p)
 {
-    impl_->loadModel(p);
+    impl_->load_model(p);
 }
 
 void osc::UndoableModelStatePair::impl_set_model_version(UID version)
 {
-    impl_->setModelVersion(version);
+    impl_->set_model_version(version);
 }
 
 const OpenSim::Model& osc::UndoableModelStatePair::impl_get_model() const
 {
-    return impl_->getModel();
+    return impl_->get_model();
 }
 
 const SimTK::State& osc::UndoableModelStatePair::impl_get_state() const
 {
-    return impl_->getState();
+    return impl_->get_state();
 }
 
 OpenSim::Model& osc::UndoableModelStatePair::impl_upd_model()
 {
-    return impl_->updModel();
+    return impl_->upd_model();
 }
 
-void osc::UndoableModelStatePair::impl_commit(std::string_view commitMessage)
+void osc::UndoableModelStatePair::impl_commit(std::string_view commit_message)
 {
-    impl_->commit(commitMessage);
+    impl_->commit(commit_message);
 }
 
 UID osc::UndoableModelStatePair::impl_get_model_version() const
 {
-    return impl_->getModelVersion();
+    return impl_->get_model_version();
 }
 
 UID osc::UndoableModelStatePair::impl_get_state_version() const
 {
-    return impl_->getStateVersion();
+    return impl_->get_state_version();
 }
 
 float osc::UndoableModelStatePair::impl_get_fixup_scale_factor() const
 {
-    return impl_->getFixupScaleFactor();
+    return impl_->get_fixup_scale_factor();
 }
 
 void osc::UndoableModelStatePair::impl_set_fixup_scale_factor(float v)
 {
-    impl_->setFixupScaleFactor(v);
+    impl_->set_fixup_scale_factor(v);
 }
 
 const OpenSim::Component* osc::UndoableModelStatePair::impl_get_selected() const
 {
-    return impl_->getSelected();
+    return impl_->get_selected();
 }
 
 void osc::UndoableModelStatePair::impl_set_selected(const OpenSim::Component* c)
 {
-    impl_->setSelected(c);
+    impl_->set_selected(c);
 }
 
 const OpenSim::Component* osc::UndoableModelStatePair::impl_get_hovered() const
 {
-    return impl_->getHovered();
+    return impl_->get_hovered();
 }
 
 void osc::UndoableModelStatePair::impl_set_hovered(const OpenSim::Component* c)
 {
-    impl_->setHovered(c);
+    impl_->set_hovered(c);
 }
 
 std::shared_ptr<Environment> osc::UndoableModelStatePair::impl_upd_associated_environment() const
 {
-    return impl_->implUpdAssociatedEnvironment();
+    return impl_->impl_upd_associated_environment();
 }
 
 void osc::UndoableModelStatePair::impl_set_up_to_date_with_filesystem(std::filesystem::file_time_type t)
 {
-    impl_->setUpToDateWithFilesystem(t);
+    impl_->set_up_to_date_with_filesystem(t);
 }

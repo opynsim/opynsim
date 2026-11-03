@@ -21,59 +21,59 @@ public:
     {}
 
     Impl(const opyn::ModelStatePair& msp, std::string_view message, UID parent) :
-        m_MaybeParentID{parent},
-        m_Model{std::make_unique<OpenSim::Model>(msp.get_model())},
-        m_ModelVersion{msp.get_model_version()},
-        m_FixupScaleFactor{msp.get_fixup_scale_factor()},
-        m_CommitMessage{message}
+        maybe_parent_id_{parent},
+        model_{std::make_unique<OpenSim::Model>(msp.get_model())},
+        model_version_{msp.get_model_version()},
+        fixup_scale_factor_{msp.get_fixup_scale_factor()},
+        commit_message_{message}
     {
-        opyn::initialize_model(*m_Model);
-        opyn::initialize_state(*m_Model);
+        opyn::initialize_model(*model_);
+        opyn::initialize_state(*model_);
     }
 
-    UID getID() const
+    UID get_id() const
     {
-        return m_ID;
+        return id_;
     }
 
-    bool hasParent() const
+    bool has_parent() const
     {
-        return m_MaybeParentID != UID::empty();
+        return maybe_parent_id_ != UID::empty();
     }
 
-    UID getParentID() const
+    UID get_parent_id() const
     {
-        return m_MaybeParentID;
+        return maybe_parent_id_;
     }
 
-    CStringView getCommitMessage() const
+    CStringView get_commit_message() const
     {
-        return m_CommitMessage;
+        return commit_message_;
     }
 
-    SynchronizedValueGuard<const OpenSim::Model> getModel() const
+    SynchronizedValueGuard<const OpenSim::Model> get_model() const
     {
-        return {m_AccessMutex, *m_Model};
+        return {access_mutex_, *model_};
     }
 
-    UID getModelVersion() const
+    UID get_model_version() const
     {
-        return m_ModelVersion;
+        return model_version_;
     }
 
-    float getFixupScaleFactor() const
+    float get_fixup_scale_factor() const
     {
-        return m_FixupScaleFactor;
+        return fixup_scale_factor_;
     }
 
 private:
-    mutable std::mutex m_AccessMutex;
-    UID m_ID;
-    UID m_MaybeParentID;
-    std::unique_ptr<OpenSim::Model> m_Model;
-    UID m_ModelVersion;
-    float m_FixupScaleFactor;
-    std::string m_CommitMessage;
+    mutable std::mutex access_mutex_;
+    UID id_;
+    UID maybe_parent_id_;
+    std::unique_ptr<OpenSim::Model> model_;
+    UID model_version_;
+    float fixup_scale_factor_;
+    std::string commit_message_;
 };
 
 
@@ -86,35 +86,35 @@ osc::ModelStateCommit::ModelStateCommit(const opyn::ModelStatePair& p, std::stri
 
 UID osc::ModelStateCommit::get_id() const
 {
-    return impl_->getID();
+    return impl_->get_id();
 }
 
 bool osc::ModelStateCommit::has_parent() const
 {
-    return impl_->hasParent();
+    return impl_->has_parent();
 }
 
 UID osc::ModelStateCommit::get_parent_id() const
 {
-    return impl_->getParentID();
+    return impl_->get_parent_id();
 }
 
 CStringView osc::ModelStateCommit::get_commit_message() const
 {
-    return impl_->getCommitMessage();
+    return impl_->get_commit_message();
 }
 
 SynchronizedValueGuard<const OpenSim::Model> osc::ModelStateCommit::get_model() const
 {
-    return impl_->getModel();
+    return impl_->get_model();
 }
 
 UID osc::ModelStateCommit::get_model_version() const
 {
-    return impl_->getModelVersion();
+    return impl_->get_model_version();
 }
 
 float osc::ModelStateCommit::get_fixup_scale_factor() const
 {
-    return impl_->getFixupScaleFactor();
+    return impl_->get_fixup_scale_factor();
 }

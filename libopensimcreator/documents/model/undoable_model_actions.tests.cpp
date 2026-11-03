@@ -74,7 +74,7 @@ TEST(OpenSimActions, ActionApplyRangeDeletionPropertyEditReturnsFalseToIndicateF
     globally_init_open_sim();  // ensure component registry is populated
 
     // create undoable model with one body + joint
-    auto undoableModel = []()
+    auto undoable_model = []
     {
         OpenSim::Model model;
         auto body = std::make_unique<OpenSim::Body>("body", 1.0, SimTK::Vec3{0.0}, SimTK::Inertia{1.0});
@@ -91,18 +91,18 @@ TEST(OpenSimActions, ActionApplyRangeDeletionPropertyEditReturnsFalseToIndicateF
 
     ObjectPropertyEdit edit
     {
-        undoableModel.upd_model().updComponent<OpenSim::Coordinate>("/jointset/joint/rotation").updProperty_range(),
+        undoable_model.upd_model().updComponent<OpenSim::Coordinate>("/jointset/joint/rotation").updProperty_range(),
         [&](OpenSim::AbstractProperty& p)
         {
             p.clear();
         },
     };
 
-    ASSERT_EQ(action_apply_property_edit(undoableModel, edit), false);
+    ASSERT_EQ(action_apply_property_edit(undoable_model, edit), false);
 
     // hacky extra test: you can remove this, it's just reminder code
-    undoableModel.upd_model().updComponent<OpenSim::Coordinate>("/jointset/joint/rotation").updProperty_range().clear();
-    ASSERT_ANY_THROW({ opyn::initialize_model(undoableModel.upd_model()); });
+    undoable_model.upd_model().updComponent<OpenSim::Coordinate>("/jointset/joint/rotation").updProperty_range().clear();
+    ASSERT_ANY_THROW({ opyn::initialize_model(undoable_model.upd_model()); });
 }
 
 // high-level repro for (#773)
@@ -112,17 +112,17 @@ TEST(OpenSimActions, ActionApplyRangeDeletionPropertyEditReturnsFalseToIndicateF
 // bug is specifically related to renaming a component
 TEST(OpenSimActions, ActionSetComponentNameOnModelWithUnusualJointTopologyDoesNotSegfault)
 {
-    const std::filesystem::path brokenFilePath =
+    const std::filesystem::path broken_file_path =
         std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "opensim-creator_773-2_repro.osim";
 
-    const UndoableModelStatePair loadedModel{brokenFilePath};
+    const UndoableModelStatePair loaded_model{broken_file_path};
 
     // loop `n` times because the segfault is stochastic
     //
     // ... which is a cute way of saying "really fucking unpredictable" :(
     for (size_t i = 0; i < 25; ++i)
     {
-        UndoableModelStatePair model = loadedModel;
+        UndoableModelStatePair model = loaded_model;
         action_set_component_name(
             model,
             std::string{"/bodyset/humerus_b"},
@@ -133,13 +133,13 @@ TEST(OpenSimActions, ActionSetComponentNameOnModelWithUnusualJointTopologyDoesNo
 
 TEST(OpenSimActions, ActionFitSphereToMeshFitsASphereToAMeshInTheModelAndSelectsIt)
 {
-    const std::filesystem::path geomFile =
+    const std::filesystem::path geom_file =
         std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "arrow.vtp";
 
     UndoableModelStatePair model;
     auto& body = opyn::add_body(model.upd_model(), std::make_unique<OpenSim::Body>("name", 1.0, SimTK::Vec3{0.0}, SimTK::Inertia{1.0}));
     body.setMass(1.0);
-    auto& mesh = dynamic_cast<OpenSim::Mesh&>(opyn::attach_geometry(body, std::make_unique<OpenSim::Mesh>(geomFile.string())));
+    auto& mesh = dynamic_cast<OpenSim::Mesh&>(opyn::attach_geometry(body, std::make_unique<OpenSim::Mesh>(geom_file.string())));
     opyn::finalize_connections(model.upd_model());
     opyn::initialize_model(model.upd_model());
     opyn::initialize_state(model.upd_model());
@@ -152,29 +152,29 @@ TEST(OpenSimActions, ActionFitSphereToMeshFitsASphereToAMeshInTheModelAndSelects
 
 TEST(OpenSimActions, ActionFitSphereToMeshAppliesMeshesScaleFactorsCorrectly)
 {
-    const std::filesystem::path geomFile =
+    const std::filesystem::path geom_file =
         std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "arrow.vtp";
 
     UndoableModelStatePair model;
     auto& body = opyn::add_body(model.upd_model(), std::make_unique<OpenSim::Body>("name", 1.0, SimTK::Vec3{0.0}, SimTK::Inertia{1.0}));
     body.setMass(1.0);
-    auto& unscaledMesh = dynamic_cast<OpenSim::Mesh&>(opyn::attach_geometry(body, std::make_unique<OpenSim::Mesh>(geomFile.string())));
-    auto& scaledMesh = dynamic_cast<OpenSim::Mesh&>(opyn::attach_geometry(body, std::make_unique<OpenSim::Mesh>(geomFile.string())));
+    auto& unscaled_mesh = dynamic_cast<OpenSim::Mesh&>(opyn::attach_geometry(body, std::make_unique<OpenSim::Mesh>(geom_file.string())));
+    auto& scaled_mesh = dynamic_cast<OpenSim::Mesh&>(opyn::attach_geometry(body, std::make_unique<OpenSim::Mesh>(geom_file.string())));
     const double scalar = 0.1;
-    scaledMesh.set_scale_factors({scalar, scalar, scalar});
+    scaled_mesh.set_scale_factors({scalar, scalar, scalar});
 
     opyn::finalize_connections(model.upd_model());
     opyn::initialize_model(model.upd_model());
     opyn::initialize_state(model.upd_model());
 
-    action_fit_sphere_to_mesh(model, unscaledMesh);
+    action_fit_sphere_to_mesh(model, unscaled_mesh);
     ASSERT_TRUE(dynamic_cast<const OpenSim::Sphere*>(model.get_selected()));
-    const double unscaledRadius = dynamic_cast<const OpenSim::Sphere&>(*model.get_selected()).get_radius();
-    action_fit_sphere_to_mesh(model, scaledMesh);
+    const double unscaled_radius = dynamic_cast<const OpenSim::Sphere&>(*model.get_selected()).get_radius();
+    action_fit_sphere_to_mesh(model, scaled_mesh);
     ASSERT_TRUE(dynamic_cast<const OpenSim::Sphere*>(model.get_selected()));
-    const double scaledRadius = dynamic_cast<const OpenSim::Sphere&>(*model.get_selected()).get_radius();
+    const double scaled_radius = dynamic_cast<const OpenSim::Sphere&>(*model.get_selected()).get_radius();
 
-    ASSERT_TRUE(equal_within_reldiff(scaledRadius, scalar*unscaledRadius, 0.0001));
+    ASSERT_TRUE(equal_within_reldiff(scaled_radius, scalar*unscaled_radius, 0.0001));
 }
 
 TEST(OpenSimActions, ActionAddParentOffsetFrameToJointWorksInNormalCase)
@@ -301,28 +301,28 @@ TEST(OpenSimActions, ActionAddWrapObjectToPhysicalFrameCanAddWrapCylinderToGroun
 {
     // test one concrete instance (this test isn't coupled to the component registry)
     UndoableModelStatePair um;
-    auto wrapCylinder = std::make_unique<OpenSim::WrapCylinder>();
-    wrapCylinder->setName("should_be_findable_in_model");
+    auto wrap_cylinder = std::make_unique<OpenSim::WrapCylinder>();
+    wrap_cylinder->setName("should_be_findable_in_model");
 
-    ASSERT_TRUE(action_add_wrap_object_to_physical_frame(um, um.get_model().getGround().getAbsolutePath(), std::move(wrapCylinder)));
+    ASSERT_TRUE(action_add_wrap_object_to_physical_frame(um, um.get_model().getGround().getAbsolutePath(), std::move(wrap_cylinder)));
     ASSERT_TRUE(um.get_model().findComponent("should_be_findable_in_model"));
 }
 
 TEST(OpenSimActions, ActionAddWrapObjectToPhysicalFrameCanAddAllRegisteredWrapObjectsToGround)
 {
     UndoableModelStatePair um;
-    const OpenSim::ComponentPath groundPath = um.get_model().getGround().getAbsolutePath();
+    const OpenSim::ComponentPath ground_path = um.get_model().getGround().getAbsolutePath();
 
     for (const auto& entry : opyn::get_component_registry<OpenSim::WrapObject>()) {
-        ASSERT_TRUE(action_add_wrap_object_to_physical_frame(um, groundPath, entry.instantiate()));
+        ASSERT_TRUE(action_add_wrap_object_to_physical_frame(um, ground_path, entry.instantiate()));
     }
 
-    size_t numWrapsInModel = 0;
+    size_t num_wraps_in_model = 0;
     for ([[maybe_unused]] const auto& wrap : um.get_model().getComponentList<OpenSim::WrapObject>()) {
-        ++numWrapsInModel;
+        ++num_wraps_in_model;
     }
 
-    ASSERT_EQ(numWrapsInModel, opyn::get_component_registry<OpenSim::WrapObject>().size());
+    ASSERT_EQ(num_wraps_in_model, opyn::get_component_registry<OpenSim::WrapObject>().size());
 }
 
 TEST(OpenSimActions, ActionAddPathWrapToGeometryPathWorksInExampleCase)
@@ -391,9 +391,9 @@ TEST(OpenSimActions, ActionRemoveWrapObjectFromGeometryPathWrapsWorksInExampleCa
 // seperately edit the underlying model file
 TEST(OpenSimActions, ActionUpdateModelFromBackingFileShouldRetainSceneScaleFactor)
 {
-    const std::filesystem::path backingFile = std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "models" / "Blank" / "blank.osim";
+    const std::filesystem::path backing_file = std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "models" / "Blank" / "blank.osim";
 
-    UndoableModelStatePair model{backingFile};
+    UndoableModelStatePair model{backing_file};
     model.set_up_to_date_with_filesystem(model.get_last_filesystem_write_time() - std::chrono::seconds{1});  // ensure it's invalid
 
     ASSERT_TRUE(opyn::has_input_file_name(model.get_model()));
@@ -461,10 +461,10 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesWorksInTrivialCase)
     // Finalize/initialize the model
     model.upd_model().buildSystem();
     const SimTK::State& state = model.upd_model().initializeState();
-    const SimTK::Transform sdfTransform = sdf.getTransformInGround(state);
+    const SimTK::Transform sdf_transform = sdf.getTransformInGround(state);
 
     // Ensure `StationDefinedFrame` is actually transforming
-    ASSERT_NE(sdfTransform, SimTK::Transform{}) << "The `StationDefinedFrame` should have a non-identity transform";
+    ASSERT_NE(sdf_transform, SimTK::Transform{}) << "The `StationDefinedFrame` should have a non-identity transform";
 
     // Ensure counts are within expectations before baking
     {
@@ -486,11 +486,11 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesWorksInTrivialCase)
     }
 
     // Ensure transform after baking is equivalent to `StationDefinedFrame`'s original transform
-    const SimTK::State& stateAfter = model.upd_model().initializeState();
-    const SimTK::Transform offsetTransform = model->getComponentList<OpenSim::PhysicalOffsetFrame>().begin()->getTransformInGround(stateAfter);
+    const SimTK::State& state_after = model.upd_model().initializeState();
+    const SimTK::Transform offset_transform = model->getComponentList<OpenSim::PhysicalOffsetFrame>().begin()->getTransformInGround(state_after);
 
-    ASSERT_EQ(offsetTransform.p(), sdfTransform.p());
-    ASSERT_EQ(offsetTransform.R().convertRotationToBodyFixedXYZ(), sdfTransform.R().convertRotationToBodyFixedXYZ());
+    ASSERT_EQ(offset_transform.p(), sdf_transform.p());
+    ASSERT_EQ(offset_transform.R().convertRotationToBodyFixedXYZ(), sdf_transform.R().convertRotationToBodyFixedXYZ());
 }
 
 // Test `action_bake_station_defined_frames` feature (#1004) also copies any attached geometry.
@@ -618,10 +618,10 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesSubcomponents)
     sdf.addComponent(std::make_unique<OpenSim::Marker>("marker2", sdf, SimTK::Vec3(0.0, 1.0, 0.0)).release());
 
     // Add wrap objects to the SDF's component list
-    auto wrapCylinder = std::make_unique<OpenSim::WrapCylinder>();
-    wrapCylinder->setName("magical_wrap_cylinder");
-    wrapCylinder->set_radius(5.0);
-    sdf.addWrapObject(wrapCylinder.release());
+    auto wrap_cylinder = std::make_unique<OpenSim::WrapCylinder>();
+    wrap_cylinder->setName("magical_wrap_cylinder");
+    wrap_cylinder->set_radius(5.0);
+    sdf.addWrapObject(wrap_cylinder.release());
 
     // Finalize/initialize the model
     model.upd_model().buildSystem();
@@ -663,10 +663,10 @@ TEST(OpenSimActions, ActionAddPathPointToGeometryPathWorksAsExpected)
     opyn::finalize_connections(model.upd_model());
     opyn::initialize_model(model.upd_model());
     opyn::initialize_state(model.upd_model());
-    const auto gpPath = gp.getAbsolutePath();
-    const auto groundPath = model.get_model().getGround().getAbsolutePath();
+    const auto gp_path = gp.getAbsolutePath();
+    const auto ground_path = model.get_model().getGround().getAbsolutePath();
 
-    ASSERT_TRUE(action_add_path_point_to_geometry_path(model, gpPath, groundPath)) << "should work";
+    ASSERT_TRUE(action_add_path_point_to_geometry_path(model, gp_path, ground_path)) << "should work";
     ASSERT_EQ(gp.getPathPointSet().getSize(), 3);
 }
 
@@ -690,21 +690,21 @@ TEST(OpenSimActions, ActionMoveMarkerToModelMarkerSet_MovesMarker)
 
     UndoableModelStatePair model;
     auto& body = opyn::add_body(model.upd_model(), "body", 1.0,  SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
-    const SimTK::Vec3 pofOffset{0.25};
-    auto& pof = opyn::add_component<OpenSim::PhysicalOffsetFrame>(body, "pof", body, SimTK::Transform{pofOffset});
-    const SimTK::Vec3 markerOffset{0.3};
-    auto& marker = opyn::add_component<OpenSim::Marker>(pof, "marker", pof, markerOffset);
+    const SimTK::Vec3 pof_offset{0.25};
+    auto& pof = opyn::add_component<OpenSim::PhysicalOffsetFrame>(body, "pof", body, SimTK::Transform{pof_offset});
+    const SimTK::Vec3 marker_offset{0.3};
+    auto& marker = opyn::add_component<OpenSim::Marker>(pof, "marker", pof, marker_offset);
     opyn::finalize_connections(model.upd_model());
     opyn::initialize_model(model.upd_model());
     const SimTK::State& state = opyn::initialize_state(model.upd_model());
 
-    ASSERT_EQ(marker.getLocationInGround(state), pofOffset + markerOffset);
+    ASSERT_EQ(marker.getLocationInGround(state), pof_offset + marker_offset);
     ASSERT_EQ(&marker.getParentFrame(), &pof);
     ASSERT_EQ(&marker.getOwner(), &pof);
 
     action_move_marker_to_model_marker_set(model, marker);
 
-    ASSERT_EQ(marker.getLocationInGround(state), pofOffset + markerOffset);
+    ASSERT_EQ(marker.getLocationInGround(state), pof_offset + marker_offset);
     ASSERT_EQ(&marker.getParentFrame(), &pof);
     ASSERT_EQ(&marker.getOwner(), &model.get_model().getMarkerSet());
 }
@@ -755,11 +755,11 @@ TEST(OpenSimActions, ActionSetCoordinateLockedAndSave_EnsuresValueCanBeEditedAft
     action_set_coordinate_locked_and_save(model, coordinate, false);  // Unlock coordinate using UI action
     ASSERT_FALSE(coordinate.getLocked(state));
 
-    const double originalValue = coordinate.getValue(state);
-    const double newValue = originalValue + 1.1;
+    const double original_value = coordinate.getValue(state);
+    const double new_value = original_value + 1.1;
 
     // This is what moving the slider, but not letting go, does.
-    action_set_coordinate_value(model, coordinate, newValue);
+    action_set_coordinate_value(model, coordinate, new_value);
 
-    ASSERT_EQ(coordinate.getValue(state), newValue) << "This should be updated, if it isn't the unlocking might be causing issues?";
+    ASSERT_EQ(coordinate.getValue(state), new_value) << "This should be updated, if it isn't the unlocking might be causing issues?";
 }

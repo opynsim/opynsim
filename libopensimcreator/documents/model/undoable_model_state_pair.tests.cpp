@@ -30,18 +30,18 @@ TEST(UndoableModelStatePair, CanLoadAndRenderAllUserFacingExampleFiles)
         globally_add_directory_to_open_sim_geometry_search_path(std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/geometry");
     }
 
-    SceneCache meshCache;
+    SceneCache mesh_cache;
 
     // turn as many decoration options on as possible, so that the code gets tested
     // against them (#661)
-    opyn::OpenSimDecorationOptions decorationOpts;
-    decorationOpts.set_should_show_everything(true);
+    opyn::OpenSimDecorationOptions decoration_opts;
+    decoration_opts.set_should_show_everything(true);
 
-    const std::filesystem::path examplesDir = std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/models";
-    ASSERT_TRUE(std::filesystem::exists(examplesDir) && std::filesystem::is_directory(examplesDir));
+    const std::filesystem::path examples_dir = std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/models";
+    ASSERT_TRUE(std::filesystem::exists(examples_dir) && std::filesystem::is_directory(examples_dir));
 
-    size_t nExamplesTested = 0;
-    for (const std::filesystem::directory_entry& e : std::filesystem::recursive_directory_iterator{examplesDir})
+    size_t n_examples_tested = 0;
+    for (const std::filesystem::directory_entry& e : std::filesystem::recursive_directory_iterator{examples_dir})
     {
         if (e.is_regular_file() and opyn::has_model_file_extension(e.path()))
         {
@@ -51,10 +51,10 @@ TEST(UndoableModelStatePair, CanLoadAndRenderAllUserFacingExampleFiles)
             // and all can be used to generate 3D scenes
             std::vector<SceneDecoration> decorations;
             generate_model_decorations(
-                meshCache,
+                mesh_cache,
                 p.get_model(),
                 p.get_state(),
-                decorationOpts,
+                decoration_opts,
                 1.0f,  // 1:1 scaling
                 [&decorations](const OpenSim::Component& component, SceneDecoration&& dec)
                 {
@@ -66,10 +66,10 @@ TEST(UndoableModelStatePair, CanLoadAndRenderAllUserFacingExampleFiles)
             // and decorations are generated
             ASSERT_FALSE(decorations.empty());
 
-            ++nExamplesTested;
+            ++n_examples_tested;
         }
     }
-    ASSERT_GT(nExamplesTested, 10);  // sanity check: remove this if you want <10 examples
+    ASSERT_GT(n_examples_tested, 10);  // sanity check: remove this if you want <10 examples
 }
 
 // this test just ensures that the DAE writer works for a reasonably complicated model
@@ -86,17 +86,17 @@ TEST(UndoableModelStatePair, canWriteRajagopalModelToDAE)
     const UndoableModelStatePair p{std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "models" / "RajagopalModel" / "Rajagopal2015.osim"};
 
     // setup rendering state
-    SceneCache meshCache;
-    opyn::OpenSimDecorationOptions decorationOpts;
-    decorationOpts.set_should_show_everything(true);
+    SceneCache mesh_cache;
+    opyn::OpenSimDecorationOptions decoration_opts;
+    decoration_opts.set_should_show_everything(true);
 
     // generate decorations
     std::vector<SceneDecoration> decorations;
     generate_model_decorations(
-        meshCache,
+        mesh_cache,
         p.get_model(),
         p.get_state(),
-        decorationOpts,
+        decoration_opts,
         1.0f,  // 1:1 scaling
         [&decorations](const OpenSim::Component& component, SceneDecoration&& dec)
         {
@@ -148,13 +148,13 @@ TEST(UndoableModelStatePair, resetModelRetainsSceneScaleFactor)
 // Grep #924 for a more comprehensive explanation, which is next to a lower-level test
 TEST(UndoableModelStatePair, CanCommitWhenModelContainsExternalLoads)
 {
-    const std::filesystem::path exampleModel =
+    const std::filesystem::path example_model =
         std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "opensim-creator_924_repro.osim";
-    const std::filesystem::path exampleExternalLoadsFile =
+    const std::filesystem::path example_external_loads_file =
         std::filesystem::weakly_canonical(std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "opensim-creator_924_external-loads.xml");
 
-    UndoableModelStatePair p{exampleModel};
-    p.upd_model().addModelComponent(&dynamic_cast<OpenSim::ExternalLoads&>(*OpenSim::Object::makeObjectFromFile(exampleExternalLoadsFile.string())));
+    UndoableModelStatePair p{example_model};
+    p.upd_model().addModelComponent(&dynamic_cast<OpenSim::ExternalLoads&>(*OpenSim::Object::makeObjectFromFile(example_external_loads_file.string())));
     ASSERT_NO_THROW({ p.commit("this shouldn't throw if `OpenSim::ExternalLoads` is behaving itself"); }) << "this shouldn't throw (see: opensim-core/3926 or opensim-core/3927)";
 }
 
@@ -167,7 +167,7 @@ TEST(UndoableModelStatePair, CanLoadModelWithMuscleEquilibrationProblems)
 {
     globally_init_open_sim();  // for loading the osim
 
-    const std::filesystem::path brokenFilePath =
+    const std::filesystem::path broken_file_path =
         std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "opensim-creator_1070_repro.osim";
-    ASSERT_NO_THROW({ UndoableModelStatePair{brokenFilePath}; });
+    ASSERT_NO_THROW({ UndoableModelStatePair{broken_file_path}; });
 }

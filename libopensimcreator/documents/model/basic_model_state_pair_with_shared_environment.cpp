@@ -14,28 +14,28 @@ class osc::BasicModelStatePairWithSharedEnvironment::Impl final {
 public:
 
     Impl() :
-        m_Model{std::make_unique<OpenSim::Model>()}
+        model_{std::make_unique<OpenSim::Model>()}
     {
-        opyn::initialize_model(*m_Model);
-        opyn::initialize_state(*m_Model);
+        opyn::initialize_model(*model_);
+        opyn::initialize_state(*model_);
     }
 
     explicit Impl(const ModelStatePairWithSharedEnvironment& p) :
         Impl{p.get_model(), p.get_state(), p.get_fixup_scale_factor(), p.try_upd_environment()}
     {}
 
-    explicit Impl(const std::filesystem::path& osimPath) :
-        m_Model{opyn::load_model(osimPath)}
+    explicit Impl(const std::filesystem::path& osim_path) :
+        model_{opyn::load_model(osim_path)}
     {
-        opyn::initialize_model(*m_Model);
-        opyn::initialize_state(*m_Model);
+        opyn::initialize_model(*model_);
+        opyn::initialize_state(*model_);
     }
 
     explicit Impl(OpenSim::Model&& model) :
-        m_Model{std::make_unique<OpenSim::Model>(std::move(model))}
+        model_{std::make_unique<OpenSim::Model>(std::move(model))}
     {
-        opyn::initialize_model(*m_Model);
-        opyn::initialize_state(*m_Model);
+        opyn::initialize_model(*model_);
+        opyn::initialize_state(*model_);
     }
 
     Impl(const OpenSim::Model& m, const SimTK::State& st) :
@@ -45,30 +45,30 @@ public:
     Impl(
         const OpenSim::Model& m,
         const SimTK::State& st,
-        float fixupScaleFactor,
+        float fixup_scale_factor,
         std::shared_ptr<Environment> environment = std::make_shared<Environment>()) :
 
-        m_Model(std::make_unique<OpenSim::Model>(m)),
-        m_FixupScaleFactor{fixupScaleFactor},
-        m_Environment{std::move(environment)}
+        model_(std::make_unique<OpenSim::Model>(m)),
+        fixup_scale_factor_{fixup_scale_factor},
+        environment_{std::move(environment)}
     {
-        opyn::initialize_model(*m_Model);
-        opyn::initialize_state(*m_Model);
-        m_Model->updWorkingState() = st;
-        m_Model->updWorkingState().invalidateAllCacheAtOrAbove(SimTK::Stage::Instance);
-        m_Model->realizeReport(m_Model->updWorkingState());
+        opyn::initialize_model(*model_);
+        opyn::initialize_state(*model_);
+        model_->updWorkingState() = st;
+        model_->updWorkingState().invalidateAllCacheAtOrAbove(SimTK::Stage::Instance);
+        model_->realizeReport(model_->updWorkingState());
     }
 
     Impl(const Impl& o) :
-        m_Model{std::make_unique<OpenSim::Model>(*o.m_Model)},
-        m_FixupScaleFactor{o.m_FixupScaleFactor},
-        m_Environment{o.m_Environment}
+        model_{std::make_unique<OpenSim::Model>(*o.model_)},
+        fixup_scale_factor_{o.fixup_scale_factor_},
+        environment_{o.environment_}
     {
-        opyn::initialize_model(*m_Model);
-        SimTK::State& state = m_Model->initializeState();
-        state = o.m_Model->getWorkingState();
-        opyn::try_equilibrate_muscles_or_log_warning(*m_Model, state);
-        m_Model->realizeDynamics(state);
+        opyn::initialize_model(*model_);
+        SimTK::State& state = model_->initializeState();
+        state = o.model_->getWorkingState();
+        opyn::try_equilibrate_muscles_or_log_warning(*model_, state);
+        model_->realizeDynamics(state);
     }
     Impl(Impl&&) noexcept = default;
     Impl& operator=(const Impl&) = delete;
@@ -80,34 +80,34 @@ public:
         return std::make_unique<Impl>(*this);
     }
 
-    const OpenSim::Model& getModel() const
+    const OpenSim::Model& get_model() const
     {
-        return *m_Model;
+        return *model_;
     }
 
-    const SimTK::State& getState() const
+    const SimTK::State& get_state() const
     {
-        return m_Model->getWorkingState();
+        return model_->getWorkingState();
     }
 
-    float getFixupScaleFactor() const
+    float get_fixup_scale_factor() const
     {
-        return m_FixupScaleFactor;
+        return fixup_scale_factor_;
     }
 
-    void setFixupScaleFactor(float v)
+    void set_fixup_scale_factor(float v)
     {
-        m_FixupScaleFactor = v;
+        fixup_scale_factor_ = v;
     }
 
-    std::shared_ptr<Environment> implUpdAssociatedEnvironment()
+    std::shared_ptr<Environment> impl_upd_associated_environment()
     {
-        return m_Environment;
+        return environment_;
     }
 private:
-    std::unique_ptr<OpenSim::Model> m_Model;
-    float m_FixupScaleFactor = 1.0f;
-    std::shared_ptr<Environment> m_Environment = std::make_shared<Environment>();
+    std::unique_ptr<OpenSim::Model> model_;
+    float fixup_scale_factor_ = 1.0f;
+    std::shared_ptr<Environment> environment_ = std::make_shared<Environment>();
 };
 
 
@@ -137,25 +137,25 @@ osc::BasicModelStatePairWithSharedEnvironment::~BasicModelStatePairWithSharedEnv
 
 const OpenSim::Model& osc::BasicModelStatePairWithSharedEnvironment::impl_get_model() const
 {
-    return impl_->getModel();
+    return impl_->get_model();
 }
 
 const SimTK::State& osc::BasicModelStatePairWithSharedEnvironment::impl_get_state() const
 {
-    return impl_->getState();
+    return impl_->get_state();
 }
 
 float osc::BasicModelStatePairWithSharedEnvironment::impl_get_fixup_scale_factor() const
 {
-    return impl_->getFixupScaleFactor();
+    return impl_->get_fixup_scale_factor();
 }
 
 void osc::BasicModelStatePairWithSharedEnvironment::impl_set_fixup_scale_factor(float v)
 {
-    impl_->setFixupScaleFactor(v);
+    impl_->set_fixup_scale_factor(v);
 }
 
 std::shared_ptr<Environment> osc::BasicModelStatePairWithSharedEnvironment::impl_upd_associated_environment() const
 {
-    return impl_->implUpdAssociatedEnvironment();
+    return impl_->impl_upd_associated_environment();
 }

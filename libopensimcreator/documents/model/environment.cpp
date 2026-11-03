@@ -53,10 +53,10 @@ bool osc::Environment::overwrite_or_add_new_user_output_extractor(const opyn::Sh
 
 std::vector<opyn::SharedOutputExtractor> osc::Environment::get_all_user_output_extractors() const
 {
-    const int nOutputs = get_num_user_output_extractors();
+    const int n_outputs = get_num_user_output_extractors();
     std::vector<opyn::SharedOutputExtractor> rv;
-    rv.reserve(nOutputs);
-    for (int i = 0; i < nOutputs; ++i) {
+    rv.reserve(n_outputs);
+    for (int i = 0; i < n_outputs; ++i) {
         rv.push_back(get_user_output_extractor(i));
     }
     return rv;

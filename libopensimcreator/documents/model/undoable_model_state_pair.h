@@ -29,7 +29,7 @@ namespace osc
         explicit UndoableModelStatePair(std::unique_ptr<OpenSim::Model> model);
 
         // construct a model by loading an existing on-disk osim file
-        explicit UndoableModelStatePair(const std::filesystem::path& osimPath);
+        explicit UndoableModelStatePair(const std::filesystem::path& osim_path);
 
         // copy-construct a new UndoableUiModel
         UndoableModelStatePair(const UndoableModelStatePair&);
