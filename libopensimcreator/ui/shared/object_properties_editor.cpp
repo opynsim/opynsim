@@ -1349,7 +1349,7 @@ namespace
             ObjectPropertiesEditor& nestedEditor = *m_MaybeNestedEditor;
 
             ui::set_num_columns();
-            auto resp = nestedEditor.onDraw();
+            auto resp = nestedEditor.on_draw();
             ui::set_num_columns(2);
 
             if (resp) {
@@ -1804,6 +1804,6 @@ osc::ObjectPropertiesEditor::ObjectPropertiesEditor(
 
     Widget{std::make_unique<Impl>(*this, parent, std::move(targetComponent), std::move(objectGetter))}
 {}
-void osc::ObjectPropertiesEditor::insertInBlacklist(std::string_view propertyName) { private_data().insertInBlacklist(propertyName); }
-std::optional<ObjectPropertyEdit> osc::ObjectPropertiesEditor::onDraw() { return private_data().onDraw(); }
+void osc::ObjectPropertiesEditor::insert_in_blacklist(std::string_view propertyName) { private_data().insertInBlacklist(propertyName); }
+std::optional<ObjectPropertyEdit> osc::ObjectPropertiesEditor::on_draw() { return private_data().onDraw(); }
 void osc::ObjectPropertiesEditor::impl_on_draw() { private_data().onDraw(); }

@@ -16,9 +16,9 @@ namespace osc
     class ImportStationsFromCSVPopup final : public Popup {
     public:
         struct ImportedData final {
-            std::optional<std::string> maybeLabel;
+            std::optional<std::string> maybe_label;
             std::vector<opyn::NamedLandmark> landmarks;
-            std::optional<std::string> maybeTargetComponentAbsPath;
+            std::optional<std::string> maybe_target_component_abs_path;
         };
 
         explicit ImportStationsFromCSVPopup(

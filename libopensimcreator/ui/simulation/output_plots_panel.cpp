@@ -77,7 +77,7 @@ public:
             SimulationOutputPlot plot{m_SimulatorUIAPI, output, 128.0f};
             plot.onDraw();
 
-            DrawOutputNameColumn(output, true, m_SimulatorUIAPI->tryGetCurrentSimulationState());
+            draw_output_name_column(output, true, m_SimulatorUIAPI->tryGetCurrentSimulationState());
             ui::same_line();
             if (ui::draw_button(MSMICONS_TRASH)) {
                 m_Environment->removeUserOutputExtractor(output);

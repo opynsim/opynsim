@@ -277,7 +277,7 @@ namespace
         ui::begin_disabled();
         ui::draw_text(c.getConcreteClassName());
         ui::same_line();
-        ui::draw_text(IconFor(c));
+        ui::draw_text(icon_for(c));
         ui::end_disabled();
     }
 }
@@ -285,7 +285,7 @@ namespace
 
 // public API
 
-CStringView osc::IconFor(const OpenSim::Component& c)
+CStringView osc::icon_for(const OpenSim::Component& c)
 {
     if (dynamic_cast<const OpenSim::Muscle*>(&c)) {
         return MSMICONS_MUSCLE;
@@ -331,37 +331,37 @@ CStringView osc::IconFor(const OpenSim::Component& c)
     }
 }
 
-void osc::DrawNothingRightClickedContextMenuHeader()
+void osc::draw_nothing_right_clicked_context_menu_header()
 {
     ui::draw_text_disabled("(nothing selected)");
 }
 
-void osc::DrawContextMenuHeader(CStringView title, CStringView subtitle)
+void osc::draw_context_menu_header(CStringView title, CStringView subtitle)
 {
     ui::draw_text(title);
     ui::same_line();
     ui::draw_text_disabled(subtitle);
 }
 
-void osc::DrawRightClickedComponentContextMenuHeader(const OpenSim::Component& c)
+void osc::draw_right_clicked_component_context_menu_header(const OpenSim::Component& c)
 {
     drawTooltipOrContextMenuContentText(c);
 }
 
-void osc::DrawContextMenuSeparator()
+void osc::draw_context_menu_separator()
 {
     ui::draw_separator();
     ui::draw_vertical_spacer(3.0f/15.0f);
 }
 
-void osc::DrawComponentHoverTooltip(const OpenSim::Component& hovered)
+void osc::draw_component_hover_tooltip(const OpenSim::Component& hovered)
 {
     ui::begin_tooltip();
     drawTooltipOrContextMenuContentText(hovered);
     ui::end_tooltip();
 }
 
-void osc::DrawSelectOwnerMenu(opyn::ModelStatePair& model, const OpenSim::Component& selected)
+void osc::draw_select_owner_menu(opyn::ModelStatePair& model, const OpenSim::Component& selected)
 {
     if (ui::begin_menu("Select Owner"))
     {
@@ -393,7 +393,7 @@ void osc::DrawSelectOwnerMenu(opyn::ModelStatePair& model, const OpenSim::Compon
     }
 }
 
-bool osc::DrawRequestOutputMenuOrMenuItem(
+bool osc::draw_request_output_menu_or_menu_item(
     const OpenSim::AbstractOutput& o,
     const std::function<void(opyn::SharedOutputExtractor)>& onUserSelection)
 {
@@ -407,7 +407,7 @@ bool osc::DrawRequestOutputMenuOrMenuItem(
     }
 }
 
-bool osc::DrawWatchOutputMenu(
+bool osc::draw_watch_output_menu(
     const OpenSim::Component& c,
     const std::function<void(opyn::SharedOutputExtractor)>& onUserSelection)
 {
@@ -417,7 +417,7 @@ bool osc::DrawWatchOutputMenu(
         int entriesDrawn = 0;
         for (const auto& [name, output] : c.getOutputs()) {
             ui::push_id(entriesDrawn++);
-            if (DrawRequestOutputMenuOrMenuItem(*output, onUserSelection)) {
+            if (draw_request_output_menu_or_menu_item(*output, onUserSelection)) {
                 outputAdded = true;
             }
             ui::pop_id();
@@ -445,7 +445,7 @@ bool osc::DrawWatchOutputMenu(
     return outputAdded;
 }
 
-void osc::DrawSimulationParams(const ParamBlock& params)
+void osc::draw_simulation_params(const ParamBlock& params)
 {
     ui::draw_vertical_spacer(1.0f/15.0f);
     ui::draw_text("parameters:");
@@ -472,14 +472,14 @@ void osc::DrawSimulationParams(const ParamBlock& params)
     ui::set_num_columns();
 }
 
-void osc::DrawSearchBar(std::string& out)
+void osc::draw_search_bar(std::string& out)
 {
     ui::push_style_var(ui::StyleVar::FrameRounding, 5.0f);
     ui::draw_string_input_with_hint("##hirarchtsearchbar", MSMICONS_SEARCH " search...",  out);
     ui::pop_style_var();
 }
 
-void osc::DrawOutputNameColumn(
+void osc::draw_output_name_column(
     const opyn::OutputExtractor& output,
     bool centered,
     SimulationModelStatePair* maybeActiveSate)
@@ -518,7 +518,7 @@ void osc::DrawOutputNameColumn(
     }
 }
 
-void osc::DrawWithRespectToMenuContainingMenuPerFrame(
+void osc::draw_with_respect_to_menu_containing_menu_per_frame(
     const OpenSim::Component& root,
     const std::function<void(const OpenSim::Frame&)>& onFrameMenuOpened,
     const OpenSim::Frame* maybeParent)
@@ -552,7 +552,7 @@ void osc::DrawWithRespectToMenuContainingMenuPerFrame(
     }
 }
 
-void osc::DrawWithRespectToMenuContainingMenuItemPerFrame(
+void osc::draw_with_respect_to_menu_containing_menu_item_per_frame(
     const OpenSim::Component& root,
     const std::function<void(const OpenSim::Frame&)>& onFrameMenuItemClicked,
     const OpenSim::Frame* maybeParent = nullptr)
@@ -581,7 +581,7 @@ void osc::DrawWithRespectToMenuContainingMenuItemPerFrame(
     }
 }
 
-void osc::DrawPointTranslationInformationWithRespectTo(
+void osc::draw_point_translation_information_with_respect_to(
     const OpenSim::Frame& frame,
     const SimTK::State& state,
     Vector3 locationInGround)
@@ -596,7 +596,7 @@ void osc::DrawPointTranslationInformationWithRespectTo(
     ui::draw_vector3_input("##translation", translation, "%.6f", ui::TextInputFlag::ReadOnly);
 }
 
-void osc::DrawDirectionInformationWithRepsectTo(
+void osc::draw_direction_information_with_repsect_to(
     const OpenSim::Frame& frame,
     const SimTK::State& state,
     Vector3 directionInGround)
@@ -611,7 +611,7 @@ void osc::DrawDirectionInformationWithRepsectTo(
     ui::draw_vector3_input("##direction", direction, "%.6f", ui::TextInputFlag::ReadOnly);
 }
 
-void osc::DrawFrameInformationExpressedIn(
+void osc::draw_frame_information_expressed_in(
     const OpenSim::Frame& parent,
     const SimTK::State& state,
     const OpenSim::Frame& otherFrame)
@@ -633,7 +633,7 @@ void osc::DrawFrameInformationExpressedIn(
     ui::draw_vector3_input("##orientation", rotationEulers, "%.6f", ui::TextInputFlag::ReadOnly);
 }
 
-bool osc::BeginCalculateMenu(CalculateMenuFlags flags)
+bool osc::begin_calculate_menu(CalculateMenuFlags flags)
 {
     const CStringView label = flags & CalculateMenuFlags::NoCalculatorIcon ?
         "Calculate" :
@@ -641,12 +641,12 @@ bool osc::BeginCalculateMenu(CalculateMenuFlags flags)
     return ui::begin_menu(label);
 }
 
-void osc::EndCalculateMenu()
+void osc::end_calculate_menu()
 {
     ui::end_menu();
 }
 
-void osc::DrawCalculatePositionMenu(
+void osc::draw_calculate_position_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Point& point,
@@ -656,45 +656,45 @@ void osc::DrawCalculatePositionMenu(
     {
         const auto onFrameMenuOpened = [&state, &point](const OpenSim::Frame& frame)
         {
-            DrawPointTranslationInformationWithRespectTo(
+            draw_point_translation_information_with_respect_to(
                 frame,
                 state,
                 to<Vector3>(point.getLocationInGround(state))
             );
         };
 
-        DrawWithRespectToMenuContainingMenuPerFrame(root, onFrameMenuOpened, maybeParent);
+        draw_with_respect_to_menu_containing_menu_per_frame(root, onFrameMenuOpened, maybeParent);
         ui::end_menu();
     }
 }
 
-void osc::DrawCalculateMenu(
+void osc::draw_calculate_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Station& station,
     CalculateMenuFlags flags)
 {
-    if (BeginCalculateMenu(flags))
+    if (begin_calculate_menu(flags))
     {
-        DrawCalculatePositionMenu(root, state, station, &station.getParentFrame());
-        EndCalculateMenu();
+        draw_calculate_position_menu(root, state, station, &station.getParentFrame());
+        end_calculate_menu();
     }
 }
 
-void osc::DrawCalculateMenu(
+void osc::draw_calculate_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Point& point,
     CalculateMenuFlags flags)
 {
-    if (BeginCalculateMenu(flags))
+    if (begin_calculate_menu(flags))
     {
-        DrawCalculatePositionMenu(root, state, point, nullptr);
-        EndCalculateMenu();
+        draw_calculate_position_menu(root, state, point, nullptr);
+        end_calculate_menu();
     }
 }
 
-void osc::DrawCalculateTransformMenu(
+void osc::draw_calculate_transform_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Frame& frame)
@@ -703,14 +703,14 @@ void osc::DrawCalculateTransformMenu(
     {
         const auto onFrameMenuOpened = [&state, &frame](const OpenSim::Frame& otherFrame)
         {
-            DrawFrameInformationExpressedIn(frame, state, otherFrame);
+            draw_frame_information_expressed_in(frame, state, otherFrame);
         };
-        DrawWithRespectToMenuContainingMenuPerFrame(root, onFrameMenuOpened, opyn::try_get_parent_frame(frame));
+        draw_with_respect_to_menu_containing_menu_per_frame(root, onFrameMenuOpened, opyn::try_get_parent_frame(frame));
         ui::end_menu();
     }
 }
 
-void osc::DrawCalculateAxisDirectionsMenu(
+void osc::draw_calculate_axis_directions_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Frame& frame)
@@ -734,12 +734,12 @@ void osc::DrawCalculateAxisDirectionsMenu(
             ui::same_line();
             ui::draw_vector3_input("##zdir", z, "%.6f", ui::TextInputFlag::ReadOnly);
         };
-        DrawWithRespectToMenuContainingMenuPerFrame(root, onFrameMenuOpened, opyn::try_get_parent_frame(frame));
+        draw_with_respect_to_menu_containing_menu_per_frame(root, onFrameMenuOpened, opyn::try_get_parent_frame(frame));
         ui::end_menu();
     }
 }
 
-void osc::DrawCalculateOriginMenu(
+void osc::draw_calculate_origin_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Frame& frame)
@@ -752,27 +752,27 @@ void osc::DrawCalculateOriginMenu(
             ui::same_line();
             ui::draw_vector3_input("##origin", v, "%.6f", ui::TextInputFlag::ReadOnly);
         };
-        DrawWithRespectToMenuContainingMenuPerFrame(root, onFrameMenuOpened, opyn::try_get_parent_frame(frame));
+        draw_with_respect_to_menu_containing_menu_per_frame(root, onFrameMenuOpened, opyn::try_get_parent_frame(frame));
         ui::end_menu();
     }
 }
 
-void osc::DrawCalculateMenu(
+void osc::draw_calculate_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Frame& frame,
     CalculateMenuFlags flags)
 {
-    if (BeginCalculateMenu(flags))
+    if (begin_calculate_menu(flags))
     {
-        DrawCalculateTransformMenu(root, state, frame);
-        DrawCalculateOriginMenu(root, state, frame);
-        DrawCalculateAxisDirectionsMenu(root, state, frame);
-        EndCalculateMenu();
+        draw_calculate_transform_menu(root, state, frame);
+        draw_calculate_origin_menu(root, state, frame);
+        draw_calculate_axis_directions_menu(root, state, frame);
+        end_calculate_menu();
     }
 }
 
-void osc::DrawCalculateOriginMenu(
+void osc::draw_calculate_origin_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Sphere& sphere)
@@ -782,15 +782,15 @@ void osc::DrawCalculateOriginMenu(
         auto posInGround = to<Vector3>(sphere.getFrame().getPositionInGround(state));
         const auto onFrameMenuOpened = [&state, posInGround](const OpenSim::Frame& otherFrame)
         {
-            DrawPointTranslationInformationWithRespectTo(otherFrame, state, posInGround);
+            draw_point_translation_information_with_respect_to(otherFrame, state, posInGround);
         };
-        DrawWithRespectToMenuContainingMenuPerFrame(root, onFrameMenuOpened, opyn::try_get_parent_frame(sphere.getFrame()));
+        draw_with_respect_to_menu_containing_menu_per_frame(root, onFrameMenuOpened, opyn::try_get_parent_frame(sphere.getFrame()));
 
         ui::end_menu();
     }
 }
 
-void osc::DrawCalculateRadiusMenu(
+void osc::draw_calculate_radius_menu(
     const OpenSim::Component&,
     const SimTK::State&,
     const OpenSim::Sphere& sphere)
@@ -803,7 +803,7 @@ void osc::DrawCalculateRadiusMenu(
     }
 }
 
-void osc::DrawCalculateVolumeMenu(
+void osc::draw_calculate_volume_menu(
     const OpenSim::Component&,
     const SimTK::State&,
     const OpenSim::Sphere& sphere)
@@ -817,31 +817,31 @@ void osc::DrawCalculateVolumeMenu(
     }
 }
 
-void osc::DrawCalculateMenu(
+void osc::draw_calculate_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Geometry& geom,
     CalculateMenuFlags flags)
 {
-    if (BeginCalculateMenu(flags))
+    if (begin_calculate_menu(flags))
     {
         if (const auto* spherePtr = dynamic_cast<const OpenSim::Sphere*>(&geom))
         {
-            DrawCalculateOriginMenu(root, state, *spherePtr);
-            DrawCalculateRadiusMenu(root, state, *spherePtr);
-            DrawCalculateVolumeMenu(root, state, *spherePtr);
+            draw_calculate_origin_menu(root, state, *spherePtr);
+            draw_calculate_radius_menu(root, state, *spherePtr);
+            draw_calculate_volume_menu(root, state, *spherePtr);
         }
         else
         {
-            DrawCalculateTransformMenu(root, state, geom.getFrame());
-            DrawCalculateOriginMenu(root, state, geom.getFrame());
-            DrawCalculateAxisDirectionsMenu(root, state, geom.getFrame());
+            draw_calculate_transform_menu(root, state, geom.getFrame());
+            draw_calculate_origin_menu(root, state, geom.getFrame());
+            draw_calculate_axis_directions_menu(root, state, geom.getFrame());
         }
-        EndCalculateMenu();
+        end_calculate_menu();
     }
 }
 
-void osc::TryDrawCalculateMenu(
+void osc::try_draw_calculate_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Component& selected,
@@ -849,15 +849,15 @@ void osc::TryDrawCalculateMenu(
 {
     if (const auto* const frame = dynamic_cast<const OpenSim::Frame*>(&selected))
     {
-        DrawCalculateMenu(root, state, *frame, flags);
+        draw_calculate_menu(root, state, *frame, flags);
     }
     else if (const auto* const point = dynamic_cast<const OpenSim::Point*>(&selected))
     {
-        DrawCalculateMenu(root, state, *point, flags);
+        draw_calculate_menu(root, state, *point, flags);
     }
 }
 
-void osc::DrawCalculateOriginMenu(
+void osc::draw_calculate_origin_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Ellipsoid& ellipsoid)
@@ -866,15 +866,15 @@ void osc::DrawCalculateOriginMenu(
         auto posInGround = to<Vector3>(ellipsoid.getFrame().getPositionInGround(state));
         const auto onFrameMenuOpened = [&state, posInGround](const OpenSim::Frame& otherFrame)
         {
-            DrawPointTranslationInformationWithRespectTo(otherFrame, state, posInGround);
+            draw_point_translation_information_with_respect_to(otherFrame, state, posInGround);
         };
-        DrawWithRespectToMenuContainingMenuPerFrame(root, onFrameMenuOpened, opyn::try_get_parent_frame(ellipsoid.getFrame()));
+        draw_with_respect_to_menu_containing_menu_per_frame(root, onFrameMenuOpened, opyn::try_get_parent_frame(ellipsoid.getFrame()));
 
         ui::end_menu();
     }
 }
 
-void osc::DrawCalculateRadiiMenu(
+void osc::draw_calculate_radii_menu(
     const OpenSim::Component&,
     const SimTK::State&,
     const OpenSim::Ellipsoid& ellipsoid)
@@ -888,15 +888,15 @@ void osc::DrawCalculateRadiiMenu(
     }
 }
 
-void osc::DrawCalculateRadiiDirectionsMenu(
+void osc::draw_calculate_radii_directions_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Ellipsoid& ellipsoid)
 {
-    DrawCalculateAxisDirectionsMenu(root, state, ellipsoid.getFrame());
+    draw_calculate_axis_directions_menu(root, state, ellipsoid.getFrame());
 }
 
-void osc::DrawCalculateScaledRadiiDirectionsMenu(
+void osc::draw_calculate_scaled_radii_directions_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Ellipsoid& ellipsoid)
@@ -921,27 +921,27 @@ void osc::DrawCalculateScaledRadiiDirectionsMenu(
             ui::same_line();
             ui::draw_vector3_input("##zdir", z, "%.6f", ui::TextInputFlag::ReadOnly);
         };
-        DrawWithRespectToMenuContainingMenuPerFrame(root, onFrameMenuOpened, opyn::try_get_parent_frame(ellipsoid.getFrame()));
+        draw_with_respect_to_menu_containing_menu_per_frame(root, onFrameMenuOpened, opyn::try_get_parent_frame(ellipsoid.getFrame()));
         ui::end_menu();
     }
 }
 
-void osc::DrawCalculateMenu(
+void osc::draw_calculate_menu(
     const OpenSim::Component& root,
     const SimTK::State& state,
     const OpenSim::Ellipsoid& ellipsoid,
     CalculateMenuFlags flags)
 {
-    if (BeginCalculateMenu(flags)) {
-        DrawCalculateOriginMenu(root, state, ellipsoid);
-        DrawCalculateRadiiMenu(root, state, ellipsoid);
-        DrawCalculateRadiiDirectionsMenu(root, state, ellipsoid);
-        DrawCalculateScaledRadiiDirectionsMenu(root, state, ellipsoid);
-        EndCalculateMenu();
+    if (begin_calculate_menu(flags)) {
+        draw_calculate_origin_menu(root, state, ellipsoid);
+        draw_calculate_radii_menu(root, state, ellipsoid);
+        draw_calculate_radii_directions_menu(root, state, ellipsoid);
+        draw_calculate_scaled_radii_directions_menu(root, state, ellipsoid);
+        end_calculate_menu();
     }
 }
 
-bool osc::DrawMuscleRenderingOptionsRadioButtions(opyn::OpenSimDecorationOptions& opts)
+bool osc::draw_muscle_rendering_options_radio_buttions(opyn::OpenSimDecorationOptions& opts)
 {
     const opyn::MuscleDecorationStyle currentStyle = opts.get_muscle_decoration_style();
     bool edited = false;
@@ -954,7 +954,7 @@ bool osc::DrawMuscleRenderingOptionsRadioButtions(opyn::OpenSimDecorationOptions
     return edited;
 }
 
-bool osc::DrawMuscleSizingOptionsRadioButtons(opyn::OpenSimDecorationOptions& opts)
+bool osc::draw_muscle_sizing_options_radio_buttons(opyn::OpenSimDecorationOptions& opts)
 {
     const opyn::MuscleSizingStyle currentStyle = opts.get_muscle_sizing_style();
     bool edited = false;
@@ -967,7 +967,7 @@ bool osc::DrawMuscleSizingOptionsRadioButtons(opyn::OpenSimDecorationOptions& op
     return edited;
 }
 
-bool osc::DrawMuscleColorSourceOptionsRadioButtons(opyn::OpenSimDecorationOptions& opts)
+bool osc::draw_muscle_color_source_options_radio_buttons(opyn::OpenSimDecorationOptions& opts)
 {
     const opyn::MuscleColorSource currentStyle = opts.get_muscle_color_source();
     bool edited = false;
@@ -980,7 +980,7 @@ bool osc::DrawMuscleColorSourceOptionsRadioButtons(opyn::OpenSimDecorationOption
     return edited;
 }
 
-bool osc::DrawMuscleColorScalingOptionsRadioButtons(opyn::OpenSimDecorationOptions& opts)
+bool osc::draw_muscle_color_scaling_options_radio_buttons(opyn::OpenSimDecorationOptions& opts)
 {
     const opyn::MuscleColorSourceScaling currentStyle = opts.get_muscle_color_source_scaling();
     bool edited = false;
@@ -993,38 +993,38 @@ bool osc::DrawMuscleColorScalingOptionsRadioButtons(opyn::OpenSimDecorationOptio
     return edited;
 }
 
-bool osc::DrawMuscleDecorationOptionsEditor(opyn::OpenSimDecorationOptions& opts)
+bool osc::draw_muscle_decoration_options_editor(opyn::OpenSimDecorationOptions& opts)
 {
     int id = 0;
     bool edited = false;
 
     ui::push_id(id++);
     ui::draw_text_disabled("Rendering");
-    edited = DrawMuscleRenderingOptionsRadioButtions(opts) || edited;
+    edited = draw_muscle_rendering_options_radio_buttions(opts) || edited;
     ui::pop_id();
 
     ui::draw_vertical_spacer(0.25f);
     ui::push_id(id++);
     ui::draw_text_disabled("Sizing");
-    edited = DrawMuscleSizingOptionsRadioButtons(opts) || edited;
+    edited = draw_muscle_sizing_options_radio_buttons(opts) || edited;
     ui::pop_id();
 
     ui::draw_vertical_spacer(0.25f);
     ui::push_id(id++);
     ui::draw_text_disabled("Color Source");
-    edited = DrawMuscleColorSourceOptionsRadioButtons(opts) || edited;
+    edited = draw_muscle_color_source_options_radio_buttons(opts) || edited;
     ui::pop_id();
 
     ui::draw_vertical_spacer(0.25f);
     ui::push_id(id++);
     ui::draw_text_disabled("Color Scaling");
-    edited = DrawMuscleColorScalingOptionsRadioButtons(opts) || edited;
+    edited = draw_muscle_color_scaling_options_radio_buttons(opts) || edited;
     ui::pop_id();
 
     return edited;
 }
 
-bool osc::DrawRenderingOptionsEditor(opyn::CustomRenderingOptions& opts)
+bool osc::draw_rendering_options_editor(opyn::CustomRenderingOptions& opts)
 {
     bool edited = false;
     ui::draw_text_disabled("Rendering");
@@ -1040,7 +1040,7 @@ bool osc::DrawRenderingOptionsEditor(opyn::CustomRenderingOptions& opts)
     return edited;
 }
 
-bool osc::DrawOverlayOptionsEditor(opyn::OverlayDecorationOptions& opts)
+bool osc::draw_overlay_options_editor(opyn::OverlayDecorationOptions& opts)
 {
     std::optional<CStringView> lastGroupLabel;
     bool edited = false;
@@ -1068,7 +1068,7 @@ bool osc::DrawOverlayOptionsEditor(opyn::OverlayDecorationOptions& opts)
     return edited;
 }
 
-bool osc::DrawCustomDecorationOptionCheckboxes(opyn::OpenSimDecorationOptions& opts)
+bool osc::draw_custom_decoration_option_checkboxes(opyn::OpenSimDecorationOptions& opts)
 {
     int imguiID = 0;
     bool edited = false;
@@ -1093,7 +1093,7 @@ bool osc::DrawCustomDecorationOptionCheckboxes(opyn::OpenSimDecorationOptions& o
     return edited;
 }
 
-bool osc::DrawOrbitCameraControllerEditor(
+bool osc::draw_orbit_camera_controller_editor(
     OrbitCameraController& orbitCameraController)
 {
     bool edited = false;
@@ -1106,7 +1106,7 @@ bool osc::DrawOrbitCameraControllerEditor(
     return edited;
 }
 
-bool osc::DrawAdvancedParamsEditor(
+bool osc::draw_advanced_params_editor(
     opyn::ModelRendererParams& params,
     OrbitCameraController& orbitCameraController,
     std::span<const SceneDecoration> drawlist)
@@ -1123,7 +1123,7 @@ bool osc::DrawAdvancedParamsEditor(
     ui::draw_text("advanced camera properties:");
     ui::draw_separator();
 
-    if (DrawOrbitCameraControllerEditor(orbitCameraController)) {
+    if (draw_orbit_camera_controller_editor(orbitCameraController)) {
         orbitCameraController.update_camera(params.camera);
         edited = true;
     }
@@ -1160,26 +1160,26 @@ bool osc::DrawAdvancedParamsEditor(
     return edited;
 }
 
-bool osc::DrawVisualAidsContextMenuContent(
+bool osc::draw_visual_aids_context_menu_content(
     opyn::ModelRendererParams& params)
 {
     bool edited = false;
 
     // generic rendering options
-    edited = DrawRenderingOptionsEditor(params.rendering_options) || edited;
+    edited = draw_rendering_options_editor(params.rendering_options) || edited;
 
     // overlay options
-    edited = DrawOverlayOptionsEditor(params.overlay_options) || edited;
+    edited = draw_overlay_options_editor(params.overlay_options) || edited;
 
     // OpenSim-specific extra rendering options
     ui::draw_vertical_spacer(0.25f);
     ui::draw_text_disabled("OpenSim");
-    edited = DrawCustomDecorationOptionCheckboxes(params.decoration_options) || edited;
+    edited = draw_custom_decoration_option_checkboxes(params.decoration_options) || edited;
 
     return edited;
 }
 
-bool osc::DrawViewerTopButtonRow(
+bool osc::draw_viewer_top_button_row(
     opyn::ModelRendererParams& params,
     std::span<const SceneDecoration>,
     IconCache& iconCache,
@@ -1192,7 +1192,7 @@ bool osc::DrawViewerTopButtonRow(
         iconCache.find_or_throw("muscle_coloring"),
         "Muscle Styling",
         "Affects how muscles appear in this visualizer panel",
-        [&params]{ return DrawMuscleDecorationOptionsEditor(params.decoration_options); },
+        [&params]{ return draw_muscle_decoration_options_editor(params.decoration_options); },
     };
     edited = muscleStylingButton.on_draw() || edited;
     ui::same_line();
@@ -1202,7 +1202,7 @@ bool osc::DrawViewerTopButtonRow(
         iconCache.find_or_throw("viz_aids"),
         "Visual Aids",
         "Affects what's shown in the 3D scene",
-        [&params]() { return DrawVisualAidsContextMenuContent(params); },
+        [&params]() { return draw_visual_aids_context_menu_content(params); },
     };
     edited = vizAidsButton.on_draw() || edited;
 
@@ -1216,7 +1216,7 @@ bool osc::DrawViewerTopButtonRow(
     return edited;
 }
 
-bool osc::DrawCameraControlButtons(
+bool osc::draw_camera_control_buttons(
     opyn::ModelRendererParams& params,
     OrbitCameraController& orbitCameraController,
     std::span<const SceneDecoration> drawlist,
@@ -1244,7 +1244,7 @@ bool osc::DrawCameraControlButtons(
         iconCache.find_or_throw("gear"),
         "Scene Settings",
         "Change advanced scene settings",
-        [&params, &orbitCameraController, drawlist]() { return DrawAdvancedParamsEditor(params, orbitCameraController, drawlist); },
+        [&params, &orbitCameraController, drawlist]() { return draw_advanced_params_editor(params, orbitCameraController, drawlist); },
     };
 
     auto c = ui::get_style_color(ui::ColorVar::Button);
@@ -1296,7 +1296,7 @@ bool osc::DrawCameraControlButtons(
     return edited;
 }
 
-bool osc::DrawViewerImGuiOverlays(
+bool osc::draw_viewer_im_gui_overlays(
     opyn::ModelRendererParams& params,
     OrbitCameraController& orbitCameraController,
     std::span<const SceneDecoration> drawlist,
@@ -1310,7 +1310,7 @@ bool osc::DrawViewerImGuiOverlays(
     // draw top-left buttons
     const Vector2 windowPadding = ui::get_style_panel_padding();
     ui::set_cursor_ui_position(renderRect.ypd_top_left() + windowPadding);
-    edited = DrawViewerTopButtonRow(params, drawlist, iconCache, drawExtraElementsInTop) || edited;
+    edited = draw_viewer_top_button_row(params, drawlist, iconCache, drawExtraElementsInTop) || edited;
 
     // draw top-right camera manipulators
     CameraViewAxes axes;
@@ -1330,7 +1330,7 @@ bool osc::DrawViewerImGuiOverlays(
 
     const Vector2 cameraButtonsTopLeft = axesTopLeft + Vector2{0.0f, axesDims.y()};
     ui::set_cursor_ui_position(cameraButtonsTopLeft);
-    edited = DrawCameraControlButtons(
+    edited = draw_camera_control_buttons(
         params,
         orbitCameraController,
         drawlist,
@@ -1343,7 +1343,7 @@ bool osc::DrawViewerImGuiOverlays(
     return edited;
 }
 
-bool osc::BeginToolbar(CStringView label, std::optional<Vector2> padding)
+bool osc::begin_toolbar(CStringView label, std::optional<Vector2> padding)
 {
     if (padding)
     {
@@ -1360,7 +1360,7 @@ bool osc::BeginToolbar(CStringView label, std::optional<Vector2> padding)
     return open;
 }
 
-void osc::DrawNewModelButton(Widget& api)
+void osc::draw_new_model_button(Widget& api)
 {
     if (ui::draw_button(MSMICONS_FILE))
     {
@@ -1369,7 +1369,7 @@ void osc::DrawNewModelButton(Widget& api)
     ui::draw_tooltip_if_item_hovered("New Model", "Creates a new OpenSim model in a new tab");
 }
 
-void osc::DrawOpenModelButtonWithRecentFilesDropdown(
+void osc::draw_open_model_button_with_recent_files_dropdown(
     const std::function<void(std::optional<std::filesystem::path>)>& onUserClickedOpenOrSelectedFile)
 {
     ui::push_style_var(ui::StyleVar::ItemSpacing, {2.0f, 0.0f});
@@ -1404,9 +1404,9 @@ void osc::DrawOpenModelButtonWithRecentFilesDropdown(
     }
 }
 
-void osc::DrawOpenModelButtonWithRecentFilesDropdown(Widget& api)
+void osc::draw_open_model_button_with_recent_files_dropdown(Widget& api)
 {
-    DrawOpenModelButtonWithRecentFilesDropdown([&api](auto maybeFile)
+    draw_open_model_button_with_recent_files_dropdown([&api](auto maybeFile)
     {
         if (maybeFile) {
             ActionOpenModel(api, *maybeFile);
@@ -1417,7 +1417,7 @@ void osc::DrawOpenModelButtonWithRecentFilesDropdown(Widget& api)
     });
 }
 
-void osc::DrawSaveModelButton(const std::shared_ptr<opyn::ModelStatePair>& model)
+void osc::draw_save_model_button(const std::shared_ptr<opyn::ModelStatePair>& model)
 {
     if (ui::draw_button(MSMICONS_SAVE)) {
         ActionSaveModelAsync(model);
@@ -1425,7 +1425,7 @@ void osc::DrawSaveModelButton(const std::shared_ptr<opyn::ModelStatePair>& model
     ui::draw_tooltip_if_item_hovered("Save Model", "Saves the model to an osim file");
 }
 
-void osc::DrawReloadModelButton(UndoableModelStatePair& model)
+void osc::draw_reload_model_button(UndoableModelStatePair& model)
 {
     const bool disable = model.is_readonly() or not opyn::has_input_file_name(model.get_model());
 
@@ -1441,7 +1441,7 @@ void osc::DrawReloadModelButton(UndoableModelStatePair& model)
     ui::draw_tooltip_if_item_hovered("Reload Model", "Reloads the model from its source osim file");
 }
 
-void osc::DrawUndoButton(opyn::ModelStatePair& model)
+void osc::draw_undo_button(opyn::ModelStatePair& model)
 {
     auto* undoable = dynamic_cast<UndoableModelStatePair*>(&model);
     const bool disable = not (undoable != nullptr and undoable->canUndo());
@@ -1458,7 +1458,7 @@ void osc::DrawUndoButton(opyn::ModelStatePair& model)
     ui::draw_tooltip_if_item_hovered("Undo", "Undo the model to an earlier version");
 }
 
-void osc::DrawRedoButton(opyn::ModelStatePair& model)
+void osc::draw_redo_button(opyn::ModelStatePair& model)
 {
     auto* undoable = dynamic_cast<UndoableModelStatePair*>(&model);
     const bool disable = not (undoable != nullptr and undoable->canRedo());
@@ -1475,14 +1475,14 @@ void osc::DrawRedoButton(opyn::ModelStatePair& model)
     ui::draw_tooltip_if_item_hovered("Redo", "Redo the model to an undone version");
 }
 
-void osc::DrawUndoAndRedoButtons(opyn::ModelStatePair& model)
+void osc::draw_undo_and_redo_buttons(opyn::ModelStatePair& model)
 {
-    DrawUndoButton(model);
+    draw_undo_button(model);
     ui::same_line();
-    DrawRedoButton(model);
+    draw_redo_button(model);
 }
 
-void osc::DrawToggleFramesButton(opyn::ModelStatePair& model, IconCache& icons)
+void osc::draw_toggle_frames_button(opyn::ModelStatePair& model, IconCache& icons)
 {
     const Icon& icon = icons.find_or_throw(opyn::is_showing_frames(model.get_model()) ? "frame_colored" : "frame_bw");
 
@@ -1498,7 +1498,7 @@ void osc::DrawToggleFramesButton(opyn::ModelStatePair& model, IconCache& icons)
     ui::draw_tooltip_if_item_hovered("Toggle Rendering Frames", "Toggles whether frames (coordinate systems) within the model should be rendered in the 3D scene.");
 }
 
-void osc::DrawToggleMarkersButton(opyn::ModelStatePair& model, IconCache& icons)
+void osc::draw_toggle_markers_button(opyn::ModelStatePair& model, IconCache& icons)
 {
     const Icon& icon = icons.find_or_throw(opyn::is_showing_markers(model.get_model()) ? "marker_colored" : "marker");
     if (model.is_readonly()) {
@@ -1513,7 +1513,7 @@ void osc::DrawToggleMarkersButton(opyn::ModelStatePair& model, IconCache& icons)
     ui::draw_tooltip_if_item_hovered("Toggle Rendering Markers", "Toggles whether markers should be rendered in the 3D scene");
 }
 
-void osc::DrawToggleWrapGeometryButton(opyn::ModelStatePair& model, IconCache& icons)
+void osc::draw_toggle_wrap_geometry_button(opyn::ModelStatePair& model, IconCache& icons)
 {
     const Icon& icon = icons.find_or_throw(opyn::is_showing_wrap_geometry(model.get_model()) ? "wrap_colored" : "wrap");
     if (model.is_readonly()) {
@@ -1528,7 +1528,7 @@ void osc::DrawToggleWrapGeometryButton(opyn::ModelStatePair& model, IconCache& i
     ui::draw_tooltip_if_item_hovered("Toggle Rendering Wrap Geometry", "Toggles whether wrap geometry should be rendered in the 3D scene.\n\nNOTE: This is a model-log_level_ property. Individual wrap geometries *within* the model may have their visibility set to 'false', which will cause them to be hidden from the visualizer, even if this is enabled.");
 }
 
-void osc::DrawToggleContactGeometryButton(opyn::ModelStatePair& model, IconCache& icons)
+void osc::draw_toggle_contact_geometry_button(opyn::ModelStatePair& model, IconCache& icons)
 {
     const Icon& icon = icons.find_or_throw(opyn::is_showing_contact_geometry(model.get_model()) ? "contact_colored" : "contact");
     if (model.is_readonly()) {
@@ -1543,7 +1543,7 @@ void osc::DrawToggleContactGeometryButton(opyn::ModelStatePair& model, IconCache
     ui::draw_tooltip_if_item_hovered("Toggle Rendering Contact Geometry", "Toggles whether contact geometry should be rendered in the 3D scene");
 }
 
-void osc::DrawToggleForcesButton(opyn::ModelStatePair& model, IconCache& icons)
+void osc::draw_toggle_forces_button(opyn::ModelStatePair& model, IconCache& icons)
 {
     const Icon& icon = icons.find_or_throw(opyn::is_showing_forces(model.get_model()) ? "forces_colored" : "forces_bw");
     if (model.is_readonly()) {
@@ -1558,20 +1558,20 @@ void osc::DrawToggleForcesButton(opyn::ModelStatePair& model, IconCache& icons)
     ui::draw_tooltip_if_item_hovered("Toggle Rendering Forces", "Toggles whether forces should be rendered in the 3D scene.\n\nNOTE: this is a model-level property that only applies to forces in OpenSim that actually check this flag. OpenSim Creator's visualizers also offer custom overlays for forces, muscles, etc. separately to this mechanism.");
 }
 
-void osc::DrawAllDecorationToggleButtons(opyn::ModelStatePair& model, IconCache& icons)
+void osc::draw_all_decoration_toggle_buttons(opyn::ModelStatePair& model, IconCache& icons)
 {
-    DrawToggleFramesButton(model, icons);
+    draw_toggle_frames_button(model, icons);
     ui::same_line();
-    DrawToggleMarkersButton(model, icons);
+    draw_toggle_markers_button(model, icons);
     ui::same_line();
-    DrawToggleWrapGeometryButton(model, icons);
+    draw_toggle_wrap_geometry_button(model, icons);
     ui::same_line();
-    DrawToggleContactGeometryButton(model, icons);
+    draw_toggle_contact_geometry_button(model, icons);
     ui::same_line();
-    DrawToggleForcesButton(model, icons);
+    draw_toggle_forces_button(model, icons);
 }
 
-void osc::DrawSceneScaleFactorEditorControls(opyn::ModelStatePair& model)
+void osc::draw_scene_scale_factor_editor_controls(opyn::ModelStatePair& model)
 {
     ui::push_style_var(ui::StyleVar::ItemSpacing, {0.0f, 0.0f});
     ui::draw_text(MSMICONS_EXPAND_ALT);
@@ -1596,7 +1596,7 @@ void osc::DrawSceneScaleFactorEditorControls(opyn::ModelStatePair& model)
     ui::draw_tooltip_if_item_hovered("Autoscale Scale Factor", "Try to autoscale the model's scale factor based on the current dimensions of the model");
 }
 
-void osc::DrawMeshExportContextMenuContent(
+void osc::draw_mesh_export_context_menu_content(
     const opyn::ModelStatePair& model,
     const OpenSim::Mesh& mesh)
 {
@@ -1614,7 +1614,7 @@ void osc::DrawMeshExportContextMenuContent(
             );
         };
 
-        DrawWithRespectToMenuContainingMenuItemPerFrame(model.get_model(), onFrameMenuItemClicked);
+        draw_with_respect_to_menu_containing_menu_item_per_frame(model.get_model(), onFrameMenuItemClicked);
         ui::end_menu();
     }
 
@@ -1629,7 +1629,7 @@ void osc::DrawMeshExportContextMenuContent(
             );
         };
 
-        DrawWithRespectToMenuContainingMenuItemPerFrame(model.get_model(), onFrameMenuItemClicked);
+        draw_with_respect_to_menu_containing_menu_item_per_frame(model.get_model(), onFrameMenuItemClicked);
         ui::end_menu();
     }
 }

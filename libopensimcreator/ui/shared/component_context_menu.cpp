@@ -91,7 +91,7 @@ namespace
         const OpenSim::ComponentPath& pfPath)
     {
         if (const auto* pf = opyn::find_component<OpenSim::PhysicalFrame>(modelState->get_model(), pfPath)) {
-            DrawCalculateMenu(
+            draw_calculate_menu(
                 modelState->get_model(),
                 modelState->get_state(),
                 *pf,
@@ -117,7 +117,7 @@ namespace
         const opyn::ModelStatePair& modelState,
         const OpenSim::Station& station)
     {
-        DrawCalculateMenu(
+        draw_calculate_menu(
             modelState.get_model(),
             modelState.get_state(),
             station,
@@ -129,7 +129,7 @@ namespace
         opyn::ModelStatePair& modelState,
         const OpenSim::Marker& marker)
     {
-        DrawCalculateMenu(
+        draw_calculate_menu(
             modelState.get_model(),
             modelState.get_state(),
             marker,
@@ -161,7 +161,7 @@ namespace
         const opyn::ModelStatePair& modelState,
         const OpenSim::Point& point)
     {
-        DrawCalculateMenu(
+        draw_calculate_menu(
             modelState.get_model(),
             modelState.get_state(),
             point,
@@ -173,7 +173,7 @@ namespace
         const opyn::ModelStatePair& modelState,
         const OpenSim::Ellipsoid& ellipsoid)
     {
-        DrawCalculateMenu(
+        draw_calculate_menu(
             modelState.get_model(),
             modelState.get_state(),
             ellipsoid,
@@ -204,7 +204,7 @@ namespace
         }
 
         if (ui::begin_menu("Export")) {
-            DrawMeshExportContextMenuContent(modelState, mesh);
+            draw_mesh_export_context_menu_content(modelState, mesh);
             ui::end_menu();
         }
     }
@@ -213,7 +213,7 @@ namespace
         const opyn::ModelStatePair& modelState,
         const OpenSim::Geometry& geometry)
     {
-        DrawCalculateMenu(
+        draw_calculate_menu(
             modelState.get_model(),
             modelState.get_state(),
             geometry,
@@ -255,10 +255,10 @@ public:
         const OpenSim::Component* c = opyn::find_component(m_Model->get_model(), m_Path);
         if (not c) {
             // draw context menu content that's shown when nothing was right-clicked
-            DrawNothingRightClickedContextMenuHeader();
-            DrawContextMenuSeparator();
+            draw_nothing_right_clicked_context_menu_header();
+            draw_context_menu_separator();
             if (ui::begin_menu("Add", m_Model->can_upd_model())) {
-                m_ModelAddMenuItems.setTargetParentComponent({});  // i.e. the target parent component should default to the model
+                m_ModelAddMenuItems.set_target_parent_component({});  // i.e. the target parent component should default to the model
                 m_ModelAddMenuItems.on_draw();
                 ui::end_menu();
             }
@@ -277,7 +277,7 @@ public:
                 ui::draw_vertical_spacer(0.5f);
                 ui::draw_text_disabled("Model Visual Preferences");
                 ui::draw_separator();
-                DrawAllDecorationToggleButtons(*m_Model, *m_IconCache);
+                draw_all_decoration_toggle_buttons(*m_Model, *m_IconCache);
                 ui::end_menu();
             }
             if (ui::begin_menu("Watch Output", false)) {
@@ -292,11 +292,11 @@ public:
             return;
         }
 
-        DrawRightClickedComponentContextMenuHeader(*c);
-        DrawContextMenuSeparator();
+        draw_right_clicked_component_context_menu_header(*c);
+        draw_context_menu_separator();
 
         if (ui::begin_menu("Add", m_Model->can_upd_model())) {
-            m_ModelAddMenuItems.setTargetParentComponent(m_Path);
+            m_ModelAddMenuItems.set_target_parent_component(m_Path);
             m_ModelAddMenuItems.on_draw();
             ui::end_menu();
         }
@@ -307,7 +307,7 @@ public:
         }
 
         if (auto* modelWithEnv = dynamic_cast<ModelStatePairWithSharedEnvironment*>(m_Model.get())) {
-            DrawWatchOutputMenu(*c, [this, modelWithEnv](const opyn::SharedOutputExtractor& outputExtractor)
+            draw_watch_output_menu(*c, [this, modelWithEnv](const opyn::SharedOutputExtractor& outputExtractor)
             {
                 modelWithEnv->tryUpdEnvironment()->addUserOutputExtractor(outputExtractor);
 
@@ -435,7 +435,7 @@ private:
         ui::draw_vertical_spacer(0.5f);
         ui::draw_text_disabled("Model Visual Preferences");
         ui::draw_separator();
-        DrawAllDecorationToggleButtons(*m_Model, *m_IconCache);
+        draw_all_decoration_toggle_buttons(*m_Model, *m_IconCache);
     }
 
     void drawSocketMenu(const OpenSim::Component& c)
@@ -501,7 +501,7 @@ private:
                 if (const auto* connectee = dynamic_cast<const OpenSim::Component*>(&socket.getConnecteeAsObject());
                     connectee && ui::is_item_hovered()) {
 
-                    DrawComponentHoverTooltip(*connectee);
+                    draw_component_hover_tooltip(*connectee);
                 }
 
                 ui::table_set_column_index(column++);
@@ -580,7 +580,7 @@ private:
                     request_close();
                 }
                 if (ui::is_item_hovered()) {
-                    DrawComponentHoverTooltip(view.source());
+                    draw_component_hover_tooltip(view.source());
                 }
 
                 // column: Socket Name

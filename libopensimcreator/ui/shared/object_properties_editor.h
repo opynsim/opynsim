@@ -22,10 +22,10 @@ namespace osc
             std::function<const OpenSim::Object*()> objectGetter
         );
 
-        void insertInBlacklist(std::string_view propertyName);
+        void insert_in_blacklist(std::string_view propertyName);
 
         // does not actually apply any property changes - the caller should check+apply the return value
-        std::optional<ObjectPropertyEdit> onDraw();
+        std::optional<ObjectPropertyEdit> on_draw();
 
     private:
         void impl_on_draw() final;

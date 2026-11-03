@@ -56,7 +56,7 @@ public:
 
         {
             OSC_PERF("draw simulation params");
-            DrawSimulationParams(m_Simulation->getParams());
+            draw_simulation_params(m_Simulation->getParams());
         }
 
         ui::draw_vertical_spacer(10.0f/15.0f);
@@ -108,7 +108,7 @@ private:
         ui::set_num_columns(2);
         for (const opyn::SharedOutputExtractor& output : sim.getOutputs()) {
             ui::push_id(imguiID++);
-            DrawOutputNameColumn(output, false);
+            draw_output_name_column(output, false);
             ui::next_column();
             SimulationOutputPlot plot{m_SimulatorUIAPI, output, 32.0f};
             plot.onDraw();

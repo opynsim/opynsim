@@ -130,7 +130,7 @@ private:
     void drawFilterAndSearchRow()
     {
         ui::set_next_item_width(ui::get_content_region_available().x());
-        DrawSearchBar(m_CurrentSearch);
+        draw_search_bar(m_CurrentSearch);
     }
 
     void drawNavigationTreeChildPanel(Response& rv)
@@ -271,7 +271,7 @@ private:
             // draw the tree leaf/node
             ui::push_id(imguiId);
             std::stringstream ss;
-            ss << IconFor(*cur) << ' ' << cur->getName();
+            ss << icon_for(*cur) << ' ' << cur->getName();
             if (ui::draw_tree_node_ex(std::move(ss).str(), nodeFlags)) {
                 ui::unindent(unindentPerLevel);
                 ++imguiTreeDepth;
@@ -289,7 +289,7 @@ private:
             if (userHoveringThisTreeNode) {
                 rv.type = ResponseType::HoverChanged;
                 rv.ptr = cur;
-                DrawComponentHoverTooltip(*cur);
+                draw_component_hover_tooltip(*cur);
             }
             if (userLeftClickedThisTreeNode) {
                 rv.type = ResponseType::SelectionChanged;

@@ -164,7 +164,7 @@ public:
         ui::draw_text("{}'s new connectee:", socket->getName());
 
         ui::set_next_item_width(ui::get_content_region_available().x());
-        DrawSearchBar(m_EditedParams.search);
+        draw_search_bar(m_EditedParams.search);
 
         ui::begin_child_panel(
             "##componentlist",

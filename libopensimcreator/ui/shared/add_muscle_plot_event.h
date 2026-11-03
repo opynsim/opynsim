@@ -12,10 +12,10 @@ namespace osc
     public:
         explicit AddMusclePlotEvent(const OpenSim::Coordinate&, const OpenSim::Muscle&);
 
-        const OpenSim::ComponentPath& getCoordinateAbsPath() const { return m_CoordinateAbsPath; }
-        const OpenSim::ComponentPath& getMuscleAbsPath() const { return m_MuscleAbsPath; }
+        const OpenSim::ComponentPath& get_coordinate_abs_path() const { return coordinate_abs_path_; }
+        const OpenSim::ComponentPath& get_muscle_abs_path() const { return muscle_abs_path_; }
     private:
-        OpenSim::ComponentPath m_CoordinateAbsPath;
-        OpenSim::ComponentPath m_MuscleAbsPath;
+        OpenSim::ComponentPath coordinate_abs_path_;
+        OpenSim::ComponentPath muscle_abs_path_;
     };
 }

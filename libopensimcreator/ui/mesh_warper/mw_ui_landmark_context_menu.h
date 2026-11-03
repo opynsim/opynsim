@@ -61,8 +61,8 @@ namespace osc
         void draw_context_menu(const MwDocumentLandmarkPair& lm)
         {
             // header
-            DrawContextMenuHeader(truncate_with_ellipsis(lm.name, 15), "Landmark");
-            DrawContextMenuSeparator();
+            draw_context_menu_header(truncate_with_ellipsis(lm.name, 15), "Landmark");
+            draw_context_menu_separator();
 
             // name editor
             if (!active_name_edit_)
@@ -118,7 +118,7 @@ namespace osc
                 }
             }
 
-            DrawContextMenuSeparator();
+            draw_context_menu_separator();
 
             if (ui::draw_menu_item(MSMICONS_TRASH " Delete", Key::Delete))
             {
@@ -130,8 +130,8 @@ namespace osc
         void draw_context_menu(const MwDocumentNonParticipatingLandmark& npl)
         {
             // header
-            DrawContextMenuHeader(truncate_with_ellipsis(npl.name, 15), "Non-Participating Landmark");
-            DrawContextMenuSeparator();
+            draw_context_menu_header(truncate_with_ellipsis(npl.name, 15), "Non-Participating Landmark");
+            draw_context_menu_separator();
 
             // name editor
             if (!active_name_edit_)
@@ -156,7 +156,7 @@ namespace osc
                 active_position_edit_.reset();
             }
 
-            DrawContextMenuSeparator();
+            draw_context_menu_separator();
 
             if (ui::draw_menu_item(MSMICONS_TRASH " Delete", Key::Delete))
             {

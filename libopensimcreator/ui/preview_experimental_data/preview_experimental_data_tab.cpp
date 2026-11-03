@@ -257,7 +257,7 @@ namespace
 
         void onDraw()
         {
-            if (BeginToolbar("##PreviewExperimentalDataToolbar", Vector2{5.0f, 5.0f})) {
+            if (begin_toolbar("##PreviewExperimentalDataToolbar", Vector2{5.0f, 5.0f})) {
                 // load/reload etc.
                 {
                     if (ui::draw_button("load model")) {
@@ -396,7 +396,7 @@ namespace
                 // scaling, visualization toggles.
                 ui::draw_same_line_with_vertical_separator();
                 {
-                    DrawSceneScaleFactorEditorControls(m_UiState->updModel());
+                    draw_scene_scale_factor_editor_controls(m_UiState->updModel());
                     if (not m_IconCache) {
                         m_IconCache = App::singleton<IconCache>(
                             App::resource_loader().with_prefix("OpenSimCreator/icons/"),
@@ -405,7 +405,7 @@ namespace
                         );
                     }
                     ui::same_line();
-                    DrawAllDecorationToggleButtons(m_UiState->updModel(), *m_IconCache);
+                    draw_all_decoration_toggle_buttons(m_UiState->updModel(), *m_IconCache);
                 }
 
 
@@ -487,7 +487,7 @@ public:
                         parent,
                         menuName,
                         model,
-                        e.componentAbsPathOrEmpty
+                        e.component_abs_path_or_empty
                     );
 
                     App::post_event<OpenPopupEvent>(editorAPI->owner(), std::move(popup));

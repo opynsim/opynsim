@@ -47,7 +47,7 @@ public:
 
     void onDraw()
     {
-        if (BeginToolbar(m_Label, Vector2{5.0f, 5.0f})) {
+        if (begin_toolbar(m_Label, Vector2{5.0f, 5.0f})) {
             drawContent();
         }
         ui::end_panel();

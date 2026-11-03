@@ -17,7 +17,7 @@ namespace osc
             std::shared_ptr<opyn::ModelStatePair> model
         );
 
-        void setTargetParentComponent(const OpenSim::ComponentPath&);
+        void set_target_parent_component(const OpenSim::ComponentPath&);
     private:
         void impl_on_draw() final;
 

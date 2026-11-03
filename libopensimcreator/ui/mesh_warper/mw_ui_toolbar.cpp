@@ -32,7 +32,7 @@ public:
 
     void onDraw()
     {
-        if (BeginToolbar(name())) {
+        if (begin_toolbar(name())) {
             drawContent();
         }
         ui::end_panel();
@@ -145,8 +145,8 @@ private:
             ui::open_popup("visualization_options_popup");
         }
         if (ui::begin_popup("visualization_options_popup", {ui::PanelFlag::AlwaysAutoResize, ui::PanelFlag::NoTitleBar, ui::PanelFlag::NoSavedSettings})) {
-            DrawRenderingOptionsEditor(m_State->upd_custom_rendering_options());
-            DrawOverlayOptionsEditor(m_State->upd_overlay_decoration_options());
+            draw_rendering_options_editor(m_State->upd_custom_rendering_options());
+            draw_overlay_options_editor(m_State->upd_overlay_decoration_options());
             {
                 bool wireframe = m_State->is_wireframe_mode_enabled();
                 if (ui::draw_checkbox("Wireframe", &wireframe)) {

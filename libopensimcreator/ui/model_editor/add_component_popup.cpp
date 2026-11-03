@@ -197,7 +197,7 @@ private:
 
     void drawPropertyEditors()
     {
-        auto maybeUpdater = m_PrototypePropertiesEditor.onDraw();
+        auto maybeUpdater = m_PrototypePropertiesEditor.on_draw();
         if (maybeUpdater) {
             OpenSim::AbstractProperty* prop = opyn::find_property_mut(*m_Proto, maybeUpdater->get_property_name());
             if (prop) {
@@ -243,7 +243,7 @@ private:
         // rhs: search and connectee choices
         ui::push_id(static_cast<int>(i));
         ui::set_next_item_width(ui::get_content_region_available().x());
-        DrawSearchBar(m_SocketSearchStrings[i]);
+        draw_search_bar(m_SocketSearchStrings[i]);
         ui::begin_child_panel("##pfselector", {ui::get_content_region_available().x(), 5.0f*ui::get_text_line_height_in_current_panel()});
 
         // iterate through potential connectees in model and print connect-able options
@@ -429,7 +429,7 @@ private:
 
         ui::push_id(imguiID++);
         ui::set_next_item_width(ui::get_content_region_available().x());
-        DrawSearchBar(m_PathSearchString);
+        draw_search_bar(m_PathSearchString);
         drawPathPointEditorChoices();
         ui::pop_id();
         ui::next_column();

@@ -141,7 +141,7 @@ public:
 
         // property editors
         {
-            auto maybeUpdater = m_SelectionPropertiesEditor.onDraw();
+            auto maybeUpdater = m_SelectionPropertiesEditor.on_draw();
             if (maybeUpdater) {
                 ActionApplyPropertyEdit(*m_Model, *maybeUpdater);
             }

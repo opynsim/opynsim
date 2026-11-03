@@ -16,18 +16,18 @@ namespace osc
     public:
         explicit MainMenuFileTab(Widget* parent);
 
-        void onDraw(std::shared_ptr<opyn::ModelStatePair> = nullptr);
+        void on_draw(std::shared_ptr<opyn::ModelStatePair> = nullptr);
 
-        std::vector<std::filesystem::path> exampleOsimFiles;
+        std::vector<std::filesystem::path> example_osim_files;
 
     private:
-        void impl_on_draw() final { onDraw(); }
+        void impl_on_draw() final { on_draw(); }
     };
 
     class MainMenuAboutTab final {
     public:
         MainMenuAboutTab() {}
 
-        void onDraw();
+        void on_draw();
     };
 }

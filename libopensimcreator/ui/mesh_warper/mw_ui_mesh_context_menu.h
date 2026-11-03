@@ -39,8 +39,8 @@ namespace osc
     private:
         void impl_draw_content() final
         {
-            DrawContextMenuHeader("Input Mesh", "Mesh");
-            DrawContextMenuSeparator();
+            draw_context_menu_header("Input Mesh", "Mesh");
+            draw_context_menu_separator();
 
             if (ui::draw_menu_item("Place landmark", MouseButton::Left)) {
                 ActionAddLandmark(state_->upd_undoable(), document_identifier_, mesh_collision_.position);

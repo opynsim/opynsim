@@ -2290,7 +2290,7 @@ private:
                         ActionImportLandmarks(
                             state->upd_committable_model_graph(),
                             data.landmarks,
-                            data.maybeLabel
+                            data.maybe_label
                         );
                     }
                 );
@@ -2349,7 +2349,7 @@ private:
 
     void drawMainMenuAboutMenu()
     {
-        MainMenuAboutTab{}.onDraw();
+        MainMenuAboutTab{}.on_draw();
     }
 
     // draws main 3D viewer, or a modal (if one is active)

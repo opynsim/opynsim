@@ -781,13 +781,13 @@ namespace
 }
 
 osc::ModelSelectionGizmo::ModelSelectionGizmo(std::shared_ptr<opyn::ModelStatePair> model_) :
-    m_Model{std::move(model_)}
+    model_{std::move(model_)}
 {
     // Default the gizmo to local-space, because OpenSim users can confuse the
     // gizmo arrows with the frame they've currently selected. If the frames are
     // hidden in the UI view, then they'll think "oh, these gizmo arrows are all
     // wrong, my frame is rotated!", even though the gizmo isn't the frame (#928).
-    m_Gizmo.set_mode(ui::GizmoMode::Local);
+    gizmo_.set_mode(ui::GizmoMode::Local);
 }
 osc::ModelSelectionGizmo::ModelSelectionGizmo(const ModelSelectionGizmo&) = default;
 osc::ModelSelectionGizmo::ModelSelectionGizmo(ModelSelectionGizmo&&) noexcept = default;
@@ -795,24 +795,24 @@ osc::ModelSelectionGizmo& osc::ModelSelectionGizmo::operator=(const ModelSelecti
 osc::ModelSelectionGizmo& osc::ModelSelectionGizmo::operator=(ModelSelectionGizmo&&) noexcept = default;
 osc::ModelSelectionGizmo::~ModelSelectionGizmo() noexcept = default;
 
-void osc::ModelSelectionGizmo::onDraw(
+void osc::ModelSelectionGizmo::on_draw(
     const Rect& screenRect,
     const Camera& camera)
 {
-    if (m_Model->is_readonly()) {
+    if (model_->is_readonly()) {
         return;  // cannot manipulate a readonly model (#936)
     }
 
-    const OpenSim::Component* selected = m_Model->get_selected();
+    const OpenSim::Component* selected = model_->get_selected();
     if (not selected) {
         return;
     }
 
     TryManipulateComponentWithMatchingManipulator(
-        m_Gizmo,
+        gizmo_,
         screenRect,
         camera,
-        m_Model,
+        model_,
         *selected,
         ManipulatorList{}
     );

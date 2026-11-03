@@ -166,7 +166,7 @@ public:
                             parent,
                             menuName,
                             m_ShownModelState,
-                            OpenSim::ComponentPath{e.componentAbsPathOrEmpty},
+                            OpenSim::ComponentPath{e.component_abs_path_or_empty},
                             ComponentContextMenuFlag::NoPlotVsCoordinate  // #922: shouldn't open in simulator screen
                         );
                         popup->open();

@@ -108,7 +108,7 @@ public:
         if (ui::draw_small_button("reset")) {
             m_FrameTimeAccumulator.reset();
         }
-        if (DrawViewerTopButtonRow(m_ModelRendererParams, m_Decorations, *m_IconCache)) {
+        if (draw_viewer_top_button_row(m_ModelRendererParams, m_Decorations, *m_IconCache)) {
             generateDecorations();
         }
         ui::end_panel();

@@ -138,8 +138,8 @@ public:
 
     void drawMainMenu()
     {
-        m_MainMenuFileTab->onDraw();
-        m_MainMenuAboutTab.onDraw();
+        m_MainMenuFileTab->on_draw();
+        m_MainMenuAboutTab.on_draw();
     }
 
     void onDraw()
@@ -345,12 +345,12 @@ private:
 
     void drawMenuRightColumnContent(int& imguiID)
     {
-        if (not m_MainMenuFileTab->exampleOsimFiles.empty()) {
+        if (not m_MainMenuFileTab->example_osim_files.empty()) {
 
             ui::draw_text_disabled("Example Models");
             ui::draw_vertical_spacer(2.0f/15.0f);
 
-            for (const std::filesystem::path& examplePath : m_MainMenuFileTab->exampleOsimFiles) {
+            for (const std::filesystem::path& examplePath : m_MainMenuFileTab->example_osim_files) {
                 DrawRecentOrExampleFileMenuItem(
                     examplePath,
                     *parent(),

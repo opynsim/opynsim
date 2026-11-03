@@ -30,10 +30,10 @@ public:
 
     void onDraw()
     {
-        m_MainMenuFileTab.onDraw();
+        m_MainMenuFileTab.on_draw();
         drawActionsMenu();
         m_MainMenuWindowTab.on_draw();
-        m_MainMenuAboutTab.onDraw();
+        m_MainMenuAboutTab.on_draw();
     }
 
 private:

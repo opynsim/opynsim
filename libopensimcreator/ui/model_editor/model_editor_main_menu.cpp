@@ -41,13 +41,13 @@ public:
 
     void onDraw()
     {
-        m_MainMenuFileTab.onDraw(m_Model);
+        m_MainMenuFileTab.on_draw(m_Model);
         drawMainMenuEditTab();
         drawMainMenuAddTab();
         drawMainMenuToolsTab();
         drawMainMenuActionsTab();
         m_WindowMenu.on_draw();
-        m_MainMenuAboutTab.onDraw();
+        m_MainMenuAboutTab.on_draw();
     }
 
 private:
@@ -113,8 +113,8 @@ private:
                             ActionImportLandmarks(
                                 *model,
                                 lms.landmarks,
-                                lms.maybeLabel,
-                                lms.maybeTargetComponentAbsPath
+                                lms.maybe_label,
+                                lms.maybe_target_component_abs_path
                             );
                         },
                         m_Model

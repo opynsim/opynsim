@@ -528,15 +528,15 @@ namespace
         void impl_draw_content() final
         {
             // if linked, read linked camera controller into local camera
-            if (m_State->updateLocalControllerIfLinked(updOrbitCameraController())) {
-                getOrbitCameraController().update_camera(updCamera());
+            if (m_State->updateLocalControllerIfLinked(upd_orbit_camera_controller())) {
+                get_orbit_camera_controller().update_camera(upd_camera());
             }
 
-            setModelState(m_State->sourceModel());
+            set_model_state(m_State->sourceModel());
             ModelViewerPanel::impl_draw_content();
 
             // if linked, local controller may have been updated, push update to linked controller
-            m_State->updateSharedControllerIfLinked(getOrbitCameraController());
+            m_State->updateSharedControllerIfLinked(get_orbit_camera_controller());
         }
 
         std::shared_ptr<ModelWarperV3UIState> m_State;
@@ -567,15 +567,15 @@ namespace
         void draw_scaled_model_visualization(const std::shared_ptr<ModelStatePair>& scaledModel)
         {
             // if linked, read linked camera controller into local camera
-            if (m_State->updateLocalControllerIfLinked(updOrbitCameraController())) {
-                getOrbitCameraController().update_camera(updCamera());
+            if (m_State->updateLocalControllerIfLinked(upd_orbit_camera_controller())) {
+                get_orbit_camera_controller().update_camera(upd_camera());
             }
 
-            setModelState(scaledModel);
+            set_model_state(scaledModel);
             ModelViewerPanel::impl_draw_content();
 
             // if linked, local controller may have been updated, push update to linked controller
-            m_State->updateSharedControllerIfLinked(getOrbitCameraController());
+            m_State->updateSharedControllerIfLinked(get_orbit_camera_controller());
         }
 
         void draw_validation_error_message(std::span<const ScalingDocumentValidationMessage> messages)
@@ -659,7 +659,7 @@ namespace
     private:
         void impl_on_draw() final
         {
-            if (BeginToolbar(name())) {
+            if (begin_toolbar(name())) {
                 draw_content();
             }
             ui::end_panel();
@@ -678,7 +678,7 @@ namespace
                 m_State->actionCreateNewSourceModel();
             }
             ui::same_line();
-            DrawOpenModelButtonWithRecentFilesDropdown([this](auto maybeSelection)
+            draw_open_model_button_with_recent_files_dropdown([this](auto maybeSelection)
             {
                 m_State->actionOpenOsimOrPromptUser(std::move(maybeSelection));
             });
@@ -934,9 +934,9 @@ namespace
                     [docPtr, path] { return find_component(*docPtr, path); }
                 );
                 if (inserted) {
-                    it->second.insertInBlacklist("components");
+                    it->second.insert_in_blacklist("components");
                 }
-                if (auto objectEdit = it->second.onDraw()) {
+                if (auto objectEdit = it->second.on_draw()) {
                     m_State->actionApplyObjectEditToScalingDocument(std::move(objectEdit).value());
                 }
             }
@@ -1013,7 +1013,7 @@ public:
     void on_draw_main_menu()
     {
         m_WindowMenu.on_draw();
-        m_AboutTab.onDraw();
+        m_AboutTab.on_draw();
     }
 
     void on_draw()

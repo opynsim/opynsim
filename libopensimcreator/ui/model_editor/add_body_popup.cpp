@@ -121,7 +121,7 @@ public:
             // show a search bar that the user can type into in order to filter through
             // the available frame list (can contain many items in large models, #21).
             ui::set_next_item_width(ui::get_content_region_available().x());
-            DrawSearchBar(m_JoinToSearchFilter);
+            draw_search_bar(m_JoinToSearchFilter);
 
             ui::begin_child_panel("join targets", Vector2{0, 128.0f}, ui::ChildPanelFlag::Border, ui::PanelFlag::HorizontalScrollbar);
             for (const auto& pf : model.getComponentList<OpenSim::PhysicalFrame>()) {

@@ -62,7 +62,7 @@ public:
         }
 
         ui::set_next_item_width(ui::get_content_region_available().x());
-        DrawSearchBar(m_SearchString);
+        draw_search_bar(m_SearchString);
 
         if (m_SearchString.empty()) {
             drawDefaultComponentList();
@@ -358,7 +358,7 @@ osc::ModelAddMenuItems::ModelAddMenuItems(Widget* parent, std::shared_ptr<opyn::
     Widget{std::make_unique<Impl>(*this, parent, std::move(m))}
 {}
 
-void osc::ModelAddMenuItems::setTargetParentComponent(const OpenSim::ComponentPath& path)
+void osc::ModelAddMenuItems::set_target_parent_component(const OpenSim::ComponentPath& path)
 {
     private_data().setTargetParentComponent(path);
 }

@@ -153,7 +153,7 @@ public:
                         &this->owner(),
                         menuName,
                         model,
-                        e.componentAbsPathOrEmpty
+                        e.component_abs_path_or_empty
                     );
 
                     App::post_event<OpenPopupEvent>(this->owner(), std::move(popup));
@@ -260,8 +260,8 @@ public:
                     &owner(),
                     m_Model,
                     name,
-                    addMusclePlotEvent->getCoordinateAbsPath(),
-                    addMusclePlotEvent->getMuscleAbsPath()
+                    addMusclePlotEvent->get_coordinate_abs_path(),
+                    addMusclePlotEvent->get_muscle_abs_path()
                 )
             );
             return true;

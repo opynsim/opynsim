@@ -46,7 +46,7 @@ private:
                 const OpenSim::Component& el = *els[i];
 
                 ui::push_id(i);
-                ui::draw_text(IconFor(el));
+                ui::draw_text(icon_for(el));
                 ui::same_line();
                 const std::string label = truncate_with_ellipsis(el.getName(), 15);
                 if (ui::draw_small_button(label)) {
@@ -59,7 +59,7 @@ private:
                 ui::pop_id();
             }
             if (not els.empty()) {
-                ui::draw_text(IconFor(*els.back()));
+                ui::draw_text(icon_for(*els.back()));
                 ui::same_line();
                 const std::string label = truncate_with_ellipsis(els.back()->getName(), 15);
                 ui::draw_text(label);

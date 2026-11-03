@@ -37,7 +37,7 @@ public:
 
     void onDraw()
     {
-        if (BeginToolbar(name(), Vector2{5.0f, 5.0f})) {
+        if (begin_toolbar(name(), Vector2{5.0f, 5.0f})) {
             drawContent();
         }
         ui::end_panel();
@@ -47,13 +47,13 @@ public:
 private:
     void drawModelFileRelatedButtons()
     {
-        DrawNewModelButton(owner());
+        draw_new_model_button(owner());
         ui::same_line();
-        DrawOpenModelButtonWithRecentFilesDropdown(owner());
+        draw_open_model_button_with_recent_files_dropdown(owner());
         ui::same_line();
-        DrawSaveModelButton(m_Model);
+        draw_save_model_button(m_Model);
         ui::same_line();
-        DrawReloadModelButton(*m_Model);
+        draw_reload_model_button(*m_Model);
     }
 
     void drawForwardDynamicSimulationControls()
@@ -91,16 +91,16 @@ private:
         drawModelFileRelatedButtons();
         ui::draw_same_line_with_vertical_separator();
 
-        DrawUndoAndRedoButtons(*m_Model);
+        draw_undo_and_redo_buttons(*m_Model);
         ui::draw_same_line_with_vertical_separator();
 
-        DrawSceneScaleFactorEditorControls(*m_Model);
+        draw_scene_scale_factor_editor_controls(*m_Model);
         ui::draw_same_line_with_vertical_separator();
 
         drawForwardDynamicSimulationControls();
         ui::draw_same_line_with_vertical_separator();
 
-        DrawAllDecorationToggleButtons(*m_Model, *m_IconCache);
+        draw_all_decoration_toggle_buttons(*m_Model, *m_IconCache);
     }
 
     std::shared_ptr<UndoableModelStatePair> m_Model;

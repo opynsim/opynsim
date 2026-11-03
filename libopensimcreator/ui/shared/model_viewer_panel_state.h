@@ -25,61 +25,61 @@ namespace osc
     class ModelViewerPanelState final {
     public:
         explicit ModelViewerPanelState(
-            std::string_view panelName_,
+            std::string_view panel_name,
             ModelViewerPanelFlags
         );
 
-        CStringView getPanelName() const
+        CStringView get_panel_name() const
         {
             return panel_name_;
         }
 
         ModelViewerPanelFlags flags() const
         {
-            return m_Flags;
+            return flags_;
         }
 
-        Rect viewportUiRect{};
-        bool isLeftClickReleasedWithoutDragging = false;
-        bool isRightClickReleasedWithoutDragging = false;
-        std::optional<AABB> maybeSceneVisibleAABB;
-        std::optional<SceneCollision> maybeBaseLayerHittest;
-        OpenSim::ComponentPath maybeHoveredComponentAbsPath;
+        Rect viewport_ui_rect{};
+        bool is_left_click_released_without_dragging = false;
+        bool is_right_click_released_without_dragging = false;
+        std::optional<AABB> maybe_scene_visible_aabb;
+        std::optional<SceneCollision> maybe_base_layer_hittest;
+        OpenSim::ComponentPath maybe_hovered_component_abs_path;
 
-        std::span<const SceneDecoration> getDrawlist() const
+        std::span<const SceneDecoration> get_drawlist() const
         {
-            return m_CachedModelRenderer.get_drawlist();
+            return cached_model_renderer_.get_drawlist();
         }
 
-        ModelViewerPanelLayer& pushLayer(std::unique_ptr<ModelViewerPanelLayer> layer)
+        ModelViewerPanelLayer& push_layer(std::unique_ptr<ModelViewerPanelLayer> layer)
         {
-            return *m_LayerQueue.emplace_back(std::move(layer));
+            return *layer_queue_.emplace_back(std::move(layer));
         }
 
-        const opyn::CachedModelRenderer& getRenderer() const
+        const opyn::CachedModelRenderer& get_renderer() const
         {
-            return m_CachedModelRenderer;
+            return cached_model_renderer_;
         }
 
-        opyn::CachedModelRenderer& updRenderer()
+        opyn::CachedModelRenderer& upd_renderer()
         {
-            return m_CachedModelRenderer;
+            return cached_model_renderer_;
         }
 
-        void flushLayerQueueTo(std::vector<std::unique_ptr<ModelViewerPanelLayer>>& target)
+        void flush_layer_queue_to(std::vector<std::unique_ptr<ModelViewerPanelLayer>>& target)
         {
             target.insert(
                 target.end(),
-                std::make_move_iterator(m_LayerQueue.begin()),
-                std::make_move_iterator(m_LayerQueue.end())
+                std::make_move_iterator(layer_queue_.begin()),
+                std::make_move_iterator(layer_queue_.end())
             );
-            m_LayerQueue.clear();
+            layer_queue_.clear();
         }
 
     private:
         std::string panel_name_;
-        ModelViewerPanelFlags m_Flags;
-        opyn::CachedModelRenderer m_CachedModelRenderer;
-        std::vector<std::unique_ptr<ModelViewerPanelLayer>> m_LayerQueue;
+        ModelViewerPanelFlags flags_;
+        opyn::CachedModelRenderer cached_model_renderer_;
+        std::vector<std::unique_ptr<ModelViewerPanelLayer>> layer_queue_;
     };
 }

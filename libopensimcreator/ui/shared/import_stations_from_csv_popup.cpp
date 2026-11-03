@@ -272,9 +272,9 @@ private:
         }
 
         m_OnImportCallback({
-            .maybeLabel = m_MaybeImportPath ? m_MaybeImportPath->string() : std::optional<std::string>{},
+            .maybe_label = m_MaybeImportPath ? m_MaybeImportPath->string() : std::optional<std::string>{},
             .landmarks = m_ImportedLandmarks,
-            .maybeTargetComponentAbsPath = m_TargetComponentAbsPath == "/ground" ? std::optional<std::string>{} : m_TargetComponentAbsPath,
+            .maybe_target_component_abs_path = m_TargetComponentAbsPath == "/ground" ? std::optional<std::string>{} : m_TargetComponentAbsPath,
         });
     }
 

@@ -110,7 +110,7 @@ namespace
                 if (ui::begin_menu(component.getName())) {
                     for (const OpenSim::AbstractOutput& output : extractableOutputs) {
                         ui::push_id(id++);
-                        DrawRequestOutputMenuOrMenuItem(output, [&oneDimensionalOutputExtractor, &environment](const opyn::SharedOutputExtractor& rhs)
+                        draw_request_output_menu_or_menu_item(output, [&oneDimensionalOutputExtractor, &environment](const opyn::SharedOutputExtractor& rhs)
                         {
                             opyn::SharedOutputExtractor concatenating = opyn::SharedOutputExtractor{opyn::ConcatenatingOutputExtractor{oneDimensionalOutputExtractor, rhs}};
                             environment->overwriteOrAddNewUserOutputExtractor(oneDimensionalOutputExtractor, concatenating);

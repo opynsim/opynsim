@@ -120,10 +120,10 @@ namespace
 
 osc::MainMenuFileTab::MainMenuFileTab(Widget* parent) :
     Widget{parent},
-    exampleOsimFiles{tryLoadExampleOsimFiles()}
+    example_osim_files{tryLoadExampleOsimFiles()}
 {}
 
-void osc::MainMenuFileTab::onDraw(std::shared_ptr<opyn::ModelStatePair> maybeModel)  // NOLINT(performance-unnecessary-value-param)
+void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybeModel)  // NOLINT(performance-unnecessary-value-param)
 {
     auto undoableModel = std::dynamic_pointer_cast<UndoableModelStatePair>(maybeModel);
 
@@ -187,7 +187,7 @@ void osc::MainMenuFileTab::onDraw(std::shared_ptr<opyn::ModelStatePair> maybeMod
     }
 
     if (ui::begin_menu(MSMICONS_FOLDER_OPEN " Open Example")) {
-        for (const std::filesystem::path& ex : exampleOsimFiles) {
+        for (const std::filesystem::path& ex : example_osim_files) {
             ui::push_id(++imgui_id);
             if (ui::draw_menu_item(ex.filename().string())) {
                 if (parent()) {
@@ -285,7 +285,7 @@ void osc::MainMenuFileTab::onDraw(std::shared_ptr<opyn::ModelStatePair> maybeMod
 }
 
 
-void osc::MainMenuAboutTab::onDraw()
+void osc::MainMenuAboutTab::on_draw()
 {
     if (!ui::begin_menu("About"))
     {

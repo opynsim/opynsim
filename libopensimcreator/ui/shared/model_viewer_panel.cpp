@@ -55,30 +55,30 @@ namespace
         }
 
     private:
-        ModelViewerPanelLayerFlags implGetFlags() const final
+        ModelViewerPanelLayerFlags impl_get_flags() const final
         {
             return ModelViewerPanelLayerFlags::CapturesMouseInputs;
         }
 
-        bool implHandleMouseInputs(
+        bool impl_handle_mouse_inputs(
             ModelViewerPanelParameters&,
             ModelViewerPanelState&) final
         {
             return true;  // always handles the mouse
         }
 
-        void implOnDraw(
+        void impl_on_draw(
             ModelViewerPanelParameters& params,
             ModelViewerPanelState& state) final
         {
             m_Ruler.on_draw(
-                params.getCamera(),
-                state.viewportUiRect,
-                state.maybeBaseLayerHittest
+                params.get_camera(),
+                state.viewport_ui_rect,
+                state.maybe_base_layer_hittest
             );
         }
 
-        bool implShouldClose() const final
+        bool impl_should_close() const final
         {
             return !m_Ruler.is_measuring();
         }
@@ -98,49 +98,49 @@ namespace
             m_Gizmo{std::move(model_)}
         {}
     private:
-        ModelViewerPanelLayerFlags implGetFlags() const final
+        ModelViewerPanelLayerFlags impl_get_flags() const final
         {
             ModelViewerPanelLayerFlags flags = ModelViewerPanelLayerFlags::None;
-            if (m_Gizmo.isUsing())
+            if (m_Gizmo.is_using())
             {
                 flags |= ModelViewerPanelLayerFlags::CapturesMouseInputs;
             }
             return flags;
         }
 
-        float implGetBackgroundAlpha() const final
+        float impl_get_background_alpha() const final
         {
             return 0.0f;
         }
 
-        bool implHandleMouseInputs(
+        bool impl_handle_mouse_inputs(
             ModelViewerPanelParameters&,
             ModelViewerPanelState&) final
         {
             // care: `isUsing` can return `true` even if it isn't being drawn this frame
-            return m_Gizmo.isUsing();
+            return m_Gizmo.is_using();
         }
 
-        bool implHandleKeyboardInputs(
+        bool impl_handle_keyboard_inputs(
             ModelViewerPanelParameters&,
             ModelViewerPanelState&) final
         {
-            return m_Gizmo.handleKeyboardInputs();
+            return m_Gizmo.handle_keyboard_inputs();
         }
 
-        void implOnDraw(
+        void impl_on_draw(
             ModelViewerPanelParameters& params,
             ModelViewerPanelState& state) final
         {
             // draw generic overlays (i.e. the buttons for toggling things)
-            auto renderParamsBefore = params.getRenderParams();
+            auto renderParamsBefore = params.get_render_params();
 
-            const bool edited = DrawViewerImGuiOverlays(
-                params.updRenderParams(),
-                params.updOrbitCameraController(),
-                state.getDrawlist(),
-                state.maybeSceneVisibleAABB,
-                state.viewportUiRect,
+            const bool edited = draw_viewer_im_gui_overlays(
+                params.upd_render_params(),
+                params.upd_orbit_camera_controller(),
+                state.get_drawlist(),
+                state.maybe_scene_visible_aabb,
+                state.viewport_ui_rect,
                 *m_IconCache,
                 [this, &state]() { return drawExtraTopButtons(state); }
             );
@@ -149,7 +149,7 @@ namespace
             {
                 log_debug("{} edited", panel_name_);
 
-                const auto& renderParamsAfter = params.getRenderParams();
+                const auto& renderParamsAfter = params.get_render_params();
 
                 save_model_renderer_params_difference(
                     renderParamsBefore,
@@ -160,10 +160,10 @@ namespace
             }
 
             // draw gizmo manipulators over the top
-            m_Gizmo.onDraw(state.viewportUiRect, params.getCamera());
+            m_Gizmo.on_draw(state.viewport_ui_rect, params.get_camera());
         }
 
-        bool implShouldClose() const final
+        bool impl_should_close() const final
         {
             return false;  // never closes
         }
@@ -182,7 +182,7 @@ namespace
             };
             if (rulerButton.on_draw())
             {
-                state.pushLayer(std::make_unique<RulerLayer>());
+                state.push_layer(std::make_unique<RulerLayer>());
                 edited = true;
             }
 
@@ -222,12 +222,12 @@ namespace
     public:
         explicit InformationalOverlaysLayer() = default;
     private:
-        ModelViewerPanelLayerFlags implGetFlags() const final
+        ModelViewerPanelLayerFlags impl_get_flags() const final
         {
             return ModelViewerPanelLayerFlags::None;
         }
 
-        void implOnDraw(ModelViewerPanelParameters& params, ModelViewerPanelState& state) final
+        void impl_on_draw(ModelViewerPanelParameters& params, ModelViewerPanelState& state) final
         {
             drawCoordinateLineOverlayOrResetCache(params, state);
         }
@@ -237,14 +237,14 @@ namespace
             // Update cached `OpenSim::Joint` transform samples with respect to the
             // selected `OpenSim::Coordinate`, if applicable.
             auto& cache = m_CachedCoordinateOverlayState;
-            if (opyn::ModelStatePairInfo currentModelStatePair{*params.getModelSharedPtr()};
+            if (opyn::ModelStatePairInfo currentModelStatePair{*params.get_model_shared_ptr()};
                 currentModelStatePair != m_PreviousModelStatePair) {
 
                 // Cache key has changed: clear/reset cached stuff.
                 cache.clear();
 
-                if (const auto* coordinate = params.getModelSharedPtr()->get_selected_as<OpenSim::Coordinate>();
-                    (coordinate != nullptr) and not coordinate->getLocked(params.getModelSharedPtr()->get_state())) {
+                if (const auto* coordinate = params.get_model_shared_ptr()->get_selected_as<OpenSim::Coordinate>();
+                    (coordinate != nullptr) and not coordinate->getLocked(params.get_model_shared_ptr()->get_state())) {
 
                     // If the caller has an `OpenSim::Coordinate` selected, and it isn't
                     // locked, sample `[min, max]` to figure out how the joint transform
@@ -256,8 +256,8 @@ namespace
                         const double samplerStepSize = coordinateRange.step_size(c_NumCoordinateSamplePoints);
 
                         // Save current joint transform (used for showing user current state-of-play).
-                        SimTK::State samplingState{params.getModelSharedPtr()->get_state()};
-                        params.getModelSharedPtr()->get_model().realizePosition(samplingState);
+                        SimTK::State samplingState{params.get_model_shared_ptr()->get_state()};
+                        params.get_model_shared_ptr()->get_model().realizePosition(samplingState);
                         cache.currentTransform = associatedChildFrame.getTransformInGround(samplingState);
 
                         // Sample along the coordinate, caching transforms.
@@ -265,7 +265,7 @@ namespace
                         for (size_t step = 0; step < c_NumCoordinateSamplePoints; ++step) {
                             const double sampledCoordinateValue = coordinateRange.lower + static_cast<double>(step)*samplerStepSize;
                             coordinate->setValue(samplingState, sampledCoordinateValue, false);
-                            params.getModelSharedPtr()->get_model().realizePosition(samplingState);
+                            params.get_model_shared_ptr()->get_model().realizePosition(samplingState);
                             cache.sampledTransforms.push_back(associatedChildFrame.getTransformInGround(samplingState));
                         }
                     }
@@ -282,7 +282,7 @@ namespace
 
             // If the user (still) has an `OpenSim::Coordinate` selected, and the cache is
             // populated with enough data, draw the overlay.
-            if (const auto* coordinate = params.getModelSharedPtr()->get_selected_as<OpenSim::Coordinate>();
+            if (const auto* coordinate = params.get_model_shared_ptr()->get_selected_as<OpenSim::Coordinate>();
                 coordinate != nullptr and cache.sampledTransforms.size() >= 2) {
 
                 // Represents points projected from a transform into ui space.
@@ -313,9 +313,9 @@ namespace
                 };
 
                 auto dl = ui::get_panel_draw_list();
-                const auto& viewportUiRect = state.viewportUiRect;
-                const auto& camera = params.getCamera();
-                const float focalDistance = params.getOrbitCameraController().radius;
+                const auto& viewportUiRect = state.viewport_ui_rect;
+                const auto& camera = params.get_camera();
+                const float focalDistance = params.get_orbit_camera_controller().radius;
 
                 // Draw lines along the sample points, so users can see
                 // the "rail" of the coordinate.
@@ -334,7 +334,7 @@ namespace
 
                 // If the `OpenSim::Coordinate` is clamped, put an endcap on the rail, so that
                 // users can see that a coordinate must stop at the ends.
-                if (coordinate->getClamped(params.getModelSharedPtr()->get_state())) {
+                if (coordinate->getClamped(params.get_model_shared_ptr()->get_state())) {
 
                     const auto drawCaps = [](ui::DrawListView& dl, const ProjectedPoints& a, const ProjectedPoints& b)
                     {
@@ -411,28 +411,28 @@ namespace
     // etc. if no upper layer decides to handle it
     class BaseInteractionLayer final : public ModelViewerPanelLayer {
     private:
-        void implOnNewFrame() final
+        void impl_on_new_frame() final
         {
             m_IsHandlingMouseInputs = false;
         }
 
-        bool implHandleKeyboardInputs(
+        bool impl_handle_keyboard_inputs(
             ModelViewerPanelParameters& params,
             ModelViewerPanelState& state) final
         {
             const bool controllerUpdated = ui::update_orbit_controller_from_keyboard_inputs(
-                params.updOrbitCameraController(),
-                params.getCamera(),
-                state.viewportUiRect,
-                state.maybeSceneVisibleAABB
+                params.upd_orbit_camera_controller(),
+                params.get_camera(),
+                state.viewport_ui_rect,
+                state.maybe_scene_visible_aabb
             );
             if (controllerUpdated) {
-                params.getOrbitCameraController().update_camera(params.updCamera());
+                params.get_orbit_camera_controller().update_camera(params.upd_camera());
             }
             return controllerUpdated;
         }
 
-        bool implHandleMouseInputs(
+        bool impl_handle_mouse_inputs(
             ModelViewerPanelParameters& params,
             ModelViewerPanelState& state) final
         {
@@ -440,34 +440,34 @@ namespace
 
             // try updating the camera (mouse panning, etc.)
             bool rv = ui::update_orbit_controller_from_mouse_inputs(
-                params.updOrbitCameraController(),
-                params.getCamera(),
-                state.viewportUiRect.dimensions()
+                params.upd_orbit_camera_controller(),
+                params.get_camera(),
+                state.viewport_ui_rect.dimensions()
             );
             if (rv) {
-                params.getOrbitCameraController().update_camera(params.updCamera());
+                params.get_orbit_camera_controller().update_camera(params.upd_camera());
             }
 
             if (ui::is_mouse_dragging_with_any_button_down())
             {
-                params.getModelSharedPtr()->set_hovered(nullptr);
+                params.get_model_shared_ptr()->set_hovered(nullptr);
             }
-            else if (state.maybeHoveredComponentAbsPath != opyn::get_absolute_path_or_empty(params.getModelSharedPtr()->get_hovered()))
+            else if (state.maybe_hovered_component_abs_path != opyn::get_absolute_path_or_empty(params.get_model_shared_ptr()->get_hovered()))
             {
                 // care: this code must check whether the hover != current hover
                 // (even if null), because there might be multiple viewports open
                 // (#582)
-                params.getModelSharedPtr()->set_hovered(
-                    opyn::find_component(params.getModelSharedPtr()->get_model(), state.maybeHoveredComponentAbsPath)
+                params.get_model_shared_ptr()->set_hovered(
+                    opyn::find_component(params.get_model_shared_ptr()->get_model(), state.maybe_hovered_component_abs_path)
                 );
                 rv = true;
             }
 
             // if left-clicked, update top-level model selection
-            if (state.isLeftClickReleasedWithoutDragging)
+            if (state.is_left_click_released_without_dragging)
             {
-                params.getModelSharedPtr()->set_selected(
-                    opyn::find_component(params.getModelSharedPtr()->get_model(), state.maybeHoveredComponentAbsPath)
+                params.get_model_shared_ptr()->set_selected(
+                    opyn::find_component(params.get_model_shared_ptr()->get_model(), state.maybe_hovered_component_abs_path)
                 );
                 rv = true;
             }
@@ -475,38 +475,38 @@ namespace
             return rv;
         }
 
-        void implOnDraw(
+        void impl_on_draw(
             ModelViewerPanelParameters& params,
             ModelViewerPanelState& state) final
         {
             // hover, but not panning: show tooltip
-            if (!state.maybeHoveredComponentAbsPath.toString().empty() &&
+            if (!state.maybe_hovered_component_abs_path.toString().empty() &&
                 m_IsHandlingMouseInputs &&
                 !ui::is_mouse_dragging_with_any_button_down())
             {
-                if (const OpenSim::Component* c = opyn::find_component(params.getModelSharedPtr()->get_model(), state.maybeHoveredComponentAbsPath))
+                if (const OpenSim::Component* c = opyn::find_component(params.get_model_shared_ptr()->get_model(), state.maybe_hovered_component_abs_path))
                 {
-                    DrawComponentHoverTooltip(*c);
+                    draw_component_hover_tooltip(*c);
                 }
             }
 
             // right-click: open context menu
             if (m_IsHandlingMouseInputs &&
-                state.isRightClickReleasedWithoutDragging)
+                state.is_right_click_released_without_dragging)
             {
                 // right-click: pump a right-click event
                 const ModelViewerPanelRightClickEvent e
                 {
-                    std::string{state.getPanelName()},
-                    state.viewportUiRect,
-                    state.maybeHoveredComponentAbsPath.toString(),
-                    state.maybeBaseLayerHittest ? std::optional<Vector3>{state.maybeBaseLayerHittest->world_position} : std::nullopt,
+                    std::string{state.get_panel_name()},
+                    state.viewport_ui_rect,
+                    state.maybe_hovered_component_abs_path.toString(),
+                    state.maybe_base_layer_hittest ? std::optional<Vector3>{state.maybe_base_layer_hittest->world_position} : std::nullopt,
                 };
-                params.callOnRightClickHandler(e);
+                params.call_on_right_click_handler(e);
             }
         }
 
-        bool implShouldClose() const final
+        bool impl_should_close() const final
         {
             return false;
         }
@@ -536,11 +536,11 @@ public:
         upd_model_renderer_params_from(
             App::settings(),
             GetSettingsKeyPrefixForPanel(panelName_),
-            m_Parameters.updRenderParams()
+            m_Parameters.upd_render_params()
         );
         pushLayer(std::make_unique<BaseInteractionLayer>());
         pushLayer(std::make_unique<InformationalOverlaysLayer>());
-        pushLayer(std::make_unique<ButtonAndGizmoControlsLayer>(panelName_, m_Parameters.getModelSharedPtr()));
+        pushLayer(std::make_unique<ButtonAndGizmoControlsLayer>(panelName_, m_Parameters.get_model_shared_ptr()));
     }
 
     bool isMousedOver() const
@@ -550,41 +550,41 @@ public:
 
     bool isLeftClicked() const
     {
-        return m_RenderIsHovered and m_State.isLeftClickReleasedWithoutDragging;
+        return m_RenderIsHovered and m_State.is_left_click_released_without_dragging;
     }
 
     bool isRightClicked() const
     {
-        return m_RenderIsHovered and m_State.isRightClickReleasedWithoutDragging;
+        return m_RenderIsHovered and m_State.is_right_click_released_without_dragging;
     }
 
     ModelViewerPanelLayer& pushLayer(std::unique_ptr<ModelViewerPanelLayer> layer)
     {
         // care: do not push new layers directly into `m_Layers`, because `pushLayer` can be
         // called during iteration over `m_Layers` (e.g. during drawing)
-        return m_State.pushLayer(std::move(layer));
+        return m_State.push_layer(std::move(layer));
     }
 
     void focusOn(const Vector3& position)
     {
-        m_Parameters.updOrbitCameraController().focus_point = position;
-        m_Parameters.getOrbitCameraController().update_camera(m_Parameters.updCamera());
+        m_Parameters.upd_orbit_camera_controller().focus_point = position;
+        m_Parameters.get_orbit_camera_controller().update_camera(m_Parameters.upd_camera());
     }
 
     std::optional<Rect> getScreenRect() const
     {
-        return m_State.viewportUiRect;
+        return m_State.viewport_ui_rect;
     }
 
-    const Camera& getCamera() const { return m_Parameters.getCamera(); }
-    Camera& updCamera() { return m_Parameters.updCamera(); }
+    const Camera& getCamera() const { return m_Parameters.get_camera(); }
+    Camera& updCamera() { return m_Parameters.upd_camera(); }
 
-    const OrbitCameraController& getOrbitCameraController() const { return m_Parameters.getOrbitCameraController(); }
-    OrbitCameraController& updOrbitCameraController() { return m_Parameters.updOrbitCameraController(); }
+    const OrbitCameraController& getOrbitCameraController() const { return m_Parameters.get_orbit_camera_controller(); }
+    OrbitCameraController& updOrbitCameraController() { return m_Parameters.upd_orbit_camera_controller(); }
 
     void setModelState(const std::shared_ptr<opyn::ModelStatePair>& newModelState)
     {
-        m_Parameters.setModelSharedPtr(newModelState);
+        m_Parameters.set_model_shared_ptr(newModelState);
     }
 
     void draw_content()
@@ -594,23 +594,23 @@ public:
         // because GCing destroyed them before they were rendered
         layersGarbageCollect();
 
-        m_State.viewportUiRect = ui::get_content_region_available_ui_rect();
-        m_State.isLeftClickReleasedWithoutDragging = ui::is_mouse_released_without_dragging(MouseButton::Left);
-        m_State.isRightClickReleasedWithoutDragging = ui::is_mouse_released_without_dragging(MouseButton::Right);
+        m_State.viewport_ui_rect = ui::get_content_region_available_ui_rect();
+        m_State.is_left_click_released_without_dragging = ui::is_mouse_released_without_dragging(MouseButton::Left);
+        m_State.is_right_click_released_without_dragging = ui::is_mouse_released_without_dragging(MouseButton::Right);
 
         // if necessary, auto-focus the camera on the first frame
         if (m_IsFirstFrame) {
-            const auto bounds = m_State.updRenderer().visible_bounds(
-                *m_Parameters.getModelSharedPtr(),
-                m_Parameters.getRenderParams()
+            const auto bounds = m_State.upd_renderer().visible_bounds(
+                *m_Parameters.get_model_shared_ptr(),
+                m_Parameters.get_render_params()
             );
             if (bounds) {
-                m_Parameters.updOrbitCameraController().focus_on(
+                m_Parameters.upd_orbit_camera_controller().focus_on(
                     *bounds,
-                    m_Parameters.getCamera(),
-                    aspect_ratio_of(m_State.viewportUiRect)
+                    m_Parameters.get_camera(),
+                    aspect_ratio_of(m_State.viewport_ui_rect)
                 );
-                m_Parameters.getOrbitCameraController().update_camera(m_Parameters.updCamera());
+                m_Parameters.get_orbit_camera_controller().update_camera(m_Parameters.upd_camera());
             }
             m_IsFirstFrame = false;
         }
@@ -630,16 +630,16 @@ public:
 
         // render the 3D scene to a texture and present it via a ui::Image
         {
-            RenderTexture& sceneTexture = m_State.updRenderer().on_draw(
-                *m_Parameters.getModelSharedPtr(),
-                m_Parameters.getRenderParams(),
-                m_State.viewportUiRect.dimensions(),
+            RenderTexture& sceneTexture = m_State.upd_renderer().on_draw(
+                *m_Parameters.get_model_shared_ptr(),
+                m_Parameters.get_render_params(),
+                m_State.viewport_ui_rect.dimensions(),
                 App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio(),
                 App::get().anti_aliasing_level()
             );
             ui::draw_image(
                 sceneTexture,
-                m_State.viewportUiRect.dimensions()
+                m_State.viewport_ui_rect.dimensions()
             );
 
             // care: hittesting is done here, rather than using ui::is_panel_hovered, because
@@ -665,30 +665,30 @@ public:
         }
 
         // update state scene AABB
-        m_State.maybeSceneVisibleAABB = m_State.getRenderer().visible_bounds();
+        m_State.maybe_scene_visible_aabb = m_State.get_renderer().visible_bounds();
 
         // if hovering in 2D, 3D-hittest the scene
         if (m_RenderIsHovered and not (m_State.flags() & ModelViewerPanelFlag::NoHittest))
         {
-            m_State.maybeBaseLayerHittest = m_State.getRenderer().get_closest_collision(
-                m_Parameters.getRenderParams(),
+            m_State.maybe_base_layer_hittest = m_State.get_renderer().get_closest_collision(
+                m_Parameters.get_render_params(),
                 ui::get_mouse_ui_position(),
-                m_State.viewportUiRect
+                m_State.viewport_ui_rect
             );
         }
         else
         {
-            m_State.maybeBaseLayerHittest.reset();
+            m_State.maybe_base_layer_hittest.reset();
         }
 
         // if there's a 3D-hit, transform it into an OpenSim-hit
-        if (m_State.maybeBaseLayerHittest)
+        if (m_State.maybe_base_layer_hittest)
         {
-            m_State.maybeHoveredComponentAbsPath = OpenSim::ComponentPath{std::string{m_State.maybeBaseLayerHittest->decoration_id}};
+            m_State.maybe_hovered_component_abs_path = OpenSim::ComponentPath{std::string{m_State.maybe_base_layer_hittest->decoration_id}};
         }
         else
         {
-            m_State.maybeHoveredComponentAbsPath = {};
+            m_State.maybe_hovered_component_abs_path = {};
         }
 
         layersDraw();
@@ -700,7 +700,7 @@ private:
     {
         for (const auto& layerPtr : m_Layers)
         {
-            layerPtr->onNewFrame();
+            layerPtr->on_new_frame();
         }
     }
 
@@ -708,7 +708,7 @@ private:
     {
         for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); ++it)
         {
-            if ((*it)->handleKeyboardInputs(m_Parameters, m_State))
+            if ((*it)->handle_keyboard_inputs(m_Parameters, m_State))
             {
                 return;
             }
@@ -719,8 +719,8 @@ private:
     {
         for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); ++it)
         {
-            if ((*it)->handleMouseInputs(m_Parameters, m_State) ||
-                (*it)->getFlags() & ModelViewerPanelLayerFlags::CapturesMouseInputs)
+            if ((*it)->handle_mouse_inputs(m_Parameters, m_State) ||
+                (*it)->get_flags() & ModelViewerPanelLayerFlags::CapturesMouseInputs)
             {
                 return;
             }
@@ -736,22 +736,22 @@ private:
             ui::PanelFlags windowFlags = ui::get_minimal_panel_flags().without(ui::PanelFlag::NoInputs);
 
             // if any layer above this one captures mouse inputs then disable this layer's inputs
-            if (find_if(it+1, m_Layers.end(), [](const auto& layerPtr) -> bool { return layerPtr->getFlags() & ModelViewerPanelLayerFlags::CapturesMouseInputs; }) != m_Layers.end())
+            if (find_if(it+1, m_Layers.end(), [](const auto& layerPtr) -> bool { return layerPtr->get_flags() & ModelViewerPanelLayerFlags::CapturesMouseInputs; }) != m_Layers.end())
             {
                 windowFlags |= ui::PanelFlag::NoInputs;
             }
 
             // layers always have a background (although, it can be entirely invisible)
             windowFlags = windowFlags.without(ui::PanelFlag::NoBackground);
-            ui::set_next_panel_bg_alpha(layer.getBackgroundAlpha());
+            ui::set_next_panel_bg_alpha(layer.get_background_alpha());
 
             // draw the layer in a child window, so that ImGui understands that hittests
             // should happen window-by-window (otherwise, you'll have problems with overlapping
             // buttons, widgets, etc.)
-            ui::set_next_panel_ui_position(m_State.viewportUiRect.ypd_top_left());
+            ui::set_next_panel_ui_position(m_State.viewport_ui_rect.ypd_top_left());
             const std::string childID = std::to_string(std::distance(it, m_Layers.end()));
-            if (ui::begin_child_panel(childID, m_State.viewportUiRect.dimensions(), ui::ChildPanelFlags{}, windowFlags)) {
-                layer.onDraw(m_Parameters, m_State);
+            if (ui::begin_child_panel(childID, m_State.viewport_ui_rect.dimensions(), ui::ChildPanelFlags{}, windowFlags)) {
+                layer.on_draw(m_Parameters, m_State);
                 ui::end_child_panel();
             }
         }
@@ -761,13 +761,13 @@ private:
     {
         std::erase_if(m_Layers, [](const auto& layerPtr)
         {
-            return layerPtr->shouldClose();
+            return layerPtr->should_close();
         });
     }
 
     void layersPopQueuedNewLayers()
     {
-        m_State.flushLayerQueueTo(m_Layers);
+        m_State.flush_layer_queue_to(m_Layers);
     }
 
     ModelViewerPanelParameters m_Parameters;
@@ -786,20 +786,20 @@ osc::ModelViewerPanel::ModelViewerPanel(
 
     Panel{std::make_unique<Impl>(*this, parent_, panelName_, parameters_, flags_)}
 {}
-bool osc::ModelViewerPanel::isMousedOver() const { return private_data().isMousedOver(); }
-bool osc::ModelViewerPanel::isLeftClicked() const { return private_data().isLeftClicked(); }
-bool osc::ModelViewerPanel::isRightClicked() const { return private_data().isRightClicked(); }
-ModelViewerPanelLayer& osc::ModelViewerPanel::pushLayer(std::unique_ptr<ModelViewerPanelLayer> layer)
+bool osc::ModelViewerPanel::is_moused_over() const { return private_data().isMousedOver(); }
+bool osc::ModelViewerPanel::is_left_clicked() const { return private_data().isLeftClicked(); }
+bool osc::ModelViewerPanel::is_right_clicked() const { return private_data().isRightClicked(); }
+ModelViewerPanelLayer& osc::ModelViewerPanel::push_layer(std::unique_ptr<ModelViewerPanelLayer> layer)
 {
     return private_data().pushLayer(std::move(layer));
 }
-void osc::ModelViewerPanel::focusOn(const Vector3& position) { private_data().focusOn(position); }
-std::optional<Rect> osc::ModelViewerPanel::getScreenRect() const { return private_data().getScreenRect(); }
-const Camera& osc::ModelViewerPanel::getCamera() const { return private_data().getCamera(); }
-Camera& osc::ModelViewerPanel::updCamera() { return private_data().updCamera(); }
-const OrbitCameraController& osc::ModelViewerPanel::getOrbitCameraController() const { return private_data().getOrbitCameraController(); }
-OrbitCameraController& osc::ModelViewerPanel::updOrbitCameraController() { return private_data().updOrbitCameraController(); }
-void osc::ModelViewerPanel::setModelState(const std::shared_ptr<opyn::ModelStatePair>& newModelState) { private_data().setModelState(newModelState); }
+void osc::ModelViewerPanel::focus_on(const Vector3& position) { private_data().focusOn(position); }
+std::optional<Rect> osc::ModelViewerPanel::get_screen_rect() const { return private_data().getScreenRect(); }
+const Camera& osc::ModelViewerPanel::get_camera() const { return private_data().getCamera(); }
+Camera& osc::ModelViewerPanel::upd_camera() { return private_data().updCamera(); }
+const OrbitCameraController& osc::ModelViewerPanel::get_orbit_camera_controller() const { return private_data().getOrbitCameraController(); }
+OrbitCameraController& osc::ModelViewerPanel::upd_orbit_camera_controller() { return private_data().updOrbitCameraController(); }
+void osc::ModelViewerPanel::set_model_state(const std::shared_ptr<opyn::ModelStatePair>& newModelState) { private_data().setModelState(newModelState); }
 void osc::ModelViewerPanel::impl_draw_content() { private_data().draw_content(); }
 void osc::ModelViewerPanel::impl_before_imgui_begin() { ui::push_style_var(ui::StyleVar::PanelPadding, {0.0f, 0.0f}); }
 void osc::ModelViewerPanel::impl_after_imgui_begin() { ui::pop_style_var(); }

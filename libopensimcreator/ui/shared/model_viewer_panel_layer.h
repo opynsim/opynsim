@@ -17,55 +17,55 @@ namespace osc
     public:
         virtual ~ModelViewerPanelLayer() noexcept = default;
 
-        ModelViewerPanelLayerFlags getFlags() const
+        ModelViewerPanelLayerFlags get_flags() const
         {
-            return implGetFlags();
+            return impl_get_flags();
         }
 
-        float getBackgroundAlpha() const
+        float get_background_alpha() const
         {
-            return implGetBackgroundAlpha();
+            return impl_get_background_alpha();
         }
 
-        void onNewFrame()
+        void on_new_frame()
         {
-            implOnNewFrame();
+            impl_on_new_frame();
         }
 
-        bool handleMouseInputs(
+        bool handle_mouse_inputs(
             ModelViewerPanelParameters& params,
             ModelViewerPanelState& state)
         {
-            return implHandleMouseInputs(params, state);
+            return impl_handle_mouse_inputs(params, state);
         }
 
-        bool handleKeyboardInputs(
+        bool handle_keyboard_inputs(
             ModelViewerPanelParameters& params,
             ModelViewerPanelState& state)
         {
-            return implHandleKeyboardInputs(params, state);
+            return impl_handle_keyboard_inputs(params, state);
         }
 
-        void onDraw(
+        void on_draw(
             ModelViewerPanelParameters& params,
             ModelViewerPanelState& state)
         {
-            implOnDraw(params, state);
+            impl_on_draw(params, state);
         }
 
-        bool shouldClose() const
+        bool should_close() const
         {
-            return implShouldClose();
+            return impl_should_close();
         }
 
     private:
-        virtual ModelViewerPanelLayerFlags implGetFlags() const { return ModelViewerPanelLayerFlags::Default; }
-        virtual float implGetBackgroundAlpha() const { return 0.0f; }
-        virtual void implOnNewFrame() {}
-        virtual bool implHandleMouseInputs(ModelViewerPanelParameters&, ModelViewerPanelState&) { return false; }
-        virtual bool implHandleKeyboardInputs(ModelViewerPanelParameters&, ModelViewerPanelState&) { return false; }
-        virtual bool implShouldClose() const { return false; }
+        virtual ModelViewerPanelLayerFlags impl_get_flags() const { return ModelViewerPanelLayerFlags::Default; }
+        virtual float impl_get_background_alpha() const { return 0.0f; }
+        virtual void impl_on_new_frame() {}
+        virtual bool impl_handle_mouse_inputs(ModelViewerPanelParameters&, ModelViewerPanelState&) { return false; }
+        virtual bool impl_handle_keyboard_inputs(ModelViewerPanelParameters&, ModelViewerPanelState&) { return false; }
+        virtual bool impl_should_close() const { return false; }
 
-        virtual void implOnDraw(ModelViewerPanelParameters&, ModelViewerPanelState&) = 0;
+        virtual void impl_on_draw(ModelViewerPanelParameters&, ModelViewerPanelState&) = 0;
     };
 }

@@ -40,37 +40,37 @@ namespace osc { struct SceneDecoration; }
 namespace osc
 {
     // returns the recommended icon codepoint for the given component
-    CStringView IconFor(const OpenSim::Component&);
+    CStringView icon_for(const OpenSim::Component&);
 
-    void DrawComponentHoverTooltip(
+    void draw_component_hover_tooltip(
         const OpenSim::Component&
     );
-    void DrawNothingRightClickedContextMenuHeader();
-    void DrawContextMenuHeader(
+    void draw_nothing_right_clicked_context_menu_header();
+    void draw_context_menu_header(
         CStringView title,
         CStringView subtitle
     );
-    void DrawRightClickedComponentContextMenuHeader(
+    void draw_right_clicked_component_context_menu_header(
         const OpenSim::Component&
     );
-    void DrawContextMenuSeparator();
-    void DrawSelectOwnerMenu(
+    void draw_context_menu_separator();
+    void draw_select_owner_menu(
         opyn::ModelStatePair&,
         const OpenSim::Component&
     );
-    bool DrawRequestOutputMenuOrMenuItem(
+    bool draw_request_output_menu_or_menu_item(
         const OpenSim::AbstractOutput& o,
         const std::function<void(opyn::SharedOutputExtractor)>& onUserSelection
     );
-    bool DrawWatchOutputMenu(
+    bool draw_watch_output_menu(
         const OpenSim::Component&,
         const std::function<void(opyn::SharedOutputExtractor)>& onUserSelection
     );
-    void DrawSimulationParams(
+    void draw_simulation_params(
         const ParamBlock&
     );
-    void DrawSearchBar(std::string&);
-    void DrawOutputNameColumn(
+    void draw_search_bar(std::string&);
+    void draw_output_name_column(
         const opyn::OutputExtractor& output,
         bool centered = true,
         SimulationModelStatePair* maybeActiveSate = nullptr
@@ -81,7 +81,7 @@ namespace osc
     //
     // calls `onFrameMenuOpened` when the user is hovering a frame's menu
     // (i.e. `ui::begin_menu($FRAME)` returned `true`)
-    void DrawWithRespectToMenuContainingMenuPerFrame(
+    void draw_with_respect_to_menu_containing_menu_per_frame(
         const OpenSim::Component& root,
         const std::function<void(const OpenSim::Frame&)>& onFrameMenuOpened,
         const OpenSim::Frame* maybeParent
@@ -92,23 +92,23 @@ namespace osc
     //
     // calls `onFrameMenuItemClicked` when the user clicks the `ui::draw_menu_item`
     // associated with a frame
-    void DrawWithRespectToMenuContainingMenuItemPerFrame(
+    void draw_with_respect_to_menu_containing_menu_item_per_frame(
         const OpenSim::Component& root,
         const std::function<void(const OpenSim::Frame&)>& onFrameMenuItemClicked,
         const OpenSim::Frame* maybeParent
     );
 
-    void DrawPointTranslationInformationWithRespectTo(
+    void draw_point_translation_information_with_respect_to(
         const OpenSim::Frame&,
         const SimTK::State&,
         Vector3 locationInGround
     );
-    void DrawDirectionInformationWithRepsectTo(
+    void draw_direction_information_with_repsect_to(
         const OpenSim::Frame&,
         const SimTK::State&,
         Vector3 directionInGround
     );
-    void DrawFrameInformationExpressedIn(
+    void draw_frame_information_expressed_in(
         const OpenSim::Frame& parent,
         const SimTK::State&,
         const OpenSim::Frame&
@@ -123,98 +123,98 @@ namespace osc
     {
         return (std::to_underlying(lhs) & std::to_underlying(rhs)) != 0;
     }
-    bool BeginCalculateMenu(
+    bool begin_calculate_menu(
         CalculateMenuFlags = CalculateMenuFlags::None
     );
-    void EndCalculateMenu(
+    void end_calculate_menu(
     );
-    void DrawCalculatePositionMenu(
+    void draw_calculate_position_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Point&,
         const OpenSim::Frame* maybeParent
     );
-    void DrawCalculateMenu(
+    void draw_calculate_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Station&,
         CalculateMenuFlags = CalculateMenuFlags::None
     );
-    void DrawCalculateMenu(
+    void draw_calculate_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Point&,
         CalculateMenuFlags = CalculateMenuFlags::None
     );
-    void DrawCalculateTransformMenu(
+    void draw_calculate_transform_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Frame&
     );
-    void DrawCalculateOriginMenu(
+    void draw_calculate_origin_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Frame&
     );
-    void DrawCalculateAxisDirectionsMenu(
+    void draw_calculate_axis_directions_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Frame&
     );
-    void DrawCalculateOriginMenu(
+    void draw_calculate_origin_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Sphere&
     );
-    void DrawCalculateRadiusMenu(
+    void draw_calculate_radius_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Sphere&
     );
-    void DrawCalculateVolumeMenu(
+    void draw_calculate_volume_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Sphere&
     );
-    void DrawCalculateMenu(
+    void draw_calculate_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Frame&,
         CalculateMenuFlags = CalculateMenuFlags::None
     );
-    void DrawCalculateMenu(
+    void draw_calculate_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Geometry&,
         CalculateMenuFlags = CalculateMenuFlags::None
     );
-    void TryDrawCalculateMenu(
+    void try_draw_calculate_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Component& selected,
         CalculateMenuFlags = CalculateMenuFlags::None
     );
-    void DrawCalculateOriginMenu(
+    void draw_calculate_origin_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Ellipsoid&
     );
-    void DrawCalculateRadiiMenu(
+    void draw_calculate_radii_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Ellipsoid&
     );
-    void DrawCalculateRadiiDirectionsMenu(
+    void draw_calculate_radii_directions_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Ellipsoid&
     );
-    void DrawCalculateScaledRadiiDirectionsMenu(
+    void draw_calculate_scaled_radii_directions_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Ellipsoid&
     );
-    void DrawCalculateMenu(
+    void draw_calculate_menu(
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Ellipsoid&,
@@ -222,28 +222,28 @@ namespace osc
     );
 
     // basic wigetized parts of the 3D viewer
-    bool DrawMuscleRenderingOptionsRadioButtions(opyn::OpenSimDecorationOptions&);
-    bool DrawMuscleSizingOptionsRadioButtons(opyn::OpenSimDecorationOptions&);
-    bool DrawMuscleColorSourceOptionsRadioButtons(opyn::OpenSimDecorationOptions&);
-    bool DrawMuscleColorScalingOptionsRadioButtons(opyn::OpenSimDecorationOptions&);
-    bool DrawMuscleDecorationOptionsEditor(opyn::OpenSimDecorationOptions&);
-    bool DrawRenderingOptionsEditor(opyn::CustomRenderingOptions&);
-    bool DrawOverlayOptionsEditor(opyn::OverlayDecorationOptions&);
-    bool DrawCustomDecorationOptionCheckboxes(opyn::OpenSimDecorationOptions&);
-    bool DrawOrbitCameraControllerEditor(OrbitCameraController&);
-    bool DrawAdvancedParamsEditor(
+    bool draw_muscle_rendering_options_radio_buttions(opyn::OpenSimDecorationOptions&);
+    bool draw_muscle_sizing_options_radio_buttons(opyn::OpenSimDecorationOptions&);
+    bool draw_muscle_color_source_options_radio_buttons(opyn::OpenSimDecorationOptions&);
+    bool draw_muscle_color_scaling_options_radio_buttons(opyn::OpenSimDecorationOptions&);
+    bool draw_muscle_decoration_options_editor(opyn::OpenSimDecorationOptions&);
+    bool draw_rendering_options_editor(opyn::CustomRenderingOptions&);
+    bool draw_overlay_options_editor(opyn::OverlayDecorationOptions&);
+    bool draw_custom_decoration_option_checkboxes(opyn::OpenSimDecorationOptions&);
+    bool draw_orbit_camera_controller_editor(OrbitCameraController&);
+    bool draw_advanced_params_editor(
         opyn::ModelRendererParams&,
         OrbitCameraController&,
         std::span<const SceneDecoration>
     );
-    bool DrawVisualAidsContextMenuContent(opyn::ModelRendererParams&);
-    bool DrawViewerTopButtonRow(
+    bool draw_visual_aids_context_menu_content(opyn::ModelRendererParams&);
+    bool draw_viewer_top_button_row(
         opyn::ModelRendererParams&,
         std::span<const SceneDecoration>,
         IconCache&,
         const std::function<bool()>& drawExtraElements = []{ return false; }
     );
-    bool DrawCameraControlButtons(
+    bool draw_camera_control_buttons(
         opyn::ModelRendererParams&,
         OrbitCameraController&,
         std::span<const SceneDecoration>,
@@ -252,7 +252,7 @@ namespace osc
         IconCache&,
         Vector2 desiredTopCentroid
     );
-    bool DrawViewerImGuiOverlays(
+    bool draw_viewer_im_gui_overlays(
         opyn::ModelRendererParams&,
         OrbitCameraController&,
         std::span<const SceneDecoration>,
@@ -263,25 +263,25 @@ namespace osc
     );
 
     // toolbar stuff
-    bool BeginToolbar(CStringView label, std::optional<Vector2> padding = {});  // behaves the same as `ui::begin_panel` (i.e. you must call `ui::end_panel`)
-    void DrawNewModelButton(Widget&);
-    void DrawOpenModelButtonWithRecentFilesDropdown(
+    bool begin_toolbar(CStringView label, std::optional<Vector2> padding = {});  // behaves the same as `ui::begin_panel` (i.e. you must call `ui::end_panel`)
+    void draw_new_model_button(Widget&);
+    void draw_open_model_button_with_recent_files_dropdown(
         const std::function<void(std::optional<std::filesystem::path>)>& onUserClickedOpenOrSelectedFile
     );
-    void DrawOpenModelButtonWithRecentFilesDropdown(Widget&);
-    void DrawSaveModelButton(const std::shared_ptr<opyn::ModelStatePair>&);
-    void DrawReloadModelButton(UndoableModelStatePair&);
-    void DrawUndoButton(opyn::ModelStatePair&);
-    void DrawRedoButton(opyn::ModelStatePair&);
-    void DrawUndoAndRedoButtons(opyn::ModelStatePair&);
-    void DrawToggleFramesButton(opyn::ModelStatePair&, IconCache&);
-    void DrawToggleMarkersButton(opyn::ModelStatePair&, IconCache&);
-    void DrawToggleWrapGeometryButton(opyn::ModelStatePair&, IconCache&);
-    void DrawToggleContactGeometryButton(opyn::ModelStatePair&, IconCache&);
-    void DrawToggleForcesButton(opyn::ModelStatePair&, IconCache&);
-    void DrawAllDecorationToggleButtons(opyn::ModelStatePair&, IconCache&);
-    void DrawSceneScaleFactorEditorControls(opyn::ModelStatePair&);
+    void draw_open_model_button_with_recent_files_dropdown(Widget&);
+    void draw_save_model_button(const std::shared_ptr<opyn::ModelStatePair>&);
+    void draw_reload_model_button(UndoableModelStatePair&);
+    void draw_undo_button(opyn::ModelStatePair&);
+    void draw_redo_button(opyn::ModelStatePair&);
+    void draw_undo_and_redo_buttons(opyn::ModelStatePair&);
+    void draw_toggle_frames_button(opyn::ModelStatePair&, IconCache&);
+    void draw_toggle_markers_button(opyn::ModelStatePair&, IconCache&);
+    void draw_toggle_wrap_geometry_button(opyn::ModelStatePair&, IconCache&);
+    void draw_toggle_contact_geometry_button(opyn::ModelStatePair&, IconCache&);
+    void draw_toggle_forces_button(opyn::ModelStatePair&, IconCache&);
+    void draw_all_decoration_toggle_buttons(opyn::ModelStatePair&, IconCache&);
+    void draw_scene_scale_factor_editor_controls(opyn::ModelStatePair&);
 
     // mesh stuff
-    void DrawMeshExportContextMenuContent(const opyn::ModelStatePair&, const OpenSim::Mesh&);
+    void draw_mesh_export_context_menu_content(const opyn::ModelStatePair&, const OpenSim::Mesh&);
 }

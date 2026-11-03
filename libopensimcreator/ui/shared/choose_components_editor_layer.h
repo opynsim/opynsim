@@ -26,26 +26,26 @@ namespace osc
         ~ChooseComponentsEditorLayer() noexcept;
 
     private:
-        bool implHandleKeyboardInputs(
+        bool impl_handle_keyboard_inputs(
             ModelViewerPanelParameters&,
             ModelViewerPanelState&
         ) final;
 
-        bool implHandleMouseInputs(
+        bool impl_handle_mouse_inputs(
             ModelViewerPanelParameters&,
             ModelViewerPanelState&
         ) final;
 
-        void implOnDraw(
+        void impl_on_draw(
             ModelViewerPanelParameters&,
             ModelViewerPanelState&
         ) final;
 
-        float implGetBackgroundAlpha() const final;
+        float impl_get_background_alpha() const final;
 
-        bool implShouldClose() const final;
+        bool impl_should_close() const final;
 
         class Impl;
-        std::unique_ptr<Impl> m_Impl;
+        std::unique_ptr<Impl> impl_;
     };
 }

@@ -10,13 +10,13 @@ namespace osc
     class OpenComponentContextMenuEvent : public Event {
     public:
         explicit OpenComponentContextMenuEvent(OpenSim::ComponentPath path) :
-            m_ComponentPath{std::move(path)}
+            component_path_{std::move(path)}
         {
             enable_propagation();
         }
 
-        const OpenSim::ComponentPath& path() const { return m_ComponentPath; }
+        const OpenSim::ComponentPath& path() const { return component_path_; }
     private:
-        OpenSim::ComponentPath m_ComponentPath;
+        OpenSim::ComponentPath component_path_;
     };
 }
