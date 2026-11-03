@@ -117,7 +117,7 @@ namespace
             ModelViewerPanelParameters&,
             ModelViewerPanelState&) final
         {
-            // care: `isUsing` can return `true` even if it isn't being drawn this frame
+            // care: `is_using` can return `true` even if it isn't being drawn this frame
             return m_Gizmo.is_using();
         }
 
