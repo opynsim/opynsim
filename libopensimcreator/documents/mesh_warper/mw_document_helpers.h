@@ -51,23 +51,23 @@ namespace osc
     bool contains_element_with_name(const MwDocument& doc, const StringName&);
 
     // returns the (mutable) source/destination of the given landmark pair, if available
-    inline std::optional<Vector3>& upd_location(MwDocumentLandmarkPair& landmarkPair, MiDocumentInputIdentifier which)
+    inline std::optional<Vector3>& upd_location(MwDocumentLandmarkPair& landmark_pair, MiDocumentInputIdentifier which)
     {
         static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
-        return which == MiDocumentInputIdentifier::Source ? landmarkPair.maybe_source_location : landmarkPair.maybe_destination_location;
+        return which == MiDocumentInputIdentifier::Source ? landmark_pair.maybe_source_location : landmark_pair.maybe_destination_location;
     }
 
     // returns the source/destination of the given landmark pair, if available
-    inline std::optional<Vector3> const& get_location(const MwDocumentLandmarkPair& landmarkPair, MiDocumentInputIdentifier which)
+    inline std::optional<Vector3> const& get_location(const MwDocumentLandmarkPair& landmark_pair, MiDocumentInputIdentifier which)
     {
         static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
-        return which == MiDocumentInputIdentifier::Source ? landmarkPair.maybe_source_location : landmarkPair.maybe_destination_location;
+        return which == MiDocumentInputIdentifier::Source ? landmark_pair.maybe_source_location : landmark_pair.maybe_destination_location;
     }
 
     // returns `true` if the given landmark pair has a location assigned for `which`
-    inline bool has_location(const MwDocumentLandmarkPair& landmarkPair, MiDocumentInputIdentifier which)
+    inline bool has_location(const MwDocumentLandmarkPair& landmark_pair, MiDocumentInputIdentifier which)
     {
-        return get_location(landmarkPair, which).has_value();
+        return get_location(landmark_pair, which).has_value();
     }
 
     // returns the (mutable) source/destination mesh in the given document
@@ -131,14 +131,14 @@ namespace osc
         MwDocument&,
         MiDocumentInputIdentifier,
         const Vector3&,
-        std::optional<std::string_view> suggestedName = std::nullopt
+        std::optional<std::string_view> suggested_name = std::nullopt
     );
 
     // adds a non-participating landmark to the document
     void add_non_participating_landmark(
         MwDocument&,
         const Vector3&,
-        std::optional<std::string_view> suggestedName = std::nullopt
+        std::optional<std::string_view> suggested_name = std::nullopt
     );
 
     // returns `true` if the given element was deleted from the document

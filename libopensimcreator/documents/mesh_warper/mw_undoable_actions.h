@@ -33,13 +33,13 @@ namespace osc
     void action_set_landmark_position(MwUndoableDocument&, UID, MiDocumentInputIdentifier, const Vector3&);
 
     // tries to rename the landmark to `newName`, returns the actual new name (even if it hasn't changed)
-    void action_rename_landmark(MwUndoableDocument&, UID, std::string_view newName);
+    void action_rename_landmark(MwUndoableDocument&, UID, std::string_view new_name);
 
     // sets the IDed non-participating landmark's location to the given location
     void action_set_non_participating_landmark_position(MwUndoableDocument&, UID, const Vector3&);
 
-    // tries to rename the non-particiapting landmark to `newName`, returns the actual new name (even if it hasn't changed)
-    void action_rename_non_participating_landmark(MwUndoableDocument&, UID, std::string_view newName);
+    // tries to rename the non-participating landmark to `newName`, returns the actual new name (even if it hasn't changed)
+    void action_rename_non_participating_landmark(MwUndoableDocument&, UID, std::string_view new_name);
 
     // sets the TPS blending factor for the result, but does not save the change to undo/redo storage
     void action_set_blend_factor_without_committing(MwUndoableDocument&, float factor);
@@ -48,16 +48,16 @@ namespace osc
     void action_set_blend_factor(MwUndoableDocument&, float factor);
 
     // sets whether the engine should recalculate the mesh's normal after applying the warp
-    void action_set_recalculating_normals(MwUndoableDocument&, bool newState);
+    void action_set_recalculating_normals(MwUndoableDocument&, bool new_state);
 
     // sets the pending penalty of the TPS warp
-    void action_set_warping_penalty(MwUndoableDocument&, float newWarpingPenalty);
+    void action_set_warping_penalty(MwUndoableDocument&, float new_warping_penalty);
 
     // sets the source landmark prescale for the mesh warper
-    void action_set_source_landmarks_prescale(MwUndoableDocument&, float newSourceLandmarksPrescale);
+    void action_set_source_landmarks_prescale(MwUndoableDocument&, float new_source_landmarks_prescale);
 
     // sets the destination landmark prescale for the mesh warper
-    void action_set_destination_landmarks_prescale(MwUndoableDocument&, float newDestinationLandmarksPrescale);
+    void action_set_destination_landmarks_prescale(MwUndoableDocument&, float new_destination_landmarks_prescale);
 
     // creates a "fresh" (default) TPS document
     void action_create_new_document(MwUndoableDocument&);
@@ -113,10 +113,10 @@ namespace osc
     void action_swap_source_destination(MwUndoableDocument&);
 
     // translate the chosen landmarks by a translation vector, but don't save the undoable output
-    void action_translate_landmarks_dont_save(MwUndoableDocument&, const std::unordered_set<MwDocumentElementID>& landmarkIDs, const Vector3& translation);
+    void action_translate_landmarks_dont_save(MwUndoableDocument&, const std::unordered_set<MwDocumentElementID>& landmark_ids, const Vector3& translation);
 
     // commit/save the scratch space with a "translated landmarks" message (pair this with `ActionTranslateLandmarksDontSave`)
-    void action_save_landmark_translation(MwUndoableDocument&, const std::unordered_set<MwDocumentElementID>& landmarkIDs);
+    void action_save_landmark_translation(MwUndoableDocument&, const std::unordered_set<MwDocumentElementID>& landmark_ids);
 
     // moves the chosen landmarks to `location` and saves the scratch space with a "set landmark locations" message
     void action_set_landmark_locations(MwUndoableDocument&, const std::unordered_set<MwDocumentElementID>&, const Vector3& location);
