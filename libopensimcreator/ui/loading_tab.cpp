@@ -166,6 +166,6 @@ osc::LoadingTab::LoadingTab(
 
     Tab{std::make_unique<Impl>(*this, parent_, std::move(path_))}
 {}
-bool osc::LoadingTab::isFinishedLoading() const { return private_data().isFinishedLoading(); }
+bool osc::LoadingTab::is_finished_loading() const { return private_data().isFinishedLoading(); }
 void osc::LoadingTab::impl_on_tick() { private_data().on_tick(); }
 void osc::LoadingTab::impl_on_draw() { private_data().onDraw(); }

@@ -103,7 +103,7 @@ osc::OpenSimCreatorApp::OpenSimCreatorApp(const AppMetadata& metadata) :
     } else {
         log_error("{}: cannot find geometry directory resource: falling back to not using one at all. You might need to update the osc.toml configuration file.", geometryDirectoryPath.string());
     }
-    RegisterOpenSimCreatorTabs(upd_tab_registry());
+    register_open_sim_creator_tabs(upd_tab_registry());
     InitializeOpenSimCreatorSpecificSettingDefaults(upd_settings());
     g_opensimcreator_app_global = this;
 }

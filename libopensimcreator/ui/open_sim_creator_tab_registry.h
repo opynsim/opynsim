@@ -4,5 +4,5 @@ namespace osc { class TabRegistry; }
 
 namespace osc
 {
-    void RegisterOpenSimCreatorTabs(TabRegistry&);
+    void register_open_sim_creator_tabs(TabRegistry&);
 }

@@ -15,7 +15,7 @@ namespace osc
             std::filesystem::path
         );
 
-        bool isFinishedLoading() const;
+        bool is_finished_loading() const;
     private:
         void impl_on_tick() final;
         void impl_on_draw() final;

@@ -18,7 +18,7 @@ namespace {
     const TabRegistry c_Tabs = []()
     {
         TabRegistry r;
-        RegisterOpenSimCreatorTabs(r);
+        register_open_sim_creator_tabs(r);
         return r;
     }();
 

@@ -45,7 +45,7 @@ namespace
             m_LoadingTab.on_draw();
             m_UiContext.render();
 
-            if (m_LoadingTab.isFinishedLoading() and m_NumFramesAfterLoading-- == 0) {
+            if (m_LoadingTab.is_finished_loading() and m_NumFramesAfterLoading-- == 0) {
                 App::upd().request_quit();
             }
         }
