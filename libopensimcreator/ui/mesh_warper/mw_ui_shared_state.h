@@ -301,7 +301,7 @@ namespace osc
         // `true` if the user wants the cameras to be linked
         bool link_cameras_ = true;
 
-        // `true` if `LinkCameras` should only link the rotational parts of the cameras
+        // `true` if `link_cameras_` should only link the rotational parts of the cameras
         bool only_link_rotation_ = false;
 
         // shared linked camera
