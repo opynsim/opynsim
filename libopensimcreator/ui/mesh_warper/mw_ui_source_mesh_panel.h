@@ -266,7 +266,7 @@ namespace osc
         void generate_decorations_for_landmarks(
             const std::function<void(SceneDecoration&&)>& decorationConsumer) const
         {
-            for (const MwDocumentLandmarkPair& landmarkPair : state_->get_scratch().landmarkPairs)
+            for (const MwDocumentLandmarkPair& landmarkPair : state_->get_scratch().landmark_pairs)
             {
                 generate_decorations_for_landmark(landmarkPair, decorationConsumer);
             }
@@ -307,7 +307,7 @@ namespace osc
                 return;  // only show them on the source (to-be-warped) mesh
             }
 
-            for (const auto& nonParticipatingLandmark : state_->get_scratch().nonParticipatingLandmarks) {
+            for (const auto& nonParticipatingLandmark : state_->get_scratch().non_participating_landmarks) {
                 generate_decorations_for_non_participating_landmark(nonParticipatingLandmark, decorationConsumer);
             }
         }
