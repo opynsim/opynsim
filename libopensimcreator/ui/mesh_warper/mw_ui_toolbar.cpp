@@ -22,63 +22,63 @@ public:
         Widget& owner,
         Widget* parent,
         std::string_view label,
-        std::shared_ptr<MwUiSharedState> tabState_) :
+        std::shared_ptr<MwUiSharedState> tab_state) :
 
         WidgetPrivate{owner, parent},
-        m_State{std::move(tabState_)}
+        state_{std::move(tab_state)}
     {
         set_name(label);
     }
 
-    void onDraw()
+    void on_draw()
     {
         if (begin_toolbar(name())) {
-            drawContent();
+            draw_content();
         }
         ui::end_panel();
     }
 
 private:
-    void drawContent()
+    void draw_content()
     {
         // document-related stuff
-        drawNewDocumentButton();
+        draw_new_document_button();
         ui::same_line();
-        drawOpenDocumentButton();
+        draw_open_document_button();
         ui::same_line();
-        drawSaveLandmarksButton();
+        draw_save_landmarks_button();
         ui::same_line();
 
         ui::draw_vertical_separator();
         ui::same_line();
 
         // undo/redo-related stuff
-        m_UndoButton.on_draw();
+        undo_button_.on_draw();
         ui::same_line();
-        m_RedoButton.on_draw();
+        redo_button_.on_draw();
         ui::same_line();
 
         ui::draw_vertical_separator();
         ui::same_line();
 
         // camera stuff
-        drawCameraLockCheckbox();
+        draw_camera_lock_checkbox();
         ui::same_line();
 
         ui::draw_vertical_separator();
         ui::same_line();
 
-        drawVisualAidsMenuButton();
+        draw_visual_aids_menu_button();
         ui::same_line();
 
-        drawSwapSourceDestinationButton();
+        draw_swap_source_destination_button();
         ui::same_line();
     }
 
-    void drawNewDocumentButton()
+    void draw_new_document_button()
     {
         if (ui::draw_button(MSMICONS_FILE)) {
-            action_create_new_document(m_State->upd_undoable());
+            action_create_new_document(state_->upd_undoable());
         }
         ui::draw_tooltip_if_item_hovered(
             "Create New Document",
@@ -86,15 +86,15 @@ private:
         );
     }
 
-    void drawOpenDocumentButton()
+    void draw_open_document_button()
     {
         ui::draw_button(MSMICONS_FOLDER_OPEN);
         if (ui::begin_popup_context_menu("##OpenFolder", ui::PopupFlag::MouseButtonLeft)) {
             if (ui::draw_menu_item("Load Source Mesh")) {
-                action_prompt_user_to_load_mesh_file(m_State->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
+                action_prompt_user_to_load_mesh_file(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
             }
             if (ui::draw_menu_item("Load Destination Mesh")) {
-                action_prompt_user_to_load_mesh_file(m_State->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
+                action_prompt_user_to_load_mesh_file(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
             }
             ui::end_popup();
         }
@@ -104,10 +104,10 @@ private:
         );
     }
 
-    void drawSaveLandmarksButton()
+    void draw_save_landmarks_button()
     {
         if (ui::draw_button(MSMICONS_SAVE)) {
-            action_prompt_user_to_save_paired_landmarks_to_csv(m_State->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
+            action_prompt_user_to_save_paired_landmarks_to_csv(state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
         }
         ui::draw_tooltip_if_item_hovered(
             "Save Landmarks to CSV (no names)",
@@ -115,65 +115,65 @@ private:
         );
     }
 
-    void drawCameraLockCheckbox()
+    void draw_camera_lock_checkbox()
     {
         {
-            bool linked = m_State->is_cameras_linked();
+            bool linked = state_->is_cameras_linked();
             if (ui::draw_checkbox("link cameras", &linked)) {
-                m_State->set_cameras_linked(linked);
+                state_->set_cameras_linked(linked);
             }
         }
 
         ui::same_line();
 
-        const bool disabled = not m_State->is_cameras_linked();
+        const bool disabled = not state_->is_cameras_linked();
         if (disabled) {
             ui::begin_disabled();
         }
-        bool linkRotation = m_State->is_only_camera_rotation_linked();
-        if (ui::draw_checkbox("only link rotation", &linkRotation)) {
-            m_State->set_only_camera_rotation_linked(linkRotation);
+        bool link_rotation = state_->is_only_camera_rotation_linked();
+        if (ui::draw_checkbox("only link rotation", &link_rotation)) {
+            state_->set_only_camera_rotation_linked(link_rotation);
         }
         if (disabled) {
             ui::end_disabled();
         }
     }
 
-    void drawVisualAidsMenuButton()
+    void draw_visual_aids_menu_button()
     {
         if (ui::draw_button("visualization options " MSMICONS_COG)) {
             ui::open_popup("visualization_options_popup");
         }
         if (ui::begin_popup("visualization_options_popup", {ui::PanelFlag::AlwaysAutoResize, ui::PanelFlag::NoTitleBar, ui::PanelFlag::NoSavedSettings})) {
-            draw_rendering_options_editor(m_State->upd_custom_rendering_options());
-            draw_overlay_options_editor(m_State->upd_overlay_decoration_options());
+            draw_rendering_options_editor(state_->upd_custom_rendering_options());
+            draw_overlay_options_editor(state_->upd_overlay_decoration_options());
             {
-                bool wireframe = m_State->is_wireframe_mode_enabled();
+                bool wireframe = state_->is_wireframe_mode_enabled();
                 if (ui::draw_checkbox("Wireframe", &wireframe)) {
-                    m_State->set_wireframe_mode_enabled(wireframe);
+                    state_->set_wireframe_mode_enabled(wireframe);
                 }
             }
             ui::end_popup();
         }
     }
 
-    void drawSwapSourceDestinationButton()
+    void draw_swap_source_destination_button()
     {
         if (ui::draw_button("swap source <-> destination")) {
-            action_swap_source_destination(m_State->upd_undoable());
+            action_swap_source_destination(state_->upd_undoable());
         }
         ui::draw_tooltip_if_item_hovered("Swap Source <-> Destination", "Swaps the source mesh with the destination mesh.\n\nNote: non-participating landmarks will be left in the source mesh, because they must always be there.");
     }
 
-    std::shared_ptr<MwUiSharedState> m_State;
-    UndoButton m_UndoButton{&owner(), m_State->get_undoable_shared_ptr(), MSMICONS_UNDO};
-    RedoButton m_RedoButton{&owner(), m_State->get_undoable_shared_ptr(), MSMICONS_REDO};
+    std::shared_ptr<MwUiSharedState> state_;
+    UndoButton undo_button_{&owner(), state_->get_undoable_shared_ptr(), MSMICONS_UNDO};
+    RedoButton redo_button_{&owner(), state_->get_undoable_shared_ptr(), MSMICONS_REDO};
 };
 
 osc::MwUiToolbar::MwUiToolbar(
     Widget* parent,
     std::string_view label,
-    std::shared_ptr<MwUiSharedState> sharedState) :
-    Widget{std::make_unique<Impl>(*this, parent, label, std::move(sharedState))}
+    std::shared_ptr<MwUiSharedState> shared_state) :
+    Widget{std::make_unique<Impl>(*this, parent, label, std::move(shared_state))}
 {}
-void osc::MwUiToolbar::impl_on_draw() { private_data().onDraw(); }
+void osc::MwUiToolbar::impl_on_draw() { private_data().on_draw(); }

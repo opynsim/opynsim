@@ -28,66 +28,66 @@ using namespace osc;
 class osc::MwUiTab::Impl final : public TabPrivate {
 public:
 
-    explicit Impl(MwUiTab& owner, Widget* parent_) :
-        TabPrivate{owner, parent_, MSMICONS_BEZIER_CURVE " Mesh Warping"},
-        m_Shared{std::make_shared<MwUiSharedState>(id(), &owner, App::singleton<SceneCache>(App::resource_loader()))}
+    explicit Impl(MwUiTab& owner, Widget* parent) :
+        TabPrivate{owner, parent, MSMICONS_BEZIER_CURVE " Mesh Warping"},
+        shared_{std::make_shared<MwUiSharedState>(id(), &owner, App::singleton<SceneCache>(App::resource_loader()))}
     {
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Source Mesh",
-            [state = m_Shared](Widget* parent, std::string_view panelName)
+            [state = shared_](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<MwUiSourceMeshPanel>(parent, panelName, state, MiDocumentInputIdentifier::Source);
+                return std::make_shared<MwUiSourceMeshPanel>(parent, panel_name, state, MiDocumentInputIdentifier::Source);
             }
         );
 
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Destination Mesh",
-            [state = m_Shared](Widget* parent, std::string_view panelName)
+            [state = shared_](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<MwUiSourceMeshPanel>(parent, panelName, state, MiDocumentInputIdentifier::Destination);
+                return std::make_shared<MwUiSourceMeshPanel>(parent, panel_name, state, MiDocumentInputIdentifier::Destination);
             }
         );
 
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Result",
-            [state = m_Shared](Widget* parent, std::string_view panelName)
+            [state = shared_](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<MwUiResultPanel>(parent, panelName, state);
+                return std::make_shared<MwUiResultPanel>(parent, panel_name, state);
             }
         );
 
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "History",
-            [state = m_Shared](Widget* parent, std::string_view panelName)
+            [state = shared_](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<UndoRedoPanel>(parent, panelName, state->get_undoable_shared_ptr());
+                return std::make_shared<UndoRedoPanel>(parent, panel_name, state->get_undoable_shared_ptr());
             },
             ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault
         );
 
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Log",
-            [](Widget* parent, std::string_view panelName)
+            [](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<LogViewerPanel>(parent, panelName);
+                return std::make_shared<LogViewerPanel>(parent, panel_name);
             },
             ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault
         );
 
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Landmark Navigator",
-            [state = m_Shared](Widget* parent, std::string_view panelName)
+            [state = shared_](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<MwUiLandmarkNavigatorPanel>(parent, panelName, state);
+                return std::make_shared<MwUiLandmarkNavigatorPanel>(parent, panel_name, state);
             },
             ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault
         );
 
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Performance",
-            [](Widget* parent, std::string_view panelName)
+            [](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<PerfPanel>(parent, panelName);
+                return std::make_shared<PerfPanel>(parent, panel_name);
             },
             ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault
         );
@@ -96,21 +96,21 @@ public:
     void on_mount()
     {
         App::upd().make_main_loop_waiting();
-        m_PanelManager->on_mount();
-        m_Shared->on_mount();
+        panel_manager_->on_mount();
+        shared_->on_mount();
     }
 
     void on_unmount()
     {
-        m_Shared->on_unmount();
-        m_PanelManager->on_unmount();
+        shared_->on_unmount();
+        panel_manager_->on_unmount();
         App::upd().make_main_loop_polling();
     }
 
-    bool onEvent(Event& e)
+    bool on_event(Event& e)
     {
         if (e.type() == EventType::KeyDown) {
-            return onKeydownEvent(dynamic_cast<const KeyEvent&>(e));
+            return on_keydown_event(dynamic_cast<const KeyEvent&>(e));
         }
         else {
             return false;
@@ -120,40 +120,40 @@ public:
     void on_tick()
     {
         // re-perform hover test each frame
-        m_Shared->set_hover(std::nullopt);
+        shared_->set_hover(std::nullopt);
 
         // garbage collect panel data
-        m_PanelManager->on_tick();
+        panel_manager_->on_tick();
     }
 
-    void onDrawMainMenu()
+    void on_draw_main_menu()
     {
-        m_MainMenu.on_draw();
+        main_menu_.on_draw();
     }
 
-    void onDraw()
+    void on_draw()
     {
         ui::enable_dockspace_over_main_window();
 
-        m_TopToolbar.on_draw();
-        m_PanelManager->on_draw();
-        m_StatusBar.on_draw();
-        m_Shared->on_draw();
+        top_toolbar_.on_draw();
+        panel_manager_->on_draw();
+        status_bar_.on_draw();
+        shared_->on_draw();
     }
 
 private:
-    bool onKeydownEvent(const KeyEvent& e)
+    bool on_keydown_event(const KeyEvent& e)
     {
         if (e.combination() == (ModifierKey::Ctrl | ModifierKey::Shift | Key::Z)) {
-            m_Shared->redo();
+            shared_->redo();
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::Z)) {
-            m_Shared->undo();
+            shared_->undo();
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::N)) {
-            action_create_new_document(m_Shared->upd_undoable());
+            action_create_new_document(shared_->upd_undoable());
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::Q)) {
@@ -161,11 +161,11 @@ private:
             return true;
         }
         else if (e.combination() == (ModifierKey::Ctrl | Key::A)) {
-            m_Shared->select_all();
+            shared_->select_all();
             return true;
         }
         else if (e.combination() == Key::Escape) {
-            m_Shared->clear_selection();
+            shared_->clear_selection();
             return true;
         }
         else {
@@ -174,26 +174,26 @@ private:
     }
 
     // top-level state that all panels can potentially access
-    std::shared_ptr<MwUiSharedState> m_Shared;
+    std::shared_ptr<MwUiSharedState> shared_;
 
     // available/active panels that the user can toggle via the `window` menu
-    std::shared_ptr<PanelManager> m_PanelManager = std::make_shared<PanelManager>(&owner());
+    std::shared_ptr<PanelManager> panel_manager_ = std::make_shared<PanelManager>(&owner());
 
     // not-user-toggleable widgets
-    MwUiMainMenu m_MainMenu{&owner(), m_Shared, m_PanelManager};
-    MwUiToolbar m_TopToolbar{&owner(), "##MeshWarpingTabToolbar", m_Shared};
-    MwUiStatusBar m_StatusBar{"##MeshWarpingTabStatusBar", m_Shared};
+    MwUiMainMenu main_menu_{&owner(), shared_, panel_manager_};
+    MwUiToolbar top_toolbar_{&owner(), "##MeshWarpingTabToolbar", shared_};
+    MwUiStatusBar status_bar_{"##MeshWarpingTabStatusBar", shared_};
 };
 
 
 CStringView osc::MwUiTab::id() { return "OpenSim/Warping"; }
 
-osc::MwUiTab::MwUiTab(Widget* parent_) :
-    Tab{std::make_unique<Impl>(*this, parent_)}
+osc::MwUiTab::MwUiTab(Widget* parent) :
+    Tab{std::make_unique<Impl>(*this, parent)}
 {}
 void osc::MwUiTab::impl_on_mount() { private_data().on_mount(); }
 void osc::MwUiTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::MwUiTab::impl_on_event(Event& e) { return private_data().onEvent(e); }
+bool osc::MwUiTab::impl_on_event(Event& e) { return private_data().on_event(e); }
 void osc::MwUiTab::impl_on_tick() { private_data().on_tick(); }
-void osc::MwUiTab::impl_on_draw_main_menu() { private_data().onDrawMainMenu(); }
-void osc::MwUiTab::impl_on_draw() { private_data().onDraw(); }
+void osc::MwUiTab::impl_on_draw_main_menu() { private_data().on_draw_main_menu(); }
+void osc::MwUiTab::impl_on_draw() { private_data().on_draw(); }
