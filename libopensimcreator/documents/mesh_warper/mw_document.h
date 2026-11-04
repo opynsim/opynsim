@@ -17,14 +17,14 @@ namespace osc
         Mesh destination_mesh;
         std::vector<MwDocumentLandmarkPair> landmark_pairs;
         std::vector<MwDocumentNonParticipatingLandmark> non_participating_landmarks;
-        float blending_factor;
-        bool recalculate_normals;
-        float source_landmarks_prescale;
-        float destination_landmarks_prescale;
-        float warping_penalty;
-        bool apply_affine_translation;
-        bool apply_affine_scale;
-        bool apply_affine_rotation;
-        bool apply_non_affine_warp;
+        float blending_factor = 1.0f;
+        bool recalculate_normals = false;
+        float source_landmarks_prescale = 1.0f;
+        float destination_landmarks_prescale = 1.0f;
+        float warping_penalty{};
+        bool apply_affine_translation = false;
+        bool apply_affine_scale = true;
+        bool apply_affine_rotation = false;
+        bool apply_non_affine_warp = true;
     };
 }

@@ -29,7 +29,7 @@ namespace osc
             std::optional<Vector3> maybe_source_location,
             std::optional<Vector3> maybe_destination_location) :
 
-            name{std::forward<StringLike>(name)},
+            name{std::forward<StringLike>(name)},  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
             maybe_source_location{maybe_source_location},
             maybe_destination_location{maybe_destination_location}
         {}
