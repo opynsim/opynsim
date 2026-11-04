@@ -31,8 +31,7 @@ namespace
         size_t pos = 0;
         try {
             return std::stof(s, &pos);
-        }
-        catch (const std::exception&) {
+        } catch (const std::exception&) {
             return 0.0f;
         }
     }
@@ -438,14 +437,14 @@ TEST(Variant, int_to_float_returns_int_value_casted_to_a_float)
 
 TEST(Variant, int_to_int_returns_the_supplied_int)
 {
-    for (const int v : std::to_array<int>({ -123028, -2381, -32, -2, 0, 1, 1488, 5098})) {
+    for (const int v : std::to_array<int>({-123028, -2381, -32, -2, 0, 1, 1488, 5098})) {
         ASSERT_EQ(to<int>(Variant(v)), v);
     }
 }
 
 TEST(Variant, int_to_string_returns_stringified_int)
 {
-    for (const int v : std::to_array<int>({ -121010, -13482, -1923, -123, -92, -7, 0, 1, 1294, 1209849})) {
+    for (const int v : std::to_array<int>({-121010, -13482, -1923, -123, -92, -7, 0, 1, 1294, 1209849})) {
         const std::string expected = std::to_string(v);
         ASSERT_EQ(to<std::string>(Variant(v)), expected);
     }
@@ -460,7 +459,7 @@ TEST(Variant, int_to_StringName_returns_stringified_representation_of_the_int)
 
 TEST(Variant, int_to_Vector2_casts_int_to_float_and_then_unpacks_it_into_all_components_of_the_Vector2)
 {
-    for (const int v : std::to_array<int>({ -12193, -1212, -738, -12, -1, 0, 1, 18, 1294, 1209849})) {
+    for (const int v : std::to_array<int>({-12193, -1212, -738, -12, -1, 0, 1, 18, 1294, 1209849})) {
         const auto vf = static_cast<float>(v);
         const Vector2 expected = {vf, vf};
         ASSERT_EQ(to<Vector2>(Variant(v)), expected);
@@ -469,7 +468,7 @@ TEST(Variant, int_to_Vector2_casts_int_to_float_and_then_unpacks_it_into_all_com
 
 TEST(Variant, int_to_Vector3_casts_int_to_float_and_then_unpacks_it_into_all_components_of_the_Vector3)
 {
-    for (const int v : std::to_array<int>({ -12193, -1212, -738, -12, -1, 0, 1, 18, 1294, 1209849})) {
+    for (const int v : std::to_array<int>({-12193, -1212, -738, -12, -1, 0, 1, 18, 1294, 1209849})) {
         const auto vf = static_cast<float>(v);
         const Vector3 expected = {vf, vf, vf};
         ASSERT_EQ(to<Vector3>(Variant(v)), expected);
@@ -1093,7 +1092,7 @@ TEST(Variant, is_not_equal_to_Variants_of_different_type_even_if_conversion_is_p
         for (size_t j = 0; j != i; ++j) {
             ASSERT_NE(test_cases[i], test_cases[j]);
         }
-        for (size_t j = i+1; j < test_cases.size(); ++j) {
+        for (size_t j = i + 1; j < test_cases.size(); ++j) {
             ASSERT_NE(test_cases[i], test_cases[j]);
         }
     }
