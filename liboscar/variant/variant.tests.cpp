@@ -562,7 +562,7 @@ TEST(Variant, string_to_string_returns_supplied_string)
         "2.0",
         "not a number",
         "  ",
-        "a slightly longer string in case sso is in some way important"
+        "a slightly longer string in case sso is in some way important",
     });
 
     for (const auto& input : inputs) {
@@ -582,7 +582,7 @@ TEST(Variant, string_to_StringName_returns_supplied_string_as_StringName)
         "2.0",
         "not a number",
         "  ",
-        "a slightly longer string in case sso is in some way important"
+        "a slightly longer string in case sso is in some way important",
     });
 
     for (const auto& input : inputs) {
@@ -1349,7 +1349,7 @@ TEST(Variant, StringName_to_string_returns_StringNames_content_in_the_string)
         "2.0",
         "not a number",
         "  ",
-        "a slightly longer string in case sso is in some way important"
+        "a slightly longer string in case sso is in some way important",
     });
 
     for (const auto& input : inputs) {
@@ -1369,7 +1369,7 @@ TEST(Variant, StringName_to_StringName_returns_supplied_StringName)
         "2.0",
         "not a number",
         "  ",
-        "a slightly longer string in case sso is in some way important"
+        "a slightly longer string in case sso is in some way important",
     });
 
     for (const auto& input : inputs) {
