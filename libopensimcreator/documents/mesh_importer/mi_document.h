@@ -240,24 +240,24 @@ namespace osc
 
             // collect all to-be-deleted objects into one deletion set so that the deletion
             // happens in separate phase from the "search for things to delete" phase
-            std::unordered_set<UID> deletionSet;
-            populate_deletion_set(*obj, deletionSet);
+            std::unordered_set<UID> deletion_set;
+            populate_deletion_set(*obj, deletion_set);
 
-            for (UID deletedID : deletionSet)
+            for (UID deleted_id : deletion_set)
             {
-                de_select(deletedID);
+                de_select(deleted_id);
 
                 // move object into deletion set, rather than deleting it immediately,
                 // so that code that relies on references to the to-be-deleted object
                 // still works until an explicit `.garbage_collect()` call
-                if (const auto it = objects_.find(deletedID); it != objects_.end())
+                if (const auto it = objects_.find(deleted_id); it != objects_.end())
                 {
                     deleted_objects_.push_back(std::move(it->second));
                     objects_.erase(it);
                 }
             }
 
-            return !deletionSet.empty();
+            return !deletion_set.empty();
         }
 
         void garbage_collect()
@@ -393,14 +393,14 @@ namespace osc
             return find_by_id(objects_, id);
         }
 
-        void populate_deletion_set(const MiObject& deletionTarget, std::unordered_set<UID>& out)
+        void populate_deletion_set(const MiObject& deletion_target, std::unordered_set<UID>& out)
         {
-            const UID deletedID = deletionTarget.get_id();
+            const UID deleted_id = deletion_target.get_id();
 
             // add the deletion target to the deletion set (if applicable)
-            if (deletionTarget.can_delete())
+            if (deletion_target.can_delete())
             {
-                if (!out.emplace(deletedID).second)
+                if (!out.emplace(deleted_id).second)
                 {
                     throw std::runtime_error{"cannot populate deletion set - cycle detected"};
                 }
@@ -411,7 +411,7 @@ namespace osc
             // also be deleted
             for (const MiObject& obj : iter())
             {
-                if (obj.is_cross_referencing(deletedID))
+                if (obj.is_cross_referencing(deleted_id))
                 {
                     populate_deletion_set(obj, out);
                 }

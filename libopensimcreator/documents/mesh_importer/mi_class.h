@@ -17,15 +17,15 @@ namespace osc
     public:
         MiClass(
             CStringView name,
-            CStringView namePluralized,
-            CStringView nameOptionallyPluralized,
+            CStringView name_pluralized,
+            CStringView name_optionally_pluralized,
             CStringView icon,
             CStringView description) :
 
             data_{std::make_shared<Data>(
                 name,
-                namePluralized,
-                nameOptionallyPluralized,
+                name_pluralized,
+                name_optionally_pluralized,
                 icon,
                 description
             )}
@@ -81,19 +81,18 @@ namespace osc
 
         struct Data final {
             Data(
-                CStringView name_,
-                CStringView namePluralized_,
-                CStringView nameOptionallyPluralized_,
-                CStringView icon_,
-                CStringView description_) :
+                CStringView name,
+                CStringView name_pluralized,
+                CStringView name_optionally_pluralized,
+                CStringView icon,
+                CStringView description) :
 
-                name{name_},
-                name_pluralized{namePluralized_},
-                name_optionally_pluralized{nameOptionallyPluralized_},
-                icon{icon_},
-                description{description_}
-            {
-            }
+                name{name},
+                name_pluralized{name_pluralized},
+                name_optionally_pluralized{name_optionally_pluralized},
+                icon{icon},
+                description{description}
+            {}
 
             friend bool operator==(const Data&, const Data&) = default;
 

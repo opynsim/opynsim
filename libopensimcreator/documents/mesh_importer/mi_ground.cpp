@@ -18,11 +18,11 @@ MiClass osc::MiGround::create_class()
 {
     return
     {
-        MiStrings::c_GroundLabel,
-        MiStrings::c_GroundLabelPluralized,
-        MiStrings::c_GroundLabelOptionallyPluralized,
+        MiStrings::c_ground_label,
+        MiStrings::c_ground_label_pluralized,
+        MiStrings::c_ground_label_optionally_pluralized,
         MSMICONS_DOT_CIRCLE,
-        MiStrings::c_GroundDescription,
+        MiStrings::c_ground_description,
     };
 }
 
@@ -33,10 +33,10 @@ UID osc::MiGround::impl_get_id() const
 
 std::ostream& osc::MiGround::impl_write_to_stream(std::ostream& o) const
 {
-    return o << MiStrings::c_GroundLabel << "()";
+    return o << MiStrings::c_ground_label << "()";
 }
 
 CStringView osc::MiGround::impl_get_label() const
 {
-    return MiStrings::c_GroundLabel;
+    return MiStrings::c_ground_label;
 }

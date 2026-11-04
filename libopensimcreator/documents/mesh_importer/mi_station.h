@@ -98,7 +98,7 @@ namespace osc
 
         UID id_;
         UID attachment_;  // can be MiIDs::ground()
-        Vector3 position_{};
+        Vector3 position_;
         std::string name_;
     };
 }

@@ -36,9 +36,9 @@ namespace osc
             return joint_type_name_;
         }
 
-        void set_specific_type_name(std::string_view newName)
+        void set_specific_type_name(std::string_view new_name)
         {
-            joint_type_name_ = newName;
+            joint_type_name_ = new_name;
         }
 
         UID get_parent_id() const

@@ -38,11 +38,11 @@ MiClass osc::MiJoint::create_class()
 {
     return
     {
-        MiStrings::c_JointLabel,
-        MiStrings::c_JointLabelPluralized,
-        MiStrings::c_JointLabelOptionallyPluralized,
+        MiStrings::c_joint_label,
+        MiStrings::c_joint_label_pluralized,
+        MiStrings::c_joint_label_optionally_pluralized,
         MSMICONS_LINK,
-        MiStrings::c_JointDescription,
+        MiStrings::c_joint_description,
     };
 }
 
@@ -50,8 +50,8 @@ std::vector<MiCrossrefDescriptor> osc::MiJoint::impl_get_cross_references() cons
 {
     return
     {
-        {parent_, MiStrings::c_JointParentCrossrefName, MiCrossrefDirection::ToParent},
-        {child_,  MiStrings::c_JointChildCrossrefName,  MiCrossrefDirection::ToChild },
+        {parent_, MiStrings::c_joint_parent_crossref_name, MiCrossrefDirection::ToParent},
+        {child_,  MiStrings::c_joint_child_crossref_name,  MiCrossrefDirection::ToChild },
     };
 }
 

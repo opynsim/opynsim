@@ -34,11 +34,11 @@ MiClass osc::MiBody::create_class()
 {
     return
     {
-        MiStrings::c_BodyLabel,
-        MiStrings::c_BodyLabelPluralized,
-        MiStrings::c_BodyLabelOptionallyPluralized,
+        MiStrings::c_body_label,
+        MiStrings::c_body_label_pluralized,
+        MiStrings::c_body_label_optionally_pluralized,
         MSMICONS_CIRCLE,
-        MiStrings::c_BodyDescription,
+        MiStrings::c_body_description,
     };
 }
 

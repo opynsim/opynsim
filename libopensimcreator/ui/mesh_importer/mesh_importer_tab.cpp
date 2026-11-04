@@ -900,7 +900,7 @@ private:
                 shared_->commit_current_model_graph(std::move(ss).str());
             }
             ui::same_line();
-            ui::draw_help_marker("Translation", MiStrings::c_TranslationDescription);
+            ui::draw_help_marker("Translation", MiStrings::c_translation_description);
         }
 
         // rotation editor
@@ -958,7 +958,7 @@ private:
             {
                 shared_->prompt_user_for_mesh_files_and_push_them_onto_mesh_loader(el.get_id());
             }
-            ui::draw_tooltip_if_item_hovered("Add Meshes", MiStrings::c_MeshDescription);
+            ui::draw_tooltip_if_item_hovered("Add Meshes", MiStrings::c_mesh_description);
         }
         ui::pop_id();
 
@@ -971,19 +971,19 @@ private:
                 {
                     add_body(shared_->upd_committable_model_graph(), el.get_pos(shared_->get_model_graph()), el.get_id());
                 }
-                ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
+                ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_body_description);
 
                 if (ui::draw_menu_item(MSMICONS_MOUSE_POINTER " at click position"))
                 {
                     add_body(shared_->upd_committable_model_graph(), click_pos, el.get_id());
                 }
-                ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
+                ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_body_description);
 
                 if (ui::draw_menu_item(MSMICONS_DOT_CIRCLE " at ground"))
                 {
                     add_body(shared_->upd_committable_model_graph());
                 }
-                ui::draw_tooltip_if_item_hovered("Add body", MiStrings::c_BodyDescription);
+                ui::draw_tooltip_if_item_hovered("Add body", MiStrings::c_body_description);
 
                 if (const auto* mesh = dynamic_cast<const MiMesh*>(&el))
                 {
@@ -993,21 +993,21 @@ private:
                         const Vector3 location = centroid_of(bounds);
                         add_body(shared_->upd_committable_model_graph(), location, mesh->get_id());
                     }
-                    ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
+                    ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_body_description);
 
                     if (ui::draw_menu_item(MSMICONS_DIVIDE " at mesh average center"))
                     {
                         const Vector3 location = average_center(*mesh);
                         add_body(shared_->upd_committable_model_graph(), location, mesh->get_id());
                     }
-                    ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
+                    ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_body_description);
 
                     if (ui::draw_menu_item(MSMICONS_WEIGHT " at mesh mass center"))
                     {
                         const Vector3 location = mass_center_of(*mesh);
                         add_body(shared_->upd_committable_model_graph(), location, mesh->get_id());
                     }
-                    ui::draw_tooltip_if_item_hovered("Add body", MiStrings::c_BodyDescription);
+                    ui::draw_tooltip_if_item_hovered("Add body", MiStrings::c_body_description);
                 }
 
                 ui::end_menu();
@@ -1019,7 +1019,7 @@ private:
             {
                 add_body(shared_->upd_committable_model_graph(), el.get_pos(shared_->get_model_graph()), el.get_id());
             }
-            ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
+            ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_body_description);
         }
         ui::pop_id();
 
@@ -1045,19 +1045,19 @@ private:
                     {
                         add_station_at_location(shared_->upd_committable_model_graph(), el, el.get_pos(shared_->get_model_graph()));
                     }
-                    ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_StationDescription);
+                    ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_station_description);
 
                     if (ui::draw_menu_item(MSMICONS_MOUSE_POINTER " at click position"))
                     {
                         add_station_at_location(shared_->upd_committable_model_graph(), el, click_pos);
                     }
-                    ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_StationDescription);
+                    ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_station_description);
 
                     if (ui::draw_menu_item(MSMICONS_DOT_CIRCLE " at ground"))
                     {
                         add_station_at_location(shared_->upd_committable_model_graph(), el, Vector3{});
                     }
-                    ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_StationDescription);
+                    ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_station_description);
 
                     if (dynamic_cast<const Mesh*>(&el))
                     {
@@ -1065,7 +1065,7 @@ private:
                         {
                             add_station_at_location(shared_->upd_committable_model_graph(), el, centroid_of(el.calc_bounds(shared_->get_model_graph()).value_or(AABB{})));
                         }
-                        ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_StationDescription);
+                        ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_station_description);
                     }
 
                     ui::end_menu();
@@ -1077,7 +1077,7 @@ private:
                 {
                     add_station_at_location(shared_->upd_committable_model_graph(), el, el.get_pos(shared_->get_model_graph()));
                 }
-                ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_StationDescription);
+                ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_station_description);
             }
         }
         // ~ScopeExit: implicitly calls ui::pop_id()
@@ -1089,7 +1089,7 @@ private:
         {
             shared_->prompt_user_for_mesh_files_and_push_them_onto_mesh_loader();
         }
-        ui::draw_tooltip_if_item_hovered("Add Meshes to the model", MiStrings::c_MeshDescription);
+        ui::draw_tooltip_if_item_hovered("Add Meshes to the model", MiStrings::c_mesh_description);
 
         if (ui::begin_menu(MSMICONS_PLUS " Add Other"))
         {
@@ -1697,13 +1697,13 @@ private:
         {
             shared_->prompt_user_for_mesh_files_and_push_them_onto_mesh_loader();
         }
-        ui::draw_tooltip_if_item_hovered("Add Meshes", MiStrings::c_MeshDescription);
+        ui::draw_tooltip_if_item_hovered("Add Meshes", MiStrings::c_mesh_description);
 
         if (ui::draw_menu_item(MSMICONS_CIRCLE " Body"))
         {
             add_body(shared_->upd_committable_model_graph());
         }
-        ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_BodyDescription);
+        ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_body_description);
 
         if (ui::draw_menu_item(MSMICONS_MAP_PIN " Station"))
         {
@@ -1724,7 +1724,7 @@ private:
         {
             shared_->prompt_user_for_mesh_files_and_push_them_onto_mesh_loader();
         }
-        ui::draw_tooltip_if_item_hovered("Add Meshes to the model", MiStrings::c_MeshDescription);
+        ui::draw_tooltip_if_item_hovered("Add Meshes to the model", MiStrings::c_mesh_description);
 
         ui::same_line();
 

@@ -44,11 +44,11 @@ MiClass osc::MiStation::create_class()
 {
     return
     {
-        MiStrings::c_StationLabel,
-        MiStrings::c_StationLabelPluralized,
-        MiStrings::c_StationLabelOptionallyPluralized,
+        MiStrings::c_station_label,
+        MiStrings::c_station_label_pluralized,
+        MiStrings::c_station_label_optionally_pluralized,
         MSMICONS_MAP_PIN,
-        MiStrings::c_StationDescription,
+        MiStrings::c_station_description,
     };
 }
 
@@ -56,7 +56,7 @@ std::vector<MiCrossrefDescriptor> osc::MiStation::impl_get_cross_references() co
 {
     return
     {
-        {attachment_, MiStrings::c_StationParentCrossrefName, MiCrossrefDirection::ToParent},
+        {attachment_, MiStrings::c_station_parent_crossref_name, MiCrossrefDirection::ToParent},
     };
 }
 

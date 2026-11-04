@@ -30,9 +30,9 @@ namespace osc
             return mass_;
         }
 
-        void set_mass(double newMass)
+        void set_mass(double new_mass)
         {
-            mass_ = newMass;
+            mass_ = new_mass;
         }
 
         Transform get_x_form() const
@@ -72,9 +72,9 @@ namespace osc
             return get_x_form();
         }
 
-        void impl_set_xform(const MiObjectFinder&, const Transform& newXform) final
+        void impl_set_xform(const MiObjectFinder&, const Transform& new_xform) final
         {
-            xform_ = newXform;
+            xform_ = new_xform;
             xform_.scale = {1.0f, 1.0f, 1.0f};
         }
 

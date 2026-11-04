@@ -18,8 +18,8 @@ namespace osc
     public:
         static const MiClass& get_class()
         {
-            static const MiClass s_Class = T::create_class();
-            return s_Class;
+            static const MiClass s_class = T::create_class();
+            return s_class;
         }
 
         std::unique_ptr<T> clone()

@@ -37,13 +37,6 @@ namespace osc
         std::unordered_set<UID>&
     );
 
-    // returns `true` if `body` is attached to ground
-    bool is_body_attached_to_ground(
-        const MiDocument&,
-        const MiBody&,
-        std::unordered_set<UID>&
-    );
-
     // returns `true` if the document contains issues and populates the output vector with messages
     bool get_issues(
         const MiDocument&,

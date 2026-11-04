@@ -51,11 +51,11 @@ MiClass osc::MiMesh::create_class()
 {
     return
     {
-        MiStrings::c_MeshLabel,
-        MiStrings::c_MeshLabelPluralized,
-        MiStrings::c_MeshLabelOptionallyPluralized,
+        MiStrings::c_mesh_label,
+        MiStrings::c_mesh_label_pluralized,
+        MiStrings::c_mesh_label_optionally_pluralized,
         MSMICONS_CUBE,
-        MiStrings::c_MeshDescription,
+        MiStrings::c_mesh_description,
     };
 }
 
@@ -63,7 +63,7 @@ std::vector<MiCrossrefDescriptor> osc::MiMesh::impl_get_cross_references() const
 {
     return
     {
-        {attachment_, MiStrings::c_MeshAttachmentCrossrefName, MiCrossrefDirection::ToParent},
+        {attachment_, MiStrings::c_mesh_attachment_crossref_name, MiCrossrefDirection::ToParent},
     };
 }
 
