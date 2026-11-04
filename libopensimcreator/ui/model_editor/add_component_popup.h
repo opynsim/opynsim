@@ -16,10 +16,10 @@ namespace osc
     public:
         explicit AddComponentPopup(
             Widget* parent,
-            std::string_view popupName,
+            std::string_view popup_name,
             std::shared_ptr<opyn::ModelStatePair>,
             std::unique_ptr<OpenSim::Component> prototype,
-            OpenSim::ComponentPath targetComponent = {}
+            OpenSim::ComponentPath target_component = {}
         );
 
     private:

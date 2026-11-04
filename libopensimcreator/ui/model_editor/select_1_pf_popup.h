@@ -15,9 +15,9 @@ namespace osc
     public:
         explicit Select1PFPopup(
             Widget* parent,
-            std::string_view popupName,
+            std::string_view popup_name,
             std::shared_ptr<const opyn::ModelStatePair>,
-            std::function<void(const OpenSim::ComponentPath&)> onSelection
+            std::function<void(const OpenSim::ComponentPath&)> on_selection
         );
 
     private:

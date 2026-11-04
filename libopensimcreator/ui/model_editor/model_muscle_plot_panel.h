@@ -16,14 +16,14 @@ namespace osc
         explicit ModelMusclePlotPanel(
             Widget*,
             std::shared_ptr<UndoableModelStatePair>,
-            std::string_view panelName
+            std::string_view panel_name
         );
         explicit ModelMusclePlotPanel(
             Widget*,
             std::shared_ptr<UndoableModelStatePair>,
-            std::string_view panelName,
-            const OpenSim::ComponentPath& coordPath,
-            const OpenSim::ComponentPath& musclePath
+            std::string_view panel_name,
+            const OpenSim::ComponentPath& coord_path,
+            const OpenSim::ComponentPath& muscle_path
         );
     private:
         void impl_draw_content() final;

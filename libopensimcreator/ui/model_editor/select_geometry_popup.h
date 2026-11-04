@@ -16,9 +16,9 @@ namespace osc
     public:
         explicit SelectGeometryPopup(
             Widget* parent,
-            std::string_view popupName,
-            std::optional<std::filesystem::path> geometryDir,
-            std::function<void(std::unique_ptr<OpenSim::Geometry>)> onSelection
+            std::string_view popup_name,
+            std::optional<std::filesystem::path> geometry_dir,
+            std::function<void(std::unique_ptr<OpenSim::Geometry>)> on_selection
         );
 
     private:

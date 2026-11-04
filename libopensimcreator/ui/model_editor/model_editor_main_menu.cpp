@@ -28,33 +28,33 @@ using namespace osc;
 class osc::ModelEditorMainMenu::Impl final : public WidgetPrivate {
 public:
     explicit Impl(
-        Widget& owner_,
-        Widget* parent_,
-        std::shared_ptr<PanelManager> panelManager_,
-        std::shared_ptr<ModelStatePairWithSharedEnvironment> model_) :
+        Widget& owner,
+        Widget* parent,
+        std::shared_ptr<PanelManager> panel_manager,
+        std::shared_ptr<ModelStatePairWithSharedEnvironment> model) :
 
-        WidgetPrivate{owner_, parent_},
-        m_Model{std::move(model_)},
-        m_MainMenuFileTab{&owner_},
-        m_WindowMenu{&owner_, std::move(panelManager_)}
+        WidgetPrivate{owner, parent},
+        model_{std::move(model)},
+        main_menu_file_tab_{&owner},
+        window_menu_{&owner, std::move(panel_manager)}
     {}
 
-    void onDraw()
+    void on_draw()
     {
-        m_MainMenuFileTab.on_draw(m_Model);
-        drawMainMenuEditTab();
-        drawMainMenuAddTab();
-        drawMainMenuToolsTab();
-        drawMainMenuActionsTab();
-        m_WindowMenu.on_draw();
-        m_MainMenuAboutTab.on_draw();
+        main_menu_file_tab_.on_draw(model_);
+        draw_main_menu_edit_tab();
+        draw_main_menu_add_tab();
+        draw_main_menu_tools_tab();
+        draw_main_menu_actions_tab();
+        window_menu_.on_draw();
+        main_menu_about_tab_.on_draw();
     }
 
 private:
-    void drawMainMenuEditTab()
+    void draw_main_menu_edit_tab()
     {
         if (ui::begin_menu("Edit")) {
-            auto* undoable = dynamic_cast<UndoableModelStatePair*>(m_Model.get());
+            auto* undoable = dynamic_cast<UndoableModelStatePair*>(model_.get());
             if (ui::draw_menu_item(MSMICONS_UNDO " Undo", ModifierKey::Ctrl | Key::Z, false, undoable != nullptr and undoable->can_undo())) {
                 if (undoable) {
                     undoable->do_undo();
@@ -69,27 +69,27 @@ private:
 
             ui::draw_separator();
 
-            if (ui::draw_menu_item("         Deselect", Key::Escape, false, m_Model->get_selected() != nullptr)) {
-                m_Model->clear_selected();
+            if (ui::draw_menu_item("         Deselect", Key::Escape, false, model_->get_selected() != nullptr)) {
+                model_->clear_selected();
             }
 
             ui::end_menu();
         }
     }
 
-    void drawMainMenuAddTab()
+    void draw_main_menu_add_tab()
     {
         if (ui::begin_menu("Add")) {
-            m_MainMenuModelAddMenuItems.on_draw();
+            main_menu_model_add_menu_items_.on_draw();
             ui::end_menu();
         }
     }
 
-    void drawMainMenuToolsTab()
+    void draw_main_menu_tools_tab()
     {
         if (ui::begin_menu("Tools")) {
             if (ui::draw_menu_item(MSMICONS_PLAY " Simulate", ModifierKey::Ctrl | Key::R)) {
-                action_start_simulating_model(owner(), *m_Model);
+                action_start_simulating_model(owner(), *model_);
             }
 
             if (ui::draw_menu_item(MSMICONS_EDIT " Edit simulation settings")) {
@@ -97,18 +97,18 @@ private:
                     auto popup = std::make_unique<ParamBlockEditorPopup>(
                         &owner(),
                         "simulation parameters",
-                        &m_Model->try_upd_environment()->upd_simulation_params()
+                        &model_->try_upd_environment()->upd_simulation_params()
                     );
                     App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
                 }
             }
 
-            if (ui::draw_menu_item("         Import Points", {}, nullptr, m_Model->can_upd_model())) {
+            if (ui::draw_menu_item("         Import Points", {}, nullptr, model_->can_upd_model())) {
                 if (parent()) {
                     auto popup = std::make_unique<ImportStationsFromCSVPopup>(
                         &owner(),
                         "Import Points",
-                        [model = m_Model](auto lms)
+                        [model = model_](auto lms)
                         {
                             action_import_landmarks(
                                 *model,
@@ -117,14 +117,14 @@ private:
                                 lms.maybe_target_component_abs_path
                             );
                         },
-                        m_Model
+                        model_
                     );
                     App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
                 }
             }
 
             if (ui::draw_menu_item("         Export Points")) {
-                auto popup = std::make_unique<ExportPointsPopup>(&owner(), "Export Points", m_Model);
+                auto popup = std::make_unique<ExportPointsPopup>(&owner(), "Export Points", model_);
                 if (parent()) {
                     App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
                 }
@@ -132,21 +132,21 @@ private:
 
             if (ui::begin_menu("         Experimental Tools")) {
                 if (ui::draw_menu_item("Export Model Graph as Dotviz")) {
-                    action_export_model_graph_to_dotviz(m_Model);
+                    action_export_model_graph_to_dotviz(model_);
                 }
                 ui::draw_tooltip_if_item_hovered("Writes the model's data topology graph in dotviz format, so that it can be visualized in external tooling such as Graphviz Online");
 
                 if (ui::draw_menu_item("Export Model Graph as Dotviz (clipboard)")) {
-                    action_export_model_graph_to_dotviz_clipboard(*m_Model);
+                    action_export_model_graph_to_dotviz_clipboard(*model_);
                 }
 
                 if (ui::draw_menu_item("Export Model Multibody System as Dotviz (clipboard)")) {
-                    action_export_model_multibody_system_as_dotviz(*m_Model);
+                    action_export_model_multibody_system_as_dotviz(*model_);
                 }
                 ui::draw_tooltip_if_item_hovered("Writes the model's multibody system (kinematic chain) in dotviz format, so that it can be visualized in external tooling such as Graphviz Online");
 
                 if (ui::draw_menu_item("WIP: Bake Station Defined Frames")) {
-                    action_bake_station_defined_frames(*m_Model);
+                    action_bake_station_defined_frames(*model_);
                 }
                 ui::draw_tooltip_if_item_hovered("WORK IN PROGRESS (WIP): Converts any `StationDefinedFrame`s in the model into `PhysicalOffsetFrame`s. Effectively, \"baking\" the current (station-defined) frame transform.\n\nThe main reason to do this is backwards compatibility, OpenSim <= v4.5 doesn't have native support for `StationDefinedFrame`s (later versions should: see opensim-core/#3694)");
 
@@ -157,38 +157,38 @@ private:
         }
     }
 
-    void drawMainMenuActionsTab()
+    void draw_main_menu_actions_tab()
     {
         if (ui::begin_menu("Actions")) {
-            if (ui::draw_menu_item("Disable all wrapping surfaces", {}, nullptr, m_Model->can_upd_model())) {
-                action_disable_all_wrapping_surfaces(*m_Model);
+            if (ui::draw_menu_item("Disable all wrapping surfaces", {}, nullptr, model_->can_upd_model())) {
+                action_disable_all_wrapping_surfaces(*model_);
             }
 
-            if (ui::draw_menu_item("Enable all wrapping surfaces", {}, nullptr, m_Model->can_upd_model())) {
-                action_enable_all_wrapping_surfaces(*m_Model);
+            if (ui::draw_menu_item("Enable all wrapping surfaces", {}, nullptr, model_->can_upd_model())) {
+                action_enable_all_wrapping_surfaces(*model_);
             }
 
             ui::end_menu();
         }
     }
 
-    std::shared_ptr<ModelStatePairWithSharedEnvironment> m_Model;
-    MainMenuFileTab m_MainMenuFileTab;
-    ModelAddMenuItems m_MainMenuModelAddMenuItems{&owner(), m_Model};
-    WindowMenu m_WindowMenu;
-    MainMenuAboutTab m_MainMenuAboutTab;
+    std::shared_ptr<ModelStatePairWithSharedEnvironment> model_;
+    MainMenuFileTab main_menu_file_tab_;
+    ModelAddMenuItems main_menu_model_add_menu_items_{&owner(), model_};
+    WindowMenu window_menu_;
+    MainMenuAboutTab main_menu_about_tab_;
 };
 
 
 osc::ModelEditorMainMenu::ModelEditorMainMenu(
-    Widget* parent_,
-    std::shared_ptr<PanelManager> panelManager_,
-    std::shared_ptr<ModelStatePairWithSharedEnvironment> model_) :
+    Widget* parent,
+    std::shared_ptr<PanelManager> panel_manager,
+    std::shared_ptr<ModelStatePairWithSharedEnvironment> model) :
 
-    Widget{std::make_unique<Impl>(*this, parent_, std::move(panelManager_), std::move(model_))}
+    Widget{std::make_unique<Impl>(*this, parent, std::move(panel_manager), std::move(model))}
 {}
 
 void osc::ModelEditorMainMenu::impl_on_draw()
 {
-    private_data().onDraw();
+    private_data().on_draw();
 }

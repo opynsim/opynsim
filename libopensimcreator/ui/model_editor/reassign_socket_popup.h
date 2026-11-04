@@ -13,10 +13,10 @@ namespace osc
     public:
         explicit ReassignSocketPopup(
             Widget* parent,
-            std::string_view popupName,
+            std::string_view popup_name,
             std::shared_ptr<opyn::ModelStatePair>,
-            std::string_view componentAbsPath,
-            std::string_view socketName
+            std::string_view component_abs_path,
+            std::string_view socket_name
         );
 
     private:

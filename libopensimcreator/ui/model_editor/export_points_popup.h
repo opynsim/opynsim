@@ -13,7 +13,7 @@ namespace osc
     public:
         explicit ExportPointsPopup(
             Widget* parent,
-            std::string_view popupName,
+            std::string_view popup_name,
             std::shared_ptr<const opyn::ModelStatePair>
         );
 

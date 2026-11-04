@@ -27,7 +27,7 @@ namespace
 {
     using Geom_ctor_fn = std::unique_ptr<OpenSim::Geometry>();
 
-    constexpr auto c_GeomCtors = std::to_array<Geom_ctor_fn*>(
+    constexpr auto c_geom_ctors = std::to_array<Geom_ctor_fn*>(
     {
         std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry>
         {
@@ -66,7 +66,7 @@ namespace
         }},
     });
 
-    constexpr auto c_GeomNames = std::to_array<CStringView>(
+    constexpr auto c_geom_names = std::to_array<CStringView>(
     {
         "Brick",
         "Sphere",
@@ -76,9 +76,9 @@ namespace
         "Arrow (CARE: may not work in OpenSim's main UI)",
         "Cone",
     });
-    static_assert(c_GeomCtors.size() == c_GeomNames.size());
+    static_assert(c_geom_ctors.size() == c_geom_names.size());
 
-    std::unique_ptr<OpenSim::Mesh> LoadGeometryFile(const std::filesystem::path& p)
+    std::unique_ptr<OpenSim::Mesh> load_geometry_file(const std::filesystem::path& p)
     {
         return std::make_unique<OpenSim::Mesh>(p.string());
     }
@@ -89,13 +89,13 @@ public:
     explicit Impl(
         SelectGeometryPopup& owner,
         Widget* parent,
-        std::string_view popupName,
-        std::optional<std::filesystem::path> geometryDir,
-        std::function<void(std::unique_ptr<OpenSim::Geometry>)> onSelection) :
+        std::string_view popup_name,
+        std::optional<std::filesystem::path> geometry_dir,
+        std::function<void(std::unique_ptr<OpenSim::Geometry>)> on_selection) :
 
-        PopupPrivate{owner, parent, popupName},
-        m_OnSelection{std::move(onSelection)},
-        m_GeometryFiles{geometryDir ? find_files_recursive(*geometryDir) : std::vector<std::filesystem::path>{}}
+        PopupPrivate{owner, parent, popup_name},
+        on_selection_{std::move(on_selection)},
+        geometry_files_{geometry_dir ? find_files_recursive(*geometry_dir) : std::vector<std::filesystem::path>{}}
     {}
 
     void draw_content()
@@ -112,10 +112,10 @@ public:
             ui::draw_vertical_spacer(2.0f/15.0f);
 
             size_t item = 0;
-            if (ui::draw_combobox("##premade", &item, c_GeomNames))
+            if (ui::draw_combobox("##premade", &item, c_geom_names))
             {
-                const auto& ctor = c_GeomCtors.at(item);
-                m_Result = ctor();
+                const auto& ctor = c_geom_ctors.at(item);
+                result_ = ctor();
             }
         }
 
@@ -130,7 +130,7 @@ public:
         ui::draw_vertical_spacer(2.0f/15.0f);
 
         // let the user search through mesh files in pre-established Geometry/ dirs
-        ui::draw_string_input("search", m_Search);
+        ui::draw_string_input("search", search_);
         ui::draw_vertical_spacer(1.0f/15.0f);
 
         ui::begin_child_panel(
@@ -139,37 +139,37 @@ public:
             ui::ChildPanelFlags{},
             ui::PanelFlag::HorizontalScrollbar);
 
-        if (!m_RecentUserChoices.empty())
+        if (!recent_user_choices_.empty())
         {
             ui::draw_text_disabled("  (recent)");
         }
 
-        for (const std::filesystem::path& p : m_RecentUserChoices)
+        for (const std::filesystem::path& p : recent_user_choices_)
         {
-            auto resp = tryDrawFileChoice(p);
+            auto resp = try_draw_file_choice(p);
             if (resp)
             {
-                m_Result = std::move(resp);
+                result_ = std::move(resp);
             }
         }
 
-        if (!m_RecentUserChoices.empty())
+        if (!recent_user_choices_.empty())
         {
             ui::draw_text_disabled("  (from Geometry/ dir)");
         }
-        for (const std::filesystem::path& p : m_GeometryFiles)
+        for (const std::filesystem::path& p : geometry_files_)
         {
-            auto resp = tryDrawFileChoice(p);
+            auto resp = try_draw_file_choice(p);
             if (resp)
             {
-                m_Result = std::move(resp);
+                result_ = std::move(resp);
             }
         }
 
         ui::end_child_panel();
 
         if (ui::draw_button("Open Mesh File")) {
-            promptUserForGeometryFile();
+            prompt_user_for_geometry_file();
         }
         ui::draw_tooltip_if_item_hovered("Open Mesh File", "Open a mesh file on the filesystem");
 
@@ -177,20 +177,20 @@ public:
 
         if (ui::draw_button("Cancel"))
         {
-            m_Search.clear();
+            search_.clear();
             request_close();
         }
 
-        if (m_Result)
+        if (result_)
         {
-            m_OnSelection(std::move(m_Result));
-            m_Search.clear();
+            on_selection_(std::move(result_));
+            search_.clear();
             request_close();
         }
     }
 
 private:
-    void promptUserForGeometryFile()
+    void prompt_user_for_geometry_file()
     {
         App::upd().prompt_user_to_select_file_async(
             [this, this_lifetime = this->lifetime_watcher()](const FileDialogResponse& response)
@@ -203,60 +203,60 @@ private:
                     return;  // user cancelled, or somehow selected multiple files?
                 }
 
-                m_OnSelection(onMeshFileChosen(response.front()));
+                on_selection_(on_mesh_file_chosen(response.front()));
             },
             opyn::get_supported_sim_tk_mesh_formats_as_filters()
         );
     }
 
-    std::unique_ptr<OpenSim::Mesh> onMeshFileChosen(std::filesystem::path path)
+    std::unique_ptr<OpenSim::Mesh> on_mesh_file_chosen(std::filesystem::path path)
     {
-        auto rv = LoadGeometryFile(path);
+        auto rv = load_geometry_file(path);
 
         // add to recent list
-        m_RecentUserChoices.push_back(std::move(path));
+        recent_user_choices_.push_back(std::move(path));
 
         // reset search (for next popup open)
-        m_Search.clear();
+        search_.clear();
 
         request_close();
 
         return rv;
     }
 
-    std::unique_ptr<OpenSim::Mesh> tryDrawFileChoice(const std::filesystem::path& p)
+    std::unique_ptr<OpenSim::Mesh> try_draw_file_choice(const std::filesystem::path& p)
     {
-        if (p.filename().string().contains(m_Search)) {
+        if (p.filename().string().contains(search_)) {
             if (ui::draw_selectable(p.filename().string())) {
-                return onMeshFileChosen(p.filename());
+                return on_mesh_file_chosen(p.filename());
             }
         }
         return nullptr;
     }
 
     // holding space for result
-    std::unique_ptr<OpenSim::Geometry> m_Result;
+    std::unique_ptr<OpenSim::Geometry> result_;
 
     // callback that's called with the geometry
-    std::function<void(std::unique_ptr<OpenSim::Geometry>)> m_OnSelection;
+    std::function<void(std::unique_ptr<OpenSim::Geometry>)> on_selection_;
 
     // geometry files found in the user's/installation's `Geometry/` dir
-    std::vector<std::filesystem::path> m_GeometryFiles;
+    std::vector<std::filesystem::path> geometry_files_;
 
     // recent file choices by the user
-    std::vector<std::filesystem::path> m_RecentUserChoices;
+    std::vector<std::filesystem::path> recent_user_choices_;
 
     // the user's current search filter
-    std::string m_Search;
+    std::string search_;
 };
 
 
 osc::SelectGeometryPopup::SelectGeometryPopup(
     Widget* parent,
-    std::string_view popupName,
-    std::optional<std::filesystem::path> geometryDir,
-    std::function<void(std::unique_ptr<OpenSim::Geometry>)> onSelection) :
+    std::string_view popup_name,
+    std::optional<std::filesystem::path> geometry_dir,
+    std::function<void(std::unique_ptr<OpenSim::Geometry>)> on_selection) :
 
-    Popup{std::make_unique<Impl>(*this, parent, popupName, std::move(geometryDir), std::move(onSelection))}
+    Popup{std::make_unique<Impl>(*this, parent, popup_name, std::move(geometry_dir), std::move(on_selection))}
 {}
 void osc::SelectGeometryPopup::impl_draw_content() { private_data().draw_content(); }

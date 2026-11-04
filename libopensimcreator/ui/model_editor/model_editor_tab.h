@@ -26,7 +26,7 @@ namespace osc
         explicit ModelEditorTab(
             Widget*,
             std::unique_ptr<OpenSim::Model>,
-            float fixupScaleFactor = 1.0f
+            float fixup_scale_factor = 1.0f
         );
         explicit ModelEditorTab(
             Widget*,
