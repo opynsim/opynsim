@@ -18,11 +18,11 @@ namespace osc
     public:
         explicit ObjectPropertiesEditor(
             Widget* parent,
-            std::shared_ptr<const opyn::VersionedComponentAccessor> targetComponent,
-            std::function<const OpenSim::Object*()> objectGetter
+            std::shared_ptr<const opyn::VersionedComponentAccessor> target_component,
+            std::function<const OpenSim::Object*()> object_getter
         );
 
-        void insert_in_blacklist(std::string_view propertyName);
+        void insert_in_blacklist(std::string_view property_name);
 
         // does not actually apply any property changes - the caller should check+apply the return value
         std::optional<ObjectPropertyEdit> on_draw();

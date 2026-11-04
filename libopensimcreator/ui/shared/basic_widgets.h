@@ -60,11 +60,11 @@ namespace osc
     );
     bool draw_request_output_menu_or_menu_item(
         const OpenSim::AbstractOutput& o,
-        const std::function<void(opyn::SharedOutputExtractor)>& onUserSelection
+        const std::function<void(opyn::SharedOutputExtractor)>& on_user_selection
     );
     bool draw_watch_output_menu(
         const OpenSim::Component&,
-        const std::function<void(opyn::SharedOutputExtractor)>& onUserSelection
+        const std::function<void(opyn::SharedOutputExtractor)>& on_user_selection
     );
     void draw_simulation_params(
         const ParamBlock&
@@ -73,7 +73,7 @@ namespace osc
     void draw_output_name_column(
         const opyn::OutputExtractor& output,
         bool centered = true,
-        SimulationModelStatePair* maybeActiveSate = nullptr
+        SimulationModelStatePair* maybe_active_sate = nullptr
     );
 
     // draws a "With Respect to" menu that prompts the user to hover a frame
@@ -83,8 +83,8 @@ namespace osc
     // (i.e. `ui::begin_menu($FRAME)` returned `true`)
     void draw_with_respect_to_menu_containing_menu_per_frame(
         const OpenSim::Component& root,
-        const std::function<void(const OpenSim::Frame&)>& onFrameMenuOpened,
-        const OpenSim::Frame* maybeParent
+        const std::function<void(const OpenSim::Frame&)>& on_frame_menu_opened,
+        const OpenSim::Frame* maybe_parent
     );
 
     // draws a "With Respect to" menu that prompts the user to click a frame
@@ -94,19 +94,19 @@ namespace osc
     // associated with a frame
     void draw_with_respect_to_menu_containing_menu_item_per_frame(
         const OpenSim::Component& root,
-        const std::function<void(const OpenSim::Frame&)>& onFrameMenuItemClicked,
-        const OpenSim::Frame* maybeParent
+        const std::function<void(const OpenSim::Frame&)>& on_frame_menu_item_clicked,
+        const OpenSim::Frame* maybe_parent
     );
 
     void draw_point_translation_information_with_respect_to(
         const OpenSim::Frame&,
         const SimTK::State&,
-        Vector3 locationInGround
+        Vector3 location_in_ground
     );
     void draw_direction_information_with_repsect_to(
         const OpenSim::Frame&,
         const SimTK::State&,
-        Vector3 directionInGround
+        Vector3 direction_in_ground
     );
     void draw_frame_information_expressed_in(
         const OpenSim::Frame& parent,
@@ -132,7 +132,7 @@ namespace osc
         const OpenSim::Component& root,
         const SimTK::State&,
         const OpenSim::Point&,
-        const OpenSim::Frame* maybeParent
+        const OpenSim::Frame* maybe_parent
     );
     void draw_calculate_menu(
         const OpenSim::Component& root,
@@ -241,16 +241,16 @@ namespace osc
         opyn::ModelRendererParams&,
         std::span<const SceneDecoration>,
         IconCache&,
-        const std::function<bool()>& drawExtraElements = []{ return false; }
+        const std::function<bool()>& draw_extra_elements = []{ return false; }
     );
     bool draw_camera_control_buttons(
         opyn::ModelRendererParams&,
         OrbitCameraController&,
         std::span<const SceneDecoration>,
         const Rect&,
-        const std::optional<AABB>& maybeSceneAABB,
+        const std::optional<AABB>& maybe_scene_aabb,
         IconCache&,
-        Vector2 desiredTopCentroid
+        Vector2 desired_top_centroid
     );
     bool draw_viewer_im_gui_overlays(
         opyn::ModelRendererParams&,
@@ -259,14 +259,14 @@ namespace osc
         std::optional<AABB>,
         const Rect&,
         IconCache&,
-        const std::function<bool()>& drawExtraElementsInTop = []{ return false; }
+        const std::function<bool()>& draw_extra_elements_in_top = []{ return false; }
     );
 
     // toolbar stuff
     bool begin_toolbar(CStringView label, std::optional<Vector2> padding = {});  // behaves the same as `ui::begin_panel` (i.e. you must call `ui::end_panel`)
     void draw_new_model_button(Widget&);
     void draw_open_model_button_with_recent_files_dropdown(
-        const std::function<void(std::optional<std::filesystem::path>)>& onUserClickedOpenOrSelectedFile
+        const std::function<void(std::optional<std::filesystem::path>)>& on_user_clicked_open_or_selected_file
     );
     void draw_open_model_button_with_recent_files_dropdown(Widget&);
     void draw_save_model_button(const std::shared_ptr<opyn::ModelStatePair>&);

@@ -14,7 +14,7 @@ namespace osc
     public:
         explicit ParamBlockEditorPopup(
             Widget* parent,
-            std::string_view popupName,
+            std::string_view popup_name,
             ParamBlock*
         );
 

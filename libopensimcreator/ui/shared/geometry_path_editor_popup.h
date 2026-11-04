@@ -15,11 +15,11 @@ namespace osc
     class GeometryPathEditorPopup final : public Popup {
     public:
         explicit GeometryPathEditorPopup(
-            Widget* parent_,
-            std::string_view popupName_,
-            std::shared_ptr<const opyn::ComponentAccessor> targetComponent_,
-            std::function<const OpenSim::GeometryPath*()> geometryPathGetter_,
-            std::function<void(const OpenSim::GeometryPath&)> onLocalCopyEdited_
+            Widget* parent,
+            std::string_view popup_name,
+            std::shared_ptr<const opyn::ComponentAccessor> target_component,
+            std::function<const OpenSim::GeometryPath*()> geometry_path_getter,
+            std::function<void(const OpenSim::GeometryPath&)> on_local_copy_edited
         );
 
     private:

@@ -25,7 +25,7 @@ using namespace osc;
 
 namespace
 {
-    void DrawActionsMenu(Widget& parent, const std::shared_ptr<opyn::ModelStatePair>& model)
+    void draw_actions_menu(Widget& parent, const std::shared_ptr<opyn::ModelStatePair>& model)
     {
         const OpenSim::Component* const selection = model->get_selected();
         if (not selection) {
@@ -49,25 +49,25 @@ namespace
 
     class ObjectNameEditor final {
     public:
-        explicit ObjectNameEditor(std::shared_ptr<opyn::ModelStatePair> model_) :
-            m_Model{std::move(model_)}
+        explicit ObjectNameEditor(std::shared_ptr<opyn::ModelStatePair> model) :
+            model_{std::move(model)}
         {}
 
-        void onDraw()
+        void on_draw()
         {
-            const OpenSim::Component* const selected = m_Model->get_selected();
+            const OpenSim::Component* const selected = model_->get_selected();
             if (not selected) {
                 return;  // don't do anything if nothing is selected
             }
 
             // update cached edits if model/selection changes
-            if (m_Model->get_model_version() != m_LastModelVersion or selected != m_LastSelected) {
-                m_EditedName = selected->getName();
-                m_LastModelVersion = m_Model->get_model_version();
-                m_LastSelected = selected;
+            if (model_->get_model_version() != last_model_version_ or selected != last_selected_) {
+                edited_name_ = selected->getName();
+                last_model_version_ = model_->get_model_version();
+                last_selected_ = selected;
             }
 
-            const bool disabled = m_Model->is_readonly();
+            const bool disabled = model_->is_readonly();
             if (disabled) {
                 ui::begin_disabled();
             }
@@ -83,9 +83,9 @@ namespace
             ui::next_column();
 
             ui::set_next_item_width(ui::get_content_region_available().x());
-            ui::draw_string_input("##nameeditor", m_EditedName);
+            ui::draw_string_input("##nameeditor", edited_name_);
             if (ui::should_save_last_drawn_item_value()) {
-                action_set_component_name(*m_Model, opyn::get_absolute_path(*selected), m_EditedName);
+                action_set_component_name(*model_, opyn::get_absolute_path(*selected), edited_name_);
             }
             ui::add_screenshot_annotation_to_last_drawn_item("PropertiesPanel/name");
 
@@ -98,10 +98,10 @@ namespace
             }
         }
     private:
-        std::shared_ptr<opyn::ModelStatePair> m_Model;
-        UID m_LastModelVersion;
-        const OpenSim::Component* m_LastSelected = nullptr;
-        std::string m_EditedName;
+        std::shared_ptr<opyn::ModelStatePair> model_;
+        UID last_model_version_;
+        const OpenSim::Component* last_selected_ = nullptr;
+        std::string edited_name_;
     };
 }
 
@@ -110,54 +110,54 @@ public:
     explicit Impl(
         PropertiesPanel& owner,
         Widget* parent,
-        std::string_view panelName,
+        std::string_view panel_name,
         std::shared_ptr<opyn::ModelStatePair> model) :
 
-        PanelPrivate{owner, parent, panelName},
-        m_Model{std::move(model)},
-        m_SelectionPropertiesEditor{&owner, m_Model, [model = m_Model](){ return model->get_selected(); }}
+        PanelPrivate{owner, parent, panel_name},
+        model_{std::move(model)},
+        selection_properties_editor_{&owner, model_, [model = model_]{ return model->get_selected(); }}
     {}
 
     void draw_content()
     {
-        if (not m_Model->get_selected()) {
+        if (not model_->get_selected()) {
             ui::draw_text_disabled_and_panel_centered("(nothing selected)");
             return;
         }
 
-        ui::push_id(m_Model->get_selected());
+        ui::push_id(model_->get_selected());
         const ScopeExit g{[]{ ui::pop_id(); }};
 
         // draw an actions row with a button that opens the context menu
         //
         // it's helpful to reveal to users that actions are available (#426)
-        DrawActionsMenu(*parent(), m_Model);
+        draw_actions_menu(*parent(), model_);
 
-        m_NameEditor.onDraw();
+        name_editor_.on_draw();
 
-        if (not m_Model->get_selected()) {
+        if (not model_->get_selected()) {
             return;
         }
 
         // property editors
         {
-            auto maybeUpdater = m_SelectionPropertiesEditor.on_draw();
-            if (maybeUpdater) {
-                action_apply_property_edit(*m_Model, *maybeUpdater);
+            auto maybe_updater = selection_properties_editor_.on_draw();
+            if (maybe_updater) {
+                action_apply_property_edit(*model_, *maybe_updater);
             }
         }
     }
 
 private:
-    std::shared_ptr<opyn::ModelStatePair> m_Model;
-    ObjectNameEditor m_NameEditor{m_Model};
-    ObjectPropertiesEditor m_SelectionPropertiesEditor;
+    std::shared_ptr<opyn::ModelStatePair> model_;
+    ObjectNameEditor name_editor_{model_};
+    ObjectPropertiesEditor selection_properties_editor_;
 };
 
 osc::PropertiesPanel::PropertiesPanel(
     Widget* parent,
-    std::string_view panelName,
+    std::string_view panel_name,
     std::shared_ptr<opyn::ModelStatePair> model) :
-    Panel{std::make_unique<Impl>(*this, parent, panelName, std::move(model))}
+    Panel{std::make_unique<Impl>(*this, parent, panel_name, std::move(model))}
 {}
 void osc::PropertiesPanel::impl_draw_content() { private_data().draw_content(); }

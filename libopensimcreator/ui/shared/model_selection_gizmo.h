@@ -23,7 +23,7 @@ namespace osc
         bool is_over() const { return gizmo_.is_over(); }
 
         bool handle_keyboard_inputs() { return gizmo_.handle_keyboard_inputs(); }
-        void on_draw(const Rect& screenRect, const Camera&);
+        void on_draw(const Rect& screen_rect, const Camera&);
 
         ui::GizmoOperation get_operation() const { return gizmo_.operation(); }
         void set_operation(ui::GizmoOperation op) { gizmo_.set_operation(op); }

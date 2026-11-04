@@ -51,7 +51,7 @@ namespace rgs = std::ranges;
 // constants
 namespace
 {
-    inline constexpr float c_InitialStepSize = 0.001f;  // effectively, 1 mm or 0.001 rad
+    inline constexpr float c_initial_step_size = 0.001f;  // effectively, 1 mm or 0.001 rad
 }
 
 // helper functions
@@ -59,24 +59,24 @@ namespace
 {
     // returns an updater function that deletes an element from a list property
     template<typename T>
-    std::function<void(OpenSim::AbstractProperty&)> MakeSimplePropertyElementDeleter(int propertyIndex)
+    std::function<void(OpenSim::AbstractProperty&)> make_simple_property_element_deleter(int property_index)
     {
-        return [propertyIndex](OpenSim::AbstractProperty& p)
+        return [property_index](OpenSim::AbstractProperty& p)
         {
-            auto* const simpleProp = dynamic_cast<OpenSim::SimpleProperty<T>*>(&p);
-            if (not simpleProp) {
+            auto* const simple_prop = dynamic_cast<OpenSim::SimpleProperty<T>*>(&p);
+            if (not simple_prop) {
                 return;  // types don't match: caller probably mismatched properties
             }
 
-            auto copy = std::make_unique<OpenSim::SimpleProperty<T>>(simpleProp->getName(), simpleProp->isOneValueProperty());
-            for (int i = 0; i < simpleProp->size(); ++i) {
-                if (i != propertyIndex) {
-                    copy->appendValue(simpleProp->getValue(i));
+            auto copy = std::make_unique<OpenSim::SimpleProperty<T>>(simple_prop->getName(), simple_prop->isOneValueProperty());
+            for (int i = 0; i < simple_prop->size(); ++i) {
+                if (i != property_index) {
+                    copy->appendValue(simple_prop->getValue(i));
                 }
             }
 
-            simpleProp->clear();
-            simpleProp->assign(*copy);
+            simple_prop->clear();
+            simple_prop->assign(*copy);
         };
     }
 
@@ -85,20 +85,20 @@ namespace
         typename TValue,
         typename TProperty = std::remove_cvref_t<TValue>
     >
-    std::function<void(OpenSim::AbstractProperty&)> MakePropertyValueSetter(int propertyIndex, TValue&& value)
+    std::function<void(OpenSim::AbstractProperty&)> make_property_value_setter(int property_index, TValue&& value)
     {
-        return [propertyIndex, val = std::forward<TValue>(value)](OpenSim::AbstractProperty& p)
+        return [property_index, val = std::forward<TValue>(value)](OpenSim::AbstractProperty& p)
         {
-            auto* const concreteProp = dynamic_cast<OpenSim::Property<TProperty>*>(&p);
-            if (not concreteProp) {
+            auto* const concrete_prop = dynamic_cast<OpenSim::Property<TProperty>*>(&p);
+            if (not concrete_prop) {
                 return;  // types don't match: caller probably mismatched properties
             }
-            concreteProp->setValue(propertyIndex, val);
+            concrete_prop->setValue(property_index, val);
         };
     }
 
     // draws the property name and (optionally) comment tooltip
-    void DrawPropertyName(const OpenSim::AbstractProperty& property)
+    void draw_property_name(const OpenSim::AbstractProperty& property)
     {
         ui::align_text_to_frame_padding();  // ensure it aligns with the editors in the next column
         ui::draw_text(property.getName());
@@ -111,28 +111,28 @@ namespace
 
     // wraps an object accessor with property information so that an individual
     // property accesssor with the same lifetime semantics as the object can exist
-    std::function<const OpenSim::AbstractProperty*()> MakePropertyAccessor(
-        const std::function<const OpenSim::Object*()>& objectAccessor,
-        const std::string& propertyName)
+    std::function<const OpenSim::AbstractProperty*()> make_property_accessor(
+        const std::function<const OpenSim::Object*()>& object_accessor,
+        const std::string& property_name)
     {
-        return [objectAccessor, propertyName]() -> const OpenSim::AbstractProperty*
+        return [object_accessor, property_name]-> const OpenSim::AbstractProperty*
         {
-            const OpenSim::Object* obj = objectAccessor();
+            const OpenSim::Object* obj = object_accessor();
             if (not obj) {
                 return nullptr;
             }
 
-            if (not obj->hasProperty(propertyName)) {
+            if (not obj->hasProperty(property_name)) {
                 return nullptr;
             }
 
-            return &obj->getPropertyByName(propertyName);
+            return &obj->getPropertyByName(property_name);
         };
     }
 
     // draws a little vertical line, which is usually used to visually indicate
     // x/y/z to the user
-    void DrawColoredDimensionHintVerticalLine(const Color& color)
+    void draw_colored_dimension_hint_vertical_line(const Color& color)
     {
         ui::DrawListView l = ui::get_panel_draw_list();
         const Vector2 p = ui::get_cursor_ui_position();
@@ -143,7 +143,7 @@ namespace
     }
 
     // draws a context menu that the user can use to change the step interval of the +/- buttons
-    void DrawStepSizeEditor(float& stepSize)
+    void draw_step_size_editor(float& step_size)
     {
         if (ui::begin_popup_context_menu("##valuecontextmenu")) {
             ui::draw_text("Set Step Size");
@@ -161,26 +161,26 @@ namespace
                 ui::table_set_column_index(0);
                 ui::draw_text("Custom");
                 ui::table_set_column_index(1);
-                ui::draw_float_input("##stepsizeinput", &stepSize, 0.0f, 0.0f, "%.6f");
+                ui::draw_float_input("##stepsizeinput", &step_size, 0.0f, 0.0f, "%.6f");
 
                 ui::table_next_row();
                 ui::table_set_column_index(0);
                 ui::draw_text("Lengths");
                 ui::table_set_column_index(1);
                 if (ui::draw_button("10 cm")) {
-                    stepSize = 0.1f;
+                    step_size = 0.1f;
                 }
                 ui::same_line();
                 if (ui::draw_button("1 cm")) {
-                    stepSize = 0.01f;
+                    step_size = 0.01f;
                 }
                 ui::same_line();
                 if (ui::draw_button("1 mm")) {
-                    stepSize = 0.001f;
+                    step_size = 0.001f;
                 }
                 ui::same_line();
                 if (ui::draw_button("0.1 mm")) {
-                    stepSize = 0.0001f;
+                    step_size = 0.0001f;
                 }
 
                 ui::table_next_row();
@@ -188,23 +188,23 @@ namespace
                 ui::draw_text("Angles (Degrees)");
                 ui::table_set_column_index(1);
                 if (ui::draw_button("180")) {
-                    stepSize = 180.0f;
+                    step_size = 180.0f;
                 }
                 ui::same_line();
                 if (ui::draw_button("90")) {
-                    stepSize = 90.0f;
+                    step_size = 90.0f;
                 }
                 ui::same_line();
                 if (ui::draw_button("45")) {
-                    stepSize = 45.0f;
+                    step_size = 45.0f;
                 }
                 ui::same_line();
                 if (ui::draw_button("10")) {
-                    stepSize = 10.0f;
+                    step_size = 10.0f;
                 }
                 ui::same_line();
                 if (ui::draw_button("1")) {
-                    stepSize = 1.0f;
+                    step_size = 1.0f;
                 }
 
                 ui::table_next_row();
@@ -212,23 +212,23 @@ namespace
                 ui::draw_text("Angles (Radians)");
                 ui::table_set_column_index(1);
                 if (ui::draw_button("1 pi")) {
-                    stepSize = pi_v<float>;
+                    step_size = pi_v<float>;
                 }
                 ui::same_line();
                 if (ui::draw_button("1/2 pi")) {
-                    stepSize = pi_v<float>/2.0f;
+                    step_size = pi_v<float>/2.0f;
                 }
                 ui::same_line();
                 if (ui::draw_button("1/4 pi")) {
-                    stepSize = pi_v<float>/4.0f;
+                    step_size = pi_v<float>/4.0f;
                 }
                 ui::same_line();
                 if (ui::draw_button("10/180 pi")) {
-                    stepSize = (10.0f/180.0f) * pi_v<float>;
+                    step_size = (10.0f/180.0f) * pi_v<float>;
                 }
                 ui::same_line();
                 if (ui::draw_button("1/180 pi")) {
-                    stepSize = (1.0f/180.0f) * pi_v<float>;
+                    step_size = (1.0f/180.0f) * pi_v<float>;
                 }
 
                 ui::table_next_row();
@@ -236,23 +236,23 @@ namespace
                 ui::draw_text("Masses");
                 ui::table_set_column_index(1);
                 if (ui::draw_button("1 kg")) {
-                    stepSize = 1.0f;
+                    step_size = 1.0f;
                 }
                 ui::same_line();
                 if (ui::draw_button("100 g")) {
-                    stepSize = 0.1f;
+                    step_size = 0.1f;
                 }
                 ui::same_line();
                 if (ui::draw_button("10 g")) {
-                    stepSize = 0.01f;
+                    step_size = 0.01f;
                 }
                 ui::same_line();
                 if (ui::draw_button("1 g")) {
-                    stepSize = 0.001f;
+                    step_size = 0.001f;
                 }
                 ui::same_line();
                 if (ui::draw_button("100 mg")) {
-                    stepSize = 0.0001f;
+                    step_size = 0.0001f;
                 }
 
                 ui::end_table();
@@ -267,36 +267,36 @@ namespace
         bool shouldSave = false;
     };
 
-    ScalarInputRv DrawCustomScalarInput(
+    ScalarInputRv draw_custom_scalar_input(
         CStringView label,
         float& value,
-        float& stepSize,
-        std::string_view frameAnnotationLabel)
+        float& step_size,
+        std::string_view frame_annotation_label)
     {
         ScalarInputRv rv;
 
         ui::push_style_var(ui::StyleVar::ItemInnerSpacing, {1.0f, 0.0f});
-        if (ui::draw_scalar_input(label, ui::DataType::Float, &value, &stepSize, nullptr, "%.6f")) {
+        if (ui::draw_scalar_input(label, ui::DataType::Float, &value, &step_size, nullptr, "%.6f")) {
             rv.wasEdited = true;
         }
         ui::pop_style_var();
         rv.shouldSave = ui::should_save_last_drawn_item_value();
-        ui::add_screenshot_annotation_to_last_drawn_item(frameAnnotationLabel);
+        ui::add_screenshot_annotation_to_last_drawn_item(frame_annotation_label);
         ui::draw_tooltip_if_item_hovered("Step Size", "You can right-click to adjust the step size of the buttons");
-        DrawStepSizeEditor(stepSize);
+        draw_step_size_editor(step_size);
 
         return rv;
     }
 
-    std::string GenerateVecFrameAnnotationLabel(
-        const OpenSim::AbstractProperty& backingProperty,
-        Vector3::size_type ithDimension)
+    std::string generate_vec_frame_annotation_label(
+        const OpenSim::AbstractProperty& backing_property,
+        Vector3::size_type ith_dimension)
     {
         std::stringstream ss;
         ss << "ObjectPropertiesEditor::Vec3/";
-        ss << ithDimension;
+        ss << ith_dimension;
         ss << '/';
-        ss << backingProperty.getName();
+        ss << backing_property.getName();
         return std::move(ss).str();
     }
 }
@@ -315,19 +315,19 @@ namespace
     public:
         virtual ~IPropertyEditor() noexcept = default;
 
-        bool isCompatibleWith(const OpenSim::AbstractProperty& prop) const
+        bool is_compatible_with(const OpenSim::AbstractProperty& prop) const
         {
-            return implIsCompatibleWith(prop);
+            return impl_is_compatible_with(prop);
         }
 
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> onDraw()
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> on_draw()
         {
-            return implOnDraw();
+            return impl_on_draw();
         }
 
     private:
-        virtual bool implIsCompatibleWith(const OpenSim::AbstractProperty&) const = 0;
-        virtual std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() = 0;
+        virtual bool impl_is_compatible_with(const OpenSim::AbstractProperty&) const = 0;
+        virtual std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() = 0;
     };
 
     // construction-time arguments for the property editor
@@ -340,12 +340,12 @@ namespace
 
     template<std::derived_from<OpenSim::AbstractProperty> ConcreteProperty>
     struct PropertyTraits {
-        static bool IsCompatibleWith(const OpenSim::AbstractProperty* prop)
+        static bool is_compatible_with(const OpenSim::AbstractProperty* prop)
         {
             return dynamic_cast<const ConcreteProperty*>(prop) != nullptr;
         }
 
-        static const ConcreteProperty* TryGetDowncasted(const OpenSim::AbstractProperty* prop)
+        static const ConcreteProperty* try_get_downcasted(const OpenSim::AbstractProperty* prop)
         {
             return dynamic_cast<const ConcreteProperty*>(prop);
         }
@@ -360,47 +360,47 @@ namespace
     public:
         using property_type = ConcreteProperty;
 
-        static bool IsCompatibleWith(const OpenSim::AbstractProperty& prop)
+        static bool is_compatible_with(const OpenSim::AbstractProperty& prop)
         {
-            return Traits::IsCompatibleWith(&prop);
+            return Traits::is_compatible_with(&prop);
         }
 
         explicit PropertyEditor(PropertyEditorArgs args) :
-            m_Args{std::move(args)}
+            args_{std::move(args)}
         {}
 
     protected:
-        const OpenSim::AbstractProperty* tryGetProperty() const
+        const OpenSim::AbstractProperty* try_get_property() const
         {
-            return m_Args.propertyAccessor();
+            return args_.propertyAccessor();
         }
 
-        const property_type* tryGetDowncastedProperty() const
+        const property_type* try_get_downcasted_property() const
         {
-            return Traits::TryGetDowncasted(tryGetProperty());
+            return Traits::try_get_downcasted(try_get_property());
         }
 
-        std::function<const property_type*()> getDowncastedPropertyAccessor() const
+        std::function<const property_type*()> get_downcasted_property_accessor() const
         {
-            return [inner = m_Args.propertyAccessor]()
+            return [inner = args_.propertyAccessor]
             {
-                return Traits::TryGetDowncasted(inner());
+                return Traits::try_get_downcasted(inner());
             };
         }
 
-        const OpenSim::Component& getRootComponent() const
+        const OpenSim::Component& get_root_component() const
         {
-            return m_Args.component->get_component();
+            return args_.component->get_component();
         }
 
-        std::shared_ptr<const opyn::VersionedComponentAccessor> tryGetComponentSharedPtr() const
+        std::shared_ptr<const opyn::VersionedComponentAccessor> try_get_component_shared_ptr() const
         {
-            return m_Args.component;
+            return args_.component;
         }
 
-        const SimTK::State* tryGetState() const
+        const SimTK::State* try_get_state() const
         {
-            if (auto* msp = dynamic_cast<const opyn::ModelStatePair*>(m_Args.component.get())) {
+            if (auto* msp = dynamic_cast<const opyn::ModelStatePair*>(args_.component.get())) {
                 return &msp->get_state();
             }
             else {
@@ -408,14 +408,14 @@ namespace
             }
         }
 
-        const OpenSim::Object* tryGetObject() const
+        const OpenSim::Object* try_get_object() const
         {
-            return m_Args.objectAccessor();
+            return args_.objectAccessor();
         }
 
-        OpenSim::ComponentPath tryGetObjectAbsPath() const
+        OpenSim::ComponentPath try_get_object_abs_path() const
         {
-            auto* obj = tryGetObject();
+            auto* obj = try_get_object();
             if (not obj) {
                 return {};
             }
@@ -426,18 +426,18 @@ namespace
             return opyn::get_absolute_path(*component);
         }
 
-        Widget* tryGetParentWidget()
+        Widget* try_get_parent_widget()
         {
-            return m_Args.parent;
+            return args_.parent;
         }
 
     private:
-        bool implIsCompatibleWith(const OpenSim::AbstractProperty& prop) const final
+        bool impl_is_compatible_with(const OpenSim::AbstractProperty& prop) const final
         {
-            return Traits::IsCompatibleWith(&prop);
+            return Traits::is_compatible_with(&prop);
         }
 
-        PropertyEditorArgs m_Args;
+        PropertyEditorArgs args_;
     };
 }
 
@@ -450,40 +450,40 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
         {
             // fetch property from object
-            const property_type* prop = tryGetDowncastedProperty();
+            const property_type* prop = try_get_downcasted_property();
             if (not prop) {
                 return std::nullopt;
             }
 
             // update any cached data
-            if (*prop != m_OriginalProperty) {
-                m_OriginalProperty = *prop;
-                m_EditedProperty = *prop;
+            if (*prop != original_property_) {
+                original_property_ = *prop;
+                edited_property_ = *prop;
             }
 
             ui::draw_separator();
 
             // draw the name of the property in left-hand column
-            DrawPropertyName(m_EditedProperty);
+            draw_property_name(edited_property_);
             ui::next_column();
 
             // draw `n` editors in right-hand column
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
-            for (int idx = 0; idx < m_EditedProperty.size(); ++idx) {
+            for (int idx = 0; idx < edited_property_.size(); ++idx) {
                 ui::push_id(idx);
-                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editorRv = drawIthEditor(idx);
+                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editor_rv = draw_ith_editor(idx);
                 ui::pop_id();
 
                 if (not rv) {
-                    rv = std::move(editorRv);
+                    rv = std::move(editor_rv);
                 }
             }
 
             // draw "Add Entry" or "Populate" buttons
-            if (m_EditedProperty.isListProperty()) {
+            if (edited_property_.isListProperty()) {
                 // it's a list property, so draw an "Add Entry" button
                 //
                 // users can use this to add a blank entry to this editor. The entry isn't
@@ -492,23 +492,23 @@ namespace
                 // disable the button if at the maximum list size or the last entry in the
                 // list is a blank (probably from the last time the user clicked "Add Entry")
                 const bool disabled =
-                    (m_EditedProperty.size() >= m_EditedProperty.getMaxListSize()) or
-                    (not m_EditedProperty.empty() and m_EditedProperty[m_EditedProperty.size() - 1].empty());
+                    (edited_property_.size() >= edited_property_.getMaxListSize()) or
+                    (not edited_property_.empty() and edited_property_[edited_property_.size() - 1].empty());
 
                 if (disabled) {
                     ui::begin_disabled();
                 }
                 if (ui::draw_button(MSMICONS_PLUS " Add Entry", { ui::get_content_region_available().x(), ui::calc_button_size("").y() })) {
-                    m_EditedProperty.appendValue(std::string{});  // append blank entry (don't emit upstream until user edits it)
+                    edited_property_.appendValue(std::string{});  // append blank entry (don't emit upstream until user edits it)
                 }
                 if (disabled) {
                     ui::end_disabled();
                 }
             }
-            else if (m_EditedProperty.isOptionalProperty() and m_EditedProperty.empty()) {
+            else if (edited_property_.isOptionalProperty() and edited_property_.empty()) {
                 // it's an optional property, so draw a "Populate" button if it's unoccupied
                 if (ui::draw_button(MSMICONS_PLUS " Populate", { ui::get_content_region_available().x(), ui::calc_button_size("").y() })) {
-                    m_EditedProperty.appendValue(std::string{});  // append blank entry (don't emit upstream until user edits it)
+                    edited_property_.appendValue(std::string{});  // append blank entry (don't emit upstream until user edits it)
                 }
             }
 
@@ -518,44 +518,44 @@ namespace
         }
 
         // draw an editor for one of the property's string values (might be a list)
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> drawIthEditor(int idx)
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> draw_ith_editor(int idx)
         {
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
 
             // calculate space taken by deletion button at end of line (if necessary)
-            const float deletionButtonWidth = m_EditedProperty.size() > m_EditedProperty.getMinListSize() ?
+            const float deletion_button_width = edited_property_.size() > edited_property_.getMinListSize() ?
                 ui::calc_button_size(MSMICONS_TRASH).x() :
                 0.0f;
 
             // read stored value from edited property
-            std::string value = m_EditedProperty.getValue(idx);
+            std::string value = edited_property_.getValue(idx);
 
-            ui::set_next_item_width(ui::get_content_region_available().x() - deletionButtonWidth);
+            ui::set_next_item_width(ui::get_content_region_available().x() - deletion_button_width);
             if (ui::draw_string_input("##stringeditor", value)) {
                 // update the edited property - don't rely on ImGui to remember edits
-                m_EditedProperty.setValue(idx, value);
+                edited_property_.setValue(idx, value);
             }
 
             // globally annotate the editor rect, for downstream screenshot automation
-            ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::StringEditor/" + m_EditedProperty.getName());
+            ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::StringEditor/" + edited_property_.getName());
 
             if (ui::should_save_last_drawn_item_value()) {
-                rv = MakePropertyValueSetter(idx, m_EditedProperty.getValue(idx));
+                rv = make_property_value_setter(idx, edited_property_.getValue(idx));
             }
 
             // if applicable, add deletion button
-            if (m_EditedProperty.size() > m_EditedProperty.getMinListSize()) {
+            if (edited_property_.size() > edited_property_.getMinListSize()) {
                 ui::same_line();
                 if (ui::draw_button(MSMICONS_TRASH)) {
-                    rv = MakeSimplePropertyElementDeleter<std::string>(idx);
+                    rv = make_simple_property_element_deleter<std::string>(idx);
                 }
             }
 
             return rv;
         }
 
-        property_type m_OriginalProperty{"blank", true};
-        property_type m_EditedProperty{"blank", true};
+        property_type original_property_{"blank", true};
+        property_type edited_property_{"blank", true};
     };
 
     // concrete property editor for a simple double value
@@ -564,35 +564,35 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
         {
-            const property_type* maybeProp = tryGetDowncastedProperty();
-            if (not maybeProp) {
+            const property_type* maybe_prop = try_get_downcasted_property();
+            if (not maybe_prop) {
                 return std::nullopt;
             }
-            const property_type& prop = *maybeProp;
+            const property_type& prop = *maybe_prop;
 
             // update any cached data
-            if (prop != m_OriginalProperty) {
-                m_OriginalProperty = prop;
-                m_EditedProperty = prop;
+            if (prop != original_property_) {
+                original_property_ = prop;
+                edited_property_ = prop;
             }
 
             ui::draw_separator();
 
             // draw name of the property in left-hand column
-            DrawPropertyName(m_EditedProperty);
+            draw_property_name(edited_property_);
             ui::next_column();
 
             // draw `n` editors in right-hand column
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
-            for (int idx = 0; idx < max(m_EditedProperty.size(), 1); ++idx) {
+            for (int idx = 0; idx < max(edited_property_.size(), 1); ++idx) {
                 ui::push_id(idx);
-                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editorRv = drawIthEditor(idx);
+                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editor_rv = draw_ith_editor(idx);
                 ui::pop_id();
 
                 if (not rv) {
-                    rv = std::move(editorRv);
+                    rv = std::move(editor_rv);
                 }
             }
             ui::next_column();
@@ -600,14 +600,14 @@ namespace
             return rv;
         }
 
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> drawIthEditor(int idx)
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> draw_ith_editor(int idx)
         {
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
 
             // draw deletion button that can delete an element from the property's list
-            if (m_EditedProperty.isListProperty()) {
+            if (edited_property_.isListProperty()) {
                 if (ui::draw_button(MSMICONS_TRASH)) {
-                    rv = MakeSimplePropertyElementDeleter<double>(idx);
+                    rv = make_simple_property_element_deleter<double>(idx);
                 }
                 ui::same_line();
             }
@@ -615,25 +615,25 @@ namespace
             // read stored value from edited property
             //
             // care: optional properties have size==0, so perform a range check
-            auto value = static_cast<float>(idx < m_EditedProperty.size() ? m_EditedProperty.getValue(idx) : 0.0);
+            auto value = static_cast<float>(idx < edited_property_.size() ? edited_property_.getValue(idx) : 0.0);
             ui::set_next_item_width(ui::get_content_region_available().x());
-            auto frameAnnotationLabel = "ObjectPropertiesEditor::DoubleEditor/" + m_EditedProperty.getName();
-            auto drawRV = DrawCustomScalarInput("##doubleeditor", value, m_StepSize, frameAnnotationLabel);
+            auto frame_annotation_label = "ObjectPropertiesEditor::DoubleEditor/" + edited_property_.getName();
+            auto draw_rv = draw_custom_scalar_input("##doubleeditor", value, step_size_, frame_annotation_label);
 
-            if (drawRV.wasEdited) {
+            if (draw_rv.wasEdited) {
                 // update the edited property - don't rely on ImGui to remember edits
-                m_EditedProperty.setValue(idx, static_cast<double>(value));
+                edited_property_.setValue(idx, static_cast<double>(value));
             }
-            if (drawRV.shouldSave) {
-                rv = MakePropertyValueSetter(idx, m_EditedProperty.getValue(idx));
+            if (draw_rv.shouldSave) {
+                rv = make_property_value_setter(idx, edited_property_.getValue(idx));
             }
 
             return rv;
         }
 
-        property_type m_OriginalProperty{"blank", true};
-        property_type m_EditedProperty{"blank", true};
-        float m_StepSize = c_InitialStepSize;
+        property_type original_property_{"blank", true};
+        property_type edited_property_{"blank", true};
+        float step_size_ = c_initial_step_size;
     };
 
     // concrete property editor for a simple `bool` value
@@ -642,35 +642,35 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
         {
-            const property_type* maybeProp = tryGetDowncastedProperty();
-            if (not maybeProp) {
+            const property_type* maybe_prop = try_get_downcasted_property();
+            if (not maybe_prop) {
                 return std::nullopt;
             }
-            const property_type& prop = *maybeProp;
+            const property_type& prop = *maybe_prop;
 
             // update any cached data
-            if (prop != m_OriginalProperty) {
-                m_OriginalProperty = prop;
-                m_EditedProperty = prop;
+            if (prop != original_property_) {
+                original_property_ = prop;
+                edited_property_ = prop;
             }
 
             ui::draw_separator();
 
             // draw name of the property in left-hand column
-            DrawPropertyName(m_EditedProperty);
+            draw_property_name(edited_property_);
             ui::next_column();
 
             // draw `n` editors in right-hand column
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
-            for (int idx = 0; idx < max(m_EditedProperty.size(), 1); ++idx) {
+            for (int idx = 0; idx < max(edited_property_.size(), 1); ++idx) {
                 ui::push_id(idx);
-                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editorRv = drawIthEditor(idx);
+                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editor_rv = draw_ith_editor(idx);
                 ui::pop_id();
 
                 if (not rv) {
-                    rv = std::move(editorRv);
+                    rv = std::move(editor_rv);
                 }
             }
             ui::next_column();
@@ -678,14 +678,14 @@ namespace
             return rv;
         }
 
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> drawIthEditor(int idx)
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> draw_ith_editor(int idx)
         {
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
 
             // draw deletion button that can delete an element from the property's list
-            if (m_EditedProperty.isListProperty()) {
+            if (edited_property_.isListProperty()) {
                 if (ui::draw_button(MSMICONS_TRASH)) {
-                    rv = MakeSimplePropertyElementDeleter<bool>(idx);
+                    rv = make_simple_property_element_deleter<bool>(idx);
                 }
                 ui::same_line();
             }
@@ -693,28 +693,28 @@ namespace
             // read stored value from edited property
             //
             // care: optional properties have size==0, so perform a range check
-            bool value = idx < m_EditedProperty.size() ? m_EditedProperty.getValue(idx) : false;
+            bool value = idx < edited_property_.size() ? edited_property_.getValue(idx) : false;
             bool edited = false;
 
             ui::set_next_item_width(ui::get_content_region_available().x());
             if (ui::draw_checkbox("##booleditor", &value)) {
                 // update the edited property - don't rely on ImGui to remember edits
-                m_EditedProperty.setValue(idx, value);
+                edited_property_.setValue(idx, value);
                 edited = true;
             }
 
             // globally annotate the editor rect, for downstream screenshot automation
-            ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::BoolEditor/" + m_EditedProperty.getName());
+            ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::BoolEditor/" + edited_property_.getName());
 
             if (edited or ui::should_save_last_drawn_item_value()) {
-                rv = MakePropertyValueSetter(idx, m_EditedProperty.getValue(idx));
+                rv = make_property_value_setter(idx, edited_property_.getValue(idx));
             }
 
             return rv;
         }
 
-        property_type m_OriginalProperty{"blank", true};
-        property_type m_EditedProperty{"blank", true};
+        property_type original_property_{"blank", true};
+        property_type edited_property_{"blank", true};
     };
 
     // concrete property editor for a simple `Vec3` value
@@ -729,38 +729,38 @@ namespace
         class ValueConverter final {
         public:
             ValueConverter(
-                float propertyToEditedValueScaler_,
-                SimTK::Transform propertyToEditedTransform_) :
+                float property_to_edited_value_scaler,
+                SimTK::Transform property_to_edited_transform) :
 
-                m_PropertyToEditedValueScaler{propertyToEditedValueScaler_},
-                m_PropertyToEditedTransform{std::move(propertyToEditedTransform_)}
+                property_to_edited_value_scaler_{property_to_edited_value_scaler},
+                property_to_edited_transform_{std::move(property_to_edited_transform)}
             {}
 
-            Vector3 propertyValueToEditedValue(const Vector3& propertyValue) const
+            Vector3 property_value_to_edited_value(const Vector3& property_value) const
             {
-                return to<Vector3>(static_cast<double>(m_PropertyToEditedValueScaler) * (m_PropertyToEditedTransform * to<SimTK::Vec3>(propertyValue)));
+                return to<Vector3>(static_cast<double>(property_to_edited_value_scaler_) * (property_to_edited_transform_ * to<SimTK::Vec3>(property_value)));
             }
 
-            Vector3 editedValueToPropertyValue(const Vector3& editedValue) const
+            Vector3 edited_value_to_property_value(const Vector3& edited_value) const
             {
-                return to<Vector3>(m_PropertyToEditedTransform.invert() * to<SimTK::Vec3>(editedValue/m_PropertyToEditedValueScaler));
+                return to<Vector3>(property_to_edited_transform_.invert() * to<SimTK::Vec3>(edited_value/property_to_edited_value_scaler_));
             }
         private:
-            float m_PropertyToEditedValueScaler;
-            SimTK::Transform m_PropertyToEditedTransform;
+            float property_to_edited_value_scaler_;
+            SimTK::Transform property_to_edited_transform_;
         };
 
         // returns `true` if the Vec3 property is edited in radians
-        bool isPropertyEditedInRadians() const
+        bool is_property_edited_in_radians() const
         {
-            return is_equal_case_insensitive(m_EditedProperty.getName(), "orientation");
+            return is_equal_case_insensitive(edited_property_.getName(), "orientation");
         }
 
         // If the `Vec3` property has a parent frame, returns a pointer to the frame; otherwise,
         // returns a `nullptr`.
-        const OpenSim::PhysicalFrame* tryGetParentFrame() const
+        const OpenSim::PhysicalFrame* try_get_parent_frame() const
         {
-            const OpenSim::Object* const obj = tryGetObject();
+            const OpenSim::Object* const obj = try_get_object();
             if (not obj) {
                 return nullptr;  // cannot find the property's parent object?
             }
@@ -770,21 +770,21 @@ namespace
                 return nullptr;  // the object isn't an OpenSim component
             }
 
-            if (&component->getRoot() != &getRootComponent()) {
+            if (&component->getRoot() != &get_root_component()) {
                 return nullptr;  // the object is not within the tree of the root component (#800)
             }
 
-            const auto positionPropName = opyn::try_get_positional_property_name(*component);
-            if (not positionPropName) {
+            const auto position_prop_name = opyn::try_get_positional_property_name(*component);
+            if (not position_prop_name) {
                 return nullptr;  // the component doesn't have a logical positional property that can be edited with the transform
             }
 
-            const OpenSim::Property<SimTK::Vec3>* const prop = tryGetDowncastedProperty();
+            const OpenSim::Property<SimTK::Vec3>* const prop = try_get_downcasted_property();
             if (not prop) {
                 return nullptr;  // can't access the property this editor is ultimately editing
             }
 
-            if (prop->getName() != *positionPropName) {
+            if (prop->getName() != *position_prop_name) {
                 return nullptr;  // the property this editor is editing isn't a logically positional one
             }
 
@@ -793,14 +793,14 @@ namespace
 
         // if the Vec3 property has a parent frame, returns a transform that maps the Vec3
         // property's value to ground
-        std::optional<SimTK::Transform> getParentToGroundTransform() const
+        std::optional<SimTK::Transform> get_parent_to_ground_transform() const
         {
-            const SimTK::State* state = tryGetState();
+            const SimTK::State* state = try_get_state();
             if (not state) {
                 return std::nullopt;
             }
 
-            const OpenSim::PhysicalFrame* frame = tryGetParentFrame();
+            const OpenSim::PhysicalFrame* frame = try_get_parent_frame();
             if (not frame) {
                 return std::nullopt;
             }
@@ -811,18 +811,18 @@ namespace
         // if the user has selected a different frame in which to edit 3D quantities, then
         // returns a transform that maps Vec3 properties expressed in ground to the other
         // frame
-        std::optional<SimTK::Transform> getGroundToUserSelectedFrameTransform() const
+        std::optional<SimTK::Transform> get_ground_to_user_selected_frame_transform() const
         {
-            if (not m_MaybeUserSelectedFrameAbsPath) {
+            if (not maybe_user_selected_frame_abs_path_) {
                 return std::nullopt;
             }
 
-            const SimTK::State* state = tryGetState();
+            const SimTK::State* state = try_get_state();
             if (not state) {
                 return std::nullopt;
             }
 
-            const auto* frame = opyn::find_component<OpenSim::Frame>(getRootComponent(), *m_MaybeUserSelectedFrameAbsPath);
+            const auto* frame = opyn::find_component<OpenSim::Frame>(get_root_component(), *maybe_user_selected_frame_abs_path_);
             if (not frame) {
                 return std::nullopt;
             }
@@ -830,39 +830,39 @@ namespace
             return frame->getTransformInGround(*state).invert();
         }
 
-        ValueConverter getValueConverter() const
+        ValueConverter get_value_converter() const
         {
-            float conversionCoefficient = 1.0f;
-            if (isPropertyEditedInRadians() and not m_OrientationValsAreInRadians) {
-                conversionCoefficient = static_cast<float>(SimTK_RADIAN_TO_DEGREE);
+            float conversion_coefficient = 1.0f;
+            if (is_property_edited_in_radians() and not orientation_vals_are_in_radians_) {
+                conversion_coefficient = static_cast<float>(SimTK_RADIAN_TO_DEGREE);
             }
 
-            const std::optional<SimTK::Transform> parent2ground = getParentToGroundTransform();
-            const std::optional<SimTK::Transform> ground2frame = getGroundToUserSelectedFrameTransform();
+            const std::optional<SimTK::Transform> parent2ground = get_parent_to_ground_transform();
+            const std::optional<SimTK::Transform> ground2frame = get_ground_to_user_selected_frame_transform();
             const SimTK::Transform transform = parent2ground and ground2frame ?
                 (*ground2frame) * (*parent2ground) :
                 SimTK::Transform{};
 
-            return ValueConverter{conversionCoefficient, transform};
+            return ValueConverter{conversion_coefficient, transform};
         }
 
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
         {
-            const property_type* maybeProp = tryGetDowncastedProperty();
-            if (not maybeProp)
+            const property_type* maybe_prop = try_get_downcasted_property();
+            if (not maybe_prop)
             {
                 return std::nullopt;
             }
-            const property_type& prop = *maybeProp;
+            const property_type& prop = *maybe_prop;
 
             // update any cached data
-            if (prop != m_OriginalProperty) {
-                m_OriginalProperty = prop;
-                m_EditedProperty = prop;
+            if (prop != original_property_) {
+                original_property_ = prop;
+                edited_property_ = prop;
             }
 
             // compute value converter (applies to all values)
-            const ValueConverter valueConverter = getValueConverter();
+            const ValueConverter value_converter = get_value_converter();
 
 
             // draw UI
@@ -871,24 +871,24 @@ namespace
             ui::draw_separator();
 
             // draw name of the property in left-hand column
-            DrawPropertyName(m_EditedProperty);
+            draw_property_name(edited_property_);
             ui::next_column();
 
             // top line of right column shows "reexpress in" editor (if applicable)
-            drawReexpressionEditorIfApplicable();
+            draw_reexpression_editor_if_applicable();
 
             // draw radians/degrees conversion toggle button (if applicable)
-            drawDegreesToRadiansConversionToggle();
+            draw_degrees_to_radians_conversion_toggle();
 
             // draw `[0, 1]` editors in right-hand column
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
-            for (int idx = 0; idx < max(m_EditedProperty.size(), 1); ++idx) {
+            for (int idx = 0; idx < max(edited_property_.size(), 1); ++idx) {
                 ui::push_id(idx);
-                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editorRv = drawIthEditor(valueConverter, idx);
+                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editor_rv = draw_ith_editor(value_converter, idx);
                 ui::pop_id();
 
                 if (not rv) {
-                    rv = std::move(editorRv);
+                    rv = std::move(editor_rv);
                 }
             }
             ui::next_column();
@@ -896,42 +896,42 @@ namespace
             return rv;
         }
 
-        void drawReexpressionEditorIfApplicable()
+        void draw_reexpression_editor_if_applicable()
         {
-            const OpenSim::PhysicalFrame* parentFrame = tryGetParentFrame();
-            if (not parentFrame) {
+            const OpenSim::PhysicalFrame* parent_frame = try_get_parent_frame();
+            if (not parent_frame) {
                 return;
             }
 
-            const auto& defaultedLabel = parentFrame->getName();
-            const std::string preview = m_MaybeUserSelectedFrameAbsPath ?
-                m_MaybeUserSelectedFrameAbsPath->getComponentName() :
-                std::string{defaultedLabel};
+            const auto& defaulted_label = parent_frame->getName();
+            const std::string preview = maybe_user_selected_frame_abs_path_ ?
+                maybe_user_selected_frame_abs_path_->getComponentName() :
+                std::string{defaulted_label};
 
             ui::set_next_item_width(ui::get_content_region_available().x() - ui::calc_text_size("(?)").x());
             if (ui::begin_combobox("##reexpressioneditor", preview)) {
-                int imguiID = 0;
+                int imgui_id = 0;
 
                 // draw "default" (reset) option
                 {
                     ui::draw_separator();
-                    ui::push_id(imguiID++);
-                    bool selected = !m_MaybeUserSelectedFrameAbsPath.has_value();
-                    if (ui::draw_selectable(defaultedLabel, &selected)) {
-                        m_MaybeUserSelectedFrameAbsPath.reset();
+                    ui::push_id(imgui_id++);
+                    bool selected = !maybe_user_selected_frame_abs_path_.has_value();
+                    if (ui::draw_selectable(defaulted_label, &selected)) {
+                        maybe_user_selected_frame_abs_path_.reset();
                     }
                     ui::pop_id();
                     ui::draw_separator();
                 }
 
                 // draw selectable for each frame in the component tree
-                for (const OpenSim::Frame& frame : getRootComponent().getComponentList<OpenSim::Frame>()) {
-                    const OpenSim::ComponentPath frameAbsPath = opyn::get_absolute_path(frame);
+                for (const OpenSim::Frame& frame : get_root_component().getComponentList<OpenSim::Frame>()) {
+                    const OpenSim::ComponentPath frame_abs_path = opyn::get_absolute_path(frame);
 
-                    ui::push_id(imguiID++);
-                    bool selected = frameAbsPath == m_MaybeUserSelectedFrameAbsPath;
+                    ui::push_id(imgui_id++);
+                    bool selected = frame_abs_path == maybe_user_selected_frame_abs_path_;
                     if (ui::draw_selectable(frame.getName(), &selected)) {
-                        m_MaybeUserSelectedFrameAbsPath = frameAbsPath;
+                        maybe_user_selected_frame_abs_path_ = frame_abs_path;
                     }
                     ui::pop_id();
                 }
@@ -944,16 +944,16 @@ namespace
         }
 
         // draws an editor for the `ith` Vec3 element of the given (potentially, list) property
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> drawIthEditor(
-            const ValueConverter& valueConverter,
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> draw_ith_editor(
+            const ValueConverter& value_converter,
             int idx)
         {
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
 
             // draw deletion button that can delete an element from the property's list
-            if (m_EditedProperty.isListProperty()) {
+            if (edited_property_.isListProperty()) {
                 if (ui::draw_button(MSMICONS_TRASH)) {
-                    rv = MakeSimplePropertyElementDeleter<SimTK::Vec3>(idx);
+                    rv = make_simple_property_element_deleter<SimTK::Vec3>(idx);
                 }
                 ui::same_line();
             }
@@ -961,19 +961,19 @@ namespace
             // read stored value from edited property
             //
             // care: optional properties have size==0, so perform a range check
-            const auto rawValue = to<Vector3>(idx < m_EditedProperty.size() ? m_EditedProperty.getValue(idx) : SimTK::Vec3{0.0});
-            const Vector3 editedValue = valueConverter.propertyValueToEditedValue(rawValue);
+            const auto raw_value = to<Vector3>(idx < edited_property_.size() ? edited_property_.getValue(idx) : SimTK::Vec3{0.0});
+            const Vector3 edited_value = value_converter.property_value_to_edited_value(raw_value);
 
             // draw an editor for each component of the Vec3
-            bool shouldSave = false;
+            bool should_save = false;
             for (Vector3::size_type i = 0; i < 3; ++i) {
-                const ComponentEditorReturn componentEditorRv = drawVec3ComponentEditor(idx, i, editedValue, valueConverter);
-                shouldSave = shouldSave or componentEditorRv == ComponentEditorReturn::ShouldSave;
+                const ComponentEditorReturn component_editor_rv = draw_vec3_component_editor(idx, i, edited_value, value_converter);
+                should_save = should_save or component_editor_rv == ComponentEditorReturn::ShouldSave;
             }
 
             // if any component editor indicated that it should be saved then propagate that upwards
-            if (shouldSave) {
-                rv = MakePropertyValueSetter(idx, m_EditedProperty.getValue(idx));
+            if (should_save) {
+                rv = make_property_value_setter(idx, edited_property_.getValue(idx));
             }
 
             return rv;
@@ -982,60 +982,60 @@ namespace
         enum class ComponentEditorReturn { None, ShouldSave };
 
         // draws float input for a single component of the Vec3 (e.g. vec.x)
-        ComponentEditorReturn drawVec3ComponentEditor(
+        ComponentEditorReturn draw_vec3_component_editor(
             int idx,
             Vector3::size_type i,
-            Vector3 editedValue,
-            const ValueConverter& valueConverter)
+            Vector3 edited_value,
+            const ValueConverter& value_converter)
         {
             ui::push_id(i);
             // draw dimension hint (color bar next to the input)
-            DrawColoredDimensionHintVerticalLine(Color(0.0f, 0.6f).with_element(i, 1.0f));
+            draw_colored_dimension_hint_vertical_line(Color(0.0f, 0.6f).with_element(i, 1.0f));
 
             // draw the input editor
             ui::set_next_item_width(ui::get_content_region_available().x());
-            auto frameAnnotation = GenerateVecFrameAnnotationLabel(m_EditedProperty, i);
-            auto drawRV = DrawCustomScalarInput("##valueinput", editedValue[i], m_StepSize, frameAnnotation);
+            auto frame_annotation = generate_vec_frame_annotation_label(edited_property_, i);
+            auto draw_rv = draw_custom_scalar_input("##valueinput", edited_value[i], step_size_, frame_annotation);
 
-            if (drawRV.wasEdited) {
+            if (draw_rv.wasEdited) {
                 // un-convert the value on save
-                const Vector3 savedValue = valueConverter.editedValueToPropertyValue(editedValue);
-                m_EditedProperty.setValue(idx, to<SimTK::Vec3>(savedValue));
+                const Vector3 saved_value = value_converter.edited_value_to_property_value(edited_value);
+                edited_property_.setValue(idx, to<SimTK::Vec3>(saved_value));
             }
 
             ui::pop_id();
 
-            return drawRV.shouldSave ? ComponentEditorReturn::ShouldSave : ComponentEditorReturn::None;
+            return draw_rv.shouldSave ? ComponentEditorReturn::ShouldSave : ComponentEditorReturn::None;
         }
 
         // draws button that lets the user toggle between inputting radians vs. degrees
-        void drawDegreesToRadiansConversionToggle()
+        void draw_degrees_to_radians_conversion_toggle()
         {
-            if (not isPropertyEditedInRadians()) {
+            if (not is_property_edited_in_radians()) {
                 return;
             }
 
-            if (m_OrientationValsAreInRadians) {
+            if (orientation_vals_are_in_radians_) {
                 if (ui::draw_button("radians")) {
-                    m_OrientationValsAreInRadians = !m_OrientationValsAreInRadians;
+                    orientation_vals_are_in_radians_ = !orientation_vals_are_in_radians_;
                 }
-                ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::OrientationToggle/" + m_EditedProperty.getName());
+                ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::OrientationToggle/" + edited_property_.getName());
                 ui::draw_tooltip_body_only_if_item_hovered("This quantity is edited in radians (click to switch to degrees)");
             }
             else {
                 if (ui::draw_button("degrees")) {
-                    m_OrientationValsAreInRadians = !m_OrientationValsAreInRadians;
+                    orientation_vals_are_in_radians_ = !orientation_vals_are_in_radians_;
                 }
-                ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::OrientationToggle/" + m_EditedProperty.getName());
+                ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::OrientationToggle/" + edited_property_.getName());
                 ui::draw_tooltip_body_only_if_item_hovered("This quantity is edited in degrees (click to switch to radians)");
             }
         }
 
-        property_type m_OriginalProperty{"blank", true};
-        property_type m_EditedProperty{"blank", true};
-        std::optional<OpenSim::ComponentPath> m_MaybeUserSelectedFrameAbsPath;
-        float m_StepSize = c_InitialStepSize;
-        bool m_OrientationValsAreInRadians = false;
+        property_type original_property_{"blank", true};
+        property_type edited_property_{"blank", true};
+        std::optional<OpenSim::ComponentPath> maybe_user_selected_frame_abs_path_;
+        float step_size_ = c_initial_step_size;
+        bool orientation_vals_are_in_radians_ = false;
     };
 
     // concrete property editor for a simple `Vec6` value
@@ -1044,35 +1044,35 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
         {
-            const property_type* maybeProp = tryGetDowncastedProperty();
-            if (not maybeProp) {
+            const property_type* maybe_prop = try_get_downcasted_property();
+            if (not maybe_prop) {
                 return std::nullopt;
             }
-            const property_type& prop = *maybeProp;
+            const property_type& prop = *maybe_prop;
 
             // update any cached data
-            if (prop != m_OriginalProperty) {
-                m_OriginalProperty = prop;
-                m_EditedProperty = prop;
+            if (prop != original_property_) {
+                original_property_ = prop;
+                edited_property_ = prop;
             }
 
             ui::draw_separator();
 
             // draw name of the property in left-hand column
-            DrawPropertyName(m_EditedProperty);
+            draw_property_name(edited_property_);
             ui::next_column();
 
             // draw `n` editors in right-hand column
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
-            for (int idx = 0; idx < max(m_EditedProperty.size(), 1); ++idx) {
+            for (int idx = 0; idx < max(edited_property_.size(), 1); ++idx) {
                 ui::push_id(idx);
-                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editorRv = drawIthEditor(idx);
+                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editor_rv = draw_ith_editor(idx);
                 ui::pop_id();
 
                 if (not rv) {
-                    rv = std::move(editorRv);
+                    rv = std::move(editor_rv);
                 }
             }
             ui::next_column();
@@ -1080,49 +1080,49 @@ namespace
             return rv;
         }
 
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> drawIthEditor(int idx)
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> draw_ith_editor(int idx)
         {
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
 
             // draw deletion button that can delete an element from the property's list
-            if (m_EditedProperty.isListProperty()) {
+            if (edited_property_.isListProperty()) {
                 if (ui::draw_button(MSMICONS_TRASH)) {
-                    rv = MakeSimplePropertyElementDeleter<SimTK::Vec6>(idx);
+                    rv = make_simple_property_element_deleter<SimTK::Vec6>(idx);
                 }
             }
 
             // read latest raw value as-stored in edited property
             //
             // care: `getValue` can return `nullptr` if the property is optional (size == 0)
-            std::array<float, 6> rawValue = idx < m_EditedProperty.size() ?
-                to<std::array<float, 6>>(m_EditedProperty.getValue(idx)) :
+            std::array<float, 6> raw_value = idx < edited_property_.size() ?
+                to<std::array<float, 6>>(edited_property_.getValue(idx)) :
                 std::array<float, 6>{};
 
-            bool shouldSave = false;
+            bool should_save = false;
             for (int i = 0; i < 2; ++i) {
                 ui::push_id(i);
 
                 ui::set_next_item_width(ui::get_content_region_available().x());
-                if (ui::draw_float3_input("##vec6editor", rawValue.data() + static_cast<ptrdiff_t>(3*i), "%.6f")) {
-                    m_EditedProperty.updValue(idx)[3*i + 0] = static_cast<double>(rawValue[3*i + 0]);
-                    m_EditedProperty.updValue(idx)[3*i + 1] = static_cast<double>(rawValue[3*i + 1]);
-                    m_EditedProperty.updValue(idx)[3*i + 2] = static_cast<double>(rawValue[3*i + 2]);
+                if (ui::draw_float3_input("##vec6editor", raw_value.data() + static_cast<ptrdiff_t>(3*i), "%.6f")) {
+                    edited_property_.updValue(idx)[3*i + 0] = static_cast<double>(raw_value[3*i + 0]);
+                    edited_property_.updValue(idx)[3*i + 1] = static_cast<double>(raw_value[3*i + 1]);
+                    edited_property_.updValue(idx)[3*i + 2] = static_cast<double>(raw_value[3*i + 2]);
                 }
-                shouldSave = shouldSave or ui::should_save_last_drawn_item_value();
-                ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::Vec6Editor/" + m_EditedProperty.getName());
+                should_save = should_save or ui::should_save_last_drawn_item_value();
+                ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::Vec6Editor/" + edited_property_.getName());
 
                 ui::pop_id();
             }
 
-            if (shouldSave) {
-                rv = MakePropertyValueSetter(idx, m_EditedProperty.getValue(idx));
+            if (should_save) {
+                rv = make_property_value_setter(idx, edited_property_.getValue(idx));
             }
 
             return rv;
         }
 
-        property_type m_OriginalProperty{"blank", true};
-        property_type m_EditedProperty{"blank", true};
+        property_type original_property_{"blank", true};
+        property_type edited_property_{"blank", true};
     };
 
     class IntPropertyEditor final : public PropertyEditor<OpenSim::SimpleProperty<int>> {
@@ -1130,35 +1130,35 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
         {
-            const property_type* maybeProp = tryGetDowncastedProperty();
-            if (not maybeProp) {
+            const property_type* maybe_prop = try_get_downcasted_property();
+            if (not maybe_prop) {
                 return std::nullopt;
             }
-            const property_type& prop = *maybeProp;
+            const property_type& prop = *maybe_prop;
 
             // update any cached data
-            if (prop != m_OriginalProperty) {
-                m_OriginalProperty = prop;
-                m_EditedProperty = prop;
+            if (prop != original_property_) {
+                original_property_ = prop;
+                edited_property_ = prop;
             }
 
             ui::draw_separator();
 
             // draw name of the property in left-hand column
-            DrawPropertyName(m_EditedProperty);
+            draw_property_name(edited_property_);
             ui::next_column();
 
             // draw `n` editors in right-hand column
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
-            for (int idx = 0; idx < max(m_EditedProperty.size(), 1); ++idx) {
+            for (int idx = 0; idx < max(edited_property_.size(), 1); ++idx) {
                 ui::push_id(idx);
-                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editorRv = drawIthEditor(idx);
+                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editor_rv = draw_ith_editor(idx);
                 ui::pop_id();
 
                 if (not rv) {
-                    rv = std::move(editorRv);
+                    rv = std::move(editor_rv);
                 }
             }
             ui::next_column();
@@ -1166,14 +1166,14 @@ namespace
             return rv;
         }
 
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> drawIthEditor(int idx)
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> draw_ith_editor(int idx)
         {
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
 
             // draw deletion button that can delete an element from the property's list
-            if (m_EditedProperty.isListProperty()) {
+            if (edited_property_.isListProperty()) {
                 if (ui::draw_button(MSMICONS_TRASH)) {
-                    rv = MakeSimplePropertyElementDeleter<int>(idx);
+                    rv = make_simple_property_element_deleter<int>(idx);
                 }
                 ui::same_line();
             }
@@ -1181,13 +1181,13 @@ namespace
             // read stored value from edited property
             //
             // care: optional properties have size==0, so perform a range check
-            int value = idx < m_EditedProperty.size() ? m_EditedProperty.getValue(idx) : 0;
+            int value = idx < edited_property_.size() ? edited_property_.getValue(idx) : 0;
             bool edited = false;
 
             ui::set_next_item_width(ui::get_content_region_available().x());
             if (ui::draw_int_input("##inteditor", &value)) {
                 // update the edited property - don't rely on ImGui to remember edits
-                m_EditedProperty.setValue(idx, value);
+                edited_property_.setValue(idx, value);
                 edited = true;
             }
 
@@ -1195,14 +1195,14 @@ namespace
             ui::add_screenshot_annotation_to_last_drawn_item("ObjectPropertiesEditor::IntEditor/");
 
             if (edited or ui::should_save_last_drawn_item_value()) {
-                rv = MakePropertyValueSetter(idx, m_EditedProperty.getValue(idx));
+                rv = make_property_value_setter(idx, edited_property_.getValue(idx));
             }
 
             return rv;
         }
 
-        property_type m_OriginalProperty{"blank", true};
-        property_type m_EditedProperty{"blank", true};
+        property_type original_property_{"blank", true};
+        property_type edited_property_{"blank", true};
     };
 }
 
@@ -1215,35 +1215,35 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
         {
-            const property_type* maybeProp = tryGetDowncastedProperty();
-            if (not maybeProp) {
+            const property_type* maybe_prop = try_get_downcasted_property();
+            if (not maybe_prop) {
                 return std::nullopt;
             }
-            const property_type& prop = *maybeProp;
+            const property_type& prop = *maybe_prop;
 
             // update any cached data
-            if (prop != m_OriginalProperty) {
-                m_OriginalProperty = prop;
-                m_EditedProperty = prop;
+            if (prop != original_property_) {
+                original_property_ = prop;
+                edited_property_ = prop;
             }
 
             ui::draw_separator();
 
             // draw name of the property in left-hand column
-            DrawPropertyName(m_EditedProperty);
+            draw_property_name(edited_property_);
             ui::next_column();
 
             // draw `n` editors in right-hand column
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
-            for (int idx = 0; idx < max(m_EditedProperty.size(), 1); ++idx) {
+            for (int idx = 0; idx < max(edited_property_.size(), 1); ++idx) {
                 ui::push_id(idx);
-                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editorRv = drawIthEditor(idx);
+                std::optional<std::function<void(OpenSim::AbstractProperty&)>> editor_rv = draw_ith_editor(idx);
                 ui::pop_id();
 
                 if (not rv) {
-                    rv = std::move(editorRv);
+                    rv = std::move(editor_rv);
                 }
             }
             ui::next_column();
@@ -1251,39 +1251,39 @@ namespace
             return rv;
         }
 
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> drawIthEditor(int idx)
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> draw_ith_editor(int idx)
         {
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
 
-            if (m_EditedProperty.isListProperty()) {
+            if (edited_property_.isListProperty()) {
                 return rv;  // HACK: ignore list props for now
             }
 
-            if (m_EditedProperty.empty()) {
+            if (edited_property_.empty()) {
                 return rv;  // HACK: ignore optional props for now
             }
 
-            bool shouldSave = false;
+            bool should_save = false;
 
-            Color color = opyn::to_color(m_EditedProperty.getValue());
+            Color color = opyn::to_color(edited_property_.getValue());
             ui::set_next_item_width(ui::get_content_region_available().x());
 
             if (ui::draw_rgba_color_editor("##coloreditor", color)) {
-                SimTK::Vec3 newColor;
-                newColor[0] = static_cast<double>(color[0]);
-                newColor[1] = static_cast<double>(color[1]);
-                newColor[2] = static_cast<double>(color[2]);
+                SimTK::Vec3 new_color;
+                new_color[0] = static_cast<double>(color[0]);
+                new_color[1] = static_cast<double>(color[1]);
+                new_color[2] = static_cast<double>(color[2]);
 
-                m_EditedProperty.updValue().set_color(newColor);
-                m_EditedProperty.updValue().set_opacity(static_cast<double>(color[3]));
+                edited_property_.updValue().set_color(new_color);
+                edited_property_.updValue().set_opacity(static_cast<double>(color[3]));
             }
-            shouldSave = shouldSave or ui::should_save_last_drawn_item_value();
+            should_save = should_save or ui::should_save_last_drawn_item_value();
 
-            bool isVisible = m_EditedProperty.getValue().get_visible();
-            if (ui::draw_checkbox("is visible", &isVisible)) {
-                m_EditedProperty.updValue().set_visible(isVisible);
+            bool is_visible = edited_property_.getValue().get_visible();
+            if (ui::draw_checkbox("is visible", &is_visible)) {
+                edited_property_.updValue().set_visible(is_visible);
             }
-            shouldSave = shouldSave or ui::should_save_last_drawn_item_value();
+            should_save = should_save or ui::should_save_last_drawn_item_value();
 
             // DisplayPreference
             {
@@ -1299,23 +1299,23 @@ namespace
                     "Wireframe",
                     "Surface",
                 });
-                size_t index = clamp(static_cast<size_t>(m_EditedProperty.getValue().get_representation())+1, 0uz, options.size());
+                size_t index = clamp(static_cast<size_t>(edited_property_.getValue().get_representation())+1, 0uz, options.size());
                 ui::set_next_item_width(ui::get_content_region_available().x());
                 if (ui::draw_combobox("##DisplayPref", &index, options)) {
-                    m_EditedProperty.updValue().set_representation(static_cast<OpenSim::VisualRepresentation>(static_cast<int>(index)-1));
-                    shouldSave = true;
+                    edited_property_.updValue().set_representation(static_cast<OpenSim::VisualRepresentation>(static_cast<int>(index)-1));
+                    should_save = true;
                 }
             }
 
-            if (shouldSave) {
-                rv = MakePropertyValueSetter(idx, m_EditedProperty.getValue(idx));
+            if (should_save) {
+                rv = make_property_value_setter(idx, edited_property_.getValue(idx));
             }
 
             return rv;
         }
 
-        property_type m_OriginalProperty{"blank", true};
-        property_type m_EditedProperty{"blank", true};
+        property_type original_property_{"blank", true};
+        property_type edited_property_{"blank", true};
     };
 
     // concrete property editor for an `OpenSim::HuntCrossleyForce::ContactParametersSet`
@@ -1324,15 +1324,15 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
         {
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
 
-            const property_type* maybeProp = tryGetDowncastedProperty();
-            if (not maybeProp) {
+            const property_type* maybe_prop = try_get_downcasted_property();
+            if (not maybe_prop) {
                 return std::nullopt;  // cannot find property
             }
-            const property_type& prop = *maybeProp;
+            const property_type& prop = *maybe_prop;
 
             if (opyn::empty(prop.getValue())) {
                 return std::nullopt;  // no editable contact set on the property
@@ -1341,15 +1341,15 @@ namespace
             const OpenSim::HuntCrossleyForce::ContactParameters& params = prop.getValue()[0];
 
             // update cached editors, if necessary
-            if (not m_MaybeNestedEditor) {
-                if (const auto componentPtr = tryGetComponentSharedPtr()) {
-                    m_MaybeNestedEditor.emplace(tryGetParentWidget(), componentPtr, [&params]() { return &params; });
+            if (not maybe_nested_editor_) {
+                if (const auto component_ptr = try_get_component_shared_ptr()) {
+                    maybe_nested_editor_.emplace(try_get_parent_widget(), component_ptr, [&params]() { return &params; });
                 }
             }
-            ObjectPropertiesEditor& nestedEditor = *m_MaybeNestedEditor;
+            ObjectPropertiesEditor& nested_editor = *maybe_nested_editor_;
 
             ui::set_num_columns();
-            auto resp = nestedEditor.on_draw();
+            auto resp = nested_editor.on_draw();
             ui::set_num_columns(2);
 
             if (resp) {
@@ -1361,10 +1361,10 @@ namespace
                 {
                     auto* downcasted = dynamic_cast<OpenSim::Property<OpenSim::HuntCrossleyForce::ContactParametersSet>*>(&p);
                     if (downcasted and not opyn::empty(downcasted->getValue())) {
-                        OpenSim::HuntCrossleyForce::ContactParameters& contactParams = opyn::at(downcasted->updValue(), 0);
+                        OpenSim::HuntCrossleyForce::ContactParameters& contact_params = opyn::at(downcasted->updValue(), 0);
                         if (params.hasProperty(resp->get_property_name())) {
-                            OpenSim::AbstractProperty& childP = contactParams.updPropertyByName(resp->get_property_name());
-                            resp->apply(childP);
+                            OpenSim::AbstractProperty& child_p = contact_params.updPropertyByName(resp->get_property_name());
+                            resp->apply(child_p);
                         }
                     }
                 };
@@ -1373,7 +1373,7 @@ namespace
             return rv;
         }
 
-        std::optional<ObjectPropertiesEditor> m_MaybeNestedEditor;
+        std::optional<ObjectPropertiesEditor> maybe_nested_editor_;
     };
 
     // concrete property editor for an OpenSim::GeometryPath
@@ -1383,23 +1383,23 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
         {
-            const property_type* maybeProp = tryGetDowncastedProperty();
-            if (not maybeProp) {
+            const property_type* maybe_prop = try_get_downcasted_property();
+            if (not maybe_prop) {
                 return std::nullopt;
             }
-            const property_type& prop = *maybeProp;
+            const property_type& prop = *maybe_prop;
 
             ui::draw_separator();
-            DrawPropertyName(prop);
+            draw_property_name(prop);
             ui::next_column();
             {
-                Widget* parentWidget = tryGetParentWidget();
-                const auto componentPtr = tryGetComponentSharedPtr();
-                if (parentWidget and componentPtr) {
+                Widget* parent_widget = try_get_parent_widget();
+                const auto component_ptr = try_get_component_shared_ptr();
+                if (parent_widget and component_ptr) {
                     if (ui::draw_button(MSMICONS_EDIT " edit ")) {
-                        App::post_event<OpenPopupEvent>(*parentWidget, createGeometryPathEditorPopup(componentPtr));
+                        App::post_event<OpenPopupEvent>(*parent_widget, create_geometry_path_editor_popup(component_ptr));
                     }
                 }
                 else {
@@ -1409,7 +1409,7 @@ namespace
             }
             ui::next_column();
 
-            if (auto rv = std::exchange(*m_ReturnValueHolder, std::nullopt)) {
+            if (auto rv = std::exchange(*return_value_holder_, std::nullopt)) {
                 return rv->get_updater();
             }
             else {
@@ -1417,13 +1417,13 @@ namespace
             }
         }
 
-        std::unique_ptr<Popup> createGeometryPathEditorPopup(const std::shared_ptr<const opyn::ComponentAccessor>& componentPtr)
+        std::unique_ptr<Popup> create_geometry_path_editor_popup(const std::shared_ptr<const opyn::ComponentAccessor>& component_ptr)
         {
-            const auto accessor = getDowncastedPropertyAccessor();
+            const auto accessor = get_downcasted_property_accessor();
             return std::make_unique<GeometryPathEditorPopup>(
-                tryGetParentWidget(),
+                try_get_parent_widget(),
                 "Edit Geometry Path",
-                componentPtr,
+                component_ptr,
                 [accessor]() -> const OpenSim::GeometryPath*
                 {
                     const property_type* p = accessor();
@@ -1432,21 +1432,21 @@ namespace
                     }
                     return dynamic_cast<const OpenSim::GeometryPath*>(&p->getValueAsObject());
                 },
-                [shared = m_ReturnValueHolder, accessor](const OpenSim::GeometryPath& gp) mutable
+                [shared = return_value_holder_, accessor](const OpenSim::GeometryPath& gp) mutable
                 {
                     if (const property_type* prop = accessor()) {
-                        *shared = ObjectPropertyEdit{*prop, MakePropertyValueSetter<const OpenSim::GeometryPath&, OpenSim::AbstractGeometryPath>(0, gp)};
+                        *shared = ObjectPropertyEdit{*prop, make_property_value_setter<const OpenSim::GeometryPath&, OpenSim::AbstractGeometryPath>(0, gp)};
                     }
                 }
             );
         }
 
         // shared between this property editor and a popup it may have spawned
-        std::shared_ptr<std::optional<ObjectPropertyEdit>> m_ReturnValueHolder = std::make_shared<std::optional<ObjectPropertyEdit>>();
+        std::shared_ptr<std::optional<ObjectPropertyEdit>> return_value_holder_ = std::make_shared<std::optional<ObjectPropertyEdit>>();
     };
 
     struct FunctionPropertyEditorTraits {
-        static bool IsCompatibleWith(const OpenSim::AbstractProperty* prop)
+        static bool is_compatible_with(const OpenSim::AbstractProperty* prop)
         {
             if (not prop) {
                 return false;
@@ -1461,7 +1461,7 @@ namespace
             return dynamic_cast<const OpenSim::Function*>(&prop->getValueAsObject(0)) != nullptr;
         }
 
-        static const OpenSim::ObjectProperty<OpenSim::Function>* TryGetDowncasted(const OpenSim::AbstractProperty*)
+        static const OpenSim::ObjectProperty<OpenSim::Function>* try_get_downcasted(const OpenSim::AbstractProperty*)
         {
             // there's no safe way to upcast an `OpenSim::Property<SpecializedFunction>` --> `OpenSim::Property<Function>`
             //
@@ -1477,40 +1477,40 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> implOnDraw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
         {
-            const OpenSim::AbstractProperty* prop = tryGetProperty();
+            const OpenSim::AbstractProperty* prop = try_get_property();
             if (not prop) {
                 return std::nullopt;
             }
 
             ui::draw_separator();
-            DrawPropertyName(*prop);
+            draw_property_name(*prop);
 
             ui::next_column();
             {
-                Widget* parentWidget = tryGetParentWidget();
-                const auto componentPtr = tryGetComponentSharedPtr();
-                if (parentWidget and componentPtr) {
+                Widget* parent_widget = try_get_parent_widget();
+                const auto component_ptr = try_get_component_shared_ptr();
+                if (parent_widget and component_ptr) {
                     if (ui::draw_button(MSMICONS_EYE " view ")) {
 
                         // care: the accessor here differs from the default because the user's selection
                         // can change the accessor's behavior. This is a panel, so it should stick to
                         // whatever was selected when the panel was spawned.
                         auto panel = std::make_unique<FunctionCurveViewerPanel>(
-                            parentWidget,
-                            generatePopupName(*prop),
-                            componentPtr,
-                            [component = componentPtr, parentPath = tryGetObjectAbsPath(), propname = prop->getName()]() -> const OpenSim::Function*
+                            parent_widget,
+                            generate_popup_name(*prop),
+                            component_ptr,
+                            [component = component_ptr, parent_path = try_get_object_abs_path(), propname = prop->getName()]() -> const OpenSim::Function*
                             {
-                                auto* parentComponent = opyn::find_component(*component, parentPath);
-                                if (not parentComponent) {
+                                auto* parent_component = opyn::find_component(*component, parent_path);
+                                if (not parent_component) {
                                     return nullptr;
                                 }
-                                if (not parentComponent->hasProperty(propname)) {
+                                if (not parent_component->hasProperty(propname)) {
                                     return nullptr;
                                 }
-                                auto& prop = parentComponent->getPropertyByName(propname);
+                                auto& prop = parent_component->getPropertyByName(propname);
                                 if (prop.empty()) {
                                     return nullptr;
                                 }
@@ -1523,7 +1523,7 @@ namespace
                                 return dynamic_cast<const OpenSim::Function*>(&prop.getValueAsObject(0));
                             }
                         );
-                        App::post_event<OpenPanelEvent>(*parentWidget, std::move(panel));
+                        App::post_event<OpenPanelEvent>(*parent_widget, std::move(panel));
                     }
                 }
                 else {
@@ -1541,11 +1541,11 @@ namespace
             return std::nullopt;
         }
 
-        std::string generatePopupName(const OpenSim::AbstractProperty& prop) const
+        std::string generate_popup_name(const OpenSim::AbstractProperty& prop) const
         {
             std::stringstream ss;
             ss << "View ";
-            if (const OpenSim::Object* obj = tryGetObject()) {
+            if (const OpenSim::Object* obj = try_get_object()) {
                 ss << obj->getName() << '/';
             }
             ss << prop.getName() << " (" << prop.getTypeName() << ')';
@@ -1586,41 +1586,41 @@ namespace
         template<std::derived_from<IPropertyEditor> ConcretePropertyEditor>
         static constexpr PropertyEditorRegistryEntry make_entry()
         {
-            const auto testerFn = ConcretePropertyEditor::IsCompatibleWith;
-            const auto typeErasedCtorFn = [](PropertyEditorArgs args) -> std::unique_ptr<IPropertyEditor>
+            const auto tester_fn = ConcretePropertyEditor::is_compatible_with;
+            const auto type_erased_ctor_fn = [](PropertyEditorArgs args) -> std::unique_ptr<IPropertyEditor>
             {
                 return std::make_unique<ConcretePropertyEditor>(std::move(args));
             };
 
-            return PropertyEditorRegistryEntry{testerFn, typeErasedCtorFn};
+            return PropertyEditorRegistryEntry{tester_fn, type_erased_ctor_fn};
         }
 
-        bool isCompatibleWith(const OpenSim::AbstractProperty& abstractProp) const
+        bool is_compatible_with(const OpenSim::AbstractProperty& abstract_prop) const
         {
-            return m_Tester(abstractProp);
+            return tester_(abstract_prop);
         }
 
         std::unique_ptr<IPropertyEditor> construct(PropertyEditorArgs args) const
         {
-            return m_Ctor(std::move(args));
+            return ctor_(std::move(args));
         }
     private:
         constexpr PropertyEditorRegistryEntry(
-            PropertyEditorTester tester_,
-            PropertyEditorCtor ctor_) :
+            PropertyEditorTester tester,
+            PropertyEditorCtor ctor) :
 
-            m_Tester{tester_},
-            m_Ctor{ctor_}
+            tester_{tester},
+            ctor_{ctor}
         {}
 
-        PropertyEditorTester m_Tester;
-        PropertyEditorCtor m_Ctor;
+        PropertyEditorTester tester_;
+        PropertyEditorCtor ctor_;
     };
 
     // runtime type-erased registry for all property editors
     class PropertyEditorRegistry final {
     public:
-        std::unique_ptr<IPropertyEditor> tryCreateEditor(PropertyEditorArgs args) const
+        std::unique_ptr<IPropertyEditor> try_create_editor(PropertyEditorArgs args) const
         {
             const OpenSim::AbstractProperty* prop = args.propertyAccessor();
             if (not prop) {
@@ -1628,10 +1628,10 @@ namespace
             }
 
             const auto it = rgs::find_if(
-                m_Entries,
-                [&prop](const auto& entry) { return entry.isCompatibleWith(*prop); }
+                entries_,
+                [&prop](const auto& entry) { return entry.is_compatible_with(*prop); }
             );
-            if (it == m_Entries.end()) {
+            if (it == entries_.end()) {
                 return nullptr;  // no property editor registered for the given typeid
             }
 
@@ -1640,12 +1640,12 @@ namespace
     private:
         using storage_type = std::array<PropertyEditorRegistryEntry, TypelistSizeV<PropertyEditors>>;
 
-        storage_type m_Entries = []<class... ConcretePropertyEditors>(Typelist<ConcretePropertyEditors...>) {
+        storage_type entries_ = []<class... ConcretePropertyEditors>(Typelist<ConcretePropertyEditors...>) {
             return std::to_array({PropertyEditorRegistryEntry::make_entry<ConcretePropertyEditors>()...});
         }(PropertyEditors{});
     };
 
-    constexpr PropertyEditorRegistry c_Registry;
+    constexpr PropertyEditorRegistry c_registry;
 }
 
 // top-level implementation of the properties editor
@@ -1654,24 +1654,24 @@ public:
     explicit Impl(
         Widget& owner,
         Widget* parent,
-        std::shared_ptr<const opyn::VersionedComponentAccessor> targetComponent,
-        std::function<const OpenSim::Object*()> objectGetter) :
+        std::shared_ptr<const opyn::VersionedComponentAccessor> target_component,
+        std::function<const OpenSim::Object*()> object_getter) :
 
         WidgetPrivate{owner, parent},
-        m_TargetComponent{std::move(targetComponent)},
-        m_ObjectGetter{std::move(objectGetter)}
+        target_component_{std::move(target_component)},
+        object_getter_{std::move(object_getter)}
     {}
 
-    std::optional<ObjectPropertyEdit> onDraw()
+    std::optional<ObjectPropertyEdit> on_draw()
     {
-        const bool disabled = m_TargetComponent->is_readonly();
+        const bool disabled = target_component_->is_readonly();
         if (disabled) {
             ui::begin_disabled();
         }
 
         std::optional<ObjectPropertyEdit> rv;
-        if (const OpenSim::Object* maybeObj = m_ObjectGetter()) {
-            rv = drawPropertyEditors(*maybeObj);  // object accessible: draw property editors
+        if (const OpenSim::Object* maybe_obj = object_getter_()) {
+            rv = draw_property_editors(*maybe_obj);  // object accessible: draw property editors
         }
 
         if (disabled) {
@@ -1681,21 +1681,21 @@ public:
         return rv;
     }
 
-    void insertInBlacklist(std::string_view propertyName)
+    void insert_in_blacklist(std::string_view property_name)
     {
-        m_Blacklist.insert(std::string{propertyName});
+        blacklist_.insert(std::string{property_name});
     }
 private:
 
     // draws all property editors for the given object
-    std::optional<ObjectPropertyEdit> drawPropertyEditors(
+    std::optional<ObjectPropertyEdit> draw_property_editors(
         const OpenSim::Object& obj)
     {
-        if (m_PreviousObject != &obj) {
+        if (previous_object_ != &obj) {
             // the object has changed since the last draw call, so
             // reset all property editor state
-            m_PropertyEditorsByName.clear();
-            m_PreviousObject = &obj;
+            property_editors_by_name_.clear();
+            previous_object_ = &obj;
         }
 
         // draw each editor and return the last property edit (or std::nullopt)
@@ -1704,11 +1704,11 @@ private:
         ui::set_num_columns(2);
         for (int i = 0; i < obj.getNumProperties(); ++i) {
             ui::push_id(i);
-            std::optional<ObjectPropertyEdit> maybeEdit = tryDrawPropertyEditor(obj, obj.getPropertyByIndex(i));
+            std::optional<ObjectPropertyEdit> maybe_edit = try_draw_property_editor(obj, obj.getPropertyByIndex(i));
             ui::pop_id();
 
-            if (maybeEdit) {
-                rv = std::move(maybeEdit);
+            if (maybe_edit) {
+                rv = std::move(maybe_edit);
             }
         }
         ui::set_num_columns();
@@ -1717,7 +1717,7 @@ private:
     }
 
     // tries to draw one property editor for one property of an object
-    std::optional<ObjectPropertyEdit> tryDrawPropertyEditor(
+    std::optional<ObjectPropertyEdit> try_draw_property_editor(
         const OpenSim::Object& obj,
         const OpenSim::AbstractProperty& prop)
     {
@@ -1727,30 +1727,30 @@ private:
             // be manipulated via socket, rather than property, editors
             return std::nullopt;
         }
-        if (m_Blacklist.contains(prop.getName())) {
+        if (blacklist_.contains(prop.getName())) {
             return std::nullopt;
         }
-        else if (IPropertyEditor* maybeEditor = tryGetPropertyEditor(prop)) {
-            return drawPropertyEditor(obj, prop, *maybeEditor);
+        else if (IPropertyEditor* maybe_editor = try_get_property_editor(prop)) {
+            return draw_property_editor(obj, prop, *maybe_editor);
         }
         else {
-            drawNonEditablePropertyDetails(prop);
+            draw_non_editable_property_details(prop);
             return std::nullopt;
         }
     }
 
     // draws a property editor for the given object+property
-    std::optional<ObjectPropertyEdit> drawPropertyEditor(
+    std::optional<ObjectPropertyEdit> draw_property_editor(
         const OpenSim::Object& obj,
         const OpenSim::AbstractProperty& prop,
         IPropertyEditor& editor)
     {
         ui::push_id(prop.getName());
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> maybeUpdater = editor.onDraw();
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> maybe_updater = editor.on_draw();
         ui::pop_id();
 
-        if (maybeUpdater) {
-            return ObjectPropertyEdit{obj, prop, std::move(maybeUpdater).value()};
+        if (maybe_updater) {
+            return ObjectPropertyEdit{obj, prop, std::move(maybe_updater).value()};
         }
         else {
             return std::nullopt;
@@ -1758,11 +1758,11 @@ private:
     }
 
     // draws a non-editable representation of a property
-    void drawNonEditablePropertyDetails(
+    void draw_non_editable_property_details(
         const OpenSim::AbstractProperty& prop)
     {
         ui::draw_separator();
-        DrawPropertyName(prop);
+        draw_property_name(prop);
         ui::next_column();
         ui::align_text_to_frame_padding();  // ensure it aligns with the property name in the previous column
         ui::draw_text(prop.toString());
@@ -1770,18 +1770,18 @@ private:
     }
 
     // try get/construct a property editor for the given property
-    IPropertyEditor* tryGetPropertyEditor(const OpenSim::AbstractProperty& prop)
+    IPropertyEditor* try_get_property_editor(const OpenSim::AbstractProperty& prop)
     {
-        const auto [it, inserted] = m_PropertyEditorsByName.try_emplace(prop.getName(), nullptr);
+        const auto [it, inserted] = property_editors_by_name_.try_emplace(prop.getName(), nullptr);
 
-        if (inserted or (it->second and not it->second->isCompatibleWith(prop))) {
+        if (inserted or (it->second and not it->second->is_compatible_with(prop))) {
             // need to create a new editor because either it hasn't been made yet or the existing
             // editor is for a different type
-            auto accessor = MakePropertyAccessor(m_ObjectGetter, prop.getName());
-            it->second = c_Registry.tryCreateEditor({
+            auto accessor = make_property_accessor(object_getter_, prop.getName());
+            it->second = c_registry.try_create_editor({
                 .parent = parent(),
-                .component = m_TargetComponent,
-                .objectAccessor = m_ObjectGetter,
+                .component = target_component_,
+                .objectAccessor = object_getter_,
                 .propertyAccessor = std::move(accessor),
             });
         }
@@ -1789,21 +1789,21 @@ private:
         return it->second.get();
     }
 
-    std::shared_ptr<const opyn::VersionedComponentAccessor> m_TargetComponent;
-    std::function<const OpenSim::Object*()> m_ObjectGetter;
-    std::unordered_set<std::string> m_Blacklist;
-    const OpenSim::Object* m_PreviousObject = nullptr;
-    std::unordered_map<std::string, std::unique_ptr<IPropertyEditor>> m_PropertyEditorsByName;
+    std::shared_ptr<const opyn::VersionedComponentAccessor> target_component_;
+    std::function<const OpenSim::Object*()> object_getter_;
+    std::unordered_set<std::string> blacklist_;
+    const OpenSim::Object* previous_object_ = nullptr;
+    std::unordered_map<std::string, std::unique_ptr<IPropertyEditor>> property_editors_by_name_;
 };
 
 
 osc::ObjectPropertiesEditor::ObjectPropertiesEditor(
     Widget* parent,
-    std::shared_ptr<const opyn::VersionedComponentAccessor> targetComponent,
-    std::function<const OpenSim::Object*()> objectGetter) :
+    std::shared_ptr<const opyn::VersionedComponentAccessor> target_component,
+    std::function<const OpenSim::Object*()> object_getter) :
 
-    Widget{std::make_unique<Impl>(*this, parent, std::move(targetComponent), std::move(objectGetter))}
+    Widget{std::make_unique<Impl>(*this, parent, std::move(target_component), std::move(object_getter))}
 {}
-void osc::ObjectPropertiesEditor::insert_in_blacklist(std::string_view propertyName) { private_data().insertInBlacklist(propertyName); }
-std::optional<ObjectPropertyEdit> osc::ObjectPropertiesEditor::on_draw() { return private_data().onDraw(); }
-void osc::ObjectPropertiesEditor::impl_on_draw() { private_data().onDraw(); }
+void osc::ObjectPropertiesEditor::insert_in_blacklist(std::string_view property_name) { private_data().insert_in_blacklist(property_name); }
+std::optional<ObjectPropertyEdit> osc::ObjectPropertiesEditor::on_draw() { return private_data().on_draw(); }
+void osc::ObjectPropertiesEditor::impl_on_draw() { private_data().on_draw(); }

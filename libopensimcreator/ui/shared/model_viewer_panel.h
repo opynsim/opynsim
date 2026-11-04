@@ -20,8 +20,8 @@ namespace osc
     class ModelViewerPanel : public Panel {
     public:
         explicit ModelViewerPanel(
-            Widget* parent_,
-            std::string_view panelName_,
+            Widget* parent,
+            std::string_view panel_name,
             const ModelViewerPanelParameters&,
             ModelViewerPanelFlags = {}
         );

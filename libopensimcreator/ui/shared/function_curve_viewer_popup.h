@@ -16,9 +16,9 @@ namespace osc
     public:
         explicit FunctionCurveViewerPanel(
             Widget* parent,
-            std::string_view panelName,
-            std::shared_ptr<const opyn::VersionedComponentAccessor> targetComponent,
-            std::function<const OpenSim::Function*()> functionGetter
+            std::string_view panel_name,
+            std::shared_ptr<const opyn::VersionedComponentAccessor> target_component,
+            std::function<const OpenSim::Function*()> function_getter
         );
 
     private:

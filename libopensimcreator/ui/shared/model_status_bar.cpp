@@ -20,25 +20,25 @@
 class osc::ModelStatusBar::Impl final : public WidgetPrivate {
 public:
     explicit Impl(
-        Widget& owner_,
-        Widget* parent_,
-        std::shared_ptr<opyn::ModelStatePair> model_) :
+        Widget& owner,
+        Widget* parent,
+        std::shared_ptr<opyn::ModelStatePair> model) :
 
-        WidgetPrivate{owner_, parent_},
-        m_Model{std::move(model_)}
+        WidgetPrivate{owner, parent},
+        model_{std::move(model)}
     {}
 
-    void onDraw()
+    void on_draw()
     {
         ui::begin_main_window_bottom_bar("bottom");
-        drawSelectionBreadcrumbs();
+        draw_selection_breadcrumbs();
         ui::end_panel();
     }
 
 private:
-    void drawSelectionBreadcrumbs()
+    void draw_selection_breadcrumbs()
     {
-        const OpenSim::Component* const c = m_Model->get_selected();
+        const OpenSim::Component* const c = model_->get_selected();
 
         if (c) {
             const std::vector<const OpenSim::Component*> els = opyn::get_path_elements(*c);
@@ -50,9 +50,9 @@ private:
                 ui::same_line();
                 const std::string label = truncate_with_ellipsis(el.getName(), 15);
                 if (ui::draw_small_button(label)) {
-                    m_Model->set_selected(&el);
+                    model_->set_selected(&el);
                 }
-                drawMouseInteractionStuff(el);
+                draw_mouse_interaction_stuff(el);
                 ui::same_line();
                 ui::draw_text_disabled("/");
                 ui::same_line();
@@ -63,7 +63,7 @@ private:
                 ui::same_line();
                 const std::string label = truncate_with_ellipsis(els.back()->getName(), 15);
                 ui::draw_text(label);
-                drawMouseInteractionStuff(*els.back());
+                draw_mouse_interaction_stuff(*els.back());
             }
         }
         else {
@@ -71,10 +71,10 @@ private:
         }
     }
 
-    void drawMouseInteractionStuff(const OpenSim::Component& c)
+    void draw_mouse_interaction_stuff(const OpenSim::Component& c)
     {
         if (ui::is_item_hovered()) {
-            m_Model->set_hovered(&c);
+            model_->set_hovered(&c);
 
             ui::begin_tooltip();
             ui::draw_text_disabled(c.getConcreteClassName());
@@ -85,7 +85,7 @@ private:
                 auto menu = std::make_unique<ComponentContextMenu>(
                     parent(),
                     "##hovermenu",
-                    m_Model,
+                    model_,
                     opyn::get_absolute_path(c)
                 );
                 menu->open();
@@ -94,14 +94,14 @@ private:
         }
     }
 
-    std::shared_ptr<opyn::ModelStatePair> m_Model;
+    std::shared_ptr<opyn::ModelStatePair> model_;
 };
 
 
 osc::ModelStatusBar::ModelStatusBar(
-    Widget* parent_,
-    std::shared_ptr<opyn::ModelStatePair> model_) :
+    Widget* parent,
+    std::shared_ptr<opyn::ModelStatePair> model) :
 
-    Widget{std::make_unique<Impl>(*this, parent_, std::move(model_))}
+    Widget{std::make_unique<Impl>(*this, parent, std::move(model))}
 {}
-void osc::ModelStatusBar::impl_on_draw() { private_data().onDraw(); }
+void osc::ModelStatusBar::impl_on_draw() { private_data().on_draw(); }

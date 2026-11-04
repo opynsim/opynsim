@@ -26,13 +26,13 @@ namespace
         SimulationReport simulationReport;
     };
 
-    void UpdateCachedSimulationReportIfNecessary(const opyn::ModelStatePair& src, CachedSimulationReport& cache)
+    void update_cached_simulation_report_if_necessary(const opyn::ModelStatePair& src, CachedSimulationReport& cache)
     {
-        const UID modelVersion = src.get_model_version();
-        const UID stateVersion = src.get_state_version();
+        const UID model_version = src.get_model_version();
+        const UID state_version = src.get_state_version();
 
-        if (cache.sourceModelVersion == modelVersion and
-            cache.sourceStateVersion == stateVersion) {
+        if (cache.sourceModelVersion == model_version and
+            cache.sourceStateVersion == state_version) {
             return;  // it's already up-to-date
         }
 
@@ -40,8 +40,8 @@ namespace
         src.get_model().realizeReport(s);
 
         cache.simulationReport = SimulationReport{std::move(s)};
-        cache.sourceModelVersion = modelVersion;
-        cache.sourceStateVersion = stateVersion;
+        cache.sourceModelVersion = model_version;
+        cache.sourceStateVersion = state_version;
     }
 }
 
@@ -51,28 +51,28 @@ public:
     explicit Impl(
         OutputWatchesPanel& owner,
         Widget* parent,
-        std::string_view panelName_,
-        std::shared_ptr<const ModelStatePairWithSharedEnvironment> model_) :
+        std::string_view panel_name,
+        std::shared_ptr<const ModelStatePairWithSharedEnvironment> model) :
 
-        PanelPrivate{owner, parent, panelName_},
-        m_Model{std::move(model_)}
+        PanelPrivate{owner, parent, panel_name},
+        model_{std::move(model)}
     {}
 
     void draw_content()
     {
-        UpdateCachedSimulationReportIfNecessary(*m_Model, m_CachedReport);
+        update_cached_simulation_report_if_necessary(*model_, cached_report_);
 
-        std::shared_ptr<Environment> env = m_Model->try_upd_environment();
+        std::shared_ptr<Environment> env = model_->try_upd_environment();
         if (env->get_num_user_output_extractors() > 0 and ui::begin_table("##OutputWatchesTable", 3, ui::TableFlag::SizingStretchProp)) {
             ui::table_setup_column("##Actions");
             ui::table_setup_column("Output", ui::ColumnFlag::WidthStretch);
             ui::table_setup_column("Value");
             ui::table_headers_row();
 
-            for (int outputIdx = 0; outputIdx < env->get_num_user_output_extractors(); ++outputIdx) {
-                opyn::SharedOutputExtractor o = env->get_user_output_extractor(outputIdx);
+            for (int output_idx = 0; output_idx < env->get_num_user_output_extractors(); ++output_idx) {
+                opyn::SharedOutputExtractor o = env->get_user_output_extractor(output_idx);
 
-                ui::push_id(outputIdx);
+                ui::push_id(output_idx);
                 ui::table_next_row();
 
                 int column = 0;
@@ -80,7 +80,7 @@ public:
                 // Column: actions
                 ui::table_set_column_index(column++);
                 if (ui::draw_button(MSMICONS_TRASH)) {
-                    env->remove_user_output_extractor(outputIdx);
+                    env->remove_user_output_extractor(output_idx);
                 }
                 ui::draw_tooltip_if_item_hovered("Remove watch");
 
@@ -95,7 +95,7 @@ public:
 
                 // Column: output value
                 ui::table_set_column_index(column++);
-                const auto value_text = o.value<std::string>(m_Model->get_model(), m_CachedReport.simulationReport);
+                const auto value_text = o.value<std::string>(model_->get_model(), cached_report_.simulationReport);
                 ui::draw_text(value_text);
                 ui::same_line();
                 if (ui::draw_button(MSMICONS_COPY)) {
@@ -115,15 +115,15 @@ public:
     }
 
 private:
-    std::shared_ptr<const ModelStatePairWithSharedEnvironment> m_Model;
-    CachedSimulationReport m_CachedReport;
+    std::shared_ptr<const ModelStatePairWithSharedEnvironment> model_;
+    CachedSimulationReport cached_report_;
 };
 
 osc::OutputWatchesPanel::OutputWatchesPanel(
     Widget* parent,
-    std::string_view panelName_,
-    std::shared_ptr<const ModelStatePairWithSharedEnvironment> model_) :
+    std::string_view panel_name,
+    std::shared_ptr<const ModelStatePairWithSharedEnvironment> model) :
 
-    Panel{std::make_unique<Impl>(*this, parent, panelName_, std::move(model_))}
+    Panel{std::make_unique<Impl>(*this, parent, panel_name, std::move(model))}
 {}
 void osc::OutputWatchesPanel::impl_draw_content() { private_data().draw_content(); }
