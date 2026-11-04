@@ -17,7 +17,7 @@ namespace osc
     struct DrawableThing final {
         UID id = MiIDs::empty();
         UID group_id = MiIDs::empty();
-        osc::Mesh mesh{};
+        Mesh mesh;
         Transform transform{};
         SceneDecorationShading shading = Color::black();
         SceneDecorationFlags flags = SceneDecorationFlag::Default;
@@ -25,9 +25,9 @@ namespace osc
 
     inline std::optional<AABB> calc_bounds(const DrawableThing& dt)
     {
-        return dt.mesh.bounds().transform([&dt](const AABB& localBounds)
+        return dt.mesh.bounds().transform([&dt](const AABB& local_bounds)
         {
-            return transform_aabb(dt.transform, localBounds);
+            return transform_aabb(dt.transform, local_bounds);
         });
     }
 }

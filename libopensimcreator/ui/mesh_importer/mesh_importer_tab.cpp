@@ -73,6 +73,7 @@
 #include <vector>
 
 using namespace osc;
+using namespace osc::literals;
 
 // mesh importer tab implementation
 class osc::MeshImporterTab::Impl final :

@@ -131,7 +131,7 @@ namespace osc
                 return;
             }
 
-            std::erase_if(selected_object_ids_, [elID = el.get_id()](UID id) { return id == elID; } );
+            std::erase_if(selected_object_ids_, [el_id = el.get_id()](UID id) { return id == el_id; } );
         }
 
         void try_toggle_selection_state_of(const MiObject& el)
@@ -168,8 +168,8 @@ namespace osc
 
             const MiDocument& mg = shared_->get_model_graph();
 
-            float fadedAlpha = 0.2f;
-            float animScale = ease_out_elastic(animation_fraction_);
+            float faded_alpha = 0.2f;
+            float anim_scale = ease_out_elastic(animation_fraction_);
 
             for (const MiObject& el : mg.iter())
             {
@@ -177,7 +177,7 @@ namespace osc
                 shared_->append_drawables(el, drawables_buffer_);
                 size_t end = drawables_buffer_.size();
 
-                bool isSelectableEl = is_selectable(el);
+                bool is_selectable_el = is_selectable(el);
                 SceneDecorationFlags flags = compute_flags(el);
 
                 for (size_t i = start; i < end; ++i)
@@ -185,16 +185,16 @@ namespace osc
                     DrawableThing& d = drawables_buffer_[i];
                     d.flags = flags;
 
-                    if (not isSelectableEl) {
+                    if (not is_selectable_el) {
                         if (std::holds_alternative<Color>(d.shading)) {
-                            std::get<Color>(d.shading).a = fadedAlpha;   // fade non-selectable colored scene elements
+                            std::get<Color>(d.shading).a = faded_alpha;   // fade non-selectable colored scene elements
                         }
                         d.id = MiIDs::empty();
                         d.group_id = MiIDs::empty();
                     }
                     else
                     {
-                        d.transform.scale *= animScale;
+                        d.transform.scale *= anim_scale;
                     }
                 }
             }
@@ -278,17 +278,17 @@ namespace osc
             shared_->draw_connection_lines(faintify_color(shared_->get_color_connection_line()), options_.maybe_els_being_replaced_by_choice);
 
             // draw strong connection line between the things being attached to and the hover
-            for (UID elAttachingTo : options_.maybe_els_attaching_to)
+            for (UID el_attaching_to : options_.maybe_els_attaching_to)
             {
-                Vector3 parentPos = shared_->get_model_graph().get_pos_by_id(elAttachingTo);
-                Vector3 childPos = shared_->get_model_graph().get_pos_by_id(maybe_hover_.id);
+                Vector3 parent_pos = shared_->get_model_graph().get_pos_by_id(el_attaching_to);
+                Vector3 child_pos = shared_->get_model_graph().get_pos_by_id(maybe_hover_.id);
 
                 if (!options_.is_attaching_toward_el)
                 {
-                    std::swap(parentPos, childPos);
+                    std::swap(parent_pos, child_pos);
                 }
 
-                shared_->draw_connection_line(shared_->get_color_connection_line(), parentPos, childPos);
+                shared_->draw_connection_line(shared_->get_color_connection_line(), parent_pos, child_pos);
             }
         }
 
@@ -313,9 +313,9 @@ namespace osc
 
             const CStringView text = MSMICONS_ARROW_LEFT " Cancel (ESC)";
             const Vector2 margin = {25.0f, 35.0f};
-            const Vector2 buttonTopLeft = shared_->scene_ui_rect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
+            const Vector2 button_top_left = shared_->scene_ui_rect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
 
-            ui::set_cursor_ui_position(buttonTopLeft);
+            ui::set_cursor_ui_position(button_top_left);
             if (ui::draw_button(text))
             {
                 request_pop();
@@ -340,16 +340,16 @@ namespace osc
                 request_pop();
             }
 
-            bool isRenderHovered = shared_->is_render_hovered();
+            bool is_render_hovered = shared_->is_render_hovered();
 
-            if (isRenderHovered)
+            if (is_render_hovered)
             {
-                const bool controllerUpdated = ui::update_orbit_controller_from_mouse_inputs(
+                const bool controller_updated = ui::update_orbit_controller_from_mouse_inputs(
                     shared_->upd_camera_controller(),
                     shared_->get_camera(),
                     shared_->scene_dims()
                 );
-                if (controllerUpdated) {
+                if (controller_updated) {
                     shared_->get_camera_controller().update_camera(shared_->upd_camera());
                 }
             }
@@ -376,9 +376,9 @@ namespace osc
             draw_cancel_button();
         }
 
-        Color faintify_color(const Color& srcColor) const
+        Color faintify_color(const Color& src_color) const
         {
-            Color color = srcColor;
+            Color color = src_color;
             color.a *= 0.2f;
             return color;
         }

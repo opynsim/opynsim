@@ -74,8 +74,6 @@
 namespace OpenSim { class Model; }
 namespace osc { class Event; }
 
-using namespace osc::literals;
-
 namespace osc
 {
     // shared data support
@@ -83,16 +81,16 @@ namespace osc
     // data that's shared between multiple UI states.
     class MeshImporterSharedState final : public std::enable_shared_from_this<MeshImporterSharedState> {
     public:
-        MeshImporterSharedState(Widget* parent) :
+        explicit MeshImporterSharedState(Widget* parent) :
             MeshImporterSharedState{parent, std::vector<std::filesystem::path>{}}
         {}
 
-        explicit MeshImporterSharedState(Widget* parent, std::vector<std::filesystem::path> meshFiles) :
-            logviewer_{parent},
+        explicit MeshImporterSharedState(Widget* parent, std::vector<std::filesystem::path> mesh_files) :
+            log_viewer_{parent},
             perf_panel_{parent}
         {
             floor_material_.set_transparent(true);
-            push_mesh_load_requests(std::move(meshFiles));
+            push_mesh_load_requests(std::move(mesh_files));
         }
 
         //
@@ -133,7 +131,7 @@ namespace osc
             }
 
             App::upd().prompt_user_to_select_file_async(
-                [state = shared_from_this()](FileDialogResponse response)
+                [state = shared_from_this()](const FileDialogResponse&& response)
                 {
                     if (not state) {
                         return;  // Something went horribly wrong (should've been checked earlier).
@@ -248,9 +246,9 @@ namespace osc
             return model_graph_snapshots_;
         }
 
-        void commit_current_model_graph(std::string_view commitMsg)
+        void commit_current_model_graph(std::string_view commit_msg)
         {
-            model_graph_snapshots_.commit_scratch(commitMsg);
+            model_graph_snapshots_.commit_scratch(commit_msg);
         }
 
         bool can_undo_current_model_graph() const
@@ -302,25 +300,25 @@ namespace osc
         // MESH LOADING STUFF
         //
 
-        void push_mesh_load_requests(std::vector<std::filesystem::path> paths, UID attachmentPoint = MiIDs::ground())
+        void push_mesh_load_requests(std::vector<std::filesystem::path> paths, UID attachment_point = MiIDs::ground())
         {
-            mesh_loader_.send(MeshLoadRequest{attachmentPoint, std::move(paths)});
+            mesh_loader_.send(MeshLoadRequest{attachment_point, std::move(paths)});
         }
 
-        void prompt_user_for_mesh_files_and_push_them_onto_mesh_loader(UID attachmentPoint = MiIDs::ground())
+        void prompt_user_for_mesh_files_and_push_them_onto_mesh_loader(UID attachment_point = MiIDs::ground())
         {
             if (not shared_from_this()) {
                 log_critical("cannot open mesh import dialog because the mesh importer's state isn't reference-counted");
                 return;
             }
             App::upd().prompt_user_to_select_file_async(
-                [state = shared_from_this(), attachmentPoint](FileDialogResponse response)
+                [state = shared_from_this(), attachment_point](const FileDialogResponse&& response)
                 {
                     if (not state) {
                         return;  // Something went wrong
                     }
                     std::vector<std::filesystem::path> paths(response.begin(), response.end());
-                    state->push_mesh_load_requests(paths, attachmentPoint);
+                    state->push_mesh_load_requests(paths, attachment_point);
                 },
                 opyn::get_supported_sim_tk_mesh_formats_as_filters(),
                 std::nullopt,
@@ -344,9 +342,9 @@ namespace osc
         // UI OVERLAY STUFF
         //
 
-        Vector2 world_pos_to_ui_pos(const Vector3& worldPos) const
+        Vector2 world_pos_to_ui_pos(const Vector3& world_pos) const
         {
-            return get_camera().world_to_ui(worldPos, scene_ui_rect());
+            return get_camera().world_to_ui(world_pos, scene_ui_rect());
         }
 
         void draw_connection_line(
@@ -355,7 +353,7 @@ namespace osc
             const Vector3& child) const
         {
             // the line
-            ui::get_panel_draw_list().add_line(world_pos_to_ui_pos(parent), world_pos_to_ui_pos(child), color, c_ConnectionLineWidth);
+            ui::get_panel_draw_list().add_line(world_pos_to_ui_pos(parent), world_pos_to_ui_pos(child), color, c_connection_line_width);
 
             // the triangle
             draw_connection_line_triangle_at_midpoint(color, parent, child);
@@ -363,7 +361,7 @@ namespace osc
 
         void draw_connection_lines(
             const Color& color,
-            const std::unordered_set<UID>& excludedIDs) const
+            const std::unordered_set<UID>& excluded_ids) const
         {
             const MiDocument& mg = get_model_graph();
 
@@ -371,7 +369,7 @@ namespace osc
             {
                 UID id = el.get_id();
 
-                if (excludedIDs.contains(id))
+                if (excluded_ids.contains(id))
                 {
                     continue;
                 }
@@ -383,7 +381,7 @@ namespace osc
 
                 if (el.get_num_cross_references() > 0)
                 {
-                    draw_connection_lines(el, color, excludedIDs);
+                    draw_connection_lines(el, color, excluded_ids);
                 }
                 else if (!is_a_child_attachment_in_any_joint(mg, el))
                 {
@@ -397,7 +395,7 @@ namespace osc
             draw_connection_lines(color, {});
         }
 
-        void draw_connection_lines(const MeshImporterHover& currentHover) const
+        void draw_connection_lines(const MeshImporterHover& current_hover) const
         {
             const MiDocument& mg = get_model_graph();
 
@@ -405,7 +403,7 @@ namespace osc
             {
                 UID id = el.get_id();
 
-                if (id != currentHover.id && !el.is_cross_referencing(currentHover.id))
+                if (id != current_hover.id && !el.is_cross_referencing(current_hover.id))
                 {
                     continue;
                 }
@@ -443,7 +441,7 @@ namespace osc
             // setup rendering params
             SceneRendererParams p;
             p.dimensions = scene_dims();
-            p.device_pixel_ratio = app.settings().get_value<float>("graphics/render_scale", 1.0f) * app.main_window_device_pixel_ratio();
+            p.device_pixel_ratio = App::settings().get_value<float>("graphics/render_scale", 1.0f) * app.main_window_device_pixel_ratio();
             p.anti_aliasing_level = app.anti_aliasing_level();
             p.draw_rims = true;
             p.draw_floor = false;
@@ -520,9 +518,9 @@ namespace osc
             camera_controller_.update_camera(camera_);
         }
 
-        void focus_camera_on(const Vector3& focusPoint)
+        void focus_camera_on(const Vector3& focus_point)
         {
-            camera_controller_.focus_point = focusPoint;
+            camera_controller_.focus_point = focus_point;
             camera_controller_.update_camera(camera_);
         }
 
@@ -533,14 +531,14 @@ namespace osc
             return {&colors_.ground, sizeof(colors_)/sizeof(Color)};
         }
 
-        void set_color(size_t i, const Color& newColorValue)
+        void set_color(size_t i, const Color& new_color_value)
         {
-            upd_colors()[i] = newColorValue;
+            upd_colors()[i] = new_color_value;
         }
 
         std::span<const char* const> get_color_labels() const
         {
-            return c_ColorNames;
+            return c_color_names;
         }
 
         const Color& get_color_connection_line() const
@@ -555,14 +553,14 @@ namespace osc
             return {&visibility_flags_.ground, sizeof(visibility_flags_)/sizeof(bool)};
         }
 
-        void set_visibility_flag(size_t i, bool newVisibilityValue)
+        void set_visibility_flag(size_t i, bool new_visibility_value)
         {
-            upd_visibility_flags()[i] = newVisibilityValue;
+            upd_visibility_flags()[i] = new_visibility_value;
         }
 
         std::span<const char* const> get_visibility_flag_labels() const
         {
-            return c_VisibilityFlagNames;
+            return c_visibility_flag_names;
         }
 
         bool is_showing_floor() const
@@ -581,7 +579,7 @@ namespace osc
                 .mesh = App::singleton<SceneCache>(App::resource_loader())->grid_mesh(),
                 .transform = {
                     .scale = 0.5f * Vector3{scene_scale_factor_ * 100.0f, scene_scale_factor_ * 100.0f, 1.0f},
-                    .rotation = angle_axis(90_deg, Vector3{-1.0f, 0.0f, 0.0f}),
+                    .rotation = angle_axis(Degrees{90}, Vector3{-1.0f, 0.0f, 0.0f}),
                 },
                 .shading = std::pair<Material, MaterialPropertyBlock>{floor_material_, props},
                 .flags = SceneDecorationFlag::AnnotationElement,
@@ -599,14 +597,14 @@ namespace osc
             return {&interactivity_flags_.ground, sizeof(interactivity_flags_)/sizeof(bool)};
         }
 
-        void set_interactivity_flag(size_t i, bool newInteractivityValue)
+        void set_interactivity_flag(size_t i, bool new_interactivity_value)
         {
-            upd_interactivity_flags()[i] = newInteractivityValue;
+            upd_interactivity_flags()[i] = new_interactivity_value;
         }
 
         std::span<const char* const> get_interactivity_flag_labels() const
         {
-            return c_InteractivityFlagNames;
+            return c_interactivity_flag_names;
         }
 
         float get_scene_scale_factor() const
@@ -614,33 +612,33 @@ namespace osc
             return scene_scale_factor_;
         }
 
-        void set_scene_scale_factor(float newScaleFactor)
+        void set_scene_scale_factor(float new_scale_factor)
         {
-            scene_scale_factor_ = newScaleFactor;
+            scene_scale_factor_ = new_scale_factor;
         }
 
         MeshImporterHover do_hovertest(const std::vector<DrawableThing>& drawables) const
         {
             auto cache = App::singleton<SceneCache>(App::resource_loader());
 
-            const Rect sceneRect = scene_ui_rect();
-            const Vector2 mouseUiPosition = ui::get_mouse_ui_position();
+            const Rect scene_rect = scene_ui_rect();
+            const Vector2 mouse_ui_position = ui::get_mouse_ui_position();
 
-            if (!is_intersecting(sceneRect, mouseUiPosition))
+            if (!is_intersecting(scene_rect, mouse_ui_position))
             {
                 // mouse isn't over the scene render
                 return MeshImporterHover{};
             }
 
-            const Ray ray = get_camera().ui_to_world(mouseUiPosition, sceneRect);
-            const bool hittestMeshes = is_meshes_interactable();
-            const bool hittestBodies = is_bodies_interactable();
-            const bool hittestJointCenters = is_joint_centers_interactable();
-            const bool hittestGround = is_ground_interactable();
-            const bool hittestStations = is_stations_interactable();
+            const Ray ray = get_camera().ui_to_world(mouse_ui_position, scene_rect);
+            const bool hittest_meshes = is_meshes_interactable();
+            const bool hittest_bodies = is_bodies_interactable();
+            const bool hittest_joint_centers = is_joint_centers_interactable();
+            const bool hittest_ground = is_ground_interactable();
+            const bool hittest_stations = is_stations_interactable();
 
-            UID closestID = MiIDs::empty();
-            float closestDist = std::numeric_limits<float>::max();
+            UID closest_id = MiIDs::empty();
+            float closest_dist = std::numeric_limits<float>::max();
             for (const DrawableThing& drawable : drawables)
             {
                 if (drawable.id == MiIDs::empty())
@@ -648,27 +646,27 @@ namespace osc
                     continue;  // no hittest data
                 }
 
-                if (drawable.group_id == MiIDs::body_group() && !hittestBodies)
+                if (drawable.group_id == MiIDs::body_group() && !hittest_bodies)
                 {
                     continue;
                 }
 
-                if (drawable.group_id == MiIDs::mesh_group() && !hittestMeshes)
+                if (drawable.group_id == MiIDs::mesh_group() && !hittest_meshes)
                 {
                     continue;
                 }
 
-                if (drawable.group_id == MiIDs::joint_group() && !hittestJointCenters)
+                if (drawable.group_id == MiIDs::joint_group() && !hittest_joint_centers)
                 {
                     continue;
                 }
 
-                if (drawable.group_id == MiIDs::ground_group() && !hittestGround)
+                if (drawable.group_id == MiIDs::ground_group() && !hittest_ground)
                 {
                     continue;
                 }
 
-                if (drawable.group_id == MiIDs::station_group() && !hittestStations)
+                if (drawable.group_id == MiIDs::station_group() && !hittest_stations)
                 {
                     continue;
                 }
@@ -680,16 +678,16 @@ namespace osc
                     ray
                 );
 
-                if (rc && rc->distance < closestDist)
+                if (rc && rc->distance < closest_dist)
                 {
-                    closestID = drawable.id;
-                    closestDist = rc->distance;
+                    closest_id = drawable.id;
+                    closest_dist = rc->distance;
                 }
             }
 
-            const Vector3 hitPos = closestID != MiIDs::empty() ? ray.origin + closestDist*ray.direction : Vector3{};
+            const Vector3 hit_pos = closest_id != MiIDs::empty() ? ray.origin + closest_dist*ray.direction : Vector3{};
 
-            return MeshImporterHover{closestID, hitPos};
+            return MeshImporterHover{closest_id, hit_pos};
         }
 
         //
@@ -701,9 +699,9 @@ namespace osc
             return model_creation_flags_;
         }
 
-        void set_model_creation_flags(ModelCreationFlags newFlags)
+        void set_model_creation_flags(ModelCreationFlags new_flags)
         {
-            model_creation_flags_ = newFlags;
+            model_creation_flags_ = new_flags;
         }
 
         //
@@ -723,38 +721,38 @@ namespace osc
 
         void append_drawables(
             const MiObject& e,
-            std::vector<DrawableThing>& appendOut) const
+            std::vector<DrawableThing>& append_out) const
         {
             std::visit(Overload
             {
-                [this, &appendOut](const MiGround&)
+                [this, &append_out](const MiGround&)
                 {
                     if (!is_showing_ground())
                     {
                         return;
                     }
 
-                    appendOut.push_back(generate_ground_sphere(get_color_ground()));
+                    append_out.push_back(generate_ground_sphere(get_color_ground()));
                 },
-                [this, &appendOut](const MiMesh& el)
+                [this, &append_out](const MiMesh& el)
                 {
                     if (!is_showing_meshes())
                     {
                         return;
                     }
 
-                    appendOut.push_back(generate_mesh_drawable(el));
+                    append_out.push_back(generate_mesh_drawable(el));
                 },
-                [this, &appendOut](const MiBody& el)
+                [this, &append_out](const MiBody& el)
                 {
                     if (!is_showing_bodies())
                     {
                         return;
                     }
 
-                    append_body_el_as_cube_thing(el, appendOut);
+                    append_body_el_as_cube_thing(el, append_out);
                 },
-                [this, &appendOut](const MiJoint& el)
+                [this, &append_out](const MiJoint& el)
                 {
                     if (!is_showing_joint_centers())
                     {
@@ -765,20 +763,20 @@ namespace osc
                         el.get_id(),
                         MiIDs::joint_group(),
                         el.get_x_form(),
-                        appendOut,
+                        append_out,
                         1.0f,
                         SceneDecorationFlag::Default,
                         get_joint_axis_lengths(el)
                     );
                 },
-                [this, &appendOut](const MiStation& el)
+                [this, &append_out](const MiStation& el)
                 {
                     if (!is_showing_stations())
                     {
                         return;
                     }
 
-                    appendOut.push_back(generate_station_sphere(el, get_color_station()));
+                    append_out.push_back(generate_station_sphere(el, get_color_station()));
                 },
             }, e.to_variant());
         }
@@ -801,7 +799,7 @@ namespace osc
 
         CStringView get_nth_panel_name(size_t n) const
         {
-            return c_OpenedPanelNames[n];
+            return c_opened_panel_names[n];
         }
 
         bool is_nth_panel_enabled(size_t n) const
@@ -826,7 +824,7 @@ namespace osc
 
         LogViewer& upd_log_viewer()
         {
-            return logviewer_;
+            return log_viewer_;
         }
 
         PerfPanel& upd_perf_panel()
@@ -858,7 +856,7 @@ namespace osc
         }
 
     private:
-        bool export_model_graph_to(const std::filesystem::path& exportPath)
+        bool export_model_graph_to(const std::filesystem::path& export_path)
         {
             std::vector<std::string> issues;
             std::unique_ptr<OpenSim::Model> m;
@@ -871,8 +869,8 @@ namespace osc
             }
 
             if (m) {
-                m->print(exportPath.string());
-                maybe_model_graph_export_location_ = exportPath;
+                m->print(export_path.string());
+                maybe_model_graph_export_location_ = export_path;
                 maybe_model_graph_exported_uid_ = model_graph_snapshots_.head_id();
                 return true;
             }
@@ -923,21 +921,21 @@ namespace osc
 
             // commit
             {
-                std::stringstream commitMsgSS;
+                std::stringstream commit_msg_ss;
                 if (ok.meshes.empty())
                 {
-                    commitMsgSS << "loaded 0 meshes";
+                    commit_msg_ss << "loaded 0 meshes";
                 }
                 else if (ok.meshes.size() == 1)
                 {
-                    commitMsgSS << "loaded " << ok.meshes.front().path.filename();
+                    commit_msg_ss << "loaded " << ok.meshes.front().path.filename();
                 }
                 else
                 {
-                    commitMsgSS << "loaded " << ok.meshes.size() << " meshes";
+                    commit_msg_ss << "loaded " << ok.meshes.size() << " meshes";
                 }
 
-                commit_current_model_graph(std::move(commitMsgSS).str());
+                commit_current_model_graph(std::move(commit_msg_ss).str());
             }
         }
 
@@ -949,17 +947,17 @@ namespace osc
 
         void pop_mesh_loader()
         {
-            for (auto maybeResponse = mesh_loader_.poll(); maybeResponse.has_value(); maybeResponse = mesh_loader_.poll())
+            for (auto maybe_response = mesh_loader_.poll(); maybe_response.has_value(); maybe_response = mesh_loader_.poll())
             {
-                MeshLoadResponse& meshLoaderResp = *maybeResponse;
+                MeshLoadResponse& mesh_loader_resp = *maybe_response;
 
-                if (std::holds_alternative<MeshLoadOKResponse>(meshLoaderResp))
+                if (std::holds_alternative<MeshLoadOKResponse>(mesh_loader_resp))
                 {
-                    pop_mesh_loader_handle_ok_response(std::get<MeshLoadOKResponse>(meshLoaderResp));
+                    pop_mesh_loader_handle_ok_response(std::get<MeshLoadOKResponse>(mesh_loader_resp));
                 }
                 else
                 {
-                    pop_mesh_loader_handle_error_response(std::get<MeshLoadErrorResponse>(meshLoaderResp));
+                    pop_mesh_loader_handle_error_response(std::get<MeshLoadErrorResponse>(mesh_loader_resp));
                 }
             }
         }
@@ -969,25 +967,25 @@ namespace osc
             const Vector3& parent,
             const Vector3& child) const
         {
-            constexpr float triangleWidth = 6.0f * c_ConnectionLineWidth;
-            constexpr float triangleWidthSquared = triangleWidth*triangleWidth;
+            constexpr float triangle_width = 6.0f * c_connection_line_width;
+            constexpr float triangle_width_squared = triangle_width*triangle_width;
 
-            const Vector2 parentScr = world_pos_to_ui_pos(parent);
-            const Vector2 childScr = world_pos_to_ui_pos(child);
-            const Vector2 child2ParentScr = parentScr - childScr;
+            const Vector2 parent_scr = world_pos_to_ui_pos(parent);
+            const Vector2 child_scr = world_pos_to_ui_pos(child);
+            const Vector2 child2_parent_scr = parent_scr - child_scr;
 
-            if (dot(child2ParentScr, child2ParentScr) < triangleWidthSquared) {
+            if (dot(child2_parent_scr, child2_parent_scr) < triangle_width_squared) {
                 return;
             }
 
             const Vector3 mp = midpoint(parent, child);
-            const Vector2 midpointScr = world_pos_to_ui_pos(mp);
-            const Vector2 directionScr = normalize(child2ParentScr);
-            const Vector2 directionNormalScr = {-directionScr.y(), directionScr.x()};
+            const Vector2 midpoint_scr = world_pos_to_ui_pos(mp);
+            const Vector2 direction_scr = normalize(child2_parent_scr);
+            const Vector2 direction_normal_scr = {-direction_scr.y(), direction_scr.x()};
 
-            const Vector2 p1 = midpointScr + (triangleWidth/2.0f)*directionNormalScr;
-            const Vector2 p2 = midpointScr - (triangleWidth/2.0f)*directionNormalScr;
-            const Vector2 p3 = midpointScr + triangleWidth*directionScr;
+            const Vector2 p1 = midpoint_scr + (triangle_width/2.0f)*direction_normal_scr;
+            const Vector2 p2 = midpoint_scr - (triangle_width/2.0f)*direction_normal_scr;
+            const Vector2 p3 = midpoint_scr + triangle_width*direction_scr;
 
             ui::get_panel_draw_list().add_triangle_filled(p1, p2, p3, color);
         }
@@ -995,19 +993,19 @@ namespace osc
         void draw_connection_lines(
             const MiObject& el,
             const Color& color,
-            const std::unordered_set<UID>& excludedIDs) const
+            const std::unordered_set<UID>& excluded_ids) const
         {
             const MiDocument& mg = get_model_graph();
             for (int i = 0, len = el.get_num_cross_references(); i < len; ++i)
             {
-                UID refID = el.get_cross_reference_connectee_id(i);
+                UID ref_id = el.get_cross_reference_connectee_id(i);
 
-                if (excludedIDs.contains(refID))
+                if (excluded_ids.contains(ref_id))
                 {
                     continue;
                 }
 
-                const MiObject* other = mg.try_get_by_id(refID);
+                const MiObject* other = mg.try_get_by_id(ref_id);
 
                 if (!other)
                 {
@@ -1053,14 +1051,14 @@ namespace osc
             }, el.to_variant());
         }
 
-        void set_is_render_hovered(bool newIsHovered)
+        void set_is_render_hovered(bool new_is_hovered)
         {
-            is_render_hovered_ = newIsHovered;
+            is_render_hovered_ = new_is_hovered;
         }
 
-        void set_scene_ui_rect(const Rect& newRect)
+        void set_scene_ui_rect(const Rect& new_rect)
         {
-            scene_ui_rect_ = newRect;
+            scene_ui_rect_ = new_rect;
         }
 
         std::span<Color> upd_colors()
@@ -1102,9 +1100,9 @@ namespace osc
             return visibility_flags_.meshes;
         }
 
-        void set_is_showing_meshes(bool newIsShowing)
+        void set_is_showing_meshes(bool new_is_showing)
         {
-            visibility_flags_.meshes = newIsShowing;
+            visibility_flags_.meshes = new_is_showing;
         }
 
         bool is_showing_bodies() const
@@ -1112,9 +1110,9 @@ namespace osc
             return visibility_flags_.bodies;
         }
 
-        void set_is_showing_bodies(bool newIsShowing)
+        void set_is_showing_bodies(bool new_is_showing)
         {
-            visibility_flags_.bodies = newIsShowing;
+            visibility_flags_.bodies = new_is_showing;
         }
 
         bool is_showing_joint_centers() const
@@ -1122,9 +1120,9 @@ namespace osc
             return visibility_flags_.joints;
         }
 
-        void set_is_showing_joint_centers(bool newIsShowing)
+        void set_is_showing_joint_centers(bool new_is_showing)
         {
-            visibility_flags_.joints = newIsShowing;
+            visibility_flags_.joints = new_is_showing;
         }
 
         bool is_showing_ground() const
@@ -1132,14 +1130,14 @@ namespace osc
             return visibility_flags_.ground;
         }
 
-        void set_is_showing_ground(bool newIsShowing)
+        void set_is_showing_ground(bool new_is_showing)
         {
-            visibility_flags_.ground = newIsShowing;
+            visibility_flags_.ground = new_is_showing;
         }
 
-        void set_is_showing_floor(bool newIsShowing)
+        void set_is_showing_floor(bool new_is_showing)
         {
-            visibility_flags_.floor = newIsShowing;
+            visibility_flags_.floor = new_is_showing;
         }
 
         bool is_showing_stations() const
@@ -1157,9 +1155,9 @@ namespace osc
             return visibility_flags_.joint_connection_lines;
         }
 
-        void set_is_showing_joint_connection_lines(bool newIsShowing)
+        void set_is_showing_joint_connection_lines(bool new_is_showing)
         {
-            visibility_flags_.joint_connection_lines = newIsShowing;
+            visibility_flags_.joint_connection_lines = new_is_showing;
         }
 
         bool is_showing_mesh_connection_lines() const
@@ -1167,9 +1165,9 @@ namespace osc
             return visibility_flags_.mesh_connection_lines;
         }
 
-        void set_is_showing_mesh_connection_lines(bool newIsShowing)
+        void set_is_showing_mesh_connection_lines(bool new_is_showing)
         {
-            visibility_flags_.mesh_connection_lines = newIsShowing;
+            visibility_flags_.mesh_connection_lines = new_is_showing;
         }
 
         bool is_showing_body_connection_lines() const
@@ -1177,9 +1175,9 @@ namespace osc
             return visibility_flags_.body_to_ground_connection_lines;
         }
 
-        void set_is_showing_body_connection_lines(bool newIsShowing)
+        void set_is_showing_body_connection_lines(bool new_is_showing)
         {
-            visibility_flags_.body_to_ground_connection_lines = newIsShowing;
+            visibility_flags_.body_to_ground_connection_lines = new_is_showing;
         }
 
         bool is_showing_station_connection_lines() const
@@ -1187,9 +1185,9 @@ namespace osc
             return visibility_flags_.station_connection_lines;
         }
 
-        void set_is_showing_station_connection_lines(bool newIsShowing)
+        void set_is_showing_station_connection_lines(bool new_is_showing)
         {
-            visibility_flags_.station_connection_lines = newIsShowing;
+            visibility_flags_.station_connection_lines = new_is_showing;
         }
 
         float get_sphere_radius() const
@@ -1203,32 +1201,32 @@ namespace osc
         }
 
         void append_as_frame(
-            UID logicalID,
-            UID groupID,
+            UID logical_id,
+            UID group_id,
             const Transform& xform,
-            std::vector<DrawableThing>& appendOut,
+            std::vector<DrawableThing>& append_out,
             float alpha = 1.0f,
             SceneDecorationFlags flags = SceneDecorationFlag::Default,
-            Vector3 legLen = {1.0f, 1.0f, 1.0f},
-            Color coreColor = Color::white()) const
+            Vector3 leg_len = {1.0f, 1.0f, 1.0f},
+            Color core_color = Color::white()) const
         {
-            const float coreRadius = get_sphere_radius();
-            const float legThickness = 0.5f * coreRadius;
+            const float core_radius = get_sphere_radius();
+            const float leg_thickness = 0.5f * core_radius;
 
             // this is how much the cylinder has to be "pulled in" to the core to hide the edges
-            const float cylinderPullback = coreRadius * sin((180_deg * legThickness) / coreRadius);
+            const float cylinder_pullback = core_radius * sin((Degrees{180} * leg_thickness) / core_radius);
 
             // emit origin sphere
-            appendOut.push_back(DrawableThing{
-                .id = logicalID,
-                .group_id = groupID,
+            append_out.push_back(DrawableThing{
+                .id = logical_id,
+                .group_id = group_id,
                 .mesh = sphere_mesh_,
                 .transform = {
-                    .scale = Vector3{coreRadius},
+                    .scale = Vector3{core_radius},
                     .rotation = xform.rotation,
                     .translation = xform.translation,
                 },
-                .shading = coreColor.with_alpha(coreColor.a * alpha),
+                .shading = core_color.with_alpha(core_color.a * alpha),
                 .flags = flags,
             });
 
@@ -1241,21 +1239,21 @@ namespace osc
                 // - 4.0f * leglen[leg] * radius long
                 // - 0.5f * radius thick
 
-                const Vector3 meshDirection = {0.0f, 1.0f, 0.0f};
-                Vector3 cylinderDirection = {};
-                cylinderDirection[i] = 1.0f;
+                const Vector3 mesh_direction = {0.0f, 1.0f, 0.0f};
+                Vector3 cylinder_direction = {};
+                cylinder_direction[i] = 1.0f;
 
-                const float actualLegLen = 4.0f * legLen[i] * coreRadius;
+                const float actual_leg_len = 4.0f * leg_len[i] * core_radius;
 
-                const Quaternion rot = normalize(xform.rotation * rotation(meshDirection, cylinderDirection));
-                appendOut.push_back(DrawableThing{
-                    .id = logicalID,
-                    .group_id = groupID,
+                const Quaternion rot = normalize(xform.rotation * rotation(mesh_direction, cylinder_direction));
+                append_out.push_back(DrawableThing{
+                    .id = logical_id,
+                    .group_id = group_id,
                     .mesh = cylinder_mesh_,
                     .transform = {
-                        .scale = {legThickness, 0.5f * actualLegLen, legThickness}, // note: cylinder is 2 units high
+                        .scale = {leg_thickness, 0.5f * actual_leg_len, leg_thickness}, // note: cylinder is 2 units high
                         .rotation = rot,
-                        .translation = xform.translation + (rot * (((get_sphere_radius() + (0.5f * actualLegLen)) - cylinderPullback) * meshDirection)),
+                        .translation = xform.translation + (rot * (((get_sphere_radius() + (0.5f * actual_leg_len)) - cylinder_pullback) * mesh_direction)),
                     },
                     .shading = Color{0.0f, alpha}.with_element(i, 1.0f),
                     .flags = flags,
@@ -1264,21 +1262,21 @@ namespace osc
         }
 
         void append_as_cube_thing(
-            UID logicalID,
-            UID groupID,
+            UID logical_id,
+            UID group_id,
             const Transform& xform,
-            std::vector<DrawableThing>& appendOut) const
+            std::vector<DrawableThing>& append_out) const
         {
-            const float halfWidth = 1.5f * get_sphere_radius();
+            const float half_width = 1.5f * get_sphere_radius();
 
             // core
             {
                 Transform scaled{xform};
-                scaled.scale *= halfWidth;
+                scaled.scale *= half_width;
 
-                appendOut.push_back(DrawableThing{
-                    .id = logicalID,
-                    .group_id = groupID,
+                append_out.push_back(DrawableThing{
+                    .id = logical_id,
+                    .group_id = group_id,
                     .mesh = App::singleton<SceneCache>(App::resource_loader())->brick_mesh(),
                     .transform = scaled,
                     .shading = Color::white(),
@@ -1288,21 +1286,21 @@ namespace osc
             // legs
             for (int i = 0; i < 3; ++i) {
                 // cone mesh has a source height of 2, stretches from -1 to +1 in Y
-                const float coneHeight = 0.75f * halfWidth;
+                const float cone_height = 0.75f * half_width;
 
-                const Vector3 meshDirection = {0.0f, 1.0f, 0.0f};
-                const Vector3 coneDirection = Vector3{}.with_element(i, 1.0f);
+                const Vector3 mesh_direction = {0.0f, 1.0f, 0.0f};
+                const Vector3 cone_direction = Vector3{}.with_element(i, 1.0f);
 
-                const Quaternion rot = xform.rotation * rotation(meshDirection, coneDirection);
+                const Quaternion rot = xform.rotation * rotation(mesh_direction, cone_direction);
 
-                appendOut.push_back(DrawableThing{
-                    .id = logicalID,
-                    .group_id = groupID,
+                append_out.push_back(DrawableThing{
+                    .id = logical_id,
+                    .group_id = group_id,
                     .mesh = App::singleton<SceneCache>(App::resource_loader())->cone_mesh(),
                     .transform = {
-                        .scale = 0.5f * Vector3{halfWidth, coneHeight, halfWidth},
+                        .scale = 0.5f * Vector3{half_width, cone_height, half_width},
                         .rotation = rot,
-                        .translation = xform.translation + (rot * ((halfWidth + (0.5f * coneHeight)) * meshDirection)),
+                        .translation = xform.translation + (rot * ((half_width + (0.5f * cone_height)) * mesh_direction)),
                     },
                     .shading = Color::black().with_element(i, 1.0f),
                 });
@@ -1322,9 +1320,9 @@ namespace osc
             return interactivity_flags_.meshes;
         }
 
-        void set_is_meshes_interactable(bool newIsInteractable)
+        void set_is_meshes_interactable(bool new_is_interactable)
         {
-            interactivity_flags_.meshes = newIsInteractable;
+            interactivity_flags_.meshes = new_is_interactable;
         }
 
         bool is_bodies_interactable() const
@@ -1332,9 +1330,9 @@ namespace osc
             return interactivity_flags_.bodies;
         }
 
-        void set_is_bodies_interactable(bool newIsInteractable)
+        void set_is_bodies_interactable(bool new_is_interactable)
         {
-            interactivity_flags_.bodies = newIsInteractable;
+            interactivity_flags_.bodies = new_is_interactable;
         }
 
         bool is_joint_centers_interactable() const
@@ -1342,9 +1340,9 @@ namespace osc
             return interactivity_flags_.joints;
         }
 
-        void set_is_joint_centers_interactable(bool newIsInteractable)
+        void set_is_joint_centers_interactable(bool new_is_interactable)
         {
-            interactivity_flags_.joints = newIsInteractable;
+            interactivity_flags_.joints = new_is_interactable;
         }
 
         bool is_ground_interactable() const
@@ -1352,9 +1350,9 @@ namespace osc
             return interactivity_flags_.ground;
         }
 
-        void set_is_ground_interactable(bool newIsInteractable)
+        void set_is_ground_interactable(bool new_is_interactable)
         {
-            interactivity_flags_.ground = newIsInteractable;
+            interactivity_flags_.ground = new_is_interactable;
         }
 
         bool is_stations_interactable() const
@@ -1367,18 +1365,18 @@ namespace osc
             interactivity_flags_.stations = v;
         }
 
-        void append_body_el_as_cube_thing(const MiBody& bodyEl, std::vector<DrawableThing>& appendOut) const
+        void append_body_el_as_cube_thing(const MiBody& body_el, std::vector<DrawableThing>& append_out) const
         {
-            append_as_cube_thing(bodyEl.get_id(), MiIDs::body_group(), bodyEl.get_x_form(), appendOut);
+            append_as_cube_thing(body_el.get_id(), MiIDs::body_group(), body_el.get_x_form(), append_out);
         }
 
-        DrawableThing generate_body_el_sphere(const MiBody& bodyEl, const Color& color) const
+        DrawableThing generate_body_el_sphere(const MiBody& body_el, const Color& color) const
         {
             return {
-                .id = bodyEl.get_id(),
+                .id = body_el.get_id(),
                 .group_id = MiIDs::body_group(),
                 .mesh = sphere_mesh_,
-                .transform = sphere_mesh_to_scene_sphere_transform(sphere_at_translation(bodyEl.get_x_form().translation)),
+                .transform = sphere_mesh_to_scene_sphere_transform(sphere_at_translation(body_el.get_x_form().translation)),
                 .shading = color,
             };
         }
@@ -1405,19 +1403,19 @@ namespace osc
             };
         }
 
-        Color redify_color(const Color& srcColor) const
+        Color redify_color(const Color& src_color) const
         {
             constexpr float factor = 0.8f;
-            return {srcColor.r, factor * srcColor.g, factor * srcColor.b, factor * srcColor.a};
+            return {src_color.r, factor * src_color.g, factor * src_color.b, factor * src_color.a};
         }
 
         // returns a transform that maps a sphere mesh (defined to be @ 0,0,0 with radius 1)
         // to some sphere in the scene (e.g. a body/ground)
-        Transform sphere_mesh_to_scene_sphere_transform(const Sphere& sceneSphere) const
+        Transform sphere_mesh_to_scene_sphere_transform(const Sphere& scene_sphere) const
         {
             return {
-                .scale = Vector3{sceneSphere.radius},
-                .translation = sceneSphere.origin,
+                .scale = Vector3{scene_sphere.radius},
+                .translation = scene_sphere.origin,
             };
         }
 
@@ -1426,8 +1424,8 @@ namespace osc
         OrbitCameraController create_default_camera_controller() const
         {
             OrbitCameraController rv;
-            rv.phi = 45_deg;
-            rv.theta = 45_deg;
+            rv.phi = Degrees{45};
+            rv.theta = Degrees{45};
             rv.radius = 2.5f;
             return rv;
         }
@@ -1472,7 +1470,7 @@ namespace osc
         }();
 
         // screen space rect where the 3D scene is currently being drawn to
-        Rect scene_ui_rect_ = {};
+        Rect scene_ui_rect_;
 
         // renderer that draws the scene
         SceneRenderer scene_renderer_{
@@ -1490,7 +1488,7 @@ namespace osc
             Color scene_background{48.0f/255.0f, 48.0f/255.0f, 48.0f/255.0f, 1.0f};
             Color grid_lines{0.7f, 0.7f, 0.7f, 0.15f};
         } colors_;
-        static constexpr auto c_ColorNames = std::to_array<const char*>(
+        static constexpr auto c_color_names = std::to_array<const char*>(
         {
             "ground",
             "meshes",
@@ -1499,7 +1497,7 @@ namespace osc
             "scene background",
             "grid lines",
         });
-        static_assert(c_ColorNames.size() == sizeof(decltype(colors_))/sizeof(Color));
+        static_assert(c_color_names.size() == sizeof(decltype(colors_))/sizeof(Color));
 
         // VISIBILITY
         //
@@ -1516,7 +1514,7 @@ namespace osc
             bool station_connection_lines = true;
             bool floor = true;
         } visibility_flags_;
-        static constexpr auto c_VisibilityFlagNames = std::to_array<const char*>(
+        static constexpr auto c_visibility_flag_names = std::to_array<const char*>(
         {
             "ground",
             "meshes",
@@ -1529,7 +1527,7 @@ namespace osc
             "station connection lines",
             "grid lines",
         });
-        static_assert(c_VisibilityFlagNames.size() == sizeof(decltype(visibility_flags_))/sizeof(bool));
+        static_assert(c_visibility_flag_names.size() == sizeof(decltype(visibility_flags_))/sizeof(bool));
 
         // LOCKING
         //
@@ -1541,7 +1539,7 @@ namespace osc
             bool joints = true;
             bool stations = true;
         } interactivity_flags_;
-        static constexpr auto c_InteractivityFlagNames = std::to_array<const char*>(
+        static constexpr auto c_interactivity_flag_names = std::to_array<const char*>(
         {
             "ground",
             "meshes",
@@ -1549,23 +1547,23 @@ namespace osc
             "joints",
             "stations",
         });
-        static_assert(c_InteractivityFlagNames.size() == sizeof(decltype(interactivity_flags_))/sizeof(bool));
+        static_assert(c_interactivity_flag_names.size() == sizeof(decltype(interactivity_flags_))/sizeof(bool));
 
         // WINDOWS
         //
         // these are runtime-editable flags that dictate which panels are open
-        static inline constexpr size_t c_NumPanelStates = 4;
-        std::array<bool, c_NumPanelStates> panel_states_{false, true, false, false};
-        static constexpr auto c_OpenedPanelNames = std::to_array<const char*>(
+        static constexpr size_t c_num_panel_states = 4;
+        std::array<bool, c_num_panel_states> panel_states_{false, true, false, false};
+        static constexpr auto c_opened_panel_names = std::to_array<const char*>(
         {
             "History",
             "Navigator",
             "Log",
             "Performance",
         });
-        static_assert(c_OpenedPanelNames.size() == c_NumPanelStates);
-        static_assert(num_options_v<PanelIndex> == c_NumPanelStates);
-        LogViewer logviewer_;
+        static_assert(c_opened_panel_names.size() == c_num_panel_states);
+        static_assert(num_options_v<PanelIndex> == c_num_panel_states);
+        LogViewer log_viewer_;
         PerfPanel perf_panel_;
 
         // scale factor for all non-mesh, non-overlay scene elements (e.g.
@@ -1597,6 +1595,6 @@ namespace osc
         // changes how a model is created
         ModelCreationFlags model_creation_flags_ = ModelCreationFlags::None;
 
-        static constexpr float c_ConnectionLineWidth = 1.0f;
+        static constexpr float c_connection_line_width = 1.0f;
     };
 }
