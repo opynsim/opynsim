@@ -28,17 +28,6 @@ namespace
     constexpr CStringView c_integrator_accuracy_desc = "Target accuracy for the integrator. Mostly only relevant for error-controlled integrators that change their step size by comparing this accuracy value to measured integration error";
 }
 
-
-osc::ForwardDynamicSimulatorParams::ForwardDynamicSimulatorParams() :
-    final_time{SimulationClock::start() + SimulationClock::duration{10.0}},
-    integrator_method_used{opyn::IntegratorMethod::Default},
-    reporting_interval{1.0/100.0},
-    integrator_step_limit{20000},
-    integrator_minimum_step_size{1.0e-8},
-    integrator_maximum_step_size{1.0},
-    integrator_accuracy{1.0e-5}
-{}
-
 ParamBlock osc::to_param_block(const ForwardDynamicSimulatorParams& p)
 {
     ParamBlock rv;

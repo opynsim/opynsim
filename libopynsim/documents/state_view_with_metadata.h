@@ -14,7 +14,7 @@ namespace opyn
         StateViewWithMetadata() = default;
         StateViewWithMetadata(const StateViewWithMetadata&) = default;
         StateViewWithMetadata(StateViewWithMetadata&&) noexcept = default;
-        ~StateViewWithMetadata() noexcept = default;
+        virtual ~StateViewWithMetadata() noexcept = default;
 
         StateViewWithMetadata& operator=(const StateViewWithMetadata&) = default;
         StateViewWithMetadata& operator=(StateViewWithMetadata&&) noexcept = default;

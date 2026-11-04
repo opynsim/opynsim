@@ -25,7 +25,7 @@ namespace osc
         SingleStateSimulation(SingleStateSimulation&&) noexcept;
         SingleStateSimulation& operator=(const SingleStateSimulation&) = delete;
         SingleStateSimulation& operator=(SingleStateSimulation&&) noexcept;
-        ~SingleStateSimulation() noexcept;
+        ~SingleStateSimulation() noexcept override;
 
     private:
         SynchronizedValueGuard<const OpenSim::Model> impl_get_model() const final;

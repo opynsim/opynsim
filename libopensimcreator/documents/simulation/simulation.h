@@ -28,14 +28,14 @@ namespace osc
     class Simulation final {
     public:
         template<std::derived_from<AbstractSimulation> TConcreteSimulation>
-        Simulation(TConcreteSimulation&& simulation) :
+        explicit Simulation(TConcreteSimulation&& simulation) :
             simulation_{std::make_unique<TConcreteSimulation>(std::forward<TConcreteSimulation>(simulation))}
         {}
 
         SynchronizedValueGuard<const OpenSim::Model> get_model() const { return simulation_->get_model(); }
 
         size_t get_num_reports() const { return simulation_->get_num_reports(); }
-        SimulationReport get_simulation_report(ptrdiff_t reportIndex) const { return simulation_->get_simulation_report(std::move(reportIndex)); }
+        SimulationReport get_simulation_report(ptrdiff_t report_index) const { return simulation_->get_simulation_report(report_index); }
         std::vector<SimulationReport> get_all_simulation_reports() const { return simulation_->get_all_simulation_reports(); }
 
         SimulationStatus get_status() const { return simulation_->get_status(); }
@@ -58,8 +58,8 @@ namespace osc
 
         std::shared_ptr<Environment> try_upd_environment() { return simulation_->try_upd_environment(); }
 
-        operator AbstractSimulation& () { return *simulation_; }
-        operator const AbstractSimulation& () const { return *simulation_; }
+        operator AbstractSimulation& () { return *simulation_; }  // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
+        operator const AbstractSimulation& () const { return *simulation_; }  // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
 
     private:
         std::unique_ptr<AbstractSimulation> simulation_;

@@ -52,9 +52,9 @@ namespace osc
             return impl_get_num_reports();
         }
 
-        SimulationReport get_simulation_report(ptrdiff_t reportIndex) const
+        SimulationReport get_simulation_report(ptrdiff_t report_index) const
         {
-            return impl_get_simulation_report(reportIndex);
+            return impl_get_simulation_report(report_index);
         }
 
         std::vector<SimulationReport> get_all_simulation_reports() const
@@ -128,9 +128,9 @@ namespace osc
             return impl_get_fixup_scale_factor();
         }
 
-        void set_fixup_scale_factor(float newScaleFactor)
+        void set_fixup_scale_factor(float new_scale_factor)
         {
-            impl_set_fixup_scale_factor(newScaleFactor);
+            impl_set_fixup_scale_factor(new_scale_factor);
         }
 
         std::shared_ptr<Environment> try_upd_environment() { return impl_upd_associated_environment(); }

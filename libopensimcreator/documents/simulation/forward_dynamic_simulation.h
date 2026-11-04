@@ -29,7 +29,7 @@ namespace osc
         ForwardDynamicSimulation(ForwardDynamicSimulation&&) noexcept;
         ForwardDynamicSimulation& operator=(const ForwardDynamicSimulation&) = delete;
         ForwardDynamicSimulation& operator=(ForwardDynamicSimulation&&) noexcept;
-        ~ForwardDynamicSimulation() noexcept;
+        ~ForwardDynamicSimulation() noexcept override;
 
         // blocks the current thread until the simulator thread finishes its execution
         void join();

@@ -34,7 +34,7 @@ namespace osc
         StoFileSimulation(StoFileSimulation&&) noexcept;
         StoFileSimulation& operator=(const StoFileSimulation&) = delete;
         StoFileSimulation& operator=(StoFileSimulation&&) noexcept;
-        ~StoFileSimulation() noexcept;
+        ~StoFileSimulation() noexcept override;
 
     private:
         SynchronizedValueGuard<const OpenSim::Model> impl_get_model() const final;

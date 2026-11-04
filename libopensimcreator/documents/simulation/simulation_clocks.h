@@ -13,27 +13,27 @@ namespace osc
     public:
         constexpr SimulationClocks() = default;
 
-        constexpr SimulationClocks(
-            SimulationClock::time_point singlePoint_,
+        constexpr explicit SimulationClocks(
+            SimulationClock::time_point single_point,
             bool completed = true) :
 
-            SimulationClocks{{singlePoint_, singlePoint_}, completed ? 1.0f : 0.0f}
+            SimulationClocks{{single_point, single_point}, completed ? 1.0f : 0.0f}
+        {}
+
+        constexpr explicit SimulationClocks(
+            ClosedInterval<SimulationClock::time_point> time_range,
+            Normalized<float> progress = 1.0f) :
+
+            time_range_{time_range},
+            progress_{progress}
         {}
 
         constexpr SimulationClocks(
-            ClosedInterval<SimulationClock::time_point> timeRange_,
-            Normalized<float> progress_ = 1.0f) :
+            ClosedInterval<SimulationClock::time_point> time_range,
+            SimulationClock::time_point current) :
 
-            time_range_{timeRange_},
-            progress_{progress_}
-        {}
-
-        constexpr SimulationClocks(
-            ClosedInterval<SimulationClock::time_point> timeRange_,
-            SimulationClock::time_point current_) :
-
-            time_range_{timeRange_},
-            progress_{static_cast<float>((current_ - time_range_.lower)/(time_range_.upper - time_range_.lower))}
+            time_range_{time_range},
+            progress_{static_cast<float>((current - time_range_.lower)/(time_range_.upper - time_range_.lower))}
         {
             // TODO: provide invlerp (inverse LERP), rather than calculating the above
         }

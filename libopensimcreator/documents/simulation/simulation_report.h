@@ -23,7 +23,7 @@ namespace osc
         SimulationReport(SimulationReport&&) noexcept;
         SimulationReport& operator=(const SimulationReport&);
         SimulationReport& operator=(SimulationReport&&) noexcept;
-        ~SimulationReport() noexcept;
+        ~SimulationReport() noexcept override;
 
         SimulationClock::time_point get_time() const;
         SimTK::State& upd_state_hack();  // necessary because of a bug in OpenSim PathWrap
