@@ -11,14 +11,14 @@
 
 osc::MeshLoadResponse osc::respond_to_meshload_request(MeshLoadRequest msg)  // NOLINT(performance-unnecessary-value-param)
 {
-    std::vector<LoadedMesh> loadedMeshes;
-    loadedMeshes.reserve(msg.paths.size());
+    std::vector<LoadedMesh> loaded_meshes;
+    loaded_meshes.reserve(msg.paths.size());
 
     for (const std::filesystem::path& path : msg.paths)
     {
         try
         {
-            loadedMeshes.push_back(LoadedMesh{path, opyn::load_mesh_via_simbody(path)});
+            loaded_meshes.push_back(LoadedMesh{path, opyn::load_mesh_via_simbody(path)});
         }
         catch (const std::exception& ex)
         {
@@ -36,5 +36,5 @@ osc::MeshLoadResponse osc::respond_to_meshload_request(MeshLoadRequest msg)  // 
     // ensure the UI thread redraws after the mesh is loaded
     App::upd().request_redraw();
 
-    return MeshLoadOKResponse{msg.preferred_attachment_point, std::move(loadedMeshes)};
+    return MeshLoadOKResponse{msg.preferred_attachment_point, std::move(loaded_meshes)};
 }
