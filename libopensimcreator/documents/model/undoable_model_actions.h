@@ -236,7 +236,7 @@ namespace osc
     };
     constexpr bool operator&(SocketReassignmentFlags lhs, SocketReassignmentFlags rhs)
     {
-        return std::to_underlying(lhs) & std::to_underlying(rhs);
+        return (std::to_underlying(lhs) & std::to_underlying(rhs)) != 0;
     }
 
     // attempts to reassign a component's socket connection (returns false and writes to `error` on failure)
@@ -255,14 +255,14 @@ namespace osc
         BodyDetails();
 
         Vector3 center_of_mass;
-        Vector3 inertia;
-        float mass;
+        Vector3 inertia{1.0f};
+        float mass = 1.0f;
         std::string parent_frame_abs_path;
-        std::string body_name;
+        std::string body_name = "new_body";
         size_t joint_type_index;
         std::string joint_name;
         std::unique_ptr<OpenSim::Geometry> maybe_geometry;
-        bool add_offset_frames;
+        bool add_offset_frames = true;
     };
 
     // add a new body to the model

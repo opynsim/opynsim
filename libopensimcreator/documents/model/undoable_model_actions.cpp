@@ -1348,13 +1348,7 @@ bool osc::action_reassign_component_socket(
 }
 
 osc::BodyDetails::BodyDetails() :
-    center_of_mass{0.0f, 0.0f, 0.0f},
-    inertia{1.0f, 1.0f, 1.0f},
-    mass{1.0f},
-    body_name{"new_body"},
-    joint_type_index{index_of<OpenSim::WeldJoint>(get_component_registry<OpenSim::Joint>()).value_or(0)},
-    maybe_geometry{nullptr},
-    add_offset_frames{true}
+    joint_type_index{index_of<OpenSim::WeldJoint>(get_component_registry<OpenSim::Joint>()).value_or(0)}
 {}
 
 bool osc::action_add_body_to_model(ModelStatePair& uim, const BodyDetails& details)
@@ -1434,11 +1428,9 @@ bool osc::action_add_component_to_model(
 
         if (desired_parent.empty()) {
             added = &add_component_to_appropriate_set(mut_model, std::move(c));
-        }
-        else if (OpenSim::Component* desired = find_component_mut(mut_model, desired_parent)) {
+        } else if (OpenSim::Component* desired = find_component_mut(mut_model, desired_parent)) {
             added = &add_component(*desired, std::move(c));
-        }
-        else {
+        } else {
             log_error("The target parent component, {}, could not be found: adding component to the model instead.", desired_parent.toString());
             added = &add_component_to_appropriate_set(mut_model, std::move(c));
         }
