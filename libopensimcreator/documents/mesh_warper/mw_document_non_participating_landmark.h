@@ -18,13 +18,12 @@ namespace osc
     struct MwDocumentNonParticipatingLandmark final : public MwDocumentElement {
     public:
         MwDocumentNonParticipatingLandmark(
-            const StringName& name_,
-            const Vector3& location_) :
+            const StringName& name,
+            const Vector3& location) :
 
-            name{name_},
-            location{location_}
-        {
-        }
+            name{name},
+            location{location}
+        {}
 
         MwDocumentElementID get_id() const
         {

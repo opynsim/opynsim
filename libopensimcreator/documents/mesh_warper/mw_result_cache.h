@@ -41,13 +41,13 @@ namespace osc
     private:
         void update_all(const MwDocument& doc)
         {
-            const bool updatedCoefficients = update_coefficients(doc);
-            const bool updatedNonParticipatingLandmarks = update_source_non_participating_landmarks(doc);
-            const bool updatedMesh = update_input_mesh(doc);
-            const bool updatedBlendingFactor = update_blending_factor(doc);
-            const bool updatedRecalculateNormalsState = update_recalculate_normals_state(doc);
+            const bool updated_coefficients = update_coefficients(doc);
+            const bool updated_non_participating_landmarks = update_source_non_participating_landmarks(doc);
+            const bool updated_mesh = update_input_mesh(doc);
+            const bool updated_blending_factor = update_blending_factor(doc);
+            const bool updated_recalculate_normals_state = update_recalculate_normals_state(doc);
 
-            if (updatedCoefficients || updatedNonParticipatingLandmarks || updatedMesh || updatedBlendingFactor || updatedRecalculateNormalsState)
+            if (updated_coefficients || updated_non_participating_landmarks || updated_mesh || updated_blending_factor || updated_recalculate_normals_state)
             {
                 cached_result_mesh_ = tps3d_warp_mesh(cached_coefficients_, cached_source_mesh_, cached_blending_factor_);
                 if (cached_recalculate_normals_state_) {
@@ -60,19 +60,19 @@ namespace osc
         // returns `true` if cached inputs were updated; otherwise, returns the cached inputs
         bool update_inputs(const MwDocument& doc)
         {
-            opyn::TPSCoefficientSolverInputs3D newInputs{get_landmark_pairs(doc)};
-            for (auto& [source, destination] : newInputs.landmarks) {
+            opyn::TPSCoefficientSolverInputs3D new_inputs{get_landmark_pairs(doc)};
+            for (auto& [source, destination] : new_inputs.landmarks) {
                 source *= doc.source_landmarks_prescale;
                 destination *= doc.destination_landmarks_prescale;
             }
-            newInputs.warping_penalty = doc.warping_penalty;
-            newInputs.apply_affine_translation = doc.apply_affine_translation;
-            newInputs.apply_affine_scale = doc.apply_affine_scale;
-            newInputs.apply_affine_rotation = doc.apply_affine_rotation;
-            newInputs.apply_non_affine_warp = doc.apply_non_affine_warp;
+            new_inputs.warping_penalty = doc.warping_penalty;
+            new_inputs.apply_affine_translation = doc.apply_affine_translation;
+            new_inputs.apply_affine_scale = doc.apply_affine_scale;
+            new_inputs.apply_affine_rotation = doc.apply_affine_rotation;
+            new_inputs.apply_non_affine_warp = doc.apply_non_affine_warp;
 
-            if (newInputs != cached_inputs_) {
-                cached_inputs_ = std::move(newInputs);
+            if (new_inputs != cached_inputs_) {
+                cached_inputs_ = std::move(new_inputs);
                 return true;
             }
             else {
@@ -89,11 +89,11 @@ namespace osc
                 return false;
             }
 
-            opyn::TPSCoefficients3D newCoefficients = tps3d_solve_coefficients(cached_inputs_);
+            opyn::TPSCoefficients3D new_coefficients = tps3d_solve_coefficients(cached_inputs_);
 
-            if (newCoefficients != cached_coefficients_)
+            if (new_coefficients != cached_coefficients_)
             {
-                cached_coefficients_ = std::move(newCoefficients);
+                cached_coefficients_ = std::move(new_coefficients);
                 return true;
             }
             else
@@ -105,10 +105,10 @@ namespace osc
 
         bool update_source_non_participating_landmarks(const MwDocument& doc)
         {
-            const auto& docLandmarks = doc.non_participating_landmarks;
+            const auto& doc_landmarks = doc.non_participating_landmarks;
 
-            const bool samePositions = rgs::equal(
-                docLandmarks,
+            const bool same_positions = rgs::equal(
+                doc_landmarks,
                 cached_source_non_participating_landmarks_,
                 [](const MwDocumentNonParticipatingLandmark& lm, const SimTK::fVec3& position)
                 {
@@ -116,11 +116,11 @@ namespace osc
                 }
             );
 
-            if (!samePositions)
+            if (!same_positions)
             {
                 cached_source_non_participating_landmarks_.clear();
                 rgs::transform(
-                    docLandmarks,
+                    doc_landmarks,
                     std::back_inserter(cached_source_non_participating_landmarks_),
                     [](const auto& lm) { return to<SimTK::fVec3>(lm.location); }
                 );

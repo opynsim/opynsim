@@ -18,20 +18,20 @@ namespace osc
     /// A landmark pair in the TPS document, which might be midway through definition.
     struct MwDocumentLandmarkPair final : public MwDocumentElement {
 
-        explicit MwDocumentLandmarkPair(StringName name_) :
-            name{std::move(name_)}
+        explicit MwDocumentLandmarkPair(StringName name) :
+            name{std::move(name)}
         {}
 
         template<typename StringLike>
         requires std::constructible_from<StringName, StringLike&&>
         explicit MwDocumentLandmarkPair(
-            StringLike&& name_,
-            std::optional<Vector3> maybeSourceLocation_,
-            std::optional<Vector3> maybeDestinationLocation_) :
+            StringLike&& name,
+            std::optional<Vector3> maybe_source_location,
+            std::optional<Vector3> maybe_destination_location) :
 
-            name{std::forward<StringLike>(name_)},
-            maybe_source_location{std::move(maybeSourceLocation_)},
-            maybe_destination_location{std::move(maybeDestinationLocation_)}
+            name{std::forward<StringLike>(name)},
+            maybe_source_location{maybe_source_location},
+            maybe_destination_location{maybe_destination_location}
         {}
 
         MwDocumentElementID source_id() const
