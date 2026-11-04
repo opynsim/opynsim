@@ -11,73 +11,73 @@ using namespace osc;
 
 class osc::SingleStateSimulation::Impl final {
 public:
-    explicit Impl(BasicModelStatePairWithSharedEnvironment modelState) :
-        m_ModelState{std::move(modelState)}
+    explicit Impl(BasicModelStatePairWithSharedEnvironment model_state) :
+        model_state_{std::move(model_state)}
     {}
 
-    SynchronizedValueGuard<const OpenSim::Model> getModel() const
+    SynchronizedValueGuard<const OpenSim::Model> get_model() const
     {
-        return m_ModelState.lock_child<OpenSim::Model>([](const BasicModelStatePairWithSharedEnvironment& ms) -> const OpenSim::Model& { return ms.get_model(); });
+        return model_state_.lock_child<OpenSim::Model>([](const BasicModelStatePairWithSharedEnvironment& ms) -> const OpenSim::Model& { return ms.get_model(); });
     }
 
-    ptrdiff_t getNumReports() const
+    ptrdiff_t get_num_reports() const
     {
         return 0;
     }
 
-    SimulationReport getSimulationReport(ptrdiff_t) const
+    SimulationReport get_simulation_report(ptrdiff_t) const
     {
         throw std::runtime_error{"invalid method call on a SingleStateSimulation"};
     }
 
-    std::vector<SimulationReport> getAllSimulationReports() const
+    std::vector<SimulationReport> get_all_simulation_reports() const
     {
         return {};
     }
 
-    SimulationStatus getStatus() const
+    SimulationStatus get_status() const
     {
         return SimulationStatus::Completed;
     }
 
-    SimulationClocks getClocks() const
+    SimulationClocks get_clocks() const
     {
         return SimulationClocks{SimulationClock::start()};
     }
 
-    const ParamBlock& getParams() const
+    const ParamBlock& get_params() const
     {
-        return m_Params;
+        return params_;
     }
 
-    std::span<const opyn::SharedOutputExtractor> getOutputExtractors() const
+    std::span<const opyn::SharedOutputExtractor> get_output_extractors() const
     {
         return {};
     }
 
-    float getFixupScaleFactor() const
+    float get_fixup_scale_factor() const
     {
-        return m_ModelState.lock()->get_fixup_scale_factor();
+        return model_state_.lock()->get_fixup_scale_factor();
     }
 
-    void setFixupScaleFactor(float v)
+    void set_fixup_scale_factor(float v)
     {
-        m_ModelState.lock()->set_fixup_scale_factor(v);
+        model_state_.lock()->set_fixup_scale_factor(v);
     }
 
-    std::shared_ptr<Environment> implUpdAssociatedEnvironment()
+    std::shared_ptr<Environment> impl_upd_associated_environment()
     {
-        return m_ModelState.lock()->try_upd_environment();
+        return model_state_.lock()->try_upd_environment();
     }
 
 private:
-    SynchronizedValue<BasicModelStatePairWithSharedEnvironment> m_ModelState;
-    ParamBlock m_Params;
+    SynchronizedValue<BasicModelStatePairWithSharedEnvironment> model_state_;
+    ParamBlock params_;
 };
 
 
-osc::SingleStateSimulation::SingleStateSimulation(BasicModelStatePairWithSharedEnvironment modelState) :
-    impl_{std::make_unique<Impl>(std::move(modelState))}
+osc::SingleStateSimulation::SingleStateSimulation(BasicModelStatePairWithSharedEnvironment model_state) :
+    impl_{std::make_unique<Impl>(std::move(model_state))}
 {}
 osc::SingleStateSimulation::SingleStateSimulation(SingleStateSimulation&&) noexcept = default;
 osc::SingleStateSimulation& osc::SingleStateSimulation::operator=(SingleStateSimulation&&) noexcept = default;
@@ -85,55 +85,55 @@ osc::SingleStateSimulation::~SingleStateSimulation() noexcept = default;
 
 SynchronizedValueGuard<const OpenSim::Model> osc::SingleStateSimulation::impl_get_model() const
 {
-    return impl_->getModel();
+    return impl_->get_model();
 }
 
 ptrdiff_t osc::SingleStateSimulation::impl_get_num_reports() const
 {
-    return impl_->getNumReports();
+    return impl_->get_num_reports();
 }
 
-SimulationReport osc::SingleStateSimulation::impl_get_simulation_report(ptrdiff_t reportIndex) const
+SimulationReport osc::SingleStateSimulation::impl_get_simulation_report(ptrdiff_t report_index) const
 {
-    return impl_->getSimulationReport(reportIndex);
+    return impl_->get_simulation_report(report_index);
 }
 
 std::vector<SimulationReport> osc::SingleStateSimulation::impl_get_all_simulation_reports() const
 {
-    return impl_->getAllSimulationReports();
+    return impl_->get_all_simulation_reports();
 }
 
 SimulationStatus osc::SingleStateSimulation::impl_get_status() const
 {
-    return impl_->getStatus();
+    return impl_->get_status();
 }
 
 SimulationClocks osc::SingleStateSimulation::impl_get_clocks() const
 {
-    return impl_->getClocks();
+    return impl_->get_clocks();
 }
 
 const ParamBlock& osc::SingleStateSimulation::impl_get_params() const
 {
-    return impl_->getParams();
+    return impl_->get_params();
 }
 
 std::span<const opyn::SharedOutputExtractor> osc::SingleStateSimulation::impl_get_output_extractors() const
 {
-    return impl_->getOutputExtractors();
+    return impl_->get_output_extractors();
 }
 
 float osc::SingleStateSimulation::impl_get_fixup_scale_factor() const
 {
-    return impl_->getFixupScaleFactor();
+    return impl_->get_fixup_scale_factor();
 }
 
 void osc::SingleStateSimulation::impl_set_fixup_scale_factor(float v)
 {
-    impl_->setFixupScaleFactor(v);
+    impl_->set_fixup_scale_factor(v);
 }
 
 std::shared_ptr<Environment> osc::SingleStateSimulation::impl_upd_associated_environment()
 {
-    return impl_->implUpdAssociatedEnvironment();
+    return impl_->impl_upd_associated_environment();
 }

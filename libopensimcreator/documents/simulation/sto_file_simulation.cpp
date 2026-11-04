@@ -25,7 +25,7 @@ using namespace osc;
 
 namespace
 {
-    SimTK::State CreateStateFromStorageRow(
+    SimTK::State create_state_from_storage_row(
         OpenSim::Model& model,
         const OpenSim::Storage& storage,
         const std::unordered_map<int, int>& lut,
@@ -38,12 +38,12 @@ namespace
         return state;
     }
 
-    std::vector<SimulationReport> ExtractReports(
+    std::vector<SimulationReport> extract_reports(
         OpenSim::Model& model,
-        const std::filesystem::path& stoFilePath)
+        const std::filesystem::path& sto_file_path)
     {
         // load+condition the underlying `OpenSim::Storage`
-        const auto storage = opyn::load_storage(model, stoFilePath, opyn::StorageLoadingParameters{
+        const auto storage = opyn::load_storage(model, sto_file_path, opyn::StorageLoadingParameters{
             .resample_to_frequency = 1.0/100.0,  // resample the state trajectory at 100FPS (#708)
         });
 
@@ -58,7 +58,7 @@ namespace
         std::vector<SimulationReport> rv;
         rv.reserve(storage->getSize());
         for (int row = 0; row < storage->getSize(); ++row) {
-            rv.emplace_back(CreateStateFromStorageRow(model, *storage, lut, row));
+            rv.emplace_back(create_state_from_storage_row(model, *storage, lut, row));
         }
         return rv;
     }
@@ -68,88 +68,88 @@ class osc::StoFileSimulation::Impl final {
 public:
     Impl(
         std::unique_ptr<OpenSim::Model> model,
-        const std::filesystem::path& stoFilePath,
-        float fixupScaleFactor,
+        const std::filesystem::path& sto_file_path,
+        float fixup_scale_factor,
         std::shared_ptr<Environment> environment) :
 
-        m_Model{std::move(model)},
-        m_SimulationReports{ExtractReports(*m_Model, stoFilePath)},
-        m_FixupScaleFactor{fixupScaleFactor},
-        m_Environment{std::move(environment)}
+        model_{std::move(model)},
+        simulation_reports_{extract_reports(*model_, sto_file_path)},
+        fixup_scale_factor_{fixup_scale_factor},
+        environment_{std::move(environment)}
     {}
 
-    SynchronizedValueGuard<const OpenSim::Model> getModel() const
+    SynchronizedValueGuard<const OpenSim::Model> get_model() const
     {
-        return {m_ModelMutex, *m_Model};
+        return {model_mutex_, *model_};
     }
 
-    size_t getNumReports() const
+    size_t get_num_reports() const
     {
-        return m_SimulationReports.size();
+        return simulation_reports_.size();
     }
 
-    SimulationReport getSimulationReport(ptrdiff_t reportIndex) const
+    SimulationReport get_simulation_report(ptrdiff_t report_index) const
     {
-        return m_SimulationReports.at(reportIndex);
+        return simulation_reports_.at(report_index);
     }
 
-    std::vector<SimulationReport> getAllSimulationReports() const
+    std::vector<SimulationReport> get_all_simulation_reports() const
     {
-        return m_SimulationReports;
+        return simulation_reports_;
     }
 
-    SimulationStatus getStatus() const
+    SimulationStatus get_status() const
     {
         return SimulationStatus::Completed;
     }
 
-    SimulationClocks getClocks() const
+    SimulationClocks get_clocks() const
     {
-        return SimulationClocks{{m_Start, m_End}};
+        return SimulationClocks{{start_, end_}};
     }
 
-    const ParamBlock& getParams() const
+    const ParamBlock& get_params() const
     {
-        return m_ParamBlock;
+        return param_block_;
     }
 
-    std::span<const opyn::SharedOutputExtractor> getOutputExtractors() const
+    std::span<const opyn::SharedOutputExtractor> get_output_extractors() const
     {
         return {};
     }
 
-    float getFixupScaleFactor() const
+    float get_fixup_scale_factor() const
     {
-        return m_FixupScaleFactor;
+        return fixup_scale_factor_;
     }
 
-    void setFixupScaleFactor(float v)
+    void set_fixup_scale_factor(float v)
     {
-        m_FixupScaleFactor = v;
+        fixup_scale_factor_ = v;
     }
 
-    std::shared_ptr<Environment> implUpdAssociatedEnvironment()
+    std::shared_ptr<Environment> impl_upd_associated_environment()
     {
-        return m_Environment;
+        return environment_;
     }
 
 private:
-    mutable std::mutex m_ModelMutex;
-    std::unique_ptr<OpenSim::Model> m_Model;
-    std::vector<SimulationReport> m_SimulationReports;
-    SimulationClock::time_point m_Start = m_SimulationReports.empty() ? SimulationClock::start() : m_SimulationReports.front().get_time();
-    SimulationClock::time_point m_End = m_SimulationReports.empty() ? SimulationClock::start() : m_SimulationReports.back().get_time();
-    ParamBlock m_ParamBlock;
-    float m_FixupScaleFactor = 1.0f;
-    std::shared_ptr<Environment> m_Environment;
+    mutable std::mutex model_mutex_;
+    std::unique_ptr<OpenSim::Model> model_;
+    std::vector<SimulationReport> simulation_reports_;
+    SimulationClock::time_point start_ = simulation_reports_.empty() ? SimulationClock::start() : simulation_reports_.front().get_time();
+    SimulationClock::time_point end_ = simulation_reports_.empty() ? SimulationClock::start() : simulation_reports_.back().get_time();
+    ParamBlock param_block_;
+    float fixup_scale_factor_ = 1.0f;
+    std::shared_ptr<Environment> environment_;
 };
 
 osc::StoFileSimulation::StoFileSimulation(
     std::unique_ptr<OpenSim::Model> model,
-    const std::filesystem::path& stoFilePath,
-    float fixupScaleFactor,
+    const std::filesystem::path& sto_file_path,
+    float fixup_scale_factor,
     std::shared_ptr<Environment> environment) :
-    impl_{std::make_unique<Impl>(std::move(model), stoFilePath, fixupScaleFactor, std::move(environment))}
+    impl_{std::make_unique<Impl>(std::move(model), sto_file_path, fixup_scale_factor, std::move(environment))}
 {}
 osc::StoFileSimulation::StoFileSimulation(StoFileSimulation&&) noexcept = default;
 osc::StoFileSimulation& osc::StoFileSimulation::operator=(StoFileSimulation&&) noexcept = default;
@@ -157,55 +157,55 @@ osc::StoFileSimulation::~StoFileSimulation() noexcept = default;
 
 SynchronizedValueGuard<const OpenSim::Model> osc::StoFileSimulation::impl_get_model() const
 {
-    return impl_->getModel();
+    return impl_->get_model();
 }
 
 ptrdiff_t osc::StoFileSimulation::impl_get_num_reports() const
 {
-    return impl_->getNumReports();
+    return impl_->get_num_reports();
 }
 
-SimulationReport osc::StoFileSimulation::impl_get_simulation_report(ptrdiff_t reportIndex) const
+SimulationReport osc::StoFileSimulation::impl_get_simulation_report(ptrdiff_t report_index) const
 {
-    return impl_->getSimulationReport(reportIndex);
+    return impl_->get_simulation_report(report_index);
 }
 
 std::vector<SimulationReport> osc::StoFileSimulation::impl_get_all_simulation_reports() const
 {
-    return impl_->getAllSimulationReports();
+    return impl_->get_all_simulation_reports();
 }
 
 SimulationStatus osc::StoFileSimulation::impl_get_status() const
 {
-    return impl_->getStatus();
+    return impl_->get_status();
 }
 
 SimulationClocks osc::StoFileSimulation::impl_get_clocks() const
 {
-    return impl_->getClocks();
+    return impl_->get_clocks();
 }
 
 const ParamBlock& osc::StoFileSimulation::impl_get_params() const
 {
-    return impl_->getParams();
+    return impl_->get_params();
 }
 
 std::span<const opyn::SharedOutputExtractor> osc::StoFileSimulation::impl_get_output_extractors() const
 {
-    return impl_->getOutputExtractors();
+    return impl_->get_output_extractors();
 }
 
 float osc::StoFileSimulation::impl_get_fixup_scale_factor() const
 {
-    return impl_->getFixupScaleFactor();
+    return impl_->get_fixup_scale_factor();
 }
 
 void osc::StoFileSimulation::impl_set_fixup_scale_factor(float v)
 {
-    impl_->setFixupScaleFactor(v);
+    impl_->set_fixup_scale_factor(v);
 }
 
 std::shared_ptr<Environment> osc::StoFileSimulation::impl_upd_associated_environment()
 {
-    return impl_->implUpdAssociatedEnvironment();
+    return impl_->impl_upd_associated_environment();
 }

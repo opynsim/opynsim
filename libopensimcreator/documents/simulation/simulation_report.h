@@ -18,7 +18,7 @@ namespace osc
     public:
         SimulationReport();
         explicit SimulationReport(SimTK::State&&);
-        SimulationReport(SimTK::State&&, std::unordered_map<UID, float> auxiliaryValues);
+        SimulationReport(SimTK::State&&, std::unordered_map<UID, float> auxiliary_values);
         SimulationReport(const SimulationReport&);
         SimulationReport(SimulationReport&&) noexcept;
         SimulationReport& operator=(const SimulationReport&);

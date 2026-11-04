@@ -28,7 +28,7 @@ namespace osc
         ForwardDynamicSimulator(
             BasicModelStatePairWithSharedEnvironment,
             const ForwardDynamicSimulatorParams&,
-            std::function<void(SimulationReport)> onReportFromBgThread
+            std::function<void(SimulationReport)> on_report_from_bg_thread
         );
         ForwardDynamicSimulator(const ForwardDynamicSimulator&) = delete;
         ForwardDynamicSimulator(ForwardDynamicSimulator&&) noexcept;

@@ -19,104 +19,104 @@ using namespace osc;
 class osc::SimulationModelStatePair::Impl final {
 public:
     Impl() :
-        m_Simulation{std::make_shared<Simulation>(SingleStateSimulation{BasicModelStatePairWithSharedEnvironment{}})}
+        simulation_{std::make_shared<Simulation>(SingleStateSimulation{BasicModelStatePairWithSharedEnvironment{}})}
     {}
 
-    Impl(std::shared_ptr<Simulation> simulation, SimulationReport simulationReport) :
-        m_Simulation{std::move(simulation)},
-        m_SimulationReport{std::move(simulationReport)}
+    Impl(std::shared_ptr<Simulation> simulation, SimulationReport simulation_report) :
+        simulation_{std::move(simulation)},
+        simulation_report_{std::move(simulation_report)}
     {}
 
-    const OpenSim::Model& getModel() const
+    const OpenSim::Model& get_model() const
     {
-        return *m_Simulation->get_model();  // TODO: UH OH - lock leak (#707 - are locks necessary?)
+        return *simulation_->get_model();  // TODO: UH OH - lock leak (#707 - are locks necessary?)
     }
 
-    UID getModelVersion() const
+    UID get_model_version() const
     {
-        return m_ModelVersion;
+        return model_version_;
     }
 
-    const SimTK::State& getState() const
+    const SimTK::State& get_state() const
     {
-        return m_SimulationReport.state();
+        return simulation_report_.state();
     }
 
-    UID getStateVersion() const
+    UID get_state_version() const
     {
-        return m_StateVersion;
+        return state_version_;
     }
 
-    const OpenSim::Component* getSelected() const
+    const OpenSim::Component* get_selected() const
     {
-        return opyn::find_component(getModel(), m_Selected);
+        return opyn::find_component(get_model(), selected_);
     }
 
-    void setSelected(const OpenSim::Component* c)
+    void set_selected(const OpenSim::Component* c)
     {
-        m_Selected = opyn::get_absolute_path_or_empty(c);
+        selected_ = opyn::get_absolute_path_or_empty(c);
     }
 
-    const OpenSim::Component* getHovered() const
+    const OpenSim::Component* get_hovered() const
     {
-        return opyn::find_component(getModel(), m_Hovered);
+        return opyn::find_component(get_model(), hovered_);
     }
 
-    void setHovered(const OpenSim::Component* c)
+    void set_hovered(const OpenSim::Component* c)
     {
-        m_Hovered = opyn::get_absolute_path_or_empty(c);
+        hovered_ = opyn::get_absolute_path_or_empty(c);
     }
 
-    float getFixupScaleFactor() const
+    float get_fixup_scale_factor() const
     {
-        return m_Simulation->get_fixup_scale_factor();
+        return simulation_->get_fixup_scale_factor();
     }
 
-    void setFixupScaleFactor(float v)
+    void set_fixup_scale_factor(float v)
     {
-        m_Simulation->set_fixup_scale_factor(v);
+        simulation_->set_fixup_scale_factor(v);
     }
 
-    std::shared_ptr<Environment> implUpdAssociatedEnvironment() const
+    std::shared_ptr<Environment> impl_upd_associated_environment() const
     {
-        return m_Simulation->try_upd_environment();
+        return simulation_->try_upd_environment();
     }
 
-    std::shared_ptr<Simulation> updSimulation()
+    std::shared_ptr<Simulation> upd_simulation()
     {
-        return m_Simulation;
+        return simulation_;
     }
 
-    void setSimulation(std::shared_ptr<Simulation> s)
+    void set_simulation(std::shared_ptr<Simulation> s)
     {
-        if (s != m_Simulation)
+        if (s != simulation_)
         {
-            m_Simulation = std::move(s);
-            m_ModelVersion = UID{};
+            simulation_ = std::move(s);
+            model_version_ = UID{};
         }
     }
 
-    SimulationReport getSimulationReport() const
+    SimulationReport get_simulation_report() const
     {
-        return m_SimulationReport;
+        return simulation_report_;
     }
 
-    void setSimulationReport(SimulationReport r)
+    void set_simulation_report(SimulationReport r)
     {
-        if (r != m_SimulationReport)
+        if (r != simulation_report_)
         {
-            m_SimulationReport = std::move(r);
-            m_StateVersion = UID{};
+            simulation_report_ = std::move(r);
+            state_version_ = UID{};
         }
     }
 
 private:
-    UID m_ModelVersion;
-    UID m_StateVersion;
-    OpenSim::ComponentPath m_Selected;
-    OpenSim::ComponentPath m_Hovered;
-    std::shared_ptr<Simulation> m_Simulation;
-    SimulationReport m_SimulationReport;
+    UID model_version_;
+    UID state_version_;
+    OpenSim::ComponentPath selected_;
+    OpenSim::ComponentPath hovered_;
+    std::shared_ptr<Simulation> simulation_;
+    SimulationReport simulation_report_;
 };
 
 
@@ -138,75 +138,75 @@ osc::SimulationModelStatePair::~SimulationModelStatePair() noexcept = default;
 
 std::shared_ptr<Simulation> osc::SimulationModelStatePair::upd_simulation()
 {
-    return impl_->updSimulation();
+    return impl_->upd_simulation();
 }
 
 void osc::SimulationModelStatePair::set_simulation(std::shared_ptr<Simulation> sim)
 {
-    impl_->setSimulation(std::move(sim));
+    impl_->set_simulation(std::move(sim));
 }
 
 SimulationReport osc::SimulationModelStatePair::get_simulation_report() const
 {
-    return impl_->getSimulationReport();
+    return impl_->get_simulation_report();
 }
 
 void osc::SimulationModelStatePair::set_simulation_report(SimulationReport report)
 {
-    impl_->setSimulationReport(std::move(report));
+    impl_->set_simulation_report(std::move(report));
 }
 
 const OpenSim::Model& osc::SimulationModelStatePair::impl_get_model() const
 {
-    return impl_->getModel();
+    return impl_->get_model();
 }
 
 UID osc::SimulationModelStatePair::impl_get_model_version() const
 {
-    return impl_->getModelVersion();
+    return impl_->get_model_version();
 }
 
 const SimTK::State& osc::SimulationModelStatePair::impl_get_state() const
 {
-    return impl_->getState();
+    return impl_->get_state();
 }
 
 UID osc::SimulationModelStatePair::impl_get_state_version() const
 {
-    return impl_->getStateVersion();
+    return impl_->get_state_version();
 }
 
 const OpenSim::Component* osc::SimulationModelStatePair::impl_get_selected() const
 {
-    return impl_->getSelected();
+    return impl_->get_selected();
 }
 
 void osc::SimulationModelStatePair::impl_set_selected(const OpenSim::Component* c)
 {
-    impl_->setSelected(c);
+    impl_->set_selected(c);
 }
 
 const OpenSim::Component* osc::SimulationModelStatePair::impl_get_hovered() const
 {
-    return impl_->getHovered();
+    return impl_->get_hovered();
 }
 
 void osc::SimulationModelStatePair::impl_set_hovered(const OpenSim::Component* c)
 {
-    impl_->setHovered(c);
+    impl_->set_hovered(c);
 }
 
 float osc::SimulationModelStatePair::impl_get_fixup_scale_factor() const
 {
-    return impl_->getFixupScaleFactor();
+    return impl_->get_fixup_scale_factor();
 }
 
 void osc::SimulationModelStatePair::impl_set_fixup_scale_factor(float v)
 {
-    impl_->setFixupScaleFactor(v);
+    impl_->set_fixup_scale_factor(v);
 }
 
 std::shared_ptr<Environment> osc::SimulationModelStatePair::impl_upd_associated_environment() const
 {
-    return impl_->implUpdAssociatedEnvironment();
+    return impl_->impl_upd_associated_environment();
 }

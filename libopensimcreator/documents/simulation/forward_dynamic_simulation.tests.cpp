@@ -12,12 +12,12 @@ using namespace osc;
 
 TEST(ForwardDynamicSimulation, CanInitFromBasicModel)
 {
-    BasicModelStatePairWithSharedEnvironment modelState;
+    BasicModelStatePairWithSharedEnvironment model_state;
 
     ForwardDynamicSimulatorParams params;
     params.final_time = SimulationClock::start();  // don't run a full sim
 
-    ForwardDynamicSimulation sim{modelState, params};
+    ForwardDynamicSimulation sim{model_state, params};
 
     // just ensure calling these doesn't throw: actually testing these would
     // require running the simulation to completion because launching a simulation
@@ -36,19 +36,19 @@ TEST(ForwardDynamicSimulation, CanInitFromBasicModel)
     ASSERT_FALSE(sim.get_output_extractors().empty());
     sim.request_stop();
     sim.stop();
-    ASSERT_EQ(modelState.get_fixup_scale_factor(), sim.get_fixup_scale_factor());
-    float newSf = sim.get_fixup_scale_factor() + 1.0f;
-    sim.set_fixup_scale_factor(newSf);
-    ASSERT_EQ(sim.get_fixup_scale_factor(), newSf);
+    ASSERT_EQ(model_state.get_fixup_scale_factor(), sim.get_fixup_scale_factor());
+    float new_scale_factor = sim.get_fixup_scale_factor() + 1.0f;
+    sim.set_fixup_scale_factor(new_scale_factor);
+    ASSERT_EQ(sim.get_fixup_scale_factor(), new_scale_factor);
 }
 
 TEST(ForwardDynamicSimulation, CanChangeEndTime)
 {
-    BasicModelStatePairWithSharedEnvironment modelState;
+    BasicModelStatePairWithSharedEnvironment model_state;
     ForwardDynamicSimulatorParams params;
     params.final_time = SimulationClock::start();
 
-    ForwardDynamicSimulation sim{modelState, params};
+    ForwardDynamicSimulation sim{model_state, params};
     ASSERT_TRUE(sim.can_change_end_time());
 }
 
@@ -56,7 +56,7 @@ TEST(ForwardDynamicSimulation, IncreasingTheEndTimeWorksAsExpected)
 {
     using namespace std::literals;
 
-    BasicModelStatePairWithSharedEnvironment modelState;
+    BasicModelStatePairWithSharedEnvironment model_state;
 
     // set up the simulation to produce two reports (start, end)
     ForwardDynamicSimulatorParams params;
@@ -64,7 +64,7 @@ TEST(ForwardDynamicSimulation, IncreasingTheEndTimeWorksAsExpected)
     params.reporting_interval = 1s;
 
     // run the simulation and wait for it to complete
-    ForwardDynamicSimulation sim{modelState, params};
+    ForwardDynamicSimulation sim{model_state, params};
     sim.join();
     ASSERT_EQ(sim.get_status(), SimulationStatus::Completed);
 
@@ -96,7 +96,7 @@ TEST(ForwardDynamicSimulation, DecreasingEndTimeWorksAsExpected)
 {
     using namespace std::literals;
 
-    BasicModelStatePairWithSharedEnvironment modelState;
+    BasicModelStatePairWithSharedEnvironment model_state;
 
     // set up the simulation to produce two reports (start, end)
     ForwardDynamicSimulatorParams params;
@@ -104,7 +104,7 @@ TEST(ForwardDynamicSimulation, DecreasingEndTimeWorksAsExpected)
     params.reporting_interval = 1s;
 
     // run the simulation and wait for it to complete
-    ForwardDynamicSimulation sim{modelState, params};
+    ForwardDynamicSimulation sim{model_state, params};
     sim.join();
     ASSERT_EQ(sim.get_status(), SimulationStatus::Completed);
 

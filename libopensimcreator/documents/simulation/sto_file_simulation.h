@@ -26,8 +26,8 @@ namespace osc
     public:
         StoFileSimulation(
             std::unique_ptr<OpenSim::Model>,
-            const std::filesystem::path& stoFilePath,
-            float fixupScaleFactor,
+            const std::filesystem::path& sto_file_path,
+            float fixup_scale_factor,
             std::shared_ptr<Environment>
         );
         StoFileSimulation(const StoFileSimulation&) = delete;
