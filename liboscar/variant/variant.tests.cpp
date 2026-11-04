@@ -686,6 +686,7 @@ TEST(Variant, Vector2_to_bool_returns_true_if_x_is_nonzero_regardless_of_the_val
 
 TEST(Variant, Vector2_to_Color_extracts_xy_into_the_Colors_rg_components)
 {
+    // clang-format off
     constexpr auto test_cases = std::to_array<Vector2>({
         { 0.0f,   0.0f},
         { 1.0f,   1.0f},
@@ -693,6 +694,7 @@ TEST(Variant, Vector2_to_Color_extracts_xy_into_the_Colors_rg_components)
         { 10.0f,  0.5f},
         { 0.0f,  -0.0f},
     });
+    // clang-format on
 
     for (const auto& test_case : test_cases) {
         ASSERT_EQ(to<Color>(Variant{test_case}), Color(test_case.x(), test_case.y(), 0.0f));
@@ -701,6 +703,7 @@ TEST(Variant, Vector2_to_Color_extracts_xy_into_the_Colors_rg_components)
 
 TEST(Variant, Vector2_to_float_extracts_x_into_the_float)
 {
+    // clang-format off
     constexpr auto test_cases = std::to_array<Vector2>({
         { 0.0f,   0.0f},
         { 1.0f,   1.0f},
@@ -708,6 +711,7 @@ TEST(Variant, Vector2_to_float_extracts_x_into_the_float)
         { 10.0f,  0.5f},
         { 0.0f,  -0.0f},
     });
+    // clang-format on
 
     for (const auto& test_case : test_cases) {
         ASSERT_EQ(to<float>(Variant{test_case}), test_case.x());
@@ -716,6 +720,7 @@ TEST(Variant, Vector2_to_float_extracts_x_into_the_float)
 
 TEST(Variant, Vector2_to_int_casts_x_into_an_int)
 {
+    // clang-format off
     constexpr auto test_cases = std::to_array<Vector2>({
         { 0.0f,   0.0f},
         { 1.0f,   1.0f},
@@ -723,6 +728,7 @@ TEST(Variant, Vector2_to_int_casts_x_into_an_int)
         { 10.0f,  0.5f},
         { 0.0f,  -0.0f},
      });
+    // clang-format on
 
     for (const auto& test_case : test_cases) {
         ASSERT_EQ(to<int>(Variant{test_case}), static_cast<int>(test_case.x()));
@@ -731,6 +737,7 @@ TEST(Variant, Vector2_to_int_casts_x_into_an_int)
 
 TEST(Variant, Vector2_to_string_returns_the_same_string_as_directly_converting_the_Vector2_into_a_String)
 {
+    // clang-format off
     constexpr auto test_cases = std::to_array<Vector2>({
         { 0.0f,   0.0f},
         { 1.0f,   1.0f},
@@ -738,6 +745,7 @@ TEST(Variant, Vector2_to_string_returns_the_same_string_as_directly_converting_t
         { 10.0f,  0.5f},
         { 0.0f,  -0.0f},
     });
+    // clang-format on
 
     for (const auto& test_case : test_cases) {
         ASSERT_EQ(to<std::string>(Variant{test_case}), stream_to_string(test_case));
@@ -752,6 +760,7 @@ TEST(Variant, Vector2_to_StringName_returns_stringified_representation_of_the_Ve
 
 TEST(Variant, Vector2_to_Vector2_returns_original_value_unmodified)
 {
+    // clang-format off
     constexpr auto test_cases = std::to_array<Vector2>({
         { 0.0f,   0.0f},
         { 1.0f,   1.0f},
@@ -759,6 +768,7 @@ TEST(Variant, Vector2_to_Vector2_returns_original_value_unmodified)
         { 10.0f,  0.5f},
         { 0.0f,  -0.0f},
     });
+    // clang-format on
 
     for (const auto& test_case : test_cases) {
         ASSERT_EQ(to<Vector2>(Variant{test_case}), test_case);
@@ -767,6 +777,7 @@ TEST(Variant, Vector2_to_Vector2_returns_original_value_unmodified)
 
 TEST(Variant, Vector2_to_vector_of_Variants_returns_a_two_element_vector_of_floats)
 {
+    // clang-format off
     constexpr auto test_cases = std::to_array<Vector2>({
         { 0.0f,   0.0f},
         { 1.0f,   1.0f},
@@ -774,6 +785,7 @@ TEST(Variant, Vector2_to_vector_of_Variants_returns_a_two_element_vector_of_floa
         { 10.0f,  0.5f},
         { 0.0f,  -0.0f},
     });
+    // clang-format on
 
     for (const auto& test_case : test_cases) {
         const auto expected = std::vector<Variant>{Variant{test_case.x()}, Variant{test_case.y()}};

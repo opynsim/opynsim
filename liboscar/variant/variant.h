@@ -58,6 +58,7 @@ namespace osc
     private:
         friend struct std::hash<Variant>;
 
+        // clang-format off
         std::variant<
             std::monostate,
             bool,
@@ -70,6 +71,7 @@ namespace osc
             Vector3,
             std::vector<Variant>
         > data_;
+        // clang-format on
     };
 
     bool operator==(const Variant&, const Variant&);
