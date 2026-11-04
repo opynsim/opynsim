@@ -1,0 +1,28 @@
+# Stops clang-format from trying to align arguments horizontally with the open parenthesis
+#AlignAfterOpenBracket: BlockIndent
+# Defines how many spaces to indent wrapped continuation lines (matches your IndentWidth)
+ContinuationIndentWidth: 4
+SpaceAfterTemplateKeyword: false
+AccessModifierOffset: -4
+SpacesBeforeTrailingComments: 2
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 0
+SortIncludes: false
+DerivePointerAlignment: true
+NamespaceIndentation: All
+FixNamespaceComments: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterNamespace: true
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+
