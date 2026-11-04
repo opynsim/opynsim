@@ -66,8 +66,8 @@ namespace
         };
         using ReinitializationFlags = Flags<ReinitializationFlag>;
 
-        std::shared_ptr<ModelStatePairWithSharedEnvironment> updSharedModelPtr() const { return m_Model; }
-        opyn::ModelStatePair& updModel() { return *m_Model; }
+        std::shared_ptr<ModelStatePairWithSharedEnvironment> upd_shared_model_ptr() const { return model_; }
+        opyn::ModelStatePair& upd_model() { return *model_; }
 
         void on_tick()
         {
@@ -76,193 +76,193 @@ namespace
             // this might not be the case if (e.g.) an edit was made by an action that
             // re-finalizes the model at t=0, so use the version number to track potential
             // situations where that might've happened (#932)
-            if (m_Model->get_state().getTime() != m_ScrubTime) {
-                setScrubTime(m_ScrubTime);
+            if (model_->get_state().getTime() != scrub_time_) {
+                set_scrub_time(scrub_time_);
             }
         }
 
-        bool isModelLoaded() const
+        bool is_model_loaded() const
         {
-            return opyn::has_input_file_name(m_Model->get_model());
+            return opyn::has_input_file_name(model_->get_model());
         }
 
-        void loadModelFile(const std::filesystem::path& p)
+        void load_model_file(const std::filesystem::path& p)
         {
-            m_Model->load_model(p);
-            reinitializeModelFromBackingData("loaded model", ReinitializationFlag::RecalculateTimeRange);
-            m_TabNameOverride = p.filename().string();
+            model_->load_model(p);
+            reinitialize_model_from_backing_data("loaded model", ReinitializationFlag::RecalculateTimeRange);
+            tab_name_override_ = p.filename().string();
         }
 
-        void reloadAll(
+        void reload_all(
             std::string_view label = "reloaded model",
             ReinitializationFlags flags = ReinitializationFlag::None)
         {
             // reload/reset model
-            if (opyn::has_input_file_name(m_Model->get_model())) {
+            if (opyn::has_input_file_name(model_->get_model())) {
                 SceneCache dummy;
-                action_reload_osim_from_disk(*m_Model, dummy);
+                action_reload_osim_from_disk(*model_, dummy);
             }
             else {
-                m_Model->reset_model();
+                model_->reset_model();
             }
 
             // if applicable, reload associated trajectory
-            if (m_AssociatedTrajectory) {
-                m_AssociatedTrajectory->reload_from_disk(m_Model->get_model());
+            if (associated_trajectory_) {
+                associated_trajectory_->reload_from_disk(model_->get_model());
             }
 
             // reinitialize everything else
-            reinitializeModelFromBackingData(label, flags);
+            reinitialize_model_from_backing_data(label, flags);
         }
 
-        void loadModelTrajectoryFile(const std::filesystem::path& path)
+        void load_model_trajectory_file(const std::filesystem::path& path)
         {
-            m_AssociatedTrajectory = opyn::FileBackedStorage{m_Model->get_model(), path};
-            reloadAll("loaded trajactory", ReinitializationFlag::RecalculateTimeRange);
-            m_TabNameOverride = path.filename().string();
+            associated_trajectory_ = opyn::FileBackedStorage{model_->get_model(), path};
+            reload_all("loaded trajactory", ReinitializationFlag::RecalculateTimeRange);
+            tab_name_override_ = path.filename().string();
         }
 
-        void loadMotionFiles(std::span<const std::filesystem::path> paths)
-        {
-            if (paths.empty()) {
-                return;
-            }
-
-            m_AssociatedMotionFiles.insert(m_AssociatedMotionFiles.end(), paths.begin(), paths.end());
-            reloadAll(paths.size() == 1 ? "loaded motion" : "loaded motions", ReinitializationFlag::RecalculateTimeRange);
-            m_TabNameOverride = paths.back().filename().string();
-        }
-
-        void loadXMLAsOpenSimDocument(std::span<const std::filesystem::path> paths)
+        void load_motion_files(std::span<const std::filesystem::path> paths)
         {
             if (paths.empty()) {
                 return;
             }
 
-            m_AssociatedXMLDocuments.insert(m_AssociatedXMLDocuments.end(), paths.begin(), paths.end());
-            reloadAll(paths.size() == 1 ? "loaded XML document" : "loaded XML documents", ReinitializationFlag::RecalculateTimeRange);
-            m_TabNameOverride = paths.back().filename().string();
+            associated_motion_files_.insert(associated_motion_files_.end(), paths.begin(), paths.end());
+            reload_all(paths.size() == 1 ? "loaded motion" : "loaded motions", ReinitializationFlag::RecalculateTimeRange);
+            tab_name_override_ = paths.back().filename().string();
         }
 
-        ClosedInterval<float> getTimeRange() const
+        void load_xml_as_open_sim_document(std::span<const std::filesystem::path> paths)
         {
-            return m_TimeRange;
+            if (paths.empty()) {
+                return;
+            }
+
+            associated_xml_documents_.insert(associated_xml_documents_.end(), paths.begin(), paths.end());
+            reload_all(paths.size() == 1 ? "loaded XML document" : "loaded XML documents", ReinitializationFlag::RecalculateTimeRange);
+            tab_name_override_ = paths.back().filename().string();
         }
 
-        void setTimeRange(ClosedInterval<float> newTimeRange)
+        ClosedInterval<float> get_time_range() const
         {
-            m_TimeRange = newTimeRange;
+            return time_range_;
         }
 
-        double getScrubTime() const
+        void set_time_range(ClosedInterval<float> new_time_range)
         {
-            return m_ScrubTime;
+            time_range_ = new_time_range;
         }
 
-        void setScrubTime(double newTime)
+        double get_scrub_time() const
         {
-            SimTK::State& state = m_Model->upd_model().updWorkingState();
-            state.setTime(newTime);
+            return scrub_time_;
+        }
 
-            if (m_AssociatedTrajectory) {
+        void set_scrub_time(double new_time)
+        {
+            SimTK::State& state = model_->upd_model().updWorkingState();
+            state.setTime(new_time);
+
+            if (associated_trajectory_) {
                 opyn::update_state_from_storage_time(
-                    m_Model->upd_model(),
+                    model_->upd_model(),
                     state,
-                    m_AssociatedTrajectory->mapper(),
-                    m_AssociatedTrajectory->storage(),
-                    newTime
+                    associated_trajectory_->mapper(),
+                    associated_trajectory_->storage(),
+                    new_time
                 );
                 // m_Model->updModel().assemble(state);
                 // m_Model->updModel().equilibrateMuscles(state);
-                m_Model->get_model().realizeReport(state);
+                model_->get_model().realizeReport(state);
             }
             else {
                 // no associated motion: only change the time part of the state and re-realize
-                m_Model->upd_model().equilibrateMuscles(state);
-                m_Model->upd_model().realizeDynamics(state);
+                model_->upd_model().equilibrateMuscles(state);
+                model_->upd_model().realizeDynamics(state);
             }
-            m_ScrubTime = static_cast<float>(newTime);
+            scrub_time_ = static_cast<float>(new_time);
         }
 
-        void rollbackModel()
+        void rollback_model()
         {
-            m_Model->rollback();
+            model_->rollback();
         }
 
-        std::optional<std::string_view> getTabNameOverride() const
+        std::optional<std::string_view> get_tab_name_override() const
         {
-            return m_TabNameOverride;
+            return tab_name_override_;
         }
     private:
-        void reinitializeModelFromBackingData(std::string_view label, ReinitializationFlags flags)
+        void reinitialize_model_from_backing_data(std::string_view label, ReinitializationFlags flags)
         {
-            std::optional<ClosedInterval<float>> dataTimeRange;
+            std::optional<ClosedInterval<float>> data_time_range;
 
             // hide forces that are computed from the model, because it's assumed that the
             // user only wants to visualize forces that come from externally-supplied data
-            if (m_Model->get_model().countNumComponents() > 0) {
-                for (auto& force : m_Model->upd_model().updComponentList<OpenSim::Force>()) {
+            if (model_->get_model().countNumComponents() > 0) {
+                for (auto& force : model_->upd_model().updComponentList<OpenSim::Force>()) {
                     force.set_appliesForce(false);
                 }
             }
 
             // (re)load associated trajectory
-            if (m_AssociatedTrajectory) {
-                opyn::initialize_model(m_Model->upd_model());
+            if (associated_trajectory_) {
+                opyn::initialize_model(model_->upd_model());
 
-                m_AssociatedTrajectory->reload_from_disk(m_Model->get_model());
-                dataTimeRange = osc::bounding_interval_of(dataTimeRange, m_AssociatedTrajectory->time_range());
+                associated_trajectory_->reload_from_disk(model_->get_model());
+                data_time_range = osc::bounding_interval_of(data_time_range, associated_trajectory_->time_range());
             }
 
             // (re)load motions
-            for (const std::filesystem::path& path : m_AssociatedMotionFiles) {
-                const auto& motion = opyn::add_model_component<opyn::AnnotatedMotion>(m_Model->upd_model(), path);
-                dataTimeRange = osc::bounding_interval_of(dataTimeRange, motion.time_range());
+            for (const std::filesystem::path& path : associated_motion_files_) {
+                const auto& motion = opyn::add_model_component<opyn::AnnotatedMotion>(model_->upd_model(), path);
+                data_time_range = osc::bounding_interval_of(data_time_range, motion.time_range());
             }
 
             // (re)load associated XML files (e.g. `ExternalLoads`)
-            for (const std::filesystem::path& path : m_AssociatedXMLDocuments) {
+            for (const std::filesystem::path& path : associated_xml_documents_) {
                 auto ptr = std::unique_ptr<OpenSim::Object>{OpenSim::Object::makeObjectFromFile(path.string())};
                 if (dynamic_cast<OpenSim::ModelComponent*>(ptr.get())) {
-                    m_Model->upd_model().addModelComponent(dynamic_cast<OpenSim::ModelComponent*>(ptr.release()));
+                    model_->upd_model().addModelComponent(dynamic_cast<OpenSim::ModelComponent*>(ptr.release()));
                 }
             }
 
             // care: state initialization is dependent on `m_AssociatedTrajectory`
-            opyn::initialize_model(m_Model->upd_model());
-            opyn::initialize_state(m_Model->upd_model());
-            m_Model->commit(label);
+            opyn::initialize_model(model_->upd_model());
+            opyn::initialize_state(model_->upd_model());
+            model_->commit(label);
 
-            if (dataTimeRange and (flags & ReinitializationFlag::RecalculateTimeRange)) {
-                m_TimeRange = *dataTimeRange;
-                m_ScrubTime = clamp(m_ScrubTime, m_TimeRange);  // Ensure scrub lands within the new time range.
+            if (data_time_range and (flags & ReinitializationFlag::RecalculateTimeRange)) {
+                time_range_ = *data_time_range;
+                scrub_time_ = clamp(scrub_time_, time_range_);  // Ensure scrub lands within the new time range.
             }
-            setScrubTime(m_ScrubTime);
+            set_scrub_time(scrub_time_);
         }
 
-        std::shared_ptr<UndoableModelStatePair> m_Model = std::make_shared<UndoableModelStatePair>();
-        std::optional<opyn::FileBackedStorage> m_AssociatedTrajectory;
-        std::vector<std::filesystem::path> m_AssociatedMotionFiles;
-        std::vector<std::filesystem::path> m_AssociatedXMLDocuments;
-        ClosedInterval<float> m_TimeRange = {0.0f, 10.0f};
-        float m_ScrubTime = 0.0f;
-        std::optional<std::string> m_TabNameOverride;
+        std::shared_ptr<UndoableModelStatePair> model_ = std::make_shared<UndoableModelStatePair>();
+        std::optional<opyn::FileBackedStorage> associated_trajectory_;
+        std::vector<std::filesystem::path> associated_motion_files_;
+        std::vector<std::filesystem::path> associated_xml_documents_;
+        ClosedInterval<float> time_range_ = {0.0f, 10.0f};
+        float scrub_time_ = 0.0f;
+        std::optional<std::string> tab_name_override_;
     };
 
     class PreviewExperimentalDataTabToolbar final {
     public:
-        explicit PreviewExperimentalDataTabToolbar(std::shared_ptr<PreviewExperimentalDataUiState> uiState) :
-            m_UiState{std::move(uiState)}
+        explicit PreviewExperimentalDataTabToolbar(std::shared_ptr<PreviewExperimentalDataUiState> ui_state) :
+            ui_state_{std::move(ui_state)}
         {}
 
-        void onDraw()
+        void on_draw()
         {
             if (begin_toolbar("##PreviewExperimentalDataToolbar", Vector2{5.0f, 5.0f})) {
                 // load/reload etc.
                 {
                     if (ui::draw_button("load model")) {
                         App::upd().prompt_user_to_select_file_async(
-                            [state = m_UiState](const FileDialogResponse& response)
+                            [state = ui_state_](const FileDialogResponse& response)
                             {
                                 if (response.size() != 1) {
                                     return;  // Error, cancellation, or more than one file somehow selected.
@@ -271,12 +271,12 @@ namespace
                                 // Guard against loading errors by emitting a log message rather
                                 // than potentially crashing the main thread (#1068).
                                 try {
-                                    state->loadModelFile(response.front());
+                                    state->load_model_file(response.front());
                                 }
                                 catch (const std::exception& ex) {
                                     log_error("error detected: {}", ex.what());
                                     log_error("rolling back model");
-                                    state->rollbackModel();
+                                    state->rollback_model();
                                 }
                             },
                             opyn::get_model_file_filters()
@@ -284,12 +284,12 @@ namespace
                     }
 
                     ui::same_line();
-                    if (not m_UiState->isModelLoaded()) {
+                    if (not ui_state_->is_model_loaded()) {
                         ui::begin_disabled();
                     }
                     if (ui::draw_button("load model trajectory sto/mot file")) {
                         App::upd().prompt_user_to_select_file_async(
-                            [state = m_UiState](const FileDialogResponse& response)
+                            [state = ui_state_](const FileDialogResponse& response)
                             {
                                 if (response.size() != 1) {
                                     return;  // Error, cancellation, or more than one file somehow selected.
@@ -298,35 +298,35 @@ namespace
                                 // Guard against loading errors by emitting a log message rather
                                 // than potentially crashing the main thread (#1068).
                                 try {
-                                    state->loadModelTrajectoryFile(response.front());
+                                    state->load_model_trajectory_file(response.front());
                                 }
                                 catch (const std::exception& ex) {
                                     log_error("error detected: {}", ex.what());
                                     log_error("rolling back model");
-                                    state->rollbackModel();
+                                    state->rollback_model();
                                 }
                             },
                             opyn::get_motion_file_filters()
                         );
                     }
-                    if (not m_UiState->isModelLoaded()) {
+                    if (not ui_state_->is_model_loaded()) {
                         ui::end_disabled();
                     }
 
                     ui::same_line();
                     if (ui::draw_button("load sto/mot/trc file")) {
                         App::upd().prompt_user_to_select_file_async(
-                            [state = m_UiState](const FileDialogResponse& response)
+                            [state = ui_state_](const FileDialogResponse& response)
                             {
                                 // Guard against loading errors by emitting a log message rather
                                 // than potentially crashing the main thread (#1068).
                                 try {
-                                    state->loadMotionFiles(response);
+                                    state->load_motion_files(response);
                                 }
                                 catch (const std::exception& ex) {
                                     log_error("error detected: {}", ex.what());
                                     log_error("rolling back model");
-                                    state->rollbackModel();
+                                    state->rollback_model();
                                 }
                             },
                             opyn::get_motion_file_filters_including_trc(),
@@ -335,53 +335,53 @@ namespace
                         );
                     }
 
-                    if (not m_UiState->isModelLoaded()) {
+                    if (not ui_state_->is_model_loaded()) {
                         ui::begin_disabled();
                     }
                     ui::same_line();
                     if (ui::draw_button("load OpenSim XML")) {
                         App::upd().prompt_user_to_select_file_async(
-                            [state = m_UiState](const FileDialogResponse& response)
+                            [state = ui_state_](const FileDialogResponse& response)
                             {
                                 // Guard against loading errors by emitting a log message rather
                                 // than potentially crashing the main thread (#1068).
                                 try {
-                                    state->loadXMLAsOpenSimDocument(response);
+                                    state->load_xml_as_open_sim_document(response);
                                 }
                                 catch (const std::exception& ex) {
                                     log_error("error detected: {}", ex.what());
                                     log_error("rolling back model");
-                                    state->rollbackModel();
+                                    state->rollback_model();
                                 }
 
                             },
                             opyn::get_open_sim_xml_file_filters()
                         );
                     }
-                    if (not m_UiState->isModelLoaded()) {
+                    if (not ui_state_->is_model_loaded()) {
                         ui::end_disabled();
                     }
 
                     ui::same_line();
                     if (ui::draw_button(MSMICONS_RECYCLE " reload all")) {
-                        m_UiState->reloadAll();
+                        ui_state_->reload_all();
                     }
                 }
 
                 // scrubber
                 ui::draw_same_line_with_vertical_separator();
                 {
-                    ClosedInterval<float> tr = m_UiState->getTimeRange();
+                    ClosedInterval<float> tr = ui_state_->get_time_range();
                     ui::set_next_item_width(ui::calc_text_size("<= xxxx").x());
                     if (ui::draw_float_input("<=", &tr.lower)) {
-                        m_UiState->setTimeRange(tr);
+                        ui_state_->set_time_range(tr);
                     }
 
                     ui::same_line();
-                    auto t = static_cast<float>(m_UiState->getScrubTime());
+                    auto t = static_cast<float>(ui_state_->get_scrub_time());
                     ui::set_next_item_width(ui::calc_text_size("----------------------------------------------------------------").x());
                     if (ui::draw_float_slider("t", &t, static_cast<float>(tr.lower), static_cast<float>(tr.upper), "%.6f")) {
-                        m_UiState->setScrubTime(t);
+                        ui_state_->set_scrub_time(t);
                     }
 
                     ui::same_line();
@@ -389,23 +389,23 @@ namespace
                     ui::same_line();
                     ui::set_next_item_width(ui::calc_text_size("<= xxxx").x());
                     if (ui::draw_float_input("##<=", &tr.upper)) {
-                        m_UiState->setTimeRange(tr);
+                        ui_state_->set_time_range(tr);
                     }
                 }
 
                 // scaling, visualization toggles.
                 ui::draw_same_line_with_vertical_separator();
                 {
-                    draw_scene_scale_factor_editor_controls(m_UiState->updModel());
-                    if (not m_IconCache) {
-                        m_IconCache = App::singleton<IconCache>(
+                    draw_scene_scale_factor_editor_controls(ui_state_->upd_model());
+                    if (not icon_cache_) {
+                        icon_cache_ = App::singleton<IconCache>(
                             App::resource_loader().with_prefix("OpenSimCreator/icons/"),
                             ui::get_text_line_height_in_current_panel()/128.0f,
                             App::get().highest_device_pixel_ratio()
                         );
                     }
                     ui::same_line();
-                    draw_all_decoration_toggle_buttons(m_UiState->updModel(), *m_IconCache);
+                    draw_all_decoration_toggle_buttons(ui_state_->upd_model(), *icon_cache_);
                 }
 
 
@@ -414,8 +414,8 @@ namespace
             ui::end_panel();
         }
     private:
-        std::shared_ptr<PreviewExperimentalDataUiState> m_UiState;
-        std::shared_ptr<IconCache> m_IconCache;
+        std::shared_ptr<PreviewExperimentalDataUiState> ui_state_;
+        std::shared_ptr<IconCache> icon_cache_;
     };
 }
 
@@ -424,77 +424,77 @@ public:
     explicit Impl(
         PreviewExperimentalDataTab& owner,
         Widget* parent) :
-        TabPrivate{owner, parent, c_DefaultTabName}
+        TabPrivate{owner, parent, c_default_tab_name}
     {
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Navigator",
-            [this](Widget* parent, std::string_view panelName)
+            [this](Widget* parent, std::string_view panel_name)
             {
                 return std::make_shared<NavigatorPanel>(
                     parent,
-                    panelName,
-                    m_UiState->updSharedModelPtr(),
+                    panel_name,
+                    ui_state_->upd_shared_model_ptr(),
                     [this, parent](const OpenSim::ComponentPath& p)
                     {
-                        auto popup = std::make_unique<ComponentContextMenu>(parent, "##componentcontextmenu", m_UiState->updSharedModelPtr(), p);
+                        auto popup = std::make_unique<ComponentContextMenu>(parent, "##componentcontextmenu", ui_state_->upd_shared_model_ptr(), p);
                         App::post_event<OpenPopupEvent>(*parent, std::move(popup));
                     }
                 );
             }
         );
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Properties",
-            [this](Widget* parent, std::string_view panelName)
+            [this](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<PropertiesPanel>(parent, panelName, m_UiState->updSharedModelPtr());
+                return std::make_shared<PropertiesPanel>(parent, panel_name, ui_state_->upd_shared_model_ptr());
             }
         );
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Log",
-            [](Widget* parent, std::string_view panelName)
+            [](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<LogViewerPanel>(parent, panelName);
+                return std::make_shared<LogViewerPanel>(parent, panel_name);
             }
         );
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Coordinates",
-            [this](Widget* parent, std::string_view panelName)
+            [this](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<CoordinateEditorPanel>(parent, panelName, m_UiState->updSharedModelPtr());
+                return std::make_shared<CoordinateEditorPanel>(parent, panel_name, ui_state_->upd_shared_model_ptr());
             }
         );
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Performance",
-            [](Widget* parent, std::string_view panelName)
+            [](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<PerfPanel>(parent, panelName);
+                return std::make_shared<PerfPanel>(parent, panel_name);
             }
         );
-        m_PanelManager->register_toggleable_panel(
+        panel_manager_->register_toggleable_panel(
             "Output Watches",
-            [this](Widget* parent, std::string_view panelName)
+            [this](Widget* parent, std::string_view panel_name)
             {
-                return std::make_shared<OutputWatchesPanel>(parent, panelName, m_UiState->updSharedModelPtr());
+                return std::make_shared<OutputWatchesPanel>(parent, panel_name, ui_state_->upd_shared_model_ptr());
             }
         );
-        m_PanelManager->register_spawnable_panel(
+        panel_manager_->register_spawnable_panel(
             "viewer",
-            [this](Widget* parent, std::string_view panelName)
+            [this](Widget* parent, std::string_view panel_name)
             {
-                auto onRightClick = [model = m_UiState->updSharedModelPtr(), parent, menuName = std::string{panelName} + "_contextmenu", editorAPI = this](const ModelViewerPanelRightClickEvent& e)
+                auto on_right_click = [model = ui_state_->upd_shared_model_ptr(), parent, menu_name = std::string{panel_name} + "_contextmenu", editor_api = this](const ModelViewerPanelRightClickEvent& e)
                 {
                     auto popup = std::make_unique<ComponentContextMenu>(
                         parent,
-                        menuName,
+                        menu_name,
                         model,
                         e.component_abs_path_or_empty
                     );
 
-                    App::post_event<OpenPopupEvent>(editorAPI->owner(), std::move(popup));
+                    App::post_event<OpenPopupEvent>(editor_api->owner(), std::move(popup));
                 };
-                ModelViewerPanelParameters panelParams{m_UiState->updSharedModelPtr(), onRightClick};
+                ModelViewerPanelParameters panel_params{ui_state_->upd_shared_model_ptr(), on_right_click};
 
-                return std::make_shared<ModelViewerPanel>(parent, panelName, panelParams);
+                return std::make_shared<ModelViewerPanel>(parent, panel_name, panel_params);
             },
             1  // have one viewer open at the start
         );
@@ -502,37 +502,37 @@ public:
 
     void on_mount()
     {
-        m_PanelManager->on_mount();
-        m_PopupManager.on_mount();
+        panel_manager_->on_mount();
+        popup_manager_.on_mount();
     }
 
     void on_unmount()
     {
         // m_PopupManager.on_unmount();
-        m_PanelManager->on_unmount();
+        panel_manager_->on_unmount();
     }
 
     bool on_event(Event& e)
     {
-        if (auto* openPopupEvent = dynamic_cast<OpenPopupEvent*>(&e)) {
-            if (openPopupEvent->has_popup()) {
-                auto popup = openPopupEvent->take_popup();
+        if (auto* open_popup_event = dynamic_cast<OpenPopupEvent*>(&e)) {
+            if (open_popup_event->has_popup()) {
+                auto popup = open_popup_event->take_popup();
                 popup->set_parent(&owner());
                 popup->open();
-                m_PopupManager.push_back(std::move(popup));
+                popup_manager_.push_back(std::move(popup));
                 return true;
             }
         }
-        else if (const auto* namedPanel = dynamic_cast<OpenNamedPanelEvent*>(&e)) {
-            m_PanelManager->set_toggleable_panel_activated(namedPanel->panel_name(), true);
+        else if (const auto* named_panel = dynamic_cast<OpenNamedPanelEvent*>(&e)) {
+            panel_manager_->set_toggleable_panel_activated(named_panel->panel_name(), true);
             return true;
         }
-        else if (const auto* contextMenuEvent = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
+        else if (const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
             auto popup = std::make_unique<ComponentContextMenu>(
                 &owner(),
                 "##componentcontextmenu",
-                m_UiState->updSharedModelPtr(),
-                contextMenuEvent->path()
+                ui_state_->upd_shared_model_ptr(),
+                context_menu_event->path()
             );
             App::post_event<OpenPopupEvent>(owner(), std::move(popup));
             return true;
@@ -542,55 +542,55 @@ public:
 
     void on_tick()
     {
-        m_UiState->on_tick();
-        m_PanelManager->on_tick();
+        ui_state_->on_tick();
+        panel_manager_->on_tick();
 
-        if (const auto override = m_UiState->getTabNameOverride()) {
+        if (const auto override = ui_state_->get_tab_name_override()) {
             std::stringstream ss;
             ss << MSMICONS_BEZIER_CURVE << ' ' << *override;
             set_name(std::move(ss).str());
         } else {
-            set_name(c_DefaultTabName);
+            set_name(c_default_tab_name);
         }
     }
 
     void on_draw_main_menu()
     {
-        m_WindowMenu.on_draw();
+        window_menu_.on_draw();
     }
 
     void on_draw()
     {
         try {
             ui::enable_dockspace_over_main_window();
-            m_Toolbar.onDraw();
-            m_PanelManager->on_draw();
-            m_StatusBar.on_draw();
-            m_PopupManager.on_draw();
-            m_ThrewExceptionLastFrame = false;
+            toolbar_.on_draw();
+            panel_manager_->on_draw();
+            status_bar_.on_draw();
+            popup_manager_.on_draw();
+            threw_exception_last_frame_ = false;
         }
         catch (const std::exception& ex) {
-            if (m_ThrewExceptionLastFrame) {
+            if (threw_exception_last_frame_) {
                 throw;
             }
 
-            m_ThrewExceptionLastFrame = true;
+            threw_exception_last_frame_ = true;
             log_error("error detected: {}", ex.what());
             log_error("rolling back model");
-            m_UiState->rollbackModel();
+            ui_state_->rollback_model();
         }
     }
 
 private:
-    static constexpr std::string_view c_DefaultTabName = MSMICONS_BEZIER_CURVE " Experimental Data";
+    static constexpr std::string_view c_default_tab_name = MSMICONS_BEZIER_CURVE " Experimental Data";
 
-    std::shared_ptr<PreviewExperimentalDataUiState> m_UiState = std::make_shared<PreviewExperimentalDataUiState>();
-    std::shared_ptr<PanelManager> m_PanelManager = std::make_shared<PanelManager>(&owner());
-    PreviewExperimentalDataTabToolbar m_Toolbar{m_UiState};
-    WindowMenu m_WindowMenu{&owner(), m_PanelManager};
-    ModelStatusBar m_StatusBar{parent(), m_UiState->updSharedModelPtr()};
-    PopupManager m_PopupManager;
-    bool m_ThrewExceptionLastFrame = false;
+    std::shared_ptr<PreviewExperimentalDataUiState> ui_state_ = std::make_shared<PreviewExperimentalDataUiState>();
+    std::shared_ptr<PanelManager> panel_manager_ = std::make_shared<PanelManager>(&owner());
+    PreviewExperimentalDataTabToolbar toolbar_{ui_state_};
+    WindowMenu window_menu_{&owner(), panel_manager_};
+    ModelStatusBar status_bar_{parent(), ui_state_->upd_shared_model_ptr()};
+    PopupManager popup_manager_;
+    bool threw_exception_last_frame_ = false;
 };
 
 
