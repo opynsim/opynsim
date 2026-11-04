@@ -14,7 +14,7 @@ namespace osc
     public:
         explicit SimulationDetailsPanel(
             Widget* parent,
-            std::string_view panelName,
+            std::string_view panel_name,
             SimulatorUIAPI*,
             std::shared_ptr<const Simulation>
         );

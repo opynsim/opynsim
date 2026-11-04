@@ -21,10 +21,10 @@ using namespace osc;
 
 namespace
 {
-    void TryExportOutputsToCSV(
+    void try_export_outputs_to_csv(
         const AbstractSimulation& simulation,
         std::span<const opyn::SharedOutputExtractor> outputs,
-        bool openInDefaultApp)
+        bool open_in_default_app)
     {
         // Pre-write the CSV in-memory so that the asynchronous user prompt isn't
         // dependent on a bunch of state.
@@ -36,7 +36,7 @@ namespace
 
         // Asynchronously prompt the user to select a save location and write the CSV
         // to it. If requested, open it in the user's default application.
-        App::upd().prompt_user_to_save_file_with_extension_async([openInDefaultApp, csv = std::move(ss).str()](std::optional<std::filesystem::path> p)
+        App::upd().prompt_user_to_save_file_with_extension_async([open_in_default_app, csv = std::move(ss).str()](std::optional<std::filesystem::path> p)
         {
             if (not p) {
                 return;  // user cancelled out of the prompt
@@ -53,19 +53,19 @@ namespace
                 ofs << csv;
             }
 
-            if (openInDefaultApp) {
+            if (open_in_default_app) {
                 open_file_in_os_default_application(*p);
             }
         }, "csv");
     }
 }
 
-void osc::SimulatorUIAPI::try_prompt_to_save_outputs_as_csv(std::span<const opyn::SharedOutputExtractor> outputs, bool openInDefaultApp) const
+void osc::SimulatorUIAPI::try_prompt_to_save_outputs_as_csv(std::span<const opyn::SharedOutputExtractor> outputs, bool open_in_default_app) const
 {
-    TryExportOutputsToCSV(get_simulation(), outputs, openInDefaultApp);
+    try_export_outputs_to_csv(get_simulation(), outputs, open_in_default_app);
 }
 
-void osc::SimulatorUIAPI::try_prompt_to_save_all_outputs_as_csv(std::span<const opyn::SharedOutputExtractor> outputs, bool openInDefaultApp) const
+void osc::SimulatorUIAPI::try_prompt_to_save_all_outputs_as_csv(std::span<const opyn::SharedOutputExtractor> outputs, bool open_in_default_app) const
 {
-    TryExportOutputsToCSV(get_simulation(), outputs, openInDefaultApp);
+    try_export_outputs_to_csv(get_simulation(), outputs, open_in_default_app);
 }

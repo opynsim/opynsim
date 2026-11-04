@@ -51,12 +51,12 @@ namespace osc
 
         std::optional<SimulationReport> try_select_report_based_on_scrubbing() { return impl_try_select_report_based_on_scrubbing(); }
 
-        void try_prompt_to_save_outputs_as_csv(std::span<const opyn::SharedOutputExtractor>, bool openInDefaultApp) const;
-        void try_prompt_to_save_outputs_as_csv(std::initializer_list<opyn::SharedOutputExtractor> il, bool openInDefaultApp) const
+        void try_prompt_to_save_outputs_as_csv(std::span<const opyn::SharedOutputExtractor>, bool open_in_default_app) const;
+        void try_prompt_to_save_outputs_as_csv(std::initializer_list<opyn::SharedOutputExtractor> il, bool open_in_default_app) const
         {
-            try_prompt_to_save_outputs_as_csv(std::span<const opyn::SharedOutputExtractor>{il}, openInDefaultApp);
+            try_prompt_to_save_outputs_as_csv(std::span<const opyn::SharedOutputExtractor>{il}, open_in_default_app);
         }
-        void try_prompt_to_save_all_outputs_as_csv(std::span<const opyn::SharedOutputExtractor>, bool andOpenInDefaultApp = false) const;
+        void try_prompt_to_save_all_outputs_as_csv(std::span<const opyn::SharedOutputExtractor>, bool and_open_in_default_app = false) const;
 
         SimulationModelStatePair* try_get_current_simulation_state() { return impl_try_get_current_simulation_state(); }
 
