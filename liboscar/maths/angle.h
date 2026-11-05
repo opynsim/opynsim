@@ -31,8 +31,8 @@ namespace osc
 
         // explicitly constructs the angle from a raw value in the given units
         template<std::convertible_to<Rep> Rep2>
-        explicit constexpr Angle(const Rep2& value_) :
-            value_{static_cast<Rep>(value_)}
+        explicit constexpr Angle(const Rep2& value) :
+            value_{static_cast<Rep>(value)}
         {}
 
         // implicitly constructs from an angle with the same representation, but expressed in other units
@@ -199,8 +199,8 @@ namespace osc
     // radians
 
     struct RadianAngularUnitTraits final {
-        static inline constexpr double radians_per_rep = 1.0;
-        static inline constexpr std::string_view unit_label = "rad";
+        static constexpr double radians_per_rep = 1.0;
+        static constexpr std::string_view unit_label = "rad";
     };
 
     template<typename T>
@@ -217,8 +217,8 @@ namespace osc
     // degrees
 
     struct DegreesAngularUnitTraits final {
-        static inline constexpr double radians_per_rep = std::numbers::pi_v<double>/180.0;
-        static inline constexpr std::string_view unit_label = "deg";
+        static constexpr double radians_per_rep = std::numbers::pi_v<double>/180.0;
+        static constexpr std::string_view unit_label = "deg";
     };
 
     template<typename T>
@@ -235,8 +235,8 @@ namespace osc
     // turns
 
     struct TurnsAngularUnitTraits final {
-        static inline constexpr double radians_per_rep = 2.0*std::numbers::pi_v<double>;
-        static inline constexpr std::string_view unit_label = "turn";
+        static constexpr double radians_per_rep = 2.0*std::numbers::pi_v<double>;
+        static constexpr std::string_view unit_label = "turn";
     };
 
     template<typename T>

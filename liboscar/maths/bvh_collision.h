@@ -11,12 +11,12 @@ namespace osc
     struct BVHCollision final : public RayCollision {
 
         BVHCollision(
-            float distance_,
-            const Vector3& position_,
-            ptrdiff_t id_) :
+            float distance,
+            const Vector3& position,
+            ptrdiff_t id) :
 
-            RayCollision{distance_, position_},
-            id{id_}
+            RayCollision{distance, position},
+            id{id}
         {}
 
         ptrdiff_t id{};

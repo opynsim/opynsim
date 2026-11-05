@@ -1,8 +1,10 @@
 #pragma once
 
+#include <liboscar/maths/identity.h>
 #include <liboscar/maths/matrix.h>
 #include <liboscar/maths/vector.h>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 
@@ -112,8 +114,8 @@ namespace osc
         }
 
         constexpr size_type size() const { return 4; }
-        constexpr pointer data() { return value_; }
-        constexpr const_pointer data() const { return value_; }
+        constexpr pointer data() { return value_.data(); }
+        constexpr const_pointer data() const { return value_.data(); }
         constexpr iterator begin() { return data(); }
         constexpr const_iterator begin() const { return data(); }
         constexpr iterator end() { return data() + size(); }
@@ -228,7 +230,7 @@ namespace osc
         }
 
     private:
-        column_type value_[4];
+        std::array<column_type, 4> value_;
     };
 
     template<typename T>
@@ -382,9 +384,6 @@ namespace osc
     using Matrix4x4z = Matrix<ptrdiff_t, 4, 4>;
     using Matrix4x4zu = Matrix<size_t, 4, 4>;
     using Matrix4x4u32 = Matrix<uint32_t, 4, 4>;
-
-    template<typename T>
-    constexpr T identity();
 
     template<>
     constexpr Matrix4x4 identity<Matrix4x4>()

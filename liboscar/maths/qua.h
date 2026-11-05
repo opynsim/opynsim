@@ -42,8 +42,8 @@ namespace osc
         {}
 
         // constructs a `Qua` from its wxyz components
-        constexpr Qua(T w_, T x_, T y_, T z_) :
-            w{w_}, x{x_}, y{y_}, z{z_}
+        constexpr Qua(T w, T x, T y, T z) :
+            w{w}, x{x}, y{y}, z{z}
         {}
 
         // constructs a `Qua` by `static_cast<T>`ing each element in `q`
@@ -286,7 +286,7 @@ namespace osc
     constexpr T& get(Qua<T>& v) { return v[I]; }
 
     template<size_t I, typename T>
-    constexpr T&& get(Qua<T>&& v) { return std::move(v[I]); }
+    constexpr T&& get(Qua<T>&& v) { return std::move(v[I]); }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
 
     template<size_t I, typename T>
     constexpr const T&& get(const Qua<T>&& v) { return std::move(v[I]); }
@@ -294,7 +294,7 @@ namespace osc
 
 template<typename T>
 struct std::tuple_size<osc::Qua<T>> {
-    static inline constexpr size_t value = 4;
+    static constexpr size_t value = 4;
 };
 
 template<size_t I, typename T>

@@ -128,7 +128,7 @@ namespace osc
             detail::CompileTimeSizeGreaterThanOrEqualTo<R, N> and
             std::assignable_from<T&, typename std::remove_cvref_t<R>::value_type>
         )
-        constexpr Vector& operator=(R&& r)
+        constexpr Vector& operator=(R&& r)  // NOLINT(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
         {
             copy_or_move_assign(std::forward<R>(r), std::make_index_sequence<N>{});
             return *this;
@@ -367,7 +367,7 @@ namespace osc
         static constexpr decltype(auto) forward_range_element(U&& x)
         {
             if constexpr (std::is_rvalue_reference_v<R&&>) {
-                return std::move(x);
+                return std::move<U>(x);  // NOLINT(bugprone-move-forwarding-reference)
             }
             else {
                 return std::forward<U>(x);
@@ -376,8 +376,8 @@ namespace osc
 
         // Helper constructor that perfectly forwards range elements into `data_`
         template<std::ranges::contiguous_range R, size_t... Is>
-        constexpr Vector(R&& r, std::index_sequence<Is...>) :
-            data_{ static_cast<T>(forward_range_element<R>(r[Is]))... }
+        constexpr Vector(R&& r, std::index_sequence<Is...>) :  // NOLINT(cppcoreguidelines-missing-std-forward)
+            data_{static_cast<T>(forward_range_element<R>(r[Is]))...}
         {}
 
         // Helper constructor that copies from a smaller `Vector` and extends it with `elements`
@@ -387,7 +387,7 @@ namespace osc
         {}
 
         template<std::ranges::contiguous_range R, size_t... Is>
-        constexpr void copy_or_move_assign(R&& r, std::index_sequence<Is...>)
+        constexpr void copy_or_move_assign(R&& r, std::index_sequence<Is...>)  // NOLINT(cppcoreguidelines-missing-std-forward)
         {
             ((data_[Is] = static_cast<T>(forward_range_element<R>(r[Is]))), ...);
         }
@@ -581,7 +581,7 @@ namespace osc
 
     // Returns the `I`th element of `v` (structured binding support)
     template<size_t I, typename T, size_t N>
-    constexpr T&& get(Vector<T, N>&& v) { return std::move(v[I]); }
+    constexpr T&& get(Vector<T, N>&& v) { return std::move(v[I]); }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
 
     // Returns the `I`th element of `v` (structured binding support)
     template<size_t I, typename T, size_t N>

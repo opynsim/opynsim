@@ -41,7 +41,10 @@ namespace osc
         >
         void set_array(StringLike&& property_name, Range&& values)
         {
-            set_array<std::ranges::range_value_t<Range>>(std::forward<StringLike>(property_name), std::forward<Range>(values));
+            set_array<std::ranges::range_value_t<Range>>(
+                std::forward<StringLike>(property_name),  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+                std::forward<Range>(values)
+            );
         }
 
         void unset(std::string_view property_name);

@@ -49,7 +49,7 @@ namespace osc
         typename Proj = std::identity
     >
     requires std::convertible_to<typename std::projected<std::ranges::iterator_t<R>, Proj>::value_type, const Vector2&>
-    constexpr Rect bounding_rect_of(R&& r, Proj proj = {})
+    constexpr Rect bounding_rect_of(const R& r, Proj proj = {})
     {
         auto it = std::ranges::begin(r);
         const auto last = std::ranges::end(r);

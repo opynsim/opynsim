@@ -1,5 +1,6 @@
 #pragma once
 
+#include <liboscar/maths/identity.h>
 #include <liboscar/maths/quaternion.h>
 #include <liboscar/maths/vector.h>
 
@@ -45,9 +46,6 @@ namespace osc
         point += transform.translation;
         return point;
     }
-
-    template<typename T>
-    constexpr T identity();
 
     template<>
     constexpr Transform identity<Transform>()

@@ -45,7 +45,7 @@ namespace osc
     constexpr typename Matrix<T, C, R>::value_type& get(Matrix<T, C, R>& m) { return m[I]; }
 
     template<size_t I, typename T, size_t C, size_t R>
-    constexpr typename Matrix<T, C, R>::value_type&& get(Matrix<T, C, R>&& m) { return std::move(m[I]); }
+    constexpr typename Matrix<T, C, R>::value_type&& get(Matrix<T, C, R>&& m) { return std::move(m[I]); }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
 
     template<size_t I, typename T, size_t C, size_t R>
     constexpr const typename Matrix<T, C, R>::value_type&& get(const Matrix<T, C, R>&& m) { return std::move(m[I]); }

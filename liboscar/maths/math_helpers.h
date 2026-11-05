@@ -15,7 +15,6 @@
 
 namespace osc { struct Circle; }
 namespace osc { struct Disc; }
-namespace osc { struct Plane; }
 namespace osc { struct LineSegment; }
 namespace osc { struct Tetrahedron; }
 

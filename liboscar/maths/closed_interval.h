@@ -21,9 +21,9 @@ namespace osc
 
         constexpr ClosedInterval() = default;
 
-        constexpr ClosedInterval(T lower_, T upper_) :
-            lower{std::move(lower_)},
-            upper{std::move(upper_)}
+        constexpr ClosedInterval(T lower, T upper) :
+            lower{std::move(lower)},
+            upper{std::move(upper)}
         {}
 
         friend bool operator==(const ClosedInterval&, const ClosedInterval&) = default;

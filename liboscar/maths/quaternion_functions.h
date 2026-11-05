@@ -170,7 +170,7 @@ namespace osc
     Qua<T> angle_axis(Angle<T, Units> angle, VectorLike&& axis)
     {
         const T s = sin(angle * static_cast<T>(0.5));
-        return Qua<T>(cos(angle * static_cast<T>(0.5)), static_cast<const Vector<T, 3>&>(axis) * s);
+        return Qua<T>(cos(angle * static_cast<T>(0.5)), static_cast<const Vector<T, 3>&>(std::forward<VectorLike>(axis)) * s);
     }
 
     template<

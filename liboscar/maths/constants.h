@@ -47,5 +47,5 @@ namespace osc
     // The maximum absolute dot product between two unit vectors such that
     // normalizing their cross-product remains numerically stable.
     template<std::floating_point T>
-    inline constexpr T max_abs_dot_for_cross_v = T(1) - sqrt_epsilon_v<T>;
+    inline constexpr T max_abs_dot_for_cross_v = static_cast<T>(1) - sqrt_epsilon_v<T>;
 }
