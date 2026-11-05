@@ -10,14 +10,15 @@ namespace opyn
 {
     // An abstract base class that represents the pairing of a readonly `SimTK::State` with metadata.
     class StateViewWithMetadata {
+    public:
+        virtual ~StateViewWithMetadata() noexcept = default;
     protected:
         StateViewWithMetadata() = default;
         StateViewWithMetadata(const StateViewWithMetadata&) = default;
         StateViewWithMetadata(StateViewWithMetadata&&) noexcept = default;
-        virtual ~StateViewWithMetadata() noexcept = default;
-
         StateViewWithMetadata& operator=(const StateViewWithMetadata&) = default;
         StateViewWithMetadata& operator=(StateViewWithMetadata&&) noexcept = default;
+
         friend bool operator==(const StateViewWithMetadata&, const StateViewWithMetadata&) = default;
 
     public:
