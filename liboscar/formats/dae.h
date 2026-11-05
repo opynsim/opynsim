@@ -15,8 +15,8 @@ namespace osc
         explicit DAEMetadata();
 
         explicit DAEMetadata(
-            std::string_view author_,
-            std::string_view authoring_tool_
+            std::string_view author,
+            std::string_view authoring_tool
         );
 
         std::string author;

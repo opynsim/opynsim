@@ -21,7 +21,7 @@ namespace osc
 
     struct OBJMetadata final {
         explicit OBJMetadata();
-        explicit OBJMetadata(std::string_view authoring_tool_);
+        explicit OBJMetadata(std::string_view authoring_tool);
 
         std::string authoring_tool;
         std::tm creation_time;
