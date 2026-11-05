@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace OpenSim { class Storage; }
-namespace SimTK { template<class, class> class Array_; }
+namespace SimTK { template<class, class> class Array_; }  // NOLINT(readability-identifier-naming)
 namespace SimTK { class DecorativeGeometry; }
 
 namespace opyn
