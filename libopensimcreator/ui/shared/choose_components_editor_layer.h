@@ -23,7 +23,7 @@ namespace osc
         ChooseComponentsEditorLayer(ChooseComponentsEditorLayer&&) noexcept;
         ChooseComponentsEditorLayer& operator=(const ChooseComponentsEditorLayer&) = delete;
         ChooseComponentsEditorLayer& operator=(ChooseComponentsEditorLayer&&) noexcept;
-        ~ChooseComponentsEditorLayer() noexcept;
+        ~ChooseComponentsEditorLayer() noexcept override;
 
     private:
         bool impl_handle_keyboard_inputs(

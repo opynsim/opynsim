@@ -16,15 +16,15 @@ namespace osc
     class ModelViewerPanelParameters final {
     public:
         explicit ModelViewerPanelParameters(
-            std::shared_ptr<opyn::ModelStatePair> model_,
-            const std::function<void(const ModelViewerPanelRightClickEvent&)>& onRightClickedAComponent_ = [](const auto&) {}) :
+            std::shared_ptr<opyn::ModelStatePair> model,
+            const std::function<void(const ModelViewerPanelRightClickEvent&)>& on_right_clicked_a_component = [](const auto&) {}) :
 
-            model_{std::move(model_)},
-            on_right_clicked_a_component_{onRightClickedAComponent_}
+            model_{std::move(model)},
+            on_right_clicked_a_component_{on_right_clicked_a_component}
         {}
 
         std::shared_ptr<opyn::ModelStatePair> get_model_shared_ptr() { return model_; }
-        void set_model_shared_ptr(const std::shared_ptr<opyn::ModelStatePair>& newModelState) { model_ = newModelState; }
+        void set_model_shared_ptr(const std::shared_ptr<opyn::ModelStatePair>& new_model_state) { model_ = new_model_state; }
         void call_on_right_click_handler(const ModelViewerPanelRightClickEvent& e) { on_right_clicked_a_component_(e); }
 
         const opyn::ModelRendererParams& get_render_params() const { return render_params_; }

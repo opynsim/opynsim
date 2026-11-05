@@ -14,7 +14,7 @@ namespace osc
 
     constexpr bool operator&(ModelViewerPanelLayerFlags lhs, ModelViewerPanelLayerFlags rhs)
     {
-        return std::to_underlying(lhs) & std::to_underlying(rhs);
+        return (std::to_underlying(lhs) & std::to_underlying(rhs)) != 0u;
     }
 
     constexpr ModelViewerPanelLayerFlags operator|(ModelViewerPanelLayerFlags lhs, ModelViewerPanelLayerFlags rhs)
