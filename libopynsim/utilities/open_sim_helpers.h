@@ -518,13 +518,13 @@ namespace opyn
     // returns non-nullptr if a socket with the given name is found within the given component
     const OpenSim::AbstractSocket* find_socket(
         const OpenSim::Component&,
-        const std::string& socketName
+        const std::string& socket_name
     );
 
     // returns non-nullptr if a socket with the given name is found within the given component
     OpenSim::AbstractSocket* find_socket_mut(
         OpenSim::Component&,
-        const std::string& socketName
+        const std::string& socket_name
     );
 
     // returns `true` if the socket is connected to the component
@@ -554,11 +554,11 @@ namespace opyn
         explicit ComponentConnectionView(
             const OpenSim::Component& source,
             const OpenSim::Component& target,
-            std::string socketName) :
+            std::string socket_name) :
 
             source_{&source},
             target_{&target},
-            socket_name_{std::move(socketName)}
+            socket_name_{std::move(socket_name)}
         {}
 
         friend bool operator==(const ComponentConnectionView&, const ComponentConnectionView&) = default;
@@ -804,11 +804,11 @@ namespace opyn
     // extract point-like information from generic OpenSim components
     struct PointInfo final {
         PointInfo(
-            osc::Vector3 location_,
-            OpenSim::ComponentPath frameAbsPath_) :
+            osc::Vector3 location,
+            OpenSim::ComponentPath frame_abs_path) :
 
-            location{location_},
-            frame_abs_path{std::move(frameAbsPath_)}
+            location{location},
+            frame_abs_path{std::move(frame_abs_path)}
         {}
 
         osc::Vector3 location;
@@ -927,9 +927,9 @@ namespace opyn
 
     template<std::derived_from<OpenSim::WrapObject> T, typename... Args>
     requires std::constructible_from<T, Args&&...>
-    T& add_wrap_object(OpenSim::PhysicalFrame& physFrame, Args&&... args)
+    T& add_wrap_object(OpenSim::PhysicalFrame& phys_frame, Args&&... args)
     {
-        return static_cast<T&>(add_wrap_object(physFrame, std::make_unique<T>(std::forward<Args>(args)...)));
+        return static_cast<T&>(add_wrap_object(phys_frame, std::make_unique<T>(std::forward<Args>(args)...)));
     }
 
     template<ClonesToRawPointer T>
@@ -989,13 +989,13 @@ namespace opyn
         std::derived_from<T> U,
         std::derived_from<OpenSim::Object> C = OpenSim::Object
     >
-    U& assign(OpenSim::Set<T, C>& set, T& oldElement, std::unique_ptr<U> newElement)
+    U& assign(OpenSim::Set<T, C>& set, T& old_element, std::unique_ptr<U> new_element)
     {
-        auto idx = index_of(set, oldElement);
+        auto idx = index_of(set, old_element);
         if (not idx) {
             throw std::runtime_error{"cannot find the requested element in the set"};
         }
-        return assign(set, *idx, std::move(newElement));
+        return assign(set, *idx, std::move(new_element));
     }
 
     template<
