@@ -13,14 +13,6 @@
 using namespace opyn;
 namespace rgs = std::ranges;
 
-opyn::OpenSimDecorationOptions::OpenSimDecorationOptions() :
-    muscle_decoration_style_{MuscleDecorationStyle::Default},
-    muscle_color_source_{MuscleColorSource::Default},
-    muscle_sizing_style_{MuscleSizingStyle::Default},
-    muscle_colour_source_scaling_{MuscleColorSourceScaling::Default},
-    flags_{OpenSimDecorationOptionFlag::Default}
-{}
-
 MuscleDecorationStyle opyn::OpenSimDecorationOptions::get_muscle_decoration_style() const
 {
     return muscle_decoration_style_;
