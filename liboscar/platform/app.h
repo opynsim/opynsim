@@ -47,9 +47,9 @@ namespace osc
 
         template<std::destructible T, typename... Args>
         requires std::constructible_from<T, Args&&...>
-        static std::shared_ptr<T> singleton(Args&&... args)
+        static std::shared_ptr<T> singleton(Args&&... args)  // NOLINT(cppcoreguidelines-missing-std-forward)
         {
-            const auto singleton_constructor = [args_tuple = std::make_tuple(std::forward<Args>(args)...)]() mutable -> std::shared_ptr<void>
+            const auto singleton_constructor = [args_tuple = std::make_tuple(std::forward<Args>(args)...)] mutable -> std::shared_ptr<void>
             {
                 return std::apply([](auto&&... inner_args) -> std::shared_ptr<void>
                 {
@@ -92,11 +92,11 @@ namespace osc
         // to run after `main` has completed).
         template<std::derived_from<Widget> TWidget, typename... Args>
         requires std::constructible_from<TWidget, Args&&...>
-        static int main(const AppMetadata& metadata, Args&&... args)
+        static int main(const AppMetadata& metadata, Args&&... args)  // NOLINT(cppcoreguidelines-missing-std-forward)
         {
             // Pack the `TWidget` constructor arguments into a type-erased `std::function` and defer
             // to the internal implementation.
-            return main_internal(metadata, [args_tuple = std::make_tuple(std::forward<Args>(args)...)]() mutable -> std::unique_ptr<Widget>
+            return main_internal(metadata, [args_tuple = std::make_tuple(std::forward<Args>(args)...)] mutable -> std::unique_ptr<Widget>
             {
                 return std::apply([](auto&&... inner_args) -> std::unique_ptr<Widget>
                 {
@@ -276,7 +276,7 @@ namespace osc
             std::optional<std::filesystem::path> initial_directory_to_show = std::nullopt,
             bool allow_many = false)
         {
-            return prompt_user_to_select_file_async(
+            prompt_user_to_select_file_async(
                 std::move(callback),
                 std::span<const FileDialogFilter>{filters},
                 std::move(initial_directory_to_show),
@@ -327,7 +327,7 @@ namespace osc
             std::initializer_list<const FileDialogFilter> filters = {},
             std::optional<std::filesystem::path> initial_directory_to_show = std::nullopt)
         {
-            return prompt_user_to_save_file_async(
+            prompt_user_to_save_file_async(
                 std::move(callback),
                 std::span{filters},
                 std::move(initial_directory_to_show)

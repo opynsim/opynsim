@@ -17,16 +17,23 @@ namespace osc { class TextInputEvent; }
 namespace osc { class WidgetPrivate; }
 namespace osc { class WindowEvent; }
 
+// NOLINTBEGIN
 #define OSC_WIDGET_DATA_GETTERS(ImplClass)                                                                    \
     const ImplClass& private_data() const { return reinterpret_cast<const ImplClass&>(base_private_data()); } \
     ImplClass& private_data() { return reinterpret_cast<ImplClass&>(base_private_data()); }
+// NOLINTEND
 
 namespace osc
 {
     class Widget {
     public:
         Widget(Widget* parent = nullptr);
+        Widget(const Widget&) = delete;
+        Widget(Widget&&) noexcept = delete;
         virtual ~Widget() noexcept;
+
+        Widget& operator=(const Widget&) = delete;
+        Widget& operator=(Widget&&) noexcept = delete;
 
         // Returns `impl_on_event(e)`.
         //
@@ -117,11 +124,6 @@ namespace osc
         virtual void impl_on_tick();
         virtual void impl_on_draw();
     private:
-        Widget(const Widget&) = delete;
-        Widget& operator=(const Widget&) = delete;
-        Widget(Widget&&) noexcept = delete;
-        Widget& operator=(Widget&&) noexcept = delete;
-
         OSC_WIDGET_DATA_GETTERS(WidgetPrivate);
 
         std::unique_ptr<WidgetPrivate> data_;

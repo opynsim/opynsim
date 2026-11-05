@@ -62,7 +62,7 @@ namespace osc
         std::vector<std::shared_ptr<LogSink>>& sinks() { return log_sinks_; }
 
         LogLevel level() const { return log_level_; }
-        void set_level(LogLevel level_) { log_level_ = level_; }
+        void set_level(LogLevel level) { log_level_ = level; }
 
     private:
         StringName name_;

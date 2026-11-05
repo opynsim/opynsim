@@ -33,6 +33,6 @@ namespace osc
         StringName logger_name_;
         std::chrono::system_clock::time_point time_;
         CStringView payload_;
-        LogLevel level_;
+        LogLevel level_ = LogLevel::DEFAULT;
     };
 }

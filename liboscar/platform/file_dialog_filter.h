@@ -26,8 +26,8 @@ namespace osc
             std::constructible_from<std::string, StringLike1&&> and
             std::constructible_from<std::string, StringLike2&&>
         explicit FileDialogFilter(StringLike1&& name, StringLike2&& pattern) :
-            name_{std::forward<StringLike1>(name)},
-            pattern_{std::forward<StringLike2>(pattern)}
+            name_{std::forward<StringLike1>(name)},       // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+            pattern_{std::forward<StringLike2>(pattern)}  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
         {}
 
         CStringView name() const { return name_; }
