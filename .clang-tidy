@@ -1,5 +1,5 @@
 ---
-HeaderFilterRegex: 'hellooscar|libopensimcreator|libopynsim|liboscar/concepts|liboscar/dom|liboscar/formats|liboscar/graphics/detail|liboscar/graphics/geometries|liboscar/graphics/materials'
+HeaderFilterRegex: 'hellooscar|libopensimcreator|libopynsim|liboscar/concepts|liboscar/dom|liboscar/formats|liboscar/graphics/detail|liboscar/graphics/geometries|liboscar/graphics/materials|liboscar/graphics/scene'
 Checks: >
   clang-analyzer-*,
   -clang-analyzer-optin.core.EnumCastOutOfRange,
@@ -46,6 +46,7 @@ Checks: >
   -hicpp-named-parameter,
   -hicpp-explicit-conversions,
   readability-*,
+  -readability-redundant-member-init,
   -readability-magic-numbers,
   -readability-identifier-length,
   -readability-uppercase-literal-suffix,
