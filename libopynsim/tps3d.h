@@ -31,8 +31,8 @@ namespace opyn
 
         TPSCoefficientSolverInputs3D() = default;
 
-        explicit TPSCoefficientSolverInputs3D(std::vector<LandmarkPair3D<T>> landmarks_) :
-            landmarks{std::move(landmarks_)}
+        explicit TPSCoefficientSolverInputs3D(std::vector<LandmarkPair3D<T>> landmarks) :
+            landmarks{std::move(landmarks)}
         {}
 
         friend bool operator==(const TPSCoefficientSolverInputs3D&, const TPSCoefficientSolverInputs3D&) = default;
@@ -101,11 +101,11 @@ namespace opyn
     struct TPSNonAffineTerm3D final {
 
         explicit TPSNonAffineTerm3D(
-            const SimTK::Vec<3, T>& weight_,
-            const SimTK::Vec<3, T>& control_point_) :
+            const SimTK::Vec<3, T>& weight,
+            const SimTK::Vec<3, T>& control_point) :
 
-            weight{weight_},
-            control_point{control_point_}
+            weight{weight},
+            control_point{control_point}
         {}
 
         friend bool operator==(const TPSNonAffineTerm3D&, const TPSNonAffineTerm3D&) = default;
