@@ -45,7 +45,7 @@ namespace osc
 
         explicit constexpr Rgb(value_type v) : r{v}, g{v}, b{v} {}
 
-        constexpr Rgb(value_type r_, value_type g_, value_type b_) : r{r_}, g{g_}, b{b_} {}
+        constexpr Rgb(value_type r, value_type g, value_type b) : r{r}, g{g}, b{b} {}
 
         explicit constexpr Rgb(const Vector<value_type, 3>& v) : r{v.x()}, g{v.y()}, b{v.z()} {}
 
@@ -91,7 +91,7 @@ namespace osc
     constexpr T& get(Rgb<T>& v) { return v[I]; }
 
     template<size_t I, typename T>
-    constexpr T&& get(Rgb<T>&& v) { return std::move(v[I]); }
+    constexpr T&& get(Rgb<T>&& v) { return std::move(v[I]); }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
 
     template<size_t I, typename T>
     constexpr const T&& get(const Rgb<T>&& v) { return std::move(v[I]); }
@@ -99,7 +99,7 @@ namespace osc
 
 template<osc::ColorComponent T>
 struct std::tuple_size<osc::Rgb<T>> {
-    static inline constexpr size_t value = 3;
+    static constexpr size_t value = 3;
 };
 
 template<size_t I, osc::ColorComponent T>

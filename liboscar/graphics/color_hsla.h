@@ -11,11 +11,11 @@ namespace osc
         ColorHSLA() = default;
         explicit ColorHSLA(const Color&);
 
-        constexpr ColorHSLA(float hue_, float saturation_, float lightness_, float alpha_) :
-            hue{hue_},
-            saturation{saturation_},
-            lightness{lightness_},
-            alpha{alpha_}
+        constexpr ColorHSLA(float hue, float saturation, float lightness, float alpha) :
+            hue{hue},
+            saturation{saturation},
+            lightness{lightness},
+            alpha{alpha}
         {}
 
         friend bool operator==(const ColorHSLA&, const ColorHSLA&) = default;

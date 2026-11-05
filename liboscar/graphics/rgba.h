@@ -81,12 +81,12 @@ namespace osc
             a{static_cast<T>(v.w())}
         {}
 
-        constexpr Rgba(value_type r_, value_type g_, value_type b_, value_type a_) :
-            r{r_}, g{g_}, b{b_}, a{a_}
+        constexpr Rgba(value_type r, value_type g, value_type b, value_type a) :
+            r{r}, g{g}, b{b}, a{a}
         {}
 
-        constexpr Rgba(value_type r_, value_type g_, value_type b_) :
-            r{r_}, g{g_}, b{b_}, a(1.0f)
+        constexpr Rgba(value_type r, value_type g, value_type b) :
+            r{r}, g{g}, b{b}, a(1.0f)
         {}
 
         template<ColorComponent U>
@@ -146,9 +146,9 @@ namespace osc
             };
         }
 
-        constexpr Rgba with_alpha(value_type a_) const
+        constexpr Rgba with_alpha(value_type a) const
         {
-            return Rgba{r, g, b, a_};
+            return Rgba{r, g, b, a};
         }
 
         constexpr Rgba with_element(size_type pos, value_type value) const
@@ -198,7 +198,7 @@ namespace osc
     constexpr T& get(Rgba<T>& rgba) { return rgba[I]; }
 
     template<size_t I, ColorComponent T>
-    constexpr T&& get(Rgba<T>&& rgba) { return std::move(rgba[I]); }
+    constexpr T&& get(Rgba<T>&& rgba) { return std::move(rgba[I]); }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
 
     template<size_t I, ColorComponent T>
     constexpr const T&& get(const Rgba<T>&& rgba) { return std::move(rgba[I]); }
@@ -243,7 +243,7 @@ namespace osc
 // define compile-time size for `Rgba<T>`
 template<osc::ColorComponent T>
 struct std::tuple_size<osc::Rgba<T>> {
-    static inline constexpr size_t value = 4;
+    static constexpr size_t value = 4;
 };
 
 template<size_t I, osc::ColorComponent T>
