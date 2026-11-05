@@ -22,11 +22,11 @@ namespace osc
     public:
         MwUiLandmarkNavigatorPanel(
             Widget* parent,
-            std::string_view label_,
-            std::shared_ptr<MwUiSharedState> shared_) :
+            std::string_view label,
+            std::shared_ptr<MwUiSharedState> shared) :
 
-            Panel{parent, label_},
-            state_{std::move(shared_)}
+            Panel{parent, label},
+            state_{std::move(shared)}
         {}
     private:
         void impl_draw_content() final
@@ -87,7 +87,7 @@ namespace osc
 
             // source column
             ui::table_set_column_index(1);
-            const Circle srcCircle = draw_landmark_circle(
+            const Circle src_circle = draw_landmark_circle(
                 state_->is_selected(p.source_id()),
                 state_->is_hovered(p.source_id()),
                 is_fully_paired(p),
@@ -96,7 +96,7 @@ namespace osc
 
             // destination column
             ui::table_set_column_index(2);
-            const Circle destCircle = draw_landmark_circle(
+            const Circle dest_circle = draw_landmark_circle(
                 state_->is_selected(p.destination_id()),
                 state_->is_hovered(p.destination_id()),
                 is_fully_paired(p),
@@ -104,40 +104,40 @@ namespace osc
             );
 
             if (is_fully_paired(p)) {
-                draw_connecting_line(srcCircle, destCircle);
+                draw_connecting_line(src_circle, dest_circle);
             }
         }
 
         Circle draw_landmark_circle(
-            bool isSelected,
-            bool isHovered,
-            bool isPaired,
-            bool hasLocation)
+            bool is_selected,
+            bool is_hovered,
+            bool is_paired,
+            bool has_location)
         {
             const Circle circle{.origin = calc_column_midpoint_screen_pos(), .radius = calc_circle_radius()};
-            const Color color = landmark_dot_color(hasLocation, isPaired);
+            const Color color = landmark_dot_color(has_location, is_paired);
 
             ui::DrawListView dl = ui::get_panel_draw_list();
-            if (hasLocation) {
+            if (has_location) {
                 dl.add_circle_filled(circle, color);
             }
             else {
                 dl.add_circle(circle, color);
             }
 
-            try_draw_circle_highlight(circle, isSelected, isHovered);
+            try_draw_circle_highlight(circle, is_selected, is_hovered);
 
             return circle;
         }
 
-        void try_draw_circle_highlight(const Circle& circle, bool isSelected, bool isHovered)
+        void try_draw_circle_highlight(const Circle& circle, bool is_selected, bool is_hovered)
         {
             ui::DrawListView dl = ui::get_panel_draw_list();
             const float thickness = 2.0f;
-            if (isSelected) {
+            if (is_selected) {
                 dl.add_circle(circle.expanded_by(thickness), OSCColors::selected(), 0, thickness);
             }
-            else if (isHovered) {
+            else if (is_hovered) {
                 dl.add_circle(circle.expanded_by(thickness), OSCColors::hovered(), 0, thickness);
             }
         }
@@ -199,8 +199,8 @@ namespace osc
         }
 
         void draw_non_participating_landmark_circle(
-            bool isSelected,
-            bool isHovered)
+            bool is_selected,
+            bool is_hovered)
         {
             const Circle circle{.origin = calc_column_midpoint_screen_pos(), .radius = calc_circle_radius()};
 
@@ -209,13 +209,13 @@ namespace osc
                 state_->get_non_participating_landmark_color()
             );
 
-            try_draw_circle_highlight(circle, isSelected, isHovered);
+            try_draw_circle_highlight(circle, is_selected, is_hovered);
         }
 
-        Color landmark_dot_color(bool hasLocation, bool isPaired) const
+        Color landmark_dot_color(bool has_location, bool is_paired) const
         {
-            if (hasLocation) {
-                if (isPaired) {
+            if (has_location) {
+                if (is_paired) {
                     return state_->get_paired_landmark_color();
                 }
                 else {

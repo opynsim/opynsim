@@ -13,24 +13,24 @@
 namespace osc
 {
     // append decorations that are common to all panels to the given output vector
-    void append_common_decorations(
-        MwUiSharedState& sharedState,
-        const Mesh& tpsSourceOrDestinationMesh,
-        bool wireframeMode,
+    inline void append_common_decorations(
+        MwUiSharedState& shared_state,
+        const Mesh& tps_source_or_destination_mesh,
+        bool wireframe_mode,
         const std::function<void(SceneDecoration&&)>& out,
-        Color meshColor = Color::white())
+        Color mesh_color = Color::white())
     {
         // draw the mesh
         out(SceneDecoration{
-            .mesh = tpsSourceOrDestinationMesh,
-            .shading = meshColor,
-            .flags = wireframeMode ? SceneDecorationFlags{SceneDecorationFlag::Default, SceneDecorationFlag::DrawWireframeOverlay} : SceneDecorationFlag::Default,
+            .mesh = tps_source_or_destination_mesh,
+            .shading = mesh_color,
+            .flags = wireframe_mode ? SceneDecorationFlags{SceneDecorationFlag::Default, SceneDecorationFlag::DrawWireframeOverlay} : SceneDecorationFlag::Default,
         });
 
         // add overlay decorations
         generate_overlay_decorations(
-            sharedState.upd_scene_cache(),
-            sharedState.get_overlay_decoration_options(),
+            shared_state.upd_scene_cache(),
+            shared_state.get_overlay_decoration_options(),
             BVH{},  // TODO: should have a scene BVH by this point
             1.0f,  // scale factor
             out

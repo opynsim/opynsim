@@ -26,13 +26,13 @@ namespace osc
     public:
         explicit MwUiLandmarkContextMenu(
             Widget* parent,
-            std::string_view label_,
-            std::shared_ptr<MwUiSharedState> shared_,
-            MwDocumentElementID rightClickedID_) :
+            std::string_view label,
+            std::shared_ptr<MwUiSharedState> shared,
+            MwDocumentElementID right_clicked_id) :
 
-            Popup{parent, label_},
-            state_{std::move(shared_)},
-            element_id_{std::move(rightClickedID_)}
+            Popup{parent, label},
+            state_{std::move(shared)},
+            element_id_{right_clicked_id}
         {
             set_modal(false);
         }
@@ -44,9 +44,9 @@ namespace osc
             {
                 request_close();  // element cannot be found in document (deleted? renamed?)
             }
-            else if (const auto* landmarkPair = dynamic_cast<const MwDocumentLandmarkPair*>(el))
+            else if (const auto* landmark_pair = dynamic_cast<const MwDocumentLandmarkPair*>(el))
             {
-                draw_context_menu(*landmarkPair);
+                draw_context_menu(*landmark_pair);
             }
             else if (const auto* npl = dynamic_cast<const MwDocumentNonParticipatingLandmark*>(el))
             {

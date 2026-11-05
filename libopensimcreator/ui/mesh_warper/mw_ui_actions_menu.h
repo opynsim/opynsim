@@ -16,10 +16,9 @@ namespace osc
     class MwUiActionsMenu final {
     public:
         explicit MwUiActionsMenu(
-            std::shared_ptr<MwUiSharedState> tabState_) :
-            state_{std::move(tabState_)}
-        {
-        }
+            std::shared_ptr<MwUiSharedState> tab_state) :
+            state_{std::move(tab_state)}
+        {}
 
         void on_draw()
         {
@@ -40,31 +39,31 @@ namespace osc
 
         void draw_clear_landmarks_menu_item()
         {
-            const bool hasLandmarks = contains_landmarks(state_->get_scratch());
+            const bool has_landmarks = contains_landmarks(state_->get_scratch());
 
-            if (not hasLandmarks) {
+            if (not has_landmarks) {
                 ui::begin_disabled();
             }
             if (ui::draw_menu_item(MSMICONS_ERASER " clear landmarks")) {
                 action_clear_all_landmarks(state_->upd_undoable());
             }
-            if (not hasLandmarks) {
+            if (not has_landmarks) {
                 ui::end_disabled();
             }
         }
 
         void draw_clear_non_participating_landmarks_menu_item()
         {
-            const bool hasNonParticipatingLandmarks =
+            const bool has_non_participating_landmarks =
                 contains_non_participating_landmarks(state_->get_scratch());
 
-            if (not hasNonParticipatingLandmarks) {
+            if (not has_non_participating_landmarks) {
                 ui::begin_disabled();
             }
             if (ui::draw_menu_item(MSMICONS_ERASER " clear non-participating landmarks")) {
                 action_clear_all_non_participating_landmarks(state_->upd_undoable());
             }
-            if (not hasNonParticipatingLandmarks) {
+            if (not has_non_participating_landmarks) {
                 ui::end_disabled();
             }
         }

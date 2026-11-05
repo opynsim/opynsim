@@ -18,12 +18,11 @@ namespace osc
     public:
         MwUiStatusBar(
             std::string_view label,
-            std::shared_ptr<const MwUiSharedState> tabState_) :
+            std::shared_ptr<const MwUiSharedState> tab_state) :
 
             label_{label},
-            state_{std::move(tabState_)}
-        {
-        }
+            state_{std::move(tab_state)}
+        {}
 
         void on_draw()
         {

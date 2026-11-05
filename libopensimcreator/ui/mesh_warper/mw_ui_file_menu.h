@@ -18,8 +18,8 @@ namespace osc
     class MwUiFileMenu final {
     public:
         explicit MwUiFileMenu(
-            std::shared_ptr<MwUiSharedState> tabState_) :
-            state_{std::move(tabState_)}
+            std::shared_ptr<MwUiSharedState> tab_state) :
+            state_{std::move(tab_state)}
         {}
 
         void on_draw()

@@ -24,15 +24,15 @@ namespace osc
     public:
         explicit MwUiMeshContextMenu(
             Widget* parent,
-            std::string_view label_,
-            std::shared_ptr<MwUiSharedState> shared_,
-            MiDocumentInputIdentifier mesh_identifier_,
-            RayCollision mesh_collision_) :
+            std::string_view label,
+            std::shared_ptr<MwUiSharedState> shared,
+            MiDocumentInputIdentifier mesh_identifier,
+            RayCollision mesh_collision) :
 
-            Popup{parent, label_},
-            state_{std::move(shared_)},
-            document_identifier_{mesh_identifier_},
-            mesh_collision_{mesh_collision_}
+            Popup{parent, label},
+            state_{std::move(shared)},
+            document_identifier_{mesh_identifier},
+            mesh_collision_{mesh_collision}
         {
             set_modal(false);
         }

@@ -3,7 +3,6 @@
 #include <libopensimcreator/documents/mesh_warper/mw_document_element_id.h>
 
 #include <unordered_set>
-#include <utility>
 
 namespace osc
 {
@@ -15,7 +14,7 @@ namespace osc
         auto end() const { return selected_scene_elements_.end(); }
 
         void clear() { selected_scene_elements_.clear(); }
-        void select(MwDocumentElementID el) { selected_scene_elements_.insert(std::move(el)); }
+        void select(MwDocumentElementID el) { selected_scene_elements_.insert(el); }
         bool contains(const MwDocumentElementID& el) const { return selected_scene_elements_.contains(el); }
     private:
         std::unordered_set<MwDocumentElementID> selected_scene_elements_;

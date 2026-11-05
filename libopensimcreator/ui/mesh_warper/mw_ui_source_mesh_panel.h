@@ -67,34 +67,34 @@ namespace osc
         void impl_draw_content() final
         {
             // compute top-level UI variables (render rect, mouse position, etc.)
-            const Rect contentRect = ui::get_content_region_available_ui_rect();
+            const Rect content_rect = ui::get_content_region_available_ui_rect();
 
             // un-project mouse's (2D) location into the 3D scene as a ray
-            const Ray cameraRay = camera_.ui_to_world(ui::get_mouse_ui_position(), contentRect);
+            const Ray camera_ray = camera_.ui_to_world(ui::get_mouse_ui_position(), content_rect);
 
             // mesh hittest: compute whether the user is hovering over the mesh (affects rendering)
-            const Mesh& inputMesh = state_->get_scratch_mesh(document_identifier_);
-            const BVH& inputMeshBVH = state_->get_scratch_mesh_bvh(document_identifier_);
-            std::optional<RayCollision> meshCollision = last_texture_hittest_result_.is_hovered ?
-                get_closest_world_space_ray_triangle_collision(inputMesh, inputMeshBVH, Transform{}, cameraRay) :
+            const Mesh& input_mesh = state_->get_scratch_mesh(document_identifier_);
+            const BVH& input_mesh_bvh = state_->get_scratch_mesh_bvh(document_identifier_);
+            std::optional<RayCollision> mesh_collision = last_texture_hittest_result_.is_hovered ?
+                get_closest_world_space_ray_triangle_collision(input_mesh, input_mesh_bvh, Transform{}, camera_ray) :
                 std::nullopt;
 
             // landmark hittest: compute whether the user is hovering over a landmark
-            std::optional<MwUiHovertestResult> landmarkCollision = last_texture_hittest_result_.is_hovered ?
-                get_mouse_landmark_collisions(cameraRay) :
+            std::optional<MwUiHovertestResult> landmark_collision = last_texture_hittest_result_.is_hovered ?
+                get_mouse_landmark_collisions(camera_ray) :
                 std::nullopt;
 
             if (manipulator_gizmo_.is_over() or manipulator_gizmo_.is_using()) {
-                landmarkCollision.reset();
-                meshCollision.reset();
+                landmark_collision.reset();
+                mesh_collision.reset();
             }
 
             // state update: tell central state if something's being hovered in this panel
-            if (landmarkCollision) {
-                state_->set_hover(landmarkCollision);
+            if (landmark_collision) {
+                state_->set_hover(landmark_collision);
             }
-            else if (meshCollision) {
-                state_->set_hover(document_identifier_, meshCollision->position);
+            else if (mesh_collision) {
+                state_->set_hover(document_identifier_, mesh_collision->position);
             }
 
             // update camera: NOTE: make sure it's updated *before* rendering; otherwise, it'll be one frame late
@@ -103,12 +103,12 @@ namespace osc
             }
 
             // render 3D: draw the scene into the content rect and 2D-hittest it
-            RenderTexture& renderTexture = render_scene(contentRect.dimensions(), meshCollision, landmarkCollision);
-            ui::draw_image(renderTexture);
+            RenderTexture& render_texture = render_scene(content_rect.dimensions(), mesh_collision, landmark_collision);
+            ui::draw_image(render_texture);
             last_texture_hittest_result_ = ui::hittest_last_drawn_item();
 
             // handle any events due to hovering over, clicking, etc.
-            handle_input_and_hover_events(last_texture_hittest_result_, meshCollision, landmarkCollision);
+            handle_input_and_hover_events(last_texture_hittest_result_, mesh_collision, landmark_collision);
 
             // render 2D: draw any 2D overlays over the 3D render
             draw_2d_overlay_ui(last_texture_hittest_result_.item_ui_rect);
@@ -132,78 +132,78 @@ namespace osc
         }
 
         // returns the closest collision, if any, between the provided camera ray and a landmark
-        std::optional<MwUiHovertestResult> get_mouse_landmark_collisions(const Ray& cameraRay) const
+        std::optional<MwUiHovertestResult> get_mouse_landmark_collisions(const Ray& camera_ray) const
         {
             std::optional<MwUiHovertestResult> rv;
-            hittest_landmarks(cameraRay, rv);
-            hittest_non_participating_landmarks(cameraRay, rv);
+            hittest_landmarks(camera_ray, rv);
+            hittest_non_participating_landmarks(camera_ray, rv);
             return rv;
         }
 
         // 3D hittests landmarks and updates `closest` if a closer collision is found
         void hittest_landmarks(
-            const Ray& cameraRay,
+            const Ray& camera_ray,
             std::optional<MwUiHovertestResult>& closest) const
         {
             for (const MwDocumentLandmarkPair& landmark : state_->get_scratch().landmark_pairs)
             {
-                hittest_landmark(cameraRay, closest, landmark);
+                hittest_landmark(camera_ray, closest, landmark);
             }
         }
 
         // 3D hittests one landmark and updates `closest` if a closer collision is found
         void hittest_landmark(
-            const Ray& cameraRay,
+            const Ray& camera_ray,
             std::optional<MwUiHovertestResult>& closest,
             const MwDocumentLandmarkPair& landmark) const
         {
-            const std::optional<Vector3> maybePos = get_location(landmark, document_identifier_);
-            if (!maybePos) {
+            const std::optional<Vector3> maybe_pos = get_location(landmark, document_identifier_);
+            if (!maybe_pos) {
                 return;  // landmark doesn't have a source/destination
             }
 
             // hittest the landmark as an analytic sphere
-            const Sphere landmarkSphere = {.origin = *maybePos, .radius = landmark_radius_};
-            if (const auto collision = find_collision(cameraRay, landmarkSphere))
+            const Sphere landmark_sphere = {.origin = *maybe_pos, .radius = landmark_radius_};
+            if (const auto collision = find_collision(camera_ray, landmark_sphere))
             {
-                if (!closest || length(closest->get_world_space_location() - cameraRay.origin) > collision->distance)
+                if (!closest || length(closest->get_world_space_location() - camera_ray.origin) > collision->distance)
                 {
-                    MwDocumentElementID fullID{landmark.uid, MwDocumentElementType::Landmark, document_identifier_};
-                    closest.emplace(std::move(fullID), *maybePos);
+                    MwDocumentElementID full_id{landmark.uid, MwDocumentElementType::Landmark, document_identifier_};
+                    closest.emplace(full_id, *maybe_pos);
                 }
             }
         }
 
         // 3D hittests non-participating landmarks and updates `closest` if a closer collision is found
         void hittest_non_participating_landmarks(
-            const Ray& cameraRay,
+            const Ray& camera_ray,
             std::optional<MwUiHovertestResult>& closest) const
         {
-            for (const auto& nonPariticpatingLandmark : state_->get_scratch().non_participating_landmarks)
+            for (const auto& non_pariticpating_landmark : state_->get_scratch().non_participating_landmarks)
             {
-                hittest_non_participating_landmark(cameraRay, closest, nonPariticpatingLandmark);
+                hittest_non_participating_landmark(camera_ray, closest, non_pariticpating_landmark);
             }
         }
 
         // 3D hittests one non-participating landmark and updates `closest` if a closer collision is found
         void hittest_non_participating_landmark(
-            const Ray& cameraRay,
+            const Ray& camera_ray,
             std::optional<MwUiHovertestResult>& closest,
-            const MwDocumentNonParticipatingLandmark& nonPariticpatingLandmark) const
+            const MwDocumentNonParticipatingLandmark& non_pariticpating_landmark) const
         {
             // hittest non-participating landmark as an analytic sphere
 
-            const Sphere decorationSphere = {
-                .origin = nonPariticpatingLandmark.location,
-                .radius = get_non_participating_landmark_scale_factor()*landmark_radius_
+            const Sphere decoration_sphere = {
+                .origin = non_pariticpating_landmark.location,
+                .radius = get_non_participating_landmark_scale_factor()*landmark_radius_,
             };
 
-            if (const auto collision = find_collision(cameraRay, decorationSphere))
+            if (const auto collision = find_collision(camera_ray, decoration_sphere))
             {
-                if (!closest || length(closest->get_world_space_location() - cameraRay.origin) > collision->distance)
+                if (!closest || length(closest->get_world_space_location() - camera_ray.origin) > collision->distance)
                 {
-                    MwDocumentElementID fullID{nonPariticpatingLandmark.uid, MwDocumentElementType::NonParticipatingLandmark, document_identifier_};
-                    closest.emplace(std::move(fullID), nonPariticpatingLandmark.location);
+                    MwDocumentElementID full_id{non_pariticpating_landmark.uid, MwDocumentElementType::NonParticipatingLandmark, document_identifier_};
+                    closest.emplace(full_id, non_pariticpating_landmark.location);
                 }
             }
         }
@@ -211,8 +211,8 @@ namespace osc
         // renders this panel's 3D scene to a texture
         RenderTexture& render_scene(
             Vector2 dims,
-            const std::optional<RayCollision>& maybeMeshCollision,
-            const std::optional<MwUiHovertestResult>& maybeLandmarkCollision)
+            const std::optional<RayCollision>& maybe_mesh_collision,
+            const std::optional<MwUiHovertestResult>& maybe_landmark_collision)
         {
             SceneRendererParams params = calc_standard_dark_scene_render_params(
                 camera_,
@@ -221,14 +221,14 @@ namespace osc
                 App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio()
             );
             state_->get_custom_rendering_options().apply_to(params);
-            const std::vector<SceneDecoration> decorations = generate_decorations(maybeMeshCollision, maybeLandmarkCollision);
+            const std::vector<SceneDecoration> decorations = generate_decorations(maybe_mesh_collision, maybe_landmark_collision);
             return cached_renderer_.render(decorations, params);
         }
 
         // returns a fresh list of 3D decorations for this panel's 3D render
         std::vector<SceneDecoration> generate_decorations(
-            const std::optional<RayCollision>& maybeMeshCollision,
-            const std::optional<MwUiHovertestResult>& maybeLandmarkCollision) const
+            const std::optional<RayCollision>& maybe_mesh_collision,
+            const std::optional<MwUiHovertestResult>& maybe_landmark_collision) const
         {
             std::vector<SceneDecoration> decorations;
             decorations.reserve(
@@ -237,7 +237,7 @@ namespace osc
                 state_->get_scratch().non_participating_landmarks.size()
             );
 
-            const std::function<void(SceneDecoration&&)> decorationConsumer =
+            const std::function<void(SceneDecoration&&)> decoration_consumer =
                 [&decorations](SceneDecoration&& dec) { decorations.push_back(std::move(dec)); };
 
             // generate common decorations (mesh, wireframe, grid, etc.)
@@ -245,76 +245,76 @@ namespace osc
                 *state_,
                 state_->get_scratch_mesh(document_identifier_),
                 state_->is_wireframe_mode_enabled(),
-                decorationConsumer
+                decoration_consumer
             );
 
             // generate decorations for all of the landmarks
-            generate_decorations_for_landmarks(decorationConsumer);
+            generate_decorations_for_landmarks(decoration_consumer);
 
             // if applicable, generate decorations for the non-participating landmarks
-            generate_decorations_for_non_participating_landmarks(decorationConsumer);
+            generate_decorations_for_non_participating_landmarks(decoration_consumer);
 
             // if applicable, show a mouse-to-mesh collision as faded landmark as a placement hint for user
-            if (maybeMeshCollision && !maybeLandmarkCollision)
+            if (maybe_mesh_collision && !maybe_landmark_collision)
             {
-                generate_decorations_for_mouse_over_mesh_hover(maybeMeshCollision->position, decorationConsumer);
+                generate_decorations_for_mouse_over_mesh_hover(maybe_mesh_collision->position, decoration_consumer);
             }
 
             return decorations;
         }
 
         void generate_decorations_for_landmarks(
-            const std::function<void(SceneDecoration&&)>& decorationConsumer) const
+            const std::function<void(SceneDecoration&&)>& decoration_consumer) const
         {
-            for (const MwDocumentLandmarkPair& landmarkPair : state_->get_scratch().landmark_pairs)
+            for (const MwDocumentLandmarkPair& landmark_pair : state_->get_scratch().landmark_pairs)
             {
-                generate_decorations_for_landmark(landmarkPair, decorationConsumer);
+                generate_decorations_for_landmark(landmark_pair, decoration_consumer);
             }
         }
 
         void generate_decorations_for_landmark(
-            const MwDocumentLandmarkPair& landmarkPair,
-            const std::function<void(SceneDecoration&&)>& decorationConsumer) const
+            const MwDocumentLandmarkPair& landmark_pair,
+            const std::function<void(SceneDecoration&&)>& decoration_consumer) const
         {
-            const std::optional<Vector3> location = get_location(landmarkPair, document_identifier_);
+            const std::optional<Vector3> location = get_location(landmark_pair, document_identifier_);
             if (not location) {
                 return;  // no source/destination location for the landmark
             }
 
-            const Color color = is_fully_paired(landmarkPair) ? state_->get_paired_landmark_color() : state_->get_unpaired_landmark_color();
+            const Color color = is_fully_paired(landmark_pair) ? state_->get_paired_landmark_color() : state_->get_unpaired_landmark_color();
             SceneDecoration decoration{
                 .mesh = state_->get_landmark_sphere_mesh(),
                 .transform = {.scale = Vector3{landmark_radius_}, .translation = *location},
                 .shading = color,
             };
 
-            const MwDocumentElementID landmarkID{landmarkPair.uid, MwDocumentElementType::Landmark, document_identifier_};
-            if (state_->is_selected(landmarkID)) {
+            const MwDocumentElementID landmark_id{landmark_pair.uid, MwDocumentElementType::Landmark, document_identifier_};
+            if (state_->is_selected(landmark_id)) {
                 decoration.flags |= SceneDecorationFlag::RimHighlight0;
             }
-            if (state_->is_hovered(landmarkID)) {
+            if (state_->is_hovered(landmark_id)) {
                 decoration.shading = to_srgb_colorspace(saturate(multiply_luminance(to_linear_colorspace(color), 1.2f)));
                 decoration.flags |= SceneDecorationFlag::RimHighlight1;
             }
 
-            decorationConsumer(std::move(decoration));
+            decoration_consumer(std::move(decoration));
         }
 
         void generate_decorations_for_non_participating_landmarks(
-            const std::function<void(SceneDecoration&&)>& decorationConsumer) const
+            const std::function<void(SceneDecoration&&)>& decoration_consumer) const
         {
             if (document_identifier_ != MiDocumentInputIdentifier::Source) {
                 return;  // only show them on the source (to-be-warped) mesh
             }
 
-            for (const auto& nonParticipatingLandmark : state_->get_scratch().non_participating_landmarks) {
-                generate_decorations_for_non_participating_landmark(nonParticipatingLandmark, decorationConsumer);
+            for (const auto& non_participating_landmark : state_->get_scratch().non_participating_landmarks) {
+                generate_decorations_for_non_participating_landmark(non_participating_landmark, decoration_consumer);
             }
         }
 
         void generate_decorations_for_non_participating_landmark(
             const MwDocumentNonParticipatingLandmark& npl,
-            const std::function<void(SceneDecoration&&)>& decorationConsumer) const
+            const std::function<void(SceneDecoration&&)>& decoration_consumer) const
         {
             const Color color = state_->get_non_participating_landmark_color();
             SceneDecoration decoration{
@@ -334,50 +334,50 @@ namespace osc
                 decoration.flags |= SceneDecorationFlag::RimHighlight1;
             }
 
-            decorationConsumer(std::move(decoration));
+            decoration_consumer(std::move(decoration));
         }
 
         void generate_decorations_for_mouse_over_mesh_hover(
-            const Vector3& meshCollisionPosition,
-            const std::function<void(SceneDecoration&&)>& decorationConsumer) const
+            const Vector3& mesh_collision_position,
+            const std::function<void(SceneDecoration&&)>& decoration_consumer) const
         {
-            const bool nonParticipating = is_user_placing_non_participating_landmark();
+            const bool non_participating = is_user_placing_non_participating_landmark();
 
-            const Color color = nonParticipating ?
+            const Color color = non_participating ?
                 state_->get_non_participating_landmark_color() :
                 state_->get_unpaired_landmark_color();
 
-            const float radius = nonParticipating ?
+            const float radius = non_participating ?
                 get_non_participating_landmark_scale_factor()*landmark_radius_ :
                 landmark_radius_;
 
-            decorationConsumer(SceneDecoration{
+            decoration_consumer(SceneDecoration{
                 .mesh = state_->get_landmark_sphere_mesh(),
-                .transform = {.scale = Vector3{radius}, .translation = meshCollisionPosition},
+                .transform = {.scale = Vector3{radius}, .translation = mesh_collision_position},
                 .shading = color.with_alpha(0.8f),  // faded
             });
         }
 
         // handle any input-related side-effects
         void handle_input_and_hover_events(
-            const ui::HittestResult& htResult,
-            const std::optional<RayCollision>& meshCollision,
-            const std::optional<MwUiHovertestResult>& landmarkCollision)
+            const ui::HittestResult& ht_result,
+            const std::optional<RayCollision>& mesh_collision,
+            const std::optional<MwUiHovertestResult>& landmark_collision)
         {
             // event: if the user left-clicks and something is hovered, select it; otherwise, add a landmark
-            if (htResult.is_left_click_released_without_dragging)
+            if (ht_result.is_left_click_released_without_dragging)
             {
-                if (landmarkCollision && landmarkCollision->is_hovering_a_scene_element())
+                if (landmark_collision && landmark_collision->is_hovering_a_scene_element())
                 {
                     if (!ui::is_shift_down())
                     {
                         state_->clear_selection();
                     }
-                    state_->select(landmarkCollision->get_scene_element_id().value());
+                    state_->select(landmark_collision->get_scene_element_id().value());
                 }
-                else if (meshCollision)
+                else if (mesh_collision)
                 {
-                    const auto position = meshCollision->position;
+                    const auto position = mesh_collision->position;
                     if (is_user_placing_non_participating_landmark())
                     {
                         action_add_non_participating_landmark(state_->upd_undoable(), position);
@@ -390,32 +390,32 @@ namespace osc
             }
 
             // event: if the user right-clicks on a landmark then open the context menu for that landmark
-            if (htResult.is_right_click_released_without_dragging)
+            if (ht_result.is_right_click_released_without_dragging)
             {
-                if (landmarkCollision && landmarkCollision->is_hovering_a_scene_element())
+                if (landmark_collision && landmark_collision->is_hovering_a_scene_element())
                 {
                     state_->emplace_popup<MwUiLandmarkContextMenu>(
                         this,
                         "##MeshInputLandmarkContextMenu",
                         state_,
-                        landmarkCollision->get_scene_element_id().value()
+                        landmark_collision->get_scene_element_id().value()
                     );
                 }
-                else if (meshCollision)
+                else if (mesh_collision)
                 {
                     state_->emplace_popup<MwUiMeshContextMenu>(
                         this,
                         "##MeshInputMeshContextMenu",
                         state_,
                         document_identifier_,
-                        *meshCollision
+                        *mesh_collision
                     );
                 }
             }
 
             // event: if the user is hovering the render while something is selected and the user
             // presses delete then the landmarks should be deleted
-            if (htResult.is_hovered && ui::any_of_keys_pressed({Key::Delete, Key::Backspace}))
+            if (ht_result.is_hovered && ui::any_of_keys_pressed({Key::Delete, Key::Backspace}))
             {
                 action_delete_scene_elements_by_id(
                     state_->upd_undoable(),
@@ -426,8 +426,8 @@ namespace osc
 
             // event: if the user is hovering the mesh and they press F then they would like to
             // focus the camera on that point
-            if (meshCollision and ui::any_of_keys_pressed({Key::F})) {
-                camera_controller_.focus_point = meshCollision->position;
+            if (mesh_collision and ui::any_of_keys_pressed({Key::F})) {
+                camera_controller_.focus_point = mesh_collision->position;
                 camera_controller_.update_camera(camera_);
                 state_->set_linked_camera_controller(camera_controller_);
             }
@@ -436,14 +436,14 @@ namespace osc
         // 2D UI stuff (buttons, sliders, tables, etc.):
 
         // draws 2D ImGui overlays over the scene render
-        void draw_2d_overlay_ui(const Rect& renderRect)
+        void draw_2d_overlay_ui(const Rect& render_rect)
         {
             ui::push_id(std::to_underlying(document_identifier_));
 
             // Draw the manipulation gizmo before anything else
-            draw_manipulation_gizmo(renderRect);
+            draw_manipulation_gizmo(render_rect);
 
-            ui::set_cursor_ui_position(renderRect.ypd_top_left() + state_->get_overlay_padding());
+            ui::set_cursor_ui_position(render_rect.ypd_top_left() + state_->get_overlay_padding());
 
             draw_information_icon();
             ui::same_line();
@@ -458,7 +458,7 @@ namespace osc
             ui::pop_id();
         }
 
-        void draw_manipulation_gizmo(const Rect& renderRect)
+        void draw_manipulation_gizmo(const Rect& render_rect)
         {
             const auto locations = state_->get_selection_landmark_locations(document_identifier_);
             if (locations.empty()) {
@@ -476,15 +476,15 @@ namespace osc
 
             // Draw a gizmo that manipulates the mean centroid
             manipulator_gizmo_.set_operation(ui::GizmoOperation::Translate);
-            Matrix4x4 modelMatrix = translate(identity<Matrix4x4>(), Vector3{mean});
-            const auto userTransform = manipulator_gizmo_.draw(
-                modelMatrix,
+            Matrix4x4 model_matrix = translate(identity<Matrix4x4>(), Vector3{mean});
+            const auto user_transform = manipulator_gizmo_.draw(
+                model_matrix,
                 camera_.view_matrix(),
-                camera_.projection_matrix(aspect_ratio_of(renderRect)),
-                renderRect
+                camera_.projection_matrix(aspect_ratio_of(render_rect)),
+                render_rect
             );
-            if (userTransform) {
-                action_translate_landmarks_dont_save(state_->upd_undoable(), state_->get_selected(document_identifier_), userTransform->translation);
+            if (user_transform) {
+                action_translate_landmarks_dont_save(state_->upd_undoable(), state_->get_selected(document_identifier_), user_transform->translation);
             }
             if (manipulator_gizmo_.was_using() and not manipulator_gizmo_.is_using()) {
                 action_save_landmark_translation(state_->upd_undoable(), state_->get_selected(document_identifier_));
@@ -647,9 +647,9 @@ namespace osc
         bool is_user_placing_non_participating_landmark() const
         {
             static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
-            const bool isSourceMesh = document_identifier_ == MiDocumentInputIdentifier::Source;
-            const bool isCtrlPressed = ui::any_of_keys_down({Key::LeftCtrl, Key::RightCtrl});
-            return isSourceMesh && isCtrlPressed;
+            const bool is_source_mesh = document_identifier_ == MiDocumentInputIdentifier::Source;
+            const bool is_ctrl_pressed = ui::any_of_keys_down({Key::LeftCtrl, Key::RightCtrl});
+            return is_source_mesh && is_ctrl_pressed;
         }
 
         std::shared_ptr<MwUiSharedState> state_;

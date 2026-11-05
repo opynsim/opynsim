@@ -19,14 +19,14 @@ namespace osc
     public:
         explicit MwUiMainMenu(
             Widget* parent,
-            const std::shared_ptr<MwUiSharedState>& tabState_,
-            const std::shared_ptr<PanelManager>& panelManager_) :
+            const std::shared_ptr<MwUiSharedState>& tab_state,
+            const std::shared_ptr<PanelManager>& panel_manager) :
 
             Widget{parent},
-            file_menu_{tabState_},
-            edit_menu_{tabState_},
-            actions_menu_{tabState_},
-            window_menu_{this, panelManager_}
+            file_menu_{tab_state},
+            edit_menu_{tab_state},
+            actions_menu_{tab_state},
+            window_menu_{this, panel_manager}
         {}
 
         void on_draw()

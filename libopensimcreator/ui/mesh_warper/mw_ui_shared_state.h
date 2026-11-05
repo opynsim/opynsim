@@ -38,13 +38,13 @@ namespace osc
     class MwUiSharedState final {
     public:
         explicit MwUiSharedState(
-            UID tabID_,
-            Widget* parent_,
-            std::shared_ptr<SceneCache> sceneCache_) :
+            UID tab_id,
+            Widget* parent,
+            std::shared_ptr<SceneCache> scene_cache) :
 
-            tab_id_{tabID_},
-            parent_{parent_},
-            scene_cache_{std::move(sceneCache_)}
+            tab_id_{tab_id},
+            parent_{parent},
+            scene_cache_{std::move(scene_cache)}
         {
             OSC_ASSERT(scene_cache_ != nullptr);
             overlay_decoration_options_.set_draw_xz_grid(true);
@@ -128,9 +128,9 @@ namespace osc
             return current_hover_ && current_hover_->is_hovering(id);
         }
 
-        void set_hover(const std::optional<MwUiHovertestResult>& newHover)
+        void set_hover(const std::optional<MwUiHovertestResult>& new_hover)
         {
-            current_hover_ = newHover;
+            current_hover_ = new_hover;
         }
 
         void set_hover(MiDocumentInputIdentifier id, const Vector3& position)
@@ -157,7 +157,7 @@ namespace osc
             // TODO: should probably gc the selection
             return std::ranges::any_of(user_selection_, [this, input](const MwDocumentElementID& el)
             {
-                return el.input == input and find_element(get_scratch(), el);
+                return el.input == input and (find_element(get_scratch(), el) != nullptr);
             });
         }
 
@@ -256,7 +256,7 @@ namespace osc
         Color get_non_participating_landmark_color() const { return Color::purple(); }
 
         const OrbitCameraController& get_linked_camera_controller() const { return linked_camera_controller_; }
-        void set_linked_camera_controller(const OrbitCameraController& newController) { linked_camera_controller_ = newController; }
+        void set_linked_camera_controller(const OrbitCameraController& new_controller) { linked_camera_controller_ = new_controller; }
         bool is_cameras_linked() const { return link_cameras_; }
         void set_cameras_linked(bool v) { link_cameras_ = v; }
         bool is_only_camera_rotation_linked() const { return only_link_rotation_; }

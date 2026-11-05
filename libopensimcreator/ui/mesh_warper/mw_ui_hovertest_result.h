@@ -13,21 +13,20 @@ namespace osc
     class MwUiHovertestResult final {
     public:
         explicit MwUiHovertestResult(
-            MiDocumentInputIdentifier input_,
-            const Vector3& worldSpaceLocation_) :
-            input_{input_},
-            world_space_location_{worldSpaceLocation_}
+            MiDocumentInputIdentifier input,
+            const Vector3& world_space_location) :
+            input_{input},
+            world_space_location_{world_space_location}
         {}
 
         explicit MwUiHovertestResult(
-            MwDocumentElementID sceneElementID_,
-            const Vector3& worldSpaceLocation_) :
+            MwDocumentElementID scene_element_id,
+            const Vector3& world_space_location) :
 
-            maybe_scene_element_id_{std::move(sceneElementID_)},
+            maybe_scene_element_id_{scene_element_id},
             input_{maybe_scene_element_id_->input},
-            world_space_location_{worldSpaceLocation_}
-        {
-        }
+            world_space_location_{world_space_location}
+        {}
 
         MiDocumentInputIdentifier get_input() const
         {
