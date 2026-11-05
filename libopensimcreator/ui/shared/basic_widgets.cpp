@@ -140,7 +140,7 @@ namespace
 
         if (ui::draw_menu_item(("  " + o.getName())))
         {
-            on_user_selection(opyn::SharedOutputExtractor{opyn::ComponentOutputExtractor{o}});
+            on_user_selection(opyn::make_output_extractor<opyn::ComponentOutputExtractor>(o));
             output_added = true;
         }
 
@@ -429,7 +429,7 @@ bool osc::draw_watch_output_menu(
             for (int i = 0; i < labels.size(); ++i) {
                 ui::push_id(entries_drawn++);
                 if (ui::draw_menu_item("  " + labels[i])) {
-                    on_user_selection(opyn::SharedOutputExtractor{opyn::ForceRecordOutputExtractor{*f, i}});
+                    on_user_selection(opyn::make_output_extractor<opyn::ForceRecordOutputExtractor>(*f, i));
                     output_added = true;
                 }
                 ui::pop_id();
