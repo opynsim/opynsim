@@ -69,7 +69,7 @@ if(TRUE)
     nanobind_add_module(_core ${OPYN_NANOBIND_ARGS} ${_core_sources})
     unset(_core_sources)
     target_include_directories(_core
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}  # so that `#include <opynsim/_core/...>` works
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}  # so that `#include <opynsim/_core/..>` works
     )
     target_compile_features(_core PUBLIC cxx_std_23)
     set_target_properties(_core PROPERTIES
@@ -77,11 +77,9 @@ if(TRUE)
         CXX_EXTENSIONS        OFF
     )
     if(OPYN_USE_STRICT_COMPILER_FLAGS)
-        include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/opynsim_strict_compiler_options.cmake)
         opyn_add_strict_compiler_options_to(_core)
     endif()
     if(OPYN_ENABLE_SANITIZERS)
-        include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/opynsim_add_sanitizer_flags_to.cmake)
         opyn_add_sanitizer_flags_to(_core)
     endif()
     target_link_libraries(_core PRIVATE opynsim)

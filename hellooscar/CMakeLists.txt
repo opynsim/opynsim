@@ -5,11 +5,9 @@ set_target_properties(hellooscar PROPERTIES
     CXX_EXTENSIONS        OFF
 )
 if(OPYN_USE_STRICT_COMPILER_FLAGS)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/opynsim_strict_compiler_options.cmake)
     opyn_add_strict_compiler_options_to(hellooscar)
 endif()
 if(OPYN_ENABLE_SANITIZERS)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/opynsim_add_sanitizer_flags_to.cmake)
     opyn_add_sanitizer_flags_to(hellooscar)
 endif()
 
