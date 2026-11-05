@@ -114,7 +114,7 @@ namespace
                 {
                     if (auto label = opyn::get_output_subfield_label(f); label && ui::draw_menu_item(*label))
                     {
-                        on_user_selection(opyn::SharedOutputExtractor{opyn::ComponentOutputExtractor{o, f}});
+                        on_user_selection(opyn::make_output_extractor<opyn::ComponentOutputExtractor>(o, f));
                         output_added = true;
                     }
                 }

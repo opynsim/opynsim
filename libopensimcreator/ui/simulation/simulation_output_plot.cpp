@@ -112,7 +112,7 @@ namespace
                         ui::push_id(id++);
                         draw_request_output_menu_or_menu_item(output, [&one_dimensional_output_extractor, &environment](const opyn::SharedOutputExtractor& rhs)
                         {
-                            opyn::SharedOutputExtractor concatenating = opyn::SharedOutputExtractor{opyn::ConcatenatingOutputExtractor{one_dimensional_output_extractor, rhs}};
+                            opyn::SharedOutputExtractor concatenating = opyn::make_output_extractor<opyn::ConcatenatingOutputExtractor>(one_dimensional_output_extractor, rhs);
                             environment->overwrite_or_add_new_user_output_extractor(one_dimensional_output_extractor, concatenating);
                         });
                         ui::pop_id();

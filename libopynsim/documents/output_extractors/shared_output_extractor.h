@@ -26,9 +26,8 @@ namespace opyn
     // by other parts of osc (e.g. aggregators, plotters)
     class SharedOutputExtractor final {
     public:
-        template<typename ConcreteOutputExtractor>
-        explicit SharedOutputExtractor(ConcreteOutputExtractor&& output) :
-            output_{std::make_shared<ConcreteOutputExtractor>(std::forward<ConcreteOutputExtractor>(output))}
+        explicit SharedOutputExtractor(std::shared_ptr<const OutputExtractor> output) :
+            output_{std::move(output)}
         {}
 
         osc::CStringView name() const { return output_->name(); }
@@ -88,7 +87,7 @@ namespace opyn
     requires std::constructible_from<ConcreteOutputExtractor, Args&&...>
     SharedOutputExtractor make_output_extractor(Args&&... args)
     {
-        return SharedOutputExtractor{ConcreteOutputExtractor{std::forward<Args>(args)...}};
+        return SharedOutputExtractor{std::make_shared<ConcreteOutputExtractor>(std::forward<Args>(args)...)};
     }
 
     std::ostream& operator<<(std::ostream&, const SharedOutputExtractor&);

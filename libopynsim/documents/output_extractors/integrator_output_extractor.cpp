@@ -20,86 +20,86 @@ namespace
     std::vector<SharedOutputExtractor> construct_integrator_output_extractors()
     {
         std::vector<SharedOutputExtractor> rv;
-        rv.emplace_back(IntegratorOutputExtractor{
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "AccuracyInUse",
             "The accuracy which is being used for error control. Usually this is the same value that was specified to setAccuracy()",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getAccuracyInUse()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "PredictedNextStepSize",
             "The step size that will be attempted first on the next call to stepTo() or stepBy().",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getPredictedNextStepSize()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumStepsAttempted",
             "The total number of steps that have been attempted (successfully or unsuccessfully)",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumStepsAttempted()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumStepsTaken",
             "The total number of steps that have been successfully taken",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumStepsTaken()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumRealizations",
             "The total number of state realizations that have been performed",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumRealizations()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumQProjections",
             "The total number of times a state positions Q have been projected",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumQProjections()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumUProjections",
             "The total number of times a state velocities U have been projected",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumUProjections()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumErrorTestFailures",
             "The number of attempted steps that have failed due to the error being unacceptably high",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumErrorTestFailures()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumConvergenceTestFailures",
             "The number of attempted steps that failed due to non-convergence of internal step iterations. This is most common with iterative methods but can occur if for some reason a step can't be completed.",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumConvergenceTestFailures()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumRealizationFailures",
             "The number of attempted steps that have failed due to an error when realizing the state",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumRealizationFailures()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumQProjectionFailures",
             "The number of attempted steps that have failed due to an error when projecting the state positions (Q)",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumQProjectionFailures()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumUProjectionFailures",
             "The number of attempted steps that have failed due to an error when projecting the state velocities (U)",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumUProjectionFailures()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumProjectionFailures",
             "The number of attempted steps that have failed due to an error when projecting the state (either a Q- or U-projection)",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumProjectionFailures()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumConvergentIterations",
             "For iterative methods, the number of internal step iterations in steps that led to convergence (not necessarily successful steps).",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumConvergentIterations()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumDivergentIterations",
             "For iterative methods, the number of internal step iterations in steps that did not lead to convergence.",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumDivergentIterations()); }
-        });
-        rv.emplace_back(IntegratorOutputExtractor{
+        ));
+        rv.emplace_back(make_output_extractor<IntegratorOutputExtractor>(
             "NumIterations",
             "For iterative methods, this is the total number of internal step iterations taken regardless of whether those iterations led to convergence or to successful steps. This is the sum of the number of convergent and divergent iterations which are available separately.",
             [](const SimTK::Integrator& inter) { return static_cast<float>(inter.getNumIterations()); }
-        });
+        ));
         return rv;
     }
 

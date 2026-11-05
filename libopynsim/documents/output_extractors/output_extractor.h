@@ -63,7 +63,7 @@ namespace opyn
         {
             const OutputValueExtractor extractor = output_value_extractor(component);
             for (const StateViewWithMetadata& state : states) {
-                consumer(to<T>(extractor(state)));
+                std::forward<Consumer>(consumer)(to<T>(extractor(state)));
             }
         }
 

@@ -160,18 +160,18 @@ namespace
         rv.reserve(2uz + opyn::num_integrator_output_extractors() + opyn::num_multi_body_system_output_extractors());
 
         {
-            const opyn::SharedOutputExtractor out{AuxiliaryVariableOutputExtractor{
+            const opyn::SharedOutputExtractor out = opyn::make_output_extractor<AuxiliaryVariableOutputExtractor>(
                 "Wall time",
                 "Total cumulative time spent computing the simulation",
-                get_walltime_uid(),
-            }};
+                get_walltime_uid()
+            );
             rv.push_back(out);
 
-            const opyn::SharedOutputExtractor out2{AuxiliaryVariableOutputExtractor{
+            const opyn::SharedOutputExtractor out2 = opyn::make_output_extractor<AuxiliaryVariableOutputExtractor>(
                 "Step Wall Time",
                 "How long it took, in wall time, to compute the last integration step",
-                get_step_duration_uid(),
-            }};
+                get_step_duration_uid()
+            );
             rv.push_back(out2);
         }
 
