@@ -1,5 +1,5 @@
 ---
-HeaderFilterRegex: 'libopensimcreator/(documents|platform|ui/mesh_importer|ui/mesh_warper|ui/model_editor|ui/model_warper|ui/preview_experimental_data|ui/shared)'
+HeaderFilterRegex: '(hellooscar|libopensimcreator|libopynsim/component_registry|libopynsim/documents/custom_components)'
 Checks: >
   clang-analyzer-*,
   -clang-analyzer-optin.core.EnumCastOutOfRange,

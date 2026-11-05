@@ -16,7 +16,7 @@ namespace opyn
         OpenSim_DECLARE_CONCRETE_OBJECT(InMemoryMesh, OpenSim::Geometry)
     public:
         InMemoryMesh() = default;
-        explicit InMemoryMesh(const osc::Mesh& mesh_) : osc_mesh_{mesh_} {}
+        explicit InMemoryMesh(const osc::Mesh& mesh) : osc_mesh_{mesh} {}
 
         void implementCreateDecorativeGeometry(SimTK::Array_<SimTK::DecorativeGeometry>&) const override
         {
