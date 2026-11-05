@@ -65,15 +65,15 @@ Uses the Thin-Plate Spline (TPS) warping algorithm to scale `WrapCylinder`s in t
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache& cache,
             const ScalingParameters& params,
-            const OpenSim::Model& sourceModel) const final
+            const OpenSim::Model& source_model) const final
         {
             // Get base class validation messages.
-            auto messages = ToggleableThinPlateSplineScalingStep::impl_validate(cache, params, sourceModel);
+            auto messages = ToggleableThinPlateSplineScalingStep::impl_validate(cache, params, source_model);
 
             // Ensure every entry in `wrap_cylinders` can be found in the source model.
             for (int i = 0; i < getProperty_wrap_cylinders().size(); ++i) {
-                const auto* offsetFrame = find_component<OpenSim::WrapCylinder>(sourceModel, get_wrap_cylinders(i));
-                if (not offsetFrame) {
+                const auto* offset_frame = find_component<OpenSim::WrapCylinder>(source_model, get_wrap_cylinders(i));
+                if (not offset_frame) {
                     messages.emplace_back(
                         ScalingStepValidationState::Error,
                         std::format("{}: Cannot find a `WrapCylinder` in 'wrap_cylinders' in the source model (or it isn't a `WrapCylinder`).", get_wrap_cylinders(i))
@@ -87,80 +87,80 @@ Uses the Thin-Plate Spline (TPS) warping algorithm to scale `WrapCylinder`s in t
         void impl_apply_scaling_step(
             ScalingCache& cache,
             const ScalingParameters& parameters,
-            const OpenSim::Model& sourceModel,
-            OpenSim::Model& resultModel) const final
+            const OpenSim::Model& source_model,
+            OpenSim::Model& result_model) const final
         {
             // Lookup/validate warping inputs.
-            const auto commonParams = calc_tps_scaling_step_common_params(parameters, sourceModel, resultModel);
+            const auto common_params = calc_tps_scaling_step_common_params(parameters, source_model, result_model);
 
             // Precalculate the surface point direction vector as "rotate a unit vector pointing
             // along X around the Z axis by theta amount" (see property documentation).
-            const SimTK::Rotation rotateCylinderXToSurfacePointDirection{get_surface_projection_theta(), SimTK::ZAxis};
-            const SimTK::UnitVec3 surfacePointDirectionInCylinderSpace{rotateCylinderXToSurfacePointDirection * SimTK::Vec3{1.0, 0.0, 0.0}};
+            const SimTK::Rotation rotate_cylinder_x_to_surface_point_direction{get_surface_projection_theta(), SimTK::ZAxis};
+            const SimTK::UnitVec3 surface_point_direction_in_cylinder_space{rotate_cylinder_x_to_surface_point_direction * SimTK::Vec3{1.0, 0.0, 0.0}};
 
             // Precalculate the midline projection point in the cylinder's local (not parent) space.
-            const SimTK::Vec3 midlinePointInCylinderSpace{0.0, 0.0, get_midline_projection_distance()};
+            const SimTK::Vec3 midline_point_in_cylinder_space{0.0, 0.0, get_midline_projection_distance()};
 
             // Warp each `WrapCylinder` specified by the `wrap_cylinders` property.
             for (int i = 0; i < getProperty_wrap_cylinders().size(); ++i) {
-                const auto* sourceWrapCylinder = find_component<OpenSim::WrapCylinder>(sourceModel, get_wrap_cylinders(i));
-                OSC_ASSERT_ALWAYS(sourceWrapCylinder && "could not find a `WrapCylinder` in the source model");
+                const auto* source_wrap_cylinder = find_component<OpenSim::WrapCylinder>(source_model, get_wrap_cylinders(i));
+                OSC_ASSERT_ALWAYS(source_wrap_cylinder && "could not find a `WrapCylinder` in the source model");
 
                 // Find the `i`th `WrapCylinder` in the model.
-                auto* resultWrapCylinder = find_component_mut<OpenSim::WrapCylinder>(resultModel, get_wrap_cylinders(i));
-                OSC_ASSERT_ALWAYS(resultWrapCylinder && "could not find a `WrapCylinder` in the model");
+                auto* result_wrap_cylinder = find_component_mut<OpenSim::WrapCylinder>(result_model, get_wrap_cylinders(i));
+                OSC_ASSERT_ALWAYS(result_wrap_cylinder && "could not find a `WrapCylinder` in the model");
 
                 // Calculate the `WrapCylinder`'s new `translation` by warping the origin.
-                const SimTK::Vec3 newOriginPointInParent = cache.lookup_tps_warped_rigid_point(
-                    sourceModel,
-                    resultModel,
-                    sourceWrapCylinder->get_translation(),
-                    resultWrapCylinder->get_translation(),
-                    sourceWrapCylinder->getFrame(),
-                    resultWrapCylinder->getFrame(),
-                    *commonParams.source_landmarks_frame,
-                    *commonParams.result_landmarks_frame,
-                    commonParams.tps_inputs,
-                    commonParams.compensate_for_frame_changes
+                const SimTK::Vec3 new_origin_point_in_parent = cache.lookup_tps_warped_rigid_point(
+                    source_model,
+                    result_model,
+                    source_wrap_cylinder->get_translation(),
+                    result_wrap_cylinder->get_translation(),
+                    source_wrap_cylinder->getFrame(),
+                    result_wrap_cylinder->getFrame(),
+                    *common_params.source_landmarks_frame,
+                    *common_params.result_landmarks_frame,
+                    common_params.tps_inputs,
+                    common_params.compensate_for_frame_changes
                 );
 
                 // Calculate the `WrapCylinder`'s new projected midline point by warping it.
-                const SimTK::Vec3 sourceMidlinePointInParent = sourceWrapCylinder->getTransform() * midlinePointInCylinderSpace;
-                const SimTK::Vec3 resultMidlinePointInParent = resultWrapCylinder->getTransform() * midlinePointInCylinderSpace;
-                const SimTK::Vec3 newMidlinePointInParent = cache.lookup_tps_warped_rigid_point(
-                    sourceModel,
-                    resultModel,
-                    sourceMidlinePointInParent,
-                    resultMidlinePointInParent,
-                    sourceWrapCylinder->getFrame(),
-                    resultWrapCylinder->getFrame(),
-                    *commonParams.source_landmarks_frame,
-                    *commonParams.result_landmarks_frame,
-                    commonParams.tps_inputs,
-                    commonParams.compensate_for_frame_changes
+                const SimTK::Vec3 source_midline_point_in_parent = source_wrap_cylinder->getTransform() * midline_point_in_cylinder_space;
+                const SimTK::Vec3 result_midline_point_in_parent = result_wrap_cylinder->getTransform() * midline_point_in_cylinder_space;
+                const SimTK::Vec3 new_midline_point_in_parent = cache.lookup_tps_warped_rigid_point(
+                    source_model,
+                    result_model,
+                    source_midline_point_in_parent,
+                    result_midline_point_in_parent,
+                    source_wrap_cylinder->getFrame(),
+                    result_wrap_cylinder->getFrame(),
+                    *common_params.source_landmarks_frame,
+                    *common_params.result_landmarks_frame,
+                    common_params.tps_inputs,
+                    common_params.compensate_for_frame_changes
                 );
 
                 // Calculate the source surface point by projecting the direction onto the `WrapCylinder`'s surface.
-                const SimTK::Vec3 sourceSurfacePointInCylinderSpace = sourceWrapCylinder->get_radius() * surfacePointDirectionInCylinderSpace;
-                const SimTK::Vec3 resultSurfacePointInCylinderSpace = resultWrapCylinder->get_radius() * surfacePointDirectionInCylinderSpace;
-                const SimTK::Vec3 sourceSurfacePointInParent = sourceWrapCylinder->getTransform() * sourceSurfacePointInCylinderSpace;
-                const SimTK::Vec3 resultSurfacePointInParent = resultWrapCylinder->getTransform() * resultSurfacePointInCylinderSpace;
-                const SimTK::Vec3 newSurfacePointInParent = cache.lookup_tps_warped_rigid_point(
-                    sourceModel,
-                    resultModel,
-                    sourceSurfacePointInParent,
-                    resultSurfacePointInParent,
-                    sourceWrapCylinder->getFrame(),
-                    resultWrapCylinder->getFrame(),
-                    *commonParams.source_landmarks_frame,
-                    *commonParams.result_landmarks_frame,
-                    commonParams.tps_inputs,
-                    commonParams.compensate_for_frame_changes
+                const SimTK::Vec3 source_surface_point_in_cylinder_space = source_wrap_cylinder->get_radius() * surface_point_direction_in_cylinder_space;
+                const SimTK::Vec3 result_surface_point_in_cylinder_space = result_wrap_cylinder->get_radius() * surface_point_direction_in_cylinder_space;
+                const SimTK::Vec3 source_surface_point_in_parent = source_wrap_cylinder->getTransform() * source_surface_point_in_cylinder_space;
+                const SimTK::Vec3 result_surface_point_in_parent = result_wrap_cylinder->getTransform() * result_surface_point_in_cylinder_space;
+                const SimTK::Vec3 new_surface_point_in_parent = cache.lookup_tps_warped_rigid_point(
+                    source_model,
+                    result_model,
+                    source_surface_point_in_parent,
+                    result_surface_point_in_parent,
+                    source_wrap_cylinder->getFrame(),
+                    result_wrap_cylinder->getFrame(),
+                    *common_params.source_landmarks_frame,
+                    *common_params.result_landmarks_frame,
+                    common_params.tps_inputs,
+                    common_params.compensate_for_frame_changes
                 );
 
                 // The `WrapCylinder`'s new Z axis within the parent frame is a unit vector that
                 // points from its new origin to the projected midline point.
-                const SimTK::UnitVec3 newZAxisDirectionInParent{newMidlinePointInParent - newOriginPointInParent};
+                const SimTK::UnitVec3 new_z_axis_direction_in_parent{new_midline_point_in_parent - new_origin_point_in_parent};
 
                 // We can now use the warped surface point to figure out what the orientation _around_
                 // Z should be (i.e. to constrain it, rather than letting the orientation spin along
@@ -171,34 +171,34 @@ Uses the Thin-Plate Spline (TPS) warping algorithm to scale `WrapCylinder`s in t
                 // vector rejection (the opposite of vector projection) to compute an orthogonal vector
                 // that we can un-spin by `surface_projection_theta` in order to figure out exactly where
                 // the X axis should point.
-                const SimTK::Vec3 newSurfacePointVectorInParent{newSurfacePointInParent - newOriginPointInParent};
-                const SimTK::UnitVec3 newSurfacePointDirectionInParent{newSurfacePointVectorInParent};
-                OSC_ASSERT((SimTK::dot(newZAxisDirectionInParent, newSurfacePointDirectionInParent) < 1.0 - SimTK::Eps) && "cylinder surface point somehow points along Z axis - warping is too strong?");
-                const SimTK::Vec3 newSurfacePointProjectionAlongZVector = newZAxisDirectionInParent * SimTK::dot(newZAxisDirectionInParent, newSurfacePointDirectionInParent);
-                const SimTK::Vec3 newSurfacePointRejectionVector = newSurfacePointVectorInParent - newSurfacePointProjectionAlongZVector;
-                const SimTK::UnitVec3 newSurfacePointRejectionDirection{newSurfacePointRejectionVector};
+                const SimTK::Vec3 new_surface_point_vector_in_parent{new_surface_point_in_parent - new_origin_point_in_parent};
+                const SimTK::UnitVec3 new_surface_point_direction_in_parent{new_surface_point_vector_in_parent};
+                OSC_ASSERT((SimTK::dot(new_z_axis_direction_in_parent, new_surface_point_direction_in_parent) < 1.0 - SimTK::Eps) && "cylinder surface point somehow points along Z axis - warping is too strong?");
+                const SimTK::Vec3 new_surface_point_projection_along_z_vector = new_z_axis_direction_in_parent * SimTK::dot(new_z_axis_direction_in_parent, new_surface_point_direction_in_parent);
+                const SimTK::Vec3 new_surface_point_rejection_vector = new_surface_point_vector_in_parent - new_surface_point_projection_along_z_vector;
+                const SimTK::UnitVec3 new_surface_point_rejection_direction{new_surface_point_rejection_vector};
 
                 // The new surface point direction is assumed to be `surface_projection_theta` rotated along
                 // the new Z axis from where the X axis should be (that's how it was initially generated), so
                 // un-rotate it to figure out where the new X axis should be.
-                const SimTK::UnitVec3 newXAxisDirectionInParent{rotateCylinderXToSurfacePointDirection.invert() * newSurfacePointRejectionDirection};
+                const SimTK::UnitVec3 new_x_axis_direction_in_parent{rotate_cylinder_x_to_surface_point_direction.invert() * new_surface_point_rejection_direction};
 
                 // With two vectors pointing along known axes, we can compute a new cylinder rotation
-                const SimTK::Rotation newCylinderRotation{newZAxisDirectionInParent, SimTK::ZAxis, newXAxisDirectionInParent, SimTK::XAxis};
+                const SimTK::Rotation new_cylinder_rotation{new_z_axis_direction_in_parent, SimTK::ZAxis, new_x_axis_direction_in_parent, SimTK::XAxis};
 
                 // The new radius is the length of the rejection vector: i.e. the length of a vector
                 // orthogonal to Z (rejection) that points toward the surface point. Another way of
                 // thinking about this is that it's the shortest distance between the midline and
                 // the point
-                const double newRadius = newSurfacePointVectorInParent.norm();
+                const double new_radius = new_surface_point_vector_in_parent.norm();
 
                 // (finally) Update the cylinder
-                resultWrapCylinder->set_translation(newOriginPointInParent);
-                resultWrapCylinder->set_xyz_body_rotation(newCylinderRotation.convertRotationToBodyFixedXYZ());
-                resultWrapCylinder->set_radius(newRadius);
+                result_wrap_cylinder->set_translation(new_origin_point_in_parent);
+                result_wrap_cylinder->set_xyz_body_rotation(new_cylinder_rotation.convertRotationToBodyFixedXYZ());
+                result_wrap_cylinder->set_radius(new_radius);
             }
-            initialize_model(resultModel);
-            initialize_state(resultModel);
+            initialize_model(result_model);
+            initialize_state(result_model);
         }
     };
 }

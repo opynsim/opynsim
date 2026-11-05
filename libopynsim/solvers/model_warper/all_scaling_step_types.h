@@ -40,13 +40,13 @@ namespace opyn
     // them as available options etc.
     inline const auto& get_scaling_step_prototypes()
     {
-        static const auto s_ScalingStepPrototypes = []<typename... TScalingStep>(osc::Typelist<TScalingStep...>)
+        static const auto s_scaling_step_prototypes = []<typename... TScalingStep>(osc::Typelist<TScalingStep...>)
         {
             return std::to_array<std::unique_ptr<ScalingStep>>({
                 std::make_unique<TScalingStep>()...
             });
         }(AllScalingStepTypes{});
 
-        return s_ScalingStepPrototypes;
+        return s_scaling_step_prototypes;
     }
 }

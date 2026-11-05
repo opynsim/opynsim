@@ -54,8 +54,8 @@ namespace opyn
             }
 
             // Ensure `wrap_ellipsoid_path` exists in the model (and is a `WrapEllipsoid`)
-            const auto* wrapEllipsoid = find_component<OpenSim::WrapEllipsoid>(model, get_wrap_ellipsoid_path());
-            if (not wrapEllipsoid) {
+            const auto* wrap_ellipsoid = find_component<OpenSim::WrapEllipsoid>(model, get_wrap_ellipsoid_path());
+            if (not wrap_ellipsoid) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
                     std::format("{}: Cannot find 'wrap_ellipsoid_path' in the source model (or it isn't a `WrapEllipsoid`).", get_wrap_ellipsoid_path())
@@ -69,29 +69,29 @@ namespace opyn
             ScalingCache&,
             const ScalingParameters&,
             const OpenSim::Model&,
-            OpenSim::Model& resultModel) const final
+            OpenSim::Model& result_model) const final
         {
-            const auto* station = find_component<OpenSim::Station>(resultModel, get_station_path());
+            const auto* station = find_component<OpenSim::Station>(result_model, get_station_path());
             OSC_ASSERT_ALWAYS(station && "could not find a station in the model");
-            auto* wrapEllipsoid = find_component_mut<OpenSim::WrapEllipsoid>(resultModel, get_wrap_ellipsoid_path());
-            OSC_ASSERT_ALWAYS(wrapEllipsoid && "could not find a `WrapEllipsoid` in the model");
+            auto* wrap_ellipsoid = find_component_mut<OpenSim::WrapEllipsoid>(result_model, get_wrap_ellipsoid_path());
+            OSC_ASSERT_ALWAYS(wrap_ellipsoid && "could not find a `WrapEllipsoid` in the model");
 
             // Put the station into the `WrapEllipsoid`'s reference frame.
-            const SimTK::Transform ellipsoid2ellipsoidFrame = wrapEllipsoid->getTransform();
-            const SimTK::Transform ellipsoidFrame2ground = wrapEllipsoid->getFrame().getTransformInGround(resultModel.getWorkingState());
-            const SimTK::Transform ground2ellipsoid = (ellipsoidFrame2ground * ellipsoid2ellipsoidFrame).invert();
-            const SimTK::Vec3 stationInEllipsoid = ground2ellipsoid * station->getLocationInGround(resultModel.getWorkingState());
+            const SimTK::Transform ellipsoid2ellipsoid_frame = wrap_ellipsoid->getTransform();
+            const SimTK::Transform ellipsoid_frame2ground = wrap_ellipsoid->getFrame().getTransformInGround(result_model.getWorkingState());
+            const SimTK::Transform ground2ellipsoid = (ellipsoid_frame2ground * ellipsoid2ellipsoid_frame).invert();
+            const SimTK::Vec3 station_in_ellipsoid = ground2ellipsoid * station->getLocationInGround(result_model.getWorkingState());
 
-            const auto euclidianDistanceToOrigin = stationInEllipsoid.norm();
+            const auto euclidian_distance_to_origin = station_in_ellipsoid.norm();
 
             // The new dimensions of the `WrapEllipsoid` is the multiplication of the distance to
             // the origin and the scale factors.
-            const SimTK::Vec3 newEllipsoidDimensions = euclidianDistanceToOrigin * get_dimensions_scale_factors();
+            const SimTK::Vec3 new_ellipsoid_dimensions = euclidian_distance_to_origin * get_dimensions_scale_factors();
 
             // Update the `WrapEllipsoid` accordingly and reinitialize the model.
-            wrapEllipsoid->set_dimensions(newEllipsoidDimensions);
-            initialize_model(resultModel);
-            initialize_state(resultModel);
+            wrap_ellipsoid->set_dimensions(new_ellipsoid_dimensions);
+            initialize_model(result_model);
+            initialize_state(result_model);
         }
     };
 }

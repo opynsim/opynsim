@@ -36,10 +36,6 @@ namespace opyn
             scaling_document_->finalizeFromProperties();
         }
 
-        ScalingState(ScalingState&& tmp) noexcept :
-            ScalingState{static_cast<const ScalingState&>(tmp)}
-        {}
-
         ~ScalingState() noexcept = default;
 
         ScalingState& operator=(const ScalingState& other)
@@ -58,8 +54,6 @@ namespace opyn
             scaling_document_->finalizeFromProperties();
             return *this;
         }
-
-        ScalingState& operator=(ScalingState&& tmp) noexcept { return *this = static_cast<const ScalingState&>(tmp); }
 
     // Source Model Methods
 
@@ -89,8 +83,8 @@ namespace opyn
         }
         bool erase_scaling_step(const OpenSim::ComponentPath& path)
         {
-            if (auto* scalingStep = find_scaling_component_mut<ScalingStep>(path)) {
-                return erase_scaling_step(*scalingStep);
+            if (auto* scaling_step = find_scaling_component_mut<ScalingStep>(path)) {
+                return erase_scaling_step(*scaling_step);
             }
             else {
                 return false;
@@ -113,8 +107,8 @@ namespace opyn
         }
         bool disable_scaling_step(const OpenSim::ComponentPath& path)
         {
-            if (auto* scalingStep = find_scaling_component_mut<ScalingStep>(path)) {
-                scalingStep->set_enabled(false);
+            if (auto* scaling_step = find_scaling_component_mut<ScalingStep>(path)) {
+                scaling_step->set_enabled(false);
                 scaling_document_->clearConnections();
                 scaling_document_->finalizeConnections(*scaling_document_);
                 scaling_document_->finalizeFromProperties();
@@ -124,7 +118,7 @@ namespace opyn
                 return false;
             }
         }
-        std::vector<ScalingDocumentValidationMessage> get_enabled_scaling_step_validation_messages(ScalingCache& scalingCache) const
+        std::vector<ScalingDocumentValidationMessage> get_enabled_scaling_step_validation_messages(ScalingCache& scaling_cache) const
         {
             std::vector<ScalingDocumentValidationMessage> rv;
 
@@ -132,27 +126,27 @@ namespace opyn
                 return rv;
             }
 
-            const ScalingParameters scalingParameters = get_effective_scaling_parameters();
+            const ScalingParameters scaling_parameters = get_effective_scaling_parameters();
 
-            for (const auto& scalingStep : scaling_document_->getComponentList<ScalingStep>()) {
-                if (not scalingStep.get_enabled()) {
+            for (const auto& scaling_step : scaling_document_->getComponentList<ScalingStep>()) {
+                if (not scaling_step.get_enabled()) {
                     // Only aggregate validation errors from enabled `ScalingStep`s at the document-level.
                     continue;
                 }
-                auto stepMessages = scalingStep.validate(scalingCache, scalingParameters, *source_model_);
-                rv.reserve(rv.size() + stepMessages.size());
-                for (auto& stepMessage : stepMessages) {
+                auto step_messages = scaling_step.validate(scaling_cache, scaling_parameters, *source_model_);
+                rv.reserve(rv.size() + step_messages.size());
+                for (auto& step_message : step_messages) {
                     rv.push_back(ScalingDocumentValidationMessage{
-                        .source_scaling_step_abs_path = scalingStep.getAbsolutePath(),
-                        .payload = std::move(stepMessage),
+                        .source_scaling_step_abs_path = scaling_step.getAbsolutePath(),
+                        .payload = std::move(step_message),
                     });
                 }
             }
             return rv;
         }
-        bool has_scaling_step_validation_issues(ScalingCache& scalingCache) const
+        bool has_scaling_step_validation_issues(ScalingCache& scaling_cache) const
         {
-            return not get_enabled_scaling_step_validation_messages(scalingCache).empty();
+            return not get_enabled_scaling_step_validation_messages(scaling_cache).empty();
         }
         void reset_scaling_document()
         {
@@ -176,42 +170,42 @@ namespace opyn
 
         bool has_scaling_parameter_declarations() const { return scaling_document_->has_scaling_parameters(); }
         ScalingParameters get_effective_scaling_parameters() const { return scaling_document_->get_effective_scaling_parameters(); }
-        bool set_scaling_parameter_override(const std::string& scalingParamName, ScalingParameterValue newValue)
+        bool set_scaling_parameter_override(const std::string& scaling_param_name, ScalingParameterValue new_value)
         {
-            return scaling_document_->set_scaling_parameter_override(scalingParamName, newValue);
+            return scaling_document_->set_scaling_parameter_override(scaling_param_name, new_value);
         }
 
     // Model Scaling
 
         // Tries to generate a scaled version of the source model using the current
         // scaling steps and scaling parameters.
-        std::unique_ptr<BasicModelStatePair> try_generate_scaled_model(ScalingCache& scalingCache) const
+        std::unique_ptr<BasicModelStatePair> try_generate_scaled_model(ScalingCache& scaling_cache) const
         {
-            if (has_scaling_step_validation_issues(scalingCache)) {
+            if (has_scaling_step_validation_issues(scaling_cache)) {
                 return nullptr;  // there are validation errors, so scaling isn't possible
             }
 
             // Create an independent copy of the source model, which will be scaled in-place.
-            OpenSim::Model resultModel = source_model_->get_model();
-            resultModel.clearConnections();
-            initialize_model(resultModel);
-            initialize_state(resultModel);
+            OpenSim::Model result_model = source_model_->get_model();
+            result_model.clearConnections();
+            initialize_model(result_model);
+            initialize_state(result_model);
 
             if (not has_scaling_steps()) {
                 // There are no scaling steps, so a copy of the source model is a scaled model (trivially).
-                return std::make_unique<BasicModelStatePair>(std::move(resultModel));
+                return std::make_unique<BasicModelStatePair>(std::move(result_model));
             }
 
             // Calculate the effective scaling parameters (defaults + user-enacted overrides)
-            const ScalingParameters scalingParams = get_effective_scaling_parameters();
+            const ScalingParameters scaling_params = get_effective_scaling_parameters();
 
             // Apply each scaling step to the scaled model
             for (const auto& step : scaling_document_->getComponentList<ScalingStep>()) {
-                step.apply_scaling_step(scalingCache, scalingParams, *source_model_, resultModel);
+                step.apply_scaling_step(scaling_cache, scaling_params, *source_model_, result_model);
             }
 
             // Return the warped model
-            return std::make_unique<BasicModelStatePair>(std::move(resultModel));
+            return std::make_unique<BasicModelStatePair>(std::move(result_model));
         }
 
     private:

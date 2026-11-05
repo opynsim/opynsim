@@ -31,13 +31,13 @@ namespace opyn
 
         CommonParameters calc_tps_scaling_step_common_params(
             const ScalingParameters& parameters,
-            const OpenSim::Model& sourceModel,
-            const OpenSim::Model& resultModel) const
+            const OpenSim::Model& source_model,
+            const OpenSim::Model& result_model) const
         {
             auto rv = ThinPlateSplineScalingStep::calc_tps_scaling_step_common_params(
                 parameters,
-                sourceModel,
-                resultModel
+                source_model,
+                result_model
             );
             rv.tps_inputs.apply_affine_translation = get_apply_affine_translation();
             rv.tps_inputs.apply_affine_scale = get_apply_affine_scale();

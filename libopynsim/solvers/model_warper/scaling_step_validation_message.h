@@ -17,11 +17,11 @@ namespace opyn
         // Constructs a validation message that's related to the value(s) held in
         // a property with name `propertyName` on the `ScalingStep`.
         explicit ScalingStepValidationMessage(
-            std::string propertyName,
+            std::string property_name,
             ScalingStepValidationState state,
             std::string message) :
 
-            maybe_property_name_{std::move(propertyName)},
+            maybe_property_name_{std::move(property_name)},
             state_{state},
             message_{std::move(message)}
         {}

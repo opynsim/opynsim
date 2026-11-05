@@ -128,7 +128,7 @@ namespace opyn
                             step.getAbsolutePathString(),
                             decl.name()
                         );
-                        throw std::runtime_error{std::move(msg)};
+                        throw std::runtime_error{msg};
                     }
                 });
             }
@@ -145,9 +145,9 @@ namespace opyn
             return rv;
         }
 
-        bool set_scaling_parameter_override(const std::string& scalingParamName, ScalingParameterValue newValue)
+        bool set_scaling_parameter_override(const std::string& scaling_param_name, ScalingParameterValue new_value)
         {
-            mutate_scaling_parammeter_overrides_with_new_override(scalingParamName, newValue);
+            mutate_scaling_parammeter_overrides_with_new_override(scaling_param_name, new_value);
             finalizeFromProperties();
             return true;
         }
@@ -163,22 +163,22 @@ namespace opyn
             constructProperty_scaling_parameter_overrides();
         }
 
-        void mutate_scaling_parammeter_overrides_with_new_override(const std::string& scalingParamName, ScalingParameterValue newValue)
+        void mutate_scaling_parammeter_overrides_with_new_override(const std::string& scaling_param_name, ScalingParameterValue new_value)
         {
             // First, try to find an existing override with the same name and overwrite it
             const OpenSim::Property<ScalingParameterOverride>& overrides = getProperty_scaling_parameter_overrides();
             for (int i = 0; i < overrides.size(); ++i) {
                 const ScalingParameterOverride& o = overrides.getValue(i);
-                if (o.get_parameter_name() == scalingParamName) {
-                    updProperty_scaling_parameter_overrides().updValue(i).set_parameter_value(newValue);
+                if (o.get_parameter_name() == scaling_param_name) {
+                    updProperty_scaling_parameter_overrides().updValue(i).set_parameter_value(new_value);
                     return;  // found and overwritten
                 }
             }
 
             // Otherwise, add a new override
-            int idx = updProperty_scaling_parameter_overrides().appendValue(ScalingParameterOverride{scalingParamName, newValue});
-            updProperty_scaling_parameter_overrides().updValue(idx).set_parameter_name(scalingParamName);
-            updProperty_scaling_parameter_overrides().updValue(idx).set_parameter_value(newValue);
+            int idx = updProperty_scaling_parameter_overrides().appendValue(ScalingParameterOverride{scaling_param_name, new_value});
+            updProperty_scaling_parameter_overrides().updValue(idx).set_parameter_name(scaling_param_name);
+            updProperty_scaling_parameter_overrides().updValue(idx).set_parameter_value(new_value);
         }
 
         const OpenSim::Component& impl_get_component() const final

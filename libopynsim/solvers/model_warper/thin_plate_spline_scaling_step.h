@@ -72,13 +72,13 @@ namespace opyn
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache&,
             const ScalingParameters&,
-            const OpenSim::Model& sourceModel) const override
+            const OpenSim::Model& source_model) const override
         {
             std::vector<ScalingStepValidationMessage> messages;
 
             // Ensure the model has a filesystem location (prerequisite).
-            const auto modelFilesystemLocation = opyn::try_find_input_file(sourceModel);
-            if (not modelFilesystemLocation) {
+            const auto model_filesystem_location = opyn::try_find_input_file(source_model);
+            if (not model_filesystem_location) {
                 messages.emplace_back(ScalingStepValidationState::Error, "The source model has no filesystem location.");
                 return messages;
             }
@@ -87,12 +87,12 @@ namespace opyn
             if (get_source_landmarks_file().empty()) {
                 messages.emplace_back(ScalingStepValidationState::Error, "`source_landmarks_file` is empty.");
             }
-            else if (const auto sourceLandmarksPath = modelFilesystemLocation->parent_path() / osc::read_windows_or_unix_path_string(get_source_landmarks_file());
-                not std::filesystem::exists(sourceLandmarksPath)) {
+            else if (const auto source_landmarks_path = model_filesystem_location->parent_path() / osc::read_windows_or_unix_path_string(get_source_landmarks_file());
+                not std::filesystem::exists(source_landmarks_path)) {
 
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    std::format("{}: Cannot find source landmarks file on filesystem", sourceLandmarksPath.string())
+                    std::format("{}: Cannot find source landmarks file on filesystem", source_landmarks_path.string())
                 );
             }
 
@@ -100,18 +100,18 @@ namespace opyn
             if (get_destination_landmarks_file().empty()) {
                 messages.emplace_back(ScalingStepValidationState::Error, "`destination_landmarks_file` is empty.");
             }
-            else if (const auto destinationLandmarksPath = modelFilesystemLocation->parent_path() / osc::read_windows_or_unix_path_string(get_destination_landmarks_file());
-                not std::filesystem::exists(destinationLandmarksPath)) {
+            else if (const auto destination_landmarks_path = model_filesystem_location->parent_path() / osc::read_windows_or_unix_path_string(get_destination_landmarks_file());
+                not std::filesystem::exists(destination_landmarks_path)) {
 
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    std::format("{}: Cannot find destination landmarks file on filesystem", destinationLandmarksPath.string())
+                    std::format("{}: Cannot find destination landmarks file on filesystem", destination_landmarks_path.string())
                 );
             }
 
             // Ensure `landmarks_frame` exists in the model
-            const auto* landmarksFrame = find_component<OpenSim::Frame>(sourceModel, get_landmarks_frame());
-            if (not landmarksFrame) {
+            const auto* landmarks_frame = find_component<OpenSim::Frame>(source_model, get_landmarks_frame());
+            if (not landmarks_frame) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
                     std::format("{}: Cannot find this frame in the source model (or it isn't a Frame).", get_landmarks_frame())
@@ -125,41 +125,41 @@ namespace opyn
         // algorithm.
         CommonParameters calc_tps_scaling_step_common_params(
             const ScalingParameters& parameters,
-            const OpenSim::Model& sourceModel,
-            const OpenSim::Model& resultModel) const
+            const OpenSim::Model& source_model,
+            const OpenSim::Model& result_model) const
         {
             // Lookup/validate warping inputs.
-            const std::optional<std::filesystem::path> modelFilesystemLocation = try_find_input_file(resultModel);
-            OSC_ASSERT_ALWAYS(modelFilesystemLocation && "The source model has no filesystem location");
+            const std::optional<std::filesystem::path> model_filesystem_location = try_find_input_file(result_model);
+            OSC_ASSERT_ALWAYS(model_filesystem_location && "The source model has no filesystem location");
 
             OSC_ASSERT_ALWAYS(not get_source_landmarks_file().empty());
-            const std::filesystem::path sourceLandmarksPath = modelFilesystemLocation->parent_path() / osc::read_windows_or_unix_path_string(get_source_landmarks_file());
+            const std::filesystem::path source_landmarks_path = model_filesystem_location->parent_path() / osc::read_windows_or_unix_path_string(get_source_landmarks_file());
 
             OSC_ASSERT_ALWAYS(not get_destination_landmarks_file().empty());
-            const std::filesystem::path destinationLandmarksPath = modelFilesystemLocation->parent_path() / osc::read_windows_or_unix_path_string(get_destination_landmarks_file());
+            const std::filesystem::path destination_landmarks_path = model_filesystem_location->parent_path() / osc::read_windows_or_unix_path_string(get_destination_landmarks_file());
 
             OSC_ASSERT_ALWAYS(not get_landmarks_frame().empty());
 
-            const auto* sourceLandmarksFrame = find_component<OpenSim::Frame>(sourceModel, get_landmarks_frame());
-            OSC_ASSERT_ALWAYS(sourceLandmarksFrame && "could not find the landmarks frame in the source model");
+            const auto* source_landmarks_frame = find_component<OpenSim::Frame>(source_model, get_landmarks_frame());
+            OSC_ASSERT_ALWAYS(source_landmarks_frame && "could not find the landmarks frame in the source model");
 
-            const auto* resultLandmarksFrame = find_component<OpenSim::Frame>(resultModel, get_landmarks_frame());
-            OSC_ASSERT_ALWAYS(resultLandmarksFrame && "could not find the landmarks frame in the model");
+            const auto* result_landmarks_frame = find_component<OpenSim::Frame>(result_model, get_landmarks_frame());
+            OSC_ASSERT_ALWAYS(result_landmarks_frame && "could not find the landmarks frame in the model");
 
-            const std::optional<double> blendingFactor = parameters.lookup<double>("blending_factor");
-            OSC_ASSERT_ALWAYS(blendingFactor && "blending_factor was not set by the warping engine");
+            const std::optional<double> blending_factor = parameters.lookup<double>("blending_factor");
+            OSC_ASSERT_ALWAYS(blending_factor && "blending_factor was not set by the warping engine");
 
             return CommonParameters{
                 .tps_inputs = ThinPlateSplineCommonInputs{
-                    sourceLandmarksPath,
-                    destinationLandmarksPath,
+                    source_landmarks_path,
+                    destination_landmarks_path,
                     get_source_landmarks_prescale(),
                     get_destination_landmarks_prescale(),
-                    *blendingFactor,
+                    *blending_factor,
                     get_warping_penalty(),
                 },
-                .source_landmarks_frame = sourceLandmarksFrame,
-                .result_landmarks_frame = resultLandmarksFrame,
+                .source_landmarks_frame = source_landmarks_frame,
+                .result_landmarks_frame = result_landmarks_frame,
                 .compensate_for_frame_changes = get_compensate_for_frame_changes(),
             };
         }

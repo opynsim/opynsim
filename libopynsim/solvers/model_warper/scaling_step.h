@@ -41,7 +41,7 @@ namespace opyn
         osc::CStringView label() const { return get_label(); }
 
         // Sets this `ScalingStep`'s user-facing label.
-        void set_label(osc::CStringView newLabel) { set_label(std::string{newLabel}); }
+        void set_label(osc::CStringView new_label) { set_label(std::string{new_label}); }
 
         // Calls `callback` with each parameter declaration that this `ScalingStep` accepts
         // at scaling-time.
@@ -58,11 +58,11 @@ namespace opyn
         // or non-errors, before higher-level engines call `apply_scaling_step` (otherwise,
         // an exception may be thrown by `apply_scaling_step`).
         std::vector<ScalingStepValidationMessage> validate(
-            ScalingCache& scalingCache,
-            const ScalingParameters& scalingParameters,
-            const OpenSim::Model& sourceModel) const
+            ScalingCache& scaling_cache,
+            const ScalingParameters& scaling_parameters,
+            const OpenSim::Model& source_model) const
         {
-            return impl_validate(scalingCache, scalingParameters, sourceModel);
+            return impl_validate(scaling_cache, scaling_parameters, source_model);
         }
 
         // Applies this `ScalingStep`'s scaling function in-place to the `resultModel`. The
@@ -71,13 +71,13 @@ namespace opyn
         // It is expected that `scalingParameters` contains at least the scaling parameter
         // values that match the declarations emitted by `for_each_scaling_parameter_declaration`.
         void apply_scaling_step(
-            ScalingCache& scalingCache,
-            const ScalingParameters& scalingParameters,
-            const OpenSim::Model& sourceModel,
-            OpenSim::Model& resultModel) const
+            ScalingCache& scaling_cache,
+            const ScalingParameters& scaling_parameters,
+            const OpenSim::Model& source_model,
+            OpenSim::Model& result_model) const
         {
             if (get_enabled()) {
-                impl_apply_scaling_step(scalingCache, scalingParameters, sourceModel, resultModel);
+                impl_apply_scaling_step(scaling_cache, scaling_parameters, source_model, result_model);
             }
         }
     private:

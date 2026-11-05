@@ -15,9 +15,9 @@ namespace opyn
     // `ScalingStep`'s declarations.
     class ScalingParameterDeclaration final {
     public:
-        explicit ScalingParameterDeclaration(std::string name, ScalingParameterValue defaultValue) :
+        explicit ScalingParameterDeclaration(std::string name, ScalingParameterValue default_value) :
             name_{std::move(name)},
-            default_value_{defaultValue}
+            default_value_{default_value}
         {}
 
         const std::string& name() const { return name_; }

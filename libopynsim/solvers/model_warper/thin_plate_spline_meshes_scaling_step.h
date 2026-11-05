@@ -37,10 +37,10 @@ namespace opyn
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache& cache,
             const ScalingParameters& params,
-            const OpenSim::Model& sourceModel) const final
+            const OpenSim::Model& source_model) const final
         {
             // Get base class validation messages.
-            auto messages = ToggleableThinPlateSplineScalingStep::impl_validate(cache, params, sourceModel);
+            auto messages = ToggleableThinPlateSplineScalingStep::impl_validate(cache, params, source_model);
 
             // Ensure at least one mesh is specified.
             if (getProperty_meshes().empty()) {
@@ -49,7 +49,7 @@ namespace opyn
 
             // Ensure all specified meshes can be found in the source model.
             for (int i = 0; i < getProperty_meshes().size(); ++i) {
-                const auto* mesh = find_component<OpenSim::Mesh>(sourceModel, get_meshes(i));
+                const auto* mesh = find_component<OpenSim::Mesh>(source_model, get_meshes(i));
                 if (not mesh) {
                     messages.emplace_back(
                         ScalingStepValidationState::Error,
@@ -62,42 +62,42 @@ namespace opyn
         }
 
         void impl_apply_scaling_step(
-            ScalingCache& scalingCache,
+            ScalingCache& scaling_cache,
             const ScalingParameters& parameters,
-            const OpenSim::Model& sourceModel,
-            OpenSim::Model& resultModel) const final
+            const OpenSim::Model& source_model,
+            OpenSim::Model& result_model) const final
         {
-            const auto commonParams = calc_tps_scaling_step_common_params(parameters, sourceModel, resultModel);
+            const auto common_params = calc_tps_scaling_step_common_params(parameters, source_model, result_model);
 
             // Warp each mesh specified by the `meshes` property.
             for (int i = 0; i < getProperty_meshes().size(); ++i) {
-                const auto* sourceMesh = find_component<OpenSim::Mesh>(sourceModel, get_meshes(i));
-                OSC_ASSERT_ALWAYS(sourceMesh && "could not find a mesh in the source model");
+                const auto* source_mesh = find_component<OpenSim::Mesh>(source_model, get_meshes(i));
+                OSC_ASSERT_ALWAYS(source_mesh && "could not find a mesh in the source model");
 
                 // Find the input mesh and use it produce the warped mesh.
-                const auto* resultMesh = find_component<OpenSim::Mesh>(resultModel, get_meshes(i));
-                OSC_ASSERT_ALWAYS(resultMesh && "could not find a mesh in the model");
+                const auto* result_mesh = find_component<OpenSim::Mesh>(result_model, get_meshes(i));
+                OSC_ASSERT_ALWAYS(result_mesh && "could not find a mesh in the model");
 
-                std::unique_ptr<InMemoryMesh> warpedMesh = scalingCache.lookup_tps_mesh_warp(
-                    sourceModel,
-                    resultModel,
-                    *sourceMesh,
-                    *resultMesh,
-                    *commonParams.source_landmarks_frame,
-                    *commonParams.result_landmarks_frame,
-                    commonParams.tps_inputs,
-                    commonParams.compensate_for_frame_changes
+                std::unique_ptr<InMemoryMesh> warped_mesh = scaling_cache.lookup_tps_mesh_warp(
+                    source_model,
+                    result_model,
+                    *source_mesh,
+                    *result_mesh,
+                    *common_params.source_landmarks_frame,
+                    *common_params.result_landmarks_frame,
+                    common_params.tps_inputs,
+                    common_params.compensate_for_frame_changes
                 );
-                OSC_ASSERT_ALWAYS(warpedMesh && "warping a mesh in the model failed");
+                OSC_ASSERT_ALWAYS(warped_mesh && "warping a mesh in the model failed");
 
                 // Overwrite the mesh in the result model with the warped mesh.
-                auto* resultMeshMut = find_component_mut<OpenSim::Mesh>(resultModel, get_meshes(i));
-                OSC_ASSERT_ALWAYS(resultMesh && "could not find a corresponding mesh in the result model");
-                overwrite_geometry(resultModel, *resultMeshMut, std::move(warpedMesh));
-                OSC_ASSERT_ALWAYS(find_component<InMemoryMesh>(resultModel, get_meshes(i)) != nullptr);
+                auto* result_mesh_mut = find_component_mut<OpenSim::Mesh>(result_model, get_meshes(i));
+                OSC_ASSERT_ALWAYS(result_mesh && "could not find a corresponding mesh in the result model");
+                overwrite_geometry(result_model, *result_mesh_mut, std::move(warped_mesh));
+                OSC_ASSERT_ALWAYS(find_component<InMemoryMesh>(result_model, get_meshes(i)) != nullptr);
             }
-            initialize_model(resultModel);
-            initialize_state(resultModel);
+            initialize_model(result_model);
+            initialize_state(result_model);
         }
     };
 }

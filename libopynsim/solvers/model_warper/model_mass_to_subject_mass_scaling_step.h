@@ -60,23 +60,23 @@ namespace opyn
             ScalingCache&,
             const ScalingParameters& parameters,
             const OpenSim::Model&,
-            OpenSim::Model& resultModel) const final
+            OpenSim::Model& result_model) const final
         {
-            const auto subjectMass = parameters.lookup<double>("subject_mass").value_or(0.0);
-            OSC_ASSERT_ALWAYS(subjectMass > 0.0 && "Subject mass must be greater than zero");
+            const auto subject_mass = parameters.lookup<double>("subject_mass").value_or(0.0);
+            OSC_ASSERT_ALWAYS(subject_mass > 0.0 && "Subject mass must be greater than zero");
 
-            const std::optional<double> blendingFactor = parameters.lookup<double>("blending_factor");
-            OSC_ASSERT_ALWAYS(blendingFactor && "blending_factor was not set by the warping engine");
+            const std::optional<double> blending_factor = parameters.lookup<double>("blending_factor");
+            OSC_ASSERT_ALWAYS(blending_factor && "blending_factor was not set by the warping engine");
 
-            const auto effectiveTargetMass = osc::lerp(
-                resultModel.getTotalMass(resultModel.getWorkingState()),
-                subjectMass,
-                *blendingFactor
+            const auto effective_target_mass = osc::lerp(
+                result_model.getTotalMass(result_model.getWorkingState()),
+                subject_mass,
+                *blending_factor
             );
 
-            scale_model_mass_preserve_mass_distribution(resultModel, resultModel.getWorkingState(), effectiveTargetMass);
-            initialize_model(resultModel);
-            initialize_state(resultModel);
+            scale_model_mass_preserve_mass_distribution(result_model, result_model.getWorkingState(), effective_target_mass);
+            initialize_model(result_model);
+            initialize_state(result_model);
         }
     };
 }
