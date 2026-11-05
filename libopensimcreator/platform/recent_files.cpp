@@ -92,13 +92,16 @@ namespace
 osc::RecentFiles::RecentFiles() :
     disk_location_{get_recent_files_file_path(App::get().user_data_directory())},
     files_{load_recent_files_file(disk_location_)}
-{
-}
+{}
 
 osc::RecentFiles::RecentFiles(std::filesystem::path recent_files_file) :
     disk_location_{std::move(recent_files_file)},
     files_{load_recent_files_file(disk_location_)}
+{}
+
+osc::RecentFiles::~RecentFiles() noexcept
 {
+    sync();
 }
 
 void osc::RecentFiles::push_back(const std::filesystem::path& path)

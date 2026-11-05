@@ -16,10 +16,7 @@ namespace osc
         RecentFiles(const RecentFiles&) = delete;
         RecentFiles& operator=(const RecentFiles&) = delete;
         RecentFiles& operator=(RecentFiles&&) noexcept = delete;
-        ~RecentFiles() noexcept
-        {
-            sync();
-        }
+        ~RecentFiles() noexcept;
 
         void push_back(const std::filesystem::path&);
 
