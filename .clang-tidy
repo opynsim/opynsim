@@ -1,5 +1,5 @@
 ---
-HeaderFilterRegex: 'libopensimcreator/(documents|platform|ui/mesh_importer|ui/mesh_warper)'
+HeaderFilterRegex: 'libopensimcreator/(documents|platform|ui/mesh_importer|ui/mesh_warper|ui/model_editor)'
 Checks: >
   clang-analyzer-*,
   -clang-analyzer-optin.core.EnumCastOutOfRange,
