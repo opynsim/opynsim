@@ -99,9 +99,13 @@ osc::RecentFiles::RecentFiles(std::filesystem::path recent_files_file) :
     files_{load_recent_files_file(disk_location_)}
 {}
 
-osc::RecentFiles::~RecentFiles() noexcept
+osc::RecentFiles::~RecentFiles() noexcept  // NOLINT(bugprone-exception-escape)
 {
-    sync();
+    try {
+        sync();
+    } catch (const std::exception& ex) {
+        log_critical("Exception thrown when `sync()`ing `RecentFiles`: {}", ex.what());
+    }
 }
 
 void osc::RecentFiles::push_back(const std::filesystem::path& path)
