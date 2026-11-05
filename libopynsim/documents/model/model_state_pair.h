@@ -27,7 +27,7 @@ namespace opyn
         friend bool operator==(const ModelStatePair&, const ModelStatePair&) = default;
 
     public:
-        virtual ~ModelStatePair() noexcept = default;
+        ~ModelStatePair() noexcept override = default;
 
         const OpenSim::Model& get_model() const { return impl_get_model(); }
         operator const OpenSim::Model& () const { return impl_get_model(); }
@@ -40,7 +40,7 @@ namespace opyn
         OpenSim::Model& upd_model() { return impl_upd_model(); }
 
         // commit current scratch state to storage
-        void commit(std::string_view commitMessage) { impl_commit(commitMessage); }
+        void commit(std::string_view commit_message) { impl_commit(commit_message); }
 
         osc::UID get_model_version() const { return impl_get_model_version(); }
         void set_model_version(osc::UID id) { impl_set_model_version(id); }
@@ -57,9 +57,9 @@ namespace opyn
             return dynamic_cast<const T*>(get_selected());
         }
 
-        void set_selected(const OpenSim::Component* newSelection)
+        void set_selected(const OpenSim::Component* new_selection)
         {
-            impl_set_selected(newSelection);
+            impl_set_selected(new_selection);
         }
 
         void clear_selected() { set_selected(nullptr); }
@@ -69,9 +69,9 @@ namespace opyn
             return impl_get_hovered();
         }
 
-        void set_hovered(const OpenSim::Component* newHover)
+        void set_hovered(const OpenSim::Component* new_hover)
         {
-            impl_set_hovered(newHover);
+            impl_set_hovered(new_hover);
         }
 
         // used to scale weird models (e.g. fly leg) in the UI
@@ -80,9 +80,9 @@ namespace opyn
             return impl_get_fixup_scale_factor();
         }
 
-        void set_fixup_scale_factor(float newScaleFactor)
+        void set_fixup_scale_factor(float new_scale_factor)
         {
-            impl_set_fixup_scale_factor(newScaleFactor);
+            impl_set_fixup_scale_factor(new_scale_factor);
         }
 
         // if supported by the implementation, manually sets if the current model
@@ -92,10 +92,10 @@ namespace opyn
     private:
         // overrides + specializes `ComponentAccessor` API
         const OpenSim::Component& impl_get_component() const final;
-        bool impl_can_upd_component() const { return impl_can_upd_model(); }
+        bool impl_can_upd_component() const override { return impl_can_upd_model(); }
         OpenSim::Component& impl_upd_component() final;
         osc::UID impl_get_component_version() const final { return impl_get_model_version(); }
-        void impl_set_component_version(osc::UID newVersion) final { impl_set_model_version(newVersion); }
+        void impl_set_component_version(osc::UID new_version) final { impl_set_model_version(new_version); }
 
         // Implementors should return a const reference to an initialized (finalized properties, etc.) model.
         virtual const OpenSim::Model& impl_get_model() const = 0;
