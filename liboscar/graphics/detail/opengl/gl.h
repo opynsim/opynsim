@@ -225,41 +225,41 @@ namespace osc::gl
     // metadata for GLSL data types that are typically bound from the CPU via (e.g.)
     // glVertexAttribPointer
     namespace glsl {
-        struct float_ final {
+        struct Float final {
             static constexpr GLint size = 1;
             static constexpr GLenum type = GL_FLOAT;
         };
-        struct int_ {
+        struct Int {
             static constexpr GLint size = 1;
             static constexpr GLenum type = GL_INT;
         };
-        struct sampler2d : public int_ {};
-        struct sampler2DMS : public int_ {};
-        struct samplerCube : public int_ {};
-        struct bool_ : public int_ {};
-        struct vec2 final {
+        struct Sampler2d : Int {};
+        struct Sampler2Dms : Int {};
+        struct SamplerCube : Int {};
+        struct Bool : Int {};
+        struct Vec2 final {
             static constexpr GLint size = 2;
             static constexpr GLenum type = GL_FLOAT;
         };
-        struct vec3 final {
+        struct Vec3 final {
             static constexpr GLint size = 3;
             static constexpr GLenum type = GL_FLOAT;
         };
-        struct vec4 final {
+        struct Vec4 final {
             static constexpr GLint size = 4;
             static constexpr GLenum type = GL_FLOAT;
         };
-        struct mat4 final {
+        struct Mat4 final {
             static constexpr GLint size = 16;
             static constexpr GLenum type = GL_FLOAT;
             static constexpr size_t elements_per_location = 4;
         };
-        struct mat3 final {
+        struct Mat3 final {
             static constexpr GLint size = 9;
             static constexpr GLenum type = GL_FLOAT;
             static constexpr size_t elements_per_location = 3;
         };
-        struct mat4x3 final {
+        struct Mat4x3 final {
             static constexpr GLint size = 12;
             static constexpr GLenum type = GL_FLOAT;
             static constexpr size_t elements_per_location = 3;
@@ -269,13 +269,13 @@ namespace osc::gl
     // a uniform shader symbol (e.g. `uniform mat4 uProjectionMatrix`) at a
     // particular location in a linked OpenGL program
     template<typename TGlsl>
-    class Uniform_ {
+    class Uniform {
     public:
-        constexpr Uniform_(GLint _location) :
-            uniform_location_{_location}
+        constexpr Uniform(GLint location) :
+            uniform_location_{location}
         {}
 
-        Uniform_(const Program& program, const GLchar* uniform_name) :
+        Uniform(const Program& program, const GLchar* uniform_name) :
             uniform_location_{get_uniform_location(program, uniform_name)}
         {}
 
@@ -293,38 +293,38 @@ namespace osc::gl
         GLint uniform_location_;
     };
 
-    class UniformFloat : public Uniform_<glsl::float_> {
-        using Uniform_::Uniform_;
+    class UniformFloat : public Uniform<glsl::Float> {
+        using Uniform::Uniform;
     };
-    class UniformInt : public Uniform_<glsl::int_> {
-        using Uniform_::Uniform_;
+    class UniformInt : public Uniform<glsl::Int> {
+        using Uniform::Uniform;
     };
-    class UniformMat4 : public Uniform_<glsl::mat4> {
-        using Uniform_::Uniform_;
+    class UniformMat4 : public Uniform<glsl::Mat4> {
+        using Uniform::Uniform;
     };
-    class UniformMat3 : public Uniform_<glsl::mat3> {
-        using Uniform_::Uniform_;
+    class UniformMat3 : public Uniform<glsl::Mat3> {
+        using Uniform::Uniform;
     };
-    class UniformVec4 : public Uniform_<glsl::vec4> {
-        using Uniform_::Uniform_;
+    class UniformVec4 : public Uniform<glsl::Vec4> {
+        using Uniform::Uniform;
     };
-    class UniformVec3 : public Uniform_<glsl::vec3> {
-        using Uniform_::Uniform_;
+    class UniformVec3 : public Uniform<glsl::Vec3> {
+        using Uniform::Uniform;
     };
-    class UniformVec2 : public Uniform_<glsl::vec2> {
-        using Uniform_::Uniform_;
+    class UniformVec2 : public Uniform<glsl::Vec2> {
+        using Uniform::Uniform;
     };
-    class UniformBool : public Uniform_<glsl::bool_> {
-        using Uniform_::Uniform_;
+    class UniformBool : public Uniform<glsl::Bool> {
+        using Uniform::Uniform;
     };
-    class UniformSampler2D : public Uniform_<glsl::sampler2d> {
-        using Uniform_::Uniform_;
+    class UniformSampler2D : public Uniform<glsl::Sampler2d> {
+        using Uniform::Uniform;
     };
-    class UniformSamplerCube : public Uniform_<glsl::samplerCube> {
-        using Uniform_::Uniform_;
+    class UniformSamplerCube : public Uniform<glsl::SamplerCube> {
+        using Uniform::Uniform;
     };
-    class UniformSampler2DMS : public Uniform_<glsl::sampler2DMS> {
-        using Uniform_::Uniform_;
+    class UniformSampler2DMS : public Uniform<glsl::Sampler2Dms> {
+        using Uniform::Uniform;
     };
 
     // set the value of a `float` uniform in the currently bound program
@@ -352,9 +352,9 @@ namespace osc::gl
     }
 
     // set the value of a `vec3` uniform
-    inline void set_uniform(UniformVec3& uniform, const float values[3])
+    inline void set_uniform(UniformVec3& uniform, std::span<const float> values)
     {
-        glUniform3fv(uniform.geti(), 1, values);
+        glUniform3fv(uniform.geti(), 1, values.data());
     }
 
     // set the value of a `sampler2D` uniform
@@ -377,7 +377,7 @@ namespace osc::gl
     // set the value of a `bool` uniform
     inline void set_uniform(UniformBool& u, bool value)
     {
-        glUniform1i(u.geti(), value);
+        glUniform1i(u.geti(), static_cast<GLint>(value));
     }
 
     // a uniform that points to a statically-sized array of values in the shader
@@ -386,14 +386,14 @@ namespace osc::gl
     // this class is that it disambiguates overloads (so that calling code can
     // assign sequences of values to uniform arrays)
     template<typename TGlsl, size_t N>
-    class UniformArray final : public Uniform_<TGlsl> {
+    class UniformArray final : public Uniform<TGlsl> {
     public:
         constexpr UniformArray(GLint location) :
-            Uniform_<TGlsl>{location}
+            Uniform<TGlsl>{location}
         {}
 
         UniformArray(const Program& program, const GLchar* uniform_name) :
-            Uniform_<TGlsl>{program, uniform_name}
+            Uniform<TGlsl>{program, uniform_name}
         {}
 
         [[nodiscard]] constexpr size_t size() const { return N; }
@@ -401,7 +401,7 @@ namespace osc::gl
 
     inline void set_uniform(UniformMat3& uniform, const Matrix3x3& mat)
     {
-        glUniformMatrix3fv(uniform.geti(), 1, false, value_ptr(mat));
+        glUniformMatrix3fv(uniform.geti(), 1, 0u, value_ptr(mat));
     }
 
     inline void set_uniform(UniformVec4& uniform, const Vector4& vec)
@@ -423,7 +423,7 @@ namespace osc::gl
     // set a uniform array of vec3s from a userspace container type (e.g. `std::vector<Vector3>`)
     template<std::ranges::contiguous_range R, size_t N>
     requires std::same_as<typename R::value_type, Vector3>
-    inline void set_uniform(UniformArray<glsl::vec3, N>& uniform, R& range)
+    inline void set_uniform(UniformArray<glsl::Vec3, N>& uniform, R& range)
     {
         OSC_ASSERT(std::ranges::size(range) == N);
         glUniform3fv(uniform.geti(), static_cast<GLsizei>(std::ranges::size(range)), ValuePtr(*std::ranges::data(range)));
@@ -431,13 +431,13 @@ namespace osc::gl
 
     inline void set_uniform(UniformMat4& uniform, const Matrix4x4& mat)
     {
-        glUniformMatrix4fv(uniform.geti(), 1, false, value_ptr(mat));
+        glUniformMatrix4fv(uniform.geti(), 1, 0u, value_ptr(mat));
     }
 
     inline void set_uniform(UniformMat4& uniform, std::span<const Matrix4x4> matrices)
     {
         static_assert(sizeof(Matrix4x4) == 16 * sizeof(GLfloat));
-        glUniformMatrix4fv(uniform.geti(), static_cast<GLsizei>(matrices.size()), false, value_ptr(matrices.front()));
+        glUniformMatrix4fv(uniform.geti(), static_cast<GLsizei>(matrices.size()), 0u, value_ptr(matrices.front()));
     }
 
     inline void set_uniform(UniformVec2& u, const Vector2& v)
@@ -458,7 +458,7 @@ namespace osc::gl
 
     template<std::ranges::contiguous_range R, size_t N>
     requires std::same_as<typename R::value_type, Vector2>
-    void set_uniform(UniformArray<glsl::vec2, N>& uniform, const R& range)
+    void set_uniform(UniformArray<glsl::Vec2, N>& uniform, const R& range)
     {
         glUniform2fv(
             uniform.geti(),
@@ -497,14 +497,14 @@ namespace osc::gl
     };
 
     // utility defs for attributes typically used in downstream code
-    using AttributeFloat = Attribute<glsl::float_>;
-    using AttributeInt = Attribute<glsl::int_>;
-    using AttributeVec2 = Attribute<glsl::vec2>;
-    using AttributeVec3 = Attribute<glsl::vec3>;
-    using AttributeVec4 = Attribute<glsl::vec4>;
-    using AttributeMat4 = Attribute<glsl::mat4>;
-    using AttributeMat3 = Attribute<glsl::mat3>;
-    using AttributeMat4x3 = Attribute<glsl::mat4x3>;
+    using AttributeFloat = Attribute<glsl::Float>;
+    using AttributeInt = Attribute<glsl::Int>;
+    using AttributeVec2 = Attribute<glsl::Vec2>;
+    using AttributeVec3 = Attribute<glsl::Vec3>;
+    using AttributeVec4 = Attribute<glsl::Vec4>;
+    using AttributeMat4 = Attribute<glsl::Mat4>;
+    using AttributeMat3 = Attribute<glsl::Mat3>;
+    using AttributeMat4x3 = Attribute<glsl::Mat4x3>;
 
     // set the attribute pointer parameters for an attribute, which specifies
     // how the attribute reads its data from an OpenGL buffer
@@ -521,7 +521,7 @@ namespace osc::gl
         static_assert(TGlsl::size <= 4 or TGlsl::type == GL_FLOAT);
 
         const GLboolean normgl = normalized ? GL_TRUE : GL_FALSE;
-        const GLsizei stridegl = static_cast<GLsizei>(stride);
+        const auto stridegl = static_cast<GLsizei>(stride);
 
         if constexpr (TGlsl::size <= 4) {
             glVertexAttribPointer(
@@ -645,7 +645,7 @@ namespace osc::gl
 
     private:
         static constexpr GLuint c_empty_buffer_handle_sentinel = static_cast<GLuint>(-1);
-        GLuint buffer_handle_;
+        GLuint buffer_handle_{};
     };
 
     // a buffer handle that is locked against a particular type (e.g. GL_ELEMENT_ARRAY_BUFFER)
@@ -654,7 +654,7 @@ namespace osc::gl
         using BufferHandle::BufferHandle;
 
     public:
-        static constexpr GLenum BufferType = TBuffer;
+        static constexpr GLenum buffer_type = TBuffer;
     };
 
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml
@@ -692,13 +692,13 @@ namespace osc::gl
     class Buffer : public TypedBufferHandle<TBuffer> {
     public:
         using value_type = T;
-        static constexpr GLenum BufferType = TBuffer;
+        static constexpr GLenum buffer_type = TBuffer;
 
         template<std::ranges::contiguous_range R>
         void assign(const R& range)
         {
             bind_buffer(*this);
-            buffer_data(BufferType, sizeof(T) * std::ranges::size(range), std::ranges::data(range), Usage);
+            buffer_data(buffer_type, sizeof(T) * std::ranges::size(range), std::ranges::data(range), Usage);
         }
     };
 
@@ -723,28 +723,28 @@ namespace osc::gl
     template<typename Buffer>
     inline void bind_buffer(const Buffer& buffer)
     {
-        glBindBuffer(Buffer::BufferType, buffer.get());
+        glBindBuffer(Buffer::buffer_type, buffer.get());
     }
 
     // returns an OpenGL enum that describes the provided (integral) type
     // argument, so that the index type to an element-based drawcall can
     // be computed at compile-time
     template<std::unsigned_integral T>
-    inline constexpr GLenum index_type();
+    constexpr GLenum index_type();
 
     template<>
-    inline constexpr GLenum index_type<uint8_t>() { return GL_UNSIGNED_BYTE; }
+    constexpr GLenum index_type<uint8_t>() { return GL_UNSIGNED_BYTE; }
 
     template<>
-    inline constexpr GLenum index_type<uint16_t>() { return GL_UNSIGNED_SHORT; }
+    constexpr GLenum index_type<uint16_t>() { return GL_UNSIGNED_SHORT; }
 
     template<>
-    inline constexpr GLenum index_type<uint32_t>() { return GL_UNSIGNED_INT; }
+    constexpr GLenum index_type<uint32_t>() { return GL_UNSIGNED_INT; }
 
     // utility overload of index_type specifically for EBOs (the most common
     // use-case in downstream code)
     template<typename T>
-    inline constexpr GLenum index_type(const gl::ElementArrayBuffer<T>&)
+    constexpr GLenum index_type(const gl::ElementArrayBuffer<T>&)
     {
         return index_type<T>();
     }
@@ -785,7 +785,7 @@ namespace osc::gl
 
     private:
         static constexpr GLuint c_empty_vao_sentinel = std::numeric_limits<GLuint>::max();
-        GLuint vao_handle_;
+        GLuint vao_handle_{};
     };
 
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindVertexArray.xhtml
@@ -835,7 +835,7 @@ namespace osc::gl
         GLuint get() const { return texture_handle_; }
     private:
         static constexpr GLuint c_empty_texture_handle_sentinel = static_cast<GLuint>(-1);
-        GLuint texture_handle_;
+        GLuint texture_handle_{};
     };
 
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glActiveTexture.xhtml
@@ -927,7 +927,7 @@ namespace osc::gl
 
     private:
         static constexpr GLuint c_empty_fbo_sentinel = static_cast<GLuint>(-1);
-        GLuint fbo_handle_;
+        GLuint fbo_handle_{};
     };
 
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindFramebuffer.xhtml
@@ -948,7 +948,7 @@ namespace osc::gl
     // assign a 2D texture to the framebuffer (so that subsequent draws/reads
     // to/from the FBO use the texture)
     template<typename Texture>
-    inline void framebuffer_texture2D(GLenum target, GLenum attachment, const Texture& texture, GLint level)
+    inline void framebuffer_texture_2d(GLenum target, GLenum attachment, const Texture& texture, GLint level)
     {
         glFramebufferTexture2D(target, attachment, texture.type, texture.get(), level);
     }
@@ -990,7 +990,7 @@ namespace osc::gl
     private:
         // khronos: glDeleteRenderBuffers: "The uniform_name zero is reserved by the GL and is silently ignored"
         static constexpr GLuint c_empty_rbo_sentinel = 0;
-        GLuint rbo_handle_;
+        GLuint rbo_handle_{};
     };
 
     // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glBindRenderbuffer.xml
@@ -1068,7 +1068,7 @@ namespace osc::gl
         glTexParameteri(target, pname, param);
     }
 
-    inline void tex_image2D(
+    inline void tex_image_2d(
         GLenum target,
         GLint level,
         GLint internalformat,
@@ -1106,26 +1106,26 @@ namespace osc::gl
 
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBlitFramebuffer.xhtml
     inline void blit_framebuffer(
-        GLint srcX0,
-        GLint srcY0,
-        GLint srcX1,
-        GLint srcY1,
-        GLint dstX0,
-        GLint dstY0,
-        GLint dstX1,
-        GLint dstY1,
+        GLint src_x0,
+        GLint src_y0,
+        GLint src_x1,
+        GLint src_y1,
+        GLint dst_x0,
+        GLint dst_y0,
+        GLint dst_x1,
+        GLint dst_y1,
         GLbitfield mask,
         GLenum filter)
     {
         glBlitFramebuffer(
-            srcX0,
-            srcY0,
-            srcX1,
-            srcY1,
-            dstX0,
-            dstY0,
-            dstX1,
-            dstY1,
+            src_x0,
+            src_y0,
+            src_x1,
+            src_y1,
+            dst_x0,
+            dst_y0,
+            dst_x1,
+            dst_y1,
             mask,
             filter
         );
@@ -1138,7 +1138,7 @@ namespace osc::gl
 
     inline GLint get_integer(GLenum pname)
     {
-        GLint out;
+        GLint out = 0;
         glGetIntegerv(pname, &out);
         return out;
     }

@@ -999,7 +999,7 @@ private:
 
             const size_t face_bytes_begin = face_index * num_bytes_per_face;
 
-            gl::tex_image2D(
+            gl::tex_image_2d(
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_index,
                 0,
                 opengl_internal_format_of(format_, ColorSpace::sRGB),  // cubemaps are always sRGB
@@ -1443,7 +1443,7 @@ private:
         // one-time upload, because pixels cannot be altered
         gl::bind_texture((*maybe_opengl_data_)->texture);
         gl::pixel_store_i(GL_UNPACK_ALIGNMENT, unpack_alignment);
-        gl::tex_image2D(
+        gl::tex_image_2d(
             GL_TEXTURE_2D,
             0,
             opengl_internal_format_of(texture_format_, color_space_),
@@ -1898,7 +1898,7 @@ namespace
 
             // setup resolved texture
             gl::bind_texture(single_sampled_texture.texture2D);
-            gl::tex_image2D(
+            gl::tex_image_2d(
                 GL_TEXTURE_2D,
                 0,
                 to_opengl_internal_color_format_enum(params_),
@@ -1937,7 +1937,7 @@ namespace
 
             // setup resolved texture
             gl::bind_texture(multisampled_rbo_and_texture.single_sampled_texture2D);
-            gl::tex_image2D(
+            gl::tex_image_2d(
                 GL_TEXTURE_2D,
                 0,
                 to_opengl_internal_color_format_enum(params_),
@@ -1967,7 +1967,7 @@ namespace
             gl::bind_texture(single_sampled_cubemap.cubemap);
             for (int i = 0; i < 6; ++i)
             {
-                gl::tex_image2D(
+                gl::tex_image_2d(
                     GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                     0,
                     to_opengl_internal_color_format_enum(params_),
@@ -6636,7 +6636,7 @@ std::optional<gl::FrameBuffer> osc::GraphicsBackend::bind_and_clear_render_buffe
             {
                 [i](SingleSampledTexture& t)
                 {
-                    gl::framebuffer_texture2D(
+                    gl::framebuffer_texture_2d(
                         GL_DRAW_FRAMEBUFFER,
                         GL_COLOR_ATTACHMENT0 + static_cast<GLint>(i),
                         t.texture2D,
@@ -6677,7 +6677,7 @@ std::optional<gl::FrameBuffer> osc::GraphicsBackend::bind_and_clear_render_buffe
             {
                 [attachment](SingleSampledTexture& t)
                 {
-                    gl::framebuffer_texture2D(
+                    gl::framebuffer_texture_2d(
                         GL_DRAW_FRAMEBUFFER,
                         attachment,
                         t.texture2D,
@@ -6813,7 +6813,7 @@ void osc::GraphicsBackend::resolve_render_buffers(
                 );
                 glReadBuffer(attachment_location);
 
-                gl::framebuffer_texture2D(
+                gl::framebuffer_texture_2d(
                     GL_DRAW_FRAMEBUFFER,
                     attachment_location,
                     t.single_sampled_texture2D,
@@ -6865,7 +6865,7 @@ void osc::GraphicsBackend::resolve_render_buffers(
                 );
                 glReadBuffer(attachment);
 
-                gl::framebuffer_texture2D(
+                gl::framebuffer_texture_2d(
                     GL_DRAW_FRAMEBUFFER,
                     attachment,
                     t.single_sampled_texture2D,
@@ -7041,7 +7041,7 @@ void osc::GraphicsBackend::copy_texture(
     std::visit(Overload{  // attach source texture depending on render texture's type
         [](SingleSampledTexture& t)
         {
-            gl::framebuffer_texture2D(
+            gl::framebuffer_texture_2d(
                 GL_READ_FRAMEBUFFER,
                 GL_COLOR_ATTACHMENT0,
                 t.texture2D,
@@ -7050,7 +7050,7 @@ void osc::GraphicsBackend::copy_texture(
         },
         [](MultisampledRBOAndResolvedTexture& t)
         {
-            gl::framebuffer_texture2D(
+            gl::framebuffer_texture_2d(
                 GL_READ_FRAMEBUFFER,
                 GL_COLOR_ATTACHMENT0,
                 t.single_sampled_texture2D,
@@ -7073,7 +7073,7 @@ void osc::GraphicsBackend::copy_texture(
     // create a destination (draw) framebuffer for blitting to the destination render texture
     gl::FrameBuffer draw_fbo;
     gl::bind_framebuffer(GL_DRAW_FRAMEBUFFER, draw_fbo);
-    gl::framebuffer_texture2D(
+    gl::framebuffer_texture_2d(
         GL_DRAW_FRAMEBUFFER,
         GL_COLOR_ATTACHMENT0,
         destination.impl_.upd()->upd_texture(),
