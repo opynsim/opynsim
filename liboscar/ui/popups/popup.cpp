@@ -21,13 +21,7 @@ osc::PopupPrivate::PopupPrivate(
 
     WidgetPrivate(owner, parent),
     dimensions_{dimensions},
-    maybe_position_{std::nullopt},
-    panel_flags_{panel_flags},
-    should_open_{false},
-    should_close_{false},
-    just_opened_{false},
-    is_open_{false},
-    is_modal_{true}
+    panel_flags_{panel_flags}
 {
     set_name(name);
 }

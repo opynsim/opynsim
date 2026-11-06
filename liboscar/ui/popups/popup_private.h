@@ -33,11 +33,11 @@ namespace osc
 
         Vector2i dimensions_;
         std::optional<Vector2i> maybe_position_;
-        ui::PanelFlags panel_flags_;
-        bool should_open_;
-        bool should_close_;
-        bool just_opened_;
-        bool is_open_;
-        bool is_modal_;
+        ui::PanelFlags panel_flags_{ui::PanelFlag::None};
+        bool should_open_ = false;
+        bool should_close_ = false;
+        bool just_opened_ = false;
+        bool is_open_ = false;
+        bool is_modal_ = true;
     };
 }
