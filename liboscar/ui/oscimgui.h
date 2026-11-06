@@ -1297,7 +1297,7 @@ namespace osc::ui
         {
             void draw_annotation_v(Vector2 position_dataspace, const Color& color, Vector2 pixel_offset, bool clamp, CStringView fmt, va_list args);
         }
-        inline void draw_annotation(Vector2 position_dataspace, const Color& color, Vector2 pixel_offset, bool clamp, CStringView fmt, ...)
+        inline void draw_annotation(Vector2 position_dataspace, const Color& color, Vector2 pixel_offset, bool clamp, CStringView fmt, ...)  // NOLINT(cert-dcl50-cpp)
         {
             va_list args;
             va_start(args, fmt);  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)

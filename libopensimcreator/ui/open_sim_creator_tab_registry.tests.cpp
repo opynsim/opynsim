@@ -14,23 +14,33 @@
 
 using namespace osc;
 
-namespace {
-    const TabRegistry c_tabs = []
+namespace
+{
+    const TabRegistry& get_tabs()
     {
-        TabRegistry r;
-        register_open_sim_creator_tabs(r);
-        return r;
-    }();
+        static const TabRegistry s_tabs = []
+        {
+            TabRegistry r;
+            register_open_sim_creator_tabs(r);
+            return r;
+        }();
+        return s_tabs;
+    }
 
-    const std::vector<std::string> c_tab_names = []
+    const std::vector<std::string>& get_tab_names()
     {
-        std::vector<std::string> rv;
-        rv.reserve(c_tabs.size());
-        for (size_t i = 0; i < c_tabs.size(); ++i) {
-            rv.emplace_back(c_tabs[i].name());
-        }
-        return rv;
-    }();
+        static const std::vector<std::string> s_tab_names = []
+        {
+            const TabRegistry& tabs = get_tabs();
+            std::vector<std::string> rv;
+            rv.reserve(tabs.size());
+            for (size_t i = 0; i < tabs.size(); ++i) {
+                rv.emplace_back(tabs[i].name());
+            }
+            return rv;
+        }();
+        return s_tab_names;
+    }
 
     std::unique_ptr<OpenSimCreatorApp> g_app;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
     class RegisteredOpenSimCreatorTabsFixture : public testing::TestWithParam<std::string> {
@@ -50,13 +60,13 @@ namespace {
 INSTANTIATE_TEST_SUITE_P(
     RegisteredOpenSimCreatorTabsTest,
     RegisteredOpenSimCreatorTabsFixture,
-    testing::ValuesIn(c_tab_names)
+    testing::ValuesIn(get_tab_names())
 );
 
 TEST_P(RegisteredOpenSimCreatorTabsFixture, Check)
 {
     std::string s = GetParam();
-    if (auto entry = c_tabs.find_by_name(s)) {
+    if (auto entry = get_tabs().find_by_name(s)) {
         g_app->show<TabTestingScreen>(*entry);
     }
     else {

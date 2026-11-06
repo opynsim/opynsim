@@ -1,5 +1,7 @@
 #pragma once
 
+// NOLINTBEGIN(readability-*)
+
 #include <liboscar/shims/cpp23/algorithm.h>
 
 #include <iterator>
@@ -28,8 +30,10 @@ namespace osc::cpp23
     }
 
     template<std::weakly_incrementable T, std::ranges::output_range<const T&> R>
-    constexpr iota_result<std::ranges::borrowed_iterator_t<R>, T> iota(R&& r, T value)
+    constexpr iota_result<std::ranges::borrowed_iterator_t<R>, T> iota(R&& r, T value)  // NOLINT(cppcoreguidelines-missing-std-forward)
     {
         return cpp23::iota(std::ranges::begin(r), std::ranges::end(r), std::move(value));
     }
 }
+
+// NOLINTEND(readability-*)

@@ -52,7 +52,11 @@ using namespace osc;
 
 namespace
 {
-    const StringName c_diffuse_color_propname{"uDiffuseColor"};
+    const StringName& diffuse_color_propname()
+    {
+        static const StringName c_diffuse_color_propname{"uDiffuseColor"};
+        return c_diffuse_color_propname;
+    }
 
     struct RimHighlights final {
         Mesh mesh;
@@ -661,7 +665,7 @@ private:
                     [](const auto&) { return Color::white(); },
                 }, dec.shading);
 
-                wireframe_prop_block.set(c_diffuse_color_propname, multiply_luminance(wireframe_color, 0.25f));
+                wireframe_prop_block.set(diffuse_color_propname(), multiply_luminance(wireframe_color, 0.25f));
                 render_queue_.emplace(
                     dec.mesh,
                     dec.transform,
@@ -684,7 +688,7 @@ private:
 
                     const auto& [it, inserted] = color_cache_.try_emplace(color32);
                     if (inserted) {
-                        it->second.set(c_diffuse_color_propname, color32);
+                        it->second.set(diffuse_color_propname(), color32);
                     }
                     const bool backface_culled = dec.has_flag(SceneDecorationFlag::CanBackfaceCull);
                     const Material& material = color32.a == 0xff ?
@@ -792,7 +796,7 @@ private:
 
                     const auto& [it, inserted] = color_cache_.try_emplace(color32);
                     if (inserted) {
-                        it->second.set(c_diffuse_color_propname, color32);
+                        it->second.set(diffuse_color_propname(), color32);
                     }
                     render_queue_.emplace(
                         decoration.mesh,
