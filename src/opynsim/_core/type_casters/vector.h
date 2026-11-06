@@ -60,7 +60,7 @@ struct nanobind::detail::type_caster<osc::Vector3f> final {
         // Copy vector into a capsule and return it as a suitable ndarray
 
         static_assert(std::tuple_size_v<cpp_type> == 3);
-        auto data = std::unique_ptr<value_type[]>(new value_type[3]{src[0], src[1], src[2]});
+        auto data = std::unique_ptr<value_type[]>(new value_type[3]{src[0], src[1], src[2]});  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays, bugprone-unhandled-exception-at-new)
         value_type* ptr = data.get();
         const auto shape = std::to_array({ 3uz });
 

@@ -14,7 +14,7 @@ struct nanobind::detail::type_caster<osc::Radians> final {
 
     bool from_python(handle src, uint8_t flags, cleanup_list* cleanup_list) noexcept
     {
-        nanobind::detail::type_caster<double> caster;
+        type_caster<double> caster{};
         if (not caster.from_python(src, flags, cleanup_list)) {
             return false;
         }

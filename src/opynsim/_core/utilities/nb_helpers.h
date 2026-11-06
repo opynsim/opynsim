@@ -18,7 +18,7 @@ namespace opyn
 
     /// Wrap a unique pointer to an array of `T` into a capsule.
     template<typename T>
-    nanobind::capsule to_capsule(std::unique_ptr<T[]> p)
+    nanobind::capsule to_capsule(std::unique_ptr<T[]> p)  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
     {
         return nanobind::capsule{
             p.release(),
