@@ -53,7 +53,7 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/ErrorCheck/install",
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+                "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--warnings-as-errors=*",
                 "CMAKE_CXX_CLANG_TIDY_EXPORT_FIXES_DIR": "${sourceDir}/build/${presetName}/clang-tidy-fixes",
 
                 "OPYN_FORCE_ASSERTS_ENABLED": "ON",
