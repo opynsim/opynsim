@@ -60,6 +60,7 @@ function(opyn_add_strict_compiler_options_to target)
             /wd26415            # disable: "smart pointer parameter is used only to access contained pointer"
             /wd26418            # disable: "shared pointer parameter is not copied or moved"
             /wd6294             # disable: "Ill-defined for-loop.  Loop body not executed"
+            /wd26432            # disable: "If you define or delete any default operation in the type 'T', define or delete them all (c.21).
         >
 
         # gcc/clang flags
