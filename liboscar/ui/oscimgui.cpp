@@ -2783,7 +2783,7 @@ void osc::ui::DrawListAPI::add_line(const Vector2& ui_start, const Vector2& ui_e
     impl_get_drawlist().AddLine(ui_start, ui_end, to_ImU32(color), thickness);
 }
 
-void osc::ui::DrawListAPI::add_triangle_filled(const Vector2 ui_p0, const Vector2& ui_p1, const Vector2& ui_p2, const Color& color)
+void osc::ui::DrawListAPI::add_triangle_filled(const Vector2& ui_p0, const Vector2& ui_p1, const Vector2& ui_p2, const Color& color)
 {
     impl_get_drawlist().AddTriangleFilled(ui_p0, ui_p1, ui_p2, to_ImU32(color));
 }

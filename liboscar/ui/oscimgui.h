@@ -233,7 +233,7 @@ namespace osc::ui
     bool draw_size_t_input(CStringView label, size_t* v, size_t step = 1, size_t step_fast = 100, TextInputFlags = {});
     bool draw_double_input(CStringView label, double* v, double step = 0.0, double step_fast = 0.0, const char* format = "%.6f", TextInputFlags = {});
     bool draw_float_input(CStringView label, float* v, float step = 0.0f, float step_fast = 0.0f, const char* format = "%.3f", TextInputFlags = {});
-    bool draw_float3_input(CStringView label, float v[3], const char* format = "%.3f", TextInputFlags = {});
+    bool draw_float3_input(CStringView label, float* v, const char* format = "%.3f", TextInputFlags = {});
     bool draw_vector3_input(CStringView label, Vector3& v, const char* format = "%.3f", TextInputFlags = {});
     bool draw_rgb_color_editor(CStringView label, Color& color);
     bool draw_rgba_color_editor(CStringView label, Color& color);
@@ -577,7 +577,7 @@ namespace osc::ui
         void add_circle_filled(const Circle& ui_circle, const Color& color, int num_segments = 0);
         void add_text(const Vector2& ui_position, const Color& color, CStringView text);
         void add_line(const Vector2& ui_start, const Vector2& ui_end, const Color& color, float thickness = 1.0f);
-        void add_triangle_filled(const Vector2 ui_p0, const Vector2& ui_p1, const Vector2& ui_p2, const Color& color);
+        void add_triangle_filled(const Vector2& ui_p0, const Vector2& ui_p1, const Vector2& ui_p2, const Color& color);
         void push_clip_rect(const Rect&, bool intersect_with_currect_clip_rect = false);
         void pop_clip_rect();
 
@@ -1300,9 +1300,9 @@ namespace osc::ui
         inline void draw_annotation(Vector2 position_dataspace, const Color& color, Vector2 pixel_offset, bool clamp, CStringView fmt, ...)
         {
             va_list args;
-            va_start(args, fmt);
-            detail::draw_annotation_v(position_dataspace, color, pixel_offset, clamp, fmt, args);
-            va_end(args);
+            va_start(args, fmt);  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+            detail::draw_annotation_v(position_dataspace, color, pixel_offset, clamp, fmt, args);  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+            va_end(args);  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
         }
 
         // draws a draggable point at `plot_point`, expressed in plot space, in
