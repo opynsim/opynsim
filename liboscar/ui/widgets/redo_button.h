@@ -23,7 +23,7 @@ namespace osc
         {}
 
     private:
-        void impl_on_draw();
+        void impl_on_draw() override;
 
         std::shared_ptr<UndoRedoBase> undo_redo_;
         std::string button_icon_text_;
