@@ -25,10 +25,10 @@ namespace osc
         }
 
         // returns a copy of this `SceneDecoration` with `transform` set to the provided transform
-        SceneDecoration with_transform(const Transform& transform) const
+        SceneDecoration with_transform(const Transform& new_transform) const
         {
             SceneDecoration copy{*this};
-            copy.transform = transform;
+            copy.transform = new_transform;
             return copy;
         }
 
