@@ -1,5 +1,5 @@
 ---
-HeaderFilterRegex: 'hellooscar|libopensimcreator|libopynsim|liboscar|liboscar-demos'
+HeaderFilterRegex: 'hellooscar|libopensimcreator|libopynsim|liboscar|liboscar-demos|opynsim_debugger|osc|oscar_demo_viewer'
 Checks: >
   clang-analyzer-*,
   -clang-analyzer-optin.core.EnumCastOutOfRange,
