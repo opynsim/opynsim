@@ -26,7 +26,7 @@ namespace osc
         }
 
         CopyOnUpdSharedValue(CopyOnUpdSharedValue&& tmp) noexcept :
-            CopyOnUpdSharedValue{static_cast<const CopyOnUpdSharedValue&>(tmp)}
+            CopyOnUpdSharedValue{static_cast<const CopyOnUpdSharedValue&>(tmp)}  // NOLINT(performance-move-constructor-init)
         {}
 
         ~CopyOnUpdSharedValue() noexcept
@@ -36,16 +36,17 @@ namespace osc
             }
         }
 
-        CopyOnUpdSharedValue& operator=(const CopyOnUpdSharedValue& rhs) noexcept
+        CopyOnUpdSharedValue& operator=(const CopyOnUpdSharedValue& rhs) noexcept  // NOLINT(bugprone-unhandled-self-assignment)
         {
             CopyOnUpdSharedValue copy{rhs};
-            swap(copy, *this);
+            swap(*this, copy);
             return *this;
         }
 
         CopyOnUpdSharedValue& operator=(CopyOnUpdSharedValue&& rhs) noexcept
         {
-            return *this = static_cast<const CopyOnUpdSharedValue&>(rhs);
+            *this = static_cast<const CopyOnUpdSharedValue&>(rhs);
+            return *this;
         }
 
         friend void swap(CopyOnUpdSharedValue& a, CopyOnUpdSharedValue& b) noexcept
@@ -72,7 +73,7 @@ namespace osc
             return static_cast<T*>(ptr_->data);
         }
 
-        long use_count() const noexcept { return ptr_->owners; }
+        ptrdiff_t use_count() const noexcept { return ptr_->owners; }
 
     private:
         friend struct std::hash<CopyOnUpdSharedValue>;
@@ -86,7 +87,7 @@ namespace osc
                 data{data}
             {}
 
-            std::atomic<long> owners = 1;
+            std::atomic<ptrdiff_t> owners = 1;
             void (*deleter)(ControlBlock*) noexcept;
             void* data;
         };

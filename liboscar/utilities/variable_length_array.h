@@ -138,11 +138,11 @@ namespace osc
             return alignof(T) * num_align_windows;
         }();
 #else
-        static inline constexpr size_t extra_bytes_ = 0;
+        static constexpr size_t extra_bytes = 0;
 #endif
 
         // The object representation of elements, stored on-stack when `size() <= N`
-        alignas(T) std::array<std::byte, N * sizeof(T) + extra_bytes_> stack_data_;
+        alignas(T) std::array<std::byte, N * sizeof(T) + extra_bytes> stack_data_;  // NOLINT(bugprone-sizeof-expression)
 
         // A memory resource that uses `stack_data_` until `size() > N`, it then uses an upstream resource
         std::pmr::monotonic_buffer_resource pool_{stack_data_.data(), stack_data_.size(), std::pmr::new_delete_resource()};

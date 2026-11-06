@@ -45,7 +45,9 @@ namespace osc
             std::convertible_to<typename ClonePtr<U, E>::pointer, pointer> and
             (not std::is_array_v<U>) and
             std::convertible_to<E, deleter_type>
-        ClonePtr(ClonePtr<U, E>&& tmp) noexcept : value_{std::move(tmp.value_)} {}
+        ClonePtr(ClonePtr<U, E>&& tmp) noexcept :  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+            value_{std::move(tmp.value_)}
+        {}
 
         // if `get() == nullptr` there are no effects. Otherwise, the owned object is destroyed via `get_deleter()(get())`
         ~ClonePtr() noexcept = default;
@@ -77,7 +79,7 @@ namespace osc
             (not std::is_array_v<U>) and
             std::convertible_to<typename ClonePtr<U, E>::element_type, element_type> and
             std::is_assignable_v<Deleter&, E&&>
-        ClonePtr& operator=(ClonePtr<U, E>&& rhs) noexcept
+        ClonePtr& operator=(ClonePtr<U, E>&& rhs) noexcept  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
         {
             value_ = std::move(rhs.value_);
             return *this;

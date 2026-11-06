@@ -89,7 +89,7 @@ namespace
         }
     private:
         template<typename... Ts>
-        static std::array<std::type_index, osc::TypelistSizeV<SupportedOutputValueTypes>> output_type_indexes(osc::Typelist<Ts...>)
+        static std::array<std::type_index, osc::typelist_size_v<SupportedOutputValueTypes>> output_type_indexes(osc::Typelist<Ts...>)
         {
             return std::to_array({ std::type_index(typeid(OpenSim::Output<typename OutputTypeMapping<Ts>::OpenSimType>))... });
         }
@@ -97,13 +97,13 @@ namespace
         // Helper function that generates a dense LUT that maps the index of an output
         // type to an output extraction function.
         template<typename... Ts>
-        static std::array<OutputValueExtractor, osc::TypelistSizeV<SupportedOutputValueTypes>> output_value_extractors(osc::Typelist<Ts...>)
+        static std::array<OutputValueExtractor, osc::typelist_size_v<SupportedOutputValueTypes>> output_value_extractors(osc::Typelist<Ts...>)
         {
             return std::to_array<OutputValueExtractor>({ OutputTypeMapping<Ts>::extract_output_value... });
         }
 
-        std::array<std::type_index,      osc::TypelistSizeV<SupportedOutputValueTypes>> opensim_type_indices_ = output_type_indexes(SupportedOutputValueTypes{});
-        std::array<OutputValueExtractor, osc::TypelistSizeV<SupportedOutputValueTypes>> value_extractors_ = output_value_extractors(SupportedOutputValueTypes{});
+        std::array<std::type_index,      osc::typelist_size_v<SupportedOutputValueTypes>> opensim_type_indices_ = output_type_indexes(SupportedOutputValueTypes{});
+        std::array<OutputValueExtractor, osc::typelist_size_v<SupportedOutputValueTypes>> value_extractors_ = output_value_extractors(SupportedOutputValueTypes{});
     };
 
     // Returns a constant reference to a global `OutputExtractionSystem` with static lifetime.

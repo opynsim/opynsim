@@ -1638,7 +1638,7 @@ namespace
             return it->construct(std::move(args));
         }
     private:
-        using storage_type = std::array<PropertyEditorRegistryEntry, TypelistSizeV<PropertyEditors>>;
+        using storage_type = std::array<PropertyEditorRegistryEntry, typelist_size_v<PropertyEditors>>;
 
         storage_type entries_ = []<class... ConcretePropertyEditors>(Typelist<ConcretePropertyEditors...>) {
             return std::to_array({PropertyEditorRegistryEntry::make_entry<ConcretePropertyEditors>()...});

@@ -90,7 +90,7 @@ namespace osc
     {
         std::stringstream ss;
         std::string_view prefix_delimiter;
-        for (auto&& el : r) {
+        for (auto&& el : std::forward<R>(r)) {
             ss << prefix_delimiter;
             ss << el;
             prefix_delimiter = delimiter;

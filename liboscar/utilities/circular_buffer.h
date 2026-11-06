@@ -292,8 +292,8 @@ namespace osc
             }
 
             // construct T in the old "dead" element position
-            object_bytes* const ptr = raw_storage_bytes_.data() + end_offset_;
-            T* const constructed_el = new (ptr) T{std::forward<Args>(args)...};
+            ObjectBytes* const ptr = raw_storage_bytes_.data() + end_offset_;
+            T* const constructed_el = new (ptr) T{std::forward<Args>(args)...};  // NOLINT(cppcoreguidelines-owning-memory)
 
             end_offset_ = new_end;
 
@@ -388,8 +388,8 @@ namespace osc
         // - this behavior makes the implementation simpler, because
         //   you don't have to handle `begin_offset_ == end_offset_` edge
         //   cases and one-past-the end out-of-bounds checks
-        class alignas(T) object_bytes { std::byte data_[sizeof(T)]; };
-        std::array<object_bytes, N> raw_storage_bytes_{};
+        class alignas(T) ObjectBytes { std::array<std::byte, sizeof(T)> data_; };
+        std::array<ObjectBytes, N> raw_storage_bytes_{};
 
         // index (`T`-based, not raw byte based) of the first element
         ptrdiff_t begin_offset_ = 0;

@@ -55,7 +55,7 @@ namespace osc
         class Proj = std::identity,
         std::indirect_strict_weak_order<std::projected<std::ranges::iterator_t<R>, Proj>> Comp = std::ranges::less
     >
-    constexpr typename std::ranges::range_size_t<R> max_element_index(R&& r, Comp comp = {}, Proj proj = {})
+    constexpr typename std::ranges::range_size_t<R> max_element_index(R&& r, Comp comp = {}, Proj proj = {})  // NOLINT(cppcoreguidelines-missing-std-forward)
     {
         const auto first = std::ranges::begin(r);
         return std::distance(first, std::ranges::max_element(first, std::ranges::end(r), std::ref(comp), std::ref(proj)));
@@ -82,7 +82,7 @@ namespace osc
     >
     requires
         std::indirect_binary_predicate<std::ranges::equal_to, std::projected<std::ranges::iterator_t<R>, Proj>, const T*>
-    std::optional<std::ranges::range_value_t<R>> find_or_nullopt(R&& r, const T& value, Proj proj = {})
+    std::optional<std::ranges::range_value_t<R>> find_or_nullopt(R&& r, const T& value, Proj proj = {})  // NOLINT(cppcoreguidelines-missing-std-forward)
     {
         const auto it = std::ranges::find(r, value, std::ref(proj));
         return it != std::ranges::end(r) ? std::optional<std::ranges::range_value_t<R>>{*it} : std::nullopt;
@@ -105,7 +105,7 @@ namespace osc
         typename Proj = std::identity
     >
     requires std::ranges::borrowed_range<R>
-    auto find_or_nullptr(R&& r, const T& value, Proj proj = {}) -> decltype(std::addressof(*std::ranges::begin(r)))
+    auto find_or_nullptr(R&& r, const T& value, Proj proj = {}) -> decltype(std::addressof(*std::ranges::begin(r)))  // NOLINT(cppcoreguidelines-missing-std-forward)
     {
         const auto it = std::ranges::find(r, value, std::move(proj));
         return it != std::ranges::end(r) ? std::addressof(*it) : nullptr;
@@ -156,7 +156,7 @@ namespace osc
     requires
         std::convertible_to<std::ranges::range_value_t<R2>, std::ranges::range_value_t<R1>> and
         requires (R1& r1, std::ranges::iterator_t<R1> it, std::ranges::iterator_t<R2> first, std::ranges::sentinel_t<R2> last) { r1.insert(it, first, last); }
-    constexpr void append_range(R1& r1, R2&& r2)
+    constexpr void append_range(R1& r1, R2&& r2)  // NOLINT(cppcoreguidelines-missing-std-forward)
     {
         r1.insert(std::ranges::end(r1), std::ranges::begin(r2), std::ranges::end(r2));
     }

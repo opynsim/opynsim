@@ -33,7 +33,7 @@ namespace osc
     };
 
     template<typename NTList>
-    inline constexpr size_t NonTypelistSizeV = NonTypelistSize<NTList>::value;
+    inline constexpr size_t non_typelist_size_v = NonTypelistSize<NTList>::value;
 
     // NonTypelist: indexed access
 

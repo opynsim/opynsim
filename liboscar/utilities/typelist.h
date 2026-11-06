@@ -44,7 +44,7 @@ namespace osc
     };
 
     template<typename TList>
-    inline constexpr size_t TypelistSizeV = TypelistSize<TList>::value;
+    inline constexpr size_t typelist_size_v = TypelistSize<TList>::value;
 
     // Typelist: indexed access
 

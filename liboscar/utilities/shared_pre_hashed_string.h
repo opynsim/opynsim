@@ -254,9 +254,9 @@ namespace osc
         // managing the same underlying string data. In a multithreaded environment, the value
         // returned by `use_count` is approximate (i.e. the implementation uses a
         // `std::memory_order_relaxed` operation to load the count)
-        long use_count() const noexcept
+        ptrdiff_t use_count() const noexcept
         {
-            return static_cast<long>(storage_->num_owners.load(std::memory_order_relaxed));
+            return static_cast<ptrdiff_t>(storage_->num_owners.load(std::memory_order_relaxed));
         }
 
         size_t hash() const

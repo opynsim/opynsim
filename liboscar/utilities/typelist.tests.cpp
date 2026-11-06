@@ -34,11 +34,11 @@ TEST(Typelist, contains_returns_false_when_type_is_not_in_list)
 
 TEST(TypelistSizeV, returns_expected_values)
 {
-    static_assert(TypelistSizeV<Typelist<>> == 0);
-    static_assert(TypelistSizeV<Typelist<int>> == 1);
-    static_assert(TypelistSizeV<Typelist<int, float>> == 2);
-    static_assert(TypelistSizeV<Typelist<int, float, char>> == 3);
-    static_assert(TypelistSizeV<Typelist<int, float, char, int64_t>> == 4);
+    static_assert(typelist_size_v<Typelist<>> == 0);
+    static_assert(typelist_size_v<Typelist<int>> == 1);
+    static_assert(typelist_size_v<Typelist<int, float>> == 2);
+    static_assert(typelist_size_v<Typelist<int, float, char>> == 3);
+    static_assert(typelist_size_v<Typelist<int, float, char, int64_t>> == 4);
     // ... etc.
 }
 

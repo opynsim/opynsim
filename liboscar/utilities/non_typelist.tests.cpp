@@ -40,9 +40,9 @@ TEST(NonTypelist, tail_retrieves_last_element)
 
 TEST(NonTypelist, NonTypeListSizeV_returns_expected_results)
 {
-    static_assert(NonTypelistSizeV<NonTypelist<SomeEnum>> == 0);
-    static_assert(NonTypelistSizeV<NonTypelist<SomeEnum, SomeEnum::First>> == 1);
-    static_assert(NonTypelistSizeV<NonTypelist<SomeEnum, SomeEnum::First, SomeEnum::Second>> == 2);
+    static_assert(non_typelist_size_v<NonTypelist<SomeEnum>> == 0);
+    static_assert(non_typelist_size_v<NonTypelist<SomeEnum, SomeEnum::First>> == 1);
+    static_assert(non_typelist_size_v<NonTypelist<SomeEnum, SomeEnum::First, SomeEnum::Second>> == 2);
 }
 
 TEST(NonTypelist, NonTypeAt_works_as_expected)

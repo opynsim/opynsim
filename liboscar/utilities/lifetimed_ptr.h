@@ -57,7 +57,7 @@ namespace osc
 
         // constructs a `LifetimedPtr` by coercing from a more-derived pointer
         template<std::derived_from<T> U>
-        LifetimedPtr(LifetimedPtr<U>&& other) :
+        LifetimedPtr(LifetimedPtr<U>&& other) :  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
             lifetime_watcher_{std::move(other.lifetime_watcher_)},
             ptr_{other.ptr_}
         {}

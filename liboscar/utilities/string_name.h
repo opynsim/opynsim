@@ -33,14 +33,14 @@ namespace osc
         requires std::constructible_from<std::string_view, StringViewLike>
         friend bool operator==(const StringName& lhs, const StringViewLike& rhs)
         {
-            return std::string_view{lhs} == rhs;
+            return std::string_view{lhs} == rhs;  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
         }
 
         template<typename StringViewLike>
         requires std::constructible_from<std::string_view, StringViewLike>
         friend bool operator==(const StringViewLike& lhs, const StringName& rhs)
         {
-            return lhs == std::string_view{rhs};
+            return lhs == std::string_view{rhs};  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
         }
 
         friend auto operator<=>(const StringName&, const StringName&) = default;
