@@ -261,7 +261,7 @@ struct osc::Converter<Key, ImGuiKey> final {
     }
 };
 
-static_assert(osc::ui::gizmo_annotation_offset() == osc::ui::gizmo::detail::AnnotationOffset());
+static_assert(osc::ui::gizmo_annotation_offset() == osc::ui::gizmo::detail::annotation_offset());
 
 template<>
 struct osc::Converter<Rect, ImRect> final {
@@ -1853,7 +1853,7 @@ void osc::ui::Context::on_start_new_frame()
     ImGui::NewFrame();
 
     // extra parts
-    get_backend_data().gizmo_context.BeginFrame();
+    get_backend_data().gizmo_context.begin_frame();
 }
 
 void osc::ui::Context::render()
@@ -4085,15 +4085,15 @@ std::optional<Transform> osc::ui::Gizmo::draw_to(
 
     auto& gizmo_context = get_backend_data().gizmo_context;
 
-    gizmo_context.PushID(id_);
-    const ScopeExit g{[&gizmo_context]{ gizmo_context.PopID(); }};
+    gizmo_context.push_id(id_);
+    const ScopeExit g{[&gizmo_context]{ gizmo_context.pop_id(); }};
 
     // update last-frame cache
-    was_using_last_frame_ = gizmo_context.IsUsing();
+    was_using_last_frame_ = gizmo_context.is_using();
 
-    gizmo_context.SetRect(ui_rect);
-    gizmo_context.SetDrawlist(draw_list);
-    return gizmo_context.Manipulate(
+    gizmo_context.set_rect(ui_rect);
+    gizmo_context.set_drawlist(draw_list);
+    return gizmo_context.manipulate(
         view_matrix,
         projection_matrix,
         to<gizmo::detail::Operation>(operation_),
@@ -4108,9 +4108,9 @@ bool osc::ui::Gizmo::is_using() const
 {
     auto& gizmo_context = get_backend_data().gizmo_context;
 
-    gizmo_context.PushID(id_);
-    const bool rv = gizmo_context.IsUsing();
-    gizmo_context.PopID();
+    gizmo_context.push_id(id_);
+    const bool rv = gizmo_context.is_using();
+    gizmo_context.pop_id();
 
     return rv;
 }
@@ -4119,9 +4119,9 @@ bool osc::ui::Gizmo::is_over() const
 {
     auto& gizmo_context = get_backend_data().gizmo_context;
 
-    gizmo_context.PushID(id_);
-    const bool rv = gizmo_context.IsOver();
-    gizmo_context.PopID();
+    gizmo_context.push_id(id_);
+    const bool rv = gizmo_context.is_over();
+    gizmo_context.pop_id();
 
     return rv;
 }

@@ -1556,12 +1556,12 @@ public:
                                , (bounds[5] - bounds[2]) * length(mBoundsMatrix[2]) * length(scale[2])
                 );
                 drawList->AddText(
-                    ImVec2(destinationPosOnScreen.x + AnnotationOffset() + 1.0f, destinationPosOnScreen.y + AnnotationOffset() + 1.0f),
+                    ImVec2(destinationPosOnScreen.x + annotation_offset() + 1.0f, destinationPosOnScreen.y + annotation_offset() + 1.0f),
                     GetColorU32(TEXT_SHADOW),
                     tmps
                 );
                 drawList->AddText(
-                    ImVec2(destinationPosOnScreen.x + AnnotationOffset(), destinationPosOnScreen.y + AnnotationOffset()),
+                    ImVec2(destinationPosOnScreen.x + annotation_offset(), destinationPosOnScreen.y + annotation_offset()),
                     GetColorU32(TEXT),
                     tmps
                 );
@@ -1739,12 +1739,12 @@ public:
                 mRotationAngle
             );
             drawList->AddText(
-                ImVec2(destinationPosOnScreen.x + AnnotationOffset() + 1.0f, destinationPosOnScreen.y + AnnotationOffset() + 1.0f),
+                ImVec2(destinationPosOnScreen.x + annotation_offset() + 1.0f, destinationPosOnScreen.y + annotation_offset() + 1.0f),
                 GetColorU32(TEXT_SHADOW),
                 tmps
             );
             drawList->AddText(
-                ImVec2(destinationPosOnScreen.x + AnnotationOffset(), destinationPosOnScreen.y + AnnotationOffset()),
+                ImVec2(destinationPosOnScreen.x + annotation_offset(), destinationPosOnScreen.y + annotation_offset()),
                 GetColorU32(TEXT),
                 tmps
             );
@@ -2157,32 +2157,32 @@ osc::ui::gizmo::detail::GizmoContext::GizmoContext() : impl_{std::make_unique<Im
 osc::ui::gizmo::detail::GizmoContext::GizmoContext(GizmoContext&&) noexcept = default;
 osc::ui::gizmo::detail::GizmoContext::~GizmoContext() noexcept = default;
 GizmoContext& osc::ui::gizmo::detail::GizmoContext::operator=(GizmoContext&&) noexcept = default;
-void osc::ui::gizmo::detail::GizmoContext::SetDrawlist(ImDrawList *drawlist) { impl_->SetDrawlist(drawlist); }
-void osc::ui::gizmo::detail::GizmoContext::BeginFrame() { impl_->BeginFrame(); }
-bool osc::ui::gizmo::detail::GizmoContext::IsOver() { return impl_->IsOver(); }
-bool osc::ui::gizmo::detail::GizmoContext::IsOver(Operation op) { return impl_->IsOver(op); }
-bool osc::ui::gizmo::detail::GizmoContext::IsUsing() { return impl_->IsUsing(); }
-bool osc::ui::gizmo::detail::GizmoContext::IsUsingAny() { return impl_->IsUsingAny(); }
-void osc::ui::gizmo::detail::GizmoContext::Enable(bool enable) { impl_->Enable(enable); }
-void osc::ui::gizmo::detail::GizmoContext::SetRect(const Rect& ui_rect) { impl_->SetRect(ui_rect); }
-void osc::ui::gizmo::detail::GizmoContext::SetOrthographic(bool isOrthographic) { impl_->SetOrthographic(isOrthographic); }
-void osc::ui::gizmo::detail::GizmoContext::PushID(UID uid) { impl_->PushID(uid); }
-void osc::ui::gizmo::detail::GizmoContext::PopID() { impl_->PopID(); }
-void osc::ui::gizmo::detail::GizmoContext::SetGizmoSizeClipSpace(float value) { impl_->SetGizmoSizeClipSpace(value); }
-void osc::ui::gizmo::detail::GizmoContext::SetAxisLimit(float value) { impl_->SetAxisLimit(value); }
-void osc::ui::gizmo::detail::GizmoContext::SetAxisMask(bool x, bool y, bool z) { impl_->SetAxisMask(x, y, z); }
-void osc::ui::gizmo::detail::GizmoContext::SetPlaneLimit(float value) { impl_->SetPlaneLimit(value); }
-std::optional<Transform> osc::ui::gizmo::detail::GizmoContext::Manipulate(
+void osc::ui::gizmo::detail::GizmoContext::set_drawlist(ImDrawList *drawlist) { impl_->SetDrawlist(drawlist); }
+void osc::ui::gizmo::detail::GizmoContext::begin_frame() { impl_->BeginFrame(); }
+bool osc::ui::gizmo::detail::GizmoContext::is_over() { return impl_->IsOver(); }
+bool osc::ui::gizmo::detail::GizmoContext::is_over(Operation op) { return impl_->IsOver(op); }
+bool osc::ui::gizmo::detail::GizmoContext::is_using() { return impl_->IsUsing(); }
+bool osc::ui::gizmo::detail::GizmoContext::is_using_any() { return impl_->IsUsingAny(); }
+void osc::ui::gizmo::detail::GizmoContext::enable(bool enable) { impl_->Enable(enable); }
+void osc::ui::gizmo::detail::GizmoContext::set_rect(const Rect& ui_rect) { impl_->SetRect(ui_rect); }
+void osc::ui::gizmo::detail::GizmoContext::set_orthographic(bool is_orthographic) { impl_->SetOrthographic(is_orthographic); }
+void osc::ui::gizmo::detail::GizmoContext::push_id(UID uid) { impl_->PushID(uid); }
+void osc::ui::gizmo::detail::GizmoContext::pop_id() { impl_->PopID(); }
+void osc::ui::gizmo::detail::GizmoContext::set_gizmo_size_clip_space(float value) { impl_->SetGizmoSizeClipSpace(value); }
+void osc::ui::gizmo::detail::GizmoContext::set_axis_limit(float value) { impl_->SetAxisLimit(value); }
+void osc::ui::gizmo::detail::GizmoContext::set_axis_mask(bool x, bool y, bool z) { impl_->SetAxisMask(x, y, z); }
+void osc::ui::gizmo::detail::GizmoContext::set_plane_limit(float value) { impl_->SetPlaneLimit(value); }
+std::optional<Transform> osc::ui::gizmo::detail::GizmoContext::manipulate(
     const Matrix4x4& view,
     const Matrix4x4& projection,
     Operation operation,
     Mode mode,
     Matrix4x4& matrix,
     const GizmoOperationSnappingSteps* snap,
-    const AABB* localBounds,
-    const float* boundsSnap)
+    const AABB* local_bounds,
+    const float* bounds_snap)
 {
-   return impl_->Manipulate(view, projection, operation, mode, matrix, snap, localBounds, boundsSnap);
+   return impl_->Manipulate(view, projection, operation, mode, matrix, snap, local_bounds, bounds_snap);
 }
 
 // NOLINTEND
