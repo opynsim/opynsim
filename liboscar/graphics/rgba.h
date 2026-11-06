@@ -146,9 +146,9 @@ namespace osc
             };
         }
 
-        constexpr Rgba with_alpha(value_type a) const
+        constexpr Rgba with_alpha(value_type new_a) const
         {
-            return Rgba{r, g, b, a};
+            return Rgba{r, g, b, new_a};
         }
 
         constexpr Rgba with_element(size_type pos, value_type value) const
