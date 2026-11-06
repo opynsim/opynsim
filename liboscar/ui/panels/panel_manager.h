@@ -45,7 +45,7 @@ namespace osc
         // returns the panel with the given name, or `nullptr` if not found
         Panel* try_upd_panel_by_name(std::string_view);
         template<std::derived_from<Panel> TConcretePanel>
-        TConcretePanel* try_upd_panel_by_name_T(std::string_view name)
+        TConcretePanel* try_upd_panel_by_name_t(std::string_view name)
         {
             Panel* p = try_upd_panel_by_name(name);
             return p ? dynamic_cast<TConcretePanel*>(p) : nullptr;

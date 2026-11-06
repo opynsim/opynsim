@@ -22,6 +22,6 @@ namespace osc
 
     constexpr bool operator&(ToggleablePanelFlags lhs, ToggleablePanelFlags rhs)
     {
-        return std::to_underlying(lhs) & std::to_underlying(rhs);
+        return (std::to_underlying(lhs) & std::to_underlying(rhs)) != 0u;
     }
 }
