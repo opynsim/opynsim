@@ -193,7 +193,8 @@ bool osc::is_in_selection_group_of(
 
 void osc::select_anything_grouped_with(MiDocument& doc, UID id)
 {
-    for_each_id_in_selection_group(doc, id, [&doc](UID other) {
+    for_each_id_in_selection_group(doc, id, [&doc](UID other)
+    {
         doc.select(other);
     });
 }

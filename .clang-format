@@ -12,6 +12,7 @@ ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
 LambdaBodyIndentation: OuterScope  # Options: Signature (default) or OuterScope
 AllowShortFunctionsOnASingleLine: All # or 'All'
+AllowShortLambdasOnASingleLine: Inline
 SpaceAfterTemplateKeyword: false
 AccessModifierOffset: -4
 SpacesBeforeTrailingComments: 2
@@ -37,4 +38,5 @@ BraceWrapping:
   BeforeCatch: false
   BeforeElse: false
   SplitEmptyFunction: false
+  BeforeLambdaBody: true
 
