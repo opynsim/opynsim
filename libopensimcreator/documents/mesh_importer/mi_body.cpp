@@ -32,8 +32,7 @@ void osc::MiBody::impl_set_label(std::string_view sv)
 
 MiClass osc::MiBody::create_class()
 {
-    return
-    {
+    return {
         MiStrings::c_body_label,
         MiStrings::c_body_label_pluralized,
         MiStrings::c_body_label_optionally_pluralized,
@@ -45,8 +44,8 @@ MiClass osc::MiBody::create_class()
 std::ostream& osc::MiBody::impl_write_to_stream(std::ostream& o) const
 {
     return o << "MiBody(ID = " << id_
-        << ", Name = " << name_
-        << ", m_Transform = " << xform_
-        << ", Mass = " << mass_
-        << ')';
+             << ", Name = " << name_
+             << ", m_Transform = " << xform_
+             << ", Mass = " << mass_
+             << ')';
 }

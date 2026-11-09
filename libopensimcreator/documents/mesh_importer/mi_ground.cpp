@@ -10,14 +10,13 @@
 
 #include <iostream>
 
-using osc::MiClass;
 using osc::CStringView;
+using osc::MiClass;
 using osc::UID;
 
 MiClass osc::MiGround::create_class()
 {
-    return
-    {
+    return {
         MiStrings::c_ground_label,
         MiStrings::c_ground_label_pluralized,
         MiStrings::c_ground_label_optionally_pluralized,

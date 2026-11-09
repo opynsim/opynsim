@@ -52,8 +52,7 @@ namespace osc
             using InternalIterator = std::conditional_t<
                 std::is_const_v<T>,
                 ObjectLookup::const_iterator,
-                ObjectLookup::iterator
-            >;
+                ObjectLookup::iterator>;
 
             Iterator() = default;
 
@@ -62,10 +61,8 @@ namespace osc
                 end_{end}
             {
                 // ensure iterator initially points at an object with the correct type
-                while (pos_ != end_)
-                {
-                    if (dynamic_cast<const_pointer>(pos_->second.get()))
-                    {
+                while (pos_ != end_) {
+                    if (dynamic_cast<const_pointer>(pos_->second.get())) {
                         break;
                     }
                     ++pos_;
@@ -82,10 +79,8 @@ namespace osc
 
             Iterator& operator++()
             {
-                while (++pos_ != end_)
-                {
-                    if (dynamic_cast<const_pointer>(pos_->second.get()))
-                    {
+                while (++pos_ != end_) {
+                    if (dynamic_cast<const_pointer>(pos_->second.get())) {
                         break;
                     }
                 }
@@ -141,7 +136,6 @@ namespace osc
         };
 
     public:
-
         MiDocument();
 
         template<std::derived_from<MiObject> T = MiObject>
@@ -210,10 +204,8 @@ namespace osc
         MiObject& insert(std::unique_ptr<MiObject> obj)
         {
             // ensure object connects to things that already exist in the document
-            for (int i = 0, len = obj->get_num_cross_references(); i < len; ++i)
-            {
-                if (!contains(obj->get_cross_reference_connectee_id(i)))
-                {
+            for (int i = 0, len = obj->get_num_cross_references(); i < len; ++i) {
+                if (!contains(obj->get_cross_reference_connectee_id(i))) {
                     std::stringstream ss;
                     ss << "cannot add '" << obj->get_label() << "' (ID = " << obj->get_id() << ") to the document because it contains a cross reference (label = " << obj->get_cross_reference_label(i) << ") to another object that does not exist in the document";
                     throw std::runtime_error{std::move(ss).str()};
@@ -233,8 +225,7 @@ namespace osc
         bool delete_by_id(UID id)
         {
             const MiObject* const obj = try_get_by_id(id);
-            if (!obj)
-            {
+            if (!obj) {
                 return false;  // ID doesn't exist in the document
             }
 
@@ -243,15 +234,13 @@ namespace osc
             std::unordered_set<UID> deletion_set;
             populate_deletion_set(*obj, deletion_set);
 
-            for (UID deleted_id : deletion_set)
-            {
+            for (UID deleted_id : deletion_set) {
                 de_select(deleted_id);
 
                 // move object into deletion set, rather than deleting it immediately,
                 // so that code that relies on references to the to-be-deleted object
                 // still works until an explicit `.garbage_collect()` call
-                if (const auto it = objects_.find(deleted_id); it != objects_.end())
-                {
+                if (const auto it = objects_.find(deleted_id); it != objects_.end()) {
                     deleted_objects_.push_back(std::move(it->second));
                     objects_.erase(it);
                 }
@@ -264,7 +253,6 @@ namespace osc
         {
             deleted_objects_.clear();
         }
-
 
         // selection logic
 
@@ -292,8 +280,7 @@ namespace osc
         {
             const MiObject* const e = try_get_by_id(id);
 
-            if (e && e->can_select())
-            {
+            if (e && e->can_select()) {
                 selected_object_ids_.insert(id);
             }
         }
@@ -321,10 +308,8 @@ namespace osc
 
         void select_all()
         {
-            for (const MiObject& obj : iter())
-            {
-                if (obj.can_select())
-                {
+            for (const MiObject& obj : iter()) {
+                if (obj.can_select()) {
                     selected_object_ids_.insert(obj.get_id());
                 }
             }
@@ -340,46 +325,39 @@ namespace osc
             // copy deletion set to ensure iterator can't be invalidated by deletion
             std::unordered_set<UID> selected = get_selected();
 
-            for (UID id : selected)
-            {
+            for (UID id : selected) {
                 delete_by_id(id);
             }
 
             de_select_all();
         }
+
     private:
         template<
             std::derived_from<MiObject> T = MiObject,
-            typename AssociativeContainer
-        >
+            typename AssociativeContainer>
         static T* find_by_id(AssociativeContainer& container, UID id)
         {
             const auto it = container.find(id);
 
-            if (it == container.end())
-            {
+            if (it == container.end()) {
                 return nullptr;
             }
 
-            if constexpr (std::is_same_v<T, MiObject>)
-            {
+            if constexpr (std::is_same_v<T, MiObject>) {
                 return it->second.get();
-            }
-            else
-            {
+            } else {
                 return dynamic_cast<T*>(it->second.get());
             }
         }
 
         template<
             std::derived_from<MiObject> T = MiObject,
-            typename AssociativeContainer
-        >
+            typename AssociativeContainer>
         static T& find_by_id_or_throw(AssociativeContainer& container, UID id)
         {
             T* ptr = find_by_id<T>(container, id);
-            if (!ptr)
-            {
+            if (!ptr) {
                 std::stringstream msg;
                 msg << "could not find an object of type " << typeid(T).name() << " with ID = " << id;
                 throw std::runtime_error{std::move(msg).str()};
@@ -398,10 +376,8 @@ namespace osc
             const UID deleted_id = deletion_target.get_id();
 
             // add the deletion target to the deletion set (if applicable)
-            if (deletion_target.can_delete())
-            {
-                if (!out.emplace(deleted_id).second)
-                {
+            if (deletion_target.can_delete()) {
+                if (!out.emplace(deleted_id).second) {
                     throw std::runtime_error{"cannot populate deletion set - cycle detected"};
                 }
             }
@@ -409,10 +385,8 @@ namespace osc
             // iterate over everything else in the document and look for things
             // that cross-reference the to-be-deleted object - those things should
             // also be deleted
-            for (const MiObject& obj : iter())
-            {
-                if (obj.is_cross_referencing(deleted_id))
-                {
+            for (const MiObject& obj : iter()) {
+                if (obj.is_cross_referencing(deleted_id)) {
                     populate_deletion_set(obj, out);
                 }
             }

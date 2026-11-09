@@ -33,6 +33,7 @@ namespace osc
         {
             return direction_;
         }
+
     private:
         UID connectee_id_;
         CStringView label_;

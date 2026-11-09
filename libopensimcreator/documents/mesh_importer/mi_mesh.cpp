@@ -17,9 +17,9 @@
 #include <utility>
 #include <vector>
 
-using osc::MiCrossrefDescriptor;
-using osc::MiClass;
 using osc::AABB;
+using osc::MiClass;
+using osc::MiCrossrefDescriptor;
 
 osc::MiMesh::MiMesh(
     UID id,
@@ -49,8 +49,7 @@ void osc::MiMesh::reload_mesh_data_from_disk()
 
 MiClass osc::MiMesh::create_class()
 {
-    return
-    {
+    return {
         MiStrings::c_mesh_label,
         MiStrings::c_mesh_label_pluralized,
         MiStrings::c_mesh_label_optionally_pluralized,
@@ -61,8 +60,7 @@ MiClass osc::MiMesh::create_class()
 
 std::vector<MiCrossrefDescriptor> osc::MiMesh::impl_get_cross_references() const
 {
-    return
-    {
+    return {
         {attachment_, MiStrings::c_mesh_attachment_crossref_name, MiCrossrefDirection::ToParent},
     };
 }
@@ -70,13 +68,13 @@ std::vector<MiCrossrefDescriptor> osc::MiMesh::impl_get_cross_references() const
 std::ostream& osc::MiMesh::impl_write_to_stream(std::ostream& o) const
 {
     return o << "Mesh("
-        << "ID = " << id_
-        << ", Attachment = " << attachment_
-        << ", m_Transform = " << transform_
-        << ", MeshData = " << &mesh_data_
-        << ", Path = " << path_
-        << ", Name = " << name_
-        << ')';
+             << "ID = " << id_
+             << ", Attachment = " << attachment_
+             << ", m_Transform = " << transform_
+             << ", MeshData = " << &mesh_data_
+             << ", Path = " << path_
+             << ", Name = " << name_
+             << ')';
 }
 
 void osc::MiMesh::impl_set_label(std::string_view sv)

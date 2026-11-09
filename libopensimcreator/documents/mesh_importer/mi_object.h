@@ -18,8 +18,14 @@
 #include <string_view>
 #include <vector>
 
-namespace osc { class MiObjectFinder; }
-namespace osc { class MiClass; }
+namespace osc
+{
+    class MiObjectFinder;
+}
+namespace osc
+{
+    class MiClass;
+}
 
 namespace osc
 {
@@ -31,6 +37,7 @@ namespace osc
         MiObject(MiObject&&) noexcept = default;
         MiObject& operator=(const MiObject&) = default;
         MiObject& operator=(MiObject&&) noexcept = default;
+
     public:
         virtual ~MiObject() noexcept = default;
 
@@ -150,8 +157,7 @@ namespace osc
         void apply_rotation(
             const MiObjectFinder& lookup,
             const EulerAngles& euler_angles,
-            const Vector3& rotation_center
-        );
+            const Vector3& rotation_center);
 
         void apply_scale(const MiObjectFinder& lookup, const Vector3& scale_factors)
         {
@@ -195,8 +201,7 @@ namespace osc
 
         bool is_cross_referencing(
             UID id,
-            MiCrossrefDirection direction = MiCrossrefDirection::Both
-        ) const;
+            MiCrossrefDirection direction = MiCrossrefDirection::Both) const;
 
     private:
         virtual const MiClass& impl_get_class() const = 0;

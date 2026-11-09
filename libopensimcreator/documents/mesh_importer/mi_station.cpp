@@ -15,8 +15,8 @@
 #include <string_view>
 #include <vector>
 
-using osc::MiCrossrefDescriptor;
 using osc::MiClass;
+using osc::MiCrossrefDescriptor;
 
 osc::MiStation::MiStation(
     UID id,
@@ -42,8 +42,7 @@ osc::MiStation::MiStation(
 
 MiClass osc::MiStation::create_class()
 {
-    return
-    {
+    return {
         MiStrings::c_station_label,
         MiStrings::c_station_label_pluralized,
         MiStrings::c_station_label_optionally_pluralized,
@@ -54,8 +53,7 @@ MiClass osc::MiStation::create_class()
 
 std::vector<MiCrossrefDescriptor> osc::MiStation::impl_get_cross_references() const
 {
-    return
-    {
+    return {
         {attachment_, MiStrings::c_station_parent_crossref_name, MiCrossrefDirection::ToParent},
     };
 }
@@ -63,11 +61,11 @@ std::vector<MiCrossrefDescriptor> osc::MiStation::impl_get_cross_references() co
 std::ostream& osc::MiStation::impl_write_to_stream(std::ostream& o) const
 {
     return o << "MiStation("
-        << "ID = " << id_
-        << ", Attachment = " << attachment_
-        << ", Position = " << position_
-        << ", Name = " << name_
-        << ')';
+             << "ID = " << id_
+             << ", Attachment = " << attachment_
+             << ", Position = " << position_
+             << ", Name = " << name_
+             << ')';
 }
 
 void osc::MiStation::impl_set_label(std::string_view sv)

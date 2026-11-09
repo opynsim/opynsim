@@ -26,6 +26,7 @@ namespace osc
         {
             return std::unique_ptr<T>{static_cast<T*>(impl_clone().release())};
         }
+
     private:
         const MiClass& impl_get_class() const final
         {

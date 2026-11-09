@@ -16,6 +16,7 @@ namespace osc
         static UID joint_group() { return get_all_ids().joint_group; }
         static UID station_group() { return get_all_ids().station_group; }
         static UID edge_group() { return get_all_ids().edge_group; }
+
     private:
         struct AllIDs final {
             UID ground;

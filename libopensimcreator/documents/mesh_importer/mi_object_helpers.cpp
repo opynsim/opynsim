@@ -21,6 +21,7 @@ using osc::Vector3;
 
 bool osc::can_attach_mesh_to(const MiObject& e)
 {
+    // clang-format off
     return std::visit(Overload
     {
         [](const MiGround&)  { return true; },
@@ -29,10 +30,12 @@ bool osc::can_attach_mesh_to(const MiObject& e)
         [](const MiJoint&)   { return true; },
         [](const MiStation&) { return false; },
     }, e.to_variant());
+    // clang-format on
 }
 
 bool osc::can_attach_station_to(const MiObject& e)
 {
+    // clang-format off
     return std::visit(Overload
     {
         [](const MiGround&)  { return true; },
@@ -41,12 +44,12 @@ bool osc::can_attach_station_to(const MiObject& e)
         [](const MiJoint&)   { return false; },
         [](const MiStation&) { return false; },
     }, e.to_variant());
+    // clang-format on
 }
 
 const std::array<MiClass, std::variant_size_v<MiVariantReference>>& osc::get_scene_el_classes()
 {
-    static const auto s_classes = std::to_array(
-    {
+    static const auto s_classes = std::to_array({
         MiGround::get_class(),
         MiMesh::get_class(),
         MiBody::get_class(),

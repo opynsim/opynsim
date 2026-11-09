@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 
-using osc::MiCrossrefDescriptor;
 using osc::MiClass;
+using osc::MiCrossrefDescriptor;
 
 osc::MiJoint::MiJoint(
     UID id,
@@ -36,8 +36,7 @@ osc::MiJoint::MiJoint(
 
 MiClass osc::MiJoint::create_class()
 {
-    return
-    {
+    return {
         MiStrings::c_joint_label,
         MiStrings::c_joint_label_pluralized,
         MiStrings::c_joint_label_optionally_pluralized,
@@ -48,22 +47,21 @@ MiClass osc::MiJoint::create_class()
 
 std::vector<MiCrossrefDescriptor> osc::MiJoint::impl_get_cross_references() const
 {
-    return
-    {
+    return {
         {parent_, MiStrings::c_joint_parent_crossref_name, MiCrossrefDirection::ToParent},
-        {child_,  MiStrings::c_joint_child_crossref_name,  MiCrossrefDirection::ToChild },
+        {child_, MiStrings::c_joint_child_crossref_name, MiCrossrefDirection::ToChild},
     };
 }
 
 std::ostream& osc::MiJoint::impl_write_to_stream(std::ostream& o) const
 {
     return o << "MiJoint(ID = " << id_
-        << ", JointTypeName = " << joint_type_name_
-        << ", UserAssignedName = " << user_assigned_name_
-        << ", Parent = " << parent_
-        << ", Child = " << child_
-        << ", Transform = " << xform_
-        << ')';
+             << ", JointTypeName = " << joint_type_name_
+             << ", UserAssignedName = " << user_assigned_name_
+             << ", Parent = " << parent_
+             << ", Child = " << child_
+             << ", Transform = " << xform_
+             << ')';
 }
 
 void osc::MiJoint::impl_set_label(std::string_view sv)

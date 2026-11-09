@@ -27,8 +27,7 @@ namespace osc
                 name_pluralized,
                 name_optionally_pluralized,
                 icon,
-                description
-            )}
+                description)}
         {}
 
         UID get_id() const
@@ -73,6 +72,7 @@ namespace osc
         {
             return lhs.data_ == rhs.data_ || *lhs.data_ == *rhs.data_;
         }
+
     private:
         int32_t fetch_add_unique_counter() const
         {

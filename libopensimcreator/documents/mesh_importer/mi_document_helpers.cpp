@@ -33,23 +33,19 @@ bool osc::is_a_child_attachment_in_any_joint(const MiDocument& doc, const MiObje
 
 bool osc::is_garbage_joint(const MiDocument& doc, const MiJoint& joint)
 {
-    if (joint.get_child_id() == MiIDs::ground())
-    {
+    if (joint.get_child_id() == MiIDs::ground()) {
         return true;  // ground cannot be a child in a joint
     }
 
-    if (joint.get_parent_id() == joint.get_child_id())
-    {
+    if (joint.get_parent_id() == joint.get_child_id()) {
         return true;  // is directly attached to itself
     }
 
-    if (joint.get_parent_id() != MiIDs::ground() && !doc.contains<MiBody>(joint.get_parent_id()))
-    {
+    if (joint.get_parent_id() != MiIDs::ground() && !doc.contains<MiBody>(joint.get_parent_id())) {
         return true;  // has a parent ID that's invalid for this document
     }
 
-    if (!doc.contains<MiBody>(joint.get_child_id()))
-    {
+    if (!doc.contains<MiBody>(joint.get_child_id())) {
         return true;  // has a child ID that's invalid for this document
     }
 
@@ -63,14 +59,12 @@ bool osc::is_joint_attached_to_ground(
 {
     OSC_ASSERT_ALWAYS(!is_garbage_joint(doc, joint));
 
-    if (joint.get_parent_id() == MiIDs::ground())
-    {
+    if (joint.get_parent_id() == MiIDs::ground()) {
         return true;  // it's directly attached to ground
     }
 
     const auto* const parent = doc.try_get_by_id<MiBody>(joint.get_parent_id());
-    if (!parent)
-    {
+    if (!parent) {
         return false;  // joint's parent is garbage
     }
 
@@ -85,22 +79,18 @@ bool osc::is_body_attached_to_ground(
 {
     bool child_in_at_least_one_joint = false;
 
-    for (const MiJoint& joint : doc.iter<MiJoint>())
-    {
+    for (const MiJoint& joint : doc.iter<MiJoint>()) {
         OSC_ASSERT(!is_garbage_joint(doc, joint));
 
-        if (joint.get_child_id() == body.get_id())
-        {
+        if (joint.get_child_id() == body.get_id()) {
             child_in_at_least_one_joint = true;
 
             const bool already_visited = !previously_visited_joints.emplace(joint.get_id()).second;
-            if (already_visited)
-            {
+            if (already_visited) {
                 continue;  // skip this joint: was previously visited
             }
 
-            if (is_joint_attached_to_ground(doc, joint, previously_visited_joints))
-            {
+            if (is_joint_attached_to_ground(doc, joint, previously_visited_joints)) {
                 return true;  // recurse
             }
         }
@@ -115,21 +105,17 @@ bool osc::get_issues(
 {
     issues_out.clear();
 
-    for (const MiJoint& joint : doc.iter<MiJoint>())
-    {
-        if (is_garbage_joint(doc, joint))
-        {
+    for (const MiJoint& joint : doc.iter<MiJoint>()) {
+        if (is_garbage_joint(doc, joint)) {
             std::stringstream ss;
             ss << joint.get_label() << ": joint is garbage (this is an implementation error)";
             throw std::runtime_error{std::move(ss).str()};
         }
     }
 
-    for (const MiBody& body : doc.iter<MiBody>())
-    {
+    for (const MiBody& body : doc.iter<MiBody>()) {
         std::unordered_set<UID> previously_visited_joints;
-        if (!is_body_attached_to_ground(doc, body, previously_visited_joints))
-        {
+        if (!is_body_attached_to_ground(doc, body, previously_visited_joints)) {
             std::stringstream ss;
             ss << body.get_label() << ": body is not attached to ground: it is connected by a joint that, itself, does not connect to ground";
             issues_out.push_back(std::move(ss).str());
@@ -144,6 +130,7 @@ std::string osc::get_context_menu_sub_header_text(
     const MiObject& obj)
 {
     std::stringstream ss;
+    // clang-format off
     std::visit(Overload
     {
         [&ss](const MiGround&)
@@ -167,6 +154,7 @@ std::string osc::get_context_menu_sub_header_text(
             ss << '(' << MiStation::get_class().get_name() << ", attached to " << doc.get_label_by_id(s.get_parent_id()) << ')';
         },
     }, obj.to_variant());
+    // clang-format on
     return std::move(ss).str();
 }
 
@@ -175,55 +163,44 @@ bool osc::is_in_selection_group_of(
     UID parent,
     UID id)
 {
-    if (id == MiIDs::empty() || parent == MiIDs::empty())
-    {
+    if (id == MiIDs::empty() || parent == MiIDs::empty()) {
         return false;
     }
 
-    if (id == parent)
-    {
+    if (id == parent) {
         return true;
     }
 
     const MiBody* body = nullptr;
-    if (const auto* be = doc.try_get_by_id<MiBody>(parent))
-    {
+    if (const auto* be = doc.try_get_by_id<MiBody>(parent)) {
         body = be;
-    }
-    else if (const auto* me = doc.try_get_by_id<MiMesh>(parent))
-    {
+    } else if (const auto* me = doc.try_get_by_id<MiMesh>(parent)) {
         body = doc.try_get_by_id<MiBody>(me->get_parent_id());
     }
 
-    if (!body)
-    {
+    if (!body) {
         return false;  // parent isn't attached to any body (or isn't a body)
     }
 
-    if (const auto* be = doc.try_get_by_id<MiBody>(id))
-    {
+    if (const auto* be = doc.try_get_by_id<MiBody>(id)) {
         return be->get_id() == body->get_id();
-    }
-    else if (const auto* me = doc.try_get_by_id<MiMesh>(id))
-    {
+    } else if (const auto* me = doc.try_get_by_id<MiMesh>(id)) {
         return me->get_parent_id() == body->get_id();
-    }
-    else
-    {
+    } else {
         return false;
     }
 }
 
 void osc::select_anything_grouped_with(MiDocument& doc, UID id)
 {
-    for_each_id_in_selection_group(doc, id, [&doc](UID other)
-    {
+    for_each_id_in_selection_group(doc, id, [&doc](UID other) {
         doc.select(other);
     });
 }
 
 UID osc::get_station_attachment_parent(const MiDocument& doc, const MiObject& obj)
 {
+    // clang-format off
     return std::visit(Overload
     {
         [](const MiGround&) { return MiIDs::ground(); },
@@ -232,6 +209,7 @@ UID osc::get_station_attachment_parent(const MiDocument& doc, const MiObject& ob
         [](const MiJoint&) { return MiIDs::ground(); },
         [](const MiStation&) { return MiIDs::ground(); },
     }, obj.to_variant());
+    // clang-format on
 }
 
 void osc::point_axis_towards(

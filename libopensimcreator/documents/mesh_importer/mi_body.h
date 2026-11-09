@@ -22,8 +22,7 @@ namespace osc
         MiBody(
             UID id,
             const std::string& name,
-            const Transform& xform
-        );
+            const Transform& xform);
 
         double get_mass() const
         {
@@ -39,18 +38,18 @@ namespace osc
         {
             return xform_;
         }
+
     private:
         friend class MiObjectCRTP<MiBody>;
         static MiClass create_class();
 
         MiObjectFlags impl_get_flags() const final
         {
-            return
-                MiObjectFlags::CanChangeLabel |
-                MiObjectFlags::CanChangePosition |
-                MiObjectFlags::CanChangeRotation |
-                MiObjectFlags::CanDelete |
-                MiObjectFlags::CanSelect;
+            return MiObjectFlags::CanChangeLabel |
+                   MiObjectFlags::CanChangePosition |
+                   MiObjectFlags::CanChangeRotation |
+                   MiObjectFlags::CanDelete |
+                   MiObjectFlags::CanSelect;
         }
 
         UID impl_get_id() const final

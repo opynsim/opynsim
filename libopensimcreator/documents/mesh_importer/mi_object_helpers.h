@@ -8,8 +8,14 @@
 #include <array>
 #include <variant>
 
-namespace osc { class MiMesh; }
-namespace osc { class MiObject; }
+namespace osc
+{
+    class MiMesh;
+}
+namespace osc
+{
+    class MiObject;
+}
 
 namespace osc
 {

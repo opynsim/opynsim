@@ -1,12 +1,23 @@
-# Stops clang-format from trying to align arguments horizontally with the open parenthesis
-#AlignAfterOpenBracket: BlockIndent
-# Defines how many spaces to indent wrapped continuation lines (matches your IndentWidth)
+# Control where the colon goes (e.g. Keep it on the constructor line or properly indented)
+BreakConstructorInitializers: AfterColon # or BeforeComma
+# Ensure constructor initializer lists don't indent wildly relative to the constructor name
+# Do not bin-pack arguments into columns, keeping them on separate lines with clean indents
+BinPackArguments: false
+BinPackParameters: true
+
+# Prevent constructor/braced initializers from aligning to arbitrary argument columns
+Cpp11BracedListStyle: true
+AlignAfterOpenBracket: Align
+ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
+LambdaBodyIndentation: OuterScope  # Options: Signature (default) or OuterScope
+AllowShortFunctionsOnASingleLine: All # or 'All'
 SpaceAfterTemplateKeyword: false
 AccessModifierOffset: -4
 SpacesBeforeTrailingComments: 2
 BasedOnStyle: LLVM
 IndentWidth: 4
+IndentRequiresClause: false # or true depending on your preference, but 'false' keeps it left-aligned/closer
 TabWidth: 4
 UseTab: Never
 ColumnLimit: 0
@@ -25,4 +36,5 @@ BraceWrapping:
   AfterUnion: false
   BeforeCatch: false
   BeforeElse: false
+  SplitEmptyFunction: false
 

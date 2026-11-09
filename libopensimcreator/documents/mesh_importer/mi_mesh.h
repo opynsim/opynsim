@@ -25,8 +25,7 @@ namespace osc
             UID id,
             UID attachment,  // can be MiIDs::ground()
             Mesh mesh_data,
-            std::filesystem::path path
-        );
+            std::filesystem::path path);
 
         const Mesh& get_mesh_data() const
         {
@@ -70,8 +69,7 @@ namespace osc
 
         void impl_set_cross_reference_connectee_id(int i, UID id) final
         {
-            if (i != 0)
-            {
+            if (i != 0) {
                 throw std::runtime_error{"invalid index accessed for cross reference"};
             }
             attachment_ = id;
@@ -79,14 +77,13 @@ namespace osc
 
         MiObjectFlags impl_get_flags() const final
         {
-            return
-                MiObjectFlags::CanChangeLabel |
-                MiObjectFlags::CanChangePosition |
-                MiObjectFlags::CanChangeRotation |
-                MiObjectFlags::CanChangeScale |
-                MiObjectFlags::CanDelete |
-                MiObjectFlags::CanSelect |
-                MiObjectFlags::HasPhysicalSize;
+            return MiObjectFlags::CanChangeLabel |
+                   MiObjectFlags::CanChangePosition |
+                   MiObjectFlags::CanChangeRotation |
+                   MiObjectFlags::CanChangeScale |
+                   MiObjectFlags::CanDelete |
+                   MiObjectFlags::CanSelect |
+                   MiObjectFlags::HasPhysicalSize;
         }
 
         UID impl_get_id() const final

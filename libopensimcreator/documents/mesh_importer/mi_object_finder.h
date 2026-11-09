@@ -2,7 +2,10 @@
 
 #include <liboscar/utilities/uid.h>
 
-namespace osc { class MiObject; }
+namespace osc
+{
+    class MiObject;
+}
 
 namespace osc
 {
@@ -14,6 +17,7 @@ namespace osc
         MiObjectFinder(MiObjectFinder&&) noexcept = default;
         MiObjectFinder& operator=(const MiObjectFinder&) = default;
         MiObjectFinder& operator=(MiObjectFinder&&) noexcept = default;
+
     public:
         virtual ~MiObjectFinder() noexcept = default;
 
@@ -21,6 +25,7 @@ namespace osc
         {
             return impl_find(id);
         }
+
     private:
         virtual const MiObject* impl_find(UID) const = 0;
     };

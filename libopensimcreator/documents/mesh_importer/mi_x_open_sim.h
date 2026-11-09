@@ -9,16 +9,22 @@
 #include <string>
 #include <vector>
 
-namespace OpenSim { class Model; }
-namespace osc { class MiJoint; }
+namespace OpenSim
+{
+    class Model;
+}
+namespace osc
+{
+    class MiJoint;
+}
 
 // functions that bridge the mesh importer world to the OpenSim one
 namespace osc
 {
     // user-editable flags that affect how an OpenSim::Model is created by the mesh importer
     enum class ModelCreationFlags {
-        None                      = 0,
-        ExportStationsAsMarkers   = 1<<0,
+        None = 0,
+        ExportStationsAsMarkers = 1 << 0,
     };
 
     constexpr bool operator&(const ModelCreationFlags& lhs, const ModelCreationFlags& rhs)
@@ -44,8 +50,7 @@ namespace osc
     std::unique_ptr<OpenSim::Model> create_open_sim_model_from_mesh_importer_document(
         const MiDocument&,
         ModelCreationFlags,
-        std::vector<std::string>& issues_out
-    );
+        std::vector<std::string>& issues_out);
 
     Vector3 get_joint_axis_lengths(const MiJoint&);
 }

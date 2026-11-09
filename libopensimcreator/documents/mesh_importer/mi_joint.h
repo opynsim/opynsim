@@ -28,8 +28,7 @@ namespace osc
             const std::string& user_assigned_name,  // can be empty
             UID parent,
             UID child,
-            const Transform& xform
-        );
+            const Transform& xform);
 
         CStringView get_specific_type_name() const
         {
@@ -83,12 +82,11 @@ namespace osc
 
         MiObjectFlags impl_get_flags() const final
         {
-            return
-                MiObjectFlags::CanChangeLabel |
-                MiObjectFlags::CanChangePosition |
-                MiObjectFlags::CanChangeRotation |
-                MiObjectFlags::CanDelete |
-                MiObjectFlags::CanSelect;
+            return MiObjectFlags::CanChangeLabel |
+                   MiObjectFlags::CanChangePosition |
+                   MiObjectFlags::CanChangeRotation |
+                   MiObjectFlags::CanDelete |
+                   MiObjectFlags::CanSelect;
         }
 
         UID impl_get_id() const final
