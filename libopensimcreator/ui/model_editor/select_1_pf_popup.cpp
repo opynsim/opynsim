@@ -50,7 +50,6 @@ private:
     std::function<void(const OpenSim::ComponentPath&)> on_selection_;
 };
 
-
 osc::Select1PFPopup::Select1PFPopup(
     Widget* parent,
     std::string_view popup_name,

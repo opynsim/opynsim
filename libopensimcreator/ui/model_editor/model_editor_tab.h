@@ -6,32 +6,32 @@
 
 #include <future>
 
-namespace OpenSim { class Model; }
-namespace osc { class Widget; }
-namespace osc { class UndoableModelStatePair; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace osc
 {
+    class UndoableModelStatePair;
+    class Widget;
+
     class ModelEditorTab final : public Tab {
     public:
         static CStringView id() { return "OpenSim/ModelEditor"; }
 
         explicit ModelEditorTab(
-            Widget*
-        );
+            Widget*);
         explicit ModelEditorTab(
             Widget*,
-            const OpenSim::Model&
-        );
+            const OpenSim::Model&);
         explicit ModelEditorTab(
             Widget*,
             std::unique_ptr<OpenSim::Model>,
-            float fixup_scale_factor = 1.0f
-        );
+            float fixup_scale_factor = 1.0f);
         explicit ModelEditorTab(
             Widget*,
-            std::unique_ptr<UndoableModelStatePair>
-        );
+            std::unique_ptr<UndoableModelStatePair>);
 
     private:
         bool impl_is_unsaved() const final;

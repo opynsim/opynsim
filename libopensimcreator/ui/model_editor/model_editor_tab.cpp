@@ -94,67 +94,50 @@ public:
 
         panel_manager_->register_toggleable_panel(
             "Navigator",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<NavigatorPanel>(
                     parent,
                     panel_name,
                     model_,
-                    [this](const OpenSim::ComponentPath& p)
-                    {
+                    [this](const OpenSim::ComponentPath& p) {
                         auto popup = std::make_unique<ComponentContextMenu>(&this->owner(), "##componentcontextmenu", model_, p);
                         App::post_event<OpenPopupEvent>(this->owner(), std::move(popup));
-                    }
-                );
-            }
-        );
+                    });
+            });
         panel_manager_->register_toggleable_panel(
             "Properties",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<PropertiesPanel>(parent, panel_name, model_);
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Log",
-            [](Widget* parent, std::string_view panel_name)
-            {
+            [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<LogViewerPanel>(parent, panel_name);
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Coordinates",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<CoordinateEditorPanel>(parent, panel_name, model_);
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Performance",
-            [](Widget* parent, std::string_view panel_name)
-            {
+            [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<PerfPanel>(parent, panel_name);
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Output Watches",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<OutputWatchesPanel>(parent, panel_name, model_);
-            }
-        );
+            });
         panel_manager_->register_spawnable_panel(
             "viewer",
-            [this](Widget*, std::string_view panel_name)
-            {
-                auto on_right_click = [this, model = model_, menu_name = std::string{panel_name} + "_contextmenu"](const ModelViewerPanelRightClickEvent& e)
-                {
+            [this](Widget*, std::string_view panel_name) {
+                auto on_right_click = [this, model = model_, menu_name = std::string{panel_name} + "_contextmenu"](const ModelViewerPanelRightClickEvent& e) {
                     auto popup = std::make_unique<ComponentContextMenu>(
                         &this->owner(),
                         menu_name,
                         model,
-                        e.component_abs_path_or_empty
-                    );
+                        e.component_abs_path_or_empty);
 
                     App::post_event<OpenPopupEvent>(this->owner(), std::move(popup));
                 };
@@ -166,8 +149,7 @@ public:
         );
         panel_manager_->register_spawnable_panel(
             "muscleplot",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<ModelMusclePlotPanel>(parent, model_, panel_name);
             },
             0  // no muscle plots open at the start
@@ -183,8 +165,7 @@ public:
     {
         auto promise = std::make_shared<std::promise<TabSaveResult>>();
         std::future<TabSaveResult> future = promise->get_future();
-        action_save_model_async(model_, [promise](bool ok) mutable
-        {
+        action_save_model_async(model_, [promise](bool ok) mutable {
             promise->set_value(ok ? TabSaveResult::Done : TabSaveResult::Cancelled);
         });
         return future;
@@ -210,8 +191,7 @@ public:
     {
         try {
             return on_event_unguarded(e);
-        }
-        catch (const std::exception& ex) {
+        } catch (const std::exception& ex) {
             try_recovering_from_exception(ex);
             return false;
         }
@@ -227,12 +207,10 @@ public:
                 popup_manager_.push_back(std::move(popup));
                 return true;
             }
-        }
-        else if (const auto* named_panel = dynamic_cast<OpenNamedPanelEvent*>(&e)) {
+        } else if (const auto* named_panel = dynamic_cast<OpenNamedPanelEvent*>(&e)) {
             panel_manager_->set_toggleable_panel_activated(named_panel->panel_name(), true);
             return true;
-        }
-        else if (auto* panel = dynamic_cast<OpenPanelEvent*>(&e)) {
+        } else if (auto* panel = dynamic_cast<OpenPanelEvent*>(&e)) {
             if (panel->has_panel()) {
                 auto panel_ptr = panel->take_panel();
                 panel_ptr->set_parent(&owner());
@@ -240,18 +218,15 @@ public:
                 panel_manager_->push_dynamic_panel(name, std::move(panel_ptr));
                 return true;
             }
-        }
-        else if (const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
+        } else if (const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
             auto popup = std::make_unique<ComponentContextMenu>(
                 &this->owner(),
                 "##componentcontextmenu",
                 model_,
-                context_menu_event->path()
-            );
+                context_menu_event->path());
             App::post_event<OpenPopupEvent>(owner(), std::move(popup));
             return true;
-        }
-        else if (const auto* add_muscle_plot_event = dynamic_cast<AddMusclePlotEvent*>(&e)) {
+        } else if (const auto* add_muscle_plot_event = dynamic_cast<AddMusclePlotEvent*>(&e)) {
             const std::string name = panel_manager_->suggested_dynamic_panel_name("muscleplot");
 
             panel_manager_->push_dynamic_panel(
@@ -261,16 +236,14 @@ public:
                     model_,
                     name,
                     add_muscle_plot_event->get_coordinate_abs_path(),
-                    add_muscle_plot_event->get_muscle_abs_path()
-                )
-            );
+                    add_muscle_plot_event->get_muscle_abs_path()));
             return true;
         }
 
         switch (e.type()) {
-        case EventType::KeyDown:  return on_keydown_event(dynamic_cast<const KeyEvent&>(e));
+        case EventType::KeyDown: return on_keydown_event(dynamic_cast<const KeyEvent&>(e));
         case EventType::DropFile: return on_drop_event(dynamic_cast<const DropFileEvent&>(e));
-        default:                  return false;
+        default: return false;
         }
     }
 
@@ -304,8 +277,7 @@ public:
             popup_manager_.on_draw();
 
             exception_thrown_last_frame_ = false;
-        }
-        catch (const std::exception& ex) {
+        } catch (const std::exception& ex) {
             try_recovering_from_exception(ex);
 
             // Request to reset the 2D UI context, because the exception
@@ -333,8 +305,7 @@ public:
 
                 try {
                     model_->do_undo();  // TODO: add `doUndoWithNoRedoStorage` so that the user's redo buffer isn't tainted
-                }
-                catch (const std::exception& ex2) {
+                } catch (const std::exception& ex2) {
                     log_error("undoing the model also failed with an error");
                     log_error(potentially_nested_exception_to_string(ex2, 1));
                     log_error("because the model isn't recoverable, closing the editor tab");
@@ -346,14 +317,12 @@ public:
 
                 log_error("successfully undone model");
                 exception_thrown_last_frame_ = false;  // reset flag
-            }
-            else if (!popup_manager_.empty()) {
+            } else if (not popup_manager_.empty()) {
                 // exception was thrown last frame, but we can't undo the model, so try to assume that a popup was
                 // causing the problem last frame and clear all popups instead of fully exploding the whole tab
                 log_error("trying to close all currently-open popups, in case that prevents crashes");
                 popup_manager_.clear();
-            }
-            else {
+            } else {
                 // exception thrown last frame, indicating the model in the undo/redo buffer is also damaged,
                 // but cannot undo, so quit
 
@@ -363,8 +332,7 @@ public:
                     App::post_event<CloseTabEvent>(*parent(), id());
                 }
             }
-        }
-        else {
+        } else {
             // no exception last frame, indicating the _scratch space_ may be damaged, so try to rollback
             // to a version in the undo/redo buffer
 
@@ -373,8 +341,7 @@ public:
                 model_->rollback();
                 log_error("model rollback succeeded");
                 exception_thrown_last_frame_ = true;
-            }
-            catch (const std::exception& ex2) {
+            } catch (const std::exception& ex2) {
                 log_error("model rollback thrown an exception: {}", ex2.what());
                 log_error("because the model cannot be rolled back, closing the editor tab");
                 App::post_event<OpenTabEvent>(*parent(), std::make_unique<ErrorTab>(owner(), ex2));
@@ -384,7 +351,6 @@ public:
     }
 
 private:
-
     std::string compute_tab_name()
     {
         std::stringstream ss;
@@ -397,8 +363,7 @@ private:
     {
         if (e.path().extension() == ".sto") {
             return action_load_sto_file_against_model(owner(), *model_, e.path());
-        }
-        else if (opyn::has_model_file_extension(e.path())) {
+        } else if (opyn::has_model_file_extension(e.path())) {
             // if the user drops an osim file on this tab then it should be loaded
             auto tab = std::make_unique<LoadingTab>(&owner(), e.path());
             App::post_event<OpenTabEvent>(owner(), std::move(tab));
@@ -413,23 +378,18 @@ private:
         if (e.combination() == (ModifierKey::Ctrl | ModifierKey::Shift | Key::Z)) {
             model_->do_redo();
             return true;
-        }
-        else if (e.combination() == (ModifierKey::Ctrl | Key::Z)) {
+        } else if (e.combination() == (ModifierKey::Ctrl | Key::Z)) {
             model_->do_undo();
             return true;
-        }
-        else if (e.combination() == (ModifierKey::Ctrl | Key::R)) {
+        } else if (e.combination() == (ModifierKey::Ctrl | Key::R)) {
             return action_start_simulating_model(owner(), *model_);
-        }
-        else if (e.combination() == Key::Backspace or e.combination() == Key::Delete) {
+        } else if (e.combination() == Key::Backspace or e.combination() == Key::Delete) {
             action_try_delete_selection_from_edited_model(*model_);
             return true;
-        }
-        else if (e.combination() == Key::Escape) {
+        } else if (e.combination() == Key::Escape) {
             model_->clear_selected();
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -488,5 +448,5 @@ void osc::ModelEditorTab::impl_on_mount() { private_data().on_mount(); }
 void osc::ModelEditorTab::impl_on_unmount() { private_data().on_unmount(); }
 bool osc::ModelEditorTab::impl_on_event(Event& e) { return private_data().on_event(e); }
 void osc::ModelEditorTab::impl_on_tick() { private_data().on_tick(); }
-void osc::ModelEditorTab::impl_on_draw_main_menu() { private_data().on_draw_main_menu();}
+void osc::ModelEditorTab::impl_on_draw_main_menu() { private_data().on_draw_main_menu(); }
 void osc::ModelEditorTab::impl_on_draw() { private_data().on_draw(); }

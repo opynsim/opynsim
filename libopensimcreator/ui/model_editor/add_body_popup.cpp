@@ -28,7 +28,6 @@
 #include <string_view>
 #include <utility>
 
-
 class osc::AddBodyPopup::Impl final : public PopupPrivate {
 public:
     Impl(
@@ -152,8 +151,7 @@ public:
                     "##jointtype",
                     &body_details_.joint_type_index,
                     registry.size(),
-                    [&registry](size_t i) { return registry[i].name(); }
-                );
+                    [&registry](size_t i) { return registry[i].name(); });
                 ui::add_screenshot_annotation_to_last_drawn_item("AddBodyPopup::JointTypeInput");
             }
             ui::next_column();
@@ -197,8 +195,7 @@ public:
                         &owner(),
                         "addbody_attachgeometry",
                         App::resource_filepath("geometry"),
-                        [this](auto ptr) { on_geometry_selection(std::move(ptr)); }
-                    );
+                        [this](auto ptr) { on_geometry_selection(std::move(ptr)); });
                     App::post_event<OpenPopupEvent>(owner(), std::move(popup));
                 }
                 ui::add_screenshot_annotation_to_last_drawn_item("AddBodyPopup::GeometryButton");
@@ -226,6 +223,7 @@ public:
     {
         body_details_ = BodyDetails{};
     }
+
 private:
     void on_geometry_selection(std::unique_ptr<OpenSim::Geometry> ptr)
     {
@@ -242,7 +240,6 @@ private:
     // details of the to-be-added body
     BodyDetails body_details_;
 };
-
 
 osc::AddBodyPopup::AddBodyPopup(
     Widget* parent,

@@ -36,22 +36,18 @@ public:
         // iterate through each T in `root` and give the user the option to click it
         {
             ui::begin_child_panel("first", Vector2{256.0f, 256.0f}, ui::ChildPanelFlag::Border, ui::PanelFlag::HorizontalScrollbar);
-            for (const OpenSim::Component& c : model_->get_model().getComponentList())
-            {
-                if (!filter_(c))
-                {
+            for (const OpenSim::Component& c : model_->get_model().getComponentList()) {
+                if (not filter_(c)) {
                     continue;  // filtered out
                 }
-                if (ui::draw_button(c.getName()))
-                {
+                if (ui::draw_button(c.getName())) {
                     selected = &c;
                 }
             }
             ui::end_child_panel();
         }
 
-        if (selected)
-        {
+        if (selected) {
             on_selection_(opyn::get_absolute_path(*selected));
             request_close();
         }

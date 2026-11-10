@@ -38,7 +38,11 @@
 #include <utility>
 #include <vector>
 
-namespace OpenSim { class AbstractProperty; }
+namespace OpenSim
+{
+    class AbstractProperty;
+}
+
 namespace rgs = std::ranges;
 
 namespace
@@ -81,7 +85,12 @@ public:
         PopupPrivate{owner, parent, popup_name},
         model_{std::move(model)},
         proto_{std::move(prototype)},
-        prototype_properties_editor_{&owner, model_, [proto = proto_]() { return proto.get(); }},
+        prototype_properties_editor_{
+            &owner,
+            model_,
+            [proto = proto_] {
+                return proto.get();
+            }},
         maybe_target_component_{std::move(target_component)}
     {}
 
@@ -91,17 +100,17 @@ public:
 
         draw_property_editors();
 
-        ui::draw_vertical_spacer(3.0f/15.0f);
+        ui::draw_vertical_spacer(3.0f / 15.0f);
 
         draw_socket_editors();
 
-        ui::draw_vertical_spacer(1.0f/15.0f);
+        ui::draw_vertical_spacer(1.0f / 15.0f);
 
         draw_path_point_editor();
 
         draw_any_error_messages();
 
-        ui::draw_vertical_spacer(1.0f/15.0f);
+        ui::draw_vertical_spacer(1.0f / 15.0f);
 
         draw_bottom_buttons();
     }
@@ -158,7 +167,7 @@ private:
                 }
 
                 std::stringstream pp_name;
-                pp_name << pa->getName() << "-P" << (i+1);
+                pp_name << pa->getName() << "-P" << (i + 1);
 
                 pa->addNewPathPoint(pp_name.str(), *pof, pp.locationInFrame);
             }
@@ -219,7 +228,7 @@ private:
         ui::draw_help_marker("The OpenSim::Component being added has `socket`s that connect to other components in the model. You must specify what these sockets should be connected to; otherwise, the component cannot be added to the model.\n\nIn OpenSim, a Socket formalizes the dependency between a Component and another object (typically another Component) without owning that object. While Components can be composites (of multiple components) they often depend on unrelated objects/components that are defined and owned elsewhere. The object that satisfies the requirements of the Socket we term the 'connectee'. When a Socket is satisfied by a connectee we have a successful 'connection' or is said to be connected.");
         ui::draw_separator();
 
-        ui::draw_vertical_spacer(1.0f/15.0f);
+        ui::draw_vertical_spacer(1.0f / 15.0f);
 
         // for each socket in the prototype (cached), check if the user has chosen a
         // connectee for it yet and provide a UI for selecting them
@@ -246,7 +255,7 @@ private:
         ui::push_id(static_cast<int>(i));
         ui::set_next_item_width(ui::get_content_region_available().x());
         draw_search_bar(socket_search_strings_[i]);
-        ui::begin_child_panel("##pfselector", {ui::get_content_region_available().x(), 5.0f*ui::get_text_line_height_in_current_panel()});
+        ui::begin_child_panel("##pfselector", {ui::get_content_region_available().x(), 5.0f * ui::get_text_line_height_in_current_panel()});
 
         // iterate through potential connectees in model and print connect-able options
         int inner_id = 0;
@@ -312,17 +321,14 @@ private:
             if (const auto* pof = dynamic_cast<const OpenSim::PhysicalFrame*>(&c)) {
                 user_choice = pof;
                 actual_frame = pof;
-            }
-            else if (const auto* pp = dynamic_cast<const OpenSim::PathPoint*>(&c)) {
+            } else if (const auto* pp = dynamic_cast<const OpenSim::PathPoint*>(&c)) {
                 user_choice = pp;
                 actual_frame = &pp->getParentFrame();
                 location_in_frame = pp->get_location();
-            }
-            else if (const auto* app = dynamic_cast<const OpenSim::AbstractPathPoint*>(&c)) {
+            } else if (const auto* app = dynamic_cast<const OpenSim::AbstractPathPoint*>(&c)) {
                 user_choice = app;
                 actual_frame = &app->getParentFrame();
-            }
-            else if (const auto* station = dynamic_cast<const OpenSim::Station*>(&c)) {
+            } else if (const auto* station = dynamic_cast<const OpenSim::Station*>(&c)) {
                 // check name because it might be a child of one of the above and we
                 // don't want to double-count it
                 if (station->getName() != "station") {
@@ -344,8 +350,7 @@ private:
                 path_points_.emplace_back(
                     opyn::get_absolute_path(*user_choice),
                     opyn::get_absolute_path(*actual_frame),
-                    location_in_frame
-                );
+                    location_in_frame);
             }
             ui::draw_tooltip_if_item_hovered(c.getName(), (opyn::get_absolute_path_string(c) + " " + c.getConcreteClassName()));
         }
@@ -375,7 +380,7 @@ private:
                 ui::begin_disabled();
             }
             if (ui::draw_button(MSMICONS_ARROW_UP) and i > 0) {
-                std::swap(path_points_[i], path_points_[i-1]);
+                std::swap(path_points_[i], path_points_[i - 1]);
             }
             if (i <= 0) {
                 ui::end_disabled();
@@ -387,7 +392,7 @@ private:
                 ui::begin_disabled();
             }
             if (ui::draw_button(MSMICONS_ARROW_DOWN) && i < std::ssize(path_points_) - 1) {
-                std::swap(path_points_[i], path_points_[i+1]);
+                std::swap(path_points_[i], path_points_[i + 1]);
             }
             if (i >= std::ssize(path_points_) - 1) {
                 ui::end_disabled();
@@ -465,8 +470,7 @@ private:
                     if (action_add_component_to_model(*model_, std::move(rv), maybe_target_component_)) {
                         request_close();
                     }
-                }
-                catch (const std::exception& ex) {
+                } catch (const std::exception& ex) {
                     current_errors_ = potentially_nested_exception_to_string(ex);
                     if (auto* undoable = dynamic_cast<UndoableModelStatePair*>(model_.get())) {
                         undoable->rollback();
@@ -480,9 +484,9 @@ private:
     {
         if (not current_errors_.empty()) {
             ui::push_style_color(ui::ColorVar::Text, Color::red());
-            ui::draw_vertical_spacer(2.0f/15.0f);
+            ui::draw_vertical_spacer(2.0f / 15.0f);
             ui::draw_text_wrapped("Error adding component to model: {}", current_errors_);
-            ui::draw_vertical_spacer(2.0f/15.0f);
+            ui::draw_vertical_spacer(2.0f / 15.0f);
             ui::pop_style_color();
         }
     }
@@ -520,7 +524,6 @@ private:
     // storage for any addition errors
     std::string current_errors_;
 };
-
 
 osc::AddComponentPopup::AddComponentPopup(
     Widget* parent,

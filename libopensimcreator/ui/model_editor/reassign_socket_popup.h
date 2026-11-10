@@ -5,7 +5,10 @@
 #include <memory>
 #include <string_view>
 
-namespace opyn { class ModelStatePair; }
+namespace opyn
+{
+    class ModelStatePair;
+}
 
 namespace osc
 {
@@ -16,8 +19,7 @@ namespace osc
             std::string_view popup_name,
             std::shared_ptr<opyn::ModelStatePair>,
             std::string_view component_abs_path,
-            std::string_view socket_name
-        );
+            std::string_view socket_name);
 
     private:
         void impl_draw_content() final;

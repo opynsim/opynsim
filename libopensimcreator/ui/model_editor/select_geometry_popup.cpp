@@ -27,47 +27,38 @@ namespace
 {
     using Geom_ctor_fn = std::unique_ptr<OpenSim::Geometry>();
 
-    constexpr auto c_geom_ctors = std::to_array<Geom_ctor_fn*>(
-    {
-        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry>
-        {
+    constexpr auto c_geom_ctors = std::to_array<Geom_ctor_fn*>({
+        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry> {
             auto ptr = std::make_unique<OpenSim::Brick>();
             ptr->set_half_lengths(SimTK::Vec3{0.1, 0.1, 0.1});
             return ptr;
         }},
-        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry>
-        {
+        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry> {
             auto ptr = std::make_unique<OpenSim::Sphere>();
             ptr->set_radius(0.1);
             return ptr;
         }},
-        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry>
-        {
+        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry> {
             auto ptr = std::make_unique<OpenSim::Cylinder>();
             ptr->set_radius(0.1);
             ptr->set_half_height(0.1);
             return ptr;
         }},
-        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry>
-        {
+        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry> {
             return std::make_unique<OpenSim::LineGeometry>();
         }},
-        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry>
-        {
+        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry> {
             return std::make_unique<OpenSim::Ellipsoid>();
         }},
-        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry>
-        {
+        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry> {
             return std::make_unique<OpenSim::Arrow>();
         }},
-        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry>
-        {
+        std::decay_t<Geom_ctor_fn>{[]() -> std::unique_ptr<OpenSim::Geometry> {
             return std::make_unique<OpenSim::Cone>();
         }},
     });
 
-    constexpr auto c_geom_names = std::to_array<CStringView>(
-    {
+    constexpr auto c_geom_names = std::to_array<CStringView>({
         "Brick",
         "Sphere",
         "Cylinder",
@@ -109,11 +100,10 @@ public:
             ui::same_line();
             ui::draw_help_marker("This is geometry that OpenSim can generate without needing an external mesh file. Useful for basic geometry.");
             ui::draw_separator();
-            ui::draw_vertical_spacer(2.0f/15.0f);
+            ui::draw_vertical_spacer(2.0f / 15.0f);
 
             size_t item = 0;
-            if (ui::draw_combobox("##premade", &item, c_geom_names))
-            {
+            if (ui::draw_combobox("##premade", &item, c_geom_names)) {
                 const auto& ctor = c_geom_ctors.at(item);
                 result_ = ctor();
             }
@@ -122,16 +112,16 @@ public:
         // mesh file selection
         //
         // let the user select a mesh file that the implementation should load + use
-        ui::draw_vertical_spacer(3.0f/15.0f);
+        ui::draw_vertical_spacer(3.0f / 15.0f);
         ui::draw_text("mesh file");
         ui::same_line();
         ui::draw_help_marker("This is geometry that OpenSim loads from external mesh files. Useful for custom geometry (usually, created in some other application, such as ParaView or Blender)");
         ui::draw_separator();
-        ui::draw_vertical_spacer(2.0f/15.0f);
+        ui::draw_vertical_spacer(2.0f / 15.0f);
 
         // let the user search through mesh files in pre-established Geometry/ dirs
         ui::draw_string_input("search", search_);
-        ui::draw_vertical_spacer(1.0f/15.0f);
+        ui::draw_vertical_spacer(1.0f / 15.0f);
 
         ui::begin_child_panel(
             "mesh list",
@@ -139,29 +129,23 @@ public:
             ui::ChildPanelFlags{},
             ui::PanelFlag::HorizontalScrollbar);
 
-        if (!recent_user_choices_.empty())
-        {
+        if (not recent_user_choices_.empty()) {
             ui::draw_text_disabled("  (recent)");
         }
 
-        for (const std::filesystem::path& p : recent_user_choices_)
-        {
+        for (const std::filesystem::path& p : recent_user_choices_) {
             auto resp = try_draw_file_choice(p);
-            if (resp)
-            {
+            if (resp) {
                 result_ = std::move(resp);
             }
         }
 
-        if (!recent_user_choices_.empty())
-        {
+        if (not recent_user_choices_.empty()) {
             ui::draw_text_disabled("  (from Geometry/ dir)");
         }
-        for (const std::filesystem::path& p : geometry_files_)
-        {
+        for (const std::filesystem::path& p : geometry_files_) {
             auto resp = try_draw_file_choice(p);
-            if (resp)
-            {
+            if (resp) {
                 result_ = std::move(resp);
             }
         }
@@ -173,16 +157,14 @@ public:
         }
         ui::draw_tooltip_if_item_hovered("Open Mesh File", "Open a mesh file on the filesystem");
 
-        ui::draw_vertical_spacer(5.0f/15.0f);
+        ui::draw_vertical_spacer(5.0f / 15.0f);
 
-        if (ui::draw_button("Cancel"))
-        {
+        if (ui::draw_button("Cancel")) {
             search_.clear();
             request_close();
         }
 
-        if (result_)
-        {
+        if (result_) {
             on_selection_(std::move(result_));
             search_.clear();
             request_close();
@@ -193,8 +175,7 @@ private:
     void prompt_user_for_geometry_file()
     {
         App::upd().prompt_user_to_select_file_async(
-            [this, this_lifetime = this->lifetime_watcher()](const FileDialogResponse& response)
-            {
+            [this, this_lifetime = this->lifetime_watcher()](const FileDialogResponse& response) {
                 if (this_lifetime.expired()) {
                     return;  // `this` has expired
                 }
@@ -205,8 +186,7 @@ private:
 
                 on_selection_(on_mesh_file_chosen(response.front()));
             },
-            opyn::get_supported_sim_tk_mesh_formats_as_filters()
-        );
+            opyn::get_supported_sim_tk_mesh_formats_as_filters());
     }
 
     std::unique_ptr<OpenSim::Mesh> on_mesh_file_chosen(std::filesystem::path path)
@@ -249,7 +229,6 @@ private:
     // the user's current search filter
     std::string search_;
 };
-
 
 osc::SelectGeometryPopup::SelectGeometryPopup(
     Widget* parent,

@@ -44,6 +44,7 @@ public:
     }
 
     OSC_OWNER_GETTERS(ModelEditorToolbar);
+
 private:
     void draw_model_file_related_buttons()
     {
@@ -72,13 +73,11 @@ private:
 
         ui::same_line();
 
-        if (ui::draw_button(MSMICONS_EDIT))
-        {
+        if (ui::draw_button(MSMICONS_EDIT)) {
             auto popup = std::make_unique<ParamBlockEditorPopup>(
                 &owner(),
                 "simulation parameters",
-                &model_->try_upd_environment()->upd_simulation_params()
-            );
+                &model_->try_upd_environment()->upd_simulation_params());
             App::post_event<OpenPopupEvent>(owner(), std::move(popup));
         }
         ui::draw_tooltip_if_item_hovered("Edit Simulation Settings", "Change the parameters used when simulating the model");
@@ -107,9 +106,8 @@ private:
 
     std::shared_ptr<IconCache> icon_cache_ = App::singleton<IconCache>(
         App::resource_loader().with_prefix("OpenSimCreator/icons/"),
-        ui::get_font_base_size()/128.0f,
-        App::get().highest_device_pixel_ratio()
-    );
+        ui::get_font_base_size() / 128.0f,
+        App::get().highest_device_pixel_ratio());
 };
 
 osc::ModelEditorToolbar::ModelEditorToolbar(

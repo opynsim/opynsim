@@ -80,31 +80,25 @@ namespace
         std::vector<ConnecteeOption> rv;
 
         const OpenSim::Component* component = opyn::find_component(model, params.componentPath);
-        if (!component)
-        {
-            return rv;   // component isn't in model?
+        if (not component) {
+            return rv;  // component isn't in model?
         }
 
         const OpenSim::AbstractSocket* socket = opyn::find_socket(*component, params.socketName);
-        if (!socket)
-        {
+        if (not socket) {
             return rv;  // socket isn't in model?
         }
 
-        for (const OpenSim::Component& other : model.getComponentList())
-        {
-            if (&other == component)
-            {
+        for (const OpenSim::Component& other : model.getComponentList()) {
+            if (&other == component) {
                 continue;  // hide redundant reconnnections
             }
 
-            if (not other.getName().contains(params.search))
-            {
+            if (not other.getName().contains(params.search)) {
                 continue;  // filtered out by search string
             }
 
-            if (not opyn::is_able_to_connect_to(*socket, other))
-            {
+            if (not opyn::is_able_to_connect_to(*socket, other)) {
                 continue;  // connection would be rejected anyway
             }
 
@@ -167,9 +161,8 @@ public:
 
         ui::begin_child_panel(
             "##componentlist",
-            Vector2{-1.0f, 16.0f*ui::get_text_line_height_in_current_panel()},
-            ui::ChildPanelFlag::Border
-        );
+            Vector2{-1.0f, 16.0f * ui::get_text_line_height_in_current_panel()},
+            ui::ChildPanelFlag::Border);
 
         int id = 0;  // care: necessary because multiple connectees may have the same name
         for (const ConnecteeOption& option : options_) {
@@ -199,8 +192,7 @@ public:
 
             const OpenSim::Component* selected = opyn::find_component(model_->get_model(), *user_selection_abs_path_);
 
-            if (selected && action_reassign_component_socket(*model_, params_.componentPath, params_.socketName, *selected, flags, error_))
-            {
+            if (selected and action_reassign_component_socket(*model_, params_.componentPath, params_.socketName, *selected, flags, error_)) {
                 request_close();
                 return;
             }
@@ -231,13 +223,13 @@ public:
         edited_params_.search.clear();
         error_.clear();
     }
+
 private:
     void try_draw_reexpress_property_in_frame_checkbox(
         const OpenSim::Component& component,
         const OpenSim::AbstractSocket& abstract_socket)
     {
-        const std::string label = [&component]()
-        {
+        const std::string label = [&component] {
             std::stringstream ss;
             ss << "Re-express " << component.getName() << " in chosen frame";
             return std::move(ss).str();
@@ -278,7 +270,6 @@ private:
     std::string error_;
     bool try_reexpress_in_different_frame_ = false;
 };
-
 
 osc::ReassignSocketPopup::ReassignSocketPopup(
     Widget* parent,

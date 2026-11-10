@@ -97,8 +97,7 @@ private:
                     auto popup = std::make_unique<ParamBlockEditorPopup>(
                         &owner(),
                         "simulation parameters",
-                        &model_->try_upd_environment()->upd_simulation_params()
-                    );
+                        &model_->try_upd_environment()->upd_simulation_params());
                     App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
                 }
             }
@@ -108,17 +107,14 @@ private:
                     auto popup = std::make_unique<ImportStationsFromCSVPopup>(
                         &owner(),
                         "Import Points",
-                        [model = model_](auto lms)
-                        {
+                        [model = model_](auto lms) {
                             action_import_landmarks(
                                 *model,
                                 lms.landmarks,
                                 lms.maybe_label,
-                                lms.maybe_target_component_abs_path
-                            );
+                                lms.maybe_target_component_abs_path);
                         },
-                        model_
-                    );
+                        model_);
                     App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
                 }
             }
@@ -178,7 +174,6 @@ private:
     WindowMenu window_menu_;
     MainMenuAboutTab main_menu_about_tab_;
 };
-
 
 osc::ModelEditorMainMenu::ModelEditorMainMenu(
     Widget* parent,

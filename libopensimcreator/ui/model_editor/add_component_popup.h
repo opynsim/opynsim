@@ -6,12 +6,20 @@
 #include <memory>
 #include <string_view>
 
-namespace OpenSim { class Component; }
-namespace opyn { class ModelStatePair; }
-namespace osc { class Widget; }
+namespace OpenSim
+{
+    class Component;
+}
+
+namespace opyn
+{
+    class ModelStatePair;
+}
 
 namespace osc
 {
+    class Widget;
+
     class AddComponentPopup final : public Popup {
     public:
         explicit AddComponentPopup(
@@ -19,8 +27,7 @@ namespace osc
             std::string_view popup_name,
             std::shared_ptr<opyn::ModelStatePair>,
             std::unique_ptr<OpenSim::Component> prototype,
-            OpenSim::ComponentPath target_component = {}
-        );
+            OpenSim::ComponentPath target_component = {});
 
     private:
         void impl_draw_content() final;
