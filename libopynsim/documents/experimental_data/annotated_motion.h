@@ -6,7 +6,10 @@
 #include <filesystem>
 #include <memory>
 
-namespace OpenSim { class Storage; }
+namespace OpenSim
+{
+    class Storage;
+}
 
 namespace opyn
 {
@@ -28,6 +31,7 @@ namespace opyn
 
         // Returns the time range (first, last) of the loaded motion.
         osc::ClosedInterval<float> time_range() const;
+
     private:
         static std::shared_ptr<OpenSim::Storage> load_path_into_storage(const std::filesystem::path&);
         explicit AnnotatedMotion(std::shared_ptr<OpenSim::Storage>);

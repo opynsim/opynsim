@@ -113,13 +113,13 @@ void opyn::generate_decorations(
 
     static_assert(osc::num_options_v<DataPointType> == 5);
     switch (annotation.data_type) {
-    case DataPointType::Point:       ::generate_decorations<DataPointType::Point>(       std::span<const double, num_elements_in(DataPointType::Point)>{data},       out); break;
-    case DataPointType::ForcePoint:  ::generate_decorations<DataPointType::ForcePoint>(  std::span<const double, num_elements_in(DataPointType::ForcePoint)>{data},  out); break;
-    case DataPointType::BodyForce:   ::generate_decorations<DataPointType::BodyForce>(   std::span<const double, num_elements_in(DataPointType::BodyForce)>{data},   out); break;
-    case DataPointType::Orientation: ::generate_decorations<DataPointType::Orientation>( std::span<const double, num_elements_in(DataPointType::Orientation)>{data}, out); break;
+    case DataPointType::Point: ::generate_decorations<DataPointType::Point>(std::span<const double, num_elements_in(DataPointType::Point)>{data}, out); break;
+    case DataPointType::ForcePoint: ::generate_decorations<DataPointType::ForcePoint>(std::span<const double, num_elements_in(DataPointType::ForcePoint)>{data}, out); break;
+    case DataPointType::BodyForce: ::generate_decorations<DataPointType::BodyForce>(std::span<const double, num_elements_in(DataPointType::BodyForce)>{data}, out); break;
+    case DataPointType::Orientation: ::generate_decorations<DataPointType::Orientation>(std::span<const double, num_elements_in(DataPointType::Orientation)>{data}, out); break;
 
     // case DataPointType::Unknown: break;  // do nothing
-    default:                     break;     // do nothing
+    default: break;  // do nothing
     }
 }
 

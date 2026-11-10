@@ -68,8 +68,7 @@ std::shared_ptr<OpenSim::Storage> opyn::AnnotatedMotion::load_path_into_storage(
         auto storage = std::make_shared<OpenSim::Storage>();
         marker_data.makeRdStorage(*storage);
         return storage;
-    }
-    else {
+    } else {
         return std::make_shared<OpenSim::Storage>(path.string());
     }
 }
@@ -97,8 +96,7 @@ opyn::AnnotatedMotion::AnnotatedMotion(std::shared_ptr<OpenSim::Storage> storage
             auto series = std::make_unique<DataSeries>(storage_, annotation);
             series->finalizeFromProperties();
             addComponent(series.release());
-        }
-        catch (const std::exception& ex) {
+        } catch (const std::exception& ex) {
             osc::log_warn("Error loading a data series from {}: {}", getName(), ex.what());
         }
     }
