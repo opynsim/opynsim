@@ -28,8 +28,7 @@ namespace osc
         // been clicked
         //
         // the function should return `true` if the points are accepted
-        std::function<bool(Vector3, Vector3)> on_two_points_chosen = [](Vector3, Vector3)
-        {
+        std::function<bool(Vector3, Vector3)> on_two_points_chosen = [](Vector3, Vector3) {
             return true;
         };
 
@@ -52,7 +51,6 @@ namespace osc
         }
 
     private:
-
         bool is_both_points_selected() const
         {
             return maybe_first_location_ && maybe_second_location_;
@@ -66,19 +64,15 @@ namespace osc
         // handle the transition that may occur after the user clicks two points
         void handle_possible_transition_to_next_step()
         {
-            if (!is_both_points_selected())
-            {
+            if (not is_both_points_selected()) {
                 return;  // user hasn't selected two points yet
             }
 
             bool points_accepted = options_.on_two_points_chosen(*maybe_first_location_, *maybe_second_location_);
 
-            if (points_accepted)
-            {
+            if (points_accepted) {
                 request_pop();
-            }
-            else
-            {
+            } else {
                 // points were rejected, so reset them
                 maybe_first_location_.reset();
                 maybe_second_location_.reset();
@@ -89,18 +83,13 @@ namespace osc
         // hovered over
         void handle_hovertest_side_effects()
         {
-            if (!maybe_current_hover_)
-            {
+            if (not maybe_current_hover_) {
                 return;  // nothing hovered
-            }
-            else if (ui::is_mouse_clicked(MouseButton::Left))
-            {
+            } else if (ui::is_mouse_clicked(MouseButton::Left)) {
                 // LEFT CLICK: set first mouse location
                 maybe_first_location_ = maybe_current_hover_.pos;
                 handle_possible_transition_to_next_step();
-            }
-            else if (ui::is_mouse_clicked(MouseButton::Right))
-            {
+            } else if (ui::is_mouse_clicked(MouseButton::Right)) {
                 // RIGHT CLICK: set second mouse location
                 maybe_second_location_ = maybe_current_hover_.pos;
                 handle_possible_transition_to_next_step();
@@ -114,8 +103,7 @@ namespace osc
 
             const MiDocument& mg = shared_->get_model_graph();
 
-            for (const MiMesh& mesh_el : mg.iter<MiMesh>())
-            {
+            for (const MiMesh& mesh_el : mg.iter<MiMesh>()) {
                 drawables_buffer_.emplace_back(shared_->generate_mesh_drawable(mesh_el));
             }
 
@@ -127,14 +115,12 @@ namespace osc
         // draw tooltip that pops up when user is moused over a mesh
         void draw_hover_tooltip()
         {
-            if (!maybe_current_hover_)
-            {
+            if (not maybe_current_hover_) {
                 return;
             }
 
             // returns a string representation of a spatial position (e.g. (0.0, 1.0, 3.0))
-            const std::string pos = [](const Vector3& position)
-            {
+            const std::string pos = [](const Vector3& position) {
                 std::stringstream ss;
                 ss.precision(4);
                 ss << '(' << position.x() << ", " << position.y() << ", " << position.z() << ')';
@@ -150,8 +136,7 @@ namespace osc
         // draw 2D overlay over the render, things like connection lines, dots, etc.
         void draw_overlay()
         {
-            if (!is_any_point_selected())
-            {
+            if (not is_any_point_selected()) {
                 return;
             }
 
@@ -176,8 +161,7 @@ namespace osc
         // draw 2D "choose something" text at the top of the render
         void draw_header_text() const
         {
-            if (options_.header.empty())
-            {
+            if (options_.header.empty()) {
                 return;
             }
 
@@ -197,8 +181,7 @@ namespace osc
             const Vector2 button_top_left = shared_->scene_ui_rect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
 
             ui::set_cursor_ui_position(button_top_left);
-            if (ui::draw_button(text))
-            {
+            if (ui::draw_button(text)) {
                 request_pop();
             }
 
@@ -215,21 +198,18 @@ namespace osc
         {
             shared_->tick(dt);
 
-            if (ui::is_key_pressed(Key::Escape))
-            {
+            if (ui::is_key_pressed(Key::Escape)) {
                 // ESC: user cancelled out
                 request_pop();
             }
 
             bool is_render_hovered = shared_->is_render_hovered();
 
-            if (is_render_hovered)
-            {
+            if (is_render_hovered) {
                 const bool controller_updated = ui::update_orbit_controller_from_mouse_inputs(
                     shared_->upd_camera_controller(),
                     shared_->get_camera(),
-                    shared_->scene_dims()
-                );
+                    shared_->scene_dims());
                 if (controller_updated) {
                     shared_->get_camera_controller().update_camera(shared_->upd_camera());
                 }

@@ -14,14 +14,10 @@ osc::MeshLoadResponse osc::respond_to_meshload_request(MeshLoadRequest msg)  // 
     std::vector<LoadedMesh> loaded_meshes;
     loaded_meshes.reserve(msg.paths.size());
 
-    for (const std::filesystem::path& path : msg.paths)
-    {
-        try
-        {
+    for (const std::filesystem::path& path : msg.paths) {
+        try {
             loaded_meshes.push_back(LoadedMesh{path, opyn::load_mesh_via_simbody(path)});
-        }
-        catch (const std::exception& ex)
-        {
+        } catch (const std::exception& ex) {
             // swallow the exception and emit a log error
             //
             // older implementations used to cancel loading the entire batch by returning

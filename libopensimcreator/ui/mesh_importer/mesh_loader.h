@@ -59,9 +59,9 @@ namespace osc
     // the UI thread must `.poll()` this to check for responses
     class MeshLoader final {
     public:
-        MeshLoader() : worker_{Worker::create(respond_to_meshload_request)}
-        {
-        }
+        MeshLoader() :
+            worker_{Worker::create(respond_to_meshload_request)}
+        {}
 
         void send(MeshLoadRequest req)
         {
@@ -77,8 +77,7 @@ namespace osc
         using Worker = SpscWorker<
             MeshLoadRequest,
             MeshLoadResponse,
-            decltype(respond_to_meshload_request)
-        >;
+            decltype(respond_to_meshload_request)>;
         Worker worker_;
     };
 }

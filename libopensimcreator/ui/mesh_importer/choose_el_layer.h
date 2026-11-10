@@ -53,8 +53,7 @@ namespace osc
         int num_elements_user_must_choose = 1;
 
         // function that returns true if the "caller" is happy with the user's choice
-        std::function<bool(std::span<UID>)> on_user_choice = [](std::span<UID>)
-        {
+        std::function<bool(std::span<UID>)> on_user_choice = [](std::span<UID>) {
             return true;
         };
 
@@ -94,30 +93,26 @@ namespace osc
         // returns true if the user can (de)select the given element
         bool is_selectable(const MiObject& el) const
         {
-            if (options_.maybe_els_attaching_to.contains(el.get_id()))
-            {
+            if (options_.maybe_els_attaching_to.contains(el.get_id())) {
                 return false;
             }
 
-            return std::visit(Overload
-            {
-                [this](const MiGround&)  { return options_.can_choose_ground; },
-                [this](const MiMesh&)    { return options_.can_choose_meshes; },
-                [this](const MiBody&)    { return options_.can_choose_bodies; },
-                [this](const MiJoint&)   { return options_.can_choose_joints; },
-                [this](const MiStation&) { return options_.can_choose_stations; },
+            return std::visit(Overload{
+              [this](const MiGround&) { return options_.can_choose_ground; },
+              [this](const MiMesh&) { return options_.can_choose_meshes; },
+              [this](const MiBody&) { return options_.can_choose_bodies; },
+              [this](const MiJoint&) { return options_.can_choose_joints; },
+              [this](const MiStation&) { return options_.can_choose_stations; },
             }, el.to_variant());
         }
 
         void select(const MiObject& el)
         {
-            if (!is_selectable(el))
-            {
+            if (!is_selectable(el)) {
                 return;
             }
 
-            if (is_selected(el))
-            {
+            if (is_selected(el)) {
                 return;
             }
 
@@ -126,12 +121,11 @@ namespace osc
 
         void de_select(const MiObject& el)
         {
-            if (!is_selectable(el))
-            {
+            if (!is_selectable(el)) {
                 return;
             }
 
-            std::erase_if(selected_object_ids_, [el_id = el.get_id()](UID id) { return id == el_id; } );
+            std::erase_if(selected_object_ids_, [el_id = el.get_id()](UID id) { return id == el_id; });
         }
 
         void try_toggle_selection_state_of(const MiObject& el)
@@ -143,8 +137,7 @@ namespace osc
         {
             const MiObject* el = shared_->get_model_graph().try_get_by_id(id);
 
-            if (el)
-            {
+            if (el) {
                 try_toggle_selection_state_of(*el);
             }
         }
@@ -171,8 +164,7 @@ namespace osc
             float faded_alpha = 0.2f;
             float anim_scale = ease_out_elastic(animation_fraction_);
 
-            for (const MiObject& el : mg.iter())
-            {
+            for (const MiObject& el : mg.iter()) {
                 size_t start = drawables_buffer_.size();
                 shared_->append_drawables(el, drawables_buffer_);
                 size_t end = drawables_buffer_.size();
@@ -180,20 +172,17 @@ namespace osc
                 bool is_selectable_el = is_selectable(el);
                 SceneDecorationFlags flags = compute_flags(el);
 
-                for (size_t i = start; i < end; ++i)
-                {
+                for (size_t i = start; i < end; ++i) {
                     DrawableThing& d = drawables_buffer_[i];
                     d.flags = flags;
 
                     if (not is_selectable_el) {
                         if (std::holds_alternative<Color>(d.shading)) {
-                            std::get<Color>(d.shading).a = faded_alpha;   // fade non-selectable colored scene elements
+                            std::get<Color>(d.shading).a = faded_alpha;  // fade non-selectable colored scene elements
                         }
                         d.id = MiIDs::empty();
                         d.group_id = MiIDs::empty();
-                    }
-                    else
-                    {
+                    } else {
                         d.transform.scale *= anim_scale;
                     }
                 }
@@ -207,17 +196,13 @@ namespace osc
 
         void handle_possible_completion()
         {
-            if (static_cast<int>(selected_object_ids_.size()) < options_.num_elements_user_must_choose)
-            {
+            if (static_cast<int>(selected_object_ids_.size()) < options_.num_elements_user_must_choose) {
                 return;  // user hasn't selected enough stuff yet
             }
 
-            if (options_.on_user_choice(selected_object_ids_))
-            {
+            if (options_.on_user_choice(selected_object_ids_)) {
                 request_pop();
-            }
-            else
-            {
+            } else {
                 // choice was rejected?
             }
         }
@@ -225,15 +210,13 @@ namespace osc
         // handle any side-effects from the user's mouse hover
         void handle_hovertest_side_effects()
         {
-            if (!maybe_hover_)
-            {
+            if (!maybe_hover_) {
                 return;
             }
 
             draw_hover_tooltip();
 
-            if (ui::is_mouse_clicked(MouseButton::Left))
-            {
+            if (ui::is_mouse_clicked(MouseButton::Left)) {
                 try_toggle_selection_state_of(maybe_hover_.id);
                 handle_possible_completion();
             }
@@ -242,15 +225,13 @@ namespace osc
         // draw 2D tooltip that pops up when user is hovered over something in the scene
         void draw_hover_tooltip() const
         {
-            if (!maybe_hover_)
-            {
+            if (!maybe_hover_) {
                 return;
             }
 
             const MiObject* se = shared_->get_model_graph().try_get_by_id(maybe_hover_.id);
 
-            if (se)
-            {
+            if (se) {
                 ui::begin_tooltip_nowrap();
                 ui::draw_text(se->get_label());
                 ui::same_line();
@@ -264,8 +245,7 @@ namespace osc
         // depends on layer options
         void draw_connection_lines() const
         {
-            if (!maybe_hover_)
-            {
+            if (!maybe_hover_) {
                 // user isn't hovering anything, so just draw all existing connection
                 // lines, but faintly
                 shared_->draw_connection_lines(faintify_color(shared_->get_color_connection_line()));
@@ -278,13 +258,11 @@ namespace osc
             shared_->draw_connection_lines(faintify_color(shared_->get_color_connection_line()), options_.maybe_els_being_replaced_by_choice);
 
             // draw strong connection line between the things being attached to and the hover
-            for (UID el_attaching_to : options_.maybe_els_attaching_to)
-            {
+            for (UID el_attaching_to : options_.maybe_els_attaching_to) {
                 Vector3 parent_pos = shared_->get_model_graph().get_pos_by_id(el_attaching_to);
                 Vector3 child_pos = shared_->get_model_graph().get_pos_by_id(maybe_hover_.id);
 
-                if (!options_.is_attaching_toward_el)
-                {
+                if (!options_.is_attaching_toward_el) {
                     std::swap(parent_pos, child_pos);
                 }
 
@@ -295,8 +273,7 @@ namespace osc
         // draw 2D header text in top-left corner of the screen
         void draw_header_text() const
         {
-            if (options_.header.empty())
-            {
+            if (options_.header.empty()) {
                 return;
             }
 
@@ -316,8 +293,7 @@ namespace osc
             const Vector2 button_top_left = shared_->scene_ui_rect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
 
             ui::set_cursor_ui_position(button_top_left);
-            if (ui::draw_button(text))
-            {
+            if (ui::draw_button(text)) {
                 request_pop();
             }
 
@@ -334,29 +310,25 @@ namespace osc
         {
             shared_->tick(dt);
 
-            if (ui::is_key_pressed(Key::Escape))
-            {
+            if (ui::is_key_pressed(Key::Escape)) {
                 // ESC: user cancelled out
                 request_pop();
             }
 
             bool is_render_hovered = shared_->is_render_hovered();
 
-            if (is_render_hovered)
-            {
+            if (is_render_hovered) {
                 const bool controller_updated = ui::update_orbit_controller_from_mouse_inputs(
                     shared_->upd_camera_controller(),
                     shared_->get_camera(),
-                    shared_->scene_dims()
-                );
+                    shared_->scene_dims());
                 if (controller_updated) {
                     shared_->get_camera_controller().update_camera(shared_->upd_camera());
                 }
             }
 
-            if (animation_fraction_ < 1.0f)
-            {
-                animation_fraction_ = saturate(animation_fraction_ + 0.5f*dt);
+            if (animation_fraction_ < 1.0f) {
+                animation_fraction_ = saturate(animation_fraction_ + 0.5f * dt);
                 App::upd().request_redraw();
             }
         }

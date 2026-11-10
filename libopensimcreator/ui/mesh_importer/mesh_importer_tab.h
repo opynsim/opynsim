@@ -7,10 +7,10 @@
 #include <future>
 #include <vector>
 
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Widget;
+
     class MeshImporterTab final : public Tab {
     public:
         static CStringView id() { return "OpenSim/MeshImporter"; }

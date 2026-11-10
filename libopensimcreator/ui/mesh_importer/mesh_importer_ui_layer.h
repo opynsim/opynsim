@@ -2,8 +2,6 @@
 
 #include <libopensimcreator/ui/mesh_importer/mesh_importer_ui_layer_host.h>
 
-namespace osc { class Event; }
-
 // UI layering support
 //
 // the visualizer can push the 3D visualizer into different modes (here, "layers") that
@@ -13,16 +11,19 @@ namespace osc { class Event; }
 // - picking another body in the scene mode
 namespace osc
 {
+    class Event;
+
     // a layer that is hosted by the parent
     class MeshImporterUILayer {
     protected:
-        explicit MeshImporterUILayer(MeshImporterUILayerHost& parent) : parent_{&parent}
-        {
-        }
+        explicit MeshImporterUILayer(MeshImporterUILayerHost& parent) :
+            parent_{&parent}
+        {}
         MeshImporterUILayer(const MeshImporterUILayer&) = default;
         MeshImporterUILayer(MeshImporterUILayer&&) noexcept = default;
         MeshImporterUILayer& operator=(const MeshImporterUILayer&) = default;
         MeshImporterUILayer& operator=(MeshImporterUILayer&&) noexcept = default;
+
     public:
         virtual ~MeshImporterUILayer() noexcept = default;
 
