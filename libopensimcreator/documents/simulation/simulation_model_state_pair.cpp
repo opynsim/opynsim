@@ -89,8 +89,7 @@ public:
 
     void set_simulation(std::shared_ptr<Simulation> s)
     {
-        if (s != simulation_)
-        {
+        if (s != simulation_) {
             simulation_ = std::move(s);
             model_version_ = UID{};
         }
@@ -103,8 +102,7 @@ public:
 
     void set_simulation_report(SimulationReport r)
     {
-        if (r != simulation_report_)
-        {
+        if (r != simulation_report_) {
             simulation_report_ = std::move(r);
             state_version_ = UID{};
         }
@@ -118,9 +116,6 @@ private:
     std::shared_ptr<Simulation> simulation_;
     SimulationReport simulation_report_;
 };
-
-
-// public API (PIMPL)
 
 osc::SimulationModelStatePair::SimulationModelStatePair() :
     impl_{std::make_unique<Impl>()}

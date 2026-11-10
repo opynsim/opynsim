@@ -54,7 +54,6 @@ private:
     std::unordered_map<UID, float> auxiliary_values_;
 };
 
-
 osc::SimulationReport::SimulationReport() :
     impl_{std::make_shared<Impl>()}
 {}

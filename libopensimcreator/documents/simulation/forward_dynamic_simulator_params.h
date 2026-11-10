@@ -17,7 +17,7 @@ namespace osc
         opyn::IntegratorMethod integrator_method_used = opyn::IntegratorMethod::Default;
 
         // the time interval, in simulation time, between report updates
-        SimulationClock::duration reporting_interval{1.0/100.0};
+        SimulationClock::duration reporting_interval{1.0 / 100.0};
 
         // max number of *internal* steps that may be taken within a single call
         // to the integrator's stepTo or stepBy function

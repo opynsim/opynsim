@@ -24,8 +24,7 @@ void osc::write_outputs_as_csv(
         if (o.output_type() == opyn::OutputExtractorDataType::Vector2) {
             out << ',' << o.name() << "/0";
             out << ',' << o.name() << "/1";
-        }
-        else {
+        } else {
             out << ',' << o.name();
         }
     }
@@ -39,8 +38,7 @@ void osc::write_outputs_as_csv(
             if (o.output_type() == opyn::OutputExtractorDataType::Vector2) {
                 const auto v = o.value<Vector2>(root, report);
                 out << ',' << v.x() << ',' << v.y();
-            }
-            else {
+            } else {
                 out << ',' << o.value<float>(root, report);
             }
         }

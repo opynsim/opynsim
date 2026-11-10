@@ -13,12 +13,16 @@
 #include <span>
 #include <vector>
 
-namespace osc { class Environment; }
-namespace osc { class ParamBlock; }
-namespace OpenSim { class Model; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace osc
 {
+    class Environment;
+    class ParamBlock;
+
     // a virtual simulation could be backed by (e.g.):
     //
     // - a real "live" forward-dynamic simulation
@@ -33,6 +37,7 @@ namespace osc
         AbstractSimulation(AbstractSimulation&&) noexcept = default;
         AbstractSimulation& operator=(const AbstractSimulation&) = default;
         AbstractSimulation& operator=(AbstractSimulation&&) noexcept = default;
+
     public:
         virtual ~AbstractSimulation() noexcept = default;
 
@@ -134,6 +139,7 @@ namespace osc
         }
 
         std::shared_ptr<Environment> try_upd_environment() { return impl_upd_associated_environment(); }
+
     private:
         // TODO: this shouldn't be mutex-xed: it can cause runtime issues
         virtual SynchronizedValueGuard<const OpenSim::Model> impl_get_model() const = 0;
@@ -151,7 +157,7 @@ namespace osc
         virtual void impl_request_new_end_time(SimulationClock::time_point) {}
 
         virtual void impl_request_stop() {}  // only applicable for "live" simulations
-        virtual void impl_stop() {}  // only applicable for "live" simulations
+        virtual void impl_stop() {}          // only applicable for "live" simulations
 
         virtual float impl_get_fixup_scale_factor() const = 0;
         virtual void impl_set_fixup_scale_factor(float) = 0;

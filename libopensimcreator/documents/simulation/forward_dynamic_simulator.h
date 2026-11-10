@@ -8,11 +8,11 @@
 #include <functional>
 #include <memory>
 
-namespace osc { struct ForwardDynamicSimulatorParams; }
-namespace osc { class SimulationReport; }
-
 namespace osc
 {
+    struct ForwardDynamicSimulatorParams;
+    class SimulationReport;
+
     // returns outputs (e.g. auxiliary stuff like integration steps) that the
     // FdSimulator writes into the `SimulationReport`s it emits
     int get_num_fd_simulator_output_extractors();
@@ -28,8 +28,7 @@ namespace osc
         ForwardDynamicSimulator(
             BasicModelStatePairWithSharedEnvironment,
             const ForwardDynamicSimulatorParams&,
-            std::function<void(SimulationReport)> on_report_from_bg_thread
-        );
+            std::function<void(SimulationReport)> on_report_from_bg_thread);
         ForwardDynamicSimulator(const ForwardDynamicSimulator&) = delete;
         ForwardDynamicSimulator(ForwardDynamicSimulator&&) noexcept;
         ForwardDynamicSimulator& operator=(const ForwardDynamicSimulator&) = delete;

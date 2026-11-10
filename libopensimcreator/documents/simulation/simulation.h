@@ -13,14 +13,26 @@
 #include <span>
 #include <vector>
 
-namespace opyn { class SharedOutputExtractor; }
-namespace osc { class Environment; }
-namespace osc { class ParamBlock; }
-namespace OpenSim { class Model; }
-namespace SimTK { class State; }
+namespace opyn
+{
+    class SharedOutputExtractor;
+}
+
+namespace OpenSim
+{
+    class Model;
+}
+
+namespace SimTK
+{
+    class State;
+}
 
 namespace osc
 {
+    class Environment;
+    class ParamBlock;
+
     // a concrete value type wrapper for an `AbstractSimulation`
     //
     // This is a value-type that can be compared, hashed, etc. for easier usage
@@ -42,7 +54,7 @@ namespace osc
         SimulationClock::time_point get_cur_time() { return simulation_->get_cur_time(); }
         SimulationClock::time_point get_start_time() const { return simulation_->get_start_time(); }
         SimulationClock::time_point get_end_time() const { return simulation_->get_end_time(); }
-        SimulationClock::duration   get_duration() const { return simulation_->get_duration(); }
+        SimulationClock::duration get_duration() const { return simulation_->get_duration(); }
         float get_progress() const { return simulation_->get_progress(); }
         const ParamBlock& get_params() const { return simulation_->get_params(); }
         std::span<const opyn::SharedOutputExtractor> get_outputs() const { return simulation_->get_output_extractors(); }
@@ -58,8 +70,8 @@ namespace osc
 
         std::shared_ptr<Environment> try_upd_environment() { return simulation_->try_upd_environment(); }
 
-        operator AbstractSimulation& () { return *simulation_; }  // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
-        operator const AbstractSimulation& () const { return *simulation_; }  // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
+        operator AbstractSimulation&() { return *simulation_; }              // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
+        operator const AbstractSimulation&() const { return *simulation_; }  // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
 
     private:
         std::unique_ptr<AbstractSimulation> simulation_;

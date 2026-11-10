@@ -9,7 +9,10 @@
 #include <memory>
 #include <unordered_map>
 
-namespace SimTK { class State; }
+namespace SimTK
+{
+    class State;
+}
 
 namespace osc
 {
@@ -29,6 +32,7 @@ namespace osc
         SimTK::State& upd_state_hack();  // necessary because of a bug in OpenSim PathWrap
 
         friend bool operator==(const SimulationReport&, const SimulationReport&) = default;
+
     private:
         const SimTK::State& impl_get_state() const final;
         std::optional<float> impl_get_auxiliary_value(UID) const final;

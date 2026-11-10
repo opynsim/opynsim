@@ -10,8 +10,7 @@ using namespace osc;
 
 namespace
 {
-    constexpr auto c_simulator_statuses = std::to_array<SimulationStatus>(
-    {
+    constexpr auto c_simulator_statuses = std::to_array<SimulationStatus>({
         SimulationStatus::Initializing,
         SimulationStatus::Running,
         SimulationStatus::Completed,
@@ -20,8 +19,7 @@ namespace
     });
     static_assert(c_simulator_statuses.size() == num_options_v<SimulationStatus>);
 
-    constexpr auto c_simulator_status_strings = std::to_array<CStringView>(
-    {
+    constexpr auto c_simulator_status_strings = std::to_array<CStringView>({
         "Initializing",
         "Running",
         "Completed",
@@ -30,7 +28,6 @@ namespace
     });
     static_assert(c_simulator_status_strings.size() == num_options_v<SimulationStatus>);
 }
-
 
 std::span<const SimulationStatus> osc::get_all_simulation_statuses()
 {

@@ -7,14 +7,26 @@
 
 #include <memory>
 
-namespace OpenSim { class Component; }
-namespace OpenSim { class Model; }
-namespace osc { class Environment; }
-namespace osc { class Simulation; }
-namespace SimTK { class State; }
+namespace OpenSim
+{
+    class Component;
+}
+
+namespace OpenSim
+{
+    class Model;
+}
+
+namespace SimTK
+{
+    class State;
+}
 
 namespace osc
 {
+    class Environment;
+    class Simulation;
+
     // a readonly model+state pair from a particular step from a simulator
     class SimulationModelStatePair final : public ModelStatePairWithSharedEnvironment {
     public:

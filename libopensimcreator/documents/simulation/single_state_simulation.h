@@ -13,11 +13,15 @@
 #include <span>
 #include <vector>
 
-namespace OpenSim { class Model; }
-namespace osc { class Environment; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace osc
 {
+    class Environment;
+
     class SingleStateSimulation final : public AbstractSimulation {
     public:
         explicit SingleStateSimulation(BasicModelStatePairWithSharedEnvironment);

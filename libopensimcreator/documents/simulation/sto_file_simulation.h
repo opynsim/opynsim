@@ -13,13 +13,21 @@
 #include <span>
 #include <vector>
 
-namespace opyn { class SharedOutputExtractor; }
-namespace OpenSim { class Model; }
-namespace osc { class Environment; }
-namespace osc { class ParamBlock; }
+namespace opyn
+{
+    class SharedOutputExtractor;
+}
+
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace osc
 {
+    class Environment;
+    class ParamBlock;
+
     // an `AbstractSimulation` that is directly loaded from an `.sto` file (as
     // opposed to being an actual simulation ran within `osc`)
     class StoFileSimulation final : public AbstractSimulation {
@@ -28,8 +36,7 @@ namespace osc
             std::unique_ptr<OpenSim::Model>,
             const std::filesystem::path& sto_file_path,
             float fixup_scale_factor,
-            std::shared_ptr<Environment>
-        );
+            std::shared_ptr<Environment>);
         StoFileSimulation(const StoFileSimulation&) = delete;
         StoFileSimulation(StoFileSimulation&&) noexcept;
         StoFileSimulation& operator=(const StoFileSimulation&) = delete;

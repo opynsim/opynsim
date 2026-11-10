@@ -13,13 +13,21 @@
 #include <span>
 #include <vector>
 
-namespace opyn { class SharedOutputExtractor; }
-namespace OpenSim { class Model; }
-namespace osc { struct ForwardDynamicSimulatorParams; }
-namespace osc { class ParamBlock; }
+namespace opyn
+{
+    class SharedOutputExtractor;
+}
+
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace osc
 {
+    struct ForwardDynamicSimulatorParams;
+    class ParamBlock;
+
     // an `AbstractSimulation` that represents a live forward-dynamic simulation
     // that `osc` is running
     class ForwardDynamicSimulation final : public AbstractSimulation {
@@ -33,6 +41,7 @@ namespace osc
 
         // blocks the current thread until the simulator thread finishes its execution
         void join();
+
     private:
         SynchronizedValueGuard<const OpenSim::Model> impl_get_model() const final;
 

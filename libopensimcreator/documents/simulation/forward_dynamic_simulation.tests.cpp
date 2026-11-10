@@ -81,7 +81,6 @@ TEST(ForwardDynamicSimulation, IncreasingTheEndTimeWorksAsExpected)
     sim.join();
     ASSERT_EQ(sim.get_status(), SimulationStatus::Completed);
 
-
     // ensure the extended simulation is as-expected
     {
         const auto reports = sim.get_all_simulation_reports();
@@ -121,7 +120,6 @@ TEST(ForwardDynamicSimulation, DecreasingEndTimeWorksAsExpected)
     sim.request_new_end_time(SimulationClock::start() + 1s);
     ASSERT_EQ(sim.get_status(), SimulationStatus::Completed);  // should be immediately true: in-memory truncation
     ASSERT_EQ(sim.get_end_time(), SimulationClock::start() + 1s);
-
 
     // ensure the shrunk simulation is as-expected
     {

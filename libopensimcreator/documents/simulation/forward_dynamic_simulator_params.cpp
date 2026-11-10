@@ -44,32 +44,25 @@ ParamBlock osc::to_param_block(const ForwardDynamicSimulatorParams& p)
 ForwardDynamicSimulatorParams osc::from_param_block(const ParamBlock& b)
 {
     ForwardDynamicSimulatorParams rv;
-    if (auto final_time = b.find_value(c_final_time_title); final_time && std::holds_alternative<double>(*final_time))
-    {
+    if (auto final_time = b.find_value(c_final_time_title); final_time && std::holds_alternative<double>(*final_time)) {
         rv.final_time = SimulationClock::start() + SimulationClock::duration{std::get<double>(*final_time)};
     }
-    if (auto integ_method = b.find_value(c_integrator_method_used_title); integ_method && std::holds_alternative<opyn::IntegratorMethod>(*integ_method))
-    {
+    if (auto integ_method = b.find_value(c_integrator_method_used_title); integ_method && std::holds_alternative<opyn::IntegratorMethod>(*integ_method)) {
         rv.integrator_method_used = std::get<opyn::IntegratorMethod>(*integ_method);
     }
-    if (auto rep_interv = b.find_value(c_reporting_interval_title); rep_interv && std::holds_alternative<double>(*rep_interv))
-    {
+    if (auto rep_interv = b.find_value(c_reporting_interval_title); rep_interv && std::holds_alternative<double>(*rep_interv)) {
         rv.reporting_interval = SimulationClock::duration{std::get<double>(*rep_interv)};
     }
-    if (auto step_lim = b.find_value(c_integrator_step_limit_title); step_lim && std::holds_alternative<int>(*step_lim))
-    {
+    if (auto step_lim = b.find_value(c_integrator_step_limit_title); step_lim && std::holds_alternative<int>(*step_lim)) {
         rv.integrator_step_limit = std::get<int>(*step_lim);
     }
-    if (auto min_step = b.find_value(c_integrator_minimum_step_size_title); min_step && std::holds_alternative<double>(*min_step))
-    {
+    if (auto min_step = b.find_value(c_integrator_minimum_step_size_title); min_step && std::holds_alternative<double>(*min_step)) {
         rv.integrator_minimum_step_size = SimulationClock::duration{std::get<double>(*min_step)};
     }
-    if (auto max_step = b.find_value(c_integrator_maximum_step_size_title); max_step && std::holds_alternative<double>(*max_step))
-    {
+    if (auto max_step = b.find_value(c_integrator_maximum_step_size_title); max_step && std::holds_alternative<double>(*max_step)) {
         rv.integrator_maximum_step_size = SimulationClock::duration{std::get<double>(*max_step)};
     }
-    if (auto acc = b.find_value(c_integrator_accuracy_title); acc && std::holds_alternative<double>(*acc))
-    {
+    if (auto acc = b.find_value(c_integrator_accuracy_title); acc && std::holds_alternative<double>(*acc)) {
         rv.integrator_accuracy = std::get<double>(*acc);
     }
     return rv;

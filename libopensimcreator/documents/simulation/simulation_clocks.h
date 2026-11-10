@@ -33,7 +33,7 @@ namespace osc
             SimulationClock::time_point current) :
 
             time_range_{time_range},
-            progress_{static_cast<float>((current - time_range_.lower)/(time_range_.upper - time_range_.lower))}
+            progress_{static_cast<float>((current - time_range_.lower) / (time_range_.upper - time_range_.lower))}
         {
             // TODO: provide invlerp (inverse LERP), rather than calculating the above
         }
@@ -45,6 +45,7 @@ namespace osc
         }
         constexpr SimulationClock::time_point end() const { return time_range_.upper; }
         constexpr float progress() const { return progress_; }
+
     private:
         ClosedInterval<SimulationClock::time_point> time_range_{SimulationClock::start(), SimulationClock::start()};
         Normalized<float> progress_ = 1.0f;

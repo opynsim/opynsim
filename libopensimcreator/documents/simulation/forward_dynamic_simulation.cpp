@@ -57,7 +57,6 @@ namespace
 
 class osc::ForwardDynamicSimulation::Impl final {
 public:
-
     Impl(BasicModelStatePairWithSharedEnvironment p, const ForwardDynamicSimulatorParams& params) :
         model_state_{std::move(p)},
         simulation_{make_simulation(*model_state_.lock(), params, report_queue_)},
@@ -110,8 +109,7 @@ public:
 
         if (not reports_.empty()) {
             return SimulationClock::start() + SimulationClock::duration{reports_.back().state().getTime()};
-        }
-        else {
+        } else {
             return get_start_time();
         }
     }
@@ -174,15 +172,12 @@ public:
         // otherwise, create a new simulator with the new parameters
         {
             const auto guard = model_state_.lock();
-            const SimTK::State& latest_state = reports_.empty() ?
-                guard->get_state() :
-                reports_.back().state();
+            const SimTK::State& latest_state = reports_.empty() ? guard->get_state() : reports_.back().state();
 
             simulation_ = make_simulation(
                 BasicModelStatePairWithSharedEnvironment{guard->get_model(), latest_state},
                 params_,
-                report_queue_
-            );
+                report_queue_);
 
             // note: the report collection method should ensure that double-reports
             // aren't collected
@@ -268,7 +263,6 @@ private:
     ParamBlock params_as_param_block_;
     std::vector<opyn::SharedOutputExtractor> simulator_output_extractors_;
 };
-
 
 osc::ForwardDynamicSimulation::ForwardDynamicSimulation(BasicModelStatePairWithSharedEnvironment ms, const ForwardDynamicSimulatorParams& params) :
     impl_{std::make_unique<Impl>(std::move(ms), params)}
