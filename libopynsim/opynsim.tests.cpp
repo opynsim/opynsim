@@ -48,7 +48,7 @@ TEST(opynsim, read_sto_doesnt_throw_when_given_a_valid_sto_file)
 {
     opyn::init();
 
-    ASSERT_NO_THROW({ read_sto(opynsim_tests_resources_directory() / "Documents/sto/minimal.sto");  });
+    ASSERT_NO_THROW({ read_sto(opynsim_tests_resources_directory() / "Documents/sto/minimal.sto"); });
 }
 
 TEST(opynsim, read_sto_columns_returns_time_column_for_minimal_example)
@@ -253,7 +253,8 @@ TEST(opynsim, read_sto_can_read_empty_sto_files)
     ASSERT_EQ(df["time"].size(), 0);
 }
 
-TEST(opynsim, read_sto_fills_missing_data_cells_with_NaNs) {
+TEST(opynsim, read_sto_fills_missing_data_cells_with_NaNs)
+{
     // STO files in the wild can sometimes be missing values for trailing
     // cells - probably because the researcher concatenated some text files,
     // there was a bug in a reporter/script somewhere, or similar.
@@ -270,8 +271,7 @@ TEST(opynsim, read_sto_fills_missing_data_cells_with_NaNs) {
     const std::vector<double> expected_col2_values = {-0.29808000, osc::quiet_nan_v<double>, 0.73455400, 0.73537100};
     const std::vector<double> expected_col3_values = {osc::quiet_nan_v<double>, osc::quiet_nan_v<double>, -0.29808000, -0.30013700};
 
-    const auto equal_to_incl_nans = [](double lhs, double rhs)
-    {
+    const auto equal_to_incl_nans = [](double lhs, double rhs) {
         return lhs == rhs or (std::isnan(lhs) and std::isnan(rhs));
     };
 
@@ -414,7 +414,7 @@ TEST(opynsim, read_trc_parses_leg39_swing_short_trc_correctly)
         "Top.Head",
     });
     std::vector<std::string> expected_column_names;
-    expected_column_names.reserve(1 + 3*raw_column_names.size());
+    expected_column_names.reserve(1 + 3 * raw_column_names.size());
     expected_column_names.emplace_back("time");
     for (const auto& raw_column_name : raw_column_names) {
         expected_column_names.push_back(std::string{raw_column_name} + "_x");

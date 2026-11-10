@@ -38,8 +38,7 @@ namespace
             head,
             "head_rod_offset",
             head,
-            SimTK::Transform{SimTK::Vec3{0.0, 0.25, 0.0}}
-        );
+            SimTK::Transform{SimTK::Vec3{0.0, 0.25, 0.0}});
         attach_geometry<OpenSim::Cylinder>(head_rod_pof, 0.005, 0.25);
 
         // Attach body to ground with a pin joint
@@ -51,9 +50,8 @@ namespace
             SimTK::Vec3{0.0},
             head,
             SimTK::Vec3{0.0, -1.0, 0.0},
-            SimTK::Vec3{0.0}
-        );
-        pin.updCoordinate().set_default_value(0.25*std::numbers::pi_v<double>);
+            SimTK::Vec3{0.0});
+        pin.updCoordinate().set_default_value(0.25 * std::numbers::pi_v<double>);
         model.finalizeConnections();
         return rv;
     }
@@ -69,8 +67,7 @@ namespace
             rod1,
             "rod1_geom_frame_1",
             rod1,
-            SimTK::Transform{SimTK::Vec3{0.0, 0.25, 0.0}}
-        );
+            SimTK::Transform{SimTK::Vec3{0.0, 0.25, 0.0}});
         attach_geometry<OpenSim::Cylinder>(rod1_rod_frame, 0.005, 0.25);
         auto& pin1 = add_joint<OpenSim::PinJoint>(
             model,
@@ -80,9 +77,8 @@ namespace
             SimTK::Vec3{0.0},
             rod1,
             SimTK::Vec3{0.0, 0.5, 0.0},
-            SimTK::Vec3{0.0}
-        );
-        pin1.updCoordinate().set_default_value(0.25*std::numbers::pi_v<double>);
+            SimTK::Vec3{0.0});
+        pin1.updCoordinate().set_default_value(0.25 * std::numbers::pi_v<double>);
         auto& rod2 = add_body(model, "rod2", 1.0, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
         auto& rod2_sphere = attach_geometry<OpenSim::Sphere>(rod2, 0.05);
         rod2_sphere.setName("rod2_geom_2");
@@ -90,8 +86,7 @@ namespace
             rod2,
             "rod2_geom_frame_1",
             rod2,
-            SimTK::Transform{SimTK::Vec3{0.0, 0.25, 0.0}}
-        );
+            SimTK::Transform{SimTK::Vec3{0.0, 0.25, 0.0}});
         attach_geometry<OpenSim::Cylinder>(rod2_rod_frame, 0.005, 0.25);
         auto& pin2 = add_joint<OpenSim::PinJoint>(
             model,
@@ -101,9 +96,8 @@ namespace
             SimTK::Vec3{0.0},
             rod2,
             SimTK::Vec3{0.0, 0.5, 0.0},
-            SimTK::Vec3{0.0}
-        );
-        pin2.updCoordinate().set_default_value(0.25*std::numbers::pi_v<double>);
+            SimTK::Vec3{0.0});
+        pin2.updCoordinate().set_default_value(0.25 * std::numbers::pi_v<double>);
 
         // This must happen here, because the pointers (which reset/invalidate
         // on copy) must be written as component paths (copyable) before
@@ -190,7 +184,9 @@ public:
             for (const auto& imm_abs_path : imm_abs_paths) {
                 name_counts[imm_abs_path.getComponentName()]++;
             }
-            const auto count_gt_1 = [](const auto& p) { return p.second > 1; };
+            const auto count_gt_1 = [](const auto& p) {
+                return p.second > 1;
+            };
             if (rgs::any_of(name_counts, count_gt_1)) {
                 std::string error_message = "Cannot flush in-memory resources: the `ModelSpecification` the following in-memory components have duplicate names:";
                 for (const auto& [name, count] : name_counts | vws::filter(count_gt_1)) {
@@ -211,7 +207,7 @@ public:
             std::filesystem::path filename{imm_abs_path.getComponentName()};
             filename.replace_extension(".obj");
             const std::filesystem::path filesystem_path = root_directory() / directory / filename;
-            const std::filesystem::path property_path   = (directory / filename).lexically_normal().generic_string();
+            const std::filesystem::path property_path = (directory / filename).lexically_normal().generic_string();
 
             // Write in-memory warped mesh data to disk as an OBJ file.
             auto& imm = mutable_model.updComponent<InMemoryMesh>(imm_abs_path);

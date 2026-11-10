@@ -97,8 +97,7 @@ namespace
     // these are shwon to the user as in-UI documentation
     std::unordered_map<osc::CStringView, osc::CStringView> create_component_description_lookup()
     {
-        return
-        {
+        return {
             {
                 "BallJoint",
                 "A Ball joint. The underlying implementation in Simbody is SimTK::MobilizedBody::Ball. The Ball joint implements a fixed 1-2-3 (X-Y-Z) body-fixed Euler sequence, without translations, for generalized coordinate calculation. Ball joint uses quaternions in calculation and are therefore singularity-free (unlike GimbalJoint)."

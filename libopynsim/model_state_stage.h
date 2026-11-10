@@ -15,7 +15,7 @@ namespace opyn
     enum class ModelStateStage : uint8_t {
 
         // The topology of the physics system has been realized.
-        topology =  0,
+        topology = 0,
 
         // Modelling choices have been made.
         model,

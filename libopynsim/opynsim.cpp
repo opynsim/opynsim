@@ -56,14 +56,14 @@ struct osc::Converter<OpenSim::LogLevel, osc::LogLevel> {
     osc::LogLevel operator()(OpenSim::LogLevel e) const
     {
         switch (e) {
-        case OpenSim::LogLevel::Trace:    return osc::LogLevel::trace;
-        case OpenSim::LogLevel::Debug:    return osc::LogLevel::debug;
-        case OpenSim::LogLevel::Info:     return osc::LogLevel::info;
-        case OpenSim::LogLevel::Warn:     return osc::LogLevel::warn;
-        case OpenSim::LogLevel::Error:    return osc::LogLevel::err;
+        case OpenSim::LogLevel::Trace: return osc::LogLevel::trace;
+        case OpenSim::LogLevel::Debug: return osc::LogLevel::debug;
+        case OpenSim::LogLevel::Info: return osc::LogLevel::info;
+        case OpenSim::LogLevel::Warn: return osc::LogLevel::warn;
+        case OpenSim::LogLevel::Error: return osc::LogLevel::err;
         case OpenSim::LogLevel::Critical: return osc::LogLevel::critical;
-        case OpenSim::LogLevel::Off:      return osc::LogLevel::off;
-        default:                          return osc::LogLevel::DEFAULT;
+        case OpenSim::LogLevel::Off: return osc::LogLevel::off;
+        default: return osc::LogLevel::DEFAULT;
         }
     }
 };
@@ -142,7 +142,7 @@ namespace
     // It's unsafe because `setlocale` globally mutates environment state.
     void setlocale_wrapper(int category, const char* locale)
     {
-        if (std::setlocale(category, locale) == nullptr) { // NOLINT(concurrency-mt-unsafe)
+        if (std::setlocale(category, locale) == nullptr) {  // NOLINT(concurrency-mt-unsafe)
             osc::log_warn("error setting locale category {} to {}", category, locale);
         }
     }
@@ -189,8 +189,7 @@ namespace
     // Registers custom types from the model warper.
     void register_model_warper_types()
     {
-        []<typename... TScalingStep>(osc::Typelist<TScalingStep...>)
-        {
+        []<typename... TScalingStep>(osc::Typelist<TScalingStep...>) {
             OpenSim::Object::registerType(ScalingParameterOverride{});
             (OpenSim::Object::registerType(TScalingStep{}), ...);
             OpenSim::Object::registerType(ModelWarperV3Document{});
@@ -215,8 +214,7 @@ namespace
     // use the `oscar` log (can be called multiple times).
     void globally_ensure_log_is_default_initialized()
     {
-        [[maybe_unused]] static bool s_log_initialized = []()
-        {
+        [[maybe_unused]] static bool s_log_initialized = [] {
             osc::global_default_logger()->set_level(osc::LogLevel::err);
             setup_opensim_to_use_oscar_log();
             return true;
@@ -404,8 +402,7 @@ bool opyn::init()
     globally_ensure_log_is_default_initialized();
 
     // This part should only ever be called once per process.
-    static bool s_osc_initialized = []
-    {
+    static bool s_osc_initialized = [] {
         osc::log_info("initializing OPynSim (opyn::init)");
 
         // Make the current process globally use the same locale that OpenSim uses

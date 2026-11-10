@@ -48,7 +48,7 @@ namespace
         std::vector<Series> rv;
         rv.reserve(column_names.size());
         for (size_t i = 0; i < column_names.size(); ++i) {
-            rv.emplace_back(std::move(column_names[i]),std::move(column_data[i]));
+            rv.emplace_back(std::move(column_names[i]), std::move(column_data[i]));
         }
         return rv;
     }
@@ -178,8 +178,7 @@ opyn::DataFrame opyn::DataFrame::with_series(Series series) const
     rv.attrs_.clear();
     const auto& [index_iterator, inserted] = rv.column_to_index_lookup_.try_emplace(
         std::string{series.name()},
-        rv.series_.size()
-    );
+        rv.series_.size());
     if (inserted) {
         rv.series_.push_back(std::move(series));
     } else {
@@ -232,8 +231,7 @@ std::ostream& opyn::operator<<(std::ostream& out, const DataFrame& data_frame)
                 for (size_t i = series.size() - num_tail_data_rows; i < series.size(); ++i) {
                     append_row(format_double_like_pandas(series[i]));
                 }
-            }
-            else {
+            } else {
                 // Print all values with no ellipsis.
                 for (const auto& value : series) {
                     append_row(format_double_like_pandas(value));
@@ -311,7 +309,7 @@ std::ostream& opyn::operator<<(std::ostream& out, const DataFrame& data_frame)
             out << "---|";
         }
         for (const auto& c : formatted_columns) {
-            out << ':';  // Left-align
+            out << ':';                                                    // Left-align
             const size_t num_dashes = rgs::max(2uz, c.content_width + 1);  // +1 to account for right padding
             for (size_t i = 0; i < num_dashes; ++i) {
                 out << '-';
@@ -329,8 +327,7 @@ std::ostream& opyn::operator<<(std::ostream& out, const DataFrame& data_frame)
         // Edge-case: If there are no columns, emit a minimum empty column (markdown requirement).
 
         out << "|   |\n";
-    }
-    else if (num_displayed_rows == 0) {
+    } else if (num_displayed_rows == 0) {
         // Edge-case: If there are no rows, emit empty columns for each row (markdown requirement).
 
         out << '|';  // Left line

@@ -37,9 +37,10 @@ namespace
             return false;  // Different stages
         }
         if (lhs.getSystemStage() < SimTK::Stage::Time) {
-            return true;   // Same time+stage, but no state variables allocated: nothing more to compare.
+            return true;  // Same time+stage, but no state variables allocated: nothing more to compare.
         }
 
+        // clang-format off
         return  have_equivalent_memory(lhs.getQ(),           rhs.getQ())
             and have_equivalent_memory(lhs.getU(),           rhs.getU())
             and have_equivalent_memory(lhs.getZ(),           rhs.getZ())
@@ -47,6 +48,7 @@ namespace
             and have_equivalent_memory(lhs.getZWeights(),    rhs.getZWeights())
             and have_equivalent_memory(lhs.getQErrWeights(), rhs.getQErrWeights())
             and have_equivalent_memory(lhs.getUErrWeights(), rhs.getUErrWeights());
+        // clang-format on
     }
 }
 
@@ -54,7 +56,8 @@ class opyn::ModelState::Impl final {
 public:
     Impl() = default;
 
-    explicit Impl(SimTK::State&& state) : state_{std::move(state)} {}
+    explicit Impl(SimTK::State&& state) :
+        state_{std::move(state)} {}
 
     friend bool operator==(const Impl& lhs, const Impl& rhs)
     {
@@ -69,6 +72,7 @@ public:
 
     const SimTK::State& simbody_state() const { return state_; }
     SimTK::State& upd_simbody_state() { return state_; }
+
 private:
     SimTK::State state_;
     attrs_type attrs_;

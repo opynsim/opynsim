@@ -29,18 +29,17 @@ namespace
         std::span<T> values,
         UnaryFunction mutator)
     {
-        const size_t chunk_size = std::max(min_chunk_size, values.size()/std::thread::hardware_concurrency());
-        const size_t num_tasks = values.size()/chunk_size;
+        const size_t chunk_size = std::max(min_chunk_size, values.size() / std::thread::hardware_concurrency());
+        const size_t num_tasks = values.size() / chunk_size;
 
         if (num_tasks > 1) {
             std::vector<std::future<void>> tasks;
             tasks.reserve(num_tasks);
 
-            for (size_t i = 0; i < num_tasks-1; ++i) {
+            for (size_t i = 0; i < num_tasks - 1; ++i) {
                 const size_t chunk_begin = i * chunk_size;
-                const size_t chunk_end = (i+1) * chunk_size;
-                tasks.push_back(std::async(std::launch::async, [values, mutator, chunk_begin, chunk_end]()
-                {
+                const size_t chunk_end = (i + 1) * chunk_size;
+                tasks.push_back(std::async(std::launch::async, [values, mutator, chunk_begin, chunk_end] {
                     for (size_t j = chunk_begin; j < chunk_end; ++j) {
                         mutator(values[j]);
                     }
@@ -49,10 +48,9 @@ namespace
 
             // last worker must also handle the remainder
             {
-                const size_t chunk_begin = (num_tasks-1) * chunk_size;
+                const size_t chunk_begin = (num_tasks - 1) * chunk_size;
                 const size_t chunk_end = values.size();
-                tasks.push_back(std::async(std::launch::async, [values, mutator, chunk_begin, chunk_end]()
-                {
+                tasks.push_back(std::async(std::launch::async, [values, mutator, chunk_begin, chunk_end] {
                     for (size_t i = chunk_begin; i < chunk_end; ++i) {
                         mutator(values[i]);
                     }
@@ -62,8 +60,7 @@ namespace
             for (std::future<void>& task : tasks) {
                 task.get();
             }
-        }
-        else {
+        } else {
             // chunks would be too small if parallelized: just do it sequentially
             for (T& value : values) {
                 mutator(value);
@@ -204,7 +201,7 @@ namespace
             const int p_start_column = num_pairs;
 
             for (int row = 0; row < num_pairs; ++row) {
-                l(row, p_start_column)     = 1.0;
+                l(row, p_start_column) = 1.0;
                 l(row, p_start_column + 1) = source_landmarks(row, 0);
                 l(row, p_start_column + 2) = source_landmarks(row, 1);
                 l(row, p_start_column + 3) = source_landmarks(row, 2);
@@ -216,7 +213,7 @@ namespace
             const int pt_start_row = num_pairs;
 
             for (int col = 0; col < num_pairs; ++col) {
-                l(pt_start_row, col)     = 1.0;
+                l(pt_start_row, col) = 1.0;
                 l(pt_start_row + 1, col) = source_landmarks(col, 0);
                 l(pt_start_row + 2, col) = source_landmarks(col, 1);
                 l(pt_start_row + 3, col) = source_landmarks(col, 2);
@@ -287,7 +284,7 @@ namespace
             return TPSCoefficients3D<T>{};
         }
 
-        static_assert(sizeof(LandmarkPair3D<T>) == 6*sizeof(T));
+        static_assert(sizeof(LandmarkPair3D<T>) == 6 * sizeof(T));
         static_assert(alignof(LandmarkPair3D<T>) == alignof(T));
         const cpp23::extents<size_t, cpp23::dynamic_extent, 3> shape{inputs.landmarks.size()};
         const std::array<size_t, 2> strides = {6, 1};
@@ -296,8 +293,7 @@ namespace
         auto rv = ::tps_calc_coefficients<T>(
             {&inputs.landmarks.front().source[0], mapping},
             {&inputs.landmarks.front().destination[0], mapping},
-            inputs.warping_penalty
-        );
+            inputs.warping_penalty);
 
         // If required, modify the coefficients
         if (not inputs.apply_affine_translation) {
@@ -328,7 +324,7 @@ namespace
         // variants of the coefficients together in memory (as `Vector3`s)
 
         // compute affine terms (a1 + a2*x + a3*y + a4*z)
-        SimTK::Vec3 rv = SimTK::Vec3{coefs.a1} + SimTK::Vec3{coefs.a2*p[0]} + SimTK::Vec3{coefs.a3*p[1]} + SimTK::Vec3{coefs.a4*p[2]};
+        SimTK::Vec3 rv = SimTK::Vec3{coefs.a1} + SimTK::Vec3{coefs.a2 * p[0]} + SimTK::Vec3{coefs.a3 * p[1]} + SimTK::Vec3{coefs.a4 * p[2]};
 
         // accumulate non-affine terms (effectively: wi * U(||control_point - p||))
         for (const TPSNonAffineTerm3D<T>& term : coefs.non_affine_terms) {
@@ -429,8 +425,7 @@ void opyn::tps3d_warp_points_in_place(
     std::span<SimTK::Vec<3, float>> points,
     float linear_interpolant)
 {
-    for_each_parallel_unsequenced(8192, points, [&coefs, linear_interpolant](SimTK::Vec<3, float>& vert)
-    {
+    for_each_parallel_unsequenced(8192, points, [&coefs, linear_interpolant](SimTK::Vec<3, float>& vert) {
         vert = tps3d_warp_point(coefs, vert, linear_interpolant);
     });
 }

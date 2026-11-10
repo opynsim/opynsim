@@ -8,11 +8,15 @@
 #include <format>
 #include <unordered_map>
 
-namespace opyn { class Model; }
-namespace SimTK { class State; }
+namespace SimTK
+{
+    class State;
+}
 
 namespace opyn
 {
+    class Model;
+
     // Represents all state information for a `Model`.
     //
     // Related: https://simtk.org/api_docs/simbody/3.5/classSimTK_1_1State.html#details

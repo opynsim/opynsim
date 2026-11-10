@@ -30,7 +30,8 @@ namespace
         ComponentOutputSubfield subfield)
     {
         const auto label = get_output_subfield_label(subfield);
-        return std::format("{}[{}{}]",
+        return std::format(
+            "{}[{}{}]",
             cp.toString(),
             output_name,
             label ? std::format(".{}", *label) : "");

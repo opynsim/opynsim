@@ -53,6 +53,7 @@ public:
         // Forward to the opposite version (multiplication is reflexive)
         return rhs * lhs;
     }
+
 private:
     std::string name_;
     std::vector<double> values_;

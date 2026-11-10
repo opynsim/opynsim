@@ -49,8 +49,7 @@ TEST(ModelSpecification, can_construct_from_opensim_model)
         "head",
         1.0,
         SimTK::Vec3{0.0},
-        SimTK::Inertia{SimTK::Vec3{1.0}}
-    );
+        SimTK::Inertia{SimTK::Vec3{1.0}});
     auto& pin = add_joint<OpenSim::PinJoint>(
         opensim_model,
         "pin",
@@ -59,9 +58,8 @@ TEST(ModelSpecification, can_construct_from_opensim_model)
         SimTK::Vec3{0.0},
         head,
         SimTK::Vec3{0.0, -1.0, 0.0},
-        SimTK::Vec3{0.0}
-    );
-    pin.updCoordinate().set_default_value(0.25*std::numbers::pi_v<double>);
+        SimTK::Vec3{0.0});
+    pin.updCoordinate().set_default_value(0.25 * std::numbers::pi_v<double>);
     opensim_model.finalizeConnections();
 
     const ModelSpecification model_specification{std::move(opensim_model)};
@@ -149,8 +147,7 @@ TEST(ModelSpecification, to_osim_with_no_args_generates_string_that_is_identical
     model_specification.to_osim(tmp.absolute_path());
     const std::string written_content{
         std::istreambuf_iterator<char>{std::ifstream{tmp.absolute_path()}.rdbuf()},
-        std::istreambuf_iterator<char>{}
-    };
+        std::istreambuf_iterator<char>{}};
     const std::string string_content = model_specification.to_osim();
 
     ASSERT_EQ(written_content, string_content);
@@ -166,8 +163,8 @@ TEST(ModelSpecification, bake_station_defined_frames_performs_conversion)
 
     OpenSim::Model model;
     auto& origin = add_component<OpenSim::Station>(model, model.getGround(), SimTK::Vec3{0.0});
-    auto& left   = add_component<OpenSim::Station>(model, model.getGround(), SimTK::Vec3{1.0, 0.0, 0.0});
-    auto& up     = add_component<OpenSim::Station>(model, model.getGround(), SimTK::Vec3{0.0, 1.0, 0.0});
+    auto& left = add_component<OpenSim::Station>(model, model.getGround(), SimTK::Vec3{1.0, 0.0, 0.0});
+    auto& up = add_component<OpenSim::Station>(model, model.getGround(), SimTK::Vec3{0.0, 1.0, 0.0});
     add_component<OpenSim::StationDefinedFrame>(
         model,
         "sdf",
@@ -176,8 +173,7 @@ TEST(ModelSpecification, bake_station_defined_frames_performs_conversion)
         origin,
         left,
         up,
-        origin
-    );
+        origin);
     model.finalizeConnections();
     model.buildSystem();
 
@@ -203,8 +199,7 @@ TEST(ModelSpecification, to_osim_throws_if_specification_contains_in_memory_mesh
     opyn::init();
 
     // Create a model containing an `InMemoryMesh`.
-    const ModelSpecification model_specification = []
-    {
+    const ModelSpecification model_specification = [] {
         OpenSim::Model model;
         auto& in_memory_mesh = add_component<InMemoryMesh>(model);
         in_memory_mesh.setName("some_in_memory_mesh");
@@ -245,8 +240,7 @@ TEST(ModelSpecification, flush_in_memory_resources_to_flushes_in_memory_meshes_t
     // Create a model with some `InMemoryMesh`es.
     const osc::Mesh first_mesh = osc::BoxGeometry{};
     const osc::Mesh second_mesh = osc::SphereGeometry{};
-    ModelSpecification model_specification = [&]
-    {
+    ModelSpecification model_specification = [&] {
         OpenSim::Model model;
 
         auto& body1 = add_body(model, "body1", 1.0, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});

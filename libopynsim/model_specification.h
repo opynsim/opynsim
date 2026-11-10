@@ -7,7 +7,10 @@
 #include <filesystem>
 #include <string>
 
-namespace OpenSim { class Model; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace opyn
 {
@@ -56,6 +59,7 @@ namespace opyn
         /// Flushes all in-memory resources in `*this` to `directory` and updates
         /// the associated components to point to the flushed resources.
         void flush_in_memory_resources_to(const std::filesystem::path& directory);
+
     private:
         class Impl;
         explicit ModelSpecification(osc::CopyOnUpdPtr<Impl>);

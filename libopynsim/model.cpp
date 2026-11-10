@@ -80,18 +80,18 @@ namespace
             if (it == opensim_type_indices_.end()) {
                 throw osc::formatted_runtime_error(
                     "Could not find a suitable output extractor for {}: this is an engine error (it shouldn't have shown you it!)",
-                    output.getName()
-                );
+                    output.getName());
             }
             static_assert(std::tuple_size_v<decltype(opensim_type_indices_)> == std::tuple_size_v<decltype(value_extractors_)>);
             const auto& value_extractor = value_extractors_[std::distance(opensim_type_indices_.begin(), it)];
             return value_extractor(state, output);
         }
+
     private:
         template<typename... Ts>
         static std::array<std::type_index, osc::typelist_size_v<SupportedOutputValueTypes>> output_type_indexes(osc::Typelist<Ts...>)
         {
-            return std::to_array({ std::type_index(typeid(OpenSim::Output<typename OutputTypeMapping<Ts>::OpenSimType>))... });
+            return std::to_array({std::type_index(typeid(OpenSim::Output<typename OutputTypeMapping<Ts>::OpenSimType>))...});
         }
 
         // Helper function that generates a dense LUT that maps the index of an output
@@ -99,10 +99,10 @@ namespace
         template<typename... Ts>
         static std::array<OutputValueExtractor, osc::typelist_size_v<SupportedOutputValueTypes>> output_value_extractors(osc::Typelist<Ts...>)
         {
-            return std::to_array<OutputValueExtractor>({ OutputTypeMapping<Ts>::extract_output_value... });
+            return std::to_array<OutputValueExtractor>({OutputTypeMapping<Ts>::extract_output_value...});
         }
 
-        std::array<std::type_index,      osc::typelist_size_v<SupportedOutputValueTypes>> opensim_type_indices_ = output_type_indexes(SupportedOutputValueTypes{});
+        std::array<std::type_index, osc::typelist_size_v<SupportedOutputValueTypes>> opensim_type_indices_ = output_type_indexes(SupportedOutputValueTypes{});
         std::array<OutputValueExtractor, osc::typelist_size_v<SupportedOutputValueTypes>> value_extractors_ = output_value_extractors(SupportedOutputValueTypes{});
     };
 
@@ -328,22 +328,22 @@ public:
             const size_t num_rows = data_frame.height();
             rv.reserve(num_rows);
             for (size_t row = 0; row < num_rows; ++row) {
-                SimTK::State state{model_.getWorkingState()};                      // Copy "base" state.
+                SimTK::State state{model_.getWorkingState()};  // Copy "base" state.
 
                 if (const auto it = data_frame.find("time"); it != data_frame.end()) {
-                    state.setTime((*it)[row]);                                     // Set state's time (if `data_frame` has it).
+                    state.setTime((*it)[row]);  // Set state's time (if `data_frame` has it).
                 }
-                SimTK::Vector values = model_.getStateVariableValues(state);       // Copy initial state variables
+                SimTK::Vector values = model_.getStateVariableValues(state);  // Copy initial state variables
                 for (const auto& [column_index, sv_index] : column_index_to_sv_index) {
-                    values[sv_index] = data_frame[column_index][row];              // Map `data_frame` values into values vector
+                    values[sv_index] = data_frame[column_index][row];  // Map `data_frame` values into values vector
                 }
-                model_.setStateVariableValues(state, values);                      // Write values vector into the state
+                model_.setStateVariableValues(state, values);  // Write values vector into the state
 
-                //model_.assemble(state);  // TODO
-                //model_.equilibrateMuscles(state);  // TODO
+                // model_.assemble(state);  // TODO
+                // model_.equilibrateMuscles(state);  // TODO
                 model_.getSystem().realize(state, to_simbody_stage(realized_to));  // Realize state to caller-specified stage
 
-                rv.emplace_back(std::move(state));                                 // Append state to return value
+                rv.emplace_back(std::move(state));  // Append state to return value
             }
             return rv;
         }
@@ -449,8 +449,7 @@ public:
             scene_cache,
             model_,
             model_state.simbody_state(),
-            open_sim_decoration_options
-        );
+            open_sim_decoration_options);
     }
 
     const OpenSim::Model& open_sim_model() const { return model_; }

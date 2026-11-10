@@ -116,6 +116,7 @@ TEST(DataFrame, equality_returns_true_for_empty_DataFrame)
 
 TEST(DataFrame, equality_returns_true_if_both_dataframes_contain_same_series)
 {
+    // clang-format off
     const DataFrame lhs{
         {"column1",         "column2"},
         {{5.0, 15.0, 25.0}, {3.0, 6.0, 9.0}}
@@ -124,12 +125,14 @@ TEST(DataFrame, equality_returns_true_if_both_dataframes_contain_same_series)
         {"column1",         "column2"},
         {{5.0, 15.0, 25.0}, {3.0, 6.0, 9.0}}
     };
+    // clang-format on
 
     ASSERT_EQ(lhs, rhs);
 }
 
 TEST(DataFrame, equality_returns_false_if_series_data_differs)
 {
+    // clang-format off
     const DataFrame lhs{
         {"column1",         "column2"},
         {{5.0, 15.0, 25.0}, {3.0,  6.0, 9.0}}
@@ -138,12 +141,14 @@ TEST(DataFrame, equality_returns_false_if_series_data_differs)
         {"column1",         "column2"},
         {{5.0, 15.0, 25.0}, {3.0, -6.0, 9.0}}  // note: a middle value differs
     };
+    // clang-format on
 
     ASSERT_NE(lhs, rhs);
 }
 
 TEST(DataFrame, equality_returns_false_if_series_name_differs)
 {
+    // clang-format off
     const DataFrame lhs{
         {"column1",         "column2"},
         {{5.0, 15.0, 25.0}, {3.0, 6.0, 9.0}}
@@ -152,12 +157,14 @@ TEST(DataFrame, equality_returns_false_if_series_name_differs)
         {"column1",         "columnB"},  // note: second column name differs
         {{5.0, 15.0, 25.0}, {3.0, 6.0, 9.0}}
     };
+    // clang-format on
 
     ASSERT_NE(lhs, rhs);
 }
 
 TEST(DataFrame, equality_returns_true_if_both_dataframes_contain_same_attrs)
 {
+    // clang-format off
     const DataFrame lhs{
         {"column1",         "column2"},
         {{5.0, 15.0, 25.0}, {3.0, 6.0, 9.0}},
@@ -168,12 +175,14 @@ TEST(DataFrame, equality_returns_true_if_both_dataframes_contain_same_attrs)
         {{5.0, 15.0, 25.0}, {3.0, 6.0, 9.0}},
         {{"attr1", "some-metadata"}},
     };
+    // clang-format on
 
     ASSERT_EQ(lhs, rhs);
 }
 
 TEST(DataFrame, equality_returns_false_if_attrs_differ)
 {
+    // clang-format off
     const DataFrame lhs{
         {"column1",         "column2"},
         {{5.0, 15.0, 25.0}, {3.0, 6.0, 9.0}},
@@ -190,6 +199,7 @@ TEST(DataFrame, equality_returns_false_if_attrs_differ)
 
 TEST(DataFrame, equality_returns_false_bytewise_identical_but_nans)
 {
+    // clang-format off
     const DataFrame lhs{
         {"column1",         "column2"},
         {{5.0, 15.0, 25.0}, {std::numeric_limits<double>::quiet_NaN(), 6.0, 9.0}},
@@ -200,6 +210,7 @@ TEST(DataFrame, equality_returns_false_bytewise_identical_but_nans)
         {{5.0, 15.0, 25.0}, {std::numeric_limits<double>::quiet_NaN(), 6.0, 9.0}},  // uh oh: identical, but irreflexive!
         {{"attr1", "some-metadata"}},
     };
+    // clang-format on
 
     ASSERT_NE(lhs, rhs);
 }
@@ -234,9 +245,9 @@ TEST(DataFrame, with_series_works_with_appending_empty_series_to_DataFrame_with_
 TEST(DataFrame, with_series_throws_if_passed_series_with_different_size_to_existing_DataFrame)
 {
     const DataFrame df{{"column1"}, {{1.0, 2.0}}};
-    ASSERT_ANY_THROW({ df.with_series({"column2", {}});              }) << "Should be disallowed: appended column is shorter";
-    ASSERT_ANY_THROW({ df.with_series({"column2", {2.0}});           }) << "Should be disallowed: appended column is shorter";
-    ASSERT_NO_THROW ({ df.with_series({"column2", {2.0, 4.0}});      }) << "OK: correct length";
+    ASSERT_ANY_THROW({ df.with_series({"column2", {}}); }) << "Should be disallowed: appended column is shorter";
+    ASSERT_ANY_THROW({ df.with_series({"column2", {2.0}}); }) << "Should be disallowed: appended column is shorter";
+    ASSERT_NO_THROW({ df.with_series({"column2", {2.0, 4.0}}); }) << "OK: correct length";
     ASSERT_ANY_THROW({ df.with_series({"column2", {2.0, 4.0, 6.0}}); }) << "Should be disallowed: appended column is longer";
 }
 
@@ -248,11 +259,13 @@ TEST(DataFrame, with_series_erases_attributes)
     // or filter/change it.
     const DataFrame df{{"column1"}, {{1.0, 2.0}}, {{"metadata", "value"}}};
     const DataFrame got = df.with_series({"column2", {2.0, 4.0}});
+    // clang-format off
     const DataFrame expected{
         {"column1",  "column2"},
         {{1.0, 2.0}, {2.0, 4.0}},
         {},                        // no attributes
     };
+    // clang-format on
 
     ASSERT_EQ(got, expected);
 }
@@ -284,7 +297,7 @@ TEST(DataFrame, get_attr_returns_expected_results)
     ASSERT_EQ(df.get_attr("key1"), "value1");
     ASSERT_EQ(df.get_attr("key2"), "value2");
     ASSERT_EQ(df.get_attr("key3"), std::nullopt);
-    ASSERT_EQ(df.get_attr(""),     std::nullopt);
+    ASSERT_EQ(df.get_attr(""), std::nullopt);
 }
 
 TEST(DataFrame, series_constructor_works_with_correct_inputs)
@@ -305,7 +318,8 @@ TEST(DataFrame, series_constructor_throws_if_given_differently_sized_series)
             Series{"col2", {1.0, 2.0, 3.0, 4.0}},
         }};
         FAIL() << "Should throw an exception when given differently-sized series";
-    } catch (const std::exception&) {}  // NOLINT(bugprone-empty-catch)
+    } catch (const std::exception&) {
+    }  // NOLINT(bugprone-empty-catch)
 }
 
 TEST(DataFrame, series_constructor_assigns_attributes)

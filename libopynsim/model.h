@@ -16,12 +16,20 @@
 #include <unordered_set>
 #include <vector>
 
-namespace osc { class SceneCache; }
-namespace OpenSim { class Model; }
-namespace opyn { class DataFrame; }
+namespace osc
+{
+    class SceneCache;
+}
+
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace opyn
 {
+    class DataFrame;
+
     /// Represents a readonly multibody physics system compiled
     /// from a `ModelSpecification`.
     class Model final {
@@ -75,8 +83,7 @@ namespace opyn
         /// as-if by calling `this->realize(returned_states[i], realized_to)`.
         ModelStates states_from_data_frame(
             const DataFrame& data_frame,
-            ModelStateStage realized_to = ModelStateStage::instance
-        ) const;
+            ModelStateStage realized_to = ModelStateStage::instance) const;
 
         /// Realizes `model_state` to the given `model_state_stage`.
         void realize(ModelState& model_state, ModelStateStage model_state_stage) const;
@@ -121,11 +128,11 @@ namespace opyn
         std::vector<osc::SceneDecoration> decorations(
             osc::SceneCache&,
             const ModelState& model_state,
-            const OpenSimDecorationOptions& = {}
-        ) const;
+            const OpenSimDecorationOptions& = {}) const;
 
         /// Returns the underlying `OpenSim::Model` (internal method: be careful with this).
         const OpenSim::Model& open_sim_model() const;
+
     private:
         class Impl;
         osc::CopyOnUpdPtr<Impl> impl_;

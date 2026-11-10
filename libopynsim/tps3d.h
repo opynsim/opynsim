@@ -165,24 +165,21 @@ namespace opyn
     TPSCoefficients3D<double> tps3d_solve_coefficients(
         cpp23::mdspan<const double, cpp23::extents<size_t, std::dynamic_extent, 3>, cpp23::layout_stride> source_landmarks,
         cpp23::mdspan<const double, cpp23::extents<size_t, std::dynamic_extent, 3>, cpp23::layout_stride> destination_landmarks,
-        double warping_penalty = 0.0
-    );
+        double warping_penalty = 0.0);
 
     // Returns a warped point computed by evaluating a 3D Thin-Plate Spline (TPS)
     // warping equation with `p`, which should be a point in the source coordinate
     // system.
-    SimTK::Vec<3, float>  tps3d_warp_point(
+    SimTK::Vec<3, float> tps3d_warp_point(
         const TPSCoefficients3D<float>&,
-        const SimTK::Vec<3, float>& p
-    );
+        const SimTK::Vec<3, float>& p);
 
     // Returns a warped point computed by evaluating a 3D Thin-Plate Spline (TPS)
     // warping equation with `p`, which should be a point in the source coordinate
     // system.
     SimTK::Vec<3, double> tps3d_warp_point(
         const TPSCoefficients3D<double>&,
-        const SimTK::Vec<3, double>&
-    );
+        const SimTK::Vec<3, double>&);
 
     // Returns a point that is linearly interpolated between `p` and a warped point
     // computed by evaluating a 3D Thin-Plate Spline (TPS) warping equation with `p`
@@ -196,26 +193,22 @@ namespace opyn
     SimTK::Vec<3, float> tps3d_warp_point(
         const TPSCoefficients3D<float>&,
         const SimTK::Vec<3, float>& p,
-        float linear_interpolant
-    );
+        float linear_interpolant);
 
     // returns points that are the equivalent of applying the 3D TPS warp to each input point
     std::vector<SimTK::Vec<3, float>> tps3d_warp_points(
         const TPSCoefficients3D<float>&,
         std::span<const SimTK::Vec<3, float>>,
-        float linear_interpolant
-    );
+        float linear_interpolant);
 
     // applies the 3D TPS warp in-place to each SimTK::Vec3 in the provided span
     void tps3d_warp_points_in_place(
         const TPSCoefficients3D<float>&,
         std::span<SimTK::Vec<3, float>>,
-        float linear_interpolant
-    );
+        float linear_interpolant);
 
     osc::Mesh tps3d_warp_mesh(
         TPSCoefficients3D<float>&,
         const osc::Mesh&,
-        float linear_interpolant
-    );
+        float linear_interpolant);
 }

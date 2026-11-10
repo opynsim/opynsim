@@ -54,7 +54,10 @@ namespace opyn
         std::vector<shared_handle> to_handle_list() const { return states_; }
 
         /// Returns a view of references to each `ModelState` in `*this`.
-        auto reference_view() const { return states_ | std::views::transform([](const auto& handle) -> const_reference { return *handle; }); }
+        auto reference_view() const
+        {
+            return states_ | std::views::transform([](const auto& handle) -> const_reference { return *handle; });
+        }
 
     private:
         std::vector<shared_handle> states_;

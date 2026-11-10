@@ -83,7 +83,7 @@ namespace
     bool equal_within_absdiff(const SimTK::Vec3& lhs, const SimTK::Vec3& rhs, double absdiff)
     {
         for (int i = 0; i < SimTK::Vec3::size(); ++i) {
-            if (not (std::abs(lhs[i] - rhs[i]) <= absdiff)) {
+            if (not(std::abs(lhs[i] - rhs[i]) <= absdiff)) {
                 return false;
             }
         }
@@ -151,9 +151,9 @@ TEST(tps3d, solving_coefficients_on_identical_points_produces_an_identity_warp)
     const TPSCoefficients3D<double> coefficients = tps3d_solve_coefficients(inputs);
 
     for (size_t i = 0; i < inputs.landmarks.size(); ++i) {
-        const auto input_point = generate_ith_fibonnaci_sphere_point(i + inputs.landmarks.size(), 2*inputs.landmarks.size());
+        const auto input_point = generate_ith_fibonnaci_sphere_point(i + inputs.landmarks.size(), 2 * inputs.landmarks.size());
         const auto output_point = opyn::tps3d_warp_point(coefficients, input_point);
-        ASSERT_TRUE(equal_within_absdiff(input_point, output_point, 10.0*std::numeric_limits<double>::epsilon()));
+        ASSERT_TRUE(equal_within_absdiff(input_point, output_point, 10.0 * std::numeric_limits<double>::epsilon()));
     }
 }
 
@@ -165,9 +165,9 @@ TEST(tps3d, solving_coefficients_on_sphere_to_cube_warp_can_warp_within_reasonab
     double sse = 0.0;  // Sum of Squared Errors (SSE)
     double sst = 0.0;  // Total sum of squares (SST, relative to origin center)
     for (size_t i = 0; i < inputs.landmarks.size(); ++i) {
-        const auto input         = generate_ith_fibonnaci_sphere_point(i + inputs.landmarks.size(), 2*inputs.landmarks.size());
-        const auto output        = tps3d_warp_point(coefficients, input);
-        const auto ideal_output  = project_onto_cube_surface(input).value();
+        const auto input = generate_ith_fibonnaci_sphere_point(i + inputs.landmarks.size(), 2 * inputs.landmarks.size());
+        const auto output = tps3d_warp_point(coefficients, input);
+        const auto ideal_output = project_onto_cube_surface(input).value();
         sse += (output - ideal_output).normSqr();
         sst += ideal_output.normSqr();  // i.e. "the dumb model's error if it just guessed (0,0,0) every time"
     }
@@ -194,7 +194,7 @@ TEST(tps3d, adjusting_warping_penalty_reduces_point_r2_but_increases_affine_tran
     const SimbodyAffineTransform actual_transform{
         .scale = {1.5, 0.2, 1.4},
         .transform = {
-            SimTK::Rotation{33.0*osc::deg_to_rad_v<double>, SimTK::CoordinateAxis::XCoordinateAxis{}},
+            SimTK::Rotation{33.0 * osc::deg_to_rad_v<double>, SimTK::CoordinateAxis::XCoordinateAxis{}},
             SimTK::Vec3{-0.5, 0.3, 0.33},
         },
     };
@@ -237,9 +237,8 @@ TEST(tps3d, setting_warping_penalty_very_high_effectively_yields_an_affine_trans
     const SimbodyAffineTransform actual_transform{
         .scale = {0.7, 1.1, 0.85},
         .transform = {
-            SimTK::Rotation{45.0*osc::deg_to_rad_v<double>, SimTK::CoordinateAxis::YCoordinateAxis{}},
-            SimTK::Vec3{-5.5, 3.3, 2.33}
-        },
+            SimTK::Rotation{45.0 * osc::deg_to_rad_v<double>, SimTK::CoordinateAxis::YCoordinateAxis{}},
+            SimTK::Vec3{-5.5, 3.3, 2.33}},
     };
 
     // Generate point pairs and apply the affine transform to destination.
