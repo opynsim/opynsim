@@ -20,12 +20,12 @@ namespace opyn
 
     // A compile-time typelist of all possible `DataPointType`s.
     using DataPointTypeList = osc::OptionList<
-            DataPointType,
-            DataPointType::Point,
-            DataPointType::ForcePoint,
-            DataPointType::BodyForce,
-            DataPointType::Orientation,
-            DataPointType::Unknown>;
+        DataPointType,
+        DataPointType::Point,
+        DataPointType::ForcePoint,
+        DataPointType::BodyForce,
+        DataPointType::Orientation,
+        DataPointType::Unknown>;
 
     // Compile-time traits associated with a `DataPointType`.
     template<DataPointType>

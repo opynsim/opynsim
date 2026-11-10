@@ -4,7 +4,10 @@
 
 #include <optional>
 
-namespace SimTK { class State; }
+namespace SimTK
+{
+    class State;
+}
 
 namespace opyn
 {
@@ -12,6 +15,7 @@ namespace opyn
     class StateViewWithMetadata {
     public:
         virtual ~StateViewWithMetadata() noexcept = default;
+
     protected:
         StateViewWithMetadata() = default;
         StateViewWithMetadata(const StateViewWithMetadata&) = default;

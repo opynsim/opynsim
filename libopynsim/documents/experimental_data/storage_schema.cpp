@@ -28,7 +28,7 @@ namespace
             (sizeof...(ColumnHeaderStrings) == num_elements_in(DataType)) and
             (std::constructible_from<osc::CStringView, ColumnHeaderStrings> && ...)
 
-            static DataSeriesPattern for_datatype(ColumnHeaderStrings&&... header_suffixes)
+        static DataSeriesPattern for_datatype(ColumnHeaderStrings&&... header_suffixes)
         {
             return DataSeriesPattern{DataType, std::initializer_list<osc::CStringView>{osc::CStringView{std::forward<ColumnHeaderStrings>(header_suffixes)}...}};  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
         }

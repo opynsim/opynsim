@@ -50,10 +50,9 @@ namespace opyn
         }
 
         template<typename T, std::ranges::forward_range R>
-        requires (
-            std::constructible_from<T, osc::Variant&&> and
-            std::convertible_to<std::ranges::range_value_t<R>, const StateViewWithMetadata&>
-        )
+        requires(
+            std::constructible_from<T, osc::Variant &&> and
+            std::convertible_to<std::ranges::range_value_t<R>, const StateViewWithMetadata&>)
         void values(
             const OpenSim::Component& component,
             const R& states,
@@ -63,10 +62,9 @@ namespace opyn
         }
 
         template<typename T, std::ranges::forward_range R>
-        requires (
-            std::constructible_from<T, osc::Variant&&> and
-            std::convertible_to<std::ranges::range_value_t<R>, const StateViewWithMetadata&>
-        )
+        requires(
+            std::constructible_from<T, osc::Variant &&> and
+            std::convertible_to<std::ranges::range_value_t<R>, const StateViewWithMetadata&>)
         std::vector<T> slurp_values(const OpenSim::Component& component, const R& states) const
         {
             return output_->slurp_values<T>(component, states);

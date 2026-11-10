@@ -105,7 +105,8 @@ void opyn::read_landmarks_from_csv(
             osc::Overload{
                 [&landmark_consumer](Landmark&& lm) { landmark_consumer(std::move(lm)); },
                 [&warning_consumer](CSVParseWarning&& warning) { warning_consumer(std::move(warning)); },
-                [](SkipRow) {}},
+                [](SkipRow) {
+                }},
             parse_row(line, cols));
     }
 }
