@@ -26,14 +26,14 @@ namespace
     {
         static_assert(osc::num_options_v<IntegratorMethod> == 7);
         switch (method) {
-        case IntegratorMethod::RungeKuttaMerson:   return std::make_unique<SimTK::RungeKuttaMersonIntegrator>(system);
-        case IntegratorMethod::ExplicitEuler:      return std::make_unique<SimTK::ExplicitEulerIntegrator>(system);
-        case IntegratorMethod::RungeKutta2:        return std::make_unique<SimTK::RungeKutta2Integrator>(system);
-        case IntegratorMethod::RungeKutta3:        return std::make_unique<SimTK::RungeKutta3Integrator>(system);
+        case IntegratorMethod::RungeKuttaMerson: return std::make_unique<SimTK::RungeKuttaMersonIntegrator>(system);
+        case IntegratorMethod::ExplicitEuler: return std::make_unique<SimTK::ExplicitEulerIntegrator>(system);
+        case IntegratorMethod::RungeKutta2: return std::make_unique<SimTK::RungeKutta2Integrator>(system);
+        case IntegratorMethod::RungeKutta3: return std::make_unique<SimTK::RungeKutta3Integrator>(system);
         case IntegratorMethod::RungeKuttaFeldberg: return std::make_unique<SimTK::RungeKuttaFeldbergIntegrator>(system);
         case IntegratorMethod::SemiExplicitEuler2: return std::make_unique<SimTK::SemiExplicitEuler2Integrator>(system);
-        case IntegratorMethod::Verlet:             return std::make_unique<SimTK::VerletIntegrator>(system);
-        default:                                   std::unreachable();
+        case IntegratorMethod::Verlet: return std::make_unique<SimTK::VerletIntegrator>(system);
+        default: std::unreachable();
         }
     }
 

@@ -23,8 +23,7 @@ namespace opyn
         explicit ForwardDynamicsSolver(
             Model model,
             std::optional<ModelState> model_state = std::nullopt,
-            const std::optional<IntegratorSettings>& = std::nullopt
-        );
+            const std::optional<IntegratorSettings>& = std::nullopt);
         ForwardDynamicsSolver(const ForwardDynamicsSolver&) = delete;
         ForwardDynamicsSolver(ForwardDynamicsSolver&&) noexcept;
         ~ForwardDynamicsSolver() noexcept;
@@ -37,6 +36,7 @@ namespace opyn
         /// Solves the forward dynamics of the managed `ModelState` to `time`
         /// and returns a copy of it realized to at least `realized_to`.
         ModelState integrate_to(double time, ModelStateStage realized_to = ModelStateStage::report);
+
     private:
         class Impl;
         std::unique_ptr<Impl> impl_;

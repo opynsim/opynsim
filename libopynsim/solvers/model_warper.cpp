@@ -36,9 +36,10 @@ namespace
             model_{std::move(model)},
             model_state_{std::move(model_state)}
         {}
+
     private:
         const OpenSim::Model& impl_get_model() const override { return model_.open_sim_model(); }
-        const SimTK::State& impl_get_state()   const override { return model_state_.simbody_state(); }
+        const SimTK::State& impl_get_state() const override { return model_state_.simbody_state(); }
 
         Model model_;
         ModelState model_state_;
@@ -48,7 +49,8 @@ namespace
 class opyn::ModelWarper::Impl {
 public:
     Impl() = default;
-    explicit Impl(const std::filesystem::path& source) : warping_document_{source} {}
+    explicit Impl(const std::filesystem::path& source) :
+        warping_document_{source} {}
 
     size_t num_scaling_steps() const { return warping_document_.get_num_scaling_steps(); }
     size_t num_scaling_parameters() const { return warping_document_.get_num_scaling_parameters(); }
@@ -69,6 +71,7 @@ public:
         // Perform OpenSim model warp and pack it into a `ModelSpecification`.
         return ModelSpecification{warp_model(scaling_cache, msp)};
     }
+
 private:
     /// Returns a warped version of `source_model` - assumes there are no validation issues.
     OpenSim::Model warp_model(ScalingCache& scaling_cache, const ModelStatePair& msp) const
@@ -103,8 +106,7 @@ private:
                 std::back_inserter(rv),
                 "- {} ({})",
                 validation_message.payload.get_message(),
-                validation_message.source_scaling_step_abs_path.toString()
-            );
+                validation_message.source_scaling_step_abs_path.toString());
         }
         return rv;
     }
@@ -160,7 +162,7 @@ opyn::ModelWarper::ModelWarper(osc::CopyOnUpdSharedValue<Impl> impl) :
     impl_{std::move(impl)}
 {}
 
-size_t opyn::ModelWarper::num_scaling_steps() const      { return impl_->num_scaling_steps(); }
+size_t opyn::ModelWarper::num_scaling_steps() const { return impl_->num_scaling_steps(); }
 size_t opyn::ModelWarper::num_scaling_parameters() const { return impl_->num_scaling_parameters(); }
 ModelSpecification opyn::ModelWarper::warp(const ModelSpecification& model_specification) const
 {

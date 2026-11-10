@@ -26,12 +26,12 @@ TEST(ForwardDynamicsSolver, works_for_basic_pendulum_example)
     ForwardDynamicsSolver solver{pendulum, state};
     std::vector<ModelState> states;
     for (size_t i = 0; i < num_samples; ++i) {
-        states.push_back(solver.integrate_to(static_cast<double>(i)*step_size, ModelStateStage::dynamics));
+        states.push_back(solver.integrate_to(static_cast<double>(i) * step_size, ModelStateStage::dynamics));
     }
 
     // Ensure each state has the correct time and realization level.
     for (size_t i = 0; i < num_samples; ++i) {
-        ASSERT_EQ(states.at(i).time(), static_cast<double>(i)*step_size);
+        ASSERT_EQ(states.at(i).time(), static_cast<double>(i) * step_size);
         ASSERT_GE(states.at(i).stage(), ModelStateStage::dynamics);
     }
 }
