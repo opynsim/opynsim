@@ -68,15 +68,42 @@ void main()
 }
 )";
 
-    const StringName& light_pos_propname() { static const StringName s_light_pos_propname{"uLightPos"}; return s_light_pos_propname; }
-    const StringName& view_pos_propname() { static const StringName s_view_pos_propname{"uViewPos"}; return s_view_pos_propname; }
-    const StringName& light_color_propname() { static const StringName s_light_color_propname{"uLightColor"}; return s_light_color_propname; }
-    const StringName& ambient_color_propname() { static const StringName s_ambient_color_propname{"uAmbientColor"}; return s_ambient_color_propname; }
-    const StringName& diffuse_color_propname() { static const StringName s_diffuse_color_propname{"uDiffuseColor"}; return s_diffuse_color_propname; }
-    const StringName& specular_color_propname() { static const StringName s_specular_color_propname{"uSpecularColor"}; return s_specular_color_propname; }
-    const StringName& shininess_propname() { static const StringName s_shininess_propname{"uShininess"}; return s_shininess_propname; }
+    const StringName& light_pos_propname()
+    {
+        static const StringName s_light_pos_propname{"uLightPos"};
+        return s_light_pos_propname;
+    }
+    const StringName& view_pos_propname()
+    {
+        static const StringName s_view_pos_propname{"uViewPos"};
+        return s_view_pos_propname;
+    }
+    const StringName& light_color_propname()
+    {
+        static const StringName s_light_color_propname{"uLightColor"};
+        return s_light_color_propname;
+    }
+    const StringName& ambient_color_propname()
+    {
+        static const StringName s_ambient_color_propname{"uAmbientColor"};
+        return s_ambient_color_propname;
+    }
+    const StringName& diffuse_color_propname()
+    {
+        static const StringName s_diffuse_color_propname{"uDiffuseColor"};
+        return s_diffuse_color_propname;
+    }
+    const StringName& specular_color_propname()
+    {
+        static const StringName s_specular_color_propname{"uSpecularColor"};
+        return s_specular_color_propname;
+    }
+    const StringName& shininess_propname()
+    {
+        static const StringName s_shininess_propname{"uShininess"};
+        return s_shininess_propname;
+    }
 }
-
 
 osc::MeshPhongMaterial::MeshPhongMaterial(const Params& p) :
     Material{Shader{c_vertex_shader_src, c_fragment_shader_src}}
