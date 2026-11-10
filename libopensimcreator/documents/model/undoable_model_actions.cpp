@@ -107,7 +107,7 @@ namespace
             },
             get_model_file_filters(),
             std::nullopt,  // initial directory
-            true  // allow many
+            true           // allow many
         );
     }
 
@@ -122,14 +122,11 @@ namespace
 
     bool try_save_model(const OpenSim::Model& model, const std::string& save_loc)
     {
-        try
-        {
+        try {
             model.print(save_loc);
             log_info("saved model to {}", save_loc);
             return true;
-        }
-        catch (const OpenSim::Exception& ex)
-        {
+        } catch (const OpenSim::Exception& ex) {
             log_error("error saving model: {}", ex.what());
             return false;
         }
@@ -150,13 +147,10 @@ namespace
         std::unique_ptr<OpenSim::Joint> copy = clone(joint_prototype);
         copy->setName(details.joint_name);
 
-        if (!details.add_offset_frames)
-        {
+        if (not details.add_offset_frames) {
             copy->connectSocket_parent_frame(selected_pf);
             copy->connectSocket_child_frame(b);
-        }
-        else
-        {
+        } else {
             // add first offset frame as joint's parent
             {
                 auto pof1 = std::make_unique<OpenSim::PhysicalOffsetFrame>();
@@ -189,14 +183,12 @@ namespace
         const SimTK::State& state)
     {
         const auto* const new_frame = dynamic_cast<const OpenSim::Frame*>(&new_connectee);
-        if (!new_frame)
-        {
+        if (not new_frame) {
             return false;  // new connectee isn't a frame
         }
 
         const auto spatial_rep = try_get_spatial_representation(component, state);
-        if (!spatial_rep)
-        {
+        if (not spatial_rep) {
             return false;  // cannot represent the component spatially
         }
 
@@ -204,18 +196,15 @@ namespace
         const SimTK::Transform ground_to_new_connectee = new_frame->getTransformInGround(state).invert();
         const SimTK::Transform current_parent_to_new_connectee = ground_to_new_connectee * current_parent_to_ground;
 
-        if (auto* positional_prop = find_simple_property_mut<SimTK::Vec3>(component, spatial_rep->location_vec3_property_name))
-        {
+        if (auto* positional_prop = find_simple_property_mut<SimTK::Vec3>(component, spatial_rep->location_vec3_property_name)) {
             const SimTK::Vec3 old_position = positional_prop->getValue();
             const SimTK::Vec3 new_position = current_parent_to_new_connectee * old_position;
 
             positional_prop->setValue(new_position);  // update property with new position
         }
 
-        if (spatial_rep->maybe_orientation_vec3_eulers_property_name)
-        {
-            if (auto* orientational_prop = find_simple_property_mut<SimTK::Vec3>(component, *spatial_rep->maybe_orientation_vec3_eulers_property_name))
-            {
+        if (spatial_rep->maybe_orientation_vec3_eulers_property_name) {
+            if (auto* orientational_prop = find_simple_property_mut<SimTK::Vec3>(component, *spatial_rep->maybe_orientation_vec3_eulers_property_name)) {
                 const SimTK::Rotation current_rotation_in_ground = spatial_rep->parent_to_ground.R();
                 const SimTK::Rotation ground_to_new_connectee_rotation = new_frame->getRotationInGround(state).invert();
                 const SimTK::Rotation current_parent_rotation_to_new_connectee_rotation = ground_to_new_connectee_rotation * current_rotation_in_ground;
@@ -243,27 +232,29 @@ namespace
 
 void osc::action_save_current_model_as(const std::shared_ptr<ModelStatePair>& uim)
 {
-    App::upd().prompt_user_to_save_file_with_extension_async([uim](std::optional<std::filesystem::path> p)
-    {
-        if (not p) {
-            return;  // user cancelled out of the prompt
-        }
+    App::upd().prompt_user_to_save_file_with_extension_async(
+        [uim](std::optional<std::filesystem::path> p)
+        {
+            if (not p) {
+                return;  // user cancelled out of the prompt
+            }
 
-        if (not try_save_model(uim->get_model(), p->string())) {
-            return;  // error saving the model file
-        }
+            if (not try_save_model(uim->get_model(), p->string())) {
+                return;  // error saving the model file
+            }
 
-        const std::string old_path = uim->get_model().getInputFileName();
+            const std::string old_path = uim->get_model().getInputFileName();
 
-        uim->upd_model().setInputFileName(p->string());
+            uim->upd_model().setInputFileName(p->string());
 
-        if (p != old_path) {
-            uim->commit("changed osim path");
-        }
-        uim->set_up_to_date_with_filesystem(std::filesystem::last_write_time(*p));
+            if (p != old_path) {
+                uim->commit("changed osim path");
+            }
+            uim->set_up_to_date_with_filesystem(std::filesystem::last_write_time(*p));
 
-        App::singleton<RecentFiles>()->push_back(*p);
-    }, "osim");
+            App::singleton<RecentFiles>()->push_back(*p);
+        },
+        "osim");
 }
 
 void osc::action_new_model(Widget& parent)
@@ -320,12 +311,10 @@ void osc::action_save_model_async(
         // we can save over this document - *IF* it's not an example file
         if (is_an_example_file(backing_path)) {
             App::upd().prompt_user_to_save_file_with_extension_async(std::move(handle_file), "osim");
-        }
-        else {
+        } else {
             handle_file(backing_path);
         }
-    }
-    else {
+    } else {
         // the model has no associated file, so prompt the user for a save
         // location
         App::upd().prompt_user_to_save_file_with_extension_async(std::move(handle_file), "osim");
@@ -364,12 +353,10 @@ void osc::action_try_delete_selection_from_edited_model(ModelStatePair& uim)
             std::stringstream ss;
             ss << "deleted " << selected_component_name;
             uim.commit(std::move(ss).str());
-        }
-        catch (const std::exception&) {
+        } catch (const std::exception&) {
             std::throw_with_nested(std::runtime_error{"error detected while deleting a component"});
         }
-    }
-    else {
+    } else {
         uim.set_model_version(old_version);
     }
 }
@@ -386,8 +373,7 @@ void osc::action_disable_all_wrapping_surfaces(ModelStatePair& model)
         initialize_model(mut_model);
         initialize_state(mut_model);
         model.commit("disabled all wrapping surfaces");
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while disabling wrapping surfaces"});
     }
 }
@@ -404,8 +390,7 @@ void osc::action_enable_all_wrapping_surfaces(ModelStatePair& model)
         initialize_model(mut_model);
         initialize_state(mut_model);
         model.commit("enabled all wrapping surfaces");
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while enabling wrapping surfaces"});
     }
 }
@@ -424,14 +409,12 @@ bool osc::action_load_sto_file_against_model(
             std::move(model_copy),
             sto_path,
             uim.get_fixup_scale_factor(),
-            uim.try_upd_environment()
-        });
+            uim.try_upd_environment()});
         auto tab = std::make_unique<SimulationTab>(&parent, simulation);
         App::post_event<OpenTabEvent>(parent, std::move(tab));
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to load an STO file against the model"});
         return false;
     }
@@ -486,8 +469,7 @@ bool osc::action_update_model_from_backing_file(UndoableModelStatePair& uim)
         uim.set_up_to_date_with_filesystem(last_save_time);
 
         return true;
-    }
-    catch (const std::exception& ex) {
+    } catch (const std::exception& ex) {
         log_error("error detected while trying to automatically load a model file: {}", ex.what());
         uim.rollback();
         return false;
@@ -513,8 +495,7 @@ bool osc::action_autoscale_scene_scale_factor(ModelStatePair& uim)
         *App::singleton<SceneCache>(App::resource_loader()),
         uim.get_model(),
         uim.get_state(),
-        OpenSimDecorationOptions{}
-    );
+        OpenSimDecorationOptions{});
     uim.set_fixup_scale_factor(sf);
     return true;
 }
@@ -533,8 +514,7 @@ bool osc::action_toggle_frames(ModelStatePair& uim)
         uim.commit(new_state ? "shown frames" : "hidden frames");
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to toggle frames"});
         return false;
     }
@@ -554,8 +534,7 @@ bool osc::action_toggle_markers(ModelStatePair& uim)
         uim.commit(new_state ? "shown markers" : "hidden markers");
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to toggle markers"});
         return false;
     }
@@ -575,8 +554,7 @@ bool osc::action_toggle_contact_geometry(ModelStatePair& uim)
         uim.commit(new_state ? "shown contact geometry" : "hidden contact geometry");
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to toggle contact geometry"});
         return false;
     }
@@ -596,8 +574,7 @@ bool osc::action_toggle_forces(ModelStatePair& uim)
         uim.commit(new_state ? "shown forces" : "hidden forces");
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to toggle forces"});
         return false;
     }
@@ -617,8 +594,7 @@ bool osc::action_toggle_wrap_geometry(ModelStatePair& uim)
         uim.commit(new_state ? "shown wrap geometry" : "hidden wrap geometry");
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to toggle wrap geometry"});
         return false;
     }
@@ -670,8 +646,7 @@ bool osc::action_reload_osim_from_disk(UndoableModelStatePair& uim, SceneCache& 
         mesh_cache.clear_meshes();
 
         return true;
-    }
-    catch (const std::exception& ex) {
+    } catch (const std::exception& ex) {
         log_error("error detected while trying to reload a model file: {}", ex.what());
         uim.rollback();
         return false;
@@ -715,8 +690,7 @@ bool osc::action_add_offset_frame_to_physical_frame(
         uim.commit("added " + new_pof_name);
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a frame to " + path.toString()});
         return false;
     }
@@ -803,8 +777,7 @@ bool osc::action_rezero_joint(
         uim.commit("rezeroed " + joint_name);
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to rezero a joint"});
         return false;
     }
@@ -831,8 +804,7 @@ bool osc::action_add_parent_offset_frame_to_joint(
         OpenSim::Model& mut_model = uim.upd_model();
 
         auto* const mut_joint = find_component_mut<OpenSim::Joint>(mut_model, joint_path);
-        if (!mut_joint)
-        {
+        if (not mut_joint) {
             uim.set_model_version(old_version);
             return false;
         }
@@ -847,8 +819,7 @@ bool osc::action_add_parent_offset_frame_to_joint(
         uim.commit("added " + joint_name);
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a parent offset frame"});
         return false;
     }
@@ -890,8 +861,7 @@ bool osc::action_add_child_offset_frame_to_joint(
         uim.commit("added " + joint_name);
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a child offset frame"});
         return false;
     }
@@ -937,8 +907,7 @@ bool osc::action_set_component_name(
         uim.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to set a component's name"});
         return false;
     }
@@ -1010,8 +979,7 @@ bool osc::action_change_joint_type_to(
         uim.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to change a joint's type"});
         return false;
     }
@@ -1053,8 +1021,7 @@ bool osc::action_attach_geometry_to_physical_frame(
         uim.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to attach geometry to the a physical frame"});
         return false;
     }
@@ -1101,8 +1068,7 @@ bool osc::action_assign_contact_geometry_to_hcf(
         uim.commit("added contact geometry");
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to assign contact geometry to a HCF"});
         return false;
     }
@@ -1144,8 +1110,7 @@ bool osc::action_apply_property_edit(ModelStatePair& uim, ObjectPropertyEdit& re
         uim.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to apply a property edit"});
         return false;
     }
@@ -1205,8 +1170,7 @@ bool osc::action_add_path_point_to_geometry_path(
         uim.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a path point to a geometry path"});
         return false;
     }
@@ -1264,7 +1228,7 @@ bool osc::action_add_path_point_to_path_actuator(
             if (const auto* gp_after_finalization = dynamic_cast<const OpenSim::GeometryPath*>(&pa_after_finalization->getPath())) {
                 const auto& pps = gp_after_finalization->getPathPointSet();
                 if (not empty(pps)) {
-                    uim.set_selected(&opyn::at(pps, ssize(pps) -1));
+                    uim.set_selected(&opyn::at(pps, ssize(pps) - 1));
                 }
             }
         }
@@ -1274,8 +1238,7 @@ bool osc::action_add_path_point_to_path_actuator(
         uim.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a path point to a path actuator"});
         return false;
     }
@@ -1340,8 +1303,7 @@ bool osc::action_reassign_component_socket(
         uim.commit("reassigned socket");
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to reassign a socket"});
         return false;
     }
@@ -1394,8 +1356,7 @@ bool osc::action_add_body_to_model(ModelStatePair& uim, const BodyDetails& detai
         uim.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a body to the model"});
         return false;
     }
@@ -1445,8 +1406,7 @@ bool osc::action_add_component_to_model(
         model.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a component to the model"});
         return false;
     }
@@ -1483,8 +1443,7 @@ bool osc::action_add_wrap_object_to_physical_frame(
         model.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a wrap object to the model"});
         return false;
     }
@@ -1515,8 +1474,7 @@ bool osc::action_add_wrap_object_to_geometry_path_wraps(
 
         model.commit(std::move(msg).str());
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a wrap object to a geometry path"});
         return false;
     }
@@ -1562,8 +1520,7 @@ bool osc::action_remove_wrap_object_from_geometry_path_wraps(
 
         model.commit(std::move(msg).str());
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a wrap object to a geometry path"});
         return false;
     }
@@ -1586,8 +1543,7 @@ bool osc::action_zero_all_coordinates(ModelStatePair& model)
         initialize_state(mut_model);
         model.commit("zeroed all coordinates");
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while zeroing all coordinates in the model"});
         return false;
     }
@@ -1622,8 +1578,7 @@ bool osc::action_set_coordinate_speed(
         mut_model.realizeDynamics(mut_model.updWorkingState());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to set a coordinate's speed"});
         return false;
     }
@@ -1648,8 +1603,7 @@ bool osc::action_set_coordinate_speed_and_save(
         model.commit(std::move(ss).str());
 
         return true;
-    }
-    else {
+    } else {
         return false;  // the edit wasn't made
     }
 }
@@ -1685,8 +1639,7 @@ bool osc::action_set_coordinate_locked_and_save(
         model.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to lock a coordinate"});
         return false;
     }
@@ -1730,8 +1683,7 @@ bool osc::action_set_coordinate_value(
         initialize_state(mut_model);
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to set a coordinate's value"});
         return false;
     }
@@ -1769,8 +1721,7 @@ bool osc::action_set_coordinate_value_and_save(
         model.commit(std::move(ss).str());
 
         return true;
-    }
-    else {
+    } else {
         return false;  // an edit wasn't made
     }
 }
@@ -1808,8 +1759,7 @@ bool osc::action_set_component_and_all_childrens_is_visible_to(
         model.commit(std::move(ss).str());
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to hide a component"});
         return false;
     }
@@ -1856,8 +1806,7 @@ bool osc::action_show_only_component_and_all_children(
         }
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to hide a component"});
         return false;
     }
@@ -1902,8 +1851,7 @@ bool osc::action_set_component_and_all_children_with_given_concrete_class_name_i
             std::stringstream ss;
             if (new_visibility) {
                 ss << "showing ";
-            }
-            else {
+            } else {
                 ss << "hiding ";
             }
             ss << concrete_class_name;
@@ -1911,8 +1859,7 @@ bool osc::action_set_component_and_all_children_with_given_concrete_class_name_i
         }
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to show/hide components of a given type"});
         return false;
     }
@@ -1951,8 +1898,7 @@ bool osc::action_translate_station(
         initialize_state(mut_model);
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to move a station"});
         return false;
     }
@@ -1977,8 +1923,7 @@ bool osc::action_translate_station_and_save(
         model.commit(std::move(ss).str());
 
         return true;
-    }
-    else {
+    } else {
         return false;  // edit wasn't made
     }
 }
@@ -2011,8 +1956,7 @@ bool osc::action_translate_path_point(
         initialize_state(mut_model);
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to move a path point"});
         return false;
     }
@@ -2037,8 +1981,7 @@ bool osc::action_translate_path_point_and_save(
         model.commit(std::move(ss).str());
 
         return true;
-    }
-    else {
+    } else {
         return false;  // edit wasn't made
     }
 }
@@ -2071,8 +2014,7 @@ bool osc::action_transform_pof_v2(
         initialize_state(mut_model);
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to transform a POF"});
         return false;
     }
@@ -2110,8 +2052,7 @@ bool osc::action_transform_wrap_object(
         initialize_state(mut_model);
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to transform a POF"});
         return false;
     }
@@ -2149,8 +2090,7 @@ bool osc::action_transform_contact_geometry(
         initialize_state(mut_model);
 
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to transform a POF"});
         return false;
     }
@@ -2168,8 +2108,7 @@ bool osc::action_fit_sphere_to_mesh(ModelStatePair& model, const OpenSim::Mesh& 
     try {
         const Mesh mesh = to_osc_mesh_bake_scale_factors(model.get_model(), model.get_state(), open_sim_mesh);
         sphere = opyn::fit_sphere_htbad(mesh);
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to fit a sphere to a mesh"});
         return false;
     }
@@ -2211,8 +2150,7 @@ bool osc::action_fit_sphere_to_mesh(ModelStatePair& model, const OpenSim::Mesh& 
         std::stringstream ss;
         ss << "computed " << sphere_name;
         model.commit(std::move(ss).str());
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a sphere fit to the OpenSim model"});
         return false;
     }
@@ -2231,8 +2169,7 @@ bool osc::action_fit_ellipsoid_to_mesh(ModelStatePair& model, const OpenSim::Mes
     try {
         const Mesh mesh = to_osc_mesh_bake_scale_factors(model.get_model(), model.get_state(), open_sim_mesh);
         ellipsoid = opyn::fit_ellipsoid_htbad(mesh);
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to fit an ellipsoid to a mesh"});
         return false;
     }
@@ -2286,8 +2223,7 @@ bool osc::action_fit_ellipsoid_to_mesh(ModelStatePair& model, const OpenSim::Mes
         std::stringstream ss;
         ss << "computed" << ellipsoid_name;
         model.commit(std::move(ss).str());
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a sphere fit to the OpenSim model"});
         return false;
     }
@@ -2306,8 +2242,7 @@ bool osc::action_fit_plane_to_mesh(ModelStatePair& model, const OpenSim::Mesh& o
     try {
         const Mesh mesh = to_osc_mesh_bake_scale_factors(model.get_model(), model.get_state(), open_sim_mesh);
         plane = opyn::fit_plane_htbad(mesh);
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to fit a plane to a mesh"});
         return false;
     }
@@ -2355,8 +2290,7 @@ bool osc::action_fit_plane_to_mesh(ModelStatePair& model, const OpenSim::Mesh& o
         std::stringstream ss;
         ss << "computed " << fit_name;
         model.commit(std::move(ss).str());
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to add a sphere fit to the OpenSim model"});
         return false;
     }
@@ -2382,8 +2316,7 @@ bool osc::action_import_landmarks(
             auto* f = find_component_mut<OpenSim::PhysicalFrame>(mut_model, *maybe_target_frame_abs_path);
             if (f) {
                 maybe_target_frame = f;
-            }
-            else {
+            } else {
                 std::stringstream msg;
                 msg << "Could not find the specified frame in the model: " << *maybe_target_frame_abs_path;
                 throw std::runtime_error(std::move(msg).str());
@@ -2408,8 +2341,7 @@ bool osc::action_import_landmarks(
         ss << "imported " << std::move(maybe_name).value_or("markers");
         model.commit(std::move(ss).str());
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while trying to import landmarks to the model"});
         return false;
     }
@@ -2417,19 +2349,20 @@ bool osc::action_import_landmarks(
 
 void osc::action_export_model_graph_to_dotviz(const std::shared_ptr<ModelStatePair>& model)
 {
-    App::upd().prompt_user_to_save_file_with_extension_async([model](std::optional<std::filesystem::path> p)
-    {
-        if (not p) {
-            return;  // user cancelled out of the prompt
-        }
+    App::upd().prompt_user_to_save_file_with_extension_async(
+        [model](std::optional<std::filesystem::path> p)
+        {
+            if (not p) {
+                return;  // user cancelled out of the prompt
+            }
 
-        if (std::ofstream of{*p}) {
-            write_component_topology_graph_as_dot_viz(model->get_model(), of);
-        }
-        else {
-            log_error("error opening {} for writing", p->string());
-        }
-    }, "dot");
+            if (std::ofstream of{*p}) {
+                write_component_topology_graph_as_dot_viz(model->get_model(), of);
+            } else {
+                log_error("error opening {} for writing", p->string());
+            }
+        },
+        "dot");
 }
 
 bool osc::action_export_model_graph_to_dotviz_clipboard(const OpenSim::Model& model)
@@ -2531,8 +2464,7 @@ bool osc::action_translate_contact_hint(
         // Don't update state or reinitialize model: the wrapping requires a full rebuild, which happens
         // during `action_translate_contact_hint_and_save`.
         return true;
-    }
-    catch (const std::exception&) {
+    } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while moving a contact hint"});
         return false;
     }
@@ -2553,8 +2485,7 @@ bool osc::action_translate_contact_hint_and_save(
         model.commit(std::move(ss).str());
 
         return true;
-    }
-    else {
+    } else {
         return false;  // edit wasn't made
     }
 }

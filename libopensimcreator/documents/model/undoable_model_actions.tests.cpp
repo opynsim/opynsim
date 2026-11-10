@@ -89,13 +89,9 @@ TEST(OpenSimActions, ActionApplyRangeDeletionPropertyEditReturnsFalseToIndicateF
         return UndoableModelStatePair{std::make_unique<OpenSim::Model>(std::move(model))};
     }();
 
-    ObjectPropertyEdit edit
-    {
+    ObjectPropertyEdit edit{
         undoable_model.upd_model().updComponent<OpenSim::Coordinate>("/jointset/joint/rotation").updProperty_range(),
-        [&](OpenSim::AbstractProperty& p)
-        {
-            p.clear();
-        },
+        [&](OpenSim::AbstractProperty& p) { p.clear(); },
     };
 
     ASSERT_EQ(action_apply_property_edit(undoable_model, edit), false);
@@ -120,14 +116,12 @@ TEST(OpenSimActions, ActionSetComponentNameOnModelWithUnusualJointTopologyDoesNo
     // loop `n` times because the segfault is stochastic
     //
     // ... which is a cute way of saying "really fucking unpredictable" :(
-    for (size_t i = 0; i < 25; ++i)
-    {
+    for (size_t i = 0; i < 25; ++i) {
         UndoableModelStatePair model = loaded_model;
         action_set_component_name(
             model,
             std::string{"/bodyset/humerus_b"},
-            "newName"
-        );
+            "newName");
     }
 }
 
@@ -174,7 +168,7 @@ TEST(OpenSimActions, ActionFitSphereToMeshAppliesMeshesScaleFactorsCorrectly)
     ASSERT_TRUE(dynamic_cast<const OpenSim::Sphere*>(model.get_selected()));
     const double scaled_radius = dynamic_cast<const OpenSim::Sphere&>(*model.get_selected()).get_radius();
 
-    ASSERT_TRUE(equal_within_reldiff(scaled_radius, scalar*unscaled_radius, 0.0001));
+    ASSERT_TRUE(equal_within_reldiff(scaled_radius, scalar * unscaled_radius, 0.0001));
 }
 
 TEST(OpenSimActions, ActionAddParentOffsetFrameToJointWorksInNormalCase)
@@ -355,7 +349,7 @@ TEST(OpenSimActions, ActionAddPathWrapToGeometryPathWorksInExampleCase)
 
     action_add_wrap_object_to_geometry_path_wraps(um, path, sphere);
 
-    ASSERT_GT(path.getLength(um.get_state()), 1.1)  << "path should start wrapping";
+    ASSERT_GT(path.getLength(um.get_state()), 1.1) << "path should start wrapping";
 }
 
 TEST(OpenSimActions, ActionRemoveWrapObjectFromGeometryPathWrapsWorksInExampleCase)
@@ -372,16 +366,16 @@ TEST(OpenSimActions, ActionRemoveWrapObjectFromGeometryPathWrapsWorksInExampleCa
     auto& sphere = opyn::add_wrap_object<OpenSim::WrapSphere>(pof);
     sphere.set_radius(0.25);
     sphere.set_translation({0.001, -0.5, 0.0});  // prevent singularities
-    opyn::finalize_connections(model);  // note: out of order because OpenSim seems to otherwise not notice the addition
+    opyn::finalize_connections(model);           // note: out of order because OpenSim seems to otherwise not notice the addition
     path.addPathWrap(sphere);
     opyn::initialize_model(model);
     opyn::initialize_state(model);
 
-    ASSERT_GT(path.getLength(um.get_state()), 1.1)  << "initial state of model includes wrapping";
+    ASSERT_GT(path.getLength(um.get_state()), 1.1) << "initial state of model includes wrapping";
 
     action_remove_wrap_object_from_geometry_path_wraps(um, path, sphere);
 
-    ASSERT_NEAR(path.getLength(um.get_state()), 1.0, epsilon_v<double>)  << "should stop wrapping";
+    ASSERT_NEAR(path.getLength(um.get_state()), 1.0, epsilon_v<double>) << "should stop wrapping";
 }
 
 // related issue: #890
@@ -455,8 +449,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesWorksInTrivialCase)
         a,
         b,
         c,
-        c
-    );
+        c);
 
     // Finalize/initialize the model
     model.upd_model().buildSystem();
@@ -509,8 +502,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesAttachedGeometry)
         a,
         b,
         c,
-        c
-    );
+        c);
 
     // Attach geometry to the SDF
     sdf.attachGeometry(std::make_unique<OpenSim::Sphere>(2.5).release());
@@ -562,8 +554,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesWrapObjects)
         a,
         b,
         c,
-        c
-    );
+        c);
 
     // Add `OpenSim::WrapObject`s to the SDF
     sdf.addWrapObject(std::make_unique<OpenSim::WrapSphere>().release());
@@ -609,8 +600,7 @@ TEST(OpenSimActions, ActionBakeStationDefinedFramesCopiesSubcomponents)
         a,
         b,
         c,
-        c
-    );
+        c);
 
     // Add subcomponents to the SDF's component list (in this case, make it extra
     // hard by making them dependent on the SDF ;)).
@@ -689,7 +679,7 @@ TEST(OpenSimActions, ActionMoveMarkerToModelMarkerSet_MovesMarker)
     // original pof, with the correct location, etc.
 
     UndoableModelStatePair model;
-    auto& body = opyn::add_body(model.upd_model(), "body", 1.0,  SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
+    auto& body = opyn::add_body(model.upd_model(), "body", 1.0, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
     const SimTK::Vec3 pof_offset{0.25};
     auto& pof = opyn::add_component<OpenSim::PhysicalOffsetFrame>(body, "pof", body, SimTK::Transform{pof_offset});
     const SimTK::Vec3 marker_offset{0.3};
@@ -731,8 +721,7 @@ TEST(OpenSimActions, ActionSetCoordinateLockedAndSave_EnsuresValueCanBeEditedAft
         SimTK::Vec3{0.0},
         body,
         SimTK::Vec3{0.0, -1.0, 0.0},
-        SimTK::Vec3{0.0}
-    );
+        SimTK::Vec3{0.0});
     auto& coordinate = pin.updCoordinate(OpenSim::BallJoint::Coord::Rotation1X);
     coordinate.setDefaultLocked(true);  // ensure X is initially locked
 

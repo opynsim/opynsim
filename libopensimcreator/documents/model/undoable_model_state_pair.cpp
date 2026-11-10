@@ -42,7 +42,6 @@ namespace
 
     class UiModelStatePair final : public opyn::ModelStatePair {
     public:
-
         UiModelStatePair() :
             UiModelStatePair{make_new_model()}
         {}
@@ -182,7 +181,6 @@ namespace
 
 class osc::UndoableModelStatePair::Impl final {
 public:
-
     Impl()
     {
         do_commit("created a new model");  // make initial commit
@@ -199,8 +197,7 @@ public:
         std::stringstream ss;
         if (auto input_path = opyn::try_find_input_file(get_model())) {
             ss << "loaded " << input_path->filename().string();
-        }
-        else {
+        } else {
             ss << "loaded model";
         }
         do_commit(std::move(ss).str());  // make initial commit
@@ -241,8 +238,7 @@ public:
 
     void do_undo()
     {
-        if (can_undo())
-        {
+        if (can_undo()) {
             undo();
         }
     }
@@ -254,8 +250,7 @@ public:
 
     void do_redo()
     {
-        if (can_redo())
-        {
+        if (can_redo()) {
             redo();
         }
     }
@@ -273,8 +268,7 @@ public:
 
     bool try_checkout(const ModelStateCommit& commit)
     {
-        if (!commits_.contains(commit.get_id()))
-        {
+        if (not commits_.contains(commit.get_id())) {
             return false;  // commit isn't in this model's storage (is it from another model?)
         }
 
@@ -371,7 +365,6 @@ public:
     }
 
 private:
-
     UID do_commit(std::string_view message)
     {
         auto commit = ModelStateCommit{scratch_, message, current_head_};
@@ -418,16 +411,14 @@ private:
     // returns -1 if commit `b` cannot be reached from commit `a`
     int distance(UID a, UID b) const
     {
-        if (a == b)
-        {
+        if (a == b) {
             return 0;
         }
 
         int n = 1;
         UID parent = try_get_parent_id_or_empty(a);
 
-        while (parent != b && parent != UID::empty())
-        {
+        while (parent != b && parent != UID::empty()) {
             parent = try_get_parent_id_or_empty(parent);
             n++;
         }
@@ -442,23 +433,20 @@ private:
     // returns `nullptr` if there are insufficient ancestors. `n` must be >= 0
     const ModelStateCommit* nth_ancestor(UID a, int n) const
     {
-        if (n < 0)
-        {
+        if (n < 0) {
             return nullptr;
         }
 
         const ModelStateCommit* c = try_get_commit_by_id(a);
 
-        if (!c || n == 0)
-        {
+        if (!c || n == 0) {
             return c;
         }
 
         int i = 1;
         c = try_get_commit_by_id(c->get_parent_id());
 
-        while (c && i < n)
-        {
+        while (c && i < n) {
             c = try_get_commit_by_id(c->get_parent_id());
             i++;
         }
@@ -478,8 +466,7 @@ private:
     {
         const ModelStateCommit* c = try_get_commit_by_id(id);
 
-        while (c != nullptr && c->get_id() != maybe_ancestor)
-        {
+        while (c != nullptr && c->get_id() != maybe_ancestor) {
             c = try_get_commit_by_id(c->get_parent_id());
         }
 
@@ -491,8 +478,7 @@ private:
     {
         auto it = commits_.find(start);
 
-        while (it != commits_.end() && it->second.get_id() != end)
-        {
+        while (it != commits_.end() && it->second.get_id() != end) {
             UID parent = it->second.get_parent_id();
             commits_.erase(it);
 
@@ -517,8 +503,7 @@ private:
         int num_redos = distance(branch_head_, current_head_);
         int num_deletions = num_redos - c_max_redo;
 
-        if (num_deletions <= 0)
-        {
+        if (num_deletions <= 0) {
             return;
         }
 
@@ -560,8 +545,7 @@ private:
 
         const ModelStateCommit* c = try_get_commit_by_id(current_head_);
 
-        if (c)
-        {
+        if (c) {
             UiModelStatePair new_scratch{std::make_unique<OpenSim::Model>(*c->get_model())};
             copy_selected_and_hovered(scratch_, new_scratch);
             new_scratch.set_fixup_scale_factor(scratch_.get_fixup_scale_factor());
@@ -576,15 +560,13 @@ private:
     {
         const ModelStateCommit* c = try_get_commit_by_id(current_head_);
 
-        if (!c)
-        {
+        if (not c) {
             return;
         }
 
         const ModelStateCommit* parent = try_get_commit_by_id(c->get_parent_id());
 
-        if (!parent)
-        {
+        if (not parent) {
             return;
         }
 
@@ -605,15 +587,13 @@ private:
     {
         int dist = distance(branch_head_, current_head_);
 
-        if (dist < 1)
-        {
+        if (dist < 1) {
             return;
         }
 
         const ModelStateCommit* c = nth_ancestor(branch_head_, dist - 1);
 
-        if (!c)
-        {
+        if (not c) {
             return;
         }
 
@@ -666,40 +646,31 @@ private:
     std::shared_ptr<Environment> environment_ = std::make_shared<Environment>();
 };
 
-
-// public API (PIMPL)
-
 osc::UndoableModelStatePair::UndoableModelStatePair() :
     impl_{std::make_unique<Impl>()}
-{
-}
+{}
 
 osc::UndoableModelStatePair::UndoableModelStatePair(const OpenSim::Model& model) :
     impl_{std::make_unique<Impl>(model)}
-{
-}
+{}
 
 osc::UndoableModelStatePair::UndoableModelStatePair(std::unique_ptr<OpenSim::Model> model) :
     impl_{std::make_unique<Impl>(std::move(model))}
-{
-}
+{}
 
 osc::UndoableModelStatePair::UndoableModelStatePair(const std::filesystem::path& osim_path) :
     impl_{std::make_unique<Impl>(osim_path)}
-{
-}
+{}
 
 osc::UndoableModelStatePair::UndoableModelStatePair(const UndoableModelStatePair& src) :
     impl_{std::make_unique<Impl>(*src.impl_)}
-{
-}
+{}
 
 osc::UndoableModelStatePair::UndoableModelStatePair(UndoableModelStatePair&&) noexcept = default;
 
 UndoableModelStatePair& osc::UndoableModelStatePair::operator=(const UndoableModelStatePair& src)
 {
-    if (&src != this)
-    {
+    if (&src != this) {
         std::unique_ptr<Impl> cpy = std::make_unique<Impl>(*src.impl_);
         std::swap(impl_, cpy);
     }
@@ -719,7 +690,6 @@ std::filesystem::file_time_type osc::UndoableModelStatePair::get_last_filesystem
 {
     return impl_->get_last_filesystem_write_time();
 }
-
 
 ModelStateCommit osc::UndoableModelStatePair::get_latest_commit() const
 {

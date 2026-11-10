@@ -7,12 +7,20 @@
 #include <filesystem>
 #include <memory>
 
-namespace OpenSim { class Model; }
-namespace osc { class Environment; }
-namespace SimTK { class State; }
+namespace OpenSim
+{
+    class Model;
+}
+
+namespace SimTK
+{
+    class State;
+}
 
 namespace osc
 {
+    class Environment;
+
     // an `OpenSim::Model` + `SimTK::State` that is a value type, constructed with:
     //
     // - `osc::Initialize`

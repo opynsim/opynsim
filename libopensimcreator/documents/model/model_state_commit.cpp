@@ -76,7 +76,6 @@ private:
     std::string commit_message_;
 };
 
-
 osc::ModelStateCommit::ModelStateCommit(const opyn::ModelStatePair& p, std::string_view message) :
     impl_{std::make_shared<Impl>(p, message)}
 {}

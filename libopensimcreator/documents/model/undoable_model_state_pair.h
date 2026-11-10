@@ -8,17 +8,24 @@
 #include <memory>
 #include <string_view>
 
-namespace OpenSim { class Model; }
-namespace OpenSim { class Component; }
-namespace osc { class ModelStateCommit; }
-namespace SimTK { class State; }
+namespace OpenSim
+{
+    class Component;
+    class Model;
+}
+
+namespace SimTK
+{
+    class State;
+}
 
 namespace osc
 {
+    class ModelStateCommit;
+
     // `UndoableModelStatePair` is an `ModelStatePair` that's designed for immediate UI usage.
     class UndoableModelStatePair final : public ModelStatePairWithSharedEnvironment {
     public:
-
         // constructs a blank model
         UndoableModelStatePair();
 

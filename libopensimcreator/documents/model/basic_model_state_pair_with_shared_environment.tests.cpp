@@ -25,7 +25,7 @@ TEST(BasicModelStatePairWithSharedEnvironment, HasAFullyRealizedStateWhenCopied)
     BasicModelStatePairWithSharedEnvironment p;
     ASSERT_EQ(p.get_state().getSystemStage(), SimTK::Stage::Dynamics);
     const BasicModelStatePairWithSharedEnvironment copy{p};  // NOLINT(performance-unnecessary-copy-initialization)
-    ASSERT_EQ(copy.get_state(). getSystemStage(), SimTK::Stage::Dynamics);
+    ASSERT_EQ(copy.get_state().getSystemStage(), SimTK::Stage::Dynamics);
 }
 
 TEST(BasicModelStatePairWithSharedEnvironment, CanGenerateDecorationsFromCopy)

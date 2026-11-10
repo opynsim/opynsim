@@ -44,8 +44,7 @@ bool osc::Environment::overwrite_or_add_new_user_output_extractor(const opyn::Sh
     if (auto it = find_or_nullptr(output_extractors_, old)) {
         *it = newer;
         return true;
-    }
-    else {
+    } else {
         output_extractors_.push_back(newer);
         return true;
     }

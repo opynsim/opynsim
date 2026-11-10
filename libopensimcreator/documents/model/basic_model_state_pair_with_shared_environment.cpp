@@ -12,7 +12,6 @@ using namespace osc;
 
 class osc::BasicModelStatePairWithSharedEnvironment::Impl final {
 public:
-
     Impl() :
         model_{std::make_unique<OpenSim::Model>()}
     {
@@ -104,12 +103,12 @@ public:
     {
         return environment_;
     }
+
 private:
     std::unique_ptr<OpenSim::Model> model_;
     float fixup_scale_factor_ = 1.0f;
     std::shared_ptr<Environment> environment_ = std::make_shared<Environment>();
 };
-
 
 osc::BasicModelStatePairWithSharedEnvironment::BasicModelStatePairWithSharedEnvironment() :
     impl_{std::make_unique<Impl>()}

@@ -7,9 +7,18 @@
 #include <memory>
 #include <string_view>
 
-namespace OpenSim { class ComponentPath; }
-namespace OpenSim { class Model; }
-namespace opyn { class ModelStatePair; }
+namespace OpenSim
+{
+    class ComponentPath;
+}
+namespace OpenSim
+{
+    class Model;
+}
+namespace opyn
+{
+    class ModelStatePair;
+}
 
 namespace osc
 {
@@ -29,6 +38,7 @@ namespace osc
         float get_fixup_scale_factor() const;
 
         friend bool operator==(const ModelStateCommit&, const ModelStateCommit&) = default;
+
     private:
         class Impl;
         std::shared_ptr<const Impl> impl_;

@@ -16,6 +16,8 @@ AllowShortLambdasOnASingleLine: Inline
 AllowShortCaseLabelsOnASingleLine: true
 SpaceAfterTemplateKeyword: false
 SpaceBeforeParens: ControlStatements
+PointerAlignment: Left
+BreakBeforeTernaryOperators: true
 AccessModifierOffset: -4
 SpacesBeforeTrailingComments: 2
 BasedOnStyle: LLVM
