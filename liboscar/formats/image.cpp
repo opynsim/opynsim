@@ -39,8 +39,7 @@ namespace
     // assumes the caller knows to set the user data `void*` ptr to an `std::istream`
     constexpr stbi_io_callbacks c_stbi_stream_callbacks = {
 
-        .read = [](void* user, char* data, int size) -> int
-        {
+        .read = [](void* user, char* data, int size) -> int {
             // stbi: fill 'data' with 'size' bytes.  return number of bytes actually read
 
             std::istream& in = *static_cast<std::istream*>(user);
@@ -48,8 +47,7 @@ namespace
             return static_cast<int>(in.gcount());
         },
 
-        .skip = [](void* user, int n) -> void
-        {
+        .skip = [](void* user, int n) -> void {
             // stbi: skip the next 'n' bytes, or 'unget' the last -n bytes if negative
             if (n != 0) {
                 std::istream& in = *static_cast<std::istream*>(user);
@@ -58,14 +56,12 @@ namespace
             }
         },
 
-        .eof = [](void* user) -> int
-        {
+        .eof = [](void* user) -> int {
             // stbi: returns nonzero if we are at end of file/data
 
             const std::istream& in = *static_cast<const std::istream*>(user);
             return in.eof() ? 1 : 0;
-        }
-    };
+        }};
 
     Texture2D load_32bit_texture(
         std::istream& in,
@@ -73,7 +69,7 @@ namespace
         ColorSpace color_space,
         ImageLoadingFlags flags)
     {
-        if (not (flags & ImageLoadingFlag::FlipVertically)) {
+        if (not(flags & ImageLoadingFlag::FlipVertically)) {
             stbi_set_flip_vertically_on_load_thread(c_stb_true);  // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
         }
 
@@ -84,7 +80,7 @@ namespace
             stbi_image_free,
         };
 
-        if (not (flags & ImageLoadingFlag::FlipVertically)) {
+        if (not(flags & ImageLoadingFlag::FlipVertically)) {
             stbi_set_flip_vertically_on_load_thread(c_stb_false);  // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
         }
 
@@ -94,8 +90,7 @@ namespace
 
         const std::optional<TextureFormat> texture_format = to_texture_format(
             static_cast<size_t>(num_components),
-            TextureComponentFormat::Float32
-        );
+            TextureComponentFormat::Float32);
 
         if (not texture_format) {
             throw formatted_runtime_error("{}: error loading HDR image: no TextureFormat exists for {}-floating-point component images", input_name, num_components);
@@ -103,8 +98,7 @@ namespace
 
         const std::span<const float> pixel_span{
             pixel_data.get(),
-            static_cast<size_t>(dimensions.x())*static_cast<size_t>(dimensions.y())*static_cast<size_t>(num_components)
-        };
+            static_cast<size_t>(dimensions.x()) * static_cast<size_t>(dimensions.y()) * static_cast<size_t>(num_components)};
 
         Texture2D rv{dimensions, *texture_format, color_space};
         rv.set_pixel_data(view_object_representations<uint8_t>(pixel_span));
@@ -117,7 +111,7 @@ namespace
         ColorSpace color_space,
         ImageLoadingFlags flags)
     {
-        if (not (flags & ImageLoadingFlag::FlipVertically)) {
+        if (not(flags & ImageLoadingFlag::FlipVertically)) {
             stbi_set_flip_vertically_on_load_thread(c_stb_true);  // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
         }
 
@@ -128,7 +122,7 @@ namespace
             stbi_image_free,
         };
 
-        if (not (flags & ImageLoadingFlag::FlipVertically)) {
+        if (not(flags & ImageLoadingFlag::FlipVertically)) {
             stbi_set_flip_vertically_on_load_thread(c_stb_false);  // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
         }
 
@@ -138,15 +132,14 @@ namespace
 
         const std::optional<TextureFormat> texture_format = to_texture_format(
             static_cast<size_t>(num_components),
-            TextureComponentFormat::Uint8
-        );
+            TextureComponentFormat::Uint8);
 
         if (not texture_format) {
             throw formatted_runtime_error("{}: error loading non-HDR image: no TextureFormat exists for {}-8-bit component images", input_name, num_components);
         }
 
         Texture2D rv{dimensions, *texture_format, color_space};
-        rv.set_pixel_data({pixel_data.get(), static_cast<size_t>(dimensions.x())*static_cast<size_t>(dimensions.y())*static_cast<size_t>(num_components)});
+        rv.set_pixel_data({pixel_data.get(), static_cast<size_t>(dimensions.x()) * static_cast<size_t>(dimensions.y()) * static_cast<size_t>(num_components)});
         return rv;
     }
 
@@ -177,7 +170,7 @@ Texture2D osc::Image::read_into_texture(
         load_32bit_texture(in, input_name, color_space, flags) :
         load_8bit_texture(in, input_name, color_space, flags);
 
-    if ((flags & ImageLoadingFlag::TreatComponentsAsSpatialVectors) and not (flags & ImageLoadingFlag::FlipVertically)) {
+    if ((flags & ImageLoadingFlag::TreatComponentsAsSpatialVectors) and not(flags & ImageLoadingFlag::FlipVertically)) {
         // HACK: We know that all currently-supported image formats are encoded top-to-bottom and, therefore, required
         //       a vertical flip - unless the caller specified `ImageLoadingFlag::FlipVertically`.
         //
@@ -217,8 +210,7 @@ void osc::PNG::write(
         dimensions.y(),
         4,
         pixels.data(),
-        row_stride
-    );
+        row_stride);
     stbi_flip_vertically_on_write(c_stb_false);
 
     if (rv == 0) {
@@ -247,8 +239,7 @@ void osc::JPEG::write(std::ostream& out, const Texture2D& texture, float quality
         dimensions.y(),
         4,
         pixels.data(),
-        static_cast<int>(100.0f*quality)
-    );
+        static_cast<int>(100.0f * quality));
     stbi_flip_vertically_on_write(c_stb_false);
 
     if (rv == 0) {

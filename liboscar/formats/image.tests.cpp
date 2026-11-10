@@ -47,20 +47,17 @@ TEST(Image, read_into_texture_can_load_image_from_ResourceStream)
     const auto path = std::filesystem::path{OSCAR_TESTS_RESOURCES_DIR} / "awesomeface.png";
     const Texture2D loaded_texture = Image::read_into_texture(
         ResourceStream{path},
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
 
     ASSERT_EQ(loaded_texture.pixel_dimensions(), Vector2i(512, 512));
 }
 
 TEST(Image, read_into_texture_throws_when_called_with_an_invalid_path)
 {
-    ASSERT_ANY_THROW(
-    {
-        Image::read_into_texture(
-            ResourceStream{"oscar/textures/doesnt_exist.png"},
-            ColorSpace::sRGB
-        );
+    ASSERT_ANY_THROW({
+    Image::read_into_texture(
+        ResourceStream{"oscar/textures/doesnt_exist.png"},
+        ColorSpace::sRGB);
     });
 }
 
@@ -83,7 +80,7 @@ TEST(Image, read_into_texture_with_TreatComponentsAsSpatialVectors_negates_Y)
     for (size_t i = 0; i < normal_pixels.size(); ++i) {
         const Color normal_pixel = normal_pixels[i];
         const Color corrected_pixel = corrected_pixels[i];
-        constexpr float abs_error = 1.0f/255.0f;  // to account for the image encoding being non-floating-point.
+        constexpr float abs_error = 1.0f / 255.0f;  // to account for the image encoding being non-floating-point.
         ASSERT_EQ(normal_pixel.r, corrected_pixel.r);
         ASSERT_NEAR(normal_pixel.g, 1.0f - corrected_pixel.g, abs_error) << "no correction applied?";
         ASSERT_EQ(normal_pixel.b, corrected_pixel.b);
@@ -93,10 +90,12 @@ TEST(Image, read_into_texture_with_TreatComponentsAsSpatialVectors_negates_Y)
 
 TEST(JPEG, write_is_compatible_with_reader)
 {
+    // clang-format off
     constexpr std::array<Color32, 4> pixels = {
         Color::red(),  Color::green(),
         Color::blue(), Color::white(),
     };
+    // clang-format on
 
     Texture2D texture({2, 2});
     texture.set_pixels32(pixels);

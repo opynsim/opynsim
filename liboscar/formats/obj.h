@@ -7,13 +7,13 @@
 #include <string>
 #include <string_view>
 
-namespace osc { class Mesh; }
-
 namespace osc
 {
+    class Mesh;
+
     enum class OBJWriterFlag {
-        None           = 0,
-        NoWriteNormals = 1<<0,
+        None = 0,
+        NoWriteNormals = 1 << 0,
 
         Default = None,
     };
@@ -33,7 +33,6 @@ namespace osc
             std::ostream&,
             const Mesh&,
             const OBJMetadata& = OBJMetadata{},
-            OBJWriterFlags = OBJWriterFlag::Default
-        );
+            OBJWriterFlags = OBJWriterFlag::Default);
     };
 }

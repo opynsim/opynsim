@@ -6,7 +6,7 @@ namespace osc
 {
     // Represents a flag that affects how an image is loaded from disk.
     enum class ImageLoadingFlag {
-        None                            = 0,
+        None = 0,
 
         // Makes the image loading implementation flip the image vertically.
         //
@@ -23,7 +23,7 @@ namespace osc
         //         Therefore, if you are flipping (e.g.) normal maps, you may *also* need to flip
         //         the pixel content appropriately. If RGB represents XYZ vectors then you might
         //         need to negate each G.
-        FlipVertically                  = 1<<0,
+        FlipVertically = 1 << 0,
 
         // Makes the image loading implementation handle the image's components as-if they were
         // spatial vectors.
@@ -43,7 +43,7 @@ namespace osc
         //       manually negate the green components in shaders, or memory.
         //
         // - see: http://wiki.polycount.com/wiki/Normal_Map_Technical_Details
-        TreatComponentsAsSpatialVectors = 1<<1,
+        TreatComponentsAsSpatialVectors = 1 << 1,
     };
     using ImageLoadingFlags = Flags<ImageLoadingFlag>;
 }

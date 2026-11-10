@@ -20,8 +20,7 @@ namespace osc
             std::istream&,
             std::string_view input_name,
             ColorSpace,
-            ImageLoadingFlags = {}
-        );
+            ImageLoadingFlags = {});
 
         template<NamedInputStream Stream>
         static Texture2D read_into_texture(
@@ -33,8 +32,7 @@ namespace osc
                 std::forward<Stream>(stream),
                 stream.name(),
                 color_space,
-                flags
-            );
+                flags);
         }
     };
 

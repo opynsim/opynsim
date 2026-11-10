@@ -117,8 +117,7 @@ namespace
                 std::format("instance_{}", latest_instance++),
                 mesh_iterator->second,
                 material_iterator->second,
-                decoration.transform
-            );
+                decoration.transform);
         }
 
         return rv;
@@ -256,7 +255,7 @@ namespace
         const size_t num_floats = 3 * normals.size();
         const size_t num_normals = normals.size();
 
-        out << "        <source id=\""  << geometry.geometry_id << "-normals\">\n";
+        out << "        <source id=\"" << geometry.geometry_id << "-normals\">\n";
         out << "          <float_array id=\"" << geometry.geometry_id << "-normals-array\" count=\"" << num_floats << "\">" << to_float_span(normals) << "</float_array>\n";
         out << "          <technique_common>\n";
         out << "            <accessor source=\"#" << geometry.geometry_id << "-normals-array\" count=\"" << num_normals << "\" stride=\"3\">\n";
@@ -275,7 +274,7 @@ namespace
         const size_t num_tex_coords = tex_coords.size();
 
         out << "        <source id=\"" << geometry.geometry_id << "-map-0\">\n";
-        out << "          <float_array id=\"" << geometry.geometry_id << "-map-0-array\" count=\"" << num_floats << "\">" << to_float_span(tex_coords) <<  "</float_array>\n";
+        out << "          <float_array id=\"" << geometry.geometry_id << "-map-0-array\" count=\"" << num_floats << "\">" << to_float_span(tex_coords) << "</float_array>\n";
         out << "          <technique_common>\n";
         out << "            <accessor source=\"#" << geometry.geometry_id << "-map-0-array\" count=\"" << num_tex_coords << "\" stride=\"2\">\n";
         out << "              <param name=\"S\" type=\"float\"/>\n";

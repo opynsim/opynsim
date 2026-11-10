@@ -29,7 +29,7 @@ TEST(CSV, read_row_reading_a_stream_containing_one_space_returns_a_single_column
 TEST(CSV, read_row_reading_a_stream_containing_just_two_commas_should_return_three_empty_columns)
 {
     std::istringstream input{",,"};
-    const  std::optional<std::vector<std::string>> output = CSV::read_row(input);
+    const std::optional<std::vector<std::string>> output = CSV::read_row(input);
 
     ASSERT_TRUE(output.has_value());
     ASSERT_EQ(output->size(), 3);

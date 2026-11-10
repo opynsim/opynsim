@@ -17,7 +17,7 @@ namespace rgs = std::ranges;
 
 namespace
 {
-    constexpr auto c_special_csv_chars = std::to_array({ ',', '\r', '\n', '"'});
+    constexpr auto c_special_csv_chars = std::to_array({',', '\r', '\n', '"'});
 
     constexpr bool should_be_quoted(std::string_view str)
     {
@@ -101,8 +101,7 @@ bool osc::CSV::read_row_into_vector(
     if (not columns.empty()) {
         r_columns = std::move(columns);
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -123,8 +122,7 @@ void osc::CSV::write_row(
         for (auto c : column) {
             if (c != '"') {
                 out << c;
-            }
-            else {
+            } else {
                 out << '"' << '"';
             }
         }

@@ -45,23 +45,23 @@ namespace
         for (size_t i = 0; i < len; ++i) {
             out << static_cast<uint8_t>(header_content[i]);
         }
-        for (size_t i = 0; i < c_num_bytes_in_stl_header-len; ++i) {
+        for (size_t i = 0; i < c_num_bytes_in_stl_header - len; ++i) {
             out << static_cast<uint8_t>(0x00);
         }
     }
 
     void write_u32_little_endian(std::ostream& out, uint32_t v)
     {
-        out << static_cast<uint8_t>((v    ) & 0xff);
-        out << static_cast<uint8_t>((v>>8 ) & 0xff);
-        out << static_cast<uint8_t>((v>>16) & 0xff);
-        out << static_cast<uint8_t>((v>>24) & 0xff);
+        out << static_cast<uint8_t>((v) & 0xff);
+        out << static_cast<uint8_t>((v >> 8) & 0xff);
+        out << static_cast<uint8_t>((v >> 16) & 0xff);
+        out << static_cast<uint8_t>((v >> 24) & 0xff);
     }
 
     void write_num_triangles(std::ostream& out, const Mesh& mesh)
     {
-        OSC_ASSERT(mesh.num_indices()/3 <= std::numeric_limits<uint32_t>::max());
-        write_u32_little_endian(out, static_cast<uint32_t>(mesh.num_indices()/3));
+        OSC_ASSERT(mesh.num_indices() / 3 <= std::numeric_limits<uint32_t>::max());
+        write_u32_little_endian(out, static_cast<uint32_t>(mesh.num_indices() / 3));
     }
 
     void write_float_ieee754(std::ostream& out, float v)

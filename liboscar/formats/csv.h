@@ -6,10 +6,10 @@
 #include <string>
 #include <vector>
 
-namespace osc { class FileDialogFilter; }
-
 namespace osc
 {
+    class FileDialogFilter;
+
     class CSV final {
     public:
         // Returns a vector of column data if a row could be read; otherwise, returns `std::nullopt`.
