@@ -16,8 +16,7 @@ namespace
             "Fixed",
             MuscleSizingStyle::Fixed,
         },
-        MuscleSizingStyleMetadata
-        {
+        MuscleSizingStyleMetadata{
             "pcsa_derived",
             "PCSA-derived",
             MuscleSizingStyle::PcsaDerived,

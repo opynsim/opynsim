@@ -9,16 +9,20 @@
 #include <optional>
 #include <span>
 
-namespace opyn { struct ModelRendererParams; }
-namespace opyn { class ModelStatePair; }
-namespace osc { class Rect; }
-namespace osc { class RenderTexture; }
-namespace osc { class SceneCache; }
-namespace osc { struct Ray; }
-namespace osc { struct SceneDecoration; }
+namespace osc
+{
+    class Rect;
+    class RenderTexture;
+    class SceneCache;
+    struct Ray;
+    struct SceneDecoration;
+}
 
 namespace opyn
 {
+    class ModelStatePair;
+    struct ModelRendererParams;
+
     class CachedModelRenderer final {
     public:
         explicit CachedModelRenderer(const std::shared_ptr<osc::SceneCache>&);
@@ -33,8 +37,7 @@ namespace opyn
             const ModelRendererParams&,
             osc::Vector2 dims,
             float device_pixel_ratio,
-            osc::AntiAliasingLevel anti_aliasing_level
-        );
+            osc::AntiAliasingLevel anti_aliasing_level);
         osc::RenderTexture& upd_render_texture();
 
         std::span<const osc::SceneDecoration> get_drawlist() const;
@@ -59,8 +62,7 @@ namespace opyn
         std::optional<osc::SceneCollision> get_closest_collision(
             const ModelRendererParams&,
             osc::Vector2 mouse_screen_position,
-            const osc::Rect& viewport_screen_rect
-        ) const;
+            const osc::Rect& viewport_screen_rect) const;
 
     private:
         class Impl;

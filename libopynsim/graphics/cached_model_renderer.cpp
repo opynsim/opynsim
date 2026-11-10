@@ -40,9 +40,8 @@ namespace
         // If it's a decoration that's either fully drawn or a wireframe, it's part of the
         // scene's visible bounds (invisible objects may cast shadows, but they shouldn't be
         // considered part of the visible bounds, #1029).
-        return
-            (not (dec.flags & osc::SceneDecorationFlag::NoDrawInScene)) or
-            (dec.flags & osc::SceneDecorationFlag::DrawWireframeOverlay);
+        return (not(dec.flags & osc::SceneDecorationFlag::NoDrawInScene)) or
+               (dec.flags & osc::SceneDecorationFlag::DrawWireframeOverlay);
     }
 
     // cache for decorations generated from a model+state+params
@@ -61,15 +60,14 @@ namespace
             const ModelStatePairInfo info{model_state};
             if (info != prev_model_state_info_ ||
                 params.decoration_options != prev_decoration_options_ ||
-                params.overlay_options != prev_overlay_options_)
-            {
+                params.overlay_options != prev_overlay_options_) {
+
                 drawlist_.clear();
                 bvh_.clear();
                 scene_bounds_.reset();
 
                 // regenerate
-                const auto on_component_decoration = [this](const OpenSim::Component&, osc::SceneDecoration&& dec)
-                {
+                const auto on_component_decoration = [this](const OpenSim::Component&, osc::SceneDecoration&& dec) {
                     if (is_contributor_to_scene_volume(dec)) {
                         scene_bounds_ = osc::bounding_aabb_of(scene_bounds_, dec.world_space_bounds());
                     }
@@ -79,12 +77,10 @@ namespace
                     *mesh_cache_,
                     model_state,
                     params.decoration_options,
-                    on_component_decoration
-                );
+                    on_component_decoration);
                 osc::update_scene_bvh(drawlist_, bvh_);
 
-                const auto on_overlay_decoration = [this](osc::SceneDecoration&& dec)
-                {
+                const auto on_overlay_decoration = [this](osc::SceneDecoration&& dec) {
                     drawlist_.push_back(std::move(dec));
                 };
                 generate_overlay_decorations(
@@ -92,16 +88,13 @@ namespace
                     params.overlay_options,
                     bvh_,
                     model_state.get_fixup_scale_factor(),
-                    on_overlay_decoration
-                );
+                    on_overlay_decoration);
 
                 prev_model_state_info_ = info;
                 prev_decoration_options_ = params.decoration_options;
                 prev_overlay_options_ = params.overlay_options;
-                return true;   // updated
-            }
-            else
-            {
+                return true;  // updated
+            } else {
                 return false;  // already up to date
             }
         }
@@ -155,13 +148,12 @@ public:
             dims,
             device_pixel_ratio,
             anti_aliasing_level,
-            model_state.get_fixup_scale_factor()
-        );
+            model_state.get_fixup_scale_factor());
 
         // if the decorations or rendering params have changed, re-render
         if (decoration_cache_.update(model_state, render_params) ||
-            renderer_parameters != prev_renderer_params_)
-        {
+            renderer_parameters != prev_renderer_params_) {
+
             OSC_PERF("CachedModelRenderer/on_draw/render");
             renderer_.render(decoration_cache_.get_drawlist(), renderer_parameters);
             prev_renderer_params_ = renderer_parameters;
@@ -209,8 +201,7 @@ public:
             decoration_cache_.get_drawlist(),
             params.camera,
             mouse_screen_position,
-            viewport_screen_rect
-        );
+            viewport_screen_rect);
     }
 
 private:
@@ -218,7 +209,6 @@ private:
     osc::SceneRendererParams prev_renderer_params_;
     osc::SceneRenderer renderer_;
 };
-
 
 opyn::CachedModelRenderer::CachedModelRenderer(const std::shared_ptr<osc::SceneCache>& cache) :
     impl_{std::make_unique<Impl>(cache)}
@@ -239,8 +229,7 @@ osc::RenderTexture& opyn::CachedModelRenderer::on_draw(
         render_params,
         dims,
         device_pixel_ratio,
-        anti_aliasing_level
-    );
+        anti_aliasing_level);
 }
 
 osc::RenderTexture& opyn::CachedModelRenderer::upd_render_texture()

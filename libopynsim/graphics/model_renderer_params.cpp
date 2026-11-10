@@ -28,8 +28,7 @@ namespace
     {
         std::unordered_map<std::string, osc::Variant> rv;
         std::string sub_prefix;
-        const auto callback = [&sub_prefix, &rv](std::string_view subkey, osc::Variant value)
-        {
+        const auto callback = [&sub_prefix, &rv](std::string_view subkey, osc::Variant value) {
             rv.insert_or_assign(sub_prefix + std::string{subkey}, std::move(value));
         };
 
@@ -57,7 +56,7 @@ namespace
         if (const auto* v = lookup_or_nullptr(values, std::string{prefix} + "light_color")) {
             params.light_color = to<osc::Color>(*v);
         }
-        if (const auto* v = lookup_or_nullptr(values,std::string{prefix} + "background_color")) {
+        if (const auto* v = lookup_or_nullptr(values, std::string{prefix} + "background_color")) {
             params.background_color = to<osc::Color>(*v);
         }
         // TODO: floorLocation

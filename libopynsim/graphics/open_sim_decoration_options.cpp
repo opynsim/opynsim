@@ -217,9 +217,9 @@ void opyn::OpenSimDecorationOptions::for_each_option_as_app_setting_value(
     const std::function<void(std::string_view, const osc::Variant&)>& callback) const
 {
     callback("muscle_decoration_style", osc::Variant{get_muscle_decoration_style_metadata(muscle_decoration_style_).id});
-    callback("muscle_coloring_style",   osc::Variant{get_muscle_coloring_style_metadata(muscle_color_source_).id});
-    callback("muscle_sizing_style",     osc::Variant{get_muscle_sizing_style_metadata(muscle_sizing_style_).id});
-    callback("muscle_color_scaling",    osc::Variant{get_muscle_color_source_scaling_metadata(muscle_colour_source_scaling_).id});
+    callback("muscle_coloring_style", osc::Variant{get_muscle_coloring_style_metadata(muscle_color_source_).id});
+    callback("muscle_sizing_style", osc::Variant{get_muscle_sizing_style_metadata(muscle_sizing_style_).id});
+    callback("muscle_color_scaling", osc::Variant{get_muscle_color_source_scaling_metadata(muscle_colour_source_scaling_).id});
     for (size_t i = 0; i < osc::num_flags_v<OpenSimDecorationOptionFlag>; ++i) {
         const auto& meta = get_ith_option_metadata(i);
         callback(meta.id, osc::Variant{flags_.get(get_ith_option(i))});
@@ -231,19 +231,16 @@ void opyn::OpenSimDecorationOptions::try_upd_from_values(
     const std::unordered_map<std::string, osc::Variant>& lut)
 {
     // looks up a single element in the lut
-    auto lookup = [
-        &lut,
-        buf = std::string{prefix},
-        prefix_len = prefix.size()](std::string_view v) mutable
-    {
+    auto lookup = [&lut,
+                   buf = std::string{prefix},
+                   prefix_len = prefix.size()](std::string_view v) mutable {
         buf.resize(prefix_len);
         buf.insert(prefix_len, v);
 
         return lookup_or_nullptr(lut, buf);
     };
 
-    if (auto* app_val = lookup("muscle_decoration_style"); app_val and app_val->type() == osc::VariantType::String)
-    {
+    if (auto* app_val = lookup("muscle_decoration_style"); app_val and app_val->type() == osc::VariantType::String) {
         const auto metadata = get_all_muscle_decoration_style_metadata();
         const auto it = rgs::find(metadata, to<std::string>(*app_val), [](const auto& m) { return m.id; });
         if (it != metadata.end()) {
@@ -251,8 +248,7 @@ void opyn::OpenSimDecorationOptions::try_upd_from_values(
         }
     }
 
-    if (auto* app_val = lookup("muscle_coloring_style"); app_val and app_val->type() == osc::VariantType::String)
-    {
+    if (auto* app_val = lookup("muscle_coloring_style"); app_val and app_val->type() == osc::VariantType::String) {
         const auto metadata = get_all_possible_muscle_coloring_sources_metadata();
         const auto it = rgs::find(metadata, to<std::string>(*app_val), [](const auto& m) { return m.id; });
         if (it != metadata.end()) {
@@ -260,8 +256,7 @@ void opyn::OpenSimDecorationOptions::try_upd_from_values(
         }
     }
 
-    if (auto* app_val = lookup("muscle_sizing_style"); app_val and app_val->type() == osc::VariantType::String)
-    {
+    if (auto* app_val = lookup("muscle_sizing_style"); app_val and app_val->type() == osc::VariantType::String) {
         const auto metadata = get_all_muscle_sizing_style_metadata();
         const auto it = rgs::find(metadata, to<std::string>(*app_val), [](const auto& m) { return m.id; });
         if (it != metadata.end()) {
@@ -269,8 +264,7 @@ void opyn::OpenSimDecorationOptions::try_upd_from_values(
         }
     }
 
-    if (auto* app_val = lookup("muscle_color_scaling"); app_val and app_val->type() == osc::VariantType::String)
-    {
+    if (auto* app_val = lookup("muscle_color_scaling"); app_val and app_val->type() == osc::VariantType::String) {
         const auto metadata = get_all_possible_muscle_color_source_scaling_metadata();
         const auto it = rgs::find(metadata, to<std::string>(*app_val), [](const auto& m) { return m.id; });
         if (it != metadata.end()) {

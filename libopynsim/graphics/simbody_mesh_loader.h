@@ -8,7 +8,10 @@
 #include <span>
 #include <string_view>
 
-namespace SimTK { class PolygonalMesh; }
+namespace SimTK
+{
+    class PolygonalMesh;
+}
 
 namespace opyn
 {

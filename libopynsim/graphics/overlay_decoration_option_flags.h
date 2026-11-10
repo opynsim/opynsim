@@ -10,6 +10,7 @@
 
 namespace opyn
 {
+    // clang-format off
     enum class OverlayDecorationOptionFlags : uint32_t {
         None          = 0,
         DrawXZGrid    = 1<<0,
@@ -22,6 +23,7 @@ namespace opyn
 
         Default = None,
     };
+    // clang-format on
 
     constexpr bool operator&(OverlayDecorationOptionFlags lhs, OverlayDecorationOptionFlags rhs)
     {
@@ -30,12 +32,9 @@ namespace opyn
 
     constexpr void set_option(OverlayDecorationOptionFlags& flags, OverlayDecorationOptionFlags flag, bool v)
     {
-        if (v)
-        {
+        if (v) {
             flags = static_cast<OverlayDecorationOptionFlags>(std::to_underlying(flags) | std::to_underlying(flag));
-        }
-        else
-        {
+        } else {
             flags = static_cast<OverlayDecorationOptionFlags>(std::to_underlying(flags) & ~std::to_underlying(flag));
         }
     }
@@ -43,7 +42,7 @@ namespace opyn
     constexpr OverlayDecorationOptionFlags ith_option(size_t i)
     {
         i = i < osc::num_flags_v<OverlayDecorationOptionFlags> ? i : 0;
-        return static_cast<OverlayDecorationOptionFlags>(1<<i);
+        return static_cast<OverlayDecorationOptionFlags>(1 << i);
     }
 
     enum class OverlayDecorationOptionGroup {

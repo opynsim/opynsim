@@ -15,7 +15,10 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace osc { class AppSettingValue; }
+namespace osc
+{
+    class AppSettingValue;
+}
 
 namespace opyn
 {

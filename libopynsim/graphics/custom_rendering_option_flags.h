@@ -9,6 +9,7 @@
 
 namespace opyn
 {
+    // clang-format off
     enum class CustomRenderingOptionFlags : uint32_t {
         None                         = 0,
         DrawFloor                    = 1<<0,
@@ -20,6 +21,7 @@ namespace opyn
 
         Default = DrawFloor | Shadows | DrawSelectionRims,
     };
+    // clang-format on
 
     constexpr bool operator&(CustomRenderingOptionFlags lhs, CustomRenderingOptionFlags rhs)
     {
@@ -30,8 +32,7 @@ namespace opyn
     {
         if (v) {
             flags = static_cast<CustomRenderingOptionFlags>(std::to_underlying(flags) | std::to_underlying(flag));
-        }
-        else {
+        } else {
             flags = static_cast<CustomRenderingOptionFlags>(std::to_underlying(flags) & ~std::to_underlying(flag));
         }
     }
@@ -39,7 +40,7 @@ namespace opyn
     constexpr CustomRenderingOptionFlags custom_rendering_ith_option(size_t i)
     {
         i = i < osc::num_flags_v<CustomRenderingOptionFlags> ? i : 0;
-        return static_cast<CustomRenderingOptionFlags>(1<<i);
+        return static_cast<CustomRenderingOptionFlags>(1 << i);
     }
 
     struct CustomRenderingOptionFlagsMetadata final {

@@ -13,7 +13,7 @@ TEST(MuscleColorSourceScaling, GetAllPossibleMuscleColorSourceScalingMetadataRet
     ASSERT_EQ(get_all_possible_muscle_color_source_scaling_metadata().size(), osc::num_options_v<MuscleColorSourceScaling>);
 }
 
-TEST(MuscleColorSourceScaling,  GetMuscleColorSourceScalingMetadataWorksForAllOptions)
+TEST(MuscleColorSourceScaling, GetMuscleColorSourceScalingMetadataWorksForAllOptions)
 {
     for (std::underlying_type_t<MuscleColorSourceScaling> i = 0; i < std::to_underlying(MuscleColorSourceScaling::NUM_OPTIONS); ++i) {
         ASSERT_NO_THROW({ get_muscle_color_source_scaling_metadata(static_cast<MuscleColorSourceScaling>(i)); });

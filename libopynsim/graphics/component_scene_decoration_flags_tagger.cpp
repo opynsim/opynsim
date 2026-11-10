@@ -16,8 +16,7 @@ void opyn::ComponentSceneDecorationFlagsTagger::operator()(
     const OpenSim::Component& component,
     osc::SceneDecoration& decoration)
 {
-    if (&component != last_component_)
-    {
+    if (&component != last_component_) {
         last_flags_ = compute_flags(component);
         last_component_ = &component;
     }

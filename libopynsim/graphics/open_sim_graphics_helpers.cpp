@@ -31,13 +31,11 @@ namespace
         }
         // if a collision has an ID (presumed to be an absolute path) that is prefixed by the other
         // then it's a subcomponent, which should be prioritized for hit-testing (#592).
-        if (lhs->decoration_id.size() < rhs.decoration_id.size()
-            and rhs.decoration_id.starts_with(lhs->decoration_id)) {
+        if (lhs->decoration_id.size() < rhs.decoration_id.size() and rhs.decoration_id.starts_with(lhs->decoration_id)) {
 
             return true;
         }
-        if (lhs->decoration_id.size() > rhs.decoration_id.size()
-            and lhs->decoration_id.starts_with(rhs.decoration_id)) {
+        if (lhs->decoration_id.size() > rhs.decoration_id.size() and lhs->decoration_id.starts_with(rhs.decoration_id)) {
 
             return false;
         }
@@ -98,8 +96,7 @@ void opyn::generate_decorations(
         msp.get_state(),
         options,
         msp.get_fixup_scale_factor(),
-        callback
-    );
+        callback);
 }
 
 std::optional<osc::SceneCollision> opyn::get_closest_collision(
@@ -115,8 +112,7 @@ std::optional<osc::SceneCollision> opyn::get_closest_collision(
     // un-project 2D mouse cursor into 3D scene as a ray
     const osc::Ray world_space_camera_ray = camera.ui_to_world(
         mouse_screen_position,
-        viewport_screen_rect
-    );
+        viewport_screen_rect);
 
     // iterate over all collisions along the camera ray and find the best one
     std::optional<osc::SceneCollision> best;
@@ -125,10 +121,8 @@ std::optional<osc::SceneCollision> opyn::get_closest_collision(
         scene_cache,
         tagged_drawlist,
         world_space_camera_ray,
-        [&best](osc::SceneCollision&& scene_collision)
-        {
-            if (not scene_collision.decoration_id.empty()
-                and collision_priority_greater(best, scene_collision)) {
+        [&best](osc::SceneCollision&& scene_collision) {
+            if (not scene_collision.decoration_id.empty() and collision_priority_greater(best, scene_collision)) {
 
                 best = std::move(scene_collision);
             }

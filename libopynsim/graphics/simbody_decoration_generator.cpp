@@ -118,19 +118,16 @@ namespace
         // combine vertex data into hash
         const int num_verts = mesh.getNumVertices();
         hash = osc::hash_combine(hash, osc::hash_of(num_verts));
-        for (int vert = 0; vert < num_verts; ++vert)
-        {
+        for (int vert = 0; vert < num_verts; ++vert) {
             hash = osc::hash_combine(hash, hash_of(mesh.getVertexPosition(vert)));
         }
 
         // combine face indices into mesh
         const int num_faces = mesh.getNumFaces();
         hash = osc::hash_combine(hash, osc::hash_of(num_faces));
-        for (int face = 0; face < num_faces; ++face)
-        {
+        for (int face = 0; face < num_faces; ++face) {
             const int num_verts_in_face = mesh.getNumVerticesForFace(face);
-            for (int face_vert = 0; face_vert < num_verts_in_face; ++face_vert)
-            {
+            for (int face_vert = 0; face_vert < num_verts_in_face; ++face_vert) {
                 hash = osc::hash_combine(hash, osc::hash_of(mesh.getFaceVertex(face, face_vert)));
             }
         }
@@ -169,8 +166,7 @@ namespace
 
         void implementPointGeometry(const SimTK::DecorativePoint&) final
         {
-            [[maybe_unused]] static const bool s_shown_warning_once = []()
-            {
+            [[maybe_unused]] static const bool s_shown_warning_once = [] {
                 osc::log_warn("this model uses implementPointGeometry, which is not yet implemented in OSC");
                 return true;
             }();
@@ -214,7 +210,7 @@ namespace
             const auto half_height = static_cast<float>(d.getHalfHeight());
 
             osc::Transform t = to_osc_transform(d);
-            t.scale *= osc::Vector3{radius, half_height , radius};
+            t.scale *= osc::Vector3{radius, half_height, radius};
 
             consumer_(osc::SceneDecoration{
                 .mesh = mesh_cache_.cylinder_mesh(),
@@ -299,8 +295,7 @@ namespace
 
                 const osc::LineSegment line_segment = {
                     t.translation,
-                    t.translation + (leg_len * axis_lengths[axis] * normalize(transform_vector(t, direction)))
-                };
+                    t.translation + (leg_len * axis_lengths[axis] * normalize(transform_vector(t, direction)))};
                 const osc::Transform leg_xform = cylinder_to_line_segment_transform(line_segment, leg_thickness);
 
                 osc::Color color = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -317,8 +312,7 @@ namespace
 
         void implementTextGeometry(const SimTK::DecorativeText&) final
         {
-            [[maybe_unused]] static const bool s_shown_warning_once = []()
-            {
+            [[maybe_unused]] static const bool s_shown_warning_once = [] {
                 osc::log_warn("this model uses implementTextGeometry, which is not yet implemented in OSC");
                 return true;
             }();
@@ -335,7 +329,9 @@ namespace
             // (and, yes, hash isn't equality, but it's closer than relying on memory
             //  addresses)
             const std::string id = std::to_string(hash_of(d.getMesh()));
-            const auto mesh_loader_func = [&d]() { return to_osc_mesh(d.getMesh()); };
+            const auto mesh_loader_func = [&d] {
+                return to_osc_mesh(d.getMesh());
+            };
 
             consumer_(osc::SceneDecoration{
                 .mesh = mesh_cache_.get_mesh(id, mesh_loader_func),
@@ -348,7 +344,9 @@ namespace
         void implementMeshFileGeometry(const SimTK::DecorativeMeshFile& d) final
         {
             const std::string& path = d.getMeshFile();
-            const auto mesh_loader = [&d](){ return to_osc_mesh(d.getMesh()); };
+            const auto mesh_loader = [&d] {
+                return to_osc_mesh(d.getMesh());
+            };
 
             consumer_(osc::SceneDecoration{
                 .mesh = mesh_cache_.get_mesh(path, mesh_loader),
@@ -399,7 +397,7 @@ namespace
             const auto radius = static_cast<float>(d.getBaseRadius());
             const auto height = static_cast<float>(d.getHeight());
 
-            osc::Transform cone_xform = osc::cylinder_to_line_segment_transform({pos, pos + height*direction}, radius);
+            osc::Transform cone_xform = osc::cylinder_to_line_segment_transform({pos, pos + height * direction}, radius);
             cone_xform.scale *= t.scale;
 
             consumer_(osc::SceneDecoration{
@@ -410,9 +408,9 @@ namespace
             });
         }
 
-        osc::SceneCache& mesh_cache_;  // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        osc::SceneCache& mesh_cache_;                  // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
         const SimTK::SimbodyMatterSubsystem& matter_;  // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
-        const SimTK::State& state_;  // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        const SimTK::State& state_;                    // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
         float fixup_scale_factor_;
         const std::function<void(osc::SceneDecoration&&)>& consumer_;  // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };

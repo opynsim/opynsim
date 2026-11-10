@@ -61,8 +61,7 @@ TEST(OpenSimDecorationGenerator, GenerateDecorationsWithOpenSimMuscleColoringGen
         state,
         opts,
         1.0f,
-        [&passed_test](const OpenSim::Component& c, const osc::SceneDecoration& dec)
-        {
+        [&passed_test](const OpenSim::Component& c, const osc::SceneDecoration& dec) {
             if (osc::contains_case_insensitive(c.getName(), "muscle1")) {
 
                 ASSERT_TRUE(std::holds_alternative<osc::Color>(dec.shading)) << "should have an assigned color";
@@ -70,18 +69,16 @@ TEST(OpenSimDecorationGenerator, GenerateDecorationsWithOpenSimMuscleColoringGen
                 // check that it's red
                 const auto& color = std::get<osc::Color>(dec.shading);
                 ASSERT_GT(color.r, 0.5f);
-                ASSERT_GT(color.r, 5.0f*color.g);
-                ASSERT_GT(color.r, 5.0f*color.b);
+                ASSERT_GT(color.r, 5.0f * color.g);
+                ASSERT_GT(color.r, 5.0f * color.b);
 
                 // and that it casts shadows (rando bug in 0.5.9)
                 ASSERT_FALSE(dec.flags & osc::SceneDecorationFlag::NoCastsShadows);
                 passed_test = true;
             }
-        }
-    );
+        });
     ASSERT_TRUE(passed_test);
 }
-
 
 // repro for #461
 //
@@ -99,8 +96,7 @@ TEST(OpenSimDecorationGenerator, GenerateDecorationsWithScaleFactorScalesFrames)
     model.buildSystem();
     const SimTK::State& state = model.initializeState();
 
-    const auto generate_decorations_with_scale_factor = [&model, &state](float scale_factor)
-    {
+    const auto generate_decorations_with_scale_factor = [&model, &state](float scale_factor) {
         osc::SceneCache mesh_cache;
 
         std::vector<osc::SceneDecoration> rv;
@@ -110,15 +106,12 @@ TEST(OpenSimDecorationGenerator, GenerateDecorationsWithScaleFactorScalesFrames)
             state,
             OpenSimDecorationOptions{},
             scale_factor,
-            [&rv](const OpenSim::Component& c, osc::SceneDecoration&& dec)
-            {
+            [&rv](const OpenSim::Component& c, osc::SceneDecoration&& dec) {
                 // only suck up the frame decorations associated with ground
-                if (dynamic_cast<const OpenSim::Ground*>(&c))
-                {
+                if (dynamic_cast<const OpenSim::Ground*>(&c)) {
                     rv.push_back(std::move(dec));
                 }
-            }
-        );
+            });
         return rv;
     };
 
@@ -130,12 +123,11 @@ TEST(OpenSimDecorationGenerator, GenerateDecorationsWithScaleFactorScalesFrames)
     ASSERT_FALSE(scaled_decs.empty());
     ASSERT_EQ(unscaled_decs.size(), scaled_decs.size());
 
-    for (size_t i = 0; i < unscaled_decs.size(); ++i)
-    {
+    for (size_t i = 0; i < unscaled_decs.size(); ++i) {
         const osc::SceneDecoration& unscaled_dec = unscaled_decs[i];
         const osc::SceneDecoration& scaled_dec = scaled_decs[i];
 
-        ASSERT_TRUE(all_of(equal_within_reldiff(scale*unscaled_dec.transform.scale, scaled_dec.transform.scale, 0.0001f)));
+        ASSERT_TRUE(all_of(equal_within_reldiff(scale * unscaled_dec.transform.scale, scaled_dec.transform.scale, 0.0001f)));
     }
 }
 
@@ -150,8 +142,7 @@ TEST(OpenSimDecorationGenerator, GenerateDecorationsWithScaleFactorDoesNotScaleE
     opyn::init();
 
     // create appropriate model
-    std::pair<OpenSim::Model, OpenSim::ComponentPath> p = []()
-    {
+    std::pair<OpenSim::Model, OpenSim::ComponentPath> p = [] {
         OpenSim::Model m;
         auto body = std::make_unique<OpenSim::Body>("body", 1.0, SimTK::Vec3{}, SimTK::Inertia{1.0});
         auto geom = std::make_unique<OpenSim::Sphere>(1.0);
@@ -167,8 +158,7 @@ TEST(OpenSimDecorationGenerator, GenerateDecorationsWithScaleFactorDoesNotScaleE
     const SimTK::State& state = p.first.initializeState();
 
     // helper
-    const auto generate_decorations_with_scale_factor = [&p, &state](float scale_factor)
-    {
+    const auto generate_decorations_with_scale_factor = [&p, &state](float scale_factor) {
         osc::SceneCache mesh_cache;
 
         std::vector<osc::SceneDecoration> rv;
@@ -178,14 +168,11 @@ TEST(OpenSimDecorationGenerator, GenerateDecorationsWithScaleFactorDoesNotScaleE
             state,
             OpenSimDecorationOptions{},
             scale_factor,
-            [&p, &rv](const OpenSim::Component& c, osc::SceneDecoration&& dec)
-            {
-                if (c.getAbsolutePath() == p.second)
-                {
+            [&p, &rv](const OpenSim::Component& c, osc::SceneDecoration&& dec) {
+                if (c.getAbsolutePath() == p.second) {
                     rv.push_back(std::move(dec));
                 }
-            }
-        );
+            });
         return rv;
     };
 
@@ -241,12 +228,10 @@ TEST(OpenSimDecorationGenerator, DoesntIncludeTheModelsDirectDecorations)
         model.getWorkingState(),
         opts,
         1.0f,
-        [&model, &empty](const OpenSim::Component& c, const osc::SceneDecoration&)
-        {
+        [&model, &empty](const OpenSim::Component& c, const osc::SceneDecoration&) {
             ASSERT_NE(&c, &model);
             empty = false;
-        }
-    );
+        });
     ASSERT_FALSE(empty);
 }
 
@@ -273,8 +258,7 @@ TEST(OpenSimDecorationGenerator, GenerateCollisionArrowsWorks)
         model.getWorkingState(),
         opts,
         1.0f,
-        [&empty](const OpenSim::Component&, const osc::SceneDecoration&) { empty = false; }
-    );
+        [&empty](const OpenSim::Component&, const osc::SceneDecoration&) { empty = false; });
     ASSERT_FALSE(empty);
 }
 
@@ -314,13 +298,11 @@ TEST(OpenSimDecorationGenerator, GenerateDecorationsForLigamentGeneratesLigament
         model.getWorkingState(),
         opts,
         1.0f,
-        [&ligament, &num_decorations_tagged_with_ligament](const OpenSim::Component& component, const osc::SceneDecoration&)
-        {
+        [&ligament, &num_decorations_tagged_with_ligament](const OpenSim::Component& component, const osc::SceneDecoration&) {
             if (&component == &ligament) {
                 ++num_decorations_tagged_with_ligament;
             }
-        }
-    );
+        });
     ASSERT_EQ(num_decorations_tagged_with_ligament, 1);
 }
 
@@ -346,12 +328,10 @@ TEST(GenerateModelDecorations, ShortHandOverloadWithModelAndStateWorksAsExpected
         model.getWorkingState(),
         opts,
         1.0f,
-        [&tagger, &decorations](const OpenSim::Component& component, osc::SceneDecoration&& decoration)
-        {
+        [&tagger, &decorations](const OpenSim::Component& component, osc::SceneDecoration&& decoration) {
             tagger(component, decoration);
             decorations.push_back(std::move(decoration));
-        }
-    );
+        });
 
     // now do it with the easy override
     const std::vector<osc::SceneDecoration> easy_decorations = generate_model_decorations(cache, model, model.getWorkingState(), opts, 1.0);
@@ -381,16 +361,18 @@ TEST(GenerateModelDecorations, ShortHandOverloadWithModelStatePairWorksAsExpecte
         state,
         opts,
         1.0f,
-        [&tagger, &decorations](const OpenSim::Component& component, osc::SceneDecoration&& decoration)
-        {
+        [&tagger, &decorations](const OpenSim::Component& component, osc::SceneDecoration&& decoration) {
             tagger(component, decoration);
             decorations.push_back(std::move(decoration));
-        }
-    );
+        });
 
     class ReferenceModelStatePair : public opyn::ModelStatePair {
     public:
-        ReferenceModelStatePair(OpenSim::Model& model, SimTK::State& state) : model_{&model}, state_{&state} {}
+        ReferenceModelStatePair(OpenSim::Model& model, SimTK::State& state) :
+            model_{&model},
+            state_{&state}
+        {}
+
     private:
         const OpenSim::Model& impl_get_model() const override { return *model_; }
         const SimTK::State& impl_get_state() const override { return *state_; }
@@ -404,8 +386,7 @@ TEST(GenerateModelDecorations, ShortHandOverloadWithModelStatePairWorksAsExpecte
         cache,
         ReferenceModelStatePair{model, state},
         opts,
-        1.0
-    );
+        1.0);
 
     ASSERT_EQ(decorations, easy_decorations);
 }
@@ -426,7 +407,9 @@ TEST(GenerateModelDecorations, GeneratesContactGeometrySphereWhenVisibilityFlagI
 
     osc::SceneCache cache;
     const auto decorations = generate_model_decorations(cache, model, state);
-    const auto is_contact_sphere_decoration = [p = sphere->getAbsolutePathString()](const osc::SceneDecoration& dec) { return dec.id == p; };
+    const auto is_contact_sphere_decoration = [p = sphere->getAbsolutePathString()](const osc::SceneDecoration& dec) {
+        return dec.id == p;
+    };
 
     ASSERT_EQ(rgs::count_if(decorations, is_contact_sphere_decoration), 1);
 }
@@ -449,7 +432,9 @@ TEST(GenerateModelDecorations, DoesNotGenerateContactGeometrySphereWhenVisibilit
 
     osc::SceneCache cache;
     const auto decorations = generate_model_decorations(cache, model, state);
-    const auto is_contact_sphere_decoration = [p = sphere->getAbsolutePathString()](const osc::SceneDecoration& dec) { return dec.id == p; };
+    const auto is_contact_sphere_decoration = [p = sphere->getAbsolutePathString()](const osc::SceneDecoration& dec) {
+        return dec.id == p;
+    };
 
     ASSERT_EQ(rgs::count_if(decorations, is_contact_sphere_decoration), 0);
 }
@@ -613,7 +598,7 @@ TEST(GenerateModelDecorations, RadiusOfContactSphereIsCorrectlyUpdated)
     {
         const auto decorations = generate_model_decorations(cache, model, state);
         const float volume = osc::volume_of(bounding_aabb_of(decorations, &osc::SceneDecoration::world_space_bounds).value());
-        ASSERT_NEAR(volume, 0.2f*0.2f*0.2f, 0.001f);
+        ASSERT_NEAR(volume, 0.2f * 0.2f * 0.2f, 0.001f);
     }
 
     sphere.setRadius(0.5);
@@ -624,7 +609,7 @@ TEST(GenerateModelDecorations, RadiusOfContactSphereIsCorrectlyUpdated)
     {
         const auto decorations = generate_model_decorations(cache, model, state);
         const float volume = osc::volume_of(bounding_aabb_of(decorations, &osc::SceneDecoration::world_space_bounds).value());
-        ASSERT_NEAR(volume, 1.0f*1.0f*1.0f, 0.001f);
+        ASSERT_NEAR(volume, 1.0f * 1.0f * 1.0f, 0.001f);
     }
 }
 
@@ -642,7 +627,7 @@ TEST(GenerateModelDecorations, MusclesObeyAppearanceOpacity)
 
     auto& gp = musc.updGeometryPath();
     gp.appendNewPathPoint("p1", model.getGround(), {-1.0, 0.0, 0.0});
-    gp.appendNewPathPoint("p2", model.getGround(), { 1.0, 0.0, 0.0});
+    gp.appendNewPathPoint("p2", model.getGround(), {1.0, 0.0, 0.0});
 
     const double opacity = 0.27;
     gp.upd_Appearance().set_opacity(opacity);
@@ -678,7 +663,7 @@ TEST(GenerateModelDecorations, GeometryPathsObeyAppearanceOpacity)
 
     auto& gp = opyn::add_component<OpenSim::GeometryPath>(model);
     gp.appendNewPathPoint("p1", model.getGround(), {-1.0, 0.0, 0.0});
-    gp.appendNewPathPoint("p2", model.getGround(), { 1.0, 0.0, 0.0});
+    gp.appendNewPathPoint("p2", model.getGround(), {1.0, 0.0, 0.0});
 
     const double opacity = 0.27;
     gp.upd_Appearance().set_opacity(opacity);
@@ -715,7 +700,7 @@ TEST(GenerateModelDecorations, MusclesObeyWireframeRepresentation)
 
     auto& gp = musc.updGeometryPath();
     gp.appendNewPathPoint("p1", model.getGround(), {-1.0, 0.0, 0.0});
-    gp.appendNewPathPoint("p2", model.getGround(), { 1.0, 0.0, 0.0});
+    gp.appendNewPathPoint("p2", model.getGround(), {1.0, 0.0, 0.0});
 
     gp.upd_Appearance().set_representation(OpenSim::VisualRepresentation::DrawWireframe);
 

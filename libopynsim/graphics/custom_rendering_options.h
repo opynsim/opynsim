@@ -9,7 +9,10 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace osc { struct SceneRendererParams; }
+namespace osc
+{
+    struct SceneRendererParams;
+}
 
 namespace opyn
 {
