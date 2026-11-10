@@ -38,13 +38,13 @@ namespace opyn
         {
             if (maybe_source_position_ && maybe_destination_position_) {
                 return opyn::LandmarkPair3D<float>{osc::to<SimTK::fVec3>(*maybe_source_position_), osc::to<SimTK::fVec3>(*maybe_destination_position_)};
-            }
-            else {
+            } else {
                 return std::nullopt;
             }
         }
 
         void set_destination(std::optional<osc::Vector3> p) { maybe_destination_position_ = p; }
+
     private:
         std::string name_;
         std::optional<osc::Vector3> maybe_source_position_;

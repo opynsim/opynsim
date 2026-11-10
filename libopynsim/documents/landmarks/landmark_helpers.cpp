@@ -100,13 +100,13 @@ void opyn::read_landmarks_from_csv(
     const std::function<void(CSVParseWarning)>& warning_consumer)
 {
     std::vector<std::string> cols;
-    for (size_t line = 0; osc::CSV::read_row_into_vector(in, cols); ++line)
-    {
-        std::visit(osc::Overload{
-            [&landmark_consumer](Landmark&& lm) { landmark_consumer(std::move(lm)); },
-            [&warning_consumer](CSVParseWarning&& warning) { warning_consumer(std::move(warning)); },
-            [](SkipRow) {}
-        }, parse_row(line, cols));
+    for (size_t line = 0; osc::CSV::read_row_into_vector(in, cols); ++line) {
+        std::visit(
+            osc::Overload{
+                [&landmark_consumer](Landmark&& lm) { landmark_consumer(std::move(lm)); },
+                [&warning_consumer](CSVParseWarning&& warning) { warning_consumer(std::move(warning)); },
+                [](SkipRow) {}},
+            parse_row(line, cols));
     }
 }
 
@@ -129,7 +129,7 @@ void opyn::write_landmarks_to_csv(
     LandmarkCSVFlags flags)
 {
     // if applicable, emit header
-    if (not (flags & LandmarkCSVFlags::NoHeader)) {
+    if (not(flags & LandmarkCSVFlags::NoHeader)) {
         if (flags & LandmarkCSVFlags::NoNames) {
             osc::CSV::write_row(out, {{"x", "y", "z"}});
         } else {
@@ -165,13 +165,14 @@ std::vector<NamedLandmark> opyn::generate_names(
     }
 
     // helper: either get, or generate, a name for the given landmark
-    auto get_name = [&prefix, &supplied_names, i = 0](const Landmark& lm) mutable -> std::string
-    {
+    auto get_name = [&prefix, &supplied_names, i = 0](const Landmark& lm) mutable -> std::string {
         if (lm.maybe_name) {
             return *lm.maybe_name;
         }
 
-        auto next_name = [&prefix, &i] { return std::string{prefix} + std::to_string(i++); };
+        auto next_name = [&prefix, &i] {
+            return std::string{prefix} + std::to_string(i++);
+        };
         std::string name = next_name();
         while (supplied_names.contains(name)) {
             name = next_name();
@@ -202,8 +203,7 @@ void opyn::try_pairing_landmarks(
         if (it != b.end()) {
             consumer(MaybeNamedLandmarkPair{std::move(name), lm.position, it->position});
             b.erase(it);  // pop element from b
-        }
-        else {
+        } else {
             consumer(MaybeNamedLandmarkPair{std::move(name), lm.position, std::nullopt});
         }
     }
