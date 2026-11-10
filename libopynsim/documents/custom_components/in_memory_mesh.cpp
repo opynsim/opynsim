@@ -12,8 +12,8 @@ void opyn::InMemoryMesh::impl_generate_custom_decorations(
     const std::function<void(osc::SceneDecoration&&)>& out) const
 {
     out(osc::SceneDecoration{
-        .mesh      = osc_mesh_,
+        .mesh = osc_mesh_,
         .transform = osc::to<osc::Transform>(getFrame().getTransformInGround(state)),
-        .shading   = to_color(get_Appearance()),
+        .shading = to_color(get_Appearance()),
     });
 }

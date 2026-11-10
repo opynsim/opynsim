@@ -2,8 +2,15 @@
 
 #include <functional>
 
-namespace osc { struct SceneDecoration; }
-namespace SimTK { class State; }
+namespace SimTK
+{
+    class State;
+}
+
+namespace osc
+{
+    struct SceneDecoration;
+}
 
 namespace opyn
 {
@@ -17,6 +24,7 @@ namespace opyn
         CustomDecorationGenerator(CustomDecorationGenerator&&) noexcept = default;
         CustomDecorationGenerator& operator=(const CustomDecorationGenerator&) = default;
         CustomDecorationGenerator& operator=(CustomDecorationGenerator&&) noexcept = default;
+
     public:
         virtual ~CustomDecorationGenerator() noexcept = default;
 
@@ -26,10 +34,10 @@ namespace opyn
         {
             impl_generate_custom_decorations(state, callback);
         }
+
     private:
         virtual void impl_generate_custom_decorations(
             const SimTK::State&,
-            const std::function<void(osc::SceneDecoration&&)>&
-        ) const = 0;
+            const std::function<void(osc::SceneDecoration&&)>&) const = 0;
     };
 }
