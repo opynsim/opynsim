@@ -35,8 +35,7 @@ namespace
         const ForwardDynamicSimulatorParams& params,
         SynchronizedValue<std::vector<SimulationReport>>& report_queue)
     {
-        auto callback = [&](SimulationReport r)
-        {
+        auto callback = [&](SimulationReport r) {
             auto reports_guard = report_queue.lock();
             reports_guard->push_back(std::move(r));
         };
@@ -149,8 +148,7 @@ public:
         // if necessary, truncate any dangling reports
         if (new_end_time < old_end_time and not reports_.empty()) {
 
-            const auto report_before_or_equal_to_new_end_time = [new_end_time](const SimulationReport& r)
-            {
+            const auto report_before_or_equal_to_new_end_time = [new_end_time](const SimulationReport& r) {
                 return r.get_time() <= new_end_time;
             };
             const auto it = find_if(reports_.rbegin(), reports_.rend(), report_before_or_equal_to_new_end_time);

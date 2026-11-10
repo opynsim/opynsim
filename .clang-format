@@ -10,7 +10,7 @@ Cpp11BracedListStyle: true
 AlignAfterOpenBracket: Align
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
-LambdaBodyIndentation: OuterScope  # Options: Signature (default) or OuterScope
+LambdaBodyIndentation: Signature  # Options: Signature (default) or OuterScope
 AllowShortFunctionsOnASingleLine: All # or 'All'
 AllowShortLambdasOnASingleLine: Inline
 AllowShortCaseLabelsOnASingleLine: true
@@ -42,5 +42,5 @@ BraceWrapping:
   BeforeCatch: false
   BeforeElse: false
   SplitEmptyFunction: false
-  BeforeLambdaBody: true
+  BeforeLambdaBody: false
 

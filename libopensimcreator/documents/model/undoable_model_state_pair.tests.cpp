@@ -54,8 +54,7 @@ TEST(UndoableModelStatePair, CanLoadAndRenderAllUserFacingExampleFiles)
                 p.get_state(),
                 decoration_opts,
                 1.0f,  // 1:1 scaling
-                [&decorations](const OpenSim::Component& component, SceneDecoration&& dec)
-                {
+                [&decorations](const OpenSim::Component& component, SceneDecoration&& dec) {
                     dec.id = opyn::get_absolute_path_string_name(component);
                     decorations.push_back(std::move(dec));
                 });
@@ -95,8 +94,7 @@ TEST(UndoableModelStatePair, canWriteRajagopalModelToDAE)
         p.get_state(),
         decoration_opts,
         1.0f,  // 1:1 scaling
-        [&decorations](const OpenSim::Component& component, SceneDecoration&& dec)
-        {
+        [&decorations](const OpenSim::Component& component, SceneDecoration&& dec) {
             dec.id = opyn::get_absolute_path_string_name(component);
             decorations.push_back(std::move(dec));
         });

@@ -208,8 +208,7 @@ void osc::action_prompt_user_to_load_mesh_file(
     MiDocumentInputIdentifier which)
 {
     App::upd().prompt_user_to_select_file_async(
-        [doc, which](const FileDialogResponse& response)
-        {
+        [doc, which](const FileDialogResponse& response) {
             if (response.size() != 1) {
                 return;  // Error or user somehow selected multiple options
             }
@@ -228,8 +227,7 @@ void osc::action_prompt_user_to_load_landmarks_from_csv(
     MiDocumentInputIdentifier which)
 {
     App::upd().prompt_user_to_select_file_async(
-        [doc, which](const FileDialogResponse& response)
-        {
+        [doc, which](const FileDialogResponse& response) {
             if (response.size() != 1) {
                 return;  // Error or user somehow selected multiple files.
             }
@@ -239,8 +237,7 @@ void osc::action_prompt_user_to_load_landmarks_from_csv(
                 return;  // some kind of error opening the file
             }
 
-            opyn::read_landmarks_from_csv(fin, [&doc, which](auto&& landmark)
-            {
+            opyn::read_landmarks_from_csv(fin, [&doc, which](auto&& landmark) {
                 add_landmark_to_input(doc->upd_scratch(), which, landmark.position, std::move(landmark.maybe_name));
             });
 
@@ -255,8 +252,7 @@ void osc::action_prompt_user_to_load_landmarks_from_csv(
 void osc::action_prompt_user_to_load_non_participating_landmarks_from_csv(const std::shared_ptr<MwUndoableDocument>& doc)
 {
     App::upd().prompt_user_to_select_file_async(
-        [doc](const FileDialogResponse& response)
-        {
+        [doc](const FileDialogResponse& response) {
             if (response.size() != 1) {
                 return;  // Error or the user somehow selected more than one file.
             }
@@ -266,8 +262,7 @@ void osc::action_prompt_user_to_load_non_participating_landmarks_from_csv(const 
                 return;  // some kind of error opening the file
             }
 
-            opyn::read_landmarks_from_csv(fin, [&doc](auto&& landmark)
-            {
+            opyn::read_landmarks_from_csv(fin, [&doc](auto&& landmark) {
                 add_non_participating_landmark(doc->upd_scratch(), landmark.position, std::move(landmark.maybe_name));
             });
 
@@ -285,8 +280,7 @@ void osc::action_prompt_user_to_save_landmarks_to_csv(
     opyn::LandmarkCSVFlags flags)
 {
     App::upd().prompt_user_to_save_file_with_extension_async(
-        [pairs = doc.landmark_pairs, which, flags](std::optional<std::filesystem::path> p) mutable
-        {
+        [pairs = doc.landmark_pairs, which, flags](std::optional<std::filesystem::path> p) mutable {
             if (not p) {
                 return;  // user cancelled out of the prompt
             }
@@ -309,8 +303,7 @@ void osc::action_write_landmarks_as_csv(
 {
     opyn::write_landmarks_to_csv(
         out,
-        [which, it = pairs.begin(), end = pairs.end()] mutable -> std::optional<opyn::Landmark>
-        {
+        [which, it = pairs.begin(), end = pairs.end()] mutable -> std::optional<opyn::Landmark> {
             while (it != end) {
                 const auto& pair = *it++;
                 if (const auto location = get_location(pair, which)) {
@@ -327,8 +320,7 @@ void osc::action_prompt_user_to_save_non_participating_landmarks_to_csv(
     opyn::LandmarkCSVFlags flags)
 {
     App::upd().prompt_user_to_save_file_with_extension_async(
-        [nplms = doc.non_participating_landmarks, flags](std::optional<std::filesystem::path> p)
-        {
+        [nplms = doc.non_participating_landmarks, flags](std::optional<std::filesystem::path> p) {
             if (not p) {
                 return;  // user cancelled out of the prompt
             }
@@ -340,8 +332,7 @@ void osc::action_prompt_user_to_save_non_participating_landmarks_to_csv(
 
             opyn::write_landmarks_to_csv(
                 fout,
-                [it = nplms.begin(), end = nplms.end()] mutable
-                {
+                [it = nplms.begin(), end = nplms.end()] mutable {
                     std::optional<opyn::Landmark> rv;
                     if (it != end) {
                         rv = opyn::Landmark{std::string{it->name}, it->location};
@@ -350,14 +341,14 @@ void osc::action_prompt_user_to_save_non_participating_landmarks_to_csv(
                     return rv;
                 },
                 flags);
-        }, "csv");
+        },
+        "csv");
 }
 
 void osc::action_prompt_user_to_save_paired_landmarks_to_csv(const MwDocument& doc, opyn::LandmarkCSVFlags flags)
 {
     App::upd().prompt_user_to_save_file_with_extension_async(
-        [pairs = get_named_landmark_pairs(doc), flags](std::optional<std::filesystem::path> maybe_path)
-        {
+        [pairs = get_named_landmark_pairs(doc), flags](std::optional<std::filesystem::path> maybe_path) {
             if (not maybe_path) {
                 return;  // user cancelled out of the prompt
             }
@@ -402,8 +393,7 @@ void osc::action_prompt_user_to_save_paired_landmarks_to_csv(const MwDocument& d
 void osc::action_prompt_user_to_save_mesh_to_obj_file(const Mesh& mesh, OBJWriterFlags flags)
 {
     App::upd().prompt_user_to_save_file_with_extension_async(
-        [mesh, flags](std::optional<std::filesystem::path> p)
-        {
+        [mesh, flags](std::optional<std::filesystem::path> p) {
             if (not p) {
                 return;  // user cancelled out of the prompt
             }
@@ -424,8 +414,7 @@ void osc::action_prompt_user_to_save_mesh_to_obj_file(const Mesh& mesh, OBJWrite
 void osc::action_prompt_user_to_mesh_to_stl_file(const Mesh& mesh)
 {
     App::upd().prompt_user_to_save_file_with_extension_async(
-        [mesh](std::optional<std::filesystem::path> p)
-        {
+        [mesh](std::optional<std::filesystem::path> p) {
             if (not p) {
                 return;  // user cancelled out of the prompt
             }
@@ -452,8 +441,7 @@ void osc::action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
     App::upd().prompt_user_to_save_file_with_extension_async(
         [warped_nplms = std::vector<Vector3>(span.begin(), span.end()),
          nplms = doc.non_participating_landmarks,
-         flags](std::optional<std::filesystem::path> p)
-        {
+         flags](std::optional<std::filesystem::path> p) {
             if (not p) {
                 return;  // user cancelled out of the prompt
             }
@@ -463,17 +451,15 @@ void osc::action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
                 return;  // couldn't open file for writing
             }
 
-            opyn::write_landmarks_to_csv(fout, [&warped_nplms, &nplms, i = 0uz] mutable
-            {
+            opyn::write_landmarks_to_csv(fout, [&warped_nplms, &nplms, i = 0uz] mutable {
                 std::optional<opyn::Landmark> rv;
                 for (; !rv && i < warped_nplms.size(); ++i) {
                     std::string name = std::string{nplms.at(i).name};
                     rv = opyn::Landmark{std::move(name), warped_nplms.at(i)};
                 }
                 return rv;
-            },
-            flags);
-    });
+            }, flags);
+        });
 }
 
 void osc::action_swap_source_destination(MwUndoableDocument& doc)

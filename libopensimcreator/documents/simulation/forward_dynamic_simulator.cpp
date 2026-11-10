@@ -123,8 +123,7 @@ namespace
 
         opyn::OutputValueExtractor impl_output_value_extractor(const OpenSim::Component&) const final
         {
-            return opyn::OutputValueExtractor{[id = uid_](const opyn::StateViewWithMetadata& state)
-            {
+            return opyn::OutputValueExtractor{[id = uid_](const opyn::StateViewWithMetadata& state) {
                 return Variant{state.get_auxiliary_value(id).value_or(-1337.0f)};
             }};
         }

@@ -514,8 +514,7 @@ private:
 
     void garbage_collect_unreachable()
     {
-        std::erase_if(commits_, [this](const auto& p)
-        {
+        std::erase_if(commits_, [this](const auto& p) {
             return !(p.first == branch_head_ || is_ancestor(p.first, branch_head_));
         });
     }

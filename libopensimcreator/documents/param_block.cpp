@@ -29,7 +29,6 @@ namespace
     };
 }
 
-
 class osc::ParamBlock::Impl final {
 public:
     std::unique_ptr<Impl> clone() const
@@ -67,8 +66,7 @@ public:
         Param* p = find(std::string{name});
         if (p) {
             *p = Param{name, description, v};
-        }
-        else {
+        } else {
             params_.emplace_back(name, description, v);
         }
     }
@@ -84,8 +82,7 @@ public:
 
         if (p) {
             p->value = value;
-        }
-        else {
+        } else {
             throw std::runtime_error{"ParamBlock::setValue(const std::string&, ParamValue): failed: cannot find a param with that name"};
         }
     }
@@ -107,7 +104,6 @@ private:
         return params_.at(static_cast<size_t>(idx));
     }
 
-
     // helper, to prevent writing a const-/non-const-version of a member method
     template<rgs::range Range>
     static auto find(Range& range, const std::string& name) -> decltype(rgs::data(range))
@@ -128,8 +124,8 @@ private:
     std::vector<Param> params_;
 };
 
-
-osc::ParamBlock::ParamBlock() : impl_{std::make_unique<Impl>()} {}
+osc::ParamBlock::ParamBlock() :
+    impl_{std::make_unique<Impl>()} {}
 osc::ParamBlock::ParamBlock(const ParamBlock&) = default;
 osc::ParamBlock::ParamBlock(ParamBlock&&) noexcept = default;
 osc::ParamBlock& osc::ParamBlock::operator=(const ParamBlock&) = default;

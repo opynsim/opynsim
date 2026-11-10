@@ -233,8 +233,7 @@ namespace
 void osc::action_save_current_model_as(const std::shared_ptr<ModelStatePair>& uim)
 {
     App::upd().prompt_user_to_save_file_with_extension_async(
-        [uim](std::optional<std::filesystem::path> p)
-        {
+        [uim](std::optional<std::filesystem::path> p) {
             if (not p) {
                 return;  // user cancelled out of the prompt
             }
@@ -278,8 +277,7 @@ void osc::action_save_model_async(
     std::function<void(bool)> callback)
 {
     // Handling function that's passed to the dialog backend (if necessary)
-    std::function<void(std::optional<std::filesystem::path>)> handle_file = [callback = std::move(callback), model](std::optional<std::filesystem::path> p)
-    {
+    std::function<void(std::optional<std::filesystem::path>)> handle_file = [callback = std::move(callback), model](std::optional<std::filesystem::path> p) {
         if (not p) {
             callback(false);
             return;  // user probably cancelled out
@@ -1289,7 +1287,8 @@ bool osc::action_reassign_component_socket(
     }
 
     try {
-        const bool component_properties_reexpressed = flags & SocketReassignmentFlags::TryReexpressComponentInNewConnectee ?
+        const bool component_properties_reexpressed =
+            flags & SocketReassignmentFlags::TryReexpressComponentInNewConnectee ?
             try_reexpress_component_spatial_properties_in_new_connectee(*mut_component, connectee, uim.get_state()) :
             false;
 
@@ -2350,8 +2349,7 @@ bool osc::action_import_landmarks(
 void osc::action_export_model_graph_to_dotviz(const std::shared_ptr<ModelStatePair>& model)
 {
     App::upd().prompt_user_to_save_file_with_extension_async(
-        [model](std::optional<std::filesystem::path> p)
-        {
+        [model](std::optional<std::filesystem::path> p) {
             if (not p) {
                 return;  // user cancelled out of the prompt
             }

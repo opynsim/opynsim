@@ -74,8 +74,7 @@ TEST(OpenSimActions, ActionApplyRangeDeletionPropertyEditReturnsFalseToIndicateF
     globally_init_open_sim();  // ensure component registry is populated
 
     // create undoable model with one body + joint
-    auto undoable_model = []
-    {
+    auto undoable_model = [] {
         OpenSim::Model model;
         auto body = std::make_unique<OpenSim::Body>("body", 1.0, SimTK::Vec3{0.0}, SimTK::Inertia{1.0});
         auto joint = std::make_unique<OpenSim::PinJoint>();

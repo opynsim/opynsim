@@ -100,8 +100,7 @@ namespace osc
         {
             const auto& doc_landmarks = doc.non_participating_landmarks;
 
-            const auto same_position = [](const MwDocumentNonParticipatingLandmark& lm, const SimTK::fVec3& position)
-            {
+            const auto same_position = [](const MwDocumentNonParticipatingLandmark& lm, const SimTK::fVec3& position) {
                 return lm.location.x() == position[0] and
                        lm.location.y() == position[1] and
                        lm.location.z() == position[2];
@@ -109,8 +108,7 @@ namespace osc
             const bool same_positions = rgs::equal(
                 doc_landmarks,
                 cached_source_non_participating_landmarks_,
-                same_position
-            );
+                same_position);
 
             if (!same_positions) {
                 cached_source_non_participating_landmarks_.clear();

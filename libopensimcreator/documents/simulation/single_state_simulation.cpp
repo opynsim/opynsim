@@ -17,8 +17,7 @@ public:
 
     SynchronizedValueGuard<const OpenSim::Model> get_model() const
     {
-        return model_state_.lock_child<OpenSim::Model>([](const BasicModelStatePairWithSharedEnvironment& ms) -> const OpenSim::Model&
-        {
+        return model_state_.lock_child<OpenSim::Model>([](const BasicModelStatePairWithSharedEnvironment& ms) -> const OpenSim::Model& {
             return ms.get_model();
         });
     }

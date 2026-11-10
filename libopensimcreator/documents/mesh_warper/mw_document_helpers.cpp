@@ -269,8 +269,7 @@ std::vector<MwNamedLandmarkPair3D> osc::get_named_landmark_pairs(const MwDocumen
 
 size_t osc::count_num_landmarks_for_input(const MwDocument& doc, MiDocumentInputIdentifier which)
 {
-    const auto has_location = [which](const MwDocumentLandmarkPair& p)
-    {
+    const auto has_location = [which](const MwDocumentLandmarkPair& p) {
         return osc::has_location(p, which);
     };
     return rgs::count_if(doc.landmark_pairs, has_location);
@@ -371,7 +370,9 @@ bool osc::delete_element_by_id(MwDocument& doc, const MwDocumentElementID& id)
             return true;
         }
     } else if (id.type == MwDocumentElementType::NonParticipatingLandmark) {
-        const auto has_id = [id = id.uid](const auto& npl) { return npl.uid == id; };
+        const auto has_id = [id = id.uid](const auto& npl) {
+            return npl.uid == id;
+        };
         const auto num_els_deleted = std::erase_if(doc.non_participating_landmarks, has_id);
         return num_els_deleted > 0;
     }
@@ -380,7 +381,9 @@ bool osc::delete_element_by_id(MwDocument& doc, const MwDocumentElementID& id)
 
 bool osc::delete_element_by_id(MwDocument& doc, UID id)
 {
-    const auto has_uid = [id](const auto& lp) { return lp.uid == id; };
+    const auto has_uid = [id](const auto& lp) {
+        return lp.uid == id;
+    };
     return std::erase_if(doc.landmark_pairs, has_uid) > 0 or
            std::erase_if(doc.non_participating_landmarks, has_uid) > 0;
 }

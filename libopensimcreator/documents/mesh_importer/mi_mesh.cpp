@@ -36,8 +36,7 @@ osc::MiMesh::MiMesh(
 
 std::optional<AABB> osc::MiMesh::calc_bounds() const
 {
-    return mesh_data_.bounds().transform([this](const AABB& local_bounds)
-    {
+    return mesh_data_.bounds().transform([this](const AABB& local_bounds) {
         return transform_aabb(transform_, local_bounds);
     });
 }

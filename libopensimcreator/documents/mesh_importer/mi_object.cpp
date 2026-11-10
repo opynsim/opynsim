@@ -20,8 +20,7 @@ bool osc::MiObject::is_cross_referencing(
     UID id,
     MiCrossrefDirection direction) const
 {
-    return rgs::any_of(impl_get_cross_references(), [id, direction](const MiCrossrefDescriptor& desc)
-    {
+    return rgs::any_of(impl_get_cross_references(), [id, direction](const MiCrossrefDescriptor& desc) {
         return desc.get_connectee_id() == id and (desc.get_direction() & direction);
     });
 }

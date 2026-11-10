@@ -28,7 +28,7 @@ namespace osc
         std::optional<ParamValue> find_value(std::string_view) const;
 
         void push_param(std::string_view name, std::string_view description, ParamValue);
-        void set_value(int idx, ParamValue);  // throws if param doesn't exist
+        void set_value(int idx, ParamValue);                  // throws if param doesn't exist
         void set_value(const std::string& name, ParamValue);  // throws if param doesn't exist
 
     private:
