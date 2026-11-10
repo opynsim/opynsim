@@ -5,20 +5,23 @@
 
 #include <memory>
 
-namespace opyn { class ModelStatePair; }
-namespace osc { class ModelViewerPanelParameters; }
-namespace osc { class ModelViewerPanelState; }
+namespace opyn
+{
+    class ModelStatePair;
+}
 
 namespace osc
 {
+    class ModelViewerPanelParameters;
+    class ModelViewerPanelState;
+
     // modal popup that prompts the user to select components in the model (e.g.
     // to define an edge, or a frame)
     class ChooseComponentsEditorLayer final : public ModelViewerPanelLayer {
     public:
         ChooseComponentsEditorLayer(
             std::shared_ptr<opyn::ModelStatePair>,
-            ChooseComponentsEditorLayerParameters
-        );
+            ChooseComponentsEditorLayerParameters);
         ChooseComponentsEditorLayer(const ChooseComponentsEditorLayer&) = delete;
         ChooseComponentsEditorLayer(ChooseComponentsEditorLayer&&) noexcept;
         ChooseComponentsEditorLayer& operator=(const ChooseComponentsEditorLayer&) = delete;
@@ -28,18 +31,15 @@ namespace osc
     private:
         bool impl_handle_keyboard_inputs(
             ModelViewerPanelParameters&,
-            ModelViewerPanelState&
-        ) final;
+            ModelViewerPanelState&) final;
 
         bool impl_handle_mouse_inputs(
             ModelViewerPanelParameters&,
-            ModelViewerPanelState&
-        ) final;
+            ModelViewerPanelState&) final;
 
         void impl_on_draw(
             ModelViewerPanelParameters&,
-            ModelViewerPanelState&
-        ) final;
+            ModelViewerPanelState&) final;
 
         float impl_get_background_alpha() const final;
 

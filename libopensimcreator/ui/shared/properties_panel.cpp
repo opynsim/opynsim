@@ -97,6 +97,7 @@ namespace
                 ui::end_disabled();
             }
         }
+
     private:
         std::shared_ptr<opyn::ModelStatePair> model_;
         UID last_model_version_;
@@ -115,7 +116,10 @@ public:
 
         PanelPrivate{owner, parent, panel_name},
         model_{std::move(model)},
-        selection_properties_editor_{&owner, model_, [model = model_]{ return model->get_selected(); }}
+        selection_properties_editor_{
+            &owner,
+            model_,
+            [model = model_] { return model->get_selected(); }}
     {}
 
     void draw_content()
@@ -126,7 +130,9 @@ public:
         }
 
         ui::push_id(model_->get_selected());
-        const ScopeExit g{[]{ ui::pop_id(); }};
+        const ScopeExit g{[] {
+            ui::pop_id();
+        }};
 
         // draw an actions row with a button that opens the context menu
         //

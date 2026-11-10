@@ -8,19 +8,26 @@
 #include <memory>
 #include <optional>
 
-namespace OpenSim { class Object; }
-namespace opyn { class VersionedComponentAccessor; }
-namespace osc { class Widget; }
+namespace OpenSim
+{
+    class Object;
+}
+
+namespace opyn
+{
+    class VersionedComponentAccessor;
+}
 
 namespace osc
 {
+    class Widget;
+
     class ObjectPropertiesEditor final : public Widget {
     public:
         explicit ObjectPropertiesEditor(
             Widget* parent,
             std::shared_ptr<const opyn::VersionedComponentAccessor> target_component,
-            std::function<const OpenSim::Object*()> object_getter
-        );
+            std::function<const OpenSim::Object*()> object_getter);
 
         void insert_in_blacklist(std::string_view property_name);
 

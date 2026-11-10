@@ -4,12 +4,16 @@
 
 #include <memory>
 
-namespace opyn { class ModelStatePair; }
-namespace osc { class Camera; }
-namespace osc { class Rect; }
+namespace opyn
+{
+    class ModelStatePair;
+}
 
 namespace osc
 {
+    class Camera;
+    class Rect;
+
     class ModelSelectionGizmo final {
     public:
         explicit ModelSelectionGizmo(std::shared_ptr<opyn::ModelStatePair>);

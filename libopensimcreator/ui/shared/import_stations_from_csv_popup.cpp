@@ -50,8 +50,7 @@ public:
         if (not maybe_import_path_) {
             draw_select_initial_file_state();
             ui::draw_vertical_spacer(0.75f);
-        }
-        else {
+        } else {
             ui::draw_separator();
             draw_landmark_entries();
             draw_warnings();
@@ -59,7 +58,6 @@ public:
             ui::draw_vertical_spacer(0.25f);
             ui::draw_separator();
             ui::draw_vertical_spacer(0.5f);
-
         }
 
         if (maybe_associated_model_) {
@@ -92,8 +90,7 @@ private:
         constexpr CStringView c_example_input_text = "name,x,y,z\nstationatground,0,0,0\nstation2,1.53,0.2,1.7\nstation3,3.0,2.0,0.0\n";
         ui::draw_text_wrapped("Example Input: ");
         ui::same_line();
-        if (ui::draw_button(MSMICONS_COPY))
-        {
+        if (ui::draw_button(MSMICONS_COPY)) {
             set_clipboard_text(c_example_input_text);
         }
         ui::draw_tooltip_body_only_if_item_hovered("Copy example input to clipboard");
@@ -104,16 +101,14 @@ private:
 
     void draw_select_initial_file_state()
     {
-        if (ui::draw_button_centered(MSMICONS_FILE " Select File"))
-        {
+        if (ui::draw_button_centered(MSMICONS_FILE " Select File")) {
             action_try_prompting_user_for_csv_file();
         }
     }
 
     void draw_landmark_entries()
     {
-        if (!maybe_import_path_ || imported_landmarks_.empty())
-        {
+        if (not maybe_import_path_ or imported_landmarks_.empty()) {
             return;
         }
 
@@ -121,8 +116,7 @@ private:
         ui::draw_text_centered(std::string{"("} + std::to_string(imported_landmarks_.size()) + " data rows)");
 
         ui::draw_vertical_spacer(0.2f);
-        if (ui::begin_table("##importtable", 4, ui::TableFlag::ScrollY, {0.0f, 10.0f*ui::get_text_line_height_in_current_panel()}))
-        {
+        if (ui::begin_table("##importtable", 4, ui::TableFlag::ScrollY, {0.0f, 10.0f * ui::get_text_line_height_in_current_panel()})) {
             ui::table_setup_column("Name");
             ui::table_setup_column("X");
             ui::table_setup_column("Y");
@@ -130,8 +124,7 @@ private:
             ui::table_headers_row();
 
             int id = 0;
-            for (const auto& station : imported_landmarks_)
-            {
+            for (const auto& station : imported_landmarks_) {
                 ui::push_id(id++);
                 ui::table_next_row();
                 int column = 0;
@@ -150,21 +143,18 @@ private:
         }
         ui::draw_vertical_spacer(0.2f);
 
-        if (ui::draw_button(MSMICONS_FILE " Select Different File"))
-        {
+        if (ui::draw_button(MSMICONS_FILE " Select Different File")) {
             action_try_prompting_user_for_csv_file();
         }
         ui::same_line();
-        if (ui::draw_button(MSMICONS_RECYCLE " Reload Same File"))
-        {
+        if (ui::draw_button(MSMICONS_RECYCLE " Reload Same File")) {
             action_load_csv_file(*maybe_import_path_);
         }
     }
 
     void draw_warnings()
     {
-        if (import_warnings_.empty())
-        {
+        if (import_warnings_.empty()) {
             return;
         }
 
@@ -172,13 +162,11 @@ private:
         ui::draw_text(MSMICONS_EXCLAMATION " input file contains issues");
         ui::pop_style_color();
 
-        if (ui::is_item_hovered())
-        {
+        if (ui::is_item_hovered()) {
             ui::begin_tooltip();
             ui::indent();
             int id = 0;
-            for (const auto& warning : import_warnings_)
-            {
+            for (const auto& warning : import_warnings_) {
                 ui::push_id(id++);
                 ui::draw_text(warning);
                 ui::pop_id();
@@ -190,12 +178,10 @@ private:
     void draw_possibly_disabled_ok_or_cancel_buttons()
     {
         std::optional<CStringView> disabled_reason;
-        if (!maybe_import_path_)
-        {
+        if (not maybe_import_path_) {
             disabled_reason = "Cannot continue: nothing has been imported (select a file first)";
         }
-        if (imported_landmarks_.empty())
-        {
+        if (imported_landmarks_.empty()) {
             disabled_reason = "Cannot continue: there are no landmarks to import";
         }
 
@@ -221,8 +207,7 @@ private:
     void action_try_prompting_user_for_csv_file()
     {
         App::upd().prompt_user_to_select_file_async(
-            [this, this_lifetime = lifetime_watcher()](const FileDialogResponse& response)
-            {
+            [this, this_lifetime = lifetime_watcher()](const FileDialogResponse& response) {
                 if (this_lifetime.expired()) {
                     return;  // This UI widget has expired, so nothing to load it into.
                 }
@@ -236,8 +221,7 @@ private:
             {
                 CSV::file_dialog_filter(),
                 FileDialogFilter::all_files(),
-            }
-        );
+            });
     }
 
     void action_load_csv_file(const std::filesystem::path& path)
@@ -247,8 +231,7 @@ private:
         import_warnings_.clear();
 
         std::ifstream ifs{path};
-        if (!ifs)
-        {
+        if (not ifs) {
             std::stringstream ss;
             ss << path << ": could not load the given path";
             import_warnings_.push_back(std::move(ss).str());
@@ -259,15 +242,13 @@ private:
         opyn::read_landmarks_from_csv(
             ifs,
             [&lms](opyn::Landmark&& lm) { lms.push_back(std::move(lm)); },
-            [this](const opyn::CSVParseWarning& warning) { import_warnings_.push_back(to_string(warning)); }
-        );
+            [this](const opyn::CSVParseWarning& warning) { import_warnings_.push_back(to_string(warning)); });
         imported_landmarks_ = generate_names(lms);
     }
 
     void action_attach_result_to_model_graph()
     {
-        if (imported_landmarks_.empty())
-        {
+        if (imported_landmarks_.empty()) {
             return;
         }
 

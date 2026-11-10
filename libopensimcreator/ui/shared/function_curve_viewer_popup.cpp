@@ -38,6 +38,7 @@ public:
         component_{std::move(target_component)},
         function_getter_{std::move(function_getter)}
     {}
+
 private:
     class FunctionParameters final {
     public:
@@ -170,12 +171,11 @@ private:
         SimTK::Vector x(1);
         try {
             for (int step = 0; step < params.get_num_points(); ++step) {
-                x[0] = params.get_input_range().lower + step_size*step;
+                x[0] = params.get_input_range().lower + step_size * step;
                 const double y = function->calcValue(x);
                 rv.emplace_back(x[0], y);
             }
-        }
-        catch (const std::exception& ex) {
+        } catch (const std::exception& ex) {
             error_ = ex.what();
             rv = {};
             return rv;
@@ -186,25 +186,26 @@ private:
 
     void on_user_requested_csv_export()
     {
-        App::upd().prompt_user_to_save_file_with_extension_async([points = plot_points_](std::optional<std::filesystem::path> p)
-        {
-            if (not p) {
-                return;  // user cancelled out of the prompt
-            }
+        App::upd().prompt_user_to_save_file_with_extension_async(
+            [points = plot_points_](std::optional<std::filesystem::path> p) {
+                if (not p) {
+                    return;  // user cancelled out of the prompt
+                }
 
-            std::ofstream ostream{*p};
-            if (not ostream) {
-                return;  // error opening the output file for writing
-            }
+                std::ofstream ostream{*p};
+                if (not ostream) {
+                    return;  // error opening the output file for writing
+                }
 
-            // write header
-            CSV::write_row(ostream, std::to_array<std::string>({ "x", "y" }));
+                // write header
+                CSV::write_row(ostream, std::to_array<std::string>({"x", "y"}));
 
-            // write data rows
-            for (const auto& [x, y] : points) {
-                CSV::write_row(ostream, std::to_array({ std::to_string(x), std::to_string(y) }));
-            }
-        }, "csv");
+                // write data rows
+                for (const auto& [x, y] : points) {
+                    CSV::write_row(ostream, std::to_array({std::to_string(x), std::to_string(y)}));
+                }
+            },
+            "csv");
     }
 
     std::shared_ptr<const opyn::VersionedComponentAccessor> component_;

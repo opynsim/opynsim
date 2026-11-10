@@ -47,7 +47,6 @@ namespace
 
 class osc::OutputWatchesPanel::Impl final : public PanelPrivate {
 public:
-
     explicit Impl(
         OutputWatchesPanel& owner,
         Widget* parent,
@@ -107,8 +106,7 @@ public:
             }
 
             ui::end_table();
-        }
-        else {
+        } else {
             ui::draw_text_disabled_and_panel_centered("No outputs being watched");
             ui::draw_text_disabled_and_centered("(Right-click a component and 'Watch Output')");
         }

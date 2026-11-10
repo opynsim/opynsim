@@ -59,7 +59,7 @@ namespace
 
     bool path_contains(const ComponentTreePathPointers& p, const OpenSim::Component* c)
     {
-        auto end = p.begin() == p.end() ? p.end() : p.end()-1;
+        auto end = p.begin() == p.end() ? p.end() : p.end() - 1;
         return cpp23::contains(p.begin(), end, c);
     }
 
@@ -76,8 +76,7 @@ namespace
 
     bool is_search_hit(const std::string& search_str, const ComponentTreePathPointers& cp)
     {
-        return rgs::any_of(cp, [&search_str](const OpenSim::Component* c)
-        {
+        return rgs::any_of(cp, [&search_str](const OpenSim::Component* c) {
             return contains_case_insensitive(c->getName(), search_str);
         });
     }
@@ -110,8 +109,7 @@ public:
         // propagate any UI-initated changes
         if (response.type == ResponseType::SelectionChanged) {
             model_->set_selected(response.ptr);
-        }
-        else if (response.type == ResponseType::HoverChanged) {
+        } else if (response.type == ResponseType::HoverChanged) {
             model_->set_hovered(response.ptr);
         }
     }
@@ -139,8 +137,7 @@ private:
             "##componentnavigatorvieweritems",
             Vector2{0.0, 0.0},
             ui::ChildPanelFlags{},
-            ui::PanelFlag::NoBackground
-        );
+            ui::PanelFlag::NoBackground);
 
         ui::draw_vertical_spacer(0.05f);
         draw_navigation_tree_content(rv);
@@ -196,13 +193,11 @@ private:
 
                 bool should_render = true;
 
-                if (!show_frames_ && dynamic_cast<const OpenSim::FrameGeometry*>(&c)) {  // NOLINT(bugprone-branch-clone)
+                if (not show_frames_ and dynamic_cast<const OpenSim::FrameGeometry*>(&c)) {  // NOLINT(bugprone-branch-clone)
                     should_render = false;
-                }
-                else if (const auto* wos = dynamic_cast<const OpenSim::WrapObjectSet*>(&c)) {
+                } else if (const auto* wos = dynamic_cast<const OpenSim::WrapObjectSet*>(&c)) {
                     should_render = !opyn::empty(*wos);
-                }
-                else if (!opyn::should_show_in_ui(c)) {
+                } else if (not opyn::should_show_in_ui(c)) {
                     should_render = false;
                 }
 
@@ -239,7 +234,7 @@ private:
             if (row++ % 2) {
                 const auto offset = ui::get_cursor_ui_position() - ui::get_cursor_panel_position();
                 const auto top_left = Vector2{0.0f, ui::get_cursor_panel_position().y()};
-                const auto bottom_right =  top_left + Vector2{ui::get_panel_size().x(), ui::get_text_line_height_with_spacing_in_current_panel()};
+                const auto bottom_right = top_left + Vector2{ui::get_panel_size().x(), ui::get_text_line_height_with_spacing_in_current_panel()};
                 const auto rect = Rect::from_corners(offset + top_left, offset + bottom_right);
                 const auto color = multiply_luminance(ui::get_color(ui::ColorVar::PanelBg), 1.2f);
                 ui::get_panel_draw_list().add_rect_filled(rect, color);
@@ -250,15 +245,12 @@ private:
             if (cur == selected) {
                 ui::push_style_color(ui::ColorVar::Text, OSCColors::selected());
                 ++pushed_styles;
-            }
-            else if (cur == hovered) {
+            } else if (cur == hovered) {
                 ui::push_style_color(ui::ColorVar::Text, OSCColors::hovered());
                 ++pushed_styles;
-            }
-            else if (!has_search || search_hit) {
+            } else if (not has_search or search_hit) {
                 // display as normal
-            }
-            else {
+            } else {
                 ui::push_style_color(ui::ColorVar::Text, OSCColors::disabled());
                 ++pushed_styles;
             }
@@ -275,8 +267,7 @@ private:
             if (ui::draw_tree_node_ex(std::move(ss).str(), node_flags)) {
                 ui::unindent(unindent_per_level);
                 ++imgui_tree_depth;
-            }
-            else {
+            } else {
                 ui::pop_id();
             }
             ui::pop_style_color(pushed_styles);
@@ -319,8 +310,7 @@ private:
         // cache the previous selection path, so we can observe when it has changed (#908)
         if (rv.type == ResponseType::SelectionChanged) {
             previous_selection_path_ = opyn::get_absolute_path_or_empty(rv.ptr);
-        }
-        else {
+        } else {
             previous_selection_path_ = std::move(selected_path);
         }
     }

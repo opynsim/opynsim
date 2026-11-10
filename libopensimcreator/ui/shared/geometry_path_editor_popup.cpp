@@ -23,18 +23,15 @@ using namespace osc;
 
 namespace
 {
-    constexpr auto c_location_input_i_ds = std::to_array<CStringView>({ "##xinput", "##yinput", "##zinput" });
+    constexpr auto c_location_input_i_ds = std::to_array<CStringView>({"##xinput", "##yinput", "##zinput"});
     static_assert(c_location_input_i_ds.size() == 3);
 
     OpenSim::GeometryPath copy_or_default_geometry_path(const std::function<const OpenSim::GeometryPath*()>& accessor)
     {
         const OpenSim::GeometryPath* maybe_geom_path = accessor();
-        if (maybe_geom_path)
-        {
+        if (maybe_geom_path) {
             return *maybe_geom_path;
-        }
-        else
-        {
+        } else {
             return OpenSim::GeometryPath{};
         }
     }
@@ -65,28 +62,25 @@ namespace
 
     void action_move_path_point_up(OpenSim::PathPointSet& pps, ptrdiff_t i)
     {
-        if (1 <= i && i < opyn::ssize(pps))
-        {
+        if (1 <= i && i < opyn::ssize(pps)) {
             auto tmp = opyn::clone(opyn::at(pps, i));
-            opyn::assign(pps, i, opyn::at(pps, i-1));
-            opyn::assign(pps, i-1, std::move(tmp));
+            opyn::assign(pps, i, opyn::at(pps, i - 1));
+            opyn::assign(pps, i - 1, std::move(tmp));
         }
     }
 
     void action_move_path_point_down(OpenSim::PathPointSet& pps, ptrdiff_t i)
     {
-        if (0 <= i && i < opyn::ssize(pps)-1)
-        {
+        if (0 <= i && i < opyn::ssize(pps) - 1) {
             auto tmp = opyn::clone(opyn::at(pps, i));
-            opyn::assign(pps, i, opyn::at(pps, i+1));
-            opyn::assign(pps, i+1, std::move(tmp));
+            opyn::assign(pps, i, opyn::at(pps, i + 1));
+            opyn::assign(pps, i + 1, std::move(tmp));
         }
     }
 
     void action_delete_path_point(OpenSim::PathPointSet& pps, ptrdiff_t i)
     {
-        if (0 <= i && i < opyn::ssize(pps))
-        {
+        if (0 <= i and i < opyn::ssize(pps)) {
             opyn::erase_at(pps, i);
         }
     }
@@ -101,9 +95,7 @@ namespace
 
     void action_add_new_path_point(OpenSim::PathPointSet& pps)
     {
-        const std::string frame = opyn::empty(pps) ?
-            "/ground" :
-            opyn::at(pps, opyn::size(pps)-1).getSocket("parent_frame").getConnecteePath();
+        const std::string frame = opyn::empty(pps) ? "/ground" : opyn::at(pps, opyn::size(pps) - 1).getSocket("parent_frame").getConnecteePath();
 
         auto pp = std::make_unique<OpenSim::PathPoint>();
         pp->updSocket("parent_frame").setConnecteePath(frame);
@@ -131,8 +123,7 @@ public:
 
     void draw_content()
     {
-        if (geometry_path_getter_() == nullptr)
-        {
+        if (geometry_path_getter_() == nullptr) {
             // edge-case: the geometry path that this popup is editing no longer
             // exists (e.g. because a muscle was deleted or similar), so it should
             // announce the problem and close itself
@@ -158,8 +149,7 @@ private:
     {
         OpenSim::PathPointSet& pps = edited_geometry_path_.updPathPointSet();
 
-        if (ui::begin_table("##GeometryPathEditorTable", 6))
-        {
+        if (ui::begin_table("##GeometryPathEditorTable", 6)) {
             ui::table_setup_column("Actions");
             ui::table_setup_column("Type");
             ui::table_setup_column("X");
@@ -169,8 +159,7 @@ private:
             ui::table_setup_scroll_freeze(0, 1);
             ui::table_headers_row();
 
-            for (ptrdiff_t i = 0; i < opyn::ssize(pps); ++i)
-            {
+            for (ptrdiff_t i = 0; i < opyn::ssize(pps); ++i) {
                 ui::push_id(i);
                 draw_ith_path_point_table_row(pps, i);
                 ui::pop_id();
@@ -187,8 +176,7 @@ private:
 
     void draw_add_path_point_button()
     {
-        if (ui::draw_button(MSMICONS_PLUS_CIRCLE " Add Point"))
-        {
+        if (ui::draw_button(MSMICONS_PLUS_CIRCLE " Add Point")) {
             action_add_new_path_point(edited_geometry_path_.updPathPointSet());
         }
     }
@@ -227,21 +215,20 @@ private:
 
         ui::same_line();
 
-        if (i+1 >= opyn::ssize(pps)) {
+        if (i + 1 >= opyn::ssize(pps)) {
             ui::begin_disabled();
         }
         if (ui::draw_small_button(MSMICONS_ARROW_DOWN)) {
             requested_action_ = RequestedAction{RequestedAction::Type::MoveDown, i};
         }
-        if (i+1 >= opyn::ssize(pps)) {
+        if (i + 1 >= opyn::ssize(pps)) {
             ui::end_disabled();
         }
 
         ui::same_line();
 
         ui::push_style_color(ui::ColorVar::Text, Color{0.7f, 0.0f, 0.0f});
-        if (ui::draw_small_button(MSMICONS_TRASH))
-        {
+        if (ui::draw_small_button(MSMICONS_TRASH)) {
             requested_action_ = RequestedAction{RequestedAction::Type::Delete, i};
         }
         ui::pop_style_color();
@@ -261,27 +248,22 @@ private:
     {
         OpenSim::AbstractPathPoint& app = opyn::at(pps, i);
 
-        if (auto* const pp = dynamic_cast<OpenSim::PathPoint*>(&app))
-        {
+        if (auto* const pp = dynamic_cast<OpenSim::PathPoint*>(&app)) {
             const float input_width = ui::calc_text_size("0.00000").x();
 
             SimTK::Vec3& location = pp->upd_location();
 
             static_assert(c_location_input_i_ds.size() == 3);
-            for (size_t dim = 0; dim < c_location_input_i_ds.size(); ++dim)
-            {
+            for (size_t dim = 0; dim < c_location_input_i_ds.size(); ++dim) {
                 auto v = static_cast<float>(location[static_cast<int>(dim)]);
 
                 ui::table_set_column_index(column++);
                 ui::set_next_item_width(input_width);
-                if (ui::draw_float_input(c_location_input_i_ds[dim], &v))
-                {
+                if (ui::draw_float_input(c_location_input_i_ds[dim], &v)) {
                     location[static_cast<int>(dim)] = static_cast<double>(v);
                 }
             }
-        }
-        else
-        {
+        } else {
             // it's some other kind of path point, with no editable X, Y, or Z
             ui::table_set_column_index(column++);
             ui::table_set_column_index(column++);
@@ -296,13 +278,10 @@ private:
         const std::string& label = opyn::at(pps, i).getSocket("parent_frame").getConnecteePath();
 
         ui::set_next_item_width(width);
-        if (ui::begin_combobox("##framesel", label))
-        {
-            for (const OpenSim::Frame& frame : target_component_->get_component().getComponentList<OpenSim::Frame>())
-            {
+        if (ui::begin_combobox("##framesel", label)) {
+            for (const OpenSim::Frame& frame : target_component_->get_component().getComponentList<OpenSim::Frame>()) {
                 const std::string abs_path = frame.getAbsolutePathString();
-                if (ui::draw_selectable(abs_path))
-                {
+                if (ui::draw_selectable(abs_path)) {
                     action_set_path_point_frame_path(pps, i, abs_path);
                 }
             }
@@ -312,15 +291,13 @@ private:
 
     void draw_bottom_buttons()
     {
-        if (ui::draw_button("cancel"))
-        {
+        if (ui::draw_button("cancel")) {
             request_close();
         }
 
         ui::same_line();
 
-        if (ui::draw_button("save"))
-        {
+        if (ui::draw_button("save")) {
             on_local_copy_edited_(edited_geometry_path_);
             request_close();
         }
@@ -328,15 +305,13 @@ private:
 
     void try_execute_requested_action(OpenSim::PathPointSet& pps)
     {
-        if (!(0 <= requested_action_.pathPointIndex && requested_action_.pathPointIndex < opyn::ssize(pps)))
-        {
+        if (!(0 <= requested_action_.pathPointIndex && requested_action_.pathPointIndex < opyn::ssize(pps))) {
             // edge-case: if the index is out of range, ignore the action
             requested_action_.reset();
             return;
         }
 
-        switch (requested_action_.type)
-        {
+        switch (requested_action_.type) {
         case RequestedAction::Type::MoveUp:
             action_move_path_point_up(pps, requested_action_.pathPointIndex);
             break;
@@ -360,7 +335,6 @@ private:
     OpenSim::GeometryPath edited_geometry_path_;
     RequestedAction requested_action_;
 };
-
 
 osc::GeometryPathEditorPopup::GeometryPathEditorPopup(
     Widget* parent,

@@ -10,21 +10,24 @@
 #include <optional>
 #include <string_view>
 
-namespace opyn { class ModelStatePair; }
-namespace osc { class Camera; }
-namespace osc { class ModelViewerPanelLayer; }
-namespace osc { class ModelViewerPanelParameters; }
+namespace opyn
+{
+    class ModelStatePair;
+}
 
 namespace osc
 {
+    class Camera;
+    class ModelViewerPanelLayer;
+    class ModelViewerPanelParameters;
+
     class ModelViewerPanel : public Panel {
     public:
         explicit ModelViewerPanel(
             Widget* parent,
             std::string_view panel_name,
             const ModelViewerPanelParameters&,
-            ModelViewerPanelFlags = {}
-        );
+            ModelViewerPanelFlags = {});
 
         bool is_moused_over() const;
         bool is_left_clicked() const;
@@ -41,6 +44,7 @@ namespace osc
 
     protected:
         void impl_draw_content() override;
+
     private:
         void impl_before_imgui_begin() final;
         void impl_after_imgui_begin() final;

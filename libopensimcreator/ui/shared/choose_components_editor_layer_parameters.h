@@ -7,7 +7,10 @@
 #include <string>
 #include <unordered_set>
 
-namespace OpenSim { class Component; }
+namespace OpenSim
+{
+    class Component;
+}
 
 namespace osc
 {
@@ -18,8 +21,7 @@ namespace osc
         std::string popup_header_text = "Choose Something";
 
         // predicate that is used to test whether the element is choose-able
-        std::function<bool(const OpenSim::Component&)> can_choose_item = [](const OpenSim::Component&)
-        {
+        std::function<bool(const OpenSim::Component&)> can_choose_item = [](const OpenSim::Component&) {
             return true;
         };
 
@@ -29,8 +31,7 @@ namespace osc
 
         size_t num_components_user_must_choose = 1;
 
-        std::function<bool(const std::unordered_set<StringName>&)> on_user_finished_choosing = [](const std::unordered_set<StringName>&)
-        {
+        std::function<bool(const std::unordered_set<StringName>&)> on_user_finished_choosing = [](const std::unordered_set<StringName>&) {
             return true;
         };
     };

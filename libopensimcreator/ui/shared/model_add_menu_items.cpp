@@ -37,7 +37,6 @@
 
 class osc::ModelAddMenuItems::Impl final : public WidgetPrivate {
 public:
-
     explicit Impl(
         Widget& owner,
         Widget* parent,
@@ -66,8 +65,7 @@ public:
 
         if (search_string_.empty()) {
             draw_default_component_list();
-        }
-        else {
+        } else {
             draw_search_results_or_no_results();
         }
 
@@ -91,20 +89,16 @@ private:
         if (const auto* joint = dynamic_cast<const OpenSim::Joint*>(component)) {
             ui::draw_separator();
             draw_specialized_contextual_actions(*joint);
-        }
-        else if (const auto* hcf = dynamic_cast<const OpenSim::HuntCrossleyForce*>(component)) {
+        } else if (const auto* hcf = dynamic_cast<const OpenSim::HuntCrossleyForce*>(component)) {
             ui::draw_separator();
             draw_specialized_contextual_actions(*hcf);
-        }
-        else if (const auto* pa = dynamic_cast<const OpenSim::PathActuator*>(component)) {
+        } else if (const auto* pa = dynamic_cast<const OpenSim::PathActuator*>(component)) {
             ui::draw_separator();
             draw_specialized_contextual_actions(*pa);
-        }
-        else if (const auto* gp = dynamic_cast<const OpenSim::GeometryPath*>(component)) {
+        } else if (const auto* gp = dynamic_cast<const OpenSim::GeometryPath*>(component)) {
             ui::draw_separator();
             draw_specialized_contextual_actions(*gp);
-        }
-        else if (const auto* pf = dynamic_cast<const OpenSim::PhysicalFrame*>(component)) {
+        } else if (const auto* pf = dynamic_cast<const OpenSim::PhysicalFrame*>(component)) {
             ui::draw_separator();
             draw_specialized_contextual_actions(*pf);
         }
@@ -131,12 +125,10 @@ private:
         }
 
         if (ui::draw_menu_item("Associated Contact Geometry", {}, nullptr, model_->can_upd_model())) {
-            const auto on_selection = [model = model_, path = hcf.getAbsolutePath()](const OpenSim::ComponentPath& geom_path)
-            {
+            const auto on_selection = [model = model_, path = hcf.getAbsolutePath()](const OpenSim::ComponentPath& geom_path) {
                 action_assign_contact_geometry_to_hcf(*model, path, geom_path);
             };
-            const auto filter = [](const OpenSim::Component& c) -> bool
-            {
+            const auto filter = [](const OpenSim::Component& c) -> bool {
                 return dynamic_cast<const OpenSim::ContactGeometry*>(&c) != nullptr;
             };
             auto popup = std::make_unique<SelectComponentPopup>(parent(), "Select Contact Geometry", model_, on_selection, filter);
@@ -152,8 +144,7 @@ private:
         }
 
         if (ui::draw_menu_item("Path Point", {}, nullptr, model_->can_upd_model())) {
-            auto on_selection = [model = model_, path = pa.getAbsolutePath()](const OpenSim::ComponentPath& pf_path)
-            {
+            auto on_selection = [model = model_, path = pa.getAbsolutePath()](const OpenSim::ComponentPath& pf_path) {
                 action_add_path_point_to_path_actuator(*model, path, pf_path);
             };
             auto popup = std::make_unique<Select1PFPopup>(parent(), "Select Physical Frame", model_, on_selection);
@@ -176,8 +167,7 @@ private:
             ui::end_menu();
         }
         if (ui::draw_menu_item("Path Point", {}, nullptr, model_->can_upd_model())) {
-            auto on_selection = [model = model_, path = geometry_path.getAbsolutePath()](const OpenSim::ComponentPath& pf_path)
-            {
+            auto on_selection = [model = model_, path = geometry_path.getAbsolutePath()](const OpenSim::ComponentPath& pf_path) {
                 action_add_path_point_to_geometry_path(*model, path, pf_path);
             };
             auto popup = std::make_unique<Select1PFPopup>(parent(), "Select Physical Frame", model_, on_selection);
@@ -189,19 +179,16 @@ private:
     void draw_specialized_contextual_actions(const OpenSim::PhysicalFrame& frame)
     {
         if (ui::draw_menu_item("Geometry", {}, nullptr, model_->can_upd_model() and parent() != nullptr)) {
-            const std::function<void(std::unique_ptr<OpenSim::Geometry>)> callback = [
-                model = model_,
-                path = frame.getAbsolutePath(),
-                pptr = parent()](auto geom)
-            {
+            const std::function<void(std::unique_ptr<OpenSim::Geometry>)> callback = [model = model_,
+                                                                                      path = frame.getAbsolutePath(),
+                                                                                      pptr = parent()](auto geom) {
                 action_attach_geometry_to_physical_frame(*model, path, std::move(geom));
             };
             auto popup = std::make_unique<SelectGeometryPopup>(
                 parent(),
                 "select geometry to attach",
                 App::resource_filepath("OpenSimCreator/geometry"),
-                callback
-            );
+                callback);
             App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
         }
         ui::draw_tooltip_if_item_hovered("Add Geometry", "Add geometry to this component. Geometry can be removed by selecting it in the navigator and pressing DELETE");
@@ -228,8 +215,7 @@ private:
             if (ui::draw_menu_item(wo.getName(), {}, &selected, model_->can_upd_model())) {
                 if (enabled) {
                     action_remove_wrap_object_from_geometry_path_wraps(*model_, gp, wo);
-                }
-                else {
+                } else {
                     action_add_wrap_object_to_geometry_path_wraps(*model_, gp, wo);
                 }
             }
@@ -247,8 +233,7 @@ private:
                 action_add_wrap_object_to_physical_frame(
                     *model_,
                     physical_frame_abs_path,
-                    entry.instantiate()
-                );
+                    entry.instantiate());
             }
             ui::pop_id();
         }
@@ -343,8 +328,7 @@ private:
             label.str(),
             model_,
             entry.instantiate(),
-            maybe_target_parent_component_
-        );
+            maybe_target_parent_component_);
         App::post_event<OpenPopupEvent>(owner(), std::move(popup));
     }
 
@@ -352,7 +336,6 @@ private:
     std::string search_string_;
     OpenSim::ComponentPath maybe_target_parent_component_;
 };
-
 
 osc::ModelAddMenuItems::ModelAddMenuItems(Widget* parent, std::shared_ptr<opyn::ModelStatePair> m) :
     Widget{std::make_unique<Impl>(*this, parent, std::move(m))}

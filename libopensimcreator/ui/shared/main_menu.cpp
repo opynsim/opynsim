@@ -56,8 +56,7 @@ namespace
         // Asynchronously ask the user to select a motion file and then load the motion
         // file against the model and show the result in a new tab.
         App::upd().prompt_user_to_select_file_async(
-            [model, parent_ref = parent->weak_ref()](const FileDialogResponse& response)
-            {
+            [model, parent_ref = parent->weak_ref()](const FileDialogResponse& response) {
                 if (response.size() != 1) {
                     return;  // Error or user somehow selected too many files.
                 }
@@ -75,8 +74,7 @@ namespace
                     std::shared_ptr<Environment> env;
                     if (auto model_with_env = std::dynamic_pointer_cast<ModelStatePairWithSharedEnvironment>(model)) {
                         env = model_with_env->try_upd_environment();
-                    }
-                    else {
+                    } else {
                         env = std::make_shared<Environment>();
                     }
 
@@ -84,17 +82,14 @@ namespace
                         std::move(cpy),
                         response.front(),
                         model->get_fixup_scale_factor(),
-                        std::move(env)
-                    });
+                        std::move(env)});
                     auto tab = std::make_unique<SimulationTab>(parent_ref.get(), simulation);
                     App::post_event<OpenTabEvent>(*parent_ref, std::move(tab));
-                }
-                catch (const std::exception& ex) {
+                } catch (const std::exception& ex) {
                     log_error("encountered error while trying to load an STO file against the model: {}", ex.what());
                 }
             },
-            opyn::get_motion_file_filters()
-        );
+            opyn::get_motion_file_filters());
     }
 
     std::vector<std::filesystem::path> try_load_example_osim_files()
@@ -106,8 +101,7 @@ namespace
 
             rv = find_files_with_extensions_recursive(
                 *example_osims_directory_path,
-                std::to_array({std::string_view{".osim"}})
-            );
+                std::to_array({std::string_view{".osim"}}));
         } else {
             log_warn("{}: no such directory: cannot iterate through example models: falling back to an empty list", example_osims_resource_path.string());
         }
@@ -135,19 +129,15 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybe_m
             if (parent()) {
                 action_new_model(*parent());
             }
-        }
-        else if (mod and ui::is_key_pressed(Key::O)) {
+        } else if (mod and ui::is_key_pressed(Key::O)) {
             if (parent()) {
                 action_open_model(*parent());
             }
-        }
-        else if (undoable_model and mod and ui::is_shift_down() and ui::is_key_pressed(Key::S)) {
+        } else if (undoable_model and mod and ui::is_shift_down() and ui::is_key_pressed(Key::S)) {
             action_save_current_model_as(undoable_model);
-        }
-        else if (undoable_model and mod and ui::is_key_pressed(Key::S)) {
+        } else if (undoable_model and mod and ui::is_key_pressed(Key::S)) {
             action_save_model_async(undoable_model);
-        }
-        else if (undoable_model and ui::is_key_pressed(Key::F5)) {
+        } else if (undoable_model and ui::is_key_pressed(Key::F5)) {
             action_reload_osim_from_disk(*undoable_model, *App::singleton<SceneCache>());
         }
     }
@@ -284,11 +274,9 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybe_m
     ui::end_menu();
 }
 
-
 void osc::MainMenuAboutTab::on_draw()
 {
-    if (!ui::begin_menu("About"))
-    {
+    if (not ui::begin_menu("About")) {
         return;
     }
 
@@ -299,7 +287,7 @@ void osc::MainMenuAboutTab::on_draw()
     ui::same_line();
     ui::draw_help_marker("OSMV's global graphical settings");
     ui::draw_separator();
-    ui::draw_vertical_spacer(0.5f/15.0f);
+    ui::draw_vertical_spacer(0.5f / 15.0f);
     {
         ui::set_num_columns(2);
 
@@ -316,13 +304,10 @@ void osc::MainMenuAboutTab::on_draw()
             const AntiAliasingLevel current = App::get().anti_aliasing_level();
             const AntiAliasingLevel max = App::get().max_anti_aliasing_level();
 
-            if (ui::begin_combobox("##msxaa", stream_to_string(current)))
-            {
-                for (AntiAliasingLevel l = AntiAliasingLevel::min(); l <= max; ++l)
-                {
+            if (ui::begin_combobox("##msxaa", stream_to_string(current))) {
+                for (AntiAliasingLevel l = AntiAliasingLevel::min(); l <= max; ++l) {
                     bool selected = l == current;
-                    if (ui::draw_selectable(stream_to_string(l), &selected))
-                    {
+                    if (ui::draw_selectable(stream_to_string(l), &selected)) {
                         App::upd().set_anti_aliasing_level(l);
                     }
                 }
@@ -356,12 +341,12 @@ void osc::MainMenuAboutTab::on_draw()
         ui::set_num_columns();
     }
 
-    ui::draw_vertical_spacer(2.0f/15.0f);
+    ui::draw_vertical_spacer(2.0f / 15.0f);
     ui::draw_text("properties");
     ui::same_line();
     ui::draw_help_marker("general software properties: useful information for bug reporting etc.");
     ui::draw_separator();
-    ui::draw_vertical_spacer(0.5f/15.0f);
+    ui::draw_vertical_spacer(0.5f / 15.0f);
     {
         const AppMetadata& metadata = App::get().metadata();
 
@@ -402,12 +387,12 @@ void osc::MainMenuAboutTab::on_draw()
         ui::set_num_columns(1);
     }
 
-    ui::draw_vertical_spacer(2.5f/15.0f);
+    ui::draw_vertical_spacer(2.5f / 15.0f);
     ui::draw_text("debugging utilities:");
     ui::same_line();
     ui::draw_help_marker("standard utilities that can help with development, debugging, etc.");
     ui::draw_separator();
-    ui::draw_vertical_spacer(0.5f/15.0f);
+    ui::draw_vertical_spacer(0.5f / 15.0f);
     int id = 0;
     {
         ui::set_num_columns(2);
@@ -451,22 +436,20 @@ void osc::MainMenuAboutTab::on_draw()
         ui::set_num_columns();
     }
 
-    ui::draw_vertical_spacer(2.5f/15.0f);
+    ui::draw_vertical_spacer(2.5f / 15.0f);
     ui::draw_text("useful links:");
     ui::same_line();
     ui::draw_help_marker("links to external sites that might be useful");
     ui::draw_separator();
-    ui::draw_vertical_spacer(0.5f/15.0f);
+    ui::draw_vertical_spacer(0.5f / 15.0f);
     {
         ui::set_num_columns(2);
 
-        if (auto docs_url = App::get().metadata().documentation_url())
-        {
+        if (auto docs_url = App::get().metadata().documentation_url()) {
             ui::draw_text("OpenSim Creator Documentation");
             ui::next_column();
             ui::push_id(id++);
-            if (ui::draw_button(MSMICONS_LINK " open"))
-            {
+            if (ui::draw_button(MSMICONS_LINK " open")) {
                 open_url_in_os_default_web_browser(*docs_url);
             }
             ui::draw_tooltip_body_only_if_item_hovered("this will open the documentation in a separate browser window");
@@ -474,13 +457,11 @@ void osc::MainMenuAboutTab::on_draw()
             ui::next_column();
         }
 
-        if (auto repo_url = App::get().metadata().repository_url())
-        {
+        if (auto repo_url = App::get().metadata().repository_url()) {
             ui::draw_text("OpenSim Creator Repository");
             ui::next_column();
             ui::push_id(id++);
-            if (ui::draw_button(MSMICONS_LINK " open"))
-            {
+            if (ui::draw_button(MSMICONS_LINK " open")) {
                 open_url_in_os_default_web_browser(*repo_url);
             }
             ui::draw_tooltip_body_only_if_item_hovered("this will open the repository homepage in a separate browser window");
@@ -488,13 +469,11 @@ void osc::MainMenuAboutTab::on_draw()
             ui::next_column();
         }
 
-        if (auto help_url = App::get().metadata().help_url())
-        {
+        if (auto help_url = App::get().metadata().help_url()) {
             ui::draw_text("OpenSim Creator Help");
             ui::next_column();
             ui::push_id(id++);
-            if (ui::draw_button(MSMICONS_LINK " open"))
-            {
+            if (ui::draw_button(MSMICONS_LINK " open")) {
                 open_url_in_os_default_web_browser(*help_url);
             }
             ui::draw_tooltip_body_only_if_item_hovered("this will open the help/discussion page in a separate browser window");
@@ -505,8 +484,7 @@ void osc::MainMenuAboutTab::on_draw()
         ui::draw_text("OpenSim Documentation");
         ui::next_column();
         ui::push_id(id++);
-        if (ui::draw_button(MSMICONS_LINK " open"))
-        {
+        if (ui::draw_button(MSMICONS_LINK " open")) {
             open_url_in_os_default_web_browser("https://simtk-confluence.stanford.edu/display/OpenSim/Documentation");
         }
         ui::draw_tooltip_body_only_if_item_hovered("this will open the documentation in a separate browser window");

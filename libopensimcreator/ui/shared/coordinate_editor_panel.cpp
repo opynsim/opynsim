@@ -30,7 +30,6 @@ namespace rgs = std::ranges;
 
 class osc::CoordinateEditorPanel::Impl final : public PanelPrivate {
 public:
-
     explicit Impl(
         CoordinateEditorPanel& owner,
         Widget* parent,
@@ -166,14 +165,12 @@ private:
 
         if (ui::is_item_clicked(MouseButton::Left)) {
             model_->set_selected(&c);
-        }
-        else if (ui::is_item_clicked(MouseButton::Right)) {
+        } else if (ui::is_item_clicked(MouseButton::Right)) {
             auto popup = std::make_unique<ComponentContextMenu>(
                 parent(),
                 "##componentcontextmenu",
                 model_,
-                opyn::get_absolute_path(c)
-            );
+                opyn::get_absolute_path(c));
             App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
         }
     }

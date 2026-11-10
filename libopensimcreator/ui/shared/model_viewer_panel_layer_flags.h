@@ -6,8 +6,8 @@
 namespace osc
 {
     enum class ModelViewerPanelLayerFlags : uint32_t {
-        None                = 0,
-        CapturesMouseInputs = 1<<0,
+        None = 0,
+        CapturesMouseInputs = 1 << 0,
 
         Default = CapturesMouseInputs,
     };

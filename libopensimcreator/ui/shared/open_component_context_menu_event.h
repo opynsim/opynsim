@@ -16,6 +16,7 @@ namespace osc
         }
 
         const OpenSim::ComponentPath& path() const { return component_path_; }
+
     private:
         OpenSim::ComponentPath component_path_;
     };

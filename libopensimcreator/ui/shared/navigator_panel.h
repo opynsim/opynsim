@@ -6,9 +6,16 @@
 #include <memory>
 #include <string_view>
 
-namespace OpenSim { class Component; }
-namespace OpenSim { class ComponentPath; }
-namespace opyn { class ModelStatePair; }
+namespace OpenSim
+{
+    class Component;
+    class ComponentPath;
+}
+
+namespace opyn
+{
+    class ModelStatePair;
+}
 
 namespace osc
 {
@@ -18,8 +25,7 @@ namespace osc
             Widget* parent,
             std::string_view panel_name,
             std::shared_ptr<opyn::ModelStatePair>,
-            std::function<void(const OpenSim::ComponentPath&)> on_right_click = [](const auto&){}
-        );
+            std::function<void(const OpenSim::ComponentPath&)> on_right_click = [](const auto&) {});
 
     private:
         void impl_draw_content() final;

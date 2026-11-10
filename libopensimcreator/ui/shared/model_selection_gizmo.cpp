@@ -47,6 +47,7 @@ namespace
         ISelectionManipulator(ISelectionManipulator&&) noexcept = default;
         ISelectionManipulator& operator=(const ISelectionManipulator&) = default;
         ISelectionManipulator& operator=(ISelectionManipulator&&) noexcept = default;
+
     public:
         virtual ~ISelectionManipulator() noexcept = default;
 
@@ -63,6 +64,7 @@ namespace
         {
             impl_draw_extra_on_using_overlays(std::move(draw_list), view_matrix, projection_matrix, screen_rect);
         }
+
     private:
         // Implementors must return which operations are supported by this `ISelectionManipulator`.
         virtual ui::GizmoOperations impl_get_supported_manipulation_ops() const = 0;
@@ -97,6 +99,7 @@ namespace
         {
             return dynamic_cast<const AssociatedComponent*>(&component);
         }
+
     protected:
         SelectionManipulator(
             std::shared_ptr<opyn::ModelStatePair> model,
@@ -300,8 +303,7 @@ namespace
                 // its offset/orientation is constrained to be in the same location/orientation
                 // as the joint's parent frame (plus coordinate transforms)
                 return to<Matrix4x4>(pof.getParentFrame().getTransformInGround(get_state()));
-            }
-            else {
+            } else {
                 return to<Matrix4x4>(pof.getTransformInGround(get_state()));
             }
         }
@@ -329,10 +331,8 @@ namespace
                     get_undoable_model(),
                     pof,
                     to<Vector3>(x.p()),
-                    to<EulerAngles>(x.R())
-                );
-            }
-            else {
+                    to<EulerAngles>(x.R()));
+            } else {
                 // this might disgust you to hear, but the easiest way to figure this out is by
                 // getting out a pen and paper and solving the following for X:
                 //
@@ -352,8 +352,7 @@ namespace
                     get_undoable_model(),
                     pof,
                     to<Vector3>(x.p()),
-                    to<EulerAngles>(x.R())
-                );
+                    to<EulerAngles>(x.R()));
             }
         }
 
@@ -435,8 +434,7 @@ namespace
                 get_undoable_model(),
                 wrap_obj,
                 to<Vector3>(x.p() - m_w.p()),
-                to<EulerAngles>(x.R())
-            );
+                to<EulerAngles>(x.R()));
         }
     };
 
@@ -486,8 +484,7 @@ namespace
                 get_undoable_model(),
                 contact_geom,
                 to<Vector3>(x.p() - m_w.p()),
-                to<EulerAngles>(x.R())
-            );
+                to<EulerAngles>(x.R()));
         }
     };
 
@@ -587,8 +584,7 @@ namespace
                     get_undoable_model(),
                     parent_pof,
                     to<Vector3>(x.p()),
-                    to<EulerAngles>(x.R())
-                );
+                    to<EulerAngles>(x.R()));
             }
 
             // STEP 2) figure out what transform the child offset frame would need to have in
@@ -605,8 +601,7 @@ namespace
                 get_undoable_model(),
                 child_pof,
                 to<Vector3>(m_cpof2.p()),
-                to<EulerAngles>(m_cpof2.R())
-            );
+                to<EulerAngles>(m_cpof2.R()));
         }
 
         void impl_draw_extra_on_using_overlays(
@@ -670,7 +665,7 @@ namespace
             action_translate_contact_hint(get_undoable_model(), obstacle, to<Vector3>(translation_in_contact_geom));
         }
 
-        void impl_on_save([[maybe_unused]]const OpenSim::Scholz2015GeometryPathObstacle& obstacle) final
+        void impl_on_save([[maybe_unused]] const OpenSim::Scholz2015GeometryPathObstacle& obstacle) final
         {
             action_translate_contact_hint_and_save(get_undoable_model(), obstacle, {});
         }
@@ -685,8 +680,7 @@ namespace
         WrapObjectManipulator,
         ContactGeometryManipulator,
         JointManipulator,
-        Scholz2015GeometryPathObstacleManipulator
-    >;
+        Scholz2015GeometryPathObstacleManipulator>;
 }
 
 // drawing/rendering code
@@ -814,6 +808,5 @@ void osc::ModelSelectionGizmo::on_draw(
         camera,
         model_,
         *selected,
-        ManipulatorList{}
-    );
+        ManipulatorList{});
 }

@@ -16,7 +16,6 @@
 #include <memory>
 #include <utility>
 
-
 class osc::ModelStatusBar::Impl final : public WidgetPrivate {
 public:
     explicit Impl(
@@ -42,7 +41,7 @@ private:
 
         if (c) {
             const std::vector<const OpenSim::Component*> els = opyn::get_path_elements(*c);
-            for (ptrdiff_t i = 0; i < std::ssize(els)-1; ++i) {
+            for (ptrdiff_t i = 0; i < std::ssize(els) - 1; ++i) {
                 const OpenSim::Component& el = *els[i];
 
                 ui::push_id(i);
@@ -65,8 +64,7 @@ private:
                 ui::draw_text(label);
                 draw_mouse_interaction_stuff(*els.back());
             }
-        }
-        else {
+        } else {
             ui::draw_text_disabled("(nothing selected)");
         }
     }
@@ -86,8 +84,7 @@ private:
                     parent(),
                     "##hovermenu",
                     model_,
-                    opyn::get_absolute_path(c)
-                );
+                    opyn::get_absolute_path(c));
                 menu->open();
                 App::post_event<OpenPopupEvent>(*parent(), std::move(menu));
             }
@@ -96,7 +93,6 @@ private:
 
     std::shared_ptr<opyn::ModelStatePair> model_;
 };
-
 
 osc::ModelStatusBar::ModelStatusBar(
     Widget* parent,

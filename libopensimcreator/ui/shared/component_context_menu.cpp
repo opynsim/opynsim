@@ -79,8 +79,7 @@ namespace
             action_change_joint_type_to(
                 model,
                 joint_path,
-                registry[*selected_idx].instantiate()
-            );
+                registry[*selected_idx].instantiate());
         }
     }
 
@@ -95,8 +94,7 @@ namespace
                 model_state->get_model(),
                 model_state->get_state(),
                 *pf,
-                CalculateMenuFlags::NoCalculatorIcon
-            );
+                CalculateMenuFlags::NoCalculatorIcon);
         }
     }
 
@@ -121,8 +119,7 @@ namespace
             model_state.get_model(),
             model_state.get_state(),
             station,
-            CalculateMenuFlags::NoCalculatorIcon
-        );
+            CalculateMenuFlags::NoCalculatorIcon);
     }
 
     void draw_marker_contextual_actions(
@@ -133,8 +130,7 @@ namespace
             model_state.get_model(),
             model_state.get_state(),
             marker,
-            CalculateMenuFlags::NoCalculatorIcon
-        );
+            CalculateMenuFlags::NoCalculatorIcon);
 
         // Show a specialized `Move To` menu that lets users move the marker to
         // the model's `MarkerSet`, which can be required for backwards compatibility
@@ -165,8 +161,7 @@ namespace
             model_state.get_model(),
             model_state.get_state(),
             point,
-            CalculateMenuFlags::NoCalculatorIcon
-        );
+            CalculateMenuFlags::NoCalculatorIcon);
     }
 
     void draw_ellipsoid_contextual_actions(
@@ -177,8 +172,7 @@ namespace
             model_state.get_model(),
             model_state.get_state(),
             ellipsoid,
-            CalculateMenuFlags::NoCalculatorIcon
-        );
+            CalculateMenuFlags::NoCalculatorIcon);
     }
 
     void draw_mesh_contextual_actions(
@@ -217,16 +211,14 @@ namespace
             model_state.get_model(),
             model_state.get_state(),
             geometry,
-            CalculateMenuFlags::NoCalculatorIcon
-        );
+            CalculateMenuFlags::NoCalculatorIcon);
     }
 
     bool any_descendent_inclusive_has_appearance_property(const OpenSim::Component& component)
     {
         const OpenSim::Component* const c = opyn::find_first_descendent_inclusive(
             component,
-            [](const OpenSim::Component& desc) -> bool { return opyn::try_get_appearance(desc) != nullptr; }
-        );
+            [](const OpenSim::Component& desc) -> bool { return opyn::try_get_appearance(desc) != nullptr; });
         return c != nullptr;
     }
 }
@@ -307,8 +299,7 @@ public:
         }
 
         if (auto* model_with_env = dynamic_cast<ModelStatePairWithSharedEnvironment*>(model_.get())) {
-            draw_watch_output_menu(*c, [this, model_with_env](const opyn::SharedOutputExtractor& output_extractor)
-            {
+            draw_watch_output_menu(*c, [this, model_with_env](const opyn::SharedOutputExtractor& output_extractor) {
                 model_with_env->try_upd_environment()->add_user_output_extractor(output_extractor);
 
                 // when the user asks to watch an output, make sure the "Output Watches" panel is
@@ -339,36 +330,28 @@ public:
         if (dynamic_cast<const OpenSim::PhysicalFrame*>(c)) {
             ui::draw_separator();
             draw_physical_frame_contextual_actions(owner(), model_, path_);
-        }
-        else if (dynamic_cast<const OpenSim::Joint*>(c)) {
+        } else if (dynamic_cast<const OpenSim::Joint*>(c)) {
             ui::draw_separator();
             draw_joint_contextual_actions(*model_, path_);
-        }
-        else if (const auto* muscle_ptr = dynamic_cast<const OpenSim::Muscle*>(c)) {
+        } else if (const auto* muscle_ptr = dynamic_cast<const OpenSim::Muscle*>(c)) {
             ui::draw_separator();
             draw_plot_vs_coordinate_menu(*muscle_ptr);
-        }
-        else if (const auto* marker_ptr = dynamic_cast<const OpenSim::Marker*>(c)) {
+        } else if (const auto* marker_ptr = dynamic_cast<const OpenSim::Marker*>(c)) {
             ui::draw_separator();
             draw_marker_contextual_actions(*model_, *marker_ptr);
-        }
-        else if (const auto* station_ptr = dynamic_cast<const OpenSim::Station*>(c)) {
+        } else if (const auto* station_ptr = dynamic_cast<const OpenSim::Station*>(c)) {
             ui::draw_separator();
             draw_station_contextual_actions(*model_, *station_ptr);
-        }
-        else if (const auto* point_ptr = dynamic_cast<const OpenSim::Point*>(c)) {
+        } else if (const auto* point_ptr = dynamic_cast<const OpenSim::Point*>(c)) {
             ui::draw_separator();
             draw_point_contextual_actions(*model_, *point_ptr);
-        }
-        else if (const auto* ellipsoid_ptr = dynamic_cast<const OpenSim::Ellipsoid*>(c)) {
+        } else if (const auto* ellipsoid_ptr = dynamic_cast<const OpenSim::Ellipsoid*>(c)) {
             ui::draw_separator();
             draw_ellipsoid_contextual_actions(*model_, *ellipsoid_ptr);
-        }
-        else if (const auto* mesh_ptr = dynamic_cast<const OpenSim::Mesh*>(c)) {
+        } else if (const auto* mesh_ptr = dynamic_cast<const OpenSim::Mesh*>(c)) {
             ui::draw_separator();
             draw_mesh_contextual_actions(*model_, *mesh_ptr);
-        }
-        else if (const auto* geom_ptr = dynamic_cast<const OpenSim::Geometry*>(c)) {
+        } else if (const auto* geom_ptr = dynamic_cast<const OpenSim::Geometry*>(c)) {
             ui::draw_separator();
             draw_geometry_contextual_actions(*model_, *geom_ptr);
         }
@@ -413,8 +396,7 @@ private:
                     *model_,
                     opyn::get_absolute_path(model_->get_model()),
                     c.getConcreteClassName(),
-                    true
-                );
+                    true);
             }
         }
 
@@ -427,8 +409,7 @@ private:
                     *model_,
                     opyn::get_absolute_path(model_->get_model()),
                     c.getConcreteClassName(),
-                    false
-                );
+                    false);
             }
         }
 
@@ -511,8 +492,7 @@ private:
                         "Reassign " + socket.getName(),
                         model_,
                         opyn::get_absolute_path_string(c),
-                        socket_name
-                    );
+                        socket_name);
                     App::post_event<OpenPopupEvent>(owner(), std::move(popup));
                 }
 
@@ -536,8 +516,7 @@ private:
 
         if (it != end) {
             draw_inbound_connections_table(it, end);
-        }
-        else {
+        } else {
             ui::draw_dummy({256.0f, 0.0f});
             ui::draw_text_disabled_and_centered(c.getName() + " has no inbound sockets.");
         }
@@ -554,9 +533,8 @@ private:
             ui::TableFlag::SizingStretchProp,
             ui::TableFlag::BordersInner,
             ui::TableFlag::PadOuterX,
-            ui::TableFlag::ScrollY
-        };
-        const Vector2 dimensions = Vector2{0.0f, 10.0f*ui::get_text_line_height_with_spacing_in_current_panel()};
+            ui::TableFlag::ScrollY};
+        const Vector2 dimensions = Vector2{0.0f, 10.0f * ui::get_text_line_height_with_spacing_in_current_panel()};
         if (ui::begin_table("inbound connections table", 3, flags, dimensions)) {
             ui::table_setup_column("Source Component");
             ui::table_setup_column("Socket Name");
@@ -595,8 +573,7 @@ private:
                         "Reassign " + view.socket_name(),
                         model_,
                         opyn::get_absolute_path_string(view.source()),
-                        view.socket_name()
-                    );
+                        view.socket_name());
                     App::post_event<OpenPopupEvent>(owner(), std::move(popup));
                 }
 
@@ -631,11 +608,9 @@ private:
     bool should_filter_inbound_connections_ = true;
     std::shared_ptr<IconCache> icon_cache_ = App::singleton<IconCache>(
         App::resource_loader().with_prefix("OpenSimCreator/icons/"),
-        ui::get_font_base_size()/128.0f,
-        App::get().highest_device_pixel_ratio()
-    );
+        ui::get_font_base_size() / 128.0f,
+        App::get().highest_device_pixel_ratio());
 };
-
 
 osc::ComponentContextMenu::ComponentContextMenu(
     Widget* parent,

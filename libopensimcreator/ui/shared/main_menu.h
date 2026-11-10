@@ -7,11 +7,15 @@
 #include <memory>
 #include <vector>
 
-namespace opyn { class ModelStatePair; }
-namespace osc { class Widget; }
+namespace opyn
+{
+    class ModelStatePair;
+}
 
 namespace osc
 {
+    class Widget;
+
     class MainMenuFileTab final : public Widget {
     public:
         explicit MainMenuFileTab(Widget* parent);

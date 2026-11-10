@@ -8,11 +8,15 @@
 #include <memory>
 #include <utility>
 
-namespace opyn { class ModelStatePair; }
-namespace osc { struct ModelViewerPanelRightClickEvent; }
+namespace opyn
+{
+    class ModelStatePair;
+}
 
 namespace osc
 {
+    struct ModelViewerPanelRightClickEvent;
+
     class ModelViewerPanelParameters final {
     public:
         explicit ModelViewerPanelParameters(
@@ -35,6 +39,7 @@ namespace osc
 
         const Camera& get_camera() const { return render_params_.camera; }
         Camera& upd_camera() { return render_params_.camera; }
+
     private:
         std::shared_ptr<opyn::ModelStatePair> model_;
         std::function<void(const ModelViewerPanelRightClickEvent&)> on_right_clicked_a_component_;

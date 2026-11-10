@@ -2,11 +2,11 @@
 
 #include <libopensimcreator/ui/shared/model_viewer_panel_layer_flags.h>
 
-namespace osc { class ModelViewerPanelParameters; }
-namespace osc { class ModelViewerPanelState; }
-
 namespace osc
 {
+    class ModelViewerPanelParameters;
+    class ModelViewerPanelState;
+
     class ModelViewerPanelLayer {
     protected:
         ModelViewerPanelLayer() = default;
@@ -14,6 +14,7 @@ namespace osc
         ModelViewerPanelLayer(ModelViewerPanelLayer&&) noexcept = default;
         ModelViewerPanelLayer& operator=(const ModelViewerPanelLayer&) = default;
         ModelViewerPanelLayer& operator=(ModelViewerPanelLayer&&) noexcept = default;
+
     public:
         virtual ~ModelViewerPanelLayer() noexcept = default;
 

@@ -29,8 +29,7 @@ namespace
         if (ui::draw_float_input("##", &fv, 0.0f, 0.0f, "%.9f")) {
             b.set_value(idx, static_cast<double>(fv));
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -40,8 +39,7 @@ namespace
         if (ui::draw_int_input("##", &v)) {
             b.set_value(idx, v);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -71,7 +69,6 @@ namespace
 
 class osc::ParamBlockEditorPopup::Impl final : public PopupPrivate {
 public:
-
     explicit Impl(
         ParamBlockEditorPopup& owner,
         Widget* parent,
@@ -105,7 +102,7 @@ public:
         }
         ui::set_num_columns();
 
-        ui::draw_vertical_spacer(1.0f/15.0f);
+        ui::draw_vertical_spacer(1.0f / 15.0f);
 
         if (ui::draw_button("save")) {
             *output_target_ = local_copy_;

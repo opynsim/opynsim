@@ -4,7 +4,10 @@
 
 #include <memory>
 
-namespace opyn { class ModelStatePair; }
+namespace opyn
+{
+    class ModelStatePair;
+}
 
 namespace osc
 {
@@ -12,8 +15,7 @@ namespace osc
     public:
         explicit ModelStatusBar(
             Widget* parent,
-            std::shared_ptr<opyn::ModelStatePair>
-        );
+            std::shared_ptr<opyn::ModelStatePair>);
 
     private:
         void impl_on_draw() final;

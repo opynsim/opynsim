@@ -69,26 +69,27 @@ namespace
     // prompts the user for a save location and then exports a DAE file containing the 3D scene
     void try_prompt_user_to_save_as_dae(std::span<const SceneDecoration> scene)
     {
-        App::upd().prompt_user_to_save_file_with_extension_async([scene = std::vector(scene.begin(), scene.end())](std::optional<std::filesystem::path> p)
-        {
-            if (not p) {
-                return;  // user cancelled out of the prompt
-            }
+        App::upd().prompt_user_to_save_file_with_extension_async(
+            [scene = std::vector(scene.begin(), scene.end())](std::optional<std::filesystem::path> p) {
+                if (not p) {
+                    return;  // user cancelled out of the prompt
+                }
 
-            std::ofstream outfile{*p};
-            if (not outfile) {
-                log_error("cannot save to {}: IO error", p->string());
-                return;
-            }
+                std::ofstream outfile{*p};
+                if (not outfile) {
+                    log_error("cannot save to {}: IO error", p->string());
+                    return;
+                }
 
-            DAEMetadata dae_metadata{
-                App::get().human_readable_name(),
-                App::get().application_name_with_version_and_buildid(),
-            };
+                DAEMetadata dae_metadata{
+                    App::get().human_readable_name(),
+                    App::get().application_name_with_version_and_buildid(),
+                };
 
-            DAE::write(outfile, scene, dae_metadata);
-            log_info("wrote scene as a DAE file to {}", p->string());
-        }, "dae");
+                DAE::write(outfile, scene, dae_metadata);
+                log_info("wrote scene as a DAE file to {}", p->string());
+            },
+            "dae");
     }
 
     void draw_output_tooltip(const OpenSim::AbstractOutput& o)
@@ -106,14 +107,10 @@ namespace
         opyn::ComponentOutputSubfields supported_subfields = opyn::get_supported_subfields(o);
 
         // can plot suboutputs
-        if (ui::begin_menu(("  " + o.getName())))
-        {
-            for (opyn::ComponentOutputSubfield f : opyn::get_all_supported_output_subfields())
-            {
-                if (f & supported_subfields)
-                {
-                    if (auto label = opyn::get_output_subfield_label(f); label && ui::draw_menu_item(*label))
-                    {
+        if (ui::begin_menu(("  " + o.getName()))) {
+            for (opyn::ComponentOutputSubfield f : opyn::get_all_supported_output_subfields()) {
+                if (f & supported_subfields) {
+                    if (auto label = opyn::get_output_subfield_label(f); label and ui::draw_menu_item(*label)) {
                         on_user_selection(opyn::make_output_extractor<opyn::ComponentOutputExtractor>(o, f));
                         output_added = true;
                     }
@@ -122,8 +119,7 @@ namespace
             ui::end_menu();
         }
 
-        if (ui::is_item_hovered())
-        {
+        if (ui::is_item_hovered()) {
             draw_output_tooltip(o);
         }
 
@@ -138,14 +134,12 @@ namespace
 
         bool output_added = false;
 
-        if (ui::draw_menu_item(("  " + o.getName())))
-        {
+        if (ui::draw_menu_item(("  " + o.getName()))) {
             on_user_selection(opyn::make_output_extractor<opyn::ComponentOutputExtractor>(o));
             output_added = true;
         }
 
-        if (ui::is_item_hovered())
-        {
+        if (ui::is_item_hovered()) {
             draw_output_tooltip(o);
         }
 
@@ -154,20 +148,13 @@ namespace
 
     void draw_simulation_param_value(const ParamValue& v)
     {
-        if (std::holds_alternative<double>(v))
-        {
+        if (std::holds_alternative<double>(v)) {
             ui::draw_text("{}", std::get<double>(v));
-        }
-        else if (std::holds_alternative<opyn::IntegratorMethod>(v))
-        {
+        } else if (std::holds_alternative<opyn::IntegratorMethod>(v)) {
             ui::draw_text(opyn::label_for(std::get<opyn::IntegratorMethod>(v)));
-        }
-        else if (std::holds_alternative<int>(v))
-        {
+        } else if (std::holds_alternative<int>(v)) {
             ui::draw_text("{}", std::get<int>(v));
-        }
-        else
-        {
+        } else {
             ui::draw_text("(unknown value type)");
         }
     }
@@ -206,24 +193,24 @@ namespace
         }
 
         // Asynchronously prompt the user and write the data
-        App::upd().prompt_user_to_save_file_with_extension_async([content = std::move(ss).str()](std::optional<std::filesystem::path> p)
-        {
-            if (not p) {
-                return;  // user cancelled out of the prompt
-            }
+        App::upd().prompt_user_to_save_file_with_extension_async(
+            [content = std::move(ss).str()](std::optional<std::filesystem::path> p) {
+                if (not p) {
+                    return;  // user cancelled out of the prompt
+                }
 
-            // write transformed mesh to output
-            try {
-                std::ofstream ofs;
-                ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-                ofs.open(*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+                // write transformed mesh to output
+                try {
+                    std::ofstream ofs;
+                    ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+                    ofs.open(*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 
-                ofs << content;
-            }
-            catch (const std::exception& e) {
-                log_error("error saving obj output to {}: {}", p->string(), e.what());
-            }
-        }, "obj");
+                    ofs << content;
+                } catch (const std::exception& e) {
+                    log_error("error saving obj output to {}: {}", p->string(), e.what());
+                }
+            },
+            "obj");
     }
 
     void action_reexport_mesh_stl_with_respect_to(
@@ -250,24 +237,24 @@ namespace
         }
 
         // Asynchronously prompt the user for a save location and write the content to it.
-        App::upd().prompt_user_to_save_file_with_extension_async([content = std::move(ss).str()](std::optional<std::filesystem::path> p)
-        {
-            if (not p) {
-                return;  // user cancelled out of the prompt
-            }
+        App::upd().prompt_user_to_save_file_with_extension_async(
+            [content = std::move(ss).str()](std::optional<std::filesystem::path> p) {
+                if (not p) {
+                    return;  // user cancelled out of the prompt
+                }
 
-            // write transformed mesh to output
-            try {
-                std::ofstream ofs;
-                ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-                ofs.open(*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+                // write transformed mesh to output
+                try {
+                    std::ofstream ofs;
+                    ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+                    ofs.open(*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 
-                ofs << content;
-            }
-            catch (const std::exception& e) {
-                log_error("error saving obj output to {}: {}", p->string(), e.what());
-            }
-        }, "stl");
+                    ofs << content;
+                } catch (const std::exception& e) {
+                    log_error("error saving obj output to {}: {}", p->string(), e.what());
+                }
+            },
+            "stl");
     }
 
     void draw_tooltip_or_context_menu_content_text(const OpenSim::Component& c)
@@ -282,51 +269,35 @@ namespace
     }
 }
 
-
-// public API
-
 CStringView osc::icon_for(const OpenSim::Component& c)
 {
     if (dynamic_cast<const OpenSim::Muscle*>(&c)) {
         return MSMICONS_MUSCLE;
-    }
-    else if (dynamic_cast<const OpenSim::Coordinate*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::Coordinate*>(&c)) {
         return MSMICONS_COORDINATE;
-    }
-    else if (dynamic_cast<const OpenSim::WrapObject*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::WrapObject*>(&c)) {
         return MSMICONS_WRAP;
-    }
-    else if (dynamic_cast<const OpenSim::Probe*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::Probe*>(&c)) {
         return MSMICONS_PROBE;
-    }
-    else if (dynamic_cast<const OpenSim::Joint*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::Joint*>(&c)) {
         return MSMICONS_JOINT;
-    }
-    else if (dynamic_cast<const OpenSim::Geometry*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::Geometry*>(&c)) {
         return MSMICONS_MESH;
-    }
-    else if (dynamic_cast<const OpenSim::Body*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::Body*>(&c)) {
         return MSMICONS_BODY;
-    }
-    else if (dynamic_cast<const OpenSim::ContactGeometry*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::ContactGeometry*>(&c)) {
         return MSMICONS_CONTACT;
-    }
-    else if (dynamic_cast<const OpenSim::Station*>(&c) or dynamic_cast<const OpenSim::PathPoint*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::Station*>(&c) or dynamic_cast<const OpenSim::PathPoint*>(&c)) {
         return MSMICONS_MARKER;
-    }
-    else if (dynamic_cast<const OpenSim::Constraint*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::Constraint*>(&c)) {
         return MSMICONS_CONSTRAINT;
-    }
-    else if (dynamic_cast<const OpenSim::Function*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::Function*>(&c)) {
         return MSMICONS_SPLINE;
-    }
-    else if (dynamic_cast<const OpenSim::Frame*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::Frame*>(&c)) {
         return MSMICONS_FRAME;
-    }
-    else if (dynamic_cast<const OpenSim::Model*>(&c)) {
+    } else if (dynamic_cast<const OpenSim::Model*>(&c)) {
         return MSMICONS_MODEL;
-    }
-    else {
+    } else {
         return MSMICONS_COMPONENT;
     }
 }
@@ -351,7 +322,7 @@ void osc::draw_right_clicked_component_context_menu_header(const OpenSim::Compon
 void osc::draw_context_menu_separator()
 {
     ui::draw_separator();
-    ui::draw_vertical_spacer(3.0f/15.0f);
+    ui::draw_vertical_spacer(3.0f / 15.0f);
 }
 
 void osc::draw_component_hover_tooltip(const OpenSim::Component& hovered)
@@ -363,28 +334,23 @@ void osc::draw_component_hover_tooltip(const OpenSim::Component& hovered)
 
 void osc::draw_select_owner_menu(opyn::ModelStatePair& model, const OpenSim::Component& selected)
 {
-    if (ui::begin_menu("Select Owner"))
-    {
+    if (ui::begin_menu("Select Owner")) {
         model.set_hovered(nullptr);
 
         for (
             const OpenSim::Component* owner = opyn::get_owner(selected);
             owner != nullptr;
-            owner = opyn::get_owner(*owner))
-        {
-            const std::string menu_label = [&owner]
-            {
+            owner = opyn::get_owner(*owner)) {
+            const std::string menu_label = [&owner] {
                 std::stringstream ss;
                 ss << owner->getName() << '(' << owner->getConcreteClassName() << ')';
                 return std::move(ss).str();
             }();
 
-            if (ui::draw_menu_item(menu_label))
-            {
+            if (ui::draw_menu_item(menu_label)) {
                 model.set_selected(owner);
             }
-            if (ui::is_item_hovered())
-            {
+            if (ui::is_item_hovered()) {
                 model.set_hovered(owner);
             }
         }
@@ -397,12 +363,9 @@ bool osc::draw_request_output_menu_or_menu_item(
     const OpenSim::AbstractOutput& o,
     const std::function<void(opyn::SharedOutputExtractor)>& on_user_selection)
 {
-    if (opyn::get_supported_subfields(o) == opyn::ComponentOutputSubfield::None)
-    {
+    if (opyn::get_supported_subfields(o) == opyn::ComponentOutputSubfield::None) {
         return draw_output_with_no_subfields_menu_item(o, on_user_selection);
-    }
-    else
-    {
+    } else {
         return draw_output_with_subfields_menu(o, on_user_selection);
     }
 }
@@ -447,16 +410,15 @@ bool osc::draw_watch_output_menu(
 
 void osc::draw_simulation_params(const ParamBlock& params)
 {
-    ui::draw_vertical_spacer(1.0f/15.0f);
+    ui::draw_vertical_spacer(1.0f / 15.0f);
     ui::draw_text("parameters:");
     ui::same_line();
     ui::draw_help_marker("The parameters used when this simulation was launched. These must be set *before* running the simulation");
     ui::draw_separator();
-    ui::draw_vertical_spacer(2.0f/15.0f);
+    ui::draw_vertical_spacer(2.0f / 15.0f);
 
     ui::set_num_columns(2);
-    for (int i = 0, len = params.size(); i < len; ++i)
-    {
+    for (int i = 0, len = params.size(); i < len; ++i) {
         const std::string& name = params.get_name(i);
         const std::string& description = params.get_description(i);
         const ParamValue& value = params.get_value(i);
@@ -475,7 +437,7 @@ void osc::draw_simulation_params(const ParamBlock& params)
 void osc::draw_search_bar(std::string& out)
 {
     ui::push_style_var(ui::StyleVar::FrameRounding, 5.0f);
-    ui::draw_string_input_with_hint("##hirarchtsearchbar", MSMICONS_SEARCH " search...",  out);
+    ui::draw_string_input_with_hint("##hirarchtsearchbar", MSMICONS_SEARCH " search...", out);
     ui::pop_style_var();
 }
 
@@ -484,12 +446,9 @@ void osc::draw_output_name_column(
     bool centered,
     SimulationModelStatePair* maybe_active_sate)
 {
-    if (centered)
-    {
+    if (centered) {
         ui::draw_text_centered(output.name());
-    }
-    else
-    {
+    } else {
         ui::draw_text(output.name());
     }
 
@@ -499,15 +458,12 @@ void osc::draw_output_name_column(
     // (e.g. if the user mouses over the name of a component output it should make
     // the associated component the current hover to provide immediate feedback to
     // the user)
-    if (const auto* co = dynamic_cast<const opyn::ComponentOutputExtractor*>(&output); co && maybe_active_sate)
-    {
-        if (ui::is_item_hovered())
-        {
+    if (const auto* co = dynamic_cast<const opyn::ComponentOutputExtractor*>(&output); co && maybe_active_sate) {
+        if (ui::is_item_hovered()) {
             maybe_active_sate->set_hovered(opyn::find_component(maybe_active_sate->get_model(), co->component_abs_path()));
         }
 
-        if (ui::is_item_clicked(MouseButton::Left))
-        {
+        if (ui::is_item_clicked(MouseButton::Left)) {
             maybe_active_sate->set_selected(opyn::find_component(maybe_active_sate->get_model(), co->component_abs_path()));
         }
     }
@@ -540,11 +496,9 @@ void osc::draw_with_respect_to_menu_containing_menu_per_frame(
         ui::draw_separator();
     }
 
-    for (const OpenSim::Frame& frame : root.getComponentList<OpenSim::Frame>())
-    {
+    for (const OpenSim::Frame& frame : root.getComponentList<OpenSim::Frame>()) {
         ui::push_id(imgui_id++);
-        if (ui::begin_menu(frame.getName()))
-        {
+        if (ui::begin_menu(frame.getName())) {
             on_frame_menu_opened(frame);
             ui::end_menu();
         }
@@ -570,11 +524,9 @@ void osc::draw_with_respect_to_menu_containing_menu_item_per_frame(
         ui::pop_id();
     }
 
-    for (const OpenSim::Frame& frame : root.getComponentList<OpenSim::Frame>())
-    {
+    for (const OpenSim::Frame& frame : root.getComponentList<OpenSim::Frame>()) {
         ui::push_id(imgui_id++);
-        if (ui::draw_menu_item(frame.getName()))
-        {
+        if (ui::draw_menu_item(frame.getName())) {
             on_frame_menu_item_clicked(frame);
         }
         ui::pop_id();
@@ -652,15 +604,12 @@ void osc::draw_calculate_position_menu(
     const OpenSim::Point& point,
     const OpenSim::Frame* maybe_parent)
 {
-    if (ui::begin_menu("Position"))
-    {
-        const auto on_frame_menu_opened = [&state, &point](const OpenSim::Frame& frame)
-        {
+    if (ui::begin_menu("Position")) {
+        const auto on_frame_menu_opened = [&state, &point](const OpenSim::Frame& frame) {
             draw_point_translation_information_with_respect_to(
                 frame,
                 state,
-                to<Vector3>(point.getLocationInGround(state))
-            );
+                to<Vector3>(point.getLocationInGround(state)));
         };
 
         draw_with_respect_to_menu_containing_menu_per_frame(root, on_frame_menu_opened, maybe_parent);
@@ -674,8 +623,7 @@ void osc::draw_calculate_menu(
     const OpenSim::Station& station,
     CalculateMenuFlags flags)
 {
-    if (begin_calculate_menu(flags))
-    {
+    if (begin_calculate_menu(flags)) {
         draw_calculate_position_menu(root, state, station, &station.getParentFrame());
         end_calculate_menu();
     }
@@ -687,8 +635,7 @@ void osc::draw_calculate_menu(
     const OpenSim::Point& point,
     CalculateMenuFlags flags)
 {
-    if (begin_calculate_menu(flags))
-    {
+    if (begin_calculate_menu(flags)) {
         draw_calculate_position_menu(root, state, point, nullptr);
         end_calculate_menu();
     }
@@ -699,10 +646,8 @@ void osc::draw_calculate_transform_menu(
     const SimTK::State& state,
     const OpenSim::Frame& frame)
 {
-    if (ui::begin_menu("Transform"))
-    {
-        const auto on_frame_menu_opened = [&state, &frame](const OpenSim::Frame& other_frame)
-        {
+    if (ui::begin_menu("Transform")) {
+        const auto on_frame_menu_opened = [&state, &frame](const OpenSim::Frame& other_frame) {
             draw_frame_information_expressed_in(frame, state, other_frame);
         };
         draw_with_respect_to_menu_containing_menu_per_frame(root, on_frame_menu_opened, opyn::try_get_parent_frame(frame));
@@ -716,8 +661,7 @@ void osc::draw_calculate_axis_directions_menu(
     const OpenSim::Frame& frame)
 {
     if (ui::begin_menu("Axis Directions")) {
-        const auto on_frame_menu_opened = [&state, &frame](const OpenSim::Frame& other)
-        {
+        const auto on_frame_menu_opened = [&state, &frame](const OpenSim::Frame& other) {
             auto x = to<Vector3>(frame.expressVectorInAnotherFrame(state, {1.0, 0.0, 0.0}, other));
             auto y = to<Vector3>(frame.expressVectorInAnotherFrame(state, {0.0, 1.0, 0.0}, other));
             auto z = to<Vector3>(frame.expressVectorInAnotherFrame(state, {0.0, 0.0, 1.0}, other));
@@ -745,8 +689,7 @@ void osc::draw_calculate_origin_menu(
     const OpenSim::Frame& frame)
 {
     if (ui::begin_menu("Origin")) {
-        const auto on_frame_menu_opened = [&state, &frame](const OpenSim::Frame& other_frame)
-        {
+        const auto on_frame_menu_opened = [&state, &frame](const OpenSim::Frame& other_frame) {
             auto v = to<Vector3>(frame.findStationLocationInAnotherFrame(state, {0.0f, 0.0f, 0.0f}, other_frame));
             ui::draw_text("origin");
             ui::same_line();
@@ -763,8 +706,7 @@ void osc::draw_calculate_menu(
     const OpenSim::Frame& frame,
     CalculateMenuFlags flags)
 {
-    if (begin_calculate_menu(flags))
-    {
+    if (begin_calculate_menu(flags)) {
         draw_calculate_transform_menu(root, state, frame);
         draw_calculate_origin_menu(root, state, frame);
         draw_calculate_axis_directions_menu(root, state, frame);
@@ -777,11 +719,9 @@ void osc::draw_calculate_origin_menu(
     const SimTK::State& state,
     const OpenSim::Sphere& sphere)
 {
-    if (ui::begin_menu("Origin"))
-    {
+    if (ui::begin_menu("Origin")) {
         auto pos_in_ground = to<Vector3>(sphere.getFrame().getPositionInGround(state));
-        const auto on_frame_menu_opened = [&state, pos_in_ground](const OpenSim::Frame& other_frame)
-        {
+        const auto on_frame_menu_opened = [&state, pos_in_ground](const OpenSim::Frame& other_frame) {
             draw_point_translation_information_with_respect_to(other_frame, state, pos_in_ground);
         };
         draw_with_respect_to_menu_containing_menu_per_frame(root, on_frame_menu_opened, opyn::try_get_parent_frame(sphere.getFrame()));
@@ -795,8 +735,7 @@ void osc::draw_calculate_radius_menu(
     const SimTK::State&,
     const OpenSim::Sphere& sphere)
 {
-    if (ui::begin_menu("Radius"))
-    {
+    if (ui::begin_menu("Radius")) {
         double d = sphere.get_radius();
         ui::draw_double_input("radius", &d);
         ui::end_menu();
@@ -808,10 +747,9 @@ void osc::draw_calculate_volume_menu(
     const SimTK::State&,
     const OpenSim::Sphere& sphere)
 {
-    if (ui::begin_menu("Volume"))
-    {
+    if (ui::begin_menu("Volume")) {
         const double r = sphere.get_radius();
-        double v = 4.0/3.0 * SimTK::Pi * r*r*r;
+        double v = 4.0 / 3.0 * SimTK::Pi * r * r * r;
         ui::draw_double_input("volume", &v, 0.0, 0.0, "%.6f", ui::TextInputFlag::ReadOnly);
         ui::end_menu();
     }
@@ -823,16 +761,12 @@ void osc::draw_calculate_menu(
     const OpenSim::Geometry& geom,
     CalculateMenuFlags flags)
 {
-    if (begin_calculate_menu(flags))
-    {
-        if (const auto* sphere_ptr = dynamic_cast<const OpenSim::Sphere*>(&geom))
-        {
+    if (begin_calculate_menu(flags)) {
+        if (const auto* sphere_ptr = dynamic_cast<const OpenSim::Sphere*>(&geom)) {
             draw_calculate_origin_menu(root, state, *sphere_ptr);
             draw_calculate_radius_menu(root, state, *sphere_ptr);
             draw_calculate_volume_menu(root, state, *sphere_ptr);
-        }
-        else
-        {
+        } else {
             draw_calculate_transform_menu(root, state, geom.getFrame());
             draw_calculate_origin_menu(root, state, geom.getFrame());
             draw_calculate_axis_directions_menu(root, state, geom.getFrame());
@@ -847,12 +781,9 @@ void osc::try_draw_calculate_menu(
     const OpenSim::Component& selected,
     CalculateMenuFlags flags)
 {
-    if (const auto* const frame = dynamic_cast<const OpenSim::Frame*>(&selected))
-    {
+    if (const auto* const frame = dynamic_cast<const OpenSim::Frame*>(&selected)) {
         draw_calculate_menu(root, state, *frame, flags);
-    }
-    else if (const auto* const point = dynamic_cast<const OpenSim::Point*>(&selected))
-    {
+    } else if (const auto* const point = dynamic_cast<const OpenSim::Point*>(&selected)) {
         draw_calculate_menu(root, state, *point, flags);
     }
 }
@@ -864,8 +795,7 @@ void osc::draw_calculate_origin_menu(
 {
     if (ui::begin_menu("Origin")) {
         auto pos_in_ground = to<Vector3>(ellipsoid.getFrame().getPositionInGround(state));
-        const auto on_frame_menu_opened = [&state, pos_in_ground](const OpenSim::Frame& other_frame)
-        {
+        const auto on_frame_menu_opened = [&state, pos_in_ground](const OpenSim::Frame& other_frame) {
             draw_point_translation_information_with_respect_to(other_frame, state, pos_in_ground);
         };
         draw_with_respect_to_menu_containing_menu_per_frame(root, on_frame_menu_opened, opyn::try_get_parent_frame(ellipsoid.getFrame()));
@@ -902,8 +832,7 @@ void osc::draw_calculate_scaled_radii_directions_menu(
     const OpenSim::Ellipsoid& ellipsoid)
 {
     if (ui::begin_menu("Axis Directions (Scaled by Radii)")) {
-        const auto on_frame_menu_opened = [&state, &ellipsoid](const OpenSim::Frame& other)
-        {
+        const auto on_frame_menu_opened = [&state, &ellipsoid](const OpenSim::Frame& other) {
             const auto& radii = ellipsoid.get_radii();
             auto x = to<Vector3>(radii[0] * ellipsoid.getFrame().expressVectorInAnotherFrame(state, {1.0, 0.0, 0.0}, other));
             auto y = to<Vector3>(radii[1] * ellipsoid.getFrame().expressVectorInAnotherFrame(state, {0.0, 1.0, 0.0}, other));
@@ -1028,11 +957,9 @@ bool osc::draw_rendering_options_editor(opyn::CustomRenderingOptions& opts)
 {
     bool edited = false;
     ui::draw_text_disabled("Rendering");
-    for (size_t i = 0; i < opts.get_num_options(); ++i)
-    {
+    for (size_t i = 0; i < opts.get_num_options(); ++i) {
         bool value = opts.get_option_value(i);
-        if (ui::draw_checkbox(opts.get_option_label(i), &value))
-        {
+        if (ui::draw_checkbox(opts.get_option_label(i), &value)) {
             opts.set_option_value(i, value);
             edited = true;
         }
@@ -1044,14 +971,11 @@ bool osc::draw_overlay_options_editor(opyn::OverlayDecorationOptions& opts)
 {
     std::optional<CStringView> last_group_label;
     bool edited = false;
-    for (size_t i = 0; i < opts.get_num_options(); ++i)
-    {
+    for (size_t i = 0; i < opts.get_num_options(); ++i) {
         // print header, if necessary
         const CStringView group_label = opts.get_option_group_label(i);
-        if (group_label != last_group_label)
-        {
-            if (last_group_label)
-            {
+        if (group_label != last_group_label) {
+            if (last_group_label) {
                 ui::draw_vertical_spacer(0.25f);
             }
             ui::draw_text_disabled(group_label);
@@ -1059,8 +983,7 @@ bool osc::draw_overlay_options_editor(opyn::OverlayDecorationOptions& opts)
         }
 
         bool value = opts.get_option_value(i);
-        if (ui::draw_checkbox(opts.get_option_label(i), &value))
-        {
+        if (ui::draw_checkbox(opts.get_option_label(i), &value)) {
             opts.set_option_value(i, value);
             edited = true;
         }
@@ -1072,18 +995,15 @@ bool osc::draw_custom_decoration_option_checkboxes(opyn::OpenSimDecorationOption
 {
     int imgui_id = 0;
     bool edited = false;
-    for (size_t i = 0; i < opts.get_num_options(); ++i)
-    {
+    for (size_t i = 0; i < opts.get_num_options(); ++i) {
         ui::push_id(imgui_id++);
 
         bool v = opts.get_option_value(i);
-        if (ui::draw_checkbox(opts.get_option_label(i), &v))
-        {
+        if (ui::draw_checkbox(opts.get_option_label(i), &v)) {
             opts.set_option_value(i, v);
             edited = true;
         }
-        if (std::optional<CStringView> description = opts.get_option_description(i))
-        {
+        if (std::optional<CStringView> description = opts.get_option_description(i)) {
             ui::same_line();
             ui::draw_help_marker(*description);
         }
@@ -1113,13 +1033,12 @@ bool osc::draw_advanced_params_editor(
 {
     bool edited = false;
 
-    if (ui::draw_button("Export to .dae"))
-    {
+    if (ui::draw_button("Export to .dae")) {
         try_prompt_user_to_save_as_dae(drawlist);
     }
     ui::draw_tooltip_body_only_if_item_hovered("Try to export the 3D scene to a portable DAE file, so that it can be viewed in 3rd-party modelling software, such as Blender");
 
-    ui::draw_vertical_spacer(10.0f/15.0f);
+    ui::draw_vertical_spacer(10.0f / 15.0f);
     ui::draw_text("advanced camera properties:");
     ui::draw_separator();
 
@@ -1149,7 +1068,7 @@ bool osc::draw_advanced_params_editor(
         edited = true;
     }
 
-    ui::draw_vertical_spacer(10.0f/15.0f);
+    ui::draw_vertical_spacer(10.0f / 15.0f);
     ui::draw_text("advanced scene properties:");
     ui::draw_separator();
     edited = ui::draw_rgb_color_editor("light_color", params.light_color) || edited;
@@ -1187,18 +1106,16 @@ bool osc::draw_viewer_top_button_row(
 {
     bool edited = false;
 
-    IconWithMenu muscle_styling_button
-    {
+    IconWithMenu muscle_styling_button{
         icon_cache.find_or_throw("muscle_coloring"),
         "Muscle Styling",
         "Affects how muscles appear in this visualizer panel",
-        [&params]{ return draw_muscle_decoration_options_editor(params.decoration_options); },
+        [&params] { return draw_muscle_decoration_options_editor(params.decoration_options); },
     };
     edited = muscle_styling_button.on_draw() || edited;
     ui::same_line();
 
-    IconWithMenu viz_aids_button
-    {
+    IconWithMenu viz_aids_button{
         icon_cache.find_or_throw("viz_aids"),
         "Visual Aids",
         "Affects what's shown in the 3D scene",
@@ -1253,7 +1170,7 @@ bool osc::draw_camera_control_buttons(
 
     const float spacing = ui::get_style_item_spacing().x();
     float width = zoom_out_button.dimensions().x() + spacing + zoom_in_button.dimensions().x() + spacing + auto_focus_button.dimensions().x();
-    const Vector2 topleft = {desired_top_centroid.x() - 0.5f*width, desired_top_centroid.y() + 2.0f*ui::get_style_item_spacing().y()};
+    const Vector2 topleft = {desired_top_centroid.x() - 0.5f * width, desired_top_centroid.y() + 2.0f * ui::get_style_item_spacing().y()};
     ui::set_cursor_ui_position(topleft);
 
     bool edited = false;
@@ -1273,8 +1190,7 @@ bool osc::draw_camera_control_buttons(
         orbit_camera_controller.focus_on(
             *maybe_scene_aabb,
             params.camera,
-            aspect_ratio_of(viewer_screen_rect)
-        );
+            aspect_ratio_of(viewer_screen_rect));
         orbit_camera_controller.update_camera(params.camera);
         edited = true;
     }
@@ -1282,7 +1198,7 @@ bool osc::draw_camera_control_buttons(
     // next line (centered)
     {
         const Vector2 tl = {
-            desired_top_centroid.x() - 0.5f*scene_settings_button.dimensions().x(),
+            desired_top_centroid.x() - 0.5f * scene_settings_button.dimensions().x(),
             ui::get_cursor_ui_position().y(),
         };
         ui::set_cursor_ui_position(tl);
@@ -1330,31 +1246,30 @@ bool osc::draw_viewer_im_gui_overlays(
 
     const Vector2 camera_buttons_top_left = axes_top_left + Vector2{0.0f, axes_dims.y()};
     ui::set_cursor_ui_position(camera_buttons_top_left);
-    edited = draw_camera_control_buttons(
-        params,
-        orbit_camera_controller,
-        drawlist,
-        render_rect,
-        maybe_scene_aabb,
-        icon_cache,
-        {axes_top_left.x() + 0.5f*axes_dims.x(), axes_top_left.y() + axes_dims.y()}
-    ) || edited;
+    edited =
+        draw_camera_control_buttons(
+            params,
+            orbit_camera_controller,
+            drawlist,
+            render_rect,
+            maybe_scene_aabb,
+            icon_cache,
+            {axes_top_left.x() + 0.5f * axes_dims.x(), axes_top_left.y() + axes_dims.y()}) or
+        edited;
 
     return edited;
 }
 
 bool osc::begin_toolbar(CStringView label, std::optional<Vector2> padding)
 {
-    if (padding)
-    {
+    if (padding) {
         ui::push_style_var(ui::StyleVar::PanelPadding, *padding);
     }
 
-    const float height = ui::get_frame_height() + 2.0f*ui::get_style_panel_padding().y();
+    const float height = ui::get_frame_height() + 2.0f * ui::get_style_panel_padding().y();
     const ui::PanelFlags flags = {ui::PanelFlag::NoScrollbar, ui::PanelFlag::NoSavedSettings};
     bool open = ui::begin_main_window_top_bar(label, height, flags);
-    if (padding)
-    {
+    if (padding) {
         ui::pop_style_var();
     }
     return open;
@@ -1362,8 +1277,7 @@ bool osc::begin_toolbar(CStringView label, std::optional<Vector2> padding)
 
 void osc::draw_new_model_button(Widget& api)
 {
-    if (ui::draw_button(MSMICONS_FILE))
-    {
+    if (ui::draw_button(MSMICONS_FILE)) {
         action_new_model(api);
     }
     ui::draw_tooltip_if_item_hovered("New Model", "Creates a new OpenSim model in a new tab");
@@ -1373,8 +1287,7 @@ void osc::draw_open_model_button_with_recent_files_dropdown(
     const std::function<void(std::optional<std::filesystem::path>)>& on_user_clicked_open_or_selected_file)
 {
     ui::push_style_var(ui::StyleVar::ItemSpacing, {2.0f, 0.0f});
-    if (ui::draw_button(MSMICONS_FOLDER_OPEN))
-    {
+    if (ui::draw_button(MSMICONS_FOLDER_OPEN)) {
         on_user_clicked_open_or_selected_file(std::nullopt);
     }
     ui::draw_tooltip_if_item_hovered("Open Model", "Opens an existing osim file in a new tab");
@@ -1385,16 +1298,13 @@ void osc::draw_open_model_button_with_recent_files_dropdown(
     ui::pop_style_var();
     ui::pop_style_var();
 
-    if (ui::begin_popup_context_menu("##RecentFilesMenu", ui::PopupFlag::MouseButtonLeft))
-    {
+    if (ui::begin_popup_context_menu("##RecentFilesMenu", ui::PopupFlag::MouseButtonLeft)) {
         const auto recent_files = App::singleton<RecentFiles>();
         int imgui_id = 0;
 
-        for (const RecentFile& rf : *recent_files)
-        {
+        for (const RecentFile& rf : *recent_files) {
             ui::push_id(imgui_id++);
-            if (ui::draw_selectable(rf.path.filename().string()))
-            {
+            if (ui::draw_selectable(rf.path.filename().string())) {
                 on_user_clicked_open_or_selected_file(rf.path);
             }
             ui::pop_id();
@@ -1406,12 +1316,10 @@ void osc::draw_open_model_button_with_recent_files_dropdown(
 
 void osc::draw_open_model_button_with_recent_files_dropdown(Widget& api)
 {
-    draw_open_model_button_with_recent_files_dropdown([&api](auto maybe_file)
-    {
+    draw_open_model_button_with_recent_files_dropdown([&api](auto maybe_file) {
         if (maybe_file) {
             action_open_model(api, *maybe_file);
-        }
-        else {
+        } else {
             action_open_model(api);
         }
     });
@@ -1604,14 +1512,12 @@ void osc::draw_mesh_export_context_menu_content(
     ui::draw_separator();
 
     if (ui::begin_menu(".obj")) {
-        const auto on_frame_menu_item_clicked = [&model, &mesh](const OpenSim::Frame& frame)
-        {
+        const auto on_frame_menu_item_clicked = [&model, &mesh](const OpenSim::Frame& frame) {
             action_reexport_mesh_obj_with_respect_to(
                 model.get_model(),
                 model.get_state(),
                 mesh,
-                frame
-            );
+                frame);
         };
 
         draw_with_respect_to_menu_containing_menu_item_per_frame(model.get_model(), on_frame_menu_item_clicked);
@@ -1619,20 +1525,17 @@ void osc::draw_mesh_export_context_menu_content(
     }
 
     if (ui::begin_menu(".stl")) {
-        const auto on_frame_menu_item_clicked = [&model, &mesh](const OpenSim::Frame& frame)
-        {
+        const auto on_frame_menu_item_clicked = [&model, &mesh](const OpenSim::Frame& frame) {
             action_reexport_mesh_stl_with_respect_to(
                 model.get_model(),
                 model.get_state(),
                 mesh,
-                frame
-            );
+                frame);
         };
 
         draw_with_respect_to_menu_containing_menu_item_per_frame(
             model.get_model(),
-            on_frame_menu_item_clicked
-        );
+            on_frame_menu_item_clicked);
         ui::end_menu();
     }
 }
