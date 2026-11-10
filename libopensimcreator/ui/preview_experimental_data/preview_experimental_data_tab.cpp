@@ -60,9 +60,9 @@ namespace
         // Customizes what happens when the UI is reinitialized from its
         // on-disk data.
         enum class ReinitializationFlag {
-            None                 =    0,
-            RecalculateTimeRange = 1<<0,
-            NUM_FLAGS            =    1,
+            None = 0,
+            RecalculateTimeRange = 1 << 0,
+            NUM_FLAGS = 1,
         };
         using ReinitializationFlags = Flags<ReinitializationFlag>;
 
@@ -101,8 +101,7 @@ namespace
             if (opyn::has_input_file_name(model_->get_model())) {
                 SceneCache dummy;
                 action_reload_osim_from_disk(*model_, dummy);
-            }
-            else {
+            } else {
                 model_->reset_model();
             }
 
@@ -170,13 +169,11 @@ namespace
                     state,
                     associated_trajectory_->mapper(),
                     associated_trajectory_->storage(),
-                    new_time
-                );
+                    new_time);
                 // m_Model->updModel().assemble(state);
                 // m_Model->updModel().equilibrateMuscles(state);
                 model_->get_model().realizeReport(state);
-            }
-            else {
+            } else {
                 // no associated motion: only change the time part of the state and re-realize
                 model_->upd_model().equilibrateMuscles(state);
                 model_->upd_model().realizeDynamics(state);
@@ -193,6 +190,7 @@ namespace
         {
             return tab_name_override_;
         }
+
     private:
         void reinitialize_model_from_backing_data(std::string_view label, ReinitializationFlags flags)
         {
@@ -262,8 +260,7 @@ namespace
                 {
                     if (ui::draw_button("load model")) {
                         App::upd().prompt_user_to_select_file_async(
-                            [state = ui_state_](const FileDialogResponse& response)
-                            {
+                            [state = ui_state_](const FileDialogResponse& response) {
                                 if (response.size() != 1) {
                                     return;  // Error, cancellation, or more than one file somehow selected.
                                 }
@@ -272,15 +269,13 @@ namespace
                                 // than potentially crashing the main thread (#1068).
                                 try {
                                     state->load_model_file(response.front());
-                                }
-                                catch (const std::exception& ex) {
+                                } catch (const std::exception& ex) {
                                     log_error("error detected: {}", ex.what());
                                     log_error("rolling back model");
                                     state->rollback_model();
                                 }
                             },
-                            opyn::get_model_file_filters()
-                        );
+                            opyn::get_model_file_filters());
                     }
 
                     ui::same_line();
@@ -289,8 +284,7 @@ namespace
                     }
                     if (ui::draw_button("load model trajectory sto/mot file")) {
                         App::upd().prompt_user_to_select_file_async(
-                            [state = ui_state_](const FileDialogResponse& response)
-                            {
+                            [state = ui_state_](const FileDialogResponse& response) {
                                 if (response.size() != 1) {
                                     return;  // Error, cancellation, or more than one file somehow selected.
                                 }
@@ -299,15 +293,13 @@ namespace
                                 // than potentially crashing the main thread (#1068).
                                 try {
                                     state->load_model_trajectory_file(response.front());
-                                }
-                                catch (const std::exception& ex) {
+                                } catch (const std::exception& ex) {
                                     log_error("error detected: {}", ex.what());
                                     log_error("rolling back model");
                                     state->rollback_model();
                                 }
                             },
-                            opyn::get_motion_file_filters()
-                        );
+                            opyn::get_motion_file_filters());
                     }
                     if (not ui_state_->is_model_loaded()) {
                         ui::end_disabled();
@@ -316,14 +308,12 @@ namespace
                     ui::same_line();
                     if (ui::draw_button("load sto/mot/trc file")) {
                         App::upd().prompt_user_to_select_file_async(
-                            [state = ui_state_](const FileDialogResponse& response)
-                            {
+                            [state = ui_state_](const FileDialogResponse& response) {
                                 // Guard against loading errors by emitting a log message rather
                                 // than potentially crashing the main thread (#1068).
                                 try {
                                     state->load_motion_files(response);
-                                }
-                                catch (const std::exception& ex) {
+                                } catch (const std::exception& ex) {
                                     log_error("error detected: {}", ex.what());
                                     log_error("rolling back model");
                                     state->rollback_model();
@@ -331,8 +321,7 @@ namespace
                             },
                             opyn::get_motion_file_filters_including_trc(),
                             std::nullopt,
-                            true
-                        );
+                            true);
                     }
 
                     if (not ui_state_->is_model_loaded()) {
@@ -341,22 +330,18 @@ namespace
                     ui::same_line();
                     if (ui::draw_button("load OpenSim XML")) {
                         App::upd().prompt_user_to_select_file_async(
-                            [state = ui_state_](const FileDialogResponse& response)
-                            {
+                            [state = ui_state_](const FileDialogResponse& response) {
                                 // Guard against loading errors by emitting a log message rather
                                 // than potentially crashing the main thread (#1068).
                                 try {
                                     state->load_xml_as_open_sim_document(response);
-                                }
-                                catch (const std::exception& ex) {
+                                } catch (const std::exception& ex) {
                                     log_error("error detected: {}", ex.what());
                                     log_error("rolling back model");
                                     state->rollback_model();
                                 }
-
                             },
-                            opyn::get_open_sim_xml_file_filters()
-                        );
+                            opyn::get_open_sim_xml_file_filters());
                     }
                     if (not ui_state_->is_model_loaded()) {
                         ui::end_disabled();
@@ -400,19 +385,18 @@ namespace
                     if (not icon_cache_) {
                         icon_cache_ = App::singleton<IconCache>(
                             App::resource_loader().with_prefix("OpenSimCreator/icons/"),
-                            ui::get_text_line_height_in_current_panel()/128.0f,
-                            App::get().highest_device_pixel_ratio()
-                        );
+                            ui::get_text_line_height_in_current_panel() / 128.0f,
+                            App::get().highest_device_pixel_ratio());
                     }
                     ui::same_line();
                     draw_all_decoration_toggle_buttons(ui_state_->upd_model(), *icon_cache_);
                 }
 
-
                 ui::draw_same_line_with_vertical_separator();
             }
             ui::end_panel();
         }
+
     private:
         std::shared_ptr<PreviewExperimentalDataUiState> ui_state_;
         std::shared_ptr<IconCache> icon_cache_;
@@ -428,67 +412,50 @@ public:
     {
         panel_manager_->register_toggleable_panel(
             "Navigator",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<NavigatorPanel>(
                     parent,
                     panel_name,
                     ui_state_->upd_shared_model_ptr(),
-                    [this, parent](const OpenSim::ComponentPath& p)
-                    {
+                    [this, parent](const OpenSim::ComponentPath& p) {
                         auto popup = std::make_unique<ComponentContextMenu>(parent, "##componentcontextmenu", ui_state_->upd_shared_model_ptr(), p);
                         App::post_event<OpenPopupEvent>(*parent, std::move(popup));
-                    }
-                );
-            }
-        );
+                    });
+            });
         panel_manager_->register_toggleable_panel(
             "Properties",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<PropertiesPanel>(parent, panel_name, ui_state_->upd_shared_model_ptr());
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Log",
-            [](Widget* parent, std::string_view panel_name)
-            {
+            [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<LogViewerPanel>(parent, panel_name);
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Coordinates",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<CoordinateEditorPanel>(parent, panel_name, ui_state_->upd_shared_model_ptr());
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Performance",
-            [](Widget* parent, std::string_view panel_name)
-            {
+            [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<PerfPanel>(parent, panel_name);
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Output Watches",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<OutputWatchesPanel>(parent, panel_name, ui_state_->upd_shared_model_ptr());
-            }
-        );
+            });
         panel_manager_->register_spawnable_panel(
             "viewer",
-            [this](Widget* parent, std::string_view panel_name)
-            {
-                auto on_right_click = [model = ui_state_->upd_shared_model_ptr(), parent, menu_name = std::string{panel_name} + "_contextmenu", editor_api = this](const ModelViewerPanelRightClickEvent& e)
-                {
+            [this](Widget* parent, std::string_view panel_name) {
+                auto on_right_click = [model = ui_state_->upd_shared_model_ptr(), parent, menu_name = std::string{panel_name} + "_contextmenu", editor_api = this](const ModelViewerPanelRightClickEvent& e) {
                     auto popup = std::make_unique<ComponentContextMenu>(
                         parent,
                         menu_name,
                         model,
-                        e.component_abs_path_or_empty
-                    );
+                        e.component_abs_path_or_empty);
 
                     App::post_event<OpenPopupEvent>(editor_api->owner(), std::move(popup));
                 };
@@ -522,18 +489,15 @@ public:
                 popup_manager_.push_back(std::move(popup));
                 return true;
             }
-        }
-        else if (const auto* named_panel = dynamic_cast<OpenNamedPanelEvent*>(&e)) {
+        } else if (const auto* named_panel = dynamic_cast<OpenNamedPanelEvent*>(&e)) {
             panel_manager_->set_toggleable_panel_activated(named_panel->panel_name(), true);
             return true;
-        }
-        else if (const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
+        } else if (const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
             auto popup = std::make_unique<ComponentContextMenu>(
                 &owner(),
                 "##componentcontextmenu",
                 ui_state_->upd_shared_model_ptr(),
-                context_menu_event->path()
-            );
+                context_menu_event->path());
             App::post_event<OpenPopupEvent>(owner(), std::move(popup));
             return true;
         }
@@ -568,8 +532,7 @@ public:
             status_bar_.on_draw();
             popup_manager_.on_draw();
             threw_exception_last_frame_ = false;
-        }
-        catch (const std::exception& ex) {
+        } catch (const std::exception& ex) {
             if (threw_exception_last_frame_) {
                 throw;
             }
@@ -592,7 +555,6 @@ private:
     PopupManager popup_manager_;
     bool threw_exception_last_frame_ = false;
 };
-
 
 CStringView osc::PreviewExperimentalDataTab::id() { return "OpenSim/Experimental/PreviewExperimentalData"; }
 
