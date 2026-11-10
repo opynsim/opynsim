@@ -21,7 +21,6 @@
 
 using namespace osc;
 
-
 // this is a repro for
 //
 // https://github.com/opensim-org/opensim-core/issues/3211
@@ -63,8 +62,7 @@ TEST(OpenSimModel, ProducesCorrectMomentArmOnFirstComputeCall)
     std::array<double, 2> values{};
     double new_coord_val = coord.getValue(st) + 0.01;  // just ensure the coord changes from default
     coord.setValue(st, new_coord_val);
-    for (int i = 0; i < 2; ++i)
-    {
+    for (int i = 0; i < 2; ++i) {
         st.invalidateAllCacheAtOrAbove(SimTK::Stage::Instance);
         model.equilibrateMuscles(st);
         model.realizeDynamics(st);
@@ -101,7 +99,7 @@ TEST(OpenSimModel, EditingACoordinateLockMutatesModel)
     ASSERT_FALSE(coord.getLocked(state));
 
     coord.setLocked(state, true);  // required
-    model.realizeReport(state);  // required: makes the state inconsistent? Despite not changing the system?
+    model.realizeReport(state);    // required: makes the state inconsistent? Despite not changing the system?
 
     ASSERT_FALSE(model.getWorkingState().isConsistent(state));
 }
@@ -226,25 +224,22 @@ TEST(OpenSimModel, LoadingAnOsimWithEmptyFieldsDoesNotSegfault)
 // component is re-finalized
 TEST(OpenSimModel, UpdatesInertiaCorrectly)
 {
-    const auto to_vec6 = [](const SimTK::Inertia& inertia)
-    {
+    const auto to_vec6 = [](const SimTK::Inertia& inertia) {
         const auto& moments = inertia.getMoments();
         const auto& products = inertia.getProducts();
         return SimTK::Vec6{moments[0], moments[1], moments[2], products[0], products[1], products[2]};
     };
 
     // this converter matches how OpenSim::Body does it
-    const auto to_inertia = [](const SimTK::Vec6& v)
-    {
+    const auto to_inertia = [](const SimTK::Vec6& v) {
         return SimTK::Inertia{v.getSubVec<3>(0), v.getSubVec<3>(3)};
     };
-
 
     SimTK::Vec6 initial_value = to_vec6(SimTK::Inertia{0.1});
     SimTK::Vec6 updated_value = to_vec6(SimTK::Inertia{0.2});
 
     OpenSim::Body b{};
-    b.set_mass(1.0);  // just something nonzero
+    b.set_mass(1.0);               // just something nonzero
     b.set_inertia(initial_value);  // note: updating the property
     b.finalizeFromProperties();
 
@@ -310,7 +305,6 @@ TEST(OpenSimModel, CoordinateCouplerConstraintWorksWithMultiVariatePolynomialWit
         std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "opensim-creator_515-3_repro.osim";
 
     OpenSim::Model model{broken_file_path.string()};
-    //ActionSetCoordinateValueAndSave(model, )
     model.buildSystem();  // shouldn't have any problems
 
     // user report: if you load a model containing a `CoordinateCouplerConstraint` and then change
@@ -318,8 +312,8 @@ TEST(OpenSimModel, CoordinateCouplerConstraintWorksWithMultiVariatePolynomialWit
     for (auto coord_name : {"tx", "rx", "ry"}) {
         std::string full_path = std::string{"/jointset/freejoint/"} + coord_name;
         auto& coord = model.updComponent<OpenSim::Coordinate>(full_path);
-        coord.set_default_value(coord.get_default_value() + 1.0); // change it at the model-level
-        model.buildSystem();  // shouldn't have any problems
+        coord.set_default_value(coord.get_default_value() + 1.0);  // change it at the model-level
+        model.buildSystem();                                       // shouldn't have any problems
         model.initializeState();
         ASSERT_NEAR(coord.getValue(model.getWorkingState()), coord.get_default_value(), 0.00001);
     }
@@ -400,8 +394,7 @@ TEST(OpenSimModel, ReassigningAJointsChildToGroundDoesNotSegfault)
     try {
         // doing that shouldn't segfault
         model.buildSystem();
-    }
-    catch (const std::exception&) {  // NOLINT(bugprone-empty-catch)
+    } catch (const std::exception&) {  // NOLINT(bugprone-empty-catch)
         // but OpenSim is pemitted to throw an exception whining about it
     }
 }
@@ -427,8 +420,7 @@ TEST(OpenSimModel, ReassigningAnOffsetFrameForJointChildToParentDoesNotSegfault)
     joint->setName("joint");
 
     // add first offset frame as joint's parent
-    const OpenSim::PhysicalOffsetFrame* parent_to_ground_offset = [&model, &joint]()
-    {
+    const OpenSim::PhysicalOffsetFrame* parent_to_ground_offset = [&model, &joint] {
         auto pof1 = std::make_unique<OpenSim::PhysicalOffsetFrame>();
         pof1->setParentFrame(model.getGround());
         pof1->setName("ground_offset");
@@ -440,8 +432,7 @@ TEST(OpenSimModel, ReassigningAnOffsetFrameForJointChildToParentDoesNotSegfault)
     }();
 
     // add second offset frame as joint's child
-    OpenSim::PhysicalOffsetFrame* child_to_body_offset = [&body, &joint]()
-    {
+    OpenSim::PhysicalOffsetFrame* child_to_body_offset = [&body, &joint] {
         auto pof2 = std::make_unique<OpenSim::PhysicalOffsetFrame>();
         pof2->setParentFrame(*body);
         pof2->setName("body_offset");
@@ -466,8 +457,7 @@ TEST(OpenSimModel, ReassigningAnOffsetFrameForJointChildToParentDoesNotSegfault)
     try {
         // doing that shouldn't segfault
         model.buildSystem();
-    }
-    catch (const std::exception&) {  // NOLINT(bugprone-empty-catch)
+    } catch (const std::exception&) {  // NOLINT(bugprone-empty-catch)
         // but OpenSim is pemitted to throw an exception whining about it
     }
 }
@@ -542,8 +532,7 @@ TEST(OpenSimModel, ReFinalizingAModelWithUnusualJointTopologyDoesNotSegfault)
         std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "opensim-creator_773_repro.osim";
     OpenSim::Model model{broken_file_path.string()};
 
-    for (size_t i = 0; i < 10; ++i)
-    {
+    for (size_t i = 0; i < 10; ++i) {
         model.finalizeConnections();  // this can segfault (never should)
     }
 }
@@ -558,8 +547,7 @@ TEST(OpenSimModel, ReFinalizingASimplerModelWithUnusualJointTopologyDoesNotSegfa
         std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "opensim-creator_773-2_repro.osim";
     OpenSim::Model model{broken_file_path.string()};
 
-    for (size_t i = 0; i < 10; ++i)
-    {
+    for (size_t i = 0; i < 10; ++i) {
         model.finalizeConnections();  // this can segfault (never should)
     }
 }
@@ -580,8 +568,7 @@ TEST(OpenSimModel, ReFinalizingAnEvenSimplerModelWithUnusualJointTopologyDoesNot
     for (size_t i = 0; i < 10; ++i) {
         try {
             model.finalizeConnections();
-        }
-        catch (const std::exception&) {  // NOLINT(bugprone-empty-catch)
+        } catch (const std::exception&) {  // NOLINT(bugprone-empty-catch)
             // It can throw (it shouldn't though) - this test only cares about segfaults
             // in OpenSim's terrible graph solver.
         }
@@ -601,8 +588,7 @@ TEST(OpenSimModel, MeshGetComponentListDoesNotIterate)
     ASSERT_EQ(mesh.countNumComponents(), 0);
 
     int n = 0;
-    for ([[maybe_unused]] const auto& component : mesh.getComponentList())
-    {
+    for ([[maybe_unused]] const auto& component : mesh.getComponentList()) {
         ++n;
     }
     ASSERT_EQ(n, 0);
@@ -679,5 +665,5 @@ TEST(OpenSimModel, CanCopyModelContainingExternalLoads)
 
     // the only way to fix this bug is upstream, because `Object::setDocument` is `protected`
     auto copy{model};
-    ASSERT_NO_THROW({ opyn::initialize_model(copy); })  << "this shouldn't throw (see: opensim-core/3926 or opensim-core/3927)";
+    ASSERT_NO_THROW({ opyn::initialize_model(copy); }) << "this shouldn't throw (see: opensim-core/3926 or opensim-core/3927)";
 }

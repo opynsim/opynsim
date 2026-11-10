@@ -32,8 +32,7 @@ TEST(DocumentationModels, CanAllBeLoadedAndInitializedWithoutThrowingAnException
     opyn::OpenSimDecorationOptions options;
 
     std::filesystem::path doc_sources_dir{OSC_DOCS_SOURCES_DIR};
-    for_each_file_with_extensions_recursive(doc_sources_dir, [&cache, &options](const std::filesystem::path& osim)
-    {
+    for_each_file_with_extensions_recursive(doc_sources_dir, [&cache, &options](const std::filesystem::path& osim) {
         // load + initialize the documentation model
         UndoableModelStatePair model{osim};
 
