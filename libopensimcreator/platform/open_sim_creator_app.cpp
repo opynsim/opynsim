@@ -36,7 +36,7 @@ namespace
         {"panels/Coordinates/enabled", true},
         {"panels/Muscle Plot/enabled", false},
         {"panels/Output Watches/enabled", false},
-        {"panels/Output Plots/enabled", false},        // merged with `Output Watches` around v0.5.15
+        {"panels/Output Plots/enabled", false},  // merged with `Output Watches` around v0.5.15
         {"panels/Properties/enabled", true},
         {"panels/Selection Details/enabled", true},
 
@@ -65,7 +65,7 @@ namespace
 
 bool osc::globally_init_open_sim()
 {
-    static const bool s_open_sim_initialized = []{
+    static const bool s_open_sim_initialized = [] {
         opyn::set_log_level(osc::LogLevel::info);  // The desktop app logs a little bit more by default
         return opyn::init();
     }();
@@ -77,8 +77,7 @@ void osc::globally_add_directory_to_open_sim_geometry_search_path(const std::fil
     if (std::filesystem::exists(p) and std::filesystem::is_directory(p)) {
         opyn::prepend_search_path(p);
         log_info("added geometry search path entry: {}", p.string());
-    }
-    else {
+    } else {
         log_warn("{}: does not exist, it will not be added to the geometry search path", p.string());
     }
 }

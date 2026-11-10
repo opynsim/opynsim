@@ -36,6 +36,7 @@ namespace osc
         }
 
         void sync();
+
     private:
         std::filesystem::path disk_location_;
         std::vector<RecentFile> files_;

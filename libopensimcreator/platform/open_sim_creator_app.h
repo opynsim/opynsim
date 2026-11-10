@@ -4,11 +4,11 @@
 
 #include <filesystem>
 
-namespace osc { class AppMetdata; }
-namespace osc { class TabRegistry; }
-
 namespace osc
 {
+    class AppMetdata;
+    class TabRegistry;
+
     // manually ensure OpenSim is initialized
     //
     // e.g. initializes OpenSim logging, registering components, etc.

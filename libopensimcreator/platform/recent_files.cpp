@@ -40,8 +40,7 @@ namespace
     // load the "recent files" file that the application persists to disk
     std::vector<RecentFile> load_recent_files_file(const std::filesystem::path& p)
     {
-        if (!std::filesystem::exists(p))
-        {
+        if (!std::filesystem::exists(p)) {
             // the recent files txt does not exist (e.g. because it's the first time
             // that the user booted OSC - #786)
             return {};
@@ -49,8 +48,7 @@ namespace
 
         std::ifstream fd{p, std::ios::in};
 
-        if (!fd)
-        {
+        if (!fd) {
             // do not throw, because it probably shouldn't crash the application if this
             // is an issue
             log_error("{}: could not be opened for reading: cannot load recent files list", p.string());
@@ -60,8 +58,7 @@ namespace
         std::vector<RecentFile> rv;
         std::string line;
 
-        while (std::getline(fd, line))
-        {
+        while (std::getline(fd, line)) {
             std::istringstream ss{line};
 
             // read line content
@@ -111,13 +108,11 @@ osc::RecentFiles::~RecentFiles() noexcept  // NOLINT(bugprone-exception-escape)
 void osc::RecentFiles::push_back(const std::filesystem::path& path)
 {
     // remove duplicates
-    std::erase_if(files_, [&path](const RecentFile& f)
-    {
+    std::erase_if(files_, [&path](const RecentFile& f) {
         return f.path == path;
     });
 
-    files_.push_back(RecentFile
-    {
+    files_.push_back(RecentFile{
         std::filesystem::exists(path),
         get_current_time_as_unix_timestamp(),
         path,
@@ -130,16 +125,14 @@ void osc::RecentFiles::sync()
 {
     // write by truncating existing list file
     std::ofstream fd{disk_location_, std::ios::trunc};
-    if (!fd)
-    {
+    if (!fd) {
         log_error("{}: could not be opened for writing: cannot update recent files list", disk_location_.string());
         return;
     }
 
     // write up-to the first 10 entries
     const size_t num_files_to_write = min(files_.size(), c_max_recent_file_entries);
-    for (size_t i = 0; i < num_files_to_write; ++i)
-    {
+    for (size_t i = 0; i < num_files_to_write; ++i) {
         const RecentFile& rf = files_[i];
         fd << rf.last_opened_unix_timestamp.count() << ' ' << rf.path << '\n';
     }
