@@ -43,9 +43,9 @@ osc::BoxGeometry::BoxGeometry(const Params& p)
         const float segment_width  = dims.x() / static_cast<float>(grid_x);
         const float segment_height = dims.y() / static_cast<float>(grid_y);
 
-        const float half_width  = 0.5f * dims.x();
+        const float half_width = 0.5f * dims.x();
         const float half_height = 0.5f * dims.y();
-        const float half_depth  = 0.5f * dims.z();
+        const float half_depth = 0.5f * dims.z();
 
         const size_t grid_x1 = grid_x + 1;
         const size_t grid_y1 = grid_y + 1;
@@ -55,13 +55,13 @@ osc::BoxGeometry::BoxGeometry(const Params& p)
 
         // generate vertices, normals, and UVs
         for (size_t iy = 0; iy < grid_y1; ++iy) {
-            const float y = static_cast<float>(iy)*segment_height - half_height;
+            const float y = static_cast<float>(iy) * segment_height - half_height;
             for (size_t ix = 0; ix < grid_x1; ++ix) {
-                const float x = static_cast<float>(ix)*segment_width - half_width;
+                const float x = static_cast<float>(ix) * segment_width - half_width;
 
                 Vector3 vertex{};
-                vertex[u] = x*udir;
-                vertex[v] = y*vdir;
+                vertex[u] = x * udir;
+                vertex[v] = y * vdir;
                 vertex[w] = half_depth;
                 vertices.push_back(vertex);
 
@@ -71,7 +71,7 @@ osc::BoxGeometry::BoxGeometry(const Params& p)
                 normal[w] = dims.z() > 0.0f ? 1.0f : -1.0f;
                 normals.push_back(normal);
 
-                uvs.emplace_back(static_cast<float>(ix)/static_cast<float>(grid_x), 1.0f - static_cast<float>(iy)/static_cast<float>(grid_y));
+                uvs.emplace_back(static_cast<float>(ix) / static_cast<float>(grid_x), 1.0f - static_cast<float>(iy) / static_cast<float>(grid_y));
 
                 ++vertex_count;
             }
@@ -80,10 +80,10 @@ osc::BoxGeometry::BoxGeometry(const Params& p)
         // indices (two triangles, or 6 indices, per segment)
         for (size_t iy = 0; iy < grid_y; ++iy) {
             for (size_t ix = 0; ix < grid_x; ++ix) {
-                const auto a = static_cast<uint32_t>(num_vertices +  ix      + (grid_x1 *  iy     ));
-                const auto b = static_cast<uint32_t>(num_vertices +  ix      + (grid_x1 * (iy + 1)));
+                const auto a = static_cast<uint32_t>(num_vertices + ix + (grid_x1 * iy));
+                const auto b = static_cast<uint32_t>(num_vertices + ix + (grid_x1 * (iy + 1)));
                 const auto c = static_cast<uint32_t>(num_vertices + (ix + 1) + (grid_x1 * (iy + 1)));
-                const auto d = static_cast<uint32_t>(num_vertices + (ix + 1) + (grid_x1 *  iy     ));
+                const auto d = static_cast<uint32_t>(num_vertices + (ix + 1) + (grid_x1 * iy));
 
                 indices.insert(indices.end(), {a, b, d});
                 indices.insert(indices.end(), {b, c, d});
@@ -99,6 +99,7 @@ osc::BoxGeometry::BoxGeometry(const Params& p)
     };
 
     // build each side of the box
+    // clang-format off
     const auto& [width, height, depth] = p.dimensions;
     const auto& [num_width_segments, num_height_segments, num_depth_segments] = p.num_segments;
     build_plane(2, 1, 0, -1.0f, -1.0f, {depth, height,  width},  num_depth_segments, num_height_segments);  // px
@@ -107,6 +108,7 @@ osc::BoxGeometry::BoxGeometry(const Params& p)
     build_plane(0, 2, 1,  1.0f, -1.0f, {width, depth,  -height}, num_width_segments, num_depth_segments );  // ny
     build_plane(0, 1, 2,  1.0f, -1.0f, {width, height,  depth},  num_width_segments, num_height_segments);  // pz
     build_plane(0, 1, 2, -1.0f, -1.0f, {width, height, -depth},  num_width_segments, num_height_segments);  // nz
+    // clang-format on
 
     // the first sub-mesh is "the entire cube"
     sub_meshes.insert(sub_meshes.begin(), SubMeshDescriptor{0, group_start, MeshTopology::Triangles});

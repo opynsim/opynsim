@@ -42,12 +42,10 @@ osc::WireframeGeometry::WireframeGeometry(const Mesh& mesh)
     std::vector<Vector3> vertices;
     vertices.reserve(mesh.num_indices());  // (guess)
 
-    mesh.for_each_indexed_triangle([&edges, &vertices](const Triangle& triangle)
-    {
+    mesh.for_each_indexed_triangle([&edges, &vertices](const Triangle& triangle) {
         const auto [a, b, c] = triangle;
 
-        const auto ordered_edge = [](Vector3 p1, Vector3 p2)
-        {
+        const auto ordered_edge = [](Vector3 p1, Vector3 p2) {
             return rgs::lexicographical_compare(p1, p2) ? LineSegment{p1, p2} : LineSegment{p2, p1};
         };
 

@@ -27,9 +27,8 @@ osc::TorusKnotGeometry::TorusKnotGeometry(const Params& p)
     const auto fq = static_cast<float>(p.q);
 
     // helper: calculates the current position on the torus curve
-    const auto calc_position_on_curve = [fp, fq, &p](Radians u)
-    {
-        const Radians qu_over_p = fq/fp * u;
+    const auto calc_position_on_curve = [fp, fq, &p](Radians u) {
+        const Radians qu_over_p = fq / fp * u;
         const float cs = cos(qu_over_p);
 
         return Vector3{
@@ -39,8 +38,8 @@ osc::TorusKnotGeometry::TorusKnotGeometry(const Params& p)
         };
     };
 
-    const size_t num_vertices = (p.num_tubular_segments+1)*(p.num_radial_segments+1);
-    const size_t num_indices = 6*p.num_tubular_segments*p.num_radial_segments;
+    const size_t num_vertices = (p.num_tubular_segments + 1) * (p.num_radial_segments + 1);
+    const size_t num_indices = 6 * p.num_tubular_segments * p.num_radial_segments;
 
     std::vector<uint32_t> indices;
     indices.reserve(num_indices);
@@ -56,7 +55,7 @@ osc::TorusKnotGeometry::TorusKnotGeometry(const Params& p)
         const auto fi = static_cast<float>(i);
 
         // `u` is used to calculate the position on the torus curve of the current tubular segment
-        const Radians u = fi/fnum_tubular_segments * fp * 360_deg;
+        const Radians u = fi / fnum_tubular_segments * fp * 360_deg;
 
         // now we calculate two points. p1 is our current position on the curve, p2 is a little farther ahead.
         // these points are used to create a special "coordinate space", which is necessary to calculate the
@@ -80,9 +79,9 @@ osc::TorusKnotGeometry::TorusKnotGeometry(const Params& p)
             // now calculate the vertices. they are nothing more than an extrusion of the torus curve.
             // because we extrude a shape in the xy-plane, there is no need to calculate a z-value.
 
-            const Radians v = fj/fnum_radial_segments * 360_deg;
+            const Radians v = fj / fnum_radial_segments * 360_deg;
             const float cx = -p.tube_radius * cos(v);
-            const float cy =  p.tube_radius * sin(v);
+            const float cy = p.tube_radius * sin(v);
 
             // now calculate the final vertex position.
             // first we orient the extrusion with our basis vectors, then we add it to the current position on the curve
@@ -104,9 +103,9 @@ osc::TorusKnotGeometry::TorusKnotGeometry(const Params& p)
     for (size_t j = 1; j <= p.num_tubular_segments; ++j) {
         for (size_t i = 1; i <= p.num_radial_segments; ++i) {
             const auto a = static_cast<uint32_t>((p.num_radial_segments + 1) * (j - 1) + (i - 1));
-            const auto b = static_cast<uint32_t>((p.num_radial_segments + 1) *  j      + (i - 1));
-            const auto c = static_cast<uint32_t>((p.num_radial_segments + 1) *  j      +  i);
-            const auto d = static_cast<uint32_t>((p.num_radial_segments + 1) * (j - 1) +  i);
+            const auto b = static_cast<uint32_t>((p.num_radial_segments + 1) * j + (i - 1));
+            const auto c = static_cast<uint32_t>((p.num_radial_segments + 1) * j + i);
+            const auto d = static_cast<uint32_t>((p.num_radial_segments + 1) * (j - 1) + i);
 
             indices.insert(indices.end(), {a, b, d});
             indices.insert(indices.end(), {b, c, d});

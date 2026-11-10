@@ -33,22 +33,26 @@ TEST(TorusKnotGeometry, can_default_construct)
 
 TEST(TorusKnotGeometry, works_with_non_default_args)
 {
-    ASSERT_NO_THROW({ TorusKnotGeometry({
-        .torus_radius = 0.5f,
-        .tube_radius = 0.1f,
-        .num_tubular_segments = 32,
-        .num_radial_segments = 4,
-        .p = 1,
-        .q = 10,
-    }); });
-    ASSERT_NO_THROW({ TorusKnotGeometry({
-        .torus_radius = 0.0f,
-        .tube_radius = 100.0f,
-        .num_tubular_segments = 1,
-        .num_radial_segments = 3,
-        .p = 4,
-        .q = 2,
-    }); });
+    ASSERT_NO_THROW({
+        TorusKnotGeometry({
+            .torus_radius = 0.5f,
+            .tube_radius = 0.1f,
+            .num_tubular_segments = 32,
+            .num_radial_segments = 4,
+            .p = 1,
+            .q = 10,
+        });
+    });
+    ASSERT_NO_THROW({
+        TorusKnotGeometry({
+            .torus_radius = 0.0f,
+            .tube_radius = 100.0f,
+            .num_tubular_segments = 1,
+            .num_radial_segments = 3,
+            .p = 4,
+            .q = 2,
+        });
+    });
 }
 
 TEST(BoxGeometry, can_default_construct)
@@ -62,10 +66,12 @@ TEST(BoxGeometry, can_default_construct)
 
 TEST(BoxGeometry, works_with_non_default_args)
 {
-    ASSERT_NO_THROW({ BoxGeometry({
-        .dimensions = {0.5f, 100.0f, 0.0f},
-        .num_segments = {10, 1, 5},
-    }); });
+    ASSERT_NO_THROW({
+        BoxGeometry({
+            .dimensions = {0.5f, 100.0f, 0.0f},
+            .num_segments = {10, 1, 5},
+        });
+    });
 }
 
 TEST(PolyhedronGeometry, can_default_construct_with_params)
@@ -94,8 +100,7 @@ TEST(PolyhedronGeometry, works_with_a_couple_of_basic_verts)
         {{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}},
         {{0, 1, 2}},
         5.0f,
-        2
-    };
+        2};
     ASSERT_TRUE(mesh.has_vertices());
     ASSERT_TRUE(mesh.has_normals());
     ASSERT_TRUE(mesh.has_tex_coords());
@@ -108,14 +113,12 @@ TEST(PolyhedronGeometry, is_empty_if_given_less_than_3_points)
         {{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 1.0f}}},
         {{0, 1}},
         5.0f,
-        2
-    };
+        2};
     ASSERT_FALSE(mesh.has_vertices());
     ASSERT_FALSE(mesh.has_normals());
     ASSERT_FALSE(mesh.has_tex_coords());
     ASSERT_TRUE(mesh.indices().empty());
 }
-
 
 TEST(IcosahedronGeometry, can_default_construct)
 {

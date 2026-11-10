@@ -19,7 +19,10 @@ namespace
         // https://threejs.org/docs/#api/en/geometries/TetrahedronGeometry
 
         constexpr auto vertices = std::to_array<Vector3>({
-            {1.0f, 1.0f, 1.0f}, {-1.0f, -1.0f, 1.0f}, {-1.0f, 1.0f, -1.0f}, {1.0f, -1.0f, -1.0f},
+            {1.0f, 1.0f, 1.0f},
+            {-1.0f, -1.0f, 1.0f},
+            {-1.0f, 1.0f, -1.0f},
+            {1.0f, -1.0f, -1.0f},
         });
 
         constexpr auto indices = std::to_array<uint32_t>({
