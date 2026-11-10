@@ -9,10 +9,10 @@
 #include <optional>
 #include <string>
 
-namespace osc { class StringName; }
-
 namespace osc
 {
+    class StringName;
+
     class Object {
     protected:
         explicit Object(const Class&);
@@ -26,8 +26,8 @@ namespace osc
         // mostly useful for `impl_custom_setter`, because it allows implementations
         // to (e.g.) coerce property values
         void set_property_value_raw(const StringName& property_name, const Variant& value);
-    public:
 
+    public:
         // gets the `Class` (osc) of the `Object` type (C++)
         //
         // derived types that inherit from `Object` (C++) should ensure that

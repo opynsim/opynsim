@@ -61,8 +61,7 @@ namespace
 
         // helper: shift `n` chars starting at `new_start+n` such that, after,
         // `new_start..end` is equal to what `new_start+n..end` was before.
-        const auto shift = [&path_end](iterator new_start, size_t n)
-        {
+        const auto shift = [&path_end](iterator new_start, size_t n) {
             copy(new_start + n, path_end, new_start);
             path_end -= n;
         };
@@ -73,13 +72,14 @@ namespace
         // - The maximum lookahead is 3 characters because the parsing
         //   code below needs to be able to detect the upcoming input
         //   pattern "..[/\0]"
-        struct Lookahead { value_type a, b, c; };
-        const auto get_lookahead = [](const_iterator start, const_iterator end)
-        {
+        struct Lookahead {
+            value_type a, b, c;
+        };
+        const auto get_lookahead = [](const_iterator start, const_iterator end) {
             switch (end - start) {
-            case 0:  return Lookahead{c_nul,    c_nul,    c_nul};
-            case 1:  return Lookahead{start[0], c_nul,    c_nul};
-            case 2:  return Lookahead{start[0], start[1], c_nul};
+            case 0: return Lookahead{c_nul, c_nul, c_nul};
+            case 1: return Lookahead{start[0], c_nul, c_nul};
+            case 2: return Lookahead{start[0], start[1], c_nul};
             default: return Lookahead{start[0], start[1], start[2]};
             }
         };
@@ -89,8 +89,7 @@ namespace
             const Lookahead l = get_lookahead(it, path_end);
             if (l.a == NodePath::separator and l.b == NodePath::separator) {
                 shift(it, 1);
-            }
-            else {
+            } else {
                 ++it;
             }
         }
@@ -122,12 +121,10 @@ namespace
                         // them down
                         if (l.c == NodePath::separator) {
                             cursor += 3;
-                        }
-                        else {
+                        } else {
                             cursor += 2;
                         }
-                    }
-                    else {
+                    } else {
                         // normal element that starts with '..'
                         ++cursor;
                     }
@@ -164,8 +161,7 @@ namespace
                 const size_t num_chars_in_current_el = l.b == NodePath::separator ? 2 : 1;
                 shift(cursor, num_chars_in_current_el);
 
-            }
-            else if (l.a == '.' and l.b == '.' and (l.c == c_nul or l.c == NodePath::separator)) {
+            } else if (l.a == '.' and l.b == '.' and (l.c == c_nul or l.c == NodePath::separator)) {
                 // handle '..' (if found)
 
                 if (cursor == content_start) {
@@ -185,12 +181,13 @@ namespace
                 cursor = prev_start;
                 shift(cursor, num_chars_in_previous_el + num_chars_in_current_el);
 
-            }
-            else {
+            } else {
                 // non-relative element: find the next separator and then skip past it
                 // if it isn't the end of the string
                 cursor = find(cursor, path_end, NodePath::separator);
-                if (cursor != path_end) { ++cursor; }
+                if (cursor != path_end) {
+                    ++cursor;
+                }
             }
         }
 

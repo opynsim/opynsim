@@ -22,13 +22,12 @@ namespace
 {
     template<typename StringLike>
     StringLike&& validate_as_classname(StringLike&& str)
-        requires std::constructible_from<std::string_view, StringLike&&>
+    requires std::constructible_from<std::string_view, StringLike&&>
     {
         if (not is_valid_identifier(str)) {
             throw formatted_runtime_error(
                 "{}: is not a valid class name: must be an 'identifier' (i.e. start with a letter/underscore, followed by letters/numbers/underscores)",
-                str
-            );
+                str);
         }
         return std::forward<StringLike>(str);
     }
@@ -53,8 +52,7 @@ namespace
             if (not rv.try_emplace(properties[i].name(), i).second) {
                 throw formatted_runtime_error(
                     "{}: duplicate property detected: each property of an object must be unique (incl. properties from the base class)",
-                    properties[i].name().name()
-                );
+                    properties[i].name().name());
             }
         }
         return rv;

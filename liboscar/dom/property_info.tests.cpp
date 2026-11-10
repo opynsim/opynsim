@@ -84,8 +84,7 @@ TEST(PropertyInfo, constructor_throws_an_exception_if_name_contains_whitespace)
 
 TEST(PropertyInfo, constructor_throws_exception_if_name_contains_any_ASCII_control_characters)
 {
-    const auto test = [](char c)
-    {
+    const auto test = [](char c) {
         ASSERT_ANY_THROW({ PropertyInfo(std::string{c} + std::string("leading"), Variant(true)); });
         ASSERT_ANY_THROW({ PropertyInfo(std::string("trailing") + c, Variant(true)); });
         ASSERT_ANY_THROW({ PropertyInfo(std::string("inner") + c + std::string("usage"), Variant{true}); });

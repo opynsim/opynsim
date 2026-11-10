@@ -22,8 +22,7 @@ namespace osc
 
         explicit PropertyInfo(
             StringName name,
-            Variant default_value
-        );
+            Variant default_value);
 
         const StringName& name() const { return name_; }
 

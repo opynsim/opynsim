@@ -27,7 +27,7 @@ namespace osc
             Iterator& operator++()
             {
                 current_ = remaining_.substr(0, remaining_.find(separator));
-                remaining_ = current_.size() == remaining_.size() ? std::string_view{} : remaining_.substr(current_.size()+1);
+                remaining_ = current_.size() == remaining_.size() ? std::string_view{} : remaining_.substr(current_.size() + 1);
                 return *this;
             }
 
@@ -47,7 +47,7 @@ namespace osc
 
             explicit Iterator(std::string_view path) :
                 current_{path.substr(0, path.find(separator))},
-                remaining_{current_.size() == path.size() ? std::string_view{} : path.substr(current_.size()+1)}
+                remaining_{current_.size() == path.size() ? std::string_view{} : path.substr(current_.size() + 1)}
             {}
 
             std::string_view current_;
@@ -71,7 +71,7 @@ namespace osc
             return !parsed_path_.empty() and parsed_path_.front() == separator;
         }
 
-        operator std::string_view () const
+        operator std::string_view() const
         {
             return parsed_path_;
         }
@@ -87,6 +87,7 @@ namespace osc
         }
 
         friend bool operator==(const NodePath&, const NodePath&) = default;
+
     private:
         std::string parsed_path_;
     };

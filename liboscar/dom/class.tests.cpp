@@ -19,9 +19,9 @@ namespace rgs = std::ranges;
 namespace
 {
     template<class T, size_t N, size_t M>
-    auto concat(const std::array<T, N>& a1, const std::array<T, M>& a2) -> std::array<T, N+M>
+    auto concat(const std::array<T, N>& a1, const std::array<T, M>& a2) -> std::array<T, N + M>
     {
-        std::array<T, N+M> rv;
+        std::array<T, N + M> rv;
         rgs::copy(a1, rv.begin());
         rgs::copy(a2, rv.begin() + N);
         return rv;
@@ -79,15 +79,13 @@ TEST(Class, constructor_throws_if_given_PropertyInfo_that_is_duplicated_in_paren
         }),
     };
 
-    ASSERT_ANY_THROW(
-    {
+    ASSERT_ANY_THROW({
         const Class child_class(
             "ChildClass",
             parent_class,
             std::to_array({
                 PropertyInfo{"parentprop", Variant{"should-throw"}},
-            })
-        );
+            }));
     });
 }
 
@@ -109,15 +107,13 @@ TEST(Class, constructor_throws_if_given_PropertyInfo_that_is_duplicated_in_grand
         }),
     };
 
-    ASSERT_ANY_THROW(
-    {
+    ASSERT_ANY_THROW({
         const Class child_class(
             "ChildClass",
             parent_class,
             std::to_array({
                 PropertyInfo{"grandparentProp", Variant{"should-throw"}},
-            })
-        );
+            }));
     });
 }
 

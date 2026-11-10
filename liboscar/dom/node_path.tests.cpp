@@ -10,7 +10,6 @@
 
 using namespace osc;
 
-
 namespace
 {
     std::vector<std::string> slurp(const NodePath& node_path)

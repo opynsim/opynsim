@@ -11,14 +11,15 @@
 #include <type_traits>
 #include <utility>
 
-namespace osc { class Variant; }
-namespace osc { class PropertyDescriptions; }
-
 namespace osc
 {
+    class PropertyDescriptions;
+    class Variant;
+
     class Node : public Object {
     public:
         ~Node() noexcept override = default;
+
     protected:
         Node();
         Node(const Node&);
@@ -46,7 +47,6 @@ namespace osc
         {
             return upd_parent(Identity<TNode>{});
         }
-
 
         size_t num_children() const;
 
@@ -114,7 +114,9 @@ namespace osc
         // member functions. See: https://stackoverflow.com/a/3057522
 
         template<typename T>
-        struct Identity { using type = T; };
+        struct Identity {
+            using type = T;
+        };
 
         template<std::derived_from<Node> TDerived>
         const TDerived* parent(Identity<TDerived>) const
