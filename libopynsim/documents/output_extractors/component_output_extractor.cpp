@@ -33,17 +33,16 @@ namespace
         return std::format("{}[{}{}]",
             cp.toString(),
             output_name,
-            label ? std::format(".{}", *label) : ""
-        );
+            label ? std::format(".{}", *label) : "");
     }
 
     OutputValueExtractor make_null_extractor(OutputExtractorDataType type)
     {
         static_assert(osc::num_options_v<OutputExtractorDataType> == 3);
         switch (type) {
-        case OutputExtractorDataType::Float:   return OutputValueExtractor::constant(osc::quiet_nan_v<float>);
+        case OutputExtractorDataType::Float: return OutputValueExtractor::constant(osc::quiet_nan_v<float>);
         case OutputExtractorDataType::Vector2: return OutputValueExtractor::constant(osc::Vector2{osc::quiet_nan_v<float>});
-        default:                               return OutputValueExtractor::constant(std::string{});
+        default: return OutputValueExtractor::constant(std::string{});
         }
     }
 }
@@ -87,14 +86,11 @@ public:
         }
 
         if (datatype == OutputExtractorDataType::Float) {
-            return OutputValueExtractor{[func = extractor_func_, ao](const StateViewWithMetadata& state)
-            {
+            return OutputValueExtractor{[func = extractor_func_, ao](const StateViewWithMetadata& state) {
                 return osc::Variant{static_cast<float>(func(*ao, state.state()))};
             }};
-        }
-        else {
-            return OutputValueExtractor{[ao](const StateViewWithMetadata& state)
-            {
+        } else {
+            return OutputValueExtractor{[ao](const StateViewWithMetadata& state) {
                 return osc::Variant{ao->getValueAsString(state.state())};
             }};
         }

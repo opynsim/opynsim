@@ -14,8 +14,7 @@ using namespace opyn;
 // constants
 namespace
 {
-    constexpr std::array<ComponentOutputSubfield, osc::num_flags_v<ComponentOutputSubfield>> output_subfields_lut = std::to_array(
-    {
+    constexpr std::array<ComponentOutputSubfield, osc::num_flags_v<ComponentOutputSubfield>> output_subfields_lut = std::to_array({
         ComponentOutputSubfield::X,
         ComponentOutputSubfield::Y,
         ComponentOutputSubfield::Z,
@@ -139,8 +138,7 @@ namespace
     // type-erase a concrete *subfield* extractor function
     template<
         ComponentOutputSubfield sf,
-        std::derived_from<OpenSim::AbstractOutput> OutputType
-    >
+        std::derived_from<OpenSim::AbstractOutput> OutputType>
     double extract_type_erased(const OpenSim::AbstractOutput& o, const SimTK::State& s)
     {
         return extract<sf>(dynamic_cast<const OutputType&>(o), s);
@@ -152,15 +150,15 @@ std::optional<osc::CStringView> opyn::get_output_subfield_label(ComponentOutputS
     static_assert(osc::num_flags_v<ComponentOutputSubfield> == 8);
 
     switch (subfield) {
-    case ComponentOutputSubfield::X:          return "X";
-    case ComponentOutputSubfield::Y:          return "Y";
-    case ComponentOutputSubfield::Z:          return "Z";
-    case ComponentOutputSubfield::Magnitude:  return "Magnitude";
-    case ComponentOutputSubfield::RX:         return "RX";
-    case ComponentOutputSubfield::RY:         return "RY";
-    case ComponentOutputSubfield::RZ:         return "RZ";
+    case ComponentOutputSubfield::X: return "X";
+    case ComponentOutputSubfield::Y: return "Y";
+    case ComponentOutputSubfield::Z: return "Z";
+    case ComponentOutputSubfield::Magnitude: return "Magnitude";
+    case ComponentOutputSubfield::RX: return "RX";
+    case ComponentOutputSubfield::RY: return "RY";
+    case ComponentOutputSubfield::RZ: return "RZ";
     case ComponentOutputSubfield::RMagnitude: return "RMagnitude";
-    default:                                  return std::nullopt;
+    default: return std::nullopt;
     }
 }
 
@@ -191,8 +189,7 @@ ComponentOutputSubfields opyn::get_supported_subfields(const OpenSim::AbstractOu
             ComponentOutputSubfield::Z,
             ComponentOutputSubfield::Magnitude,
         };
-    }
-    else if (dynamic_cast<const OpenSim::Output<SimTK::SpatialVec>*>(&ao)) {
+    } else if (dynamic_cast<const OpenSim::Output<SimTK::SpatialVec>*>(&ao)) {
         return {
             ComponentOutputSubfield::X,
             ComponentOutputSubfield::Y,
@@ -203,8 +200,7 @@ ComponentOutputSubfields opyn::get_supported_subfields(const OpenSim::AbstractOu
             ComponentOutputSubfield::RZ,
             ComponentOutputSubfield::RMagnitude,
         };
-    }
-    else {
+    } else {
         return ComponentOutputSubfield::None;
     }
 }
@@ -215,8 +211,7 @@ SubfieldExtractorFunc opyn::get_extractor_func_or_null(
 {
     if (dynamic_cast<const OpenSim::Output<double>*>(&ao)) {
         return extract_type_erased<OpenSim::Output<double>>;
-    }
-    else if (dynamic_cast<const OpenSim::Output<SimTK::Vec3>*>(&ao)) {
+    } else if (dynamic_cast<const OpenSim::Output<SimTK::Vec3>*>(&ao)) {
         switch (subfield) {
         case ComponentOutputSubfield::X:
             return extract_type_erased<ComponentOutputSubfield::X, OpenSim::Output<SimTK::Vec3>>;
@@ -229,8 +224,7 @@ SubfieldExtractorFunc opyn::get_extractor_func_or_null(
         default:
             return nullptr;
         }
-    }
-    else if (dynamic_cast<const OpenSim::Output<SimTK::SpatialVec>*>(&ao)) {
+    } else if (dynamic_cast<const OpenSim::Output<SimTK::SpatialVec>*>(&ao)) {
         switch (subfield) {
         case ComponentOutputSubfield::X:
             return extract_type_erased<ComponentOutputSubfield::X, OpenSim::Output<SimTK::SpatialVec>>;
@@ -251,8 +245,7 @@ SubfieldExtractorFunc opyn::get_extractor_func_or_null(
         default:
             return nullptr;
         }
-    }
-    else {
+    } else {
         return nullptr;
     }
 }

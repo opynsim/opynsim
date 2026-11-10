@@ -34,9 +34,12 @@ namespace opyn
         {}
 
         osc::Variant operator()(const StateViewWithMetadata& state) const { return callback_(state); }
+
     private:
         explicit OutputValueExtractor(osc::Variant value) :
-            callback_{[v = std::move(value)](const StateViewWithMetadata&) { return v; }}
+            callback_{[v = std::move(value)](const StateViewWithMetadata&) {
+                return v;
+            }}
         {}
 
         std::function<osc::Variant(const StateViewWithMetadata&)> callback_;

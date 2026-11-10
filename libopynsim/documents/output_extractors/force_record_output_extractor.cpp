@@ -30,18 +30,15 @@ public:
     OutputValueExtractor output_value_extractor(const OpenSim::Component& root) const
     {
         if (const auto* force = find_component<OpenSim::Force>(root, force_abs_path_)) {
-            return OutputValueExtractor{[force, index = record_index_](const StateViewWithMetadata& state)
-            {
+            return OutputValueExtractor{[force, index = record_index_](const StateViewWithMetadata& state) {
                 const OpenSim::Array<double> values = force->getRecordValues(state.state());
                 if (0 <= index and index < values.size()) {
                     return osc::Variant{static_cast<float>(values[index])};
-                }
-                else {
+                } else {
                     return osc::Variant{osc::quiet_nan_v<float>};  // Index out of bounds
                 }
             }};
-        }
-        else {
+        } else {
             return OutputValueExtractor::constant(osc::quiet_nan_v<float>);  // Invalid component
         }
     }
@@ -50,8 +47,7 @@ public:
     {
         if (const auto* const downcasted = dynamic_cast<const ForceRecordOutputExtractor*>(&other)) {
             return downcasted->impl_.get() == this or *downcasted->impl_ == *this;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -59,6 +55,7 @@ public:
     {
         return std::make_unique<Impl>(*this);
     }
+
 private:
     OpenSim::ComponentPath force_abs_path_;
     int record_index_ = 0;

@@ -9,8 +9,11 @@
 
 #include <cstddef>
 
-namespace OpenSim { class AbstractOutput; }
-namespace OpenSim { class ComponentPath; }
+namespace OpenSim
+{
+    class AbstractOutput;
+    class ComponentPath;
+}
 
 namespace opyn
 {
@@ -20,8 +23,7 @@ namespace opyn
     public:
         ComponentOutputExtractor(
             const OpenSim::AbstractOutput&,
-            ComponentOutputSubfield = ComponentOutputSubfield::None
-        );
+            ComponentOutputSubfield = ComponentOutputSubfield::None);
         ComponentOutputExtractor(const ComponentOutputExtractor&);
         ComponentOutputExtractor(ComponentOutputExtractor&&) noexcept;
         ComponentOutputExtractor& operator=(const ComponentOutputExtractor&);

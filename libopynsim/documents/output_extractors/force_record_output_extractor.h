@@ -8,7 +8,10 @@
 
 #include <cstddef>
 
-namespace OpenSim { class Force; }
+namespace OpenSim
+{
+    class Force;
+}
 
 namespace opyn
 {
@@ -18,8 +21,7 @@ namespace opyn
     public:
         explicit ForceRecordOutputExtractor(
             const OpenSim::Force&,
-            int record_index
-        );
+            int record_index);
         ForceRecordOutputExtractor(const ForceRecordOutputExtractor&);
         ForceRecordOutputExtractor(ForceRecordOutputExtractor&&) noexcept;
         ForceRecordOutputExtractor& operator=(const ForceRecordOutputExtractor&);

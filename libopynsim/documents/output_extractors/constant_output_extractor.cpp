@@ -9,8 +9,7 @@
 
 opyn::OutputValueExtractor opyn::ConstantOutputExtractor::impl_output_value_extractor(const OpenSim::Component&) const
 {
-    return opyn::OutputValueExtractor{[value = this->value_](const opyn::StateViewWithMetadata&)
-    {
+    return opyn::OutputValueExtractor{[value = this->value_](const opyn::StateViewWithMetadata&) {
         return value;
     }};
 }

@@ -13,12 +13,20 @@
 #include <ranges>
 #include <vector>
 
-namespace OpenSim { class Component; }
-namespace opyn { class StateViewWithMetadata; }
-namespace osc { class IOutputValueExtractorVisitor; }
+namespace OpenSim
+{
+    class Component;
+}
+
+namespace osc
+{
+    class IOutputValueExtractorVisitor;
+}
 
 namespace opyn
 {
+    class StateViewWithMetadata;
+
     // an interface for something that can produce an output value extractor
     // for a particular model against multiple states
     //
@@ -32,6 +40,7 @@ namespace opyn
         OutputExtractor(OutputExtractor&&) noexcept = default;
         OutputExtractor& operator=(const OutputExtractor&) = default;
         OutputExtractor& operator=(OutputExtractor&&) noexcept = default;
+
     public:
         virtual ~OutputExtractor() noexcept = default;
 
@@ -89,6 +98,7 @@ namespace opyn
         {
             return lhs.equals(rhs);
         }
+
     private:
         virtual osc::CStringView impl_name() const = 0;
         virtual osc::CStringView impl_description() const = 0;

@@ -27,8 +27,7 @@ namespace
 
         if (a_type == OutputExtractorDataType::Float && b_type == OutputExtractorDataType::Float) {
             return OutputExtractorDataType::Vector2;
-        }
-        else {
+        } else {
             return OutputExtractorDataType::String;
         }
     }
@@ -42,8 +41,7 @@ namespace
 
         if (concatenated_type == OutputExtractorDataType::Vector2) {
             return std::format("{} vs. {}", a.name(), b.name());
-        }
-        else {
+        } else {
             return std::format("{} + {}", a.name(), b.name());
         }
     }
@@ -64,18 +62,15 @@ OutputValueExtractor opyn::ConcatenatingOutputExtractor::impl_output_value_extra
     static_assert(osc::num_options_v<OutputExtractorDataType> == 3);
 
     if (output_type_ == OutputExtractorDataType::Vector2) {
-        auto extractor = [lhs = first_.output_value_extractor(comp), rhs = second_.output_value_extractor(comp)](const StateViewWithMetadata& state)
-        {
+        auto extractor = [lhs = first_.output_value_extractor(comp), rhs = second_.output_value_extractor(comp)](const StateViewWithMetadata& state) {
             const auto lv = to<float>(lhs(state));
             const auto rv = to<float>(rhs(state));
 
             return osc::Variant{osc::Vector2{lv, rv}};
         };
         return OutputValueExtractor{std::move(extractor)};
-    }
-    else {
-        auto extractor = [lhs = first_.output_value_extractor(comp), rhs = second_.output_value_extractor(comp)](const StateViewWithMetadata& state)
-        {
+    } else {
+        auto extractor = [lhs = first_.output_value_extractor(comp), rhs = second_.output_value_extractor(comp)](const StateViewWithMetadata& state) {
             return osc::Variant{to<std::string>(lhs(state)) + to<std::string>(rhs(state))};
         };
         return OutputValueExtractor{std::move(extractor)};

@@ -11,8 +11,15 @@
 #include <string>
 #include <string_view>
 
-namespace OpenSim { class Component; }
-namespace SimTK { class Integrator; }
+namespace OpenSim
+{
+    class Component;
+}
+
+namespace SimTK
+{
+    class Integrator;
+}
 
 namespace opyn
 {

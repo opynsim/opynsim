@@ -29,6 +29,7 @@ namespace opyn
         {}
 
         friend bool operator==(const ConstantOutputExtractor&, const ConstantOutputExtractor&) = default;
+
     private:
         osc::CStringView impl_name() const override { return name_; }
         osc::CStringView impl_description() const override { return {}; }

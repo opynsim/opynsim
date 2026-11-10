@@ -16,7 +16,10 @@
 #include <utility>
 #include <vector>
 
-namespace OpenSim { class Component; }
+namespace OpenSim
+{
+    class Component;
+}
 
 namespace opyn
 {
@@ -69,13 +72,14 @@ namespace opyn
             return output_->slurp_values<T>(component, states);
         }
 
-        operator const OutputExtractor& () const { return *output_; }
+        operator const OutputExtractor&() const { return *output_; }
         const OutputExtractor& inner() const { return *output_; }
 
         friend bool operator==(const SharedOutputExtractor& lhs, const SharedOutputExtractor& rhs)
         {
             return *lhs.output_ == *rhs.output_;
         }
+
     private:
         friend std::string to_string(const SharedOutputExtractor&);
         friend struct std::hash<SharedOutputExtractor>;
