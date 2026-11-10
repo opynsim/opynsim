@@ -8,9 +8,16 @@
 #include <stdexcept>
 #include <string_view>
 
-namespace OpenSim { class Component; }
-namespace OpenSim { class Model; }
-namespace SimTK { class State; }
+namespace OpenSim
+{
+    class Component;
+    class Model;
+}
+
+namespace SimTK
+{
+    class State;
+}
 
 namespace opyn
 {
@@ -30,7 +37,7 @@ namespace opyn
         ~ModelStatePair() noexcept override = default;
 
         const OpenSim::Model& get_model() const { return impl_get_model(); }
-        operator const OpenSim::Model& () const { return impl_get_model(); }
+        operator const OpenSim::Model&() const { return impl_get_model(); }
         const OpenSim::Model* operator->() const { return &impl_get_model(); }
 
         const SimTK::State& get_state() const { return impl_get_state(); }

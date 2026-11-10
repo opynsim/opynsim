@@ -11,7 +11,6 @@ using namespace opyn;
 
 class opyn::BasicModelStatePair::Impl final {
 public:
-
     Impl() :
         model_{std::make_unique<OpenSim::Model>()}
     {
@@ -95,6 +94,7 @@ public:
     {
         fixup_scale_factor_ = v;
     }
+
 private:
     std::unique_ptr<OpenSim::Model> model_;
     float fixup_scale_factor_ = 1.0f;

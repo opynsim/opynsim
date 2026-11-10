@@ -2,7 +2,10 @@
 
 #include <stdexcept>
 
-namespace OpenSim { class Component; }
+namespace OpenSim
+{
+    class Component;
+}
 
 namespace opyn
 {
@@ -15,11 +18,12 @@ namespace opyn
         ComponentAccessor& operator=(ComponentAccessor&&) noexcept = default;
 
         friend bool operator==(const ComponentAccessor&, const ComponentAccessor&) = default;
+
     public:
         virtual ~ComponentAccessor() noexcept = default;
 
         const OpenSim::Component& get_component() const { return impl_get_component(); }
-        operator const OpenSim::Component& () const { return get_component(); }
+        operator const OpenSim::Component&() const { return get_component(); }
 
         bool is_readonly() const { return not impl_can_upd_component(); }
         bool can_upd_component() const { return impl_can_upd_component(); }

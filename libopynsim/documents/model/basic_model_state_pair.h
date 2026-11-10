@@ -6,8 +6,15 @@
 
 #include <filesystem>
 
-namespace OpenSim { class Model; }
-namespace SimTK { class State; }
+namespace OpenSim
+{
+    class Model;
+}
+
+namespace SimTK
+{
+    class State;
+}
 
 namespace opyn
 {
