@@ -105,7 +105,7 @@ namespace
     template<int N>
     SimTK::Vec<N> reciprocal_of(const SimTK::Vec<N>& vs)
     {
-        return {1.0/vs[0], 1.0/vs[1], 1.0/vs[2]};
+        return {1.0 / vs[0], 1.0 / vs[1], 1.0 / vs[2]};
     }
 
     // Returns a pair that contains eigenvectors (first) and eigenvalues (second)
@@ -163,8 +163,7 @@ namespace
         const auto unsorted = eig(m);
 
         // create indices into the unordered result that are sorted by increasing Eigenvalue
-        const auto sorted_indices = [&unsorted]()
-        {
+        const auto sorted_indices = [&unsorted] {
             std::array<int, N> indices{};
             osc::cpp23::iota(indices, 0);
             rgs::sort(indices, rgs::less{}, [&unsorted](int v) { return unsorted.second(v, v); });
@@ -172,8 +171,7 @@ namespace
         }();
 
         // use the indices to create a sorted version of the result
-        auto sorted = [&unsorted, &sorted_indices]()
-        {
+        auto sorted = [&unsorted, &sorted_indices] {
             auto copy = unsorted;
             for (int dest = 0; dest < N; ++dest) {
                 const int src = sorted_indices[dest];
@@ -206,8 +204,7 @@ namespace
         SimTK::Vector result(a.ncol(), 0.0);
         if (rcond) {
             SimTK::FactorQTZ{a, *rcond}.solve(b, result);
-        }
-        else {
+        } else {
             SimTK::FactorQTZ{a}.solve(b, result);
         }
 
@@ -254,7 +251,7 @@ namespace
         const osc::Vector3& basis1,
         const osc::Vector3& basis2)
     {
-        return plane_surface_point.x()*basis1 + plane_surface_point.y()*basis2;
+        return plane_surface_point.x() * basis1 + plane_surface_point.y() * basis2;
     }
 
     // part of solving this algebraic form for an ellipsoid:
@@ -307,10 +304,9 @@ namespace
 
         // solve the normal system of equations
         SimTK::Vector u = solve_linear_least_squares(
-            d.transpose() * d,  // lhs * u = ...
-            d.transpose() * d2, // ... rhs
-            c_r_cond_reported_by_matlab
-        );
+            d.transpose() * d,   // lhs * u = ...
+            d.transpose() * d2,  // ... rhs
+            c_r_cond_reported_by_matlab);
 
         // repack vector into compile-time-known array
         OSC_ASSERT(u.size() == 9);
@@ -324,7 +320,7 @@ namespace
     // (I didn't have time to figure out what V is in this context)
     std::array<double, 10> solve_v(const std::array<double, 9>& u)
     {
-        return{
+        return {
             u[0] + u[1] - 1.0f,
             u[0] - 2.0f*u[1] - 1.0f,
             u[1] - 2.0f*u[0] - 1.0f,
@@ -583,8 +579,7 @@ osc::Plane opyn::fit_plane_htbad(const osc::Mesh& mesh)
 
     // project points onto B1 and B2 (plane-space) and calculate the 2D bounding box
     // of them in plane-spae
-    const osc::Rect bounds = bounding_rect_of(vertices_reduced, [&basis1, &basis2](const osc::Vector3& v)
-    {
+    const osc::Rect bounds = bounding_rect_of(vertices_reduced, [&basis1, &basis2](const osc::Vector3& v) {
         return project_3d_point_onto_plane(v, basis1, basis2);
     });
 
@@ -595,8 +590,7 @@ osc::Plane opyn::fit_plane_htbad(const osc::Mesh& mesh)
     const osc::Vector3 bounds_mid_point_in_reduced_space = unproject_2d_plane_point_into_3d(
         bounds_midpoint_in_plane_space,
         basis1,
-        basis2
-    );
+        basis2);
     const osc::Vector3 bounds_mid_point_in_mesh_space = bounds_mid_point_in_reduced_space + mean;
 
     return osc::Plane{bounds_mid_point_in_mesh_space, normal};

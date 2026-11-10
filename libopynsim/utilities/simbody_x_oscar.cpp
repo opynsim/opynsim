@@ -37,10 +37,18 @@ SimTK::Vec3 osc::Converter<osc::EulerAngles, SimTK::Vec3>::operator()(const osc:
 
 SimTK::Mat33 osc::Converter<osc::Matrix3x3, SimTK::Mat33>::operator()(const osc::Matrix3x3& m) const
 {
-    return SimTK::Mat33 {
-        static_cast<double>(m[0][0]), static_cast<double>(m[1][0]), static_cast<double>(m[2][0]),
-        static_cast<double>(m[0][1]), static_cast<double>(m[1][1]), static_cast<double>(m[2][1]),
-        static_cast<double>(m[0][2]), static_cast<double>(m[1][2]), static_cast<double>(m[2][2]),
+    return SimTK::Mat33{
+        static_cast<double>(m[0][0]),
+        static_cast<double>(m[1][0]),
+        static_cast<double>(m[2][0]),
+
+        static_cast<double>(m[0][1]),
+        static_cast<double>(m[1][1]),
+        static_cast<double>(m[2][1]),
+
+        static_cast<double>(m[0][2]),
+        static_cast<double>(m[1][2]),
+        static_cast<double>(m[2][2]),
     };
 }
 

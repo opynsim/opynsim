@@ -119,8 +119,7 @@ TEST(OpenSimHelpers, CanSwapACustomJointForAFreeJoint)
             model.updComponent<OpenSim::JointSet>(joint_set->getAbsolutePath()).set(joint_idx, replacement.release());
             initialize_model(model);
             initialize_state(model);
-        }
-        catch (const std::exception& ex) {
+        } catch (const std::exception& ex) {
             osc::log_info("exception thrown: {}", ex.what());
             osc::log_info("exceptions are skipped (this test is looking for hard-crashes, like segfaults)");
         }
@@ -307,7 +306,7 @@ TEST(OpenSimHelpers, ForEachIsNotCalledOnRootComponent)
     Root root;
     root.finalizeFromProperties();
     size_t n = 0;
-    for_each_component(root, [&n](const OpenSim::Component&){ ++n; });
+    for_each_component(root, [&n](const OpenSim::Component&) { ++n; });
     ASSERT_EQ(n, 2);
 }
 
@@ -461,20 +460,19 @@ TEST(OpenSimHelpers, ForEachInboundConnectionWorksAsExpected)
     //     body3a
     OpenSim::Model model;
     const auto& ground = model.getGround();
-    const auto& body1  = add_body(model, "body1",  1.0, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
+    const auto& body1 = add_body(model, "body1", 1.0, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
     const auto& body2a = add_body(model, "body2a", 2.0, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
     const auto& body2b = add_body(model, "body2b", 2.0, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
-    const auto& body3a = add_body(model, "body3",  2.0, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
-    const auto& b1_to_g    = add_joint<OpenSim::FreeJoint>(model, "body1_to_ground",  ground, body1);
-    const auto& b2a_to_b1  = add_joint<OpenSim::FreeJoint>(model, "body2a_to_body1",  body1,  body2a);
-    const auto& b2b_to_b1  = add_joint<OpenSim::FreeJoint>(model, "body2b_to_body1",  body1,  body2b);
+    const auto& body3a = add_body(model, "body3", 2.0, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
+    const auto& b1_to_g = add_joint<OpenSim::FreeJoint>(model, "body1_to_ground", ground, body1);
+    const auto& b2a_to_b1 = add_joint<OpenSim::FreeJoint>(model, "body2a_to_body1", body1, body2a);
+    const auto& b2b_to_b1 = add_joint<OpenSim::FreeJoint>(model, "body2b_to_body1", body1, body2b);
     const auto& b3a_to_b2a = add_joint<OpenSim::FreeJoint>(model, "body3a_to_body2a", body2a, body3a);
     finalize_connections(model);
     initialize_model(model);
 
     // helper: makes testing easier
-    const auto slurp = []<typename T>(osc::cpp23::generator<T> g)
-    {
+    const auto slurp = []<typename T>(osc::cpp23::generator<T> g) {
         std::vector<T> rv;
         for (T&& el : g) {
             rv.push_back(std::move(el));
@@ -483,8 +481,7 @@ TEST(OpenSimHelpers, ForEachInboundConnectionWorksAsExpected)
     };
 
     // the filter should filter out `FrameGeometry` (junk from OpenSim)
-    const auto filter = [](const OpenSim::Component& c)
-    {
+    const auto filter = [](const OpenSim::Component& c) {
         return dynamic_cast<const OpenSim::FrameGeometry*>(&c) == nullptr;
     };
 
@@ -492,7 +489,7 @@ TEST(OpenSimHelpers, ForEachInboundConnectionWorksAsExpected)
     {
         const auto got = slurp(for_each_inbound_connection(&model, &model.getGround(), filter));
         std::vector<ComponentConnectionView> expected = {
-            ComponentConnectionView{b1_to_g,   ground, "parent_frame"},
+            ComponentConnectionView{b1_to_g, ground, "parent_frame"},
         };
         ASSERT_EQ(got, expected);
     }
@@ -501,7 +498,7 @@ TEST(OpenSimHelpers, ForEachInboundConnectionWorksAsExpected)
     {
         const auto got = slurp(for_each_inbound_connection(&model, &body1, filter));
         std::vector<ComponentConnectionView> expected = {
-            ComponentConnectionView{b1_to_g,   body1, "child_frame"},
+            ComponentConnectionView{b1_to_g, body1, "child_frame"},
             ComponentConnectionView{b2a_to_b1, body1, "parent_frame"},
             ComponentConnectionView{b2b_to_b1, body1, "parent_frame"},
         };
@@ -512,7 +509,7 @@ TEST(OpenSimHelpers, ForEachInboundConnectionWorksAsExpected)
     {
         const auto got = slurp(for_each_inbound_connection(&model, &body2a, filter));
         std::vector<ComponentConnectionView> expected = {
-            ComponentConnectionView{b2a_to_b1,  body2a, "child_frame"},
+            ComponentConnectionView{b2a_to_b1, body2a, "child_frame"},
             ComponentConnectionView{b3a_to_b2a, body2a, "parent_frame"},
         };
         ASSERT_EQ(got, expected);
@@ -522,7 +519,7 @@ TEST(OpenSimHelpers, ForEachInboundConnectionWorksAsExpected)
     {
         const auto got = slurp(for_each_inbound_connection(&model, &body2b, filter));
         std::vector<ComponentConnectionView> expected = {
-            ComponentConnectionView{b2b_to_b1,  body2b, "child_frame"},
+            ComponentConnectionView{b2b_to_b1, body2b, "child_frame"},
         };
         ASSERT_EQ(got, expected);
     }
@@ -531,7 +528,7 @@ TEST(OpenSimHelpers, ForEachInboundConnectionWorksAsExpected)
     {
         const auto got = slurp(for_each_inbound_connection(&model, &body3a, filter));
         std::vector<ComponentConnectionView> expected = {
-            ComponentConnectionView{b3a_to_b2a,  body3a, "child_frame"},
+            ComponentConnectionView{b3a_to_b2a, body3a, "child_frame"},
         };
         ASSERT_EQ(got, expected);
     }
@@ -549,12 +546,12 @@ TEST(OpenSimHelpers, ScaleModelMassPreserveMassDistribution_WorksOnBasicExample)
 
     OpenSim::Model model;
     const auto& ground = model.getGround();
-    const auto& body1  = add_body(model, "body1",  1.5, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
+    const auto& body1 = add_body(model, "body1", 1.5, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
     const auto& body2a = add_body(model, "body2a", 1.0, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
     const auto& body2b = add_body(model, "body2b", 0.5, SimTK::Vec3{0.0}, SimTK::Inertia{SimTK::Vec3{1.0}});
-    add_joint<OpenSim::FreeJoint>(model, "body1_to_ground",  ground, body1);
-    add_joint<OpenSim::FreeJoint>(model, "body2a_to_body1",  body1,  body2a);
-    add_joint<OpenSim::FreeJoint>(model, "body2b_to_body1",  body1,  body2b);
+    add_joint<OpenSim::FreeJoint>(model, "body1_to_ground", ground, body1);
+    add_joint<OpenSim::FreeJoint>(model, "body2a_to_body1", body1, body2a);
+    add_joint<OpenSim::FreeJoint>(model, "body2b_to_body1", body1, body2b);
 
     finalize_connections(model);
     initialize_model(model);

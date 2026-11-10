@@ -128,8 +128,7 @@ TEST(fit_plane_htbad, ReturnsUnitPlanePointingUpInYIfGivenAnEmptyMesh)
 TEST(fit_plane_htbad, ReturnsRoughlyTheSameAnswerForFemoralHeadAsOriginalPublishedAlgorithm)
 {
     // this hard-coded result comes from running the provided `Femoral_head.obj` through the shape fitter script
-    constexpr osc::Plane c_expected_plane =
-    {
+    constexpr osc::Plane c_expected_plane = {
         {4.6138f, -24.0131f, 163.1295f},
         {0.2131f, 0.94495f, -0.24833f},
     };
@@ -166,7 +165,7 @@ TEST(fit_ellipsoid_htbad, ReturnsRoughlyTheSameAnswerForFemoralHeadAsOriginalPub
 {
     // this hard-coded result comes from running the provided `Femoral_head.obj` through the shape fitter script
     constexpr osc::Vector3 c_expected_origin = {4.41627617443540f, -28.2484366502307f, 165.041246898544f};
-    constexpr osc::Vector3 c_expected_radii = {9.39508101198322f,   8.71324627349633f,  6.71387132216324f};
+    constexpr osc::Vector3 c_expected_radii = {9.39508101198322f, 8.71324627349633f, 6.71387132216324f};
     // OSC change: the _signs_ of these direction vectors might be different from the MATLAB script because
     // OSC's implementation also gurantees that the vectors are right-handed
     constexpr auto c_expected_radii_directions = std::to_array<osc::Vector3>({
@@ -184,7 +183,7 @@ TEST(fit_ellipsoid_htbad, ReturnsRoughlyTheSameAnswerForFemoralHeadAsOriginalPub
     const auto directions = axis_directions_of(fit);
 
     ASSERT_TRUE(all_of(equal_within_absdiff(fit.origin, c_expected_origin, c_maximum_absolute_error)));
-    ASSERT_TRUE(all_of(equal_within_absdiff(fit.radii,  c_expected_radii, c_maximum_absolute_error)));
+    ASSERT_TRUE(all_of(equal_within_absdiff(fit.radii, c_expected_radii, c_maximum_absolute_error)));
     ASSERT_TRUE(all_of(equal_within_absdiff(directions[0], c_expected_radii_directions[0], c_maximum_absolute_error)));
     ASSERT_TRUE(all_of(equal_within_absdiff(directions[1], c_expected_radii_directions[1], c_maximum_absolute_error)));
     ASSERT_TRUE(all_of(equal_within_absdiff(directions[2], c_expected_radii_directions[2], c_maximum_absolute_error)));
@@ -192,8 +191,7 @@ TEST(fit_ellipsoid_htbad, ReturnsRoughlyTheSameAnswerForFemoralHeadAsOriginalPub
 
 TEST(fit_ellipsoid_htbad, ThrowsErrorIfGivenLessThan9Points)
 {
-    const auto generate_spherical_mesh_with_n_points = [](size_t n)
-    {
+    const auto generate_spherical_mesh_with_n_points = [](size_t n) {
         osc::Radians theta{0.0f};
         osc::Radians phi{0.0f};
         const float radius = 1.0f;
@@ -215,8 +213,7 @@ TEST(fit_ellipsoid_htbad, ThrowsErrorIfGivenLessThan9Points)
         return m;
     };
 
-    for (size_t i = 0; i < 9; ++i)
-    {
+    for (size_t i = 0; i < 9; ++i) {
         ASSERT_ANY_THROW({ fit_ellipsoid_htbad(generate_spherical_mesh_with_n_points(i)); });
     }
 
