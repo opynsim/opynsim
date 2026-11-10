@@ -41,10 +41,10 @@ namespace osc
             camera_.set_vertical_field_of_view(Degrees{35.0f});
             camera_controller_.focus_on(
                 state_->get_result_mesh().bounds().value_or(AABB{}),
-                camera_
-            );
+                camera_);
             camera_controller_.update_camera(camera_);
         }
+
     private:
         void impl_draw_content() final
         {
@@ -69,10 +69,8 @@ namespace osc
             }
 
             // update camera if user drags it around etc.
-            if (last_texture_hittest_result_.is_hovered)
-            {
-                if (ui::update_orbit_controller_from_mouse_inputs(camera_controller_, camera_, last_texture_hittest_result_.item_ui_rect.dimensions()))
-                {
+            if (last_texture_hittest_result_.is_hovered) {
+                if (ui::update_orbit_controller_from_mouse_inputs(camera_controller_, camera_, last_texture_hittest_result_.item_ui_rect.dimensions())) {
                     camera_controller_.update_camera(camera_);
                     state_->set_linked_camera_controller(camera_controller_);  // reflects latest modification
                 }
@@ -110,8 +108,7 @@ namespace osc
         void draw_information_icon()
         {
             ui::draw_button_nobg(MSMICONS_INFO_CIRCLE);
-            if (ui::is_item_hovered())
-            {
+            if (ui::is_item_hovered()) {
                 ui::begin_tooltip();
 
                 ui::draw_text_disabled("Result Information:");
@@ -124,8 +121,7 @@ namespace osc
         // draws a table containing useful input information (handy for debugging)
         void draw_information_table()
         {
-            if (ui::begin_table("##inputinfo", 2))
-            {
+            if (ui::begin_table("##inputinfo", 2)) {
                 ui::table_setup_column("Name");
                 ui::table_setup_column("Value");
 
@@ -139,7 +135,7 @@ namespace osc
                 ui::table_set_column_index(0);
                 ui::draw_text("# triangles");
                 ui::table_set_column_index(1);
-                ui::draw_text("{}", state_->get_result_mesh().num_indices()/3);
+                ui::draw_text("{}", state_->get_result_mesh().num_indices() / 3);
 
                 ui::end_table();
             }
@@ -150,38 +146,29 @@ namespace osc
         {
             cursor_x_at_export_button_ = ui::get_cursor_panel_x();  // needed to align the blending factor slider
             ui::draw_button(MSMICONS_FILE_EXPORT " export" MSMICONS_CARET_DOWN);
-            if (ui::begin_popup_context_menu("##exportcontextmenu", ui::PopupFlag::MouseButtonLeft))
-            {
-                if (ui::draw_menu_item("Mesh to OBJ"))
-                {
+            if (ui::begin_popup_context_menu("##exportcontextmenu", ui::PopupFlag::MouseButtonLeft)) {
+                if (ui::draw_menu_item("Mesh to OBJ")) {
                     action_prompt_user_to_save_mesh_to_obj_file(state_->get_result_mesh(), OBJWriterFlag::Default);
                 }
-                if (ui::draw_menu_item("Mesh to OBJ (no normals)"))
-                {
+                if (ui::draw_menu_item("Mesh to OBJ (no normals)")) {
                     action_prompt_user_to_save_mesh_to_obj_file(state_->get_result_mesh(), OBJWriterFlag::NoWriteNormals);
                 }
-                if (ui::draw_menu_item("Mesh to STL"))
-                {
+                if (ui::draw_menu_item("Mesh to STL")) {
                     action_prompt_user_to_mesh_to_stl_file(state_->get_result_mesh());
                 }
-                if (ui::draw_menu_item("Warped Non-Participating Landmarks to CSV"))
-                {
+                if (ui::draw_menu_item("Warped Non-Participating Landmarks to CSV")) {
                     action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(state_->get_scratch(), state_->upd_result_cache());
                 }
-                if (ui::draw_menu_item("Warped Non-Participating Landmark Positions to CSV"))
-                {
+                if (ui::draw_menu_item("Warped Non-Participating Landmark Positions to CSV")) {
                     action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
                         state_->get_scratch(),
                         state_->upd_result_cache(),
-                        opyn::LandmarkCSVFlags::NoHeader | opyn::LandmarkCSVFlags::NoNames
-                    );
+                        opyn::LandmarkCSVFlags::NoHeader | opyn::LandmarkCSVFlags::NoNames);
                 }
-                if (ui::draw_menu_item("Landmark Pairs to CSV"))
-                {
+                if (ui::draw_menu_item("Landmark Pairs to CSV")) {
                     action_prompt_user_to_save_paired_landmarks_to_csv(state_->get_scratch());
                 }
-                if (ui::draw_menu_item("Landmark Pairs to CSV (no names)"))
-                {
+                if (ui::draw_menu_item("Landmark Pairs to CSV (no names)")) {
                     action_prompt_user_to_save_paired_landmarks_to_csv(state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
                 }
                 ui::end_popup();
@@ -195,15 +182,13 @@ namespace osc
                 camera_controller_.focus_on(
                     state_->get_result_mesh().bounds().value_or(AABB{}),
                     camera_,
-                    aspect_ratio_of(last_texture_hittest_result_.item_ui_rect)
-                );
+                    aspect_ratio_of(last_texture_hittest_result_.item_ui_rect));
                 camera_controller_.update_camera(camera_);
                 state_->set_linked_camera_controller(camera_controller_);
             }
             ui::draw_tooltip_if_item_hovered(
                 "Autoscale Scene",
-                "Zooms camera to try and fit everything in the scene into the viewer"
-            );
+                "Zooms camera to try and fit everything in the scene into the viewer");
         }
 
         // draws a slider that lets the user edit how large the landmarks are
@@ -226,12 +211,10 @@ namespace osc
             ui::set_next_item_width(ui::get_content_region_available().x() - ui::calc_text_size(label).x() - ui::get_style_item_inner_spacing().x() - overlay_padding_.x());
 
             float factor = state_->get_scratch().blending_factor;
-            if (ui::draw_float_slider(label, &factor, 0.0f, 1.0f))
-            {
+            if (ui::draw_float_slider(label, &factor, 0.0f, 1.0f)) {
                 action_set_blend_factor_without_committing(state_->upd_undoable(), factor);
             }
-            if (ui::is_item_deactivated_after_edit())
-            {
+            if (ui::is_item_deactivated_after_edit()) {
                 action_set_blend_factor(state_->upd_undoable(), factor);
             }
         }
@@ -289,17 +272,17 @@ namespace osc
         {
             std::vector<SceneDecoration> decorations;
             const std::function<void(SceneDecoration&&)> decoration_consumer =
-                [&decorations](SceneDecoration&& dec) { decorations.push_back(std::move(dec)); };
+                [&decorations](SceneDecoration&& dec) {
+                    decorations.push_back(std::move(dec));
+                };
 
             append_common_decorations(
                 *state_,
                 state_->get_result_mesh(),
                 state_->is_wireframe_mode_enabled(),
-                decoration_consumer
-            );
+                decoration_consumer);
 
-            if (show_destination_mesh_)
-            {
+            if (show_destination_mesh_) {
                 decoration_consumer(SceneDecoration{
                     .mesh = state_->get_scratch().destination_mesh,
                     .shading = Color::red().with_alpha(0.5f),
@@ -307,12 +290,11 @@ namespace osc
             }
 
             // draw non-participating landmarks
-            for (const Vector3& non_participating_landmark_pos : state_->get_result_non_participating_landmark_locations())
-            {
+            for (const Vector3& non_participating_landmark_pos : state_->get_result_non_participating_landmark_locations()) {
                 decoration_consumer(SceneDecoration{
                     .mesh = state_->get_landmark_sphere_mesh(),
                     .transform = {
-                        .scale = Vector3{get_non_participating_landmark_scale_factor()*landmark_radius_},
+                        .scale = Vector3{get_non_participating_landmark_scale_factor() * landmark_radius_},
                         .translation = non_participating_landmark_pos,
                     },
                     .shading = state_->get_non_participating_landmark_color(),
@@ -330,8 +312,7 @@ namespace osc
                 camera_,
                 App::get().anti_aliasing_level(),
                 dims,
-                App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio()
-            );
+                App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio());
             state_->get_custom_rendering_options().apply_to(params);
             return cached_renderer_.render(decorations, params);
         }

@@ -146,8 +146,7 @@ namespace osc
         bool has_selection() const
         {
             // TODO: should probably gc the selection
-            return std::ranges::any_of(user_selection_, [this](const MwDocumentElementID& el)
-            {
+            return std::ranges::any_of(user_selection_, [this](const MwDocumentElementID& el) {
                 return find_element(get_scratch(), el);
             });
         }
@@ -155,8 +154,7 @@ namespace osc
         bool has_selection(MiDocumentInputIdentifier input) const
         {
             // TODO: should probably gc the selection
-            return std::ranges::any_of(user_selection_, [this, input](const MwDocumentElementID& el)
-            {
+            return std::ranges::any_of(user_selection_, [this, input](const MwDocumentElementID& el) {
                 return el.input == input and (find_element(get_scratch(), el) != nullptr);
             });
         }
@@ -269,8 +267,7 @@ namespace osc
                 if (is_only_camera_rotation_linked()) {
                     controller.phi = linked_camera_controller_.phi;
                     controller.theta = linked_camera_controller_.theta;
-                }
-                else {
+                } else {
                     controller = linked_camera_controller_;
                 }
                 return true;
@@ -305,8 +302,7 @@ namespace osc
         bool only_link_rotation_ = false;
 
         // shared linked camera
-        OrbitCameraController linked_camera_controller_ = [this]
-        {
+        OrbitCameraController linked_camera_controller_ = [this] {
             Camera camera;
             camera.set_vertical_field_of_view(Degrees{35.0f});
             return OrbitCameraController::focused_on(undoable_tps_document_->scratch().source_mesh.bounds().value_or(AABB{}), camera);

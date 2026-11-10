@@ -36,6 +36,7 @@ namespace osc
         {
             set_modal(false);
         }
+
     private:
         void impl_draw_content() final
         {
@@ -45,7 +46,7 @@ namespace osc
             if (ui::draw_menu_item("Place landmark", MouseButton::Left)) {
                 action_add_landmark(state_->upd_undoable(), document_identifier_, mesh_collision_.position);
             }
-            if (ui::draw_menu_item("Place Non-Participating Landmark",  ModifierKey::Ctrl | MouseButton::Left, false, document_identifier_ == MiDocumentInputIdentifier::Source)) {
+            if (ui::draw_menu_item("Place Non-Participating Landmark", ModifierKey::Ctrl | MouseButton::Left, false, document_identifier_ == MiDocumentInputIdentifier::Source)) {
                 action_add_non_participating_landmark(state_->upd_undoable(), mesh_collision_.position);
             }
             if (ui::draw_menu_item("Move Selection Here", std::nullopt, false, state_->has_selection(document_identifier_))) {

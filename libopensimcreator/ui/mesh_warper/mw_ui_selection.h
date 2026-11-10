@@ -16,6 +16,7 @@ namespace osc
         void clear() { selected_scene_elements_.clear(); }
         void select(MwDocumentElementID el) { selected_scene_elements_.insert(el); }
         bool contains(const MwDocumentElementID& el) const { return selected_scene_elements_.contains(el); }
+
     private:
         std::unordered_set<MwDocumentElementID> selected_scene_elements_;
     };

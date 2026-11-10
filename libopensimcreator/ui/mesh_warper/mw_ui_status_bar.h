@@ -26,8 +26,7 @@ namespace osc
 
         void on_draw()
         {
-            if (ui::begin_main_window_bottom_bar(label_))
-            {
+            if (ui::begin_main_window_bottom_bar(label_)) {
                 draw_content();
             }
             ui::end_panel();
@@ -38,8 +37,7 @@ namespace osc
         {
             if (state_->is_hovering_something()) {
                 draw_current_hover_info(state_->get_current_hover());
-            }
-            else {
+            } else {
                 ui::draw_text_disabled("(nothing hovered)");
             }
         }
@@ -48,16 +46,11 @@ namespace osc
         {
             draw_color_coded_xyz(hover.get_world_space_location());
             ui::same_line();
-            if (hover.is_hovering_a_scene_element())
-            {
+            if (hover.is_hovering_a_scene_element()) {
                 ui::draw_text_disabled("(Click: select {})", find_element_name_or(state_->get_scratch(), hover.get_scene_element_id().value()));
-            }
-            else if (hover.get_input() == MiDocumentInputIdentifier::Source)
-            {
+            } else if (hover.get_input() == MiDocumentInputIdentifier::Source) {
                 ui::draw_text_disabled("(Click: add a landmark, Ctrl+Click: add non-participating landmark)");
-            }
-            else
-            {
+            } else {
                 static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
                 ui::draw_text_disabled("(Click: add a landmark)");
             }

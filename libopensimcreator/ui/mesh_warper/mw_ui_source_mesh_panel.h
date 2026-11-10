@@ -62,6 +62,7 @@ namespace osc
             camera_controller_.focus_on(state_->get_scratch_mesh(document_identifier_).bounds().value_or(AABB{}), camera_);
             camera_controller_.update_camera(camera_);
         }
+
     private:
         // draws all of the panel's content
         void impl_draw_content() final
@@ -92,8 +93,7 @@ namespace osc
             // state update: tell central state if something's being hovered in this panel
             if (landmark_collision) {
                 state_->set_hover(landmark_collision);
-            }
-            else if (mesh_collision) {
+            } else if (mesh_collision) {
                 state_->set_hover(document_identifier_, mesh_collision->position);
             }
 
@@ -145,8 +145,7 @@ namespace osc
             const Ray& camera_ray,
             std::optional<MwUiHovertestResult>& closest) const
         {
-            for (const MwDocumentLandmarkPair& landmark : state_->get_scratch().landmark_pairs)
-            {
+            for (const MwDocumentLandmarkPair& landmark : state_->get_scratch().landmark_pairs) {
                 hittest_landmark(camera_ray, closest, landmark);
             }
         }
@@ -164,10 +163,8 @@ namespace osc
 
             // hittest the landmark as an analytic sphere
             const Sphere landmark_sphere = {.origin = *maybe_pos, .radius = landmark_radius_};
-            if (const auto collision = find_collision(camera_ray, landmark_sphere))
-            {
-                if (!closest || length(closest->get_world_space_location() - camera_ray.origin) > collision->distance)
-                {
+            if (const auto collision = find_collision(camera_ray, landmark_sphere)) {
+                if (not closest or length(closest->get_world_space_location() - camera_ray.origin) > collision->distance) {
                     MwDocumentElementID full_id{landmark.uid, MwDocumentElementType::Landmark, document_identifier_};
                     closest.emplace(full_id, *maybe_pos);
                 }
@@ -179,8 +176,7 @@ namespace osc
             const Ray& camera_ray,
             std::optional<MwUiHovertestResult>& closest) const
         {
-            for (const auto& non_pariticpating_landmark : state_->get_scratch().non_participating_landmarks)
-            {
+            for (const auto& non_pariticpating_landmark : state_->get_scratch().non_participating_landmarks) {
                 hittest_non_participating_landmark(camera_ray, closest, non_pariticpating_landmark);
             }
         }
@@ -195,13 +191,11 @@ namespace osc
 
             const Sphere decoration_sphere = {
                 .origin = non_pariticpating_landmark.location,
-                .radius = get_non_participating_landmark_scale_factor()*landmark_radius_,
+                .radius = get_non_participating_landmark_scale_factor() * landmark_radius_,
             };
 
-            if (const auto collision = find_collision(camera_ray, decoration_sphere))
-            {
-                if (!closest || length(closest->get_world_space_location() - camera_ray.origin) > collision->distance)
-                {
+            if (const auto collision = find_collision(camera_ray, decoration_sphere)) {
+                if (not closest or length(closest->get_world_space_location() - camera_ray.origin) > collision->distance) {
                     MwDocumentElementID full_id{non_pariticpating_landmark.uid, MwDocumentElementType::NonParticipatingLandmark, document_identifier_};
                     closest.emplace(full_id, non_pariticpating_landmark.location);
                 }
@@ -218,8 +212,7 @@ namespace osc
                 camera_,
                 App::get().anti_aliasing_level(),
                 dims,
-                App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio()
-            );
+                App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio());
             state_->get_custom_rendering_options().apply_to(params);
             const std::vector<SceneDecoration> decorations = generate_decorations(maybe_mesh_collision, maybe_landmark_collision);
             return cached_renderer_.render(decorations, params);
@@ -234,19 +227,19 @@ namespace osc
             decorations.reserve(
                 6 +
                 count_num_landmarks_for_input(state_->get_scratch(), document_identifier_) +
-                state_->get_scratch().non_participating_landmarks.size()
-            );
+                state_->get_scratch().non_participating_landmarks.size());
 
             const std::function<void(SceneDecoration&&)> decoration_consumer =
-                [&decorations](SceneDecoration&& dec) { decorations.push_back(std::move(dec)); };
+                [&decorations](SceneDecoration&& dec) {
+                    decorations.push_back(std::move(dec));
+                };
 
             // generate common decorations (mesh, wireframe, grid, etc.)
             append_common_decorations(
                 *state_,
                 state_->get_scratch_mesh(document_identifier_),
                 state_->is_wireframe_mode_enabled(),
-                decoration_consumer
-            );
+                decoration_consumer);
 
             // generate decorations for all of the landmarks
             generate_decorations_for_landmarks(decoration_consumer);
@@ -255,8 +248,7 @@ namespace osc
             generate_decorations_for_non_participating_landmarks(decoration_consumer);
 
             // if applicable, show a mouse-to-mesh collision as faded landmark as a placement hint for user
-            if (maybe_mesh_collision && !maybe_landmark_collision)
-            {
+            if (maybe_mesh_collision and not maybe_landmark_collision) {
                 generate_decorations_for_mouse_over_mesh_hover(maybe_mesh_collision->position, decoration_consumer);
             }
 
@@ -266,8 +258,7 @@ namespace osc
         void generate_decorations_for_landmarks(
             const std::function<void(SceneDecoration&&)>& decoration_consumer) const
         {
-            for (const MwDocumentLandmarkPair& landmark_pair : state_->get_scratch().landmark_pairs)
-            {
+            for (const MwDocumentLandmarkPair& landmark_pair : state_->get_scratch().landmark_pairs) {
                 generate_decorations_for_landmark(landmark_pair, decoration_consumer);
             }
         }
@@ -320,7 +311,7 @@ namespace osc
             SceneDecoration decoration{
                 .mesh = state_->get_landmark_sphere_mesh(),
                 .transform = {
-                    .scale = Vector3{get_non_participating_landmark_scale_factor()*landmark_radius_},
+                    .scale = Vector3{get_non_participating_landmark_scale_factor() * landmark_radius_},
                     .translation = npl.location,
                 },
                 .shading = color,
@@ -348,7 +339,7 @@ namespace osc
                 state_->get_unpaired_landmark_color();
 
             const float radius = non_participating ?
-                get_non_participating_landmark_scale_factor()*landmark_radius_ :
+                get_non_participating_landmark_scale_factor() * landmark_radius_ :
                 landmark_radius_;
 
             decoration_consumer(SceneDecoration{
@@ -365,62 +356,46 @@ namespace osc
             const std::optional<MwUiHovertestResult>& landmark_collision)
         {
             // event: if the user left-clicks and something is hovered, select it; otherwise, add a landmark
-            if (ht_result.is_left_click_released_without_dragging)
-            {
-                if (landmark_collision && landmark_collision->is_hovering_a_scene_element())
-                {
-                    if (!ui::is_shift_down())
-                    {
+            if (ht_result.is_left_click_released_without_dragging) {
+                if (landmark_collision and landmark_collision->is_hovering_a_scene_element()) {
+                    if (not ui::is_shift_down()) {
                         state_->clear_selection();
                     }
                     state_->select(landmark_collision->get_scene_element_id().value());
-                }
-                else if (mesh_collision)
-                {
+                } else if (mesh_collision) {
                     const auto position = mesh_collision->position;
-                    if (is_user_placing_non_participating_landmark())
-                    {
+                    if (is_user_placing_non_participating_landmark()) {
                         action_add_non_participating_landmark(state_->upd_undoable(), position);
-                    }
-                    else
-                    {
+                    } else {
                         action_add_landmark(state_->upd_undoable(), document_identifier_, position);
                     }
                 }
             }
 
             // event: if the user right-clicks on a landmark then open the context menu for that landmark
-            if (ht_result.is_right_click_released_without_dragging)
-            {
-                if (landmark_collision && landmark_collision->is_hovering_a_scene_element())
-                {
+            if (ht_result.is_right_click_released_without_dragging) {
+                if (landmark_collision && landmark_collision->is_hovering_a_scene_element()) {
                     state_->emplace_popup<MwUiLandmarkContextMenu>(
                         this,
                         "##MeshInputLandmarkContextMenu",
                         state_,
-                        landmark_collision->get_scene_element_id().value()
-                    );
-                }
-                else if (mesh_collision)
-                {
+                        landmark_collision->get_scene_element_id().value());
+                } else if (mesh_collision) {
                     state_->emplace_popup<MwUiMeshContextMenu>(
                         this,
                         "##MeshInputMeshContextMenu",
                         state_,
                         document_identifier_,
-                        *mesh_collision
-                    );
+                        *mesh_collision);
                 }
             }
 
             // event: if the user is hovering the render while something is selected and the user
             // presses delete then the landmarks should be deleted
-            if (ht_result.is_hovered && ui::any_of_keys_pressed({Key::Delete, Key::Backspace}))
-            {
+            if (ht_result.is_hovered && ui::any_of_keys_pressed({Key::Delete, Key::Backspace})) {
                 action_delete_scene_elements_by_id(
                     state_->upd_undoable(),
-                    state_->get_underlying_selection_set()
-                );
+                    state_->get_underlying_selection_set());
                 state_->clear_selection();
             }
 
@@ -481,8 +456,7 @@ namespace osc
                 model_matrix,
                 camera_.view_matrix(),
                 camera_.projection_matrix(aspect_ratio_of(render_rect)),
-                render_rect
-            );
+                render_rect);
             if (user_transform) {
                 action_translate_landmarks_dont_save(state_->upd_undoable(), state_->get_selected(document_identifier_), user_transform->translation);
             }
@@ -495,8 +469,7 @@ namespace osc
         void draw_information_icon()
         {
             ui::draw_button_nobg(MSMICONS_INFO_CIRCLE);
-            if (ui::is_item_hovered())
-            {
+            if (ui::is_item_hovered()) {
                 ui::begin_tooltip();
 
                 ui::draw_text_disabled("Input Information:");
@@ -509,8 +482,7 @@ namespace osc
         // draws a table containing useful input information (handy for debugging)
         void draw_input_information_table()
         {
-            if (ui::begin_table("##inputinfo", 2))
-            {
+            if (ui::begin_table("##inputinfo", 2)) {
                 ui::table_setup_column("Name");
                 ui::table_setup_column("Value");
 
@@ -530,7 +502,7 @@ namespace osc
                 ui::table_set_column_index(0);
                 ui::draw_text("# triangles");
                 ui::table_set_column_index(1);
-                ui::draw_text("{}", state_->get_scratch_mesh(document_identifier_).num_indices()/3);
+                ui::draw_text("{}", state_->get_scratch_mesh(document_identifier_).num_indices() / 3);
 
                 ui::end_table();
             }
@@ -540,23 +512,19 @@ namespace osc
         void draw_import_button()
         {
             ui::draw_button(MSMICONS_FILE_IMPORT " import" MSMICONS_CARET_DOWN);
-            if (ui::begin_popup_context_menu("##importcontextmenu", ui::PopupFlag::MouseButtonLeft))
-            {
-                if (ui::draw_menu_item("Mesh File"))
-                {
+            if (ui::begin_popup_context_menu("##importcontextmenu", ui::PopupFlag::MouseButtonLeft)) {
+                if (ui::draw_menu_item("Mesh File")) {
                     action_prompt_user_to_load_mesh_file(state_->get_undoable_shared_ptr(), document_identifier_);
                 }
                 if (ui::begin_menu("Generated Mesh")) {
                     draw_generated_mesh_options(SolidGeometries{});
                     ui::end_menu();
                 }
-                if (ui::draw_menu_item("Landmarks from CSV"))
-                {
+                if (ui::draw_menu_item("Landmarks from CSV")) {
                     action_prompt_user_to_load_landmarks_from_csv(state_->get_undoable_shared_ptr(), document_identifier_);
                 }
                 if (document_identifier_ == MiDocumentInputIdentifier::Source &&
-                    ui::draw_menu_item("Non-Participating Landmarks from CSV"))
-                {
+                    ui::draw_menu_item("Non-Participating Landmarks from CSV")) {
                     action_prompt_user_to_load_non_participating_landmarks_from_csv(state_->get_undoable_shared_ptr());
                 }
                 ui::end_popup();
@@ -581,36 +549,27 @@ namespace osc
         void draw_export_button()
         {
             ui::draw_button(MSMICONS_FILE_EXPORT " export" MSMICONS_CARET_DOWN);
-            if (ui::begin_popup_context_menu("##exportcontextmenu", ui::PopupFlag::MouseButtonLeft))
-            {
-                if (ui::draw_menu_item("Mesh to OBJ"))
-                {
+            if (ui::begin_popup_context_menu("##exportcontextmenu", ui::PopupFlag::MouseButtonLeft)) {
+                if (ui::draw_menu_item("Mesh to OBJ")) {
                     action_prompt_user_to_save_mesh_to_obj_file(state_->get_scratch_mesh(document_identifier_), OBJWriterFlag::Default);
                 }
-                if (ui::draw_menu_item("Mesh to OBJ (no normals)"))
-                {
+                if (ui::draw_menu_item("Mesh to OBJ (no normals)")) {
                     action_prompt_user_to_save_mesh_to_obj_file(state_->get_scratch_mesh(document_identifier_), OBJWriterFlag::NoWriteNormals);
                 }
-                if (ui::draw_menu_item("Mesh to STL"))
-                {
+                if (ui::draw_menu_item("Mesh to STL")) {
                     action_prompt_user_to_mesh_to_stl_file(state_->get_scratch_mesh(document_identifier_));
                 }
-                if (ui::draw_menu_item("Landmarks to CSV"))
-                {
+                if (ui::draw_menu_item("Landmarks to CSV")) {
                     action_prompt_user_to_save_landmarks_to_csv(state_->get_scratch(), document_identifier_);
                 }
-                if (ui::draw_menu_item("Landmark Positions to CSV"))
-                {
+                if (ui::draw_menu_item("Landmark Positions to CSV")) {
                     action_prompt_user_to_save_landmarks_to_csv(state_->get_scratch(), document_identifier_, opyn::LandmarkCSVFlags::NoHeader | opyn::LandmarkCSVFlags::NoNames);
                 }
-                if (document_identifier_ == MiDocumentInputIdentifier::Source)
-                {
-                    if (ui::draw_menu_item("Non-Participating Landmarks to CSV"))
-                    {
+                if (document_identifier_ == MiDocumentInputIdentifier::Source) {
+                    if (ui::draw_menu_item("Non-Participating Landmarks to CSV")) {
                         action_prompt_user_to_save_non_participating_landmarks_to_csv(state_->get_scratch());
                     }
-                    if (ui::draw_menu_item("Non-Participating Landmark Positions to CSV"))
-                    {
+                    if (ui::draw_menu_item("Non-Participating Landmark Positions to CSV")) {
                         action_prompt_user_to_save_non_participating_landmarks_to_csv(state_->get_scratch(), opyn::LandmarkCSVFlags::NoHeader | opyn::LandmarkCSVFlags::NoNames);
                     }
                 }
@@ -621,8 +580,7 @@ namespace osc
         // draws a button that auto-fits the camera to the 3D scene
         void draw_auto_fit_camera_button()
         {
-            if (ui::draw_button(MSMICONS_EXPAND_ARROWS_ALT))
-            {
+            if (ui::draw_button(MSMICONS_EXPAND_ARROWS_ALT)) {
                 if (const auto bounds = state_->get_scratch_mesh(document_identifier_).bounds()) {
                     camera_controller_.focus_on(*bounds, camera_, aspect_ratio_of(last_texture_hittest_result_.item_ui_rect));
                     camera_controller_.update_camera(camera_);

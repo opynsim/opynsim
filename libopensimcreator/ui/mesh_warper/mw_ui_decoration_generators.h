@@ -32,9 +32,8 @@ namespace osc
             shared_state.upd_scene_cache(),
             shared_state.get_overlay_decoration_options(),
             BVH{},  // TODO: should have a scene BVH by this point
-            1.0f,  // scale factor
-            out
-        );
+            1.0f,   // scale factor
+            out);
     }
 
     // returns the amount by which non-participating landmarks should be scaled w.r.t. pariticpating ones

@@ -19,32 +19,26 @@ namespace osc
 
         void on_draw()
         {
-            if (ui::begin_menu("Edit"))
-            {
+            if (ui::begin_menu("Edit")) {
                 draw_content();
                 ui::end_menu();
             }
         }
 
     private:
-
         void draw_content()
         {
-            if (ui::draw_menu_item("Undo", ModifierKey::Ctrl | Key::Z, nullptr, state_->can_undo()))
-            {
+            if (ui::draw_menu_item("Undo", ModifierKey::Ctrl | Key::Z, nullptr, state_->can_undo())) {
                 state_->undo();
             }
-            if (ui::draw_menu_item("Redo", ModifierKey::Ctrl | ModifierKey::Shift | Key::Z, nullptr, state_->can_redo()))
-            {
+            if (ui::draw_menu_item("Redo", ModifierKey::Ctrl | ModifierKey::Shift | Key::Z, nullptr, state_->can_redo())) {
                 state_->redo();
             }
             ui::draw_separator();
-            if (ui::draw_menu_item("Select All", ModifierKey::Ctrl | Key::A))
-            {
+            if (ui::draw_menu_item("Select All", ModifierKey::Ctrl | Key::A)) {
                 state_->select_all();
             }
-            if (ui::draw_menu_item("Deselect", Key::Escape, nullptr, state_->has_selection()))
-            {
+            if (ui::draw_menu_item("Deselect", Key::Escape, nullptr, state_->has_selection())) {
                 state_->clear_selection();
             }
         }

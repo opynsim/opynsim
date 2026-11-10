@@ -22,15 +22,13 @@ namespace osc
 
         void on_draw()
         {
-            if (ui::begin_menu("Actions"))
-            {
+            if (ui::begin_menu("Actions")) {
                 draw_content();
                 ui::end_menu();
             }
         }
 
     private:
-
         void draw_content()
         {
             draw_clear_landmarks_menu_item();

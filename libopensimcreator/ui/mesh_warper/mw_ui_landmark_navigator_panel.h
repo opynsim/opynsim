@@ -28,6 +28,7 @@ namespace osc
             Panel{parent, label},
             state_{std::move(shared)}
         {}
+
     private:
         void impl_draw_content() final
         {
@@ -35,8 +36,7 @@ namespace osc
             ui::draw_separator();
             if (contains_landmarks(state_->get_scratch())) {
                 draw_landmarks_table();
-            }
-            else {
+            } else {
                 ui::draw_text_disabled_and_centered("(none in the scene)");
             }
 
@@ -46,8 +46,7 @@ namespace osc
             ui::draw_separator();
             if (contains_non_participating_landmarks(state_->get_scratch())) {
                 draw_non_pariticpating_landmarks_table();
-            }
-            else {
+            } else {
                 ui::draw_text_disabled_and_centered("(none in the scene)");
             }
             ui::start_new_line();
@@ -63,9 +62,9 @@ namespace osc
                 return;
             }
 
-            ui::table_setup_column("Name",        {}, 0.70f*ui::get_content_region_available().x());
-            ui::table_setup_column("Source",      {}, 0.15f*ui::get_content_region_available().x());
-            ui::table_setup_column("Destination", {}, 0.15f*ui::get_content_region_available().x());
+            ui::table_setup_column("Name", {}, 0.70f * ui::get_content_region_available().x());
+            ui::table_setup_column("Source", {}, 0.15f * ui::get_content_region_available().x());
+            ui::table_setup_column("Destination", {}, 0.15f * ui::get_content_region_available().x());
 
             int id = 0;
             for (const auto& lm : state_->get_scratch().landmark_pairs) {
@@ -91,8 +90,7 @@ namespace osc
                 state_->is_selected(p.source_id()),
                 state_->is_hovered(p.source_id()),
                 is_fully_paired(p),
-                p.maybe_source_location.has_value()
-            );
+                p.maybe_source_location.has_value());
 
             // destination column
             ui::table_set_column_index(2);
@@ -100,8 +98,7 @@ namespace osc
                 state_->is_selected(p.destination_id()),
                 state_->is_hovered(p.destination_id()),
                 is_fully_paired(p),
-                p.maybe_destination_location.has_value()
-            );
+                p.maybe_destination_location.has_value());
 
             if (is_fully_paired(p)) {
                 draw_connecting_line(src_circle, dest_circle);
@@ -120,8 +117,7 @@ namespace osc
             ui::DrawListView dl = ui::get_panel_draw_list();
             if (has_location) {
                 dl.add_circle_filled(circle, color);
-            }
-            else {
+            } else {
                 dl.add_circle(circle, color);
             }
 
@@ -136,8 +132,7 @@ namespace osc
             const float thickness = 2.0f;
             if (is_selected) {
                 dl.add_circle(circle.expanded_by(thickness), OSCColors::selected(), 0, thickness);
-            }
-            else if (is_hovered) {
+            } else if (is_hovered) {
                 dl.add_circle(circle.expanded_by(thickness), OSCColors::hovered(), 0, thickness);
             }
         }
@@ -148,17 +143,17 @@ namespace osc
 
             // draw connecting line
             const Vector2 direction = normalize(dest.origin - src.origin);
-            const Vector2 start = src.origin  + (src.radius  + Vector2{pad, 0.0f})*direction;
-            const Vector2 end   = dest.origin - (dest.radius + Vector2{pad, 0.0f})*direction;
+            const Vector2 start = src.origin + (src.radius + Vector2{pad, 0.0f}) * direction;
+            const Vector2 end = dest.origin - (dest.radius + Vector2{pad, 0.0f}) * direction;
             const Color color = Color::dark_grey();
             ui::get_panel_draw_list().add_line(start, end, color);
 
             // draw triangle on end of connecting line to form an arrow
             const Vector2 p0 = end;
-            const Vector2 base = p0 - 2.0f*pad*direction;
+            const Vector2 base = p0 - 2.0f * pad * direction;
             const Vector2 orthogonal = {-direction.y(), direction.x()};
-            const Vector2 p1 = base + pad*orthogonal;
-            const Vector2 p2 = base - pad*orthogonal;
+            const Vector2 p1 = base + pad * orthogonal;
+            const Vector2 p2 = base - pad * orthogonal;
             ui::get_panel_draw_list().add_triangle_filled(p0, p1, p2, color);
         }
 
@@ -169,8 +164,8 @@ namespace osc
                 return;
             }
 
-            ui::table_setup_column("Name",     {}, 0.7f*ui::get_content_region_available().x());
-            ui::table_setup_column("Location", {}, 0.3f*ui::get_content_region_available().x());
+            ui::table_setup_column("Name", {}, 0.7f * ui::get_content_region_available().x());
+            ui::table_setup_column("Location", {}, 0.3f * ui::get_content_region_available().x());
 
             int id = 0;
             for (const auto& npl : state_->get_scratch().non_participating_landmarks) {
@@ -194,8 +189,7 @@ namespace osc
             ui::table_set_column_index(1);
             draw_non_participating_landmark_circle(
                 state_->is_selected(npl.get_id()),
-                state_->is_hovered(npl.get_id())
-            );
+                state_->is_hovered(npl.get_id()));
         }
 
         void draw_non_participating_landmark_circle(
@@ -206,8 +200,7 @@ namespace osc
 
             ui::get_panel_draw_list().add_circle_filled(
                 circle,
-                state_->get_non_participating_landmark_color()
-            );
+                state_->get_non_participating_landmark_color());
 
             try_draw_circle_highlight(circle, is_selected, is_hovered);
         }
@@ -217,8 +210,7 @@ namespace osc
             if (has_location) {
                 if (is_paired) {
                     return state_->get_paired_landmark_color();
-                }
-                else {
+                } else {
                     return state_->get_unpaired_landmark_color();
                 }
             }
@@ -232,12 +224,12 @@ namespace osc
 
         float calc_circle_radius() const
         {
-            return 0.4f*ui::get_text_line_height_in_current_panel();
+            return 0.4f * ui::get_text_line_height_in_current_panel();
         }
 
         Vector2 calc_column_midpoint_screen_pos() const
         {
-            return ui::get_cursor_ui_position() + 0.5f*Vector2{ui::get_column_width(), ui::get_text_line_height_in_current_panel()};
+            return ui::get_cursor_ui_position() + 0.5f * Vector2{ui::get_column_width(), ui::get_text_line_height_in_current_panel()};
         }
 
         std::shared_ptr<MwUiSharedState> state_;

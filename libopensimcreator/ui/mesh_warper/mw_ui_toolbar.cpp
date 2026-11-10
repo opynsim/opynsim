@@ -82,8 +82,7 @@ private:
         }
         ui::draw_tooltip_if_item_hovered(
             "Create New Document",
-            "Creates the default scene (undoable)"
-        );
+            "Creates the default scene (undoable)");
     }
 
     void draw_open_document_button()
@@ -100,8 +99,7 @@ private:
         }
         ui::draw_tooltip_if_item_hovered(
             "Open File",
-            "Open Source/Destination data"
-        );
+            "Open Source/Destination data");
     }
 
     void draw_save_landmarks_button()
@@ -111,8 +109,7 @@ private:
         }
         ui::draw_tooltip_if_item_hovered(
             "Save Landmarks to CSV (no names)",
-            "Saves all pair-able landmarks to a CSV file, for external processing\n\n(legacy behavior: does not export names: use 'File' menu if you want the names)"
-        );
+            "Saves all pair-able landmarks to a CSV file, for external processing\n\n(legacy behavior: does not export names: use 'File' menu if you want the names)");
     }
 
     void draw_camera_lock_checkbox()

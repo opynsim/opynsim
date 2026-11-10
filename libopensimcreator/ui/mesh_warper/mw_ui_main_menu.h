@@ -37,6 +37,7 @@ namespace osc
             window_menu_.on_draw();
             about_tab_.on_draw();
         }
+
     private:
         MwUiFileMenu file_menu_;
         MwUiEditMenu edit_menu_;

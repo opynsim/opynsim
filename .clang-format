@@ -32,7 +32,6 @@ NamespaceIndentation: All
 FixNamespaceComments: false
 BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterOverloadedOperator: true
   AfterFunction: true
   AfterClass: false
   AfterControlStatement: Never

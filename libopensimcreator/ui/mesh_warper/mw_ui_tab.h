@@ -2,10 +2,10 @@
 
 #include <liboscar/ui/tabs/tab.h>
 
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Widget;
+
     /// Represents the "mesh warping workflow" UI tab.
     class MwUiTab final : public Tab {
     public:

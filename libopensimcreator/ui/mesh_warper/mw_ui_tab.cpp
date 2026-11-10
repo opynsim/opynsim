@@ -27,70 +27,55 @@ using namespace osc;
 
 class osc::MwUiTab::Impl final : public TabPrivate {
 public:
-
     explicit Impl(MwUiTab& owner, Widget* parent) :
         TabPrivate{owner, parent, MSMICONS_BEZIER_CURVE " Mesh Warping"},
         shared_{std::make_shared<MwUiSharedState>(id(), &owner, App::singleton<SceneCache>(App::resource_loader()))}
     {
         panel_manager_->register_toggleable_panel(
             "Source Mesh",
-            [state = shared_](Widget* parent, std::string_view panel_name)
-            {
+            [state = shared_](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<MwUiSourceMeshPanel>(parent, panel_name, state, MiDocumentInputIdentifier::Source);
-            }
-        );
+            });
 
         panel_manager_->register_toggleable_panel(
             "Destination Mesh",
-            [state = shared_](Widget* parent, std::string_view panel_name)
-            {
+            [state = shared_](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<MwUiSourceMeshPanel>(parent, panel_name, state, MiDocumentInputIdentifier::Destination);
-            }
-        );
+            });
 
         panel_manager_->register_toggleable_panel(
             "Result",
-            [state = shared_](Widget* parent, std::string_view panel_name)
-            {
+            [state = shared_](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<MwUiResultPanel>(parent, panel_name, state);
-            }
-        );
+            });
 
         panel_manager_->register_toggleable_panel(
             "History",
-            [state = shared_](Widget* parent, std::string_view panel_name)
-            {
+            [state = shared_](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<UndoRedoPanel>(parent, panel_name, state->get_undoable_shared_ptr());
             },
-            ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault
-        );
+            ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault);
 
         panel_manager_->register_toggleable_panel(
             "Log",
-            [](Widget* parent, std::string_view panel_name)
-            {
+            [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<LogViewerPanel>(parent, panel_name);
             },
-            ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault
-        );
+            ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault);
 
         panel_manager_->register_toggleable_panel(
             "Landmark Navigator",
-            [state = shared_](Widget* parent, std::string_view panel_name)
-            {
+            [state = shared_](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<MwUiLandmarkNavigatorPanel>(parent, panel_name, state);
             },
-            ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault
-        );
+            ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault);
 
         panel_manager_->register_toggleable_panel(
             "Performance",
-            [](Widget* parent, std::string_view panel_name)
-            {
+            [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<PerfPanel>(parent, panel_name);
             },
-            ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault
-        );
+            ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault);
     }
 
     void on_mount()
@@ -111,8 +96,7 @@ public:
     {
         if (e.type() == EventType::KeyDown) {
             return on_keydown_event(dynamic_cast<const KeyEvent&>(e));
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -147,28 +131,22 @@ private:
         if (e.combination() == (ModifierKey::Ctrl | ModifierKey::Shift | Key::Z)) {
             shared_->redo();
             return true;
-        }
-        else if (e.combination() == (ModifierKey::Ctrl | Key::Z)) {
+        } else if (e.combination() == (ModifierKey::Ctrl | Key::Z)) {
             shared_->undo();
             return true;
-        }
-        else if (e.combination() == (ModifierKey::Ctrl | Key::N)) {
+        } else if (e.combination() == (ModifierKey::Ctrl | Key::N)) {
             action_create_new_document(shared_->upd_undoable());
             return true;
-        }
-        else if (e.combination() == (ModifierKey::Ctrl | Key::Q)) {
+        } else if (e.combination() == (ModifierKey::Ctrl | Key::Q)) {
             App::upd().request_quit();
             return true;
-        }
-        else if (e.combination() == (ModifierKey::Ctrl | Key::A)) {
+        } else if (e.combination() == (ModifierKey::Ctrl | Key::A)) {
             shared_->select_all();
             return true;
-        }
-        else if (e.combination() == Key::Escape) {
+        } else if (e.combination() == Key::Escape) {
             shared_->clear_selection();
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -184,7 +162,6 @@ private:
     MwUiToolbar top_toolbar_{&owner(), "##MeshWarpingTabToolbar", shared_};
     MwUiStatusBar status_bar_{"##MeshWarpingTabStatusBar", shared_};
 };
-
 
 CStringView osc::MwUiTab::id() { return "OpenSim/Warping"; }
 
