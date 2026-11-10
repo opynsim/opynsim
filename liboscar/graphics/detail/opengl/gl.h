@@ -29,7 +29,8 @@ namespace osc::gl
     // the OpenGL API
     class OpenGlException final : public std::exception {
     public:
-        OpenGlException(std::string message) : message_{std::move(message)}
+        OpenGlException(std::string message) :
+            message_{std::move(message)}
         {}
 
         const char* what() const noexcept final { return message_.c_str(); }
@@ -87,7 +88,8 @@ namespace osc::gl
     public:
         static constexpr GLuint type = ShaderType;
 
-        Shader() : shader_handle_{type} {}
+        Shader() :
+            shader_handle_{type} {}
 
         GLuint get() const { return shader_handle_.get(); }
 
@@ -113,7 +115,8 @@ namespace osc::gl
     // an OpenGL program (i.e. n shaders linked into one pipeline)
     class Program final {
     public:
-        Program() : program_handle_{glCreateProgram()}
+        Program() :
+            program_handle_{glCreateProgram()}
         {
             if (program_handle_ == c_empty_program_sentinel) {
                 throw OpenGlException{"glCreateProgram() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
@@ -224,7 +227,8 @@ namespace osc::gl
 
     // metadata for GLSL data types that are typically bound from the CPU via (e.g.)
     // glVertexAttribPointer
-    namespace glsl {
+    namespace glsl
+    {
         struct Float final {
             static constexpr GLint size = 1;
             static constexpr GLenum type = GL_FLOAT;
@@ -452,8 +456,7 @@ namespace osc::gl
         glUniform2fv(
             uniform.geti(),
             static_cast<GLsizei>(vectors.size()),
-            value_ptr(vectors.front())
-        );
+            value_ptr(vectors.front()));
     }
 
     template<std::ranges::contiguous_range R, size_t N>
@@ -463,8 +466,7 @@ namespace osc::gl
         glUniform2fv(
             uniform.geti(),
             static_cast<GLsizei>(std::ranges::size(range)),
-            ValuePtr(std::ranges::data(range))
-        );
+            ValuePtr(std::ranges::data(range)));
     }
 
     // an attribute shader symbol (e.g. `attribute vec3 aPos`) at at particular
@@ -530,10 +532,8 @@ namespace osc::gl
                 SourceType,
                 normgl,
                 stridegl,
-                std::bit_cast<void*>(offset)
-            );
-        }
-        else if constexpr (SourceType == GL_FLOAT) {
+                std::bit_cast<void*>(offset));
+        } else if constexpr (SourceType == GL_FLOAT) {
             for (size_t i = 0; i < TGlsl::size / TGlsl::elements_per_location; ++i) {
                 glVertexAttribPointer(
                     attribute.get() + static_cast<GLuint>(i),
@@ -541,8 +541,7 @@ namespace osc::gl
                     SourceType,
                     normgl,
                     stridegl,
-                    std::bit_cast<void*>(offset + (i * TGlsl::elements_per_location * sizeof(float)))
-                );
+                    std::bit_cast<void*>(offset + (i * TGlsl::elements_per_location * sizeof(float))));
             }
         }
 
@@ -561,8 +560,7 @@ namespace osc::gl
 
         if constexpr (TGlsl::size <= 4) {
             glEnableVertexAttribArray(attribute.get());
-        }
-        else if constexpr (TGlsl::type == GL_FLOAT) {
+        } else if constexpr (TGlsl::type == GL_FLOAT) {
             for (size_t i = 0; i < TGlsl::size / TGlsl::elements_per_location; ++i) {
                 glEnableVertexAttribArray(attribute.get() + static_cast<GLuint>(i));
             }
@@ -578,8 +576,7 @@ namespace osc::gl
 
         if constexpr (TGlsl::size <= 4) {
             glDisableVertexAttribArray(loc.get());
-        }
-        else if constexpr (TGlsl::type == GL_FLOAT) {
+        } else if constexpr (TGlsl::type == GL_FLOAT) {
             for (size_t i = 0; i < TGlsl::size / TGlsl::elements_per_location; ++i) {
                 glDisableVertexAttribArray(loc.get() + static_cast<GLuint>(i));
             }
@@ -600,8 +597,7 @@ namespace osc::gl
 
         if constexpr (TGlsl::size <= 4) {
             glVertexAttribDivisor(loc.get(), divisor);
-        }
-        else if constexpr (TGlsl::type == GL_FLOAT) {
+        } else if constexpr (TGlsl::type == GL_FLOAT) {
             for (size_t i = 0; i < TGlsl::size / TGlsl::elements_per_location; ++i) {
                 glVertexAttribDivisor(loc.get() + static_cast<GLuint>(i), divisor);
             }
@@ -833,6 +829,7 @@ namespace osc::gl
         }
 
         GLuint get() const { return texture_handle_; }
+
     private:
         static constexpr GLuint c_empty_texture_handle_sentinel = static_cast<GLuint>(-1);
         GLuint texture_handle_{};
@@ -987,6 +984,7 @@ namespace osc::gl
         }
 
         GLuint get() const { return rbo_handle_; }
+
     private:
         // khronos: glDeleteRenderBuffers: "The uniform_name zero is reserved by the GL and is silently ignored"
         static constexpr GLuint c_empty_rbo_sentinel = 0;
@@ -1088,8 +1086,7 @@ namespace osc::gl
             border,
             format,
             type,
-            pixels
-        );
+            pixels);
     }
 
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexParameter.xhtml
@@ -1127,8 +1124,7 @@ namespace osc::gl
             dst_x1,
             dst_y1,
             mask,
-            filter
-        );
+            filter);
     }
 
     inline void draw_buffer(GLenum mode)
