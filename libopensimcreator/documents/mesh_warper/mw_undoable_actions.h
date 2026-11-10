@@ -15,14 +15,14 @@
 #include <string_view>
 #include <unordered_set>
 
-namespace osc { class Mesh; }
-namespace osc { class MwResultCache; }
-namespace osc { struct MwDocument; }
-namespace osc { struct MwDocumentLandmarkPair; }
-
 // user-enactable actions
 namespace osc
 {
+    class Mesh;
+    class MwResultCache;
+    struct MwDocument;
+    struct MwDocumentLandmarkPair;
+
     // adds a landmark to an input mesh
     void action_add_landmark(MwUndoableDocument&, MiDocumentInputIdentifier, const Vector3&);
 
@@ -106,8 +106,7 @@ namespace osc
     void action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
         const MwDocument&,
         MwResultCache&,
-        opyn::LandmarkCSVFlags = opyn::LandmarkCSVFlags::None
-    );
+        opyn::LandmarkCSVFlags = opyn::LandmarkCSVFlags::None);
 
     // swaps the source and destination (incl. premultiply, etc.)
     void action_swap_source_destination(MwUndoableDocument&);

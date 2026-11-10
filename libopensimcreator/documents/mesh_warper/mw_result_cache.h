@@ -47,8 +47,7 @@ namespace osc
             const bool updated_blending_factor = update_blending_factor(doc);
             const bool updated_recalculate_normals_state = update_recalculate_normals_state(doc);
 
-            if (updated_coefficients || updated_non_participating_landmarks || updated_mesh || updated_blending_factor || updated_recalculate_normals_state)
-            {
+            if (updated_coefficients || updated_non_participating_landmarks || updated_mesh || updated_blending_factor || updated_recalculate_normals_state) {
                 cached_result_mesh_ = tps3d_warp_mesh(cached_coefficients_, cached_source_mesh_, cached_blending_factor_);
                 if (cached_recalculate_normals_state_) {
                     cached_result_mesh_.recalculate_normals();
@@ -74,8 +73,7 @@ namespace osc
             if (new_inputs != cached_inputs_) {
                 cached_inputs_ = std::move(new_inputs);
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -83,51 +81,45 @@ namespace osc
         // returns `true` if cached coefficients were updated
         bool update_coefficients(const MwDocument& doc)
         {
-            if (!update_inputs(doc))
-            {
+            if (!update_inputs(doc)) {
                 // cache: the inputs have not been updated, so the coefficients will not change
                 return false;
             }
 
             opyn::TPSCoefficients3D new_coefficients = tps3d_solve_coefficients(cached_inputs_);
 
-            if (new_coefficients != cached_coefficients_)
-            {
+            if (new_coefficients != cached_coefficients_) {
                 cached_coefficients_ = std::move(new_coefficients);
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;  // no change in the coefficients
             }
         }
-
 
         bool update_source_non_participating_landmarks(const MwDocument& doc)
         {
             const auto& doc_landmarks = doc.non_participating_landmarks;
 
+            const auto same_position = [](const MwDocumentNonParticipatingLandmark& lm, const SimTK::fVec3& position)
+            {
+                return lm.location.x() == position[0] and
+                       lm.location.y() == position[1] and
+                       lm.location.z() == position[2];
+            };
             const bool same_positions = rgs::equal(
                 doc_landmarks,
                 cached_source_non_participating_landmarks_,
-                [](const MwDocumentNonParticipatingLandmark& lm, const SimTK::fVec3& position)
-                {
-                    return lm.location.x() == position[0] and lm.location.y() == position[1] and lm.location.z() == position[2];
-                }
+                same_position
             );
 
-            if (!same_positions)
-            {
+            if (!same_positions) {
                 cached_source_non_participating_landmarks_.clear();
                 rgs::transform(
                     doc_landmarks,
                     std::back_inserter(cached_source_non_participating_landmarks_),
-                    [](const auto& lm) { return to<SimTK::fVec3>(lm.location); }
-                );
+                    [](const auto& lm) { return to<SimTK::fVec3>(lm.location); });
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -135,13 +127,10 @@ namespace osc
         // returns `true` if `m_CachedSourceMesh` is updated
         bool update_input_mesh(const MwDocument& doc)
         {
-            if (cached_source_mesh_ != doc.source_mesh)
-            {
+            if (cached_source_mesh_ != doc.source_mesh) {
                 cached_source_mesh_ = doc.source_mesh;
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -151,8 +140,7 @@ namespace osc
             if (cached_blending_factor_ != doc.blending_factor) {
                 cached_blending_factor_ = doc.blending_factor;
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -162,8 +150,7 @@ namespace osc
             if (cached_recalculate_normals_state_ != doc.recalculate_normals) {
                 cached_recalculate_normals_state_ = doc.recalculate_normals;
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
         }

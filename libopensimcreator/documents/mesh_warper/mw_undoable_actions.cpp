@@ -58,8 +58,7 @@ void osc::action_set_landmark_position(
     const Vector3& new_position)
 {
     MwDocumentLandmarkPair* p = find_landmark_pair(doc.upd_scratch(), id);
-    if (!p)
-    {
+    if (!p) {
         return;
     }
 
@@ -73,14 +72,12 @@ void osc::action_rename_landmark(
     std::string_view new_name)
 {
     MwDocumentLandmarkPair* p = find_landmark_pair(doc.upd_scratch(), id);
-    if (!p)
-    {
+    if (!p) {
         return;
     }
 
     StringName name{new_name};
-    if (contains_element_with_name(doc.scratch(), name))
-    {
+    if (contains_element_with_name(doc.scratch(), name)) {
         return;  // cannot rename (already taken)
     }
 
@@ -94,8 +91,7 @@ void osc::action_set_non_participating_landmark_position(
     const Vector3& new_position)
 {
     auto* lm = find_non_participating_landmark(doc.upd_scratch(), id);
-    if (!lm)
-    {
+    if (!lm) {
         return;
     }
 
@@ -109,14 +105,12 @@ void osc::action_rename_non_participating_landmark(
     std::string_view new_name)
 {
     auto* lm = find_non_participating_landmark(doc.upd_scratch(), id);
-    if (!lm)
-    {
+    if (!lm) {
         return;  // cannot find to-be-renamed element in document
     }
 
     StringName name{new_name};
-    if (contains_element_with_name(doc.scratch(), name))
-    {
+    if (contains_element_with_name(doc.scratch(), name)) {
         return;  // cannot rename to new name (already taken)
     }
 
@@ -138,9 +132,7 @@ void osc::action_set_blend_factor(MwUndoableDocument& doc, float factor)
 void osc::action_set_recalculating_normals(MwUndoableDocument& doc, bool new_state)
 {
     doc.upd_scratch().recalculate_normals = new_state;
-    const std::string_view msg = new_state ?
-        "enabled recalculating normals" :
-        "disabled recalculating normals";
+    const std::string_view msg = new_state ? "enabled recalculating normals" : "disabled recalculating normals";
     doc.commit_scratch(msg);
 }
 
@@ -186,21 +178,18 @@ void osc::action_delete_scene_elements_by_id(
 {
     MwDocument& scratch = doc.upd_scratch();
     bool something_deleted = false;
-    for (const MwDocumentElementID& id : element_ids)
-    {
+    for (const MwDocumentElementID& id : element_ids) {
         something_deleted = delete_element_by_id(scratch, id) || something_deleted;
     }
 
-    if (something_deleted)
-    {
+    if (something_deleted) {
         doc.commit_scratch("deleted elements");
     }
 }
 
 void osc::action_delete_element_by_id(MwUndoableDocument& doc, UID id)
 {
-    if (delete_element_by_id(doc.upd_scratch(), id))
-    {
+    if (delete_element_by_id(doc.upd_scratch(), id)) {
         doc.commit_scratch("deleted element");
     }
 }
@@ -227,13 +216,11 @@ void osc::action_prompt_user_to_load_mesh_file(
             try {
                 const auto mesh = opyn::load_mesh_via_simbody(response.front());
                 action_load_mesh(*doc, mesh, which);
-            }
-            catch (const std::exception& ex) {
+            } catch (const std::exception& ex) {
                 log_error("Error importing {}: {}", response.front().string(), ex.what());
             }
         },
-        opyn::get_supported_sim_tk_mesh_formats_as_filters()
-    );
+        opyn::get_supported_sim_tk_mesh_formats_as_filters());
 }
 
 void osc::action_prompt_user_to_load_landmarks_from_csv(
@@ -262,8 +249,7 @@ void osc::action_prompt_user_to_load_landmarks_from_csv(
         {
             CSV::file_dialog_filter(),
             FileDialogFilter::all_files(),
-        }
-    );
+        });
 }
 
 void osc::action_prompt_user_to_load_non_participating_landmarks_from_csv(const std::shared_ptr<MwUndoableDocument>& doc)
@@ -290,8 +276,7 @@ void osc::action_prompt_user_to_load_non_participating_landmarks_from_csv(const 
         {
             CSV::file_dialog_filter(),
             FileDialogFilter::all_files(),
-        }
-    );
+        });
 }
 
 void osc::action_prompt_user_to_save_landmarks_to_csv(
@@ -299,19 +284,21 @@ void osc::action_prompt_user_to_save_landmarks_to_csv(
     MiDocumentInputIdentifier which,
     opyn::LandmarkCSVFlags flags)
 {
-    App::upd().prompt_user_to_save_file_with_extension_async([pairs = doc.landmark_pairs, which, flags](std::optional<std::filesystem::path> p) mutable
-    {
-        if (not p) {
-            return;  // user cancelled out of the prompt
-        }
+    App::upd().prompt_user_to_save_file_with_extension_async(
+        [pairs = doc.landmark_pairs, which, flags](std::optional<std::filesystem::path> p) mutable
+        {
+            if (not p) {
+                return;  // user cancelled out of the prompt
+            }
 
-        std::ofstream fout{*p};
-        if (not fout) {
-            return;  // couldn't open file for writing
-        }
+            std::ofstream fout{*p};
+            if (not fout) {
+                return;  // couldn't open file for writing
+            }
 
-        action_write_landmarks_as_csv(pairs, which, flags, fout);
-    }, "csv");
+            action_write_landmarks_as_csv(pairs, which, flags, fout);
+        },
+        "csv");
 }
 
 void osc::action_write_landmarks_as_csv(
@@ -320,129 +307,139 @@ void osc::action_write_landmarks_as_csv(
     opyn::LandmarkCSVFlags flags,
     std::ostream& out)
 {
-    opyn::write_landmarks_to_csv(out, [which, it = pairs.begin(), end = pairs.end()]() mutable -> std::optional<opyn::Landmark>
-    {
-        while (it != end) {
-            const auto& pair = *it++;
-            if (const auto location = get_location(pair, which)) {
-                return opyn::Landmark{std::string{pair.name}, *location};
+    opyn::write_landmarks_to_csv(
+        out,
+        [which, it = pairs.begin(), end = pairs.end()] mutable -> std::optional<opyn::Landmark>
+        {
+            while (it != end) {
+                const auto& pair = *it++;
+                if (const auto location = get_location(pair, which)) {
+                    return opyn::Landmark{std::string{pair.name}, *location};
+                }
             }
-        }
-        return std::nullopt;
-    }, flags);
+            return std::nullopt;
+        },
+        flags);
 }
 
 void osc::action_prompt_user_to_save_non_participating_landmarks_to_csv(
     const MwDocument& doc,
     opyn::LandmarkCSVFlags flags)
 {
-    App::upd().prompt_user_to_save_file_with_extension_async([nplms = doc.non_participating_landmarks, flags](std::optional<std::filesystem::path> p)
-    {
-        if (not p) {
-            return;  // user cancelled out of the prompt
-        }
-
-        std::ofstream fout{*p};
-        if (not fout) {
-            return;  // couldn't open file for writing
-        }
-
-        opyn::write_landmarks_to_csv(fout, [it = nplms.begin(), end = nplms.end()]() mutable
+    App::upd().prompt_user_to_save_file_with_extension_async(
+        [nplms = doc.non_participating_landmarks, flags](std::optional<std::filesystem::path> p)
         {
-            std::optional<opyn::Landmark> rv;
-            if (it != end) {
-                rv = opyn::Landmark{std::string{it->name}, it->location};
+            if (not p) {
+                return;  // user cancelled out of the prompt
             }
-            ++it;
-            return rv;
-        }, flags);
-    }, "csv");
+
+            std::ofstream fout{*p};
+            if (not fout) {
+                return;  // couldn't open file for writing
+            }
+
+            opyn::write_landmarks_to_csv(
+                fout,
+                [it = nplms.begin(), end = nplms.end()] mutable
+                {
+                    std::optional<opyn::Landmark> rv;
+                    if (it != end) {
+                        rv = opyn::Landmark{std::string{it->name}, it->location};
+                    }
+                    ++it;
+                    return rv;
+                },
+                flags);
+        }, "csv");
 }
 
 void osc::action_prompt_user_to_save_paired_landmarks_to_csv(const MwDocument& doc, opyn::LandmarkCSVFlags flags)
 {
-    App::upd().prompt_user_to_save_file_with_extension_async([pairs = get_named_landmark_pairs(doc), flags](std::optional<std::filesystem::path> maybe_path)
-    {
-        if (not maybe_path) {
-            return;  // user cancelled out of the prompt
-        }
-        std::ofstream fout{*maybe_path};
-        if (not fout) {
-            return;  // couldn't open file for writing
-        }
-
-        // if applicable, write header row
-        if (not (flags & opyn::LandmarkCSVFlags::NoHeader)) {
-            if (flags & opyn::LandmarkCSVFlags::NoNames) {
-                CSV::write_row(fout, {{"source.x", "source.y", "source.z", "dest.x", "dest.y", "dest.z"}});
+    App::upd().prompt_user_to_save_file_with_extension_async(
+        [pairs = get_named_landmark_pairs(doc), flags](std::optional<std::filesystem::path> maybe_path)
+        {
+            if (not maybe_path) {
+                return;  // user cancelled out of the prompt
             }
-            else {
-                CSV::write_row(fout, {{"name", "source.x", "source.y", "source.z", "dest.x", "dest.y", "dest.z"}});
+            std::ofstream fout{*maybe_path};
+            if (not fout) {
+                return;  // couldn't open file for writing
             }
-        }
 
-        // write data rows
-        std::vector<std::string> cols;
-        cols.reserve(flags & opyn::LandmarkCSVFlags::NoNames ? 6 : 7);
-        for (const auto& p : pairs) {
-            using std::to_string;
-
-            if (not (flags & opyn::LandmarkCSVFlags::NoNames)) {
-                cols.emplace_back(p.name);
+            // if applicable, write header row
+            if (not (flags & opyn::LandmarkCSVFlags::NoHeader)) {
+                if (flags & opyn::LandmarkCSVFlags::NoNames) {
+                    CSV::write_row(fout, {{"source.x", "source.y", "source.z", "dest.x", "dest.y", "dest.z"}});
+                } else {
+                    CSV::write_row(fout, {{"name", "source.x", "source.y", "source.z", "dest.x", "dest.y", "dest.z"}});
+                }
             }
-            cols.push_back(to_string(p.source[0]));
-            cols.push_back(to_string(p.source[1]));
-            cols.push_back(to_string(p.source[2]));
-            cols.push_back(to_string(p.destination[0]));
-            cols.push_back(to_string(p.destination[1]));
-            cols.push_back(to_string(p.destination[2]));
 
-            CSV::write_row(fout, cols);
+            // write data rows
+            std::vector<std::string> cols;
+            cols.reserve(flags & opyn::LandmarkCSVFlags::NoNames ? 6 : 7);
+            for (const auto& p : pairs) {
+                using std::to_string;
 
-            cols.clear();
-        }
-    }, "csv");
+                if (not (flags & opyn::LandmarkCSVFlags::NoNames)) {
+                    cols.emplace_back(p.name);
+                }
+                cols.push_back(to_string(p.source[0]));
+                cols.push_back(to_string(p.source[1]));
+                cols.push_back(to_string(p.source[2]));
+                cols.push_back(to_string(p.destination[0]));
+                cols.push_back(to_string(p.destination[1]));
+                cols.push_back(to_string(p.destination[2]));
+
+                CSV::write_row(fout, cols);
+
+                cols.clear();
+            }
+        },
+        "csv");
 }
 
 void osc::action_prompt_user_to_save_mesh_to_obj_file(const Mesh& mesh, OBJWriterFlags flags)
 {
-    App::upd().prompt_user_to_save_file_with_extension_async([mesh, flags](std::optional<std::filesystem::path> p)
-    {
-        if (not p) {
-            return;  // user cancelled out of the prompt
-        }
-        std::ofstream ofs{*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary};
-        if (not ofs) {
-            return;  // couldn't open for writing
-        }
+    App::upd().prompt_user_to_save_file_with_extension_async(
+        [mesh, flags](std::optional<std::filesystem::path> p)
+        {
+            if (not p) {
+                return;  // user cancelled out of the prompt
+            }
+            std::ofstream ofs{*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary};
+            if (not ofs) {
+                return;  // couldn't open for writing
+            }
 
-        const OBJMetadata obj_metadata{
-            App::get().application_name_with_version_and_buildid(),
-        };
+            const OBJMetadata obj_metadata{
+                App::get().application_name_with_version_and_buildid(),
+            };
 
-        OBJ::write(ofs, mesh, obj_metadata, flags);
-    }, "obj");
+            OBJ::write(ofs, mesh, obj_metadata, flags);
+        },
+        "obj");
 }
 
 void osc::action_prompt_user_to_mesh_to_stl_file(const Mesh& mesh)
 {
-    App::upd().prompt_user_to_save_file_with_extension_async([mesh](std::optional<std::filesystem::path> p)
-    {
-        if (not p) {
-            return;  // user cancelled out of the prompt
-        }
+    App::upd().prompt_user_to_save_file_with_extension_async(
+        [mesh](std::optional<std::filesystem::path> p)
+        {
+            if (not p) {
+                return;  // user cancelled out of the prompt
+            }
 
-        std::ofstream ofs{*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary};
-        if (not ofs) {
-            return;  // couldn't open for writing
-        }
+            std::ofstream ofs{*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary};
+            if (not ofs) {
+                return;  // couldn't open for writing
+            }
 
-        const STLMetadata stl_metadata{
-            App::get().application_name_with_version_and_buildid()
-        };
+            const STLMetadata stl_metadata{App::get().application_name_with_version_and_buildid()};
 
-        STL::write(ofs, mesh, stl_metadata);
-    }, "stl");
+            STL::write(ofs, mesh, stl_metadata);
+        },
+        "stl");
 }
 
 void osc::action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
@@ -452,29 +449,30 @@ void osc::action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
 {
     const auto span = cache.get_warped_non_participating_landmark_locations(doc);
 
-    App::upd().prompt_user_to_save_file_with_extension_async([
-        warped_nplms = std::vector<Vector3>(span.begin(), span.end()),
-        nplms = doc.non_participating_landmarks,
-        flags](std::optional<std::filesystem::path> p)
-    {
-        if (not p) {
-            return;  // user cancelled out of the prompt
-        }
-
-        std::ofstream fout{*p};
-        if (not fout) {
-            return;  // couldn't open file for writing
-        }
-
-        opyn::write_landmarks_to_csv(fout, [&warped_nplms, &nplms, i = 0uz]() mutable
+    App::upd().prompt_user_to_save_file_with_extension_async(
+        [warped_nplms = std::vector<Vector3>(span.begin(), span.end()),
+         nplms = doc.non_participating_landmarks,
+         flags](std::optional<std::filesystem::path> p)
         {
-            std::optional<opyn::Landmark> rv;
-            for (; !rv && i < warped_nplms.size(); ++i) {
-                std::string name = std::string{nplms.at(i).name};
-                rv = opyn::Landmark{std::move(name), warped_nplms.at(i)};
+            if (not p) {
+                return;  // user cancelled out of the prompt
             }
-            return rv;
-        }, flags);
+
+            std::ofstream fout{*p};
+            if (not fout) {
+                return;  // couldn't open file for writing
+            }
+
+            opyn::write_landmarks_to_csv(fout, [&warped_nplms, &nplms, i = 0uz] mutable
+            {
+                std::optional<opyn::Landmark> rv;
+                for (; !rv && i < warped_nplms.size(); ++i) {
+                    std::string name = std::string{nplms.at(i).name};
+                    rv = opyn::Landmark{std::move(name), warped_nplms.at(i)};
+                }
+                return rv;
+            },
+            flags);
     });
 }
 

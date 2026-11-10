@@ -30,8 +30,7 @@ using namespace osc;
 namespace
 {
     template<typename T>
-    concept UIDed = requires(T v)
-    {
+    concept UIDed = requires(T v) {
         { v.uid } -> std::convertible_to<UID>;
     };
 
@@ -42,8 +41,7 @@ namespace
     }
 
     template<typename T>
-    concept Named = requires(T v)
-    {
+    concept Named = requires(T v) {
         { v.name } -> std::convertible_to<std::string_view>;
     };
 
@@ -59,8 +57,7 @@ namespace
     StringName next_unique_id(const Range& range, std::string_view prefix)
     {
         std::string name;
-        for (size_t i = 0; i < std::numeric_limits<decltype(i)>::max()-1; ++i)
-        {
+        for (size_t i = 0; i < std::numeric_limits<decltype(i)>::max() - 1; ++i) {
             name += prefix;
             name += std::to_string(i);
 
@@ -153,24 +150,24 @@ bool osc::set_landmark_location_by_id(
 {
     static_assert(num_options_v<MwDocumentElementType> == 2);
     switch (element_type) {
-        case MwDocumentElementType::Landmark: {
-            if (MwDocumentLandmarkPair* p = find_landmark_pair(doc, uid)) {
-                static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
-                if (auto& pos = input == MiDocumentInputIdentifier::Source ? p->maybe_source_location : p->maybe_destination_location) {
-                    *pos = location;
-                    return true;
-                }
-            }
-            break;
-        }
-        case MwDocumentElementType::NonParticipatingLandmark: {
-            if (auto* npl = find_non_participating_landmark(doc, uid)) {
-                npl->location = location;
+    case MwDocumentElementType::Landmark: {
+        if (MwDocumentLandmarkPair* p = find_landmark_pair(doc, uid)) {
+            static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
+            if (auto& pos = input == MiDocumentInputIdentifier::Source ? p->maybe_source_location : p->maybe_destination_location) {
+                *pos = location;
                 return true;
             }
-            break;
         }
-        default: return false;
+        break;
+    }
+    case MwDocumentElementType::NonParticipatingLandmark: {
+        if (auto* npl = find_non_participating_landmark(doc, uid)) {
+            npl->location = location;
+            return true;
+        }
+        break;
+    }
+    default: return false;
     }
     return false;
 }
@@ -201,12 +198,9 @@ const MwDocumentElement* osc::find_element(const MwDocument& doc, const MwDocume
 
     switch (id.type) {
     case MwDocumentElementType::Landmark:
-        if (const auto* p = find_landmark_pair(doc, id.uid); p && get_location(*p, id.input))
-        {
+        if (const auto* p = find_landmark_pair(doc, id.uid); p && get_location(*p, id.input)) {
             return p;
-        }
-        else
-        {
+        } else {
             return nullptr;
         }
     case MwDocumentElementType::NonParticipatingLandmark: return find_non_participating_landmark(doc, id.uid);
@@ -236,17 +230,15 @@ MwDocumentNonParticipatingLandmark* osc::find_non_participating_landmark_by_name
 
 bool osc::contains_element_with_name(const MwDocument& doc, const StringName& name)
 {
-    return
-        find_landmark_pair_by_name(doc, name) != nullptr ||
-        find_non_participating_landmark_by_name(doc, name) != nullptr;
+    return find_landmark_pair_by_name(doc, name) != nullptr ||
+           find_non_participating_landmark_by_name(doc, name) != nullptr;
 }
 
 std::optional<opyn::LandmarkPair3D<float>> osc::try_extract_landmark_pair(const MwDocumentLandmarkPair& p)
 {
     if (is_fully_paired(p)) {
         return opyn::LandmarkPair3D<float>{to<SimTK::fVec3>(*p.maybe_source_location), to<SimTK::fVec3>(*p.maybe_destination_location)};
-    }
-    else {
+    } else {
         return std::nullopt;
     }
 }
@@ -255,10 +247,8 @@ std::vector<opyn::LandmarkPair3D<float>> osc::get_landmark_pairs(const MwDocumen
 {
     std::vector<opyn::LandmarkPair3D<float>> rv;
     rv.reserve(count_fully_paired(doc));
-    for (const auto& p : doc.landmark_pairs)
-    {
-        if (is_fully_paired(p))
-        {
+    for (const auto& p : doc.landmark_pairs) {
+        if (is_fully_paired(p)) {
             rv.push_back(opyn::LandmarkPair3D<float>{to<SimTK::fVec3>(*p.maybe_source_location), to<SimTK::fVec3>(*p.maybe_destination_location)});
         }
     }
@@ -269,10 +259,8 @@ std::vector<MwNamedLandmarkPair3D> osc::get_named_landmark_pairs(const MwDocumen
 {
     std::vector<MwNamedLandmarkPair3D> rv;
     rv.reserve(count_fully_paired(doc));
-    for (const auto& p : doc.landmark_pairs)
-    {
-        if (is_fully_paired(p))
-        {
+    for (const auto& p : doc.landmark_pairs) {
+        if (is_fully_paired(p)) {
             rv.push_back(MwNamedLandmarkPair3D{{to<SimTK::fVec3>(*p.maybe_source_location), to<SimTK::fVec3>(*p.maybe_destination_location)}, p.name});
         }
     }
@@ -281,7 +269,10 @@ std::vector<MwNamedLandmarkPair3D> osc::get_named_landmark_pairs(const MwDocumen
 
 size_t osc::count_num_landmarks_for_input(const MwDocument& doc, MiDocumentInputIdentifier which)
 {
-    const auto has_location = [which](const MwDocumentLandmarkPair& p) { return osc::has_location(p, which); };
+    const auto has_location = [which](const MwDocumentLandmarkPair& p)
+    {
+        return osc::has_location(p, which);
+    };
     return rgs::count_if(doc.landmark_pairs, has_location);
 }
 
@@ -303,33 +294,27 @@ void osc::add_landmark_to_input(
     const Vector3& position,
     std::optional<std::string_view> suggested_name)
 {
-    if (suggested_name)
-    {
+    if (suggested_name) {
         // if a name is suggested, then lookup the landmark by name and
         // overwrite the location; otherwise, create a new landmark with
         // the name (this is _probably_ what the user intended)
 
         const StringName name{*suggested_name};
         auto* p = find_landmark_pair_by_name(doc, name);
-        if (!p)
-        {
+        if (!p) {
             p = &doc.landmark_pairs.emplace_back(name);
         }
         upd_location(*p, which) = position;
-    }
-    else
-    {
+    } else {
         // no name suggested: so assume that the user wants to pair the
         // landmarks in-order with landmarks that have no corresponding
         // location yet; otherwise, create a new (half) landmark with
         // a generated name
 
         bool was_assigned_to_existing_empty_slot = false;
-        for (MwDocumentLandmarkPair& p : doc.landmark_pairs)
-        {
+        for (MwDocumentLandmarkPair& p : doc.landmark_pairs) {
             std::optional<Vector3>& maybe_loc = upd_location(p, which);
-            if (!maybe_loc)
-            {
+            if (!maybe_loc) {
                 maybe_loc = position;
                 was_assigned_to_existing_empty_slot = true;
                 break;
@@ -338,8 +323,7 @@ void osc::add_landmark_to_input(
 
         // if there wasn't an empty slot, then create a new landmark pair and
         // assign the location to the relevant part of the pair
-        if (!was_assigned_to_existing_empty_slot)
-        {
+        if (!was_assigned_to_existing_empty_slot) {
             MwDocumentLandmarkPair& p = doc.landmark_pairs.emplace_back(next_landmark_name(doc));
             upd_location(p, which) = position;
         }
@@ -351,25 +335,19 @@ void osc::add_non_participating_landmark(
     const Vector3& location,
     std::optional<std::string_view> suggested_name)
 {
-    if (suggested_name)
-    {
+    if (suggested_name) {
         // if a name is suggested, then lookup the non-participating landmark
         // by name and overwrite the location; otherwise, create a new
         // landmark with the name (this is _probably_ what the user intended)
 
         const StringName name{*suggested_name};
         auto* p = find_non_participating_landmark_by_name(doc, name);
-        if (p)
-        {
+        if (p) {
             p->location = location;
-        }
-        else
-        {
+        } else {
             doc.non_participating_landmarks.emplace_back(name, location);
         }
-    }
-    else
-    {
+    } else {
         // if no name is suggested, generate one
 
         doc.non_participating_landmarks.emplace_back(next_non_participating_landmark_name(doc), location);
@@ -380,25 +358,21 @@ bool osc::delete_element_by_id(MwDocument& doc, const MwDocumentElementID& id)
 {
     static_assert(num_options_v<MwDocumentElementType> == 2);
 
-    if (id.type == MwDocumentElementType::Landmark)
-    {
+    if (id.type == MwDocumentElementType::Landmark) {
         auto& lms = doc.landmark_pairs;
         const auto it = rgs::find(lms, id.uid, id_of<MwDocumentLandmarkPair>);
-        if (it != doc.landmark_pairs.end())
-        {
+        if (it != doc.landmark_pairs.end()) {
             upd_location(*it, id.input).reset();
 
-            if (!has_source_or_destination_location(*it))
-            {
+            if (!has_source_or_destination_location(*it)) {
                 // the landmark now has no data associated with it: garbage collect it
                 doc.landmark_pairs.erase(it);
             }
             return true;
         }
-    }
-    else if (id.type == MwDocumentElementType::NonParticipatingLandmark)
-    {
-        const auto num_els_deleted = std::erase_if(doc.non_participating_landmarks, [id = id.uid](const auto& npl) { return npl.uid == id; });
+    } else if (id.type == MwDocumentElementType::NonParticipatingLandmark) {
+        const auto has_id = [id = id.uid](const auto& npl) { return npl.uid == id; };
+        const auto num_els_deleted = std::erase_if(doc.non_participating_landmarks, has_id);
         return num_els_deleted > 0;
     }
     return false;
@@ -406,9 +380,9 @@ bool osc::delete_element_by_id(MwDocument& doc, const MwDocumentElementID& id)
 
 bool osc::delete_element_by_id(MwDocument& doc, UID id)
 {
-    return
-        std::erase_if(doc.landmark_pairs, [id](const auto& lp) { return lp.uid == id; }) > 0 or
-        std::erase_if(doc.non_participating_landmarks, [id](const auto& nlp) { return nlp.uid == id; }) > 0;
+    const auto has_uid = [id](const auto& lp) { return lp.uid == id; };
+    return std::erase_if(doc.landmark_pairs, has_uid) > 0 or
+           std::erase_if(doc.non_participating_landmarks, has_uid) > 0;
 }
 
 CStringView osc::find_element_name_or(
@@ -416,12 +390,9 @@ CStringView osc::find_element_name_or(
     const MwDocumentElementID& id,
     CStringView alternative)
 {
-    if (const auto* p = find_element(doc, id))
-    {
+    if (const auto* p = find_element(doc, id)) {
         return p->get_name();
-    }
-    else
-    {
+    } else {
         return alternative;
     }
 }
@@ -429,14 +400,12 @@ CStringView osc::find_element_name_or(
 std::vector<MwDocumentElementID> osc::get_all_element_ids(const MwDocument& doc)
 {
     std::vector<MwDocumentElementID> rv;
-    rv.reserve(2*doc.landmark_pairs.size() + doc.non_participating_landmarks.size());
-    for (const auto& lm : doc.landmark_pairs)
-    {
+    rv.reserve(2 * doc.landmark_pairs.size() + doc.non_participating_landmarks.size());
+    for (const auto& lm : doc.landmark_pairs) {
         rv.push_back(MwDocumentElementID{lm.uid, MwDocumentElementType::Landmark, MiDocumentInputIdentifier::Source});
         rv.push_back(MwDocumentElementID{lm.uid, MwDocumentElementType::Landmark, MiDocumentInputIdentifier::Destination});
     }
-    for (const auto& npl : doc.non_participating_landmarks)
-    {
+    for (const auto& npl : doc.non_participating_landmarks) {
         rv.push_back(MwDocumentElementID{npl.uid, MwDocumentElementType::NonParticipatingLandmark, MiDocumentInputIdentifier::Source});
     }
     return rv;

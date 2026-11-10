@@ -131,15 +131,13 @@ namespace osc
         MwDocument&,
         MiDocumentInputIdentifier,
         const Vector3&,
-        std::optional<std::string_view> suggested_name = std::nullopt
-    );
+        std::optional<std::string_view> suggested_name = std::nullopt);
 
     // adds a non-participating landmark to the document
     void add_non_participating_landmark(
         MwDocument&,
         const Vector3&,
-        std::optional<std::string_view> suggested_name = std::nullopt
-    );
+        std::optional<std::string_view> suggested_name = std::nullopt);
 
     // returns `true` if the given element was deleted from the document
     bool delete_element_by_id(MwDocument&, const MwDocumentElementID&);

@@ -13,7 +13,9 @@ ContinuationIndentWidth: 4
 LambdaBodyIndentation: OuterScope  # Options: Signature (default) or OuterScope
 AllowShortFunctionsOnASingleLine: All # or 'All'
 AllowShortLambdasOnASingleLine: Inline
+AllowShortCaseLabelsOnASingleLine: true
 SpaceAfterTemplateKeyword: false
+SpaceBeforeParens: ControlStatements
 AccessModifierOffset: -4
 SpacesBeforeTrailingComments: 2
 BasedOnStyle: LLVM
