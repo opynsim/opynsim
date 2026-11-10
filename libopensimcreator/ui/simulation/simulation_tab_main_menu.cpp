@@ -70,7 +70,6 @@ private:
                 }
             }
 
-
             ui::end_menu();
         }
 

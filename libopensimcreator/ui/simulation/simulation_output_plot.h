@@ -4,17 +4,16 @@
 
 #include <memory>
 
-namespace osc { class SimulatorUIAPI; }
-
 namespace osc
 {
+    class SimulatorUIAPI;
+
     class SimulationOutputPlot final {
     public:
         explicit SimulationOutputPlot(
             SimulatorUIAPI*,
             opyn::SharedOutputExtractor,
-            float height
-        );
+            float height);
         SimulationOutputPlot(const SimulationOutputPlot&) = delete;
         SimulationOutputPlot(SimulationOutputPlot&&) noexcept;
         SimulationOutputPlot& operator=(const SimulationOutputPlot&) = delete;

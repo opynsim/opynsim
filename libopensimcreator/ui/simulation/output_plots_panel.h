@@ -5,19 +5,18 @@
 #include <memory>
 #include <string_view>
 
-namespace osc { class Environment; }
-namespace osc { class SimulatorUIAPI; }
-
 namespace osc
 {
+    class Environment;
+    class SimulatorUIAPI;
+
     class OutputPlotsPanel final : public Panel {
     public:
         explicit OutputPlotsPanel(
             Widget* parent,
             std::string_view panel_name,
             std::shared_ptr<Environment>,
-            SimulatorUIAPI*
-        );
+            SimulatorUIAPI*);
 
     private:
         void impl_draw_content() final;

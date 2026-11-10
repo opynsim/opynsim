@@ -53,8 +53,7 @@ namespace
             if (ui::draw_menu_item(MSMICONS_TIMES " Stop Watching")) {
                 env.remove_user_output_extractor(output);
             }
-        }
-        else {
+        } else {
             if (ui::draw_menu_item(MSMICONS_EYE " Watch Output")) {
                 env.add_user_output_extractor(output);
             }
@@ -90,8 +89,7 @@ namespace
         auto environment = simulation.try_upd_environment();
 
         int id = 0;
-        opyn::for_each_component_inclusive(*simulation.get_model(), [&one_dimensional_output_extractor, environment, &id](const auto& component)
-        {
+        opyn::for_each_component_inclusive(*simulation.get_model(), [&one_dimensional_output_extractor, environment, &id](const auto& component) {
             const auto num_outputs = component.getNumOutputs();
             if (num_outputs <= 0) {
                 return;
@@ -110,8 +108,7 @@ namespace
                 if (ui::begin_menu(component.getName())) {
                     for (const OpenSim::AbstractOutput& output : extractable_outputs) {
                         ui::push_id(id++);
-                        draw_request_output_menu_or_menu_item(output, [&one_dimensional_output_extractor, &environment](const opyn::SharedOutputExtractor& rhs)
-                        {
+                        draw_request_output_menu_or_menu_item(output, [&one_dimensional_output_extractor, &environment](const opyn::SharedOutputExtractor& rhs) {
                             opyn::SharedOutputExtractor concatenating = opyn::make_output_extractor<opyn::ConcatenatingOutputExtractor>(one_dimensional_output_extractor, rhs);
                             environment->overwrite_or_add_new_user_output_extractor(one_dimensional_output_extractor, concatenating);
                         });
@@ -150,14 +147,11 @@ namespace
             draw_export_to_csv_menu_items(api, output);
             draw_plot_against_other_output_menu_item(sim, output);
             draw_toggle_watch_output_menu_item(*sim.try_upd_environment(), output);
-        }
-        else if (data_type == opyn::OutputExtractorDataType::Vector2) {
+        } else if (data_type == opyn::OutputExtractorDataType::Vector2) {
             draw_export_to_csv_menu_items(api, output);
             draw_toggle_watch_output_menu_item(*sim.try_upd_environment(), output);
-        }
-        else {
+        } else {
             draw_toggle_watch_output_menu_item(*sim.try_upd_environment(), output);
-
         }
 
         ui::end_popup();
@@ -166,7 +160,6 @@ namespace
 
 class osc::SimulationOutputPlot::Impl final {
 public:
-
     Impl(SimulatorUIAPI* api, opyn::SharedOutputExtractor output_extractor, float height) :
         api_{api},
         output_extractor_{std::move(output_extractor)},
@@ -182,17 +175,13 @@ public:
 
         if (n_reports <= 0) {
             ui::draw_text("no data (yet)");
-        }
-        else if (output_type == opyn::OutputExtractorDataType::Float) {
+        } else if (output_type == opyn::OutputExtractorDataType::Float) {
             draw_float_output_ui();
-        }
-        else if (output_type == opyn::OutputExtractorDataType::String) {
+        } else if (output_type == opyn::OutputExtractorDataType::String) {
             draw_string_output_ui();
-        }
-        else if (output_type == opyn::OutputExtractorDataType::Vector2) {
+        } else if (output_type == opyn::OutputExtractorDataType::Vector2) {
             draw_vector2_output_ui();
-        }
-        else {
+        } else {
             ui::draw_text("unknown output type");
         }
     }
@@ -266,11 +255,11 @@ private:
         // figure out mapping between screen space and plot space
 
         const SimulationClock::time_point sim_start_time = sim.get_simulation_report(0).get_time();
-        const SimulationClock::time_point sim_end_time = sim.get_simulation_report(n_reports-1).get_time();
-        const SimulationClock::duration sim_time_step = (sim_end_time-sim_start_time)/n_reports;
+        const SimulationClock::time_point sim_end_time = sim.get_simulation_report(n_reports - 1).get_time();
+        const SimulationClock::duration sim_time_step = (sim_end_time - sim_start_time) / n_reports;
         const SimulationClock::time_point sim_scrub_time = api_->get_simulation_scrub_time();
 
-        const float sim_scrub_pct = static_cast<float>(static_cast<double>((sim_scrub_time - sim_start_time)/(sim_end_time - sim_start_time)));
+        const float sim_scrub_pct = static_cast<float>(static_cast<double>((sim_scrub_time - sim_start_time) / (sim_end_time - sim_start_time)));
 
         ui::DrawListView drawlist = ui::get_panel_draw_list();
         const Color current_time_line_color = OSCColors::scrub_current();
@@ -278,7 +267,7 @@ private:
 
         // draw a vertical Y line showing the current scrub time over the plots
         {
-            const float plot_scrub_line_x = plot_rect.left() + sim_scrub_pct*plot_rect.width();
+            const float plot_scrub_line_x = plot_rect.left() + sim_scrub_pct * plot_rect.width();
             const Vector2 p1 = {plot_scrub_line_x, plot_rect.ypd_top()};
             const Vector2 p2 = {plot_scrub_line_x, plot_rect.ypd_bottom()};
             drawlist.add_line(p1, p2, current_time_line_color);
@@ -288,7 +277,7 @@ private:
             const Vector2 mp = ui::get_mouse_ui_position();
             const Vector2 plot_loc = mp - plot_rect.ypd_top_left();
             const float rel_loc = plot_loc.x() / plot_rect.width();
-            const SimulationClock::time_point time_loc = sim_start_time + rel_loc*(sim_end_time - sim_start_time);
+            const SimulationClock::time_point time_loc = sim_start_time + rel_loc * (sim_end_time - sim_start_time);
 
             // draw vertical line to show current X of their hover
             {
@@ -400,7 +389,6 @@ private:
     opyn::SharedOutputExtractor output_extractor_;
     float height_;
 };
-
 
 osc::SimulationOutputPlot::SimulationOutputPlot(
     SimulatorUIAPI* api,

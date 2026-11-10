@@ -3,18 +3,17 @@
 #include <memory>
 #include <string_view>
 
-namespace osc { class Simulation; }
-namespace osc { class SimulatorUIAPI; }
-
 namespace osc
 {
+    class Simulation;
+    class SimulatorUIAPI;
+
     class SimulationToolbar final {
     public:
         explicit SimulationToolbar(
             std::string_view label,
             SimulatorUIAPI*,
-            std::shared_ptr<Simulation>
-        );
+            std::shared_ptr<Simulation>);
         SimulationToolbar(const SimulationToolbar&) = delete;
         SimulationToolbar(SimulationToolbar&&) noexcept;
         SimulationToolbar& operator=(const SimulationToolbar&) = delete;

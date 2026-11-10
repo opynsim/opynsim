@@ -4,18 +4,17 @@
 
 #include <memory>
 
-namespace osc { class Event; }
-namespace osc { class Simulation; }
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Event;
+    class Simulation;
+    class Widget;
+
     class SimulationTab final : public Tab {
     public:
         explicit SimulationTab(
             Widget*,
-            std::shared_ptr<Simulation>
-        );
+            std::shared_ptr<Simulation>);
 
     private:
         void impl_on_mount() final;

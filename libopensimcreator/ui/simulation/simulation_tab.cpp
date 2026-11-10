@@ -66,11 +66,9 @@ namespace
     }
 }
 
-class osc::SimulationTab::Impl final :
-    public TabPrivate,
-    public SimulatorUIAPI {
+class osc::SimulationTab::Impl final : public TabPrivate,
+                                       public SimulatorUIAPI {
 public:
-
     explicit Impl(
         SimulationTab& owner,
         Widget* parent,
@@ -81,14 +79,12 @@ public:
     {
         panel_manager_->register_toggleable_panel(
             "Navigator",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<NavigatorPanel>(
                     parent,
                     panel_name,
                     shown_model_state_,
-                    [this, parent](const OpenSim::ComponentPath& p)
-                    {
+                    [this, parent](const OpenSim::ComponentPath& p) {
                         auto popup = std::make_shared<ComponentContextMenu>(
                             parent,
                             "##componentcontextmenu",
@@ -98,70 +94,52 @@ public:
                         );
                         popup->open();
                         popup_manager_.push_back(std::move(popup));
-                    }
-                );
-            }
-        );
+                    });
+            });
         panel_manager_->register_toggleable_panel(
             "Properties",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<PropertiesPanel>(parent, panel_name, shown_model_state_);
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Log",
-            [](Widget* parent, std::string_view panel_name)
-            {
+            [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<LogViewerPanel>(parent, panel_name);
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Coordinates",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<CoordinateEditorPanel>(parent, panel_name, shown_model_state_);
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Performance",
-            [](Widget* parent, std::string_view panel_name)
-            {
+            [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<PerfPanel>(parent, panel_name);
-            }
-        );
+            });
         panel_manager_->register_toggleable_panel(
             "Output Watches",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<OutputPlotsPanel>(
                     parent,
                     panel_name,
                     simulation_->try_upd_environment(),
-                    this
-                );
-            }
-        );
+                    this);
+            });
         panel_manager_->register_toggleable_panel(
             "Simulation Details",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<SimulationDetailsPanel>(
                     parent,
                     panel_name,
                     this,
-                    simulation_
-                );
-            }
-        );
+                    simulation_);
+            });
         panel_manager_->register_spawnable_panel(
             "viewer",
-            [this](Widget* parent, std::string_view panel_name)
-            {
+            [this](Widget* parent, std::string_view panel_name) {
                 ModelViewerPanelParameters params{
                     shown_model_state_,
-                    [this, parent, menu_name = std::string{panel_name} + "_contextmenu"](const ModelViewerPanelRightClickEvent& e)
-                    {
+                    [this, parent, menu_name = std::string{panel_name} + "_contextmenu"](const ModelViewerPanelRightClickEvent& e) {
                         auto popup = std::make_shared<ComponentContextMenu>(
                             parent,
                             menu_name,
@@ -199,17 +177,15 @@ public:
 
             const SimulationClock::time_point playback_pos = impl_get_simulation_scrub_time();
 
-            if ((playback_speed_ >= 0.0f and playback_pos < simulation_->get_end_time()) ||
-                (playback_speed_  < 0.0f and playback_pos > simulation_->get_start_time())) {
+            if ((playback_speed_ >= 0.0f and playback_pos < simulation_->get_end_time()) or
+                (playback_speed_ < 0.0f and playback_pos > simulation_->get_start_time())) {
 
                 // if there's still something to playback, ensure the screen is re-rendered to show it
                 App::upd().request_redraw();
-            }
-            else if (looping_state_ == SimulationUILoopingState::Looping) {
+            } else if (looping_state_ == SimulationUILoopingState::Looping) {
                 // there's nothing to playback, but the UI wants to loop the playback, so loop it
                 set_simulation_scrub_time(simulation_->get_start_time());
-            }
-            else {
+            } else {
                 // there's nothing to playback, so put playback into the stopped state
                 playback_start_simtime_ = playback_pos;
                 playback_state_ = SimulationUIPlaybackState::Stopped;
@@ -229,12 +205,10 @@ public:
                 popup_manager_.push_back(std::move(popup));
                 return true;
             }
-        }
-        else if (const auto* named_panel = dynamic_cast<OpenNamedPanelEvent*>(&e)) {
+        } else if (const auto* named_panel = dynamic_cast<OpenNamedPanelEvent*>(&e)) {
             panel_manager_->set_toggleable_panel_activated(named_panel->panel_name(), true);
             return true;
-        }
-        else if (const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
+        } else if (const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
             auto popup = std::make_unique<ComponentContextMenu>(
                 &this->owner(),
                 "##componentcontextmenu",
@@ -274,13 +248,11 @@ private:
         if (playback_state_ == SimulationUIPlaybackState::Playing) {
             // pause
             set_simulation_playback_state(SimulationUIPlaybackState::Stopped);
-        }
-        else if (get_simulation_scrub_time() >= simulation_->get_end_time()) {
+        } else if (get_simulation_scrub_time() >= simulation_->get_end_time()) {
             // replay
             set_simulation_scrub_time(simulation_->get_start_time());
             set_simulation_playback_state(SimulationUIPlaybackState::Playing);
-        }
-        else {
+        } else {
             // unpause
             set_simulation_playback_state(SimulationUIPlaybackState::Playing);
         }
@@ -306,8 +278,7 @@ private:
         const ptrdiff_t report_index = zeroeth_report_index + offset;
         if (0 <= report_index and report_index < num_simulation_reports) {
             return simulation_->get_simulation_report(report_index);
-        }
-        else {
+        } else {
             return std::nullopt;
         }
     }
@@ -332,8 +303,7 @@ private:
         if (new_state == SimulationUIPlaybackState::Playing) {
             playback_start_wall_time_ = std::chrono::steady_clock::now();
             playback_state_ = new_state;
-        }
-        else {
+        } else {
             playback_start_simtime_ = get_simulation_scrub_time();
             playback_state_ = new_state;
         }
@@ -370,8 +340,7 @@ private:
         const ptrdiff_t n_reports = simulation_->get_num_reports();
         if (n_reports <= 0) {
             return simulation_->get_start_time();
-        }
-        else {
+        } else {
             const auto wall_now = std::chrono::steady_clock::now();
             const auto wall_dur = wall_now - playback_start_wall_time_;
 
@@ -382,11 +351,9 @@ private:
 
             if (sim_now < sim_earliest) {
                 return sim_earliest;
-            }
-            else if (sim_now > sim_latest) {
+            } else if (sim_now > sim_latest) {
                 return sim_latest;
-            }
-            else {
+            } else {
                 return sim_now;
             }
         }
@@ -438,8 +405,7 @@ private:
             panel_manager_->on_draw();
             status_bar_.on_draw();
             popup_manager_.on_draw();
-        }
-        else {
+        } else {
             ui::begin_panel("Waiting for simulation");
             ui::draw_text_disabled("(waiting for first simulation state)");
             ui::end_panel();
@@ -479,7 +445,6 @@ private:
     // manager for popups that are open in this tab
     PopupManager popup_manager_;
 };
-
 
 osc::SimulationTab::SimulationTab(
     Widget* parent,

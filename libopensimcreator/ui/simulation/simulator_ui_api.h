@@ -11,12 +11,16 @@
 #include <optional>
 #include <span>
 
-namespace opyn { class SharedOutputExtractor; }
-namespace osc { class SimulationModelStatePair; }
-namespace osc { class AbstractSimulation; }
+namespace opyn
+{
+    class SharedOutputExtractor;
+}
 
 namespace osc
 {
+    class AbstractSimulation;
+    class SimulationModelStatePair;
+
     // virtual API for the simulator UI (e.g. the simulator tab)
     //
     // this is how individual widgets within a simulator UI communicate with the simulator UI
@@ -27,6 +31,7 @@ namespace osc
         SimulatorUIAPI(SimulatorUIAPI&&) noexcept = default;
         SimulatorUIAPI& operator=(const SimulatorUIAPI&) = default;
         SimulatorUIAPI& operator=(SimulatorUIAPI&&) noexcept = default;
+
     public:
         virtual ~SimulatorUIAPI() noexcept = default;
 

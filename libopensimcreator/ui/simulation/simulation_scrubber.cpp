@@ -76,8 +76,7 @@ private:
         if (ui::draw_checkbox("loop", &looping)) {
             if (looping) {
                 simulator_api_->set_simulation_looping_state(SimulationUILoopingState::Looping);
-            }
-            else {
+            } else {
                 simulator_api_->set_simulation_looping_state(SimulationUILoopingState::PlayOnce);
             }
         }
@@ -98,8 +97,7 @@ private:
                 simulator_api_->set_simulation_playback_state(SimulationUIPlaybackState::Stopped);
             }
             ui::draw_tooltip_if_item_hovered("Pause (Space)");
-        }
-        else if (state == SimulationUIPlaybackState::Stopped) {
+        } else if (state == SimulationUIPlaybackState::Stopped) {
             // if stopped, show either a REDO button (i.e. re-run from the beginning) or
             // a PLAY button (i.e. un-pause)
 
@@ -109,8 +107,7 @@ private:
                     simulator_api_->set_simulation_playback_state(SimulationUIPlaybackState::Playing);
                 }
                 ui::draw_tooltip_if_item_hovered("Replay (Space)");
-            }
-            else {
+            } else {
                 if (ui::draw_button(MSMICONS_PLAY)) {
                     simulator_api_->set_simulation_playback_state(SimulationUIPlaybackState::Playing);  // i.e. unpause
                 }
@@ -121,7 +118,7 @@ private:
 
     void draw_forwards_buttons()
     {
-        if (ui::draw_button(MSMICONS_STEP_FORWARD)){
+        if (ui::draw_button(MSMICONS_STEP_FORWARD)) {
             simulator_api_->step_forward();
         }
         ui::draw_tooltip_if_item_hovered("Next State");
@@ -142,7 +139,7 @@ private:
 
     void draw_playback_speed_selector()
     {
-        ui::set_next_item_width(ui::calc_text_size("0.000x").x() + 2.0f*ui::get_style_frame_padding().x());
+        ui::set_next_item_width(ui::calc_text_size("0.000x").x() + 2.0f * ui::get_style_frame_padding().x());
         float speed = simulator_api_->get_simulation_playback_speed();
         ui::draw_float_input("speed", &speed, 0.0f, 0.0f, "%.3f");
         if (ui::is_item_deactivated_after_edit()) {
@@ -164,8 +161,7 @@ private:
             static_cast<float>(t_start.time_since_epoch().count()),
             static_cast<float>(t_end.time_since_epoch().count()),
             "%.2f",
-            ui::SliderFlag::AlwaysClamp
-        );
+            ui::SliderFlag::AlwaysClamp);
         ui::same_line();
 
         if (user_scrubbed) {
@@ -190,7 +186,6 @@ private:
     SimulatorUIAPI* simulator_api_;
     std::shared_ptr<const Simulation> simulation_;
 };
-
 
 osc::SimulationScrubber::SimulationScrubber(
     std::string_view label,

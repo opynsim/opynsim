@@ -23,15 +23,14 @@ namespace
     {
         switch (status) {
         case SimulationStatus::Initializing: [[fallthrough]];
-        case SimulationStatus::Running:      return Color::muted_blue();
-        case SimulationStatus::Completed:    return Color::dark_green();
-        case SimulationStatus::Cancelled:    [[fallthrough]];
-        case SimulationStatus::Error:        return Color::red();
-        default:                             return ui::get_style_color(ui::ColorVar::Text);
+        case SimulationStatus::Running: return Color::muted_blue();
+        case SimulationStatus::Completed: return Color::dark_green();
+        case SimulationStatus::Cancelled: [[fallthrough]];
+        case SimulationStatus::Error: return Color::red();
+        default: return ui::get_style_color(ui::ColorVar::Text);
         }
     }
 }
-
 
 class osc::SimulationToolbar::Impl final {
 public:
@@ -104,7 +103,6 @@ private:
 
     SimulationScrubber scrubber_{"##SimulationScrubber", simulator_api_, simulation_};
 };
-
 
 osc::SimulationToolbar::SimulationToolbar(
     std::string_view label,

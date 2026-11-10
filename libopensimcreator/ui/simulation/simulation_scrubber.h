@@ -3,18 +3,17 @@
 #include <memory>
 #include <string_view>
 
-namespace osc { class Simulation; }
-namespace osc { class SimulatorUIAPI; }
-
 namespace osc
 {
+    class Simulation;
+    class SimulatorUIAPI;
+
     class SimulationScrubber final {
     public:
         explicit SimulationScrubber(
             std::string_view label,
             SimulatorUIAPI*,
-            std::shared_ptr<const Simulation>
-        );
+            std::shared_ptr<const Simulation>);
         SimulationScrubber(const SimulationScrubber&) = delete;
         SimulationScrubber(SimulationScrubber&&) noexcept;
         SimulationScrubber& operator=(const SimulationScrubber&) = delete;

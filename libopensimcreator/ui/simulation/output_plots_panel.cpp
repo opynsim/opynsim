@@ -68,7 +68,7 @@ public:
         }
 
         ui::draw_separator();
-        ui::draw_vertical_spacer(5.0f/15.0f);
+        ui::draw_vertical_spacer(5.0f / 15.0f);
 
         for (int i = 0; i < environment_->get_num_user_output_extractors(); ++i) {
             opyn::SharedOutputExtractor output = environment_->get_user_output_extractor(i);
