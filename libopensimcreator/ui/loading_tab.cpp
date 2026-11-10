@@ -36,7 +36,6 @@ namespace
 
 class osc::LoadingTab::Impl final : public TabPrivate {
 public:
-
     explicit Impl(
         LoadingTab& owner,
         Widget* parent,
@@ -54,7 +53,7 @@ public:
         const auto dt = static_cast<float>(App::get().frame_delta_since_last_frame().count());
 
         // tick the progress bar up a little bit
-        loading_progress_ += (dt * (1.0f - loading_progress_))/2.0f;
+        loading_progress_ += (dt * (1.0f - loading_progress_)) / 2.0f;
 
         // if there's an error, then the result came through (it's an error)
         // and this screen should just continuously show the error until the
@@ -78,8 +77,7 @@ public:
             if (loading_result_.wait_for(std::chrono::seconds{0}) == std::future_status::ready) {
                 result = loading_result_.get();
             }
-        }
-        catch (const std::exception& ex) {
+        } catch (const std::exception& ex) {
             log_error("LoadingScreen::on_tick: exception thrown while loading model: {}", ex.what());
             loading_error_msg_ = ex.what();
             is_finished_loading_ = true;
@@ -118,13 +116,12 @@ public:
                 ui::draw_progress_bar(loading_progress_);
             }
             ui::end_panel();
-        }
-        else {
+        } else {
             if (ui::begin_panel("Error Message", nullptr, ui::PanelFlag::NoTitleBar)) {
                 ui::draw_text_wrapped("An error occurred while loading the file:");
-                ui::draw_vertical_spacer(5.0f/15.0f);
+                ui::draw_vertical_spacer(5.0f / 15.0f);
                 ui::draw_text_wrapped(loading_error_msg_);
-                ui::draw_vertical_spacer(5.0f/15.0f);
+                ui::draw_vertical_spacer(5.0f / 15.0f);
 
                 if (ui::draw_button("try again")) {
                     App::post_event<OpenTabEvent>(*parent(), std::make_unique<LoadingTab>(parent(), osim_path_));
@@ -134,7 +131,6 @@ public:
             ui::end_panel();
         }
     }
-
 
 private:
     // filesystem path to the osim being loaded
@@ -158,7 +154,6 @@ private:
     // an error (exception) loading it
     bool is_finished_loading_ = false;
 };
-
 
 osc::LoadingTab::LoadingTab(
     Widget* parent,

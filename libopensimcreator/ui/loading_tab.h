@@ -4,18 +4,18 @@
 
 #include <filesystem>
 
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Widget;
+
     class LoadingTab final : public Tab {
     public:
         explicit LoadingTab(
             Widget* parent,
-            std::filesystem::path
-        );
+            std::filesystem::path);
 
         bool is_finished_loading() const;
+
     private:
         void impl_on_tick() final;
         void impl_on_draw() final;

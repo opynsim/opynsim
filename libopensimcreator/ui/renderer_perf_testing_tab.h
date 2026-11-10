@@ -3,10 +3,10 @@
 #include <liboscar/ui/tabs/tab.h>
 #include <liboscar/utilities/c_string_view.h>
 
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Widget;
+
     class RendererPerfTestingTab final : public Tab {
     public:
         static CStringView id();

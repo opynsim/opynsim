@@ -98,7 +98,6 @@ namespace
 
 class osc::SplashTab::Impl final : public TabPrivate {
 public:
-
     explicit Impl(SplashTab& owner, Widget* parent) :
         TabPrivate{owner, parent, MSMICONS_HOME},
         main_menu_file_tab_{std::make_unique<MainMenuFileTab>(&owner)}
@@ -162,11 +161,10 @@ private:
         const auto tab_ui_rect_corners = ui::get_main_window_workspace_ui_rect().corners();
         const Rect tab_ui_rect_without_bar = Rect::from_corners(
             tab_ui_rect_corners.min,
-            tab_ui_rect_corners.max - Vector2{0.0f, max(tud_logo_.dimensions().y(), czi_logo_.dimensions().y()) - 2.0f*ui::get_style_panel_padding().y()}
-        );
+            tab_ui_rect_corners.max - Vector2{0.0f, max(tud_logo_.dimensions().y(), czi_logo_.dimensions().y()) - 2.0f * ui::get_style_panel_padding().y()});
 
         const Vector2 menu_and_top_logo_dims = elementwise_min(tab_ui_rect_without_bar.dimensions(), Vector2{splash_menu_max_dims_.x(), splash_menu_max_dims_.y() + main_app_logo_dims_.y() + top_logo_padding_.y()});
-        const Vector2 menu_and_top_logo_top_left = tab_ui_rect_without_bar.ypd_top_left() + 0.5f*(tab_ui_rect_without_bar.dimensions() - menu_and_top_logo_dims);
+        const Vector2 menu_and_top_logo_top_left = tab_ui_rect_without_bar.ypd_top_left() + 0.5f * (tab_ui_rect_without_bar.dimensions() - menu_and_top_logo_dims);
         const Vector2 menu_dims = {menu_and_top_logo_dims.x(), menu_and_top_logo_dims.y() - main_app_logo_dims_.y() - top_logo_padding_.y()};
         const Vector2 menu_top_left = Vector2{menu_and_top_logo_top_left.x(), menu_and_top_logo_top_left.y() + main_app_logo_dims_.y() + top_logo_padding_.y()};
 
@@ -177,7 +175,7 @@ private:
     {
         const Rect mmr = calc_main_menu_rect();
         const Vector2 top_left{
-            mmr.left() + 0.5f*mmr.width() - 0.5f*main_app_logo_dims_.x(),
+            mmr.left() + 0.5f * mmr.width() - 0.5f * main_app_logo_dims_.x(),
             mmr.ypd_top() - top_logo_padding_.y() - main_app_logo_dims_.y(),
         };
 
@@ -191,7 +189,7 @@ private:
         ui::set_next_panel_ui_position(workspace_ui_rect.ypd_top_left());
         ui::set_next_panel_size(workspace_ui_rect.dimensions());
 
-        ui::push_style_var(ui::StyleVar::PanelPadding, { 0.0f, 0.0f });
+        ui::push_style_var(ui::StyleVar::PanelPadding, {0.0f, 0.0f});
         ui::begin_panel("##splashscreenbackground", nullptr, ui::get_minimal_panel_flags());
         ui::pop_style_var();
 
@@ -308,11 +306,9 @@ private:
                 draw_recent_or_example_file_menu_item(
                     rf.path,
                     *parent(),
-                    imgui_id
-                );
+                    imgui_id);
             }
-        }
-        else {
+        } else {
             ui::push_style_color(ui::ColorVar::Text, Color::dark_grey());
             ui::draw_text_wrapped("No files opened recently. Try:");
             ui::draw_text_bullet_pointed("Creating a new model (Ctrl+N)");
@@ -325,19 +321,19 @@ private:
     void draw_menu_left_column_content(int& imgui_id)
     {
         ui::draw_text_disabled("Actions");
-        ui::draw_vertical_spacer(2.0f/15.0f);
+        ui::draw_vertical_spacer(2.0f / 15.0f);
 
         draw_actions_menu_section_content();
 
         ui::draw_vertical_spacer(1.0f);
         ui::draw_text_disabled("Workflows");
-        ui::draw_vertical_spacer(2.0f/15.0f);
+        ui::draw_vertical_spacer(2.0f / 15.0f);
 
         draw_workflows_menu_section_content();
 
         ui::draw_vertical_spacer(1.0f);
         ui::draw_text_disabled("Recent Models");
-        ui::draw_vertical_spacer(2.0f/15.0f);
+        ui::draw_vertical_spacer(2.0f / 15.0f);
 
         draw_recently_opened_files_menu_section_content(imgui_id);
     }
@@ -347,14 +343,13 @@ private:
         if (not main_menu_file_tab_->example_osim_files.empty()) {
 
             ui::draw_text_disabled("Example Models");
-            ui::draw_vertical_spacer(2.0f/15.0f);
+            ui::draw_vertical_spacer(2.0f / 15.0f);
 
             for (const std::filesystem::path& example_path : main_menu_file_tab_->example_osim_files) {
                 draw_recent_or_example_file_menu_item(
                     example_path,
                     *parent(),
-                    imgui_id
-                );
+                    imgui_id);
             }
         }
     }
@@ -363,15 +358,15 @@ private:
     {
         const Rect workspace_ui_rect = ui::get_main_window_workspace_ui_rect();
         Vector2 loc = workspace_ui_rect.ypd_bottom_right();
-        loc.x() = loc.x() - 2.0f*ui::get_style_panel_padding().x() - czi_logo_.dimensions().x() - 2.0f*ui::get_style_item_spacing().x() - tud_logo_.dimensions().x();
-        loc.y() = loc.y() - 2.0f*ui::get_style_panel_padding().y() - max(czi_logo_.dimensions().y(), tud_logo_.dimensions().y());
+        loc.x() = loc.x() - 2.0f * ui::get_style_panel_padding().x() - czi_logo_.dimensions().x() - 2.0f * ui::get_style_item_spacing().x() - tud_logo_.dimensions().x();
+        loc.y() = loc.y() - 2.0f * ui::get_style_panel_padding().y() - max(czi_logo_.dimensions().y(), tud_logo_.dimensions().y());
 
         ui::set_next_panel_ui_position(loc);
         ui::begin_panel("##czlogo", nullptr, ui::get_minimal_panel_flags());
         ui::draw_image(czi_logo_);
         ui::end_panel();
 
-        loc.x() += czi_logo_.dimensions().x() + 2.0f*ui::get_style_item_spacing().x();
+        loc.x() += czi_logo_.dimensions().x() + 2.0f * ui::get_style_item_spacing().x();
         ui::set_next_panel_ui_position(loc);
         ui::begin_panel("##tudlogo", nullptr, ui::get_minimal_panel_flags());
         ui::draw_image(tud_logo_);
@@ -404,7 +399,7 @@ private:
 
     // dimensions of stuff
     Vector2 splash_menu_max_dims_ = {640.0f, 512.0f};
-    Vector2 main_app_logo_dims_ =  main_app_logo_.dimensions();
+    Vector2 main_app_logo_dims_ = main_app_logo_.dimensions();
     Vector2 top_logo_padding_ = {25.0f, 35.0f};
 
     // UI state

@@ -17,6 +17,5 @@ namespace osc
         ModelEditorTab,
         ModelWarperTab,
         PreviewExperimentalDataTab,
-        RendererPerfTestingTab
-    >;
+        RendererPerfTestingTab>;
 }

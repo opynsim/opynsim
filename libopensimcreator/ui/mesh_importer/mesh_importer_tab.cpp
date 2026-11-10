@@ -660,7 +660,7 @@ private:
             maybe_hover_.reset();
         }
 
-        if (maybe_opened_context_menu_ and not  mg.contains(maybe_opened_context_menu_.id)) {
+        if (maybe_opened_context_menu_ and not mg.contains(maybe_opened_context_menu_.id)) {
             maybe_opened_context_menu_.reset();
         }
     }
@@ -1188,52 +1188,56 @@ private:
         const osc::Mesh& mesh)
     {
         // prompt user for a save location
-        App::upd().prompt_user_to_save_file_with_extension_async([mesh](std::optional<std::filesystem::path> p) {
-            if (not p) {
-                return;  // user cancelled out of the prompt
-            }
+        App::upd().prompt_user_to_save_file_with_extension_async(
+            [mesh](std::optional<std::filesystem::path> p) {
+                if (not p) {
+                    return;  // user cancelled out of the prompt
+                }
 
-            const OBJMetadata obj_metadata{
-                App::get().application_name_with_version_and_buildid(),
-            };
+                const OBJMetadata obj_metadata{
+                    App::get().application_name_with_version_and_buildid(),
+                };
 
-            // write transformed mesh to output
-            try {
-                std::ofstream ofs;
-                ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-                ofs.open(*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+                // write transformed mesh to output
+                try {
+                    std::ofstream ofs;
+                    ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+                    ofs.open(*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 
-                OBJ::write(ofs, mesh, obj_metadata, OBJWriterFlag::NoWriteNormals);
-            } catch (std::exception& e) {
-                log_error("error saving obj output to {}: {}", p->string(), e.what());
-            }
-        }, "obj");
+                    OBJ::write(ofs, mesh, obj_metadata, OBJWriterFlag::NoWriteNormals);
+                } catch (std::exception& e) {
+                    log_error("error saving obj output to {}: {}", p->string(), e.what());
+                }
+            },
+            "obj");
     }
 
     void action_prompt_user_to_save_mesh_as_stl(
         const osc::Mesh& mesh)
     {
         // prompt user for a save location
-        App::upd().prompt_user_to_save_file_with_extension_async([mesh](std::optional<std::filesystem::path> p) {
-            if (not p) {
-                return;  // user cancelled out of the prompt
-            }
+        App::upd().prompt_user_to_save_file_with_extension_async(
+            [mesh](std::optional<std::filesystem::path> p) {
+                if (not p) {
+                    return;  // user cancelled out of the prompt
+                }
 
-            const STLMetadata stl_metadata{
-                App::get().application_name_with_version_and_buildid(),
-            };
+                const STLMetadata stl_metadata{
+                    App::get().application_name_with_version_and_buildid(),
+                };
 
-            // write transformed mesh to output
-            try {
-                std::ofstream ofs;
-                ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-                ofs.open(*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+                // write transformed mesh to output
+                try {
+                    std::ofstream ofs;
+                    ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+                    ofs.open(*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 
-                STL::write(ofs, mesh, stl_metadata);
-            } catch (std::exception& e) {
-                log_error("error saving stl output to {}: {}", p->string(), e.what());
-            }
-        }, "stl");
+                    STL::write(ofs, mesh, stl_metadata);
+                } catch (std::exception& e) {
+                    log_error("error saving stl output to {}: {}", p->string(), e.what());
+                }
+            },
+            "stl");
     }
 
     void draw_save_mesh_menu(const MiMesh& el)

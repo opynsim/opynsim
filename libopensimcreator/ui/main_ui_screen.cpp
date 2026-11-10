@@ -78,8 +78,7 @@ namespace
         std::stringstream ss;
         if (tabs_with_unsaved_changes.size() > 1) {
             ss << tabs_with_unsaved_changes.size() << " tabsWithUnsavedChanges have unsaved changes:\n";
-        }
-        else {
+        } else {
             ss << "A tab has unsaved changes:\n";
         }
 
@@ -110,6 +109,7 @@ namespace
         }
 
         const std::filesystem::path& path() { return path_; }
+
     private:
         std::filesystem::path path_;
     };
@@ -117,7 +117,6 @@ namespace
 
 class osc::MainUIScreen::Impl final : public WidgetPrivate {
 public:
-
     explicit Impl(MainUIScreen& owner) :
         WidgetPrivate{owner, nullptr}
     {
@@ -140,7 +139,7 @@ public:
             e.combination() == (ModifierKey::Ctrl | ModifierKey::Alt | Key::RightArrow)) {
             // `Ctrl+PageDown` or `Ctrl+Alt+Right`: focus the tab to the right of the currently-active tab
             auto it = find_tab_by_id(active_tab_id_);
-            if (it != tabs_.end()-1) {
+            if (it != tabs_.end() - 1) {
                 ++it;  // next
                 impl_select_tab((*it)->id());
             }
@@ -203,8 +202,7 @@ public:
         if (Tab* active = get_active_tab()) {
             try {
                 active->on_unmount();
-            }
-            catch (const std::exception& ex) {
+            } catch (const std::exception& ex) {
                 // - the tab is faulty in some way
                 // - soak up the exception to prevent the whole application from terminating
                 // - and emit the error to the log, because we have to assume that this
@@ -237,14 +235,12 @@ public:
             // `Ctrl+P`: "take a screenshot"
             maybe_screenshot_request_ = App::upd().main_window_request_screenshot();
             handled = true;
-        }
-        else if (ui_context_.on_event(e)) {
+        } else if (ui_context_.on_event(e)) {
             // if the 2D UI captured the event, then assume that the event will be "handled"
             // during `Tab::onDraw` (immediate-mode UI)
             App::upd().request_redraw();
             handled = true;
-        }
-        else if (e.type() == EventType::Quit) {
+        } else if (e.type() == EventType::Quit) {
             // if it's an application-level QUIT request, then it should be pumped into each
             // tab, while checking whether a tab wants to "block" the request (e.g. because it
             // wants to show a "do you want to save changes?" popup to the user
@@ -253,8 +249,7 @@ public:
             for (int i = 0; i < static_cast<int>(tabs_.size()); ++i) {
                 try {
                     at_least_one_tab_handled_quit = tabs_[i]->on_event(e) || at_least_one_tab_handled_quit;
-                }
-                catch (const std::exception& ex) {
+                } catch (const std::exception& ex) {
                     log_error("MainUIScreen::on_event: exception thrown by tab: {}", ex.what());
 
                     // - the tab is faulty in some way
@@ -287,33 +282,27 @@ public:
             }
 
             handled = true;
-        }
-        else if (auto* add_tab_ev = dynamic_cast<OpenTabEvent*>(&e)) {
+        } else if (auto* add_tab_ev = dynamic_cast<OpenTabEvent*>(&e)) {
             if (add_tab_ev->has_tab()) {
                 impl_select_tab(impl_add_tab(add_tab_ev->take_tab()));
                 handled = true;
             }
-        }
-        else if (const auto* close_tab_ev = dynamic_cast<CloseTabEvent*>(&e)) {
+        } else if (const auto* close_tab_ev = dynamic_cast<CloseTabEvent*>(&e)) {
             impl_close_tab(close_tab_ev->tabid_to_close());
             handled = true;
-        }
-        else if (auto* open_file_ev = dynamic_cast<OpenFileEvent*>(&e)) {
+        } else if (auto* open_file_ev = dynamic_cast<OpenFileEvent*>(&e)) {
             impl_select_tab(impl_add_tab(std::make_unique<LoadingTab>(&owner(), open_file_ev->path())));
             handled = true;
-        }
-        else if (dynamic_cast<ResetUIContextEvent*>(&e)) {
+        } else if (dynamic_cast<ResetUIContextEvent*>(&e)) {
             impl_reset_imgui();
-        }
-        else if (Tab* active = get_active_tab()) {
+        } else if (Tab* active = get_active_tab()) {
             // if there's an active tab, pump the event into the active tab and check
             // whether the tab handled the event
 
             bool active_tab_handled_event = false;
             try {
                 active_tab_handled_event = active->on_event(e);
-            }
-            catch (const std::exception& ex) {
+            } catch (const std::exception& ex) {
                 log_error("MainUIScreen::on_event: exception thrown by tab: {}", ex.what());
 
                 // - the tab is faulty in some way
@@ -358,8 +347,7 @@ public:
         for (size_t i = 0; i < tabs_.size(); ++i) {
             try {
                 tabs_[i]->on_tick();
-            }
-            catch (const std::exception& ex) {
+            } catch (const std::exception& ex) {
 
                 log_error("MainUIScreen::on_tick: tab thrown an exception: {}", ex.what());
 
@@ -423,8 +411,7 @@ public:
                 if (Tab* active = get_active_tab()) {
                     try {
                         active->on_draw_main_menu();
-                    }
-                    catch (const std::exception& ex) {
+                    } catch (const std::exception& ex) {
                         log_error("MainUIScreen::drawTabSpecificMenu: tab thrown an exception: {}", ex.what());
 
                         // - the tab is faulty in some way
@@ -469,7 +456,7 @@ public:
                         }
 
                         if (tabs_[i]->id() == requested_tab_) {
-                            flags |= ui::TabItemFlag::SetSelected;;
+                            flags |= ui::TabItemFlag::SetSelected;
                         }
 
                         if (tabs_[i]->id() == active_tab_id_ and tabs_[i]->name() != active_tab_name_last_frame_) {
@@ -503,7 +490,7 @@ public:
                         }
 
                         ui::pop_id();
-                        if (not active and i != 0)  {  // can't close the splash tab
+                        if (not active and i != 0) {  // can't close the splash tab
                             impl_close_tab(tabs_[i]->id());
                         }
                     }
@@ -546,8 +533,7 @@ public:
             try {
                 OSC_PERF("MainUIScreen/drawActiveTab");
                 active->on_draw();
-            }
-            catch (const std::exception& ex) {
+            } catch (const std::exception& ex) {
                 log_error("MainUIScreen::drawUIConent: tab thrown an exception: {}", ex.what());
 
                 // - the tab is faulty in some way
@@ -657,8 +643,7 @@ public:
             // focus the tab just to the left of the closed one
             if (1 <= lowest_deleted_tab and lowest_deleted_tab <= static_cast<int>(tabs_.size())) {
                 requested_tab_ = tabs_[lowest_deleted_tab - 1]->id();
-            }
-            else {
+            } else {
                 requested_tab_ = tabs_.front()->id();
             }
         }
@@ -689,12 +674,10 @@ public:
 
         if (maybe_in_progress_save_dialog_) {
             return;  // nothing to process right now: waiting on user decision
-        }
-        else if (auto tabs = collect_deleted_tabs_with_unsaved_changes(); not tabs.empty()) {
+        } else if (auto tabs = collect_deleted_tabs_with_unsaved_changes(); not tabs.empty()) {
             maybe_in_progress_save_dialog_.emplace(*this, tabs);
             return;  // wait for the user to handle unsaved changes
-        }
-        else {
+        } else {
             // all changes saved etc. - nuke all the tabs
             nuke_deleted_tabs();
         }
@@ -728,8 +711,7 @@ private:
         rv.set_main_font_as_standard_plus_icon_font(
             "OpenSimCreator/fonts/Ruda-Bold.ttf",
             "OpenSimCreator/fonts/msmicons.ttf",
-            {MSMICONS_MIN, MSMICONS_MAX}
-        );
+            {MSMICONS_MIN, MSMICONS_MAX});
         return rv;
     }
 
@@ -751,12 +733,11 @@ private:
                 &impl.owner(),
                 SaveChangesPopupConfig{
                     "Save Changes?",
-                    [this]{ return on_user_selected_save_changes(); },
-                    [this]{ return on_user_selected_do_not_save_changes(); },
-                    [this]{ return on_user_cancelled_out_of_save_prompt(); },
+                    [this] { return on_user_selected_save_changes(); },
+                    [this] { return on_user_selected_do_not_save_changes(); },
+                    [this] { return on_user_cancelled_out_of_save_prompt(); },
                     make_save_prompt_string(tabs_with_unsaved_changes),
-                }
-            },
+                }},
             async_prompt_queue_{extract_to_reversed_vector_of_ui_ds(tabs_with_unsaved_changes)}
         {
             popup_.open();
@@ -790,8 +771,7 @@ private:
                 if (user_wants_to_start_saving_files_ and not maybe_active_async_save_ and not async_prompt_queue_.empty()) {
                     if (Tab* next_tab = parent_->get_tab_by_id(async_prompt_queue_.back())) {
                         maybe_active_async_save_.emplace(*next_tab);
-                    }
-                    else {
+                    } else {
                         async_prompt_queue_.pop_back();  // Can't find tab?
                     }
                 }
@@ -811,6 +791,7 @@ private:
         {
             return not popup_.is_open();
         }
+
     private:
         // called by the "save changes?" popup when user opts to save changes
         bool on_user_selected_save_changes()
@@ -861,11 +842,11 @@ private:
                 }
                 try {
                     return response_.get();
-                }
-                catch (const std::future_error&) {
+                } catch (const std::future_error&) {
                     return TabSaveResult::Cancelled;
                 }
             }
+
         private:
             std::future<TabSaveResult> response_;
         };

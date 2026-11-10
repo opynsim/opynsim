@@ -4,10 +4,10 @@
 
 #include <filesystem>
 
-namespace osc { class Event; }
-
 namespace osc
 {
+    class Event;
+
     class MainUIScreen final : public Widget {
     public:
         MainUIScreen();

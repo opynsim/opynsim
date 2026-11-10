@@ -119,7 +119,9 @@ public:
         selection_properties_editor_{
             &owner,
             model_,
-            [model = model_] { return model->get_selected(); }}
+            [model = model_] {
+                return model->get_selected();
+            }}
     {}
 
     void draw_content()

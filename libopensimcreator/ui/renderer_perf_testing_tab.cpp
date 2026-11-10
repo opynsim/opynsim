@@ -42,11 +42,11 @@ namespace
 
         void accumulate(AppClock::duration dur)
         {
-            mean = (dur + mean*count)/static_cast<double>(count+1);
+            mean = (dur + mean * count) / static_cast<double>(count + 1);
             ++count;
         }
 
-        float fps() const { return 1.0f/static_cast<float>(mean.count()); }
+        float fps() const { return 1.0f / static_cast<float>(mean.count()); }
 
         void reset() { *this = {}; }
     };
@@ -75,7 +75,7 @@ public:
     {
         const auto dt = App::get().frame_delta_since_last_frame();
         if (not paused_) {
-            orbit_camera_controller_.theta = mod(orbit_camera_controller_.theta + 90_deg*dt.count(), 360_deg);
+            orbit_camera_controller_.theta = mod(orbit_camera_controller_.theta + (90_deg * dt.count()), 360_deg);
             orbit_camera_controller_.update_camera(model_renderer_params_.camera);
             frame_time_accumulator_.accumulate(dt);
         }
@@ -122,8 +122,7 @@ private:
             workspace_screen_rect.dimensions(),
             App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio(),
             App::get().anti_aliasing_level(),
-            1.0f
-        );
+            1.0f);
     }
 
     void generate_decorations()
@@ -131,8 +130,7 @@ private:
         decorations_ = generate_model_decorations(
             scene_cache_,
             model_,
-            model_renderer_params_.decoration_options
-        );
+            model_renderer_params_.decoration_options);
     }
 
     bool first_frame_ = true;
@@ -147,8 +145,7 @@ private:
     OrbitCameraController orbit_camera_controller_;
     std::vector<SceneDecoration> decorations_;
 
-    UndoableModelStatePair model_ = []
-    {
+    UndoableModelStatePair model_ = [] {
         UndoableModelStatePair msp;
         const ResourcePath rajagopal_path{"OpenSimCreator/models/RajagopalModel/Rajagopal2016.osim"};
         if (const auto rajagopal = App::resource_filepath(rajagopal_path)) {
@@ -162,9 +159,8 @@ private:
 
     std::shared_ptr<IconCache> icon_cache_ = App::singleton<IconCache>(
         App::resource_loader().with_prefix("OpenSimCreator/icons/"),
-        ui::get_font_base_size()/128.0f,
-        App::get().highest_device_pixel_ratio()
-    );
+        ui::get_font_base_size() / 128.0f,
+        App::get().highest_device_pixel_ratio());
 };
 
 CStringView osc::RendererPerfTestingTab::id() { return "OpenSimCreator/RendererPerfTesting"; }

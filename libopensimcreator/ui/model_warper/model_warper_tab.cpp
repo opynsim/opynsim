@@ -404,7 +404,8 @@ namespace
                         return;  // user cancelled out of the prompt
                     }
                     doc->save_to(*p);
-                }, "xml");
+                },
+                "xml");
         }
 
         void action_apply_object_edit_to_scaling_document(const ObjectPropertyEdit& edit)

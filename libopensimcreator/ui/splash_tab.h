@@ -2,11 +2,11 @@
 
 #include <liboscar/ui/tabs/tab.h>
 
-namespace osc { class Event; }
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Event;
+    class Widget;
+
     class SplashTab final : public Tab {
     public:
         explicit SplashTab(Widget* parent);

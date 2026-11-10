@@ -18,8 +18,7 @@ namespace
 {
     const TabRegistry& get_tabs()
     {
-        static const TabRegistry s_tabs = []
-        {
+        static const TabRegistry s_tabs = [] {
             TabRegistry r;
             register_open_sim_creator_tabs(r);
             return r;
@@ -29,8 +28,7 @@ namespace
 
     const std::vector<std::string>& get_tab_names()
     {
-        static const std::vector<std::string> s_tab_names = []
-        {
+        static const std::vector<std::string> s_tab_names = [] {
             const TabRegistry& tabs = get_tabs();
             std::vector<std::string> rv;
             rv.reserve(tabs.size());
@@ -60,16 +58,14 @@ namespace
 INSTANTIATE_TEST_SUITE_P(
     RegisteredOpenSimCreatorTabsTest,
     RegisteredOpenSimCreatorTabsFixture,
-    testing::ValuesIn(get_tab_names())
-);
+    testing::ValuesIn(get_tab_names()));
 
 TEST_P(RegisteredOpenSimCreatorTabsFixture, Check)
 {
     std::string s = GetParam();
     if (auto entry = get_tabs().find_by_name(s)) {
         g_app->show<TabTestingScreen>(*entry);
-    }
-    else {
+    } else {
         throw std::runtime_error{"cannot find tab in registry"};
     }
 }
