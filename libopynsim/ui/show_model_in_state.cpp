@@ -59,6 +59,7 @@ namespace
                 camera_controller_.set_position_and_direction_from(*camera_);
             }
         }
+
     private:
         bool impl_on_event(osc::Event& e) override
         {
@@ -81,8 +82,7 @@ namespace
                     camera_controller_.focus_on(
                         *aabb,
                         *camera_,
-                        osc::aspect_ratio_of(osc::App::get().main_window_dimensions())
-                    );
+                        osc::aspect_ratio_of(osc::App::get().main_window_dimensions()));
                 }
             }
 
@@ -91,8 +91,7 @@ namespace
                 camera_controller_,
                 *camera_,
                 osc::Rect::from_origin_and_dimensions({}, osc::App::get().main_window_dimensions()),
-                std::nullopt
-            );
+                std::nullopt);
             camera_controller_.update_camera(*camera_);
 
             const osc::Vector2 dimensions = osc::App::get().main_window_dimensions();
@@ -127,7 +126,6 @@ namespace
     };
 }
 
-
 void opyn::show_model_in_state(
     OPynSimApp& app,
     const Model& model,
@@ -141,7 +139,9 @@ void opyn::show_model_in_state(
 {
     app.set_main_window_showing(true);
     app.set_main_window_dimensions(dimensions);
-    osc::ScopeExit hide_window_on_exit{[&app]{ app.set_main_window_showing(false); }};
+    osc::ScopeExit hide_window_on_exit{[&app] {
+        app.set_main_window_showing(false);
+    }};
     app.focus_main_window();
 
     app.show<BasicModelViewer>(
@@ -151,6 +151,5 @@ void opyn::show_model_in_state(
         draw_floor,
         scene_cache,
         camera,
-        std::move(callbacks)
-    );
+        std::move(callbacks));
 }

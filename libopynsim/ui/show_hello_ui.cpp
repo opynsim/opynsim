@@ -25,6 +25,7 @@ namespace
             // setup material
             material_.set_viewer_position(viewer_position);
         }
+
     private:
         void impl_on_mount() override
         {}
@@ -104,7 +105,9 @@ namespace
 void opyn::show_hello_ui(OPynSimApp& app, UiCallbacks callbacks)
 {
     app.set_main_window_showing(true);
-    osc::ScopeExit hide_window_on_exit{[&app]{ app.set_main_window_showing(false); }};
+    osc::ScopeExit hide_window_on_exit{[&app] {
+        app.set_main_window_showing(false);
+    }};
     app.focus_main_window();
     app.show<HelloTriangleScreen>(std::move(callbacks));
 }
