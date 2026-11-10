@@ -1669,7 +1669,7 @@ bool osc::action_set_coordinate_value(
         const double range_min = min(mut_coord->getRangeMin(), mut_coord->getRangeMax());
         const double range_max = max(mut_coord->getRangeMin(), mut_coord->getRangeMax());
 
-        if (not (range_min <= new_value and new_value <= range_max)) {
+        if (not(range_min <= new_value and new_value <= range_max)) {
             model.set_model_version(old_version);  // the requested edit is outside the coordinate's allowed range
             return false;
         }

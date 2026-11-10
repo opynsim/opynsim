@@ -16,7 +16,7 @@ namespace osc
             pos{pos}
         {}
 
-        explicit operator bool () const
+        explicit operator bool() const
         {
             return id != MiIDs::empty();
         }

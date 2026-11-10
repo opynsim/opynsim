@@ -358,7 +358,7 @@ void osc::action_prompt_user_to_save_paired_landmarks_to_csv(const MwDocument& d
             }
 
             // if applicable, write header row
-            if (not (flags & opyn::LandmarkCSVFlags::NoHeader)) {
+            if (not(flags & opyn::LandmarkCSVFlags::NoHeader)) {
                 if (flags & opyn::LandmarkCSVFlags::NoNames) {
                     CSV::write_row(fout, {{"source.x", "source.y", "source.z", "dest.x", "dest.y", "dest.z"}});
                 } else {
@@ -372,7 +372,7 @@ void osc::action_prompt_user_to_save_paired_landmarks_to_csv(const MwDocument& d
             for (const auto& p : pairs) {
                 using std::to_string;
 
-                if (not (flags & opyn::LandmarkCSVFlags::NoNames)) {
+                if (not(flags & opyn::LandmarkCSVFlags::NoNames)) {
                     cols.emplace_back(p.name);
                 }
                 cols.push_back(to_string(p.source[0]));
@@ -451,14 +451,17 @@ void osc::action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
                 return;  // couldn't open file for writing
             }
 
-            opyn::write_landmarks_to_csv(fout, [&warped_nplms, &nplms, i = 0uz] mutable {
-                std::optional<opyn::Landmark> rv;
-                for (; !rv && i < warped_nplms.size(); ++i) {
-                    std::string name = std::string{nplms.at(i).name};
-                    rv = opyn::Landmark{std::move(name), warped_nplms.at(i)};
-                }
-                return rv;
-            }, flags);
+            opyn::write_landmarks_to_csv(
+                fout,
+                [&warped_nplms, &nplms, i = 0uz] mutable {
+                    std::optional<opyn::Landmark> rv;
+                    for (; !rv && i < warped_nplms.size(); ++i) {
+                        std::string name = std::string{nplms.at(i).name};
+                        rv = opyn::Landmark{std::move(name), warped_nplms.at(i)};
+                    }
+                    return rv;
+                },
+                flags);
         });
 }
 

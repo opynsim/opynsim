@@ -97,13 +97,15 @@ namespace osc
                 return false;
             }
 
-            return std::visit(Overload{
-              [this](const MiGround&) { return options_.can_choose_ground; },
-              [this](const MiMesh&) { return options_.can_choose_meshes; },
-              [this](const MiBody&) { return options_.can_choose_bodies; },
-              [this](const MiJoint&) { return options_.can_choose_joints; },
-              [this](const MiStation&) { return options_.can_choose_stations; },
-            }, el.to_variant());
+            return std::visit(
+                Overload{
+                    [this](const MiGround&) { return options_.can_choose_ground; },
+                    [this](const MiMesh&) { return options_.can_choose_meshes; },
+                    [this](const MiBody&) { return options_.can_choose_bodies; },
+                    [this](const MiJoint&) { return options_.can_choose_joints; },
+                    [this](const MiStation&) { return options_.can_choose_stations; },
+                },
+                el.to_variant());
         }
 
         void select(const MiObject& el)

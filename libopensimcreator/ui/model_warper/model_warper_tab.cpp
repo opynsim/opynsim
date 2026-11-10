@@ -534,11 +534,13 @@ namespace
     private:
         void impl_draw_content() final
         {
-            std::visit(Overload{
-               [this](const std::shared_ptr<ModelStatePair>& scaled_model) { draw_scaled_model_visualization(scaled_model); },
-               [this](const std::vector<ScalingDocumentValidationMessage>& messages) { draw_validation_error_message(messages); },
-               [this](const std::string& scaling_error_message) { draw_scaling_error_message(scaling_error_message); },
-           }, state_->scaled_model_or_document_validation_messages());
+            std::visit(
+                Overload{
+                    [this](const std::shared_ptr<ModelStatePair>& scaled_model) { draw_scaled_model_visualization(scaled_model); },
+                    [this](const std::vector<ScalingDocumentValidationMessage>& messages) { draw_validation_error_message(messages); },
+                    [this](const std::string& scaling_error_message) { draw_scaling_error_message(scaling_error_message); },
+                },
+                state_->scaled_model_or_document_validation_messages());
         }
 
         void draw_scaled_model_visualization(const std::shared_ptr<ModelStatePair>& scaled_model)

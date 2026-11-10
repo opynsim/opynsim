@@ -61,9 +61,11 @@ namespace
 
     bool draw_editor(ParamBlock& b, int idx)
     {
-        return std::visit(Overload{
-            [&b, idx](const auto& val) { return draw_editor(b, idx, val); },
-        }, b.get_value(idx));
+        return std::visit(
+            Overload{
+                [&b, idx](const auto& val) { return draw_editor(b, idx, val); },
+            },
+            b.get_value(idx));
     }
 }
 

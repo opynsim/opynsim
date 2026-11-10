@@ -1380,13 +1380,15 @@ private:
     // draw context menu content for some scene element
     void draw_context_menu_content(MiObject& el, const Vector3& click_pos)
     {
-        std::visit(Overload{
-           [this, &click_pos](MiGround& el) { this->draw_context_menu_content(el, click_pos); },
-           [this, &click_pos](MiMesh& el) { this->draw_context_menu_content(el, click_pos); },
-           [this, &click_pos](MiBody& el) { this->draw_context_menu_content(el, click_pos); },
-           [this, &click_pos](MiJoint& el) { this->draw_context_menu_content(el, click_pos); },
-           [this, &click_pos](MiStation& el) { this->draw_context_menu_content(el, click_pos); },
-        }, el.to_variant());
+        std::visit(
+            Overload{
+                [this, &click_pos](MiGround& el) { this->draw_context_menu_content(el, click_pos); },
+                [this, &click_pos](MiMesh& el) { this->draw_context_menu_content(el, click_pos); },
+                [this, &click_pos](MiBody& el) { this->draw_context_menu_content(el, click_pos); },
+                [this, &click_pos](MiJoint& el) { this->draw_context_menu_content(el, click_pos); },
+                [this, &click_pos](MiStation& el) { this->draw_context_menu_content(el, click_pos); },
+            },
+            el.to_variant());
     }
 
     // draw a context menu for the current state (if applicable)

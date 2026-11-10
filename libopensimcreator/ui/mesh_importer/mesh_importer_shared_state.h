@@ -693,51 +693,52 @@ namespace osc
             const MiObject& e,
             std::vector<DrawableThing>& append_out) const
         {
-            std::visit(Overload{
-               [this, &append_out](const MiGround&) {
-                   if (!is_showing_ground()) {
-                       return;
-                   }
+            std::visit(
+                Overload{
+                    [this, &append_out](const MiGround&) {
+                        if (!is_showing_ground()) {
+                            return;
+                        }
 
-                   append_out.push_back(generate_ground_sphere(get_color_ground()));
-               },
-               [this, &append_out](const MiMesh& el) {
-                   if (!is_showing_meshes()) {
-                       return;
-                   }
+                        append_out.push_back(generate_ground_sphere(get_color_ground()));
+                    },
+                    [this, &append_out](const MiMesh& el) {
+                        if (!is_showing_meshes()) {
+                            return;
+                        }
 
-                   append_out.push_back(generate_mesh_drawable(el));
-               },
-               [this, &append_out](const MiBody& el) {
-                   if (!is_showing_bodies()) {
-                       return;
-                   }
+                        append_out.push_back(generate_mesh_drawable(el));
+                    },
+                    [this, &append_out](const MiBody& el) {
+                        if (!is_showing_bodies()) {
+                            return;
+                        }
 
-                   append_body_el_as_cube_thing(el, append_out);
-               },
-               [this, &append_out](const MiJoint& el) {
-                   if (!is_showing_joint_centers()) {
-                       return;
-                   }
+                        append_body_el_as_cube_thing(el, append_out);
+                    },
+                    [this, &append_out](const MiJoint& el) {
+                        if (!is_showing_joint_centers()) {
+                            return;
+                        }
 
-                   append_as_frame(
-                       el.get_id(),
-                       MiIDs::joint_group(),
-                       el.get_x_form(),
-                       append_out,
-                       1.0f,
-                       SceneDecorationFlag::Default,
-                       get_joint_axis_lengths(el));
-               },
-               [this, &append_out](const MiStation& el) {
-                   if (!is_showing_stations()) {
-                       return;
-                   }
+                        append_as_frame(
+                            el.get_id(),
+                            MiIDs::joint_group(),
+                            el.get_x_form(),
+                            append_out,
+                            1.0f,
+                            SceneDecorationFlag::Default,
+                            get_joint_axis_lengths(el));
+                    },
+                    [this, &append_out](const MiStation& el) {
+                        if (!is_showing_stations()) {
+                            return;
+                        }
 
-                   append_out.push_back(generate_station_sphere(el, get_color_station()));
-               },
-           },
-           e.to_variant());
+                        append_out.push_back(generate_station_sphere(el, get_color_station()));
+                    },
+                },
+                e.to_variant());
         }
 
         //
@@ -976,13 +977,15 @@ namespace osc
 
         bool should_show_connection_lines(const MiObject& el) const
         {
-            return std::visit(Overload{
-                [](const MiGround&) { return false; },
-                [this](const MiMesh&) { return this->is_showing_mesh_connection_lines(); },
-                [this](const MiBody&) { return this->is_showing_body_connection_lines(); },
-                [this](const MiJoint&) { return this->is_showing_joint_connection_lines(); },
-                [this](const MiStation&) { return this->is_showing_mesh_connection_lines(); },
-            }, el.to_variant());
+            return std::visit(
+                Overload{
+                    [](const MiGround&) { return false; },
+                    [this](const MiMesh&) { return this->is_showing_mesh_connection_lines(); },
+                    [this](const MiBody&) { return this->is_showing_body_connection_lines(); },
+                    [this](const MiJoint&) { return this->is_showing_joint_connection_lines(); },
+                    [this](const MiStation&) { return this->is_showing_mesh_connection_lines(); },
+                },
+                el.to_variant());
         }
 
         void set_is_render_hovered(bool new_is_hovered)
