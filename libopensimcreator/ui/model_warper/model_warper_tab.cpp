@@ -69,7 +69,6 @@ namespace
     // Top-level UI state that's shared between panels/widget that the UI manipulates.
     class ModelWarperV3UIState final : public std::enable_shared_from_this<ModelWarperV3UIState> {
     public:
-
         explicit ModelWarperV3UIState(Widget* parent) :
             parent_{parent}
         {}
@@ -86,8 +85,7 @@ namespace
 
                     update_scaled_model();
                 }
-            }
-            catch (const std::exception& ex) {
+            } catch (const std::exception& ex) {
                 log_error("error processing deferred actions: {}", ex.what());
             }
         }
@@ -97,7 +95,6 @@ namespace
         {
             return scaling_state_->scratch().get_scaling_document_ptr();
         }
-
 
         bool has_scaling_steps() const
         {
@@ -109,16 +106,14 @@ namespace
         }
         void add_scaling_step_deferred(std::unique_ptr<ScalingStep> step)
         {
-            deferred_actions_.emplace_back([s = std::shared_ptr<ScalingStep>{std::move(step)}](ModelWarperV3UIState& state) mutable
-            {
+            deferred_actions_.emplace_back([s = std::shared_ptr<ScalingStep>{std::move(step)}](ModelWarperV3UIState& state) mutable {
                 state.scaling_state_->upd_scratch().add_scaling_step(std::unique_ptr<ScalingStep>{s->clone()});
                 state.scaling_state_->commit_scratch("Add scaling step");
             });
         }
         void erase_scaling_step_deferred(const ScalingStep& step)
         {
-            deferred_actions_.emplace_back([path = step.getAbsolutePath()](ModelWarperV3UIState& state)
-            {
+            deferred_actions_.emplace_back([path = step.getAbsolutePath()](ModelWarperV3UIState& state) {
                 if (state.scaling_state_->upd_scratch().erase_scaling_step(path)) {
                     state.scaling_state_->commit_scratch("Erase scaling step");
                 }
@@ -129,10 +124,8 @@ namespace
             return step.validate(
                 scaling_cache_,
                 scaling_state_->scratch().get_effective_scaling_parameters(),
-                scaling_state_->scratch().get_source_model()
-            );
+                scaling_state_->scratch().get_source_model());
         }
-
 
         bool has_scaling_parameters() const
         {
@@ -144,36 +137,30 @@ namespace
         }
         void set_scaling_parameter_value_deferred(const std::string& scaling_param_name, ScalingParameterValue new_value)
         {
-            deferred_actions_.emplace_back([scaling_param_name, new_value](ModelWarperV3UIState& state)
-            {
+            deferred_actions_.emplace_back([scaling_param_name, new_value](ModelWarperV3UIState& state) {
                 if (state.scaling_state_->upd_scratch().set_scaling_parameter_override(scaling_param_name, new_value)) {
                     state.scaling_state_->commit_scratch("Set scaling parameter");
                 }
             });
         }
 
-
         std::shared_ptr<ModelStatePair> source_model()
         {
             return scaling_state_->upd_scratch().get_source_model_ptr();
         }
 
-
         // result model stuff (note: might not be available if there's validation issues)
         using ScaledModelOrValidationErrorsOrScalingErrors = std::variant<
             std::shared_ptr<ModelStatePair>,                // successfully scaled model
             std::vector<ScalingDocumentValidationMessage>,  // validation messages
-            std::string                                     // runtime scaling error message (i.e. after validation passed but during scaling)
-        >;
+            std::string>;                                   // runtime scaling error message (i.e. after validation passed but during scaling)
         ScaledModelOrValidationErrorsOrScalingErrors scaled_model_or_document_validation_messages()
         {
             if (scaling_error_message_) {
                 return scaling_error_message_.value();
-            }
-            else if (auto validation_messages = scaling_state_->scratch().get_enabled_scaling_step_validation_messages(scaling_cache_); not validation_messages.empty()) {
+            } else if (auto validation_messages = scaling_state_->scratch().get_enabled_scaling_step_validation_messages(scaling_cache_); not validation_messages.empty()) {
                 return validation_messages;
-            }
-            else {
+            } else {
                 return scaled_model_;
             }
         }
@@ -277,8 +264,7 @@ namespace
             if (is_only_camera_controller_rotation_linked()) {
                 camera_controller.theta = camera_controller_.theta;
                 camera_controller.phi = camera_controller_.phi;
-            }
-            else {
+            } else {
                 camera_controller = camera_controller_;
             }
             return true;
@@ -291,15 +277,13 @@ namespace
             if (is_only_camera_controller_rotation_linked()) {
                 camera_controller_.phi = downstream_controller.phi;
                 camera_controller_.theta = downstream_controller.theta;
-            }
-            else {
+            } else {
                 camera_controller_ = downstream_controller;
             }
         }
 
         // undo/redo stuff
         std::shared_ptr<UndoRedoBase> get_undo_redo_ptr() { return scaling_state_; }
-
 
         // warped geometry dir stuff
         std::optional<std::filesystem::path> try_get_warped_geometry_directory() const
@@ -333,16 +317,14 @@ namespace
         {
             if (path) {
                 action_open_osim(*path);
-            }
-            else {
+            } else {
                 if (not shared_from_this()) {
                     log_critical("can't open osim file selection dialog because the UI state isn't shared");
                     return;
                 }
 
                 App::upd().prompt_user_to_select_file_async(
-                    [state = shared_from_this()](const FileDialogResponse& response)
-                    {
+                    [state = shared_from_this()](const FileDialogResponse& response) {
                         if (not state) {
                             return;  // Something bad has happened.
                         }
@@ -351,16 +333,14 @@ namespace
                         }
                         state->action_open_osim(response.front());
                     },
-                    get_model_file_filters()
-                );
+                    get_model_file_filters());
             }
         }
 
         void action_prompt_user_to_select_warped_geometry_directory()
         {
             App::upd().prompt_user_to_select_directory_async(
-                [state = shared_from_this()](const FileDialogResponse& response)
-                {
+                [state = shared_from_this()](const FileDialogResponse& response) {
                     if (not state) {
                         return;  // Can't continue.
                     }
@@ -369,8 +349,7 @@ namespace
                     }
 
                     state->maybe_custom_warped_geometry_directory_ = response.front();
-                }
-            );
+                });
         }
 
         void action_open_osim(const std::filesystem::path& path)
@@ -396,8 +375,7 @@ namespace
             }
 
             App::upd().prompt_user_to_select_file_async(
-                [state = shared_from_this()](const FileDialogResponse& response)
-                {
+                [state = shared_from_this()](const FileDialogResponse& response) {
                     if (not state) {
                         return;  // Can't continue.
                     }
@@ -409,8 +387,7 @@ namespace
                     state->update_scaled_model();
                     state->scaling_state_->commit_scratch("Loaded scaling document");
                 },
-                get_open_sim_xml_file_filters()
-            );
+                get_open_sim_xml_file_filters());
         }
 
         void action_save_scaling_document()
@@ -421,13 +398,13 @@ namespace
             }
 
             // Else: prompt the user to save it
-            App::upd().prompt_user_to_save_file_with_extension_async([doc = scaling_state_->upd_scratch().get_scaling_document_ptr()](std::optional<std::filesystem::path> p)
-            {
-                if (not p) {
-                    return;  // user cancelled out of the prompt
-                }
-                doc->save_to(*p);
-            }, "xml");
+            App::upd().prompt_user_to_save_file_with_extension_async(
+                [doc = scaling_state_->upd_scratch().get_scaling_document_ptr()](std::optional<std::filesystem::path> p) {
+                    if (not p) {
+                        return;  // user cancelled out of the prompt
+                    }
+                    doc->save_to(*p);
+                }, "xml");
         }
 
         void action_apply_object_edit_to_scaling_document(const ObjectPropertyEdit& edit)
@@ -451,8 +428,7 @@ namespace
 
         void action_retry_scaling_deferred()
         {
-            deferred_actions_.emplace_back([](ModelWarperV3UIState& state) mutable
-            {
+            deferred_actions_.emplace_back([](ModelWarperV3UIState& state) mutable {
                 state.update_scaled_model();
             });
         }
@@ -465,6 +441,7 @@ namespace
         {
             scaling_state_->undo();
         }
+
     private:
         void update_scaled_model()
         {
@@ -477,8 +454,7 @@ namespace
 
                 scaled_model_ = std::move(scaled_model);
                 scaling_error_message_.reset();
-            }
-            catch (const std::exception& ex) {
+            } catch (const std::exception& ex) {
                 scaling_error_message_ = ex.what();
             }
         }
@@ -507,8 +483,8 @@ namespace
     {
         switch (message.get_state()) {
         case ScalingStepValidationState::Warning: return Color::orange();
-        case ScalingStepValidationState::Error:   [[fallthrough]];
-        default:                                  return Color::muted_red();
+        case ScalingStepValidationState::Error: [[fallthrough]];
+        default: return Color::muted_red();
         }
     }
 
@@ -558,10 +534,10 @@ namespace
         void impl_draw_content() final
         {
             std::visit(Overload{
-                [this](const std::shared_ptr<ModelStatePair>& scaled_model) { draw_scaled_model_visualization(scaled_model); },
-                [this](const std::vector<ScalingDocumentValidationMessage>& messages) { draw_validation_error_message(messages); },
-                [this](const std::string& scaling_error_message) { draw_scaling_error_message(scaling_error_message); },
-            }, state_->scaled_model_or_document_validation_messages());
+               [this](const std::shared_ptr<ModelStatePair>& scaled_model) { draw_scaled_model_visualization(scaled_model); },
+               [this](const std::vector<ScalingDocumentValidationMessage>& messages) { draw_validation_error_message(messages); },
+               [this](const std::string& scaling_error_message) { draw_scaling_error_message(scaling_error_message); },
+           }, state_->scaled_model_or_document_validation_messages());
         }
 
         void draw_scaled_model_visualization(const std::shared_ptr<ModelStatePair>& scaled_model)
@@ -618,7 +594,7 @@ namespace
             const float h = ui::get_content_region_available().y();
             const float line_height = ui::get_text_line_height_in_current_panel();
             constexpr float num_lines = 3.0f;
-            const float top = 0.5f * (h - num_lines*line_height);
+            const float top = 0.5f * (h - num_lines * line_height);
 
             ui::set_cursor_panel_position({0.0f, top});
             ui::draw_text_centered("An error occured while trying to scale the model:");
@@ -656,6 +632,7 @@ namespace
         {
             set_name(label);
         }
+
     private:
         void impl_on_draw() final
         {
@@ -678,14 +655,12 @@ namespace
                 state_->action_create_new_source_model();
             }
             ui::same_line();
-            draw_open_model_button_with_recent_files_dropdown([this](auto maybe_selection)
-            {
+            draw_open_model_button_with_recent_files_dropdown([this](auto maybe_selection) {
                 state_->action_open_osim_or_prompt_user(std::move(maybe_selection));
             });
             ui::same_line();
             ui::draw_vertical_separator();
             ui::pop_id();
-
 
             ui::push_id(id++);
             ui::same_line();
@@ -705,7 +680,6 @@ namespace
             ui::same_line();
             ui::draw_vertical_separator();
             ui::pop_id();
-
 
             ui::push_id(id++);
             ui::same_line();
@@ -739,22 +713,19 @@ namespace
                     ui::open_popup("##WarpedModelExportModifiers");
                 }
 
-
                 if (ui::begin_popup("##WarpedModelExportModifiers")) {
 
                     // UI for warped geometry directory toggle
                     const auto geom_dir = state_->try_get_warped_geometry_directory();
                     if (geom_dir) {
                         ui::draw_text("Warped Geometry Directory: {}", geom_dir->string());
-                    }
-                    else {
+                    } else {
                         ui::draw_text("Warped Geometry Directory: UNKNOWN");
                     }
                     ui::same_line();
                     if (ui::draw_small_button("change")) {
                         state_->action_prompt_user_to_select_warped_geometry_directory();
                     }
-
 
                     // UI for baking `StationDefinedFrame`s during warping
                     {
@@ -839,8 +810,7 @@ namespace
                     }
                     ui::end_table();
                 }
-            }
-            else {
+            } else {
                 ui::draw_text_disabled_and_centered("No Scaling Parameters.");
                 ui::draw_text_disabled_and_centered("(scaling parameters are normally implicitly added by scaling steps)");
             }
@@ -860,8 +830,7 @@ namespace
                     ui::pop_id();
                     ++i;
                 }
-            }
-            else {
+            } else {
                 ui::draw_text_disabled_and_centered("No scaling steps.");
                 ui::draw_text_disabled_and_centered("(the model will be left unmodified)");
             }
@@ -911,8 +880,7 @@ namespace
                         ui::draw_bullet_point();
                         if (const auto prop_name = message.try_get_property_name()) {
                             ui::draw_text("{}: {}", *prop_name, message.get_message());
-                        }
-                        else {
+                        } else {
                             ui::draw_text(message.get_message());
                         }
                         ui::pop_style_color();
@@ -923,7 +891,7 @@ namespace
             }
 
             // draw property editors
-            ui::indent(1.0f*ui::get_text_line_height_in_current_panel());
+            ui::indent(1.0f * ui::get_text_line_height_in_current_panel());
             {
                 const auto path = step.getAbsolutePathString();
                 const auto doc_ptr = state_->get_document_ptr();
@@ -931,8 +899,7 @@ namespace
                     path,
                     this,
                     doc_ptr,
-                    [doc_ptr, path] { return find_component(*doc_ptr, path); }
-                );
+                    [doc_ptr, path] { return find_component(*doc_ptr, path); });
                 if (inserted) {
                     it->second.insert_in_blacklist("components");
                 }
@@ -940,7 +907,7 @@ namespace
                     state_->action_apply_object_edit_to_scaling_document(std::move(object_edit).value());
                 }
             }
-            ui::unindent(1.0f*ui::get_text_line_height_in_current_panel());
+            ui::unindent(1.0f * ui::get_text_line_height_in_current_panel());
             ui::draw_vertical_spacer(0.5f);
         }
 
@@ -972,24 +939,19 @@ public:
     explicit Impl(Tab& owner, Widget* parent) :
         TabPrivate{owner, parent, static_label()}
     {
-        panel_manager_->register_toggleable_panel("Control Panel", [state = state_](Widget* parent, std::string_view panel_name)
-        {
+        panel_manager_->register_toggleable_panel("Control Panel", [state = state_](Widget* parent, std::string_view panel_name) {
             return std::make_shared<ModelWarperV3ControlPanel>(parent, panel_name, state);
         });
-        panel_manager_->register_toggleable_panel("Source Model", [state = state_](Widget* parent, std::string_view panel_name)
-        {
+        panel_manager_->register_toggleable_panel("Source Model", [state = state_](Widget* parent, std::string_view panel_name) {
             return std::make_shared<ModelWarperV3SourceModelViewerPanel>(parent, panel_name, state);
         });
-        panel_manager_->register_toggleable_panel("Result Model", [state = state_](Widget* parent, std::string_view panel_name)
-        {
+        panel_manager_->register_toggleable_panel("Result Model", [state = state_](Widget* parent, std::string_view panel_name) {
             return std::make_shared<ModelWarperV3ResultModelViewerPanel>(parent, panel_name, state);
         });
-        panel_manager_->register_toggleable_panel("Log", [](Widget* parent, std::string_view panel_name)
-        {
+        panel_manager_->register_toggleable_panel("Log", [](Widget* parent, std::string_view panel_name) {
             return std::make_shared<LogViewerPanel>(parent, panel_name);
         });
-        panel_manager_->register_toggleable_panel("Performance", [](Widget* parent, std::string_view panel_name)
-        {
+        panel_manager_->register_toggleable_panel("Performance", [](Widget* parent, std::string_view panel_name) {
             return std::make_shared<PerfPanel>(parent, panel_name);
         });
     }
@@ -1036,15 +998,13 @@ public:
                 if (state_->can_undo()) {
                     log_error("attempting to fix the problem by undo-ing the document");
                     state_->action_undo();
-                }
-                else {
+                } else {
                     // Undoing isn't possible, so we must defer this error to a higher level
                     // of the system.
                     log_critical("the document cannot be undone, elevating the exception");
                     throw;
                 }
-            }
-            else {
+            } else {
                 // No exception thrown last frame, it's likely that the exception is due to
                 // an edit to the scratch space last frame, so try to softly roll the model
                 // back.
