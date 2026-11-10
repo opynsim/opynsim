@@ -19,7 +19,7 @@
 
 namespace opyn
 {
-        // A `ThinPlateSpline` scaling step that tries to scale the origin, orientation, radius,
+    // A `ThinPlateSpline` scaling step that tries to scale the origin, orientation, radius,
     // length, and quadrant of the given `WrapCylinder`s.
     class ThinPlateSplineWrapCylinderScalingStep final : public ToggleableThinPlateSplineScalingStep {
         OpenSim_DECLARE_CONCRETE_OBJECT(ThinPlateSplineWrapCylinderScalingStep, ToggleableThinPlateSplineScalingStep)
@@ -27,6 +27,7 @@ namespace opyn
         OpenSim_DECLARE_LIST_PROPERTY(wrap_cylinders, std::string, "Absolute paths (e.g. `/bodyset/body/wrap_cylinder_2`) to `WrapCylinder` components in the model");
         OpenSim_DECLARE_PROPERTY(midline_projection_distance, double, "The distance, in meters, that the `WrapCylinder`s' midlines should be projected from each of their origin points before putting them through the TPS algorithm. This is used to figure out the new orientation of the `WrapCylinder`s.");
         OpenSim_DECLARE_PROPERTY(surface_projection_theta, double, "An angle, in radians, of a vector that originates in each `WrapCylinder`'s origin, spins around their Z axis with an angle of theta from the X axis, and has a length of each `WrapCylinder`'s `radius`, producing a surface point. Each surface point is fed through the TPS algorithm and used to recalculate each `WrapCylinder`'s `radius` and `quadrant`");
+
     public:
         explicit ThinPlateSplineWrapCylinderScalingStep() :
             ToggleableThinPlateSplineScalingStep{"Apply Thin-Plate Spline (TPS) to WrapCylinder"}
@@ -61,6 +62,7 @@ Uses the Thin-Plate Spline (TPS) warping algorithm to scale `WrapCylinder`s in t
             constructProperty_midline_projection_distance(0.001);  // 1 mm
             constructProperty_surface_projection_theta(0.0);
         }
+
     private:
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache& cache,
@@ -76,8 +78,7 @@ Uses the Thin-Plate Spline (TPS) warping algorithm to scale `WrapCylinder`s in t
                 if (not offset_frame) {
                     messages.emplace_back(
                         ScalingStepValidationState::Error,
-                        std::format("{}: Cannot find a `WrapCylinder` in 'wrap_cylinders' in the source model (or it isn't a `WrapCylinder`).", get_wrap_cylinders(i))
-                    );
+                        std::format("{}: Cannot find a `WrapCylinder` in 'wrap_cylinders' in the source model (or it isn't a `WrapCylinder`).", get_wrap_cylinders(i)));
                 }
             }
 
@@ -121,8 +122,7 @@ Uses the Thin-Plate Spline (TPS) warping algorithm to scale `WrapCylinder`s in t
                     *common_params.source_landmarks_frame,
                     *common_params.result_landmarks_frame,
                     common_params.tps_inputs,
-                    common_params.compensate_for_frame_changes
-                );
+                    common_params.compensate_for_frame_changes);
 
                 // Calculate the `WrapCylinder`'s new projected midline point by warping it.
                 const SimTK::Vec3 source_midline_point_in_parent = source_wrap_cylinder->getTransform() * midline_point_in_cylinder_space;
@@ -137,8 +137,7 @@ Uses the Thin-Plate Spline (TPS) warping algorithm to scale `WrapCylinder`s in t
                     *common_params.source_landmarks_frame,
                     *common_params.result_landmarks_frame,
                     common_params.tps_inputs,
-                    common_params.compensate_for_frame_changes
-                );
+                    common_params.compensate_for_frame_changes);
 
                 // Calculate the source surface point by projecting the direction onto the `WrapCylinder`'s surface.
                 const SimTK::Vec3 source_surface_point_in_cylinder_space = source_wrap_cylinder->get_radius() * surface_point_direction_in_cylinder_space;
@@ -155,8 +154,7 @@ Uses the Thin-Plate Spline (TPS) warping algorithm to scale `WrapCylinder`s in t
                     *common_params.source_landmarks_frame,
                     *common_params.result_landmarks_frame,
                     common_params.tps_inputs,
-                    common_params.compensate_for_frame_changes
-                );
+                    common_params.compensate_for_frame_changes);
 
                 // The `WrapCylinder`'s new Z axis within the parent frame is a unit vector that
                 // points from its new origin to the projected midline point.

@@ -14,7 +14,10 @@
 #include <format>
 #include <string>
 
-namespace OpenSim { class Model; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace opyn
 {
@@ -32,6 +35,7 @@ namespace opyn
             setDescription("Warps the locations of stations in the model using the Thin-Plate Spline (TPS) warping algorithm.");
             constructProperty_stations();
         }
+
     private:
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache& cache,
@@ -47,8 +51,7 @@ namespace opyn
                 if (not station) {
                     messages.emplace_back(
                         ScalingStepValidationState::Error,
-                        std::format("{}: Cannot a Station in 'stations' in the source model (or it isn't a Station).", get_stations(i))
-                    );
+                        std::format("{}: Cannot a Station in 'stations' in the source model (or it isn't a Station).", get_stations(i)));
                 }
             }
 
@@ -82,8 +85,7 @@ namespace opyn
                     *common_params.source_landmarks_frame,
                     *common_params.result_landmarks_frame,
                     common_params.tps_inputs,
-                    common_params.compensate_for_frame_changes
-                );
+                    common_params.compensate_for_frame_changes);
 
                 auto* result_station_mut = find_component_mut<OpenSim::Station>(result_model, get_stations(i));
                 OSC_ASSERT_ALWAYS(result_station_mut && "could not find a corresponding station in the result model");

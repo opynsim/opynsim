@@ -33,6 +33,7 @@ namespace opyn
             setDescription("Warps mesh(es) in the source model by applying a Thin-Plate Spline (TPS) warp to each vertex in the souce mesh(es).");
             constructProperty_meshes();
         }
+
     private:
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache& cache,
@@ -53,8 +54,7 @@ namespace opyn
                 if (not mesh) {
                     messages.emplace_back(
                         ScalingStepValidationState::Error,
-                        std::format("{}: Cannot find entry in 'meshes' in the source model (or it isn't a Mesh).", get_meshes(i))
-                    );
+                        std::format("{}: Cannot find entry in 'meshes' in the source model (or it isn't a Mesh).", get_meshes(i)));
                 }
             }
 
@@ -86,8 +86,7 @@ namespace opyn
                     *common_params.source_landmarks_frame,
                     *common_params.result_landmarks_frame,
                     common_params.tps_inputs,
-                    common_params.compensate_for_frame_changes
-                );
+                    common_params.compensate_for_frame_changes);
                 OSC_ASSERT_ALWAYS(warped_mesh && "warping a mesh in the model failed");
 
                 // Overwrite the mesh in the result model with the warped mesh.

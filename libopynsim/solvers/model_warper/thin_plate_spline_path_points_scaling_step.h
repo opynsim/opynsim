@@ -17,7 +17,7 @@
 
 namespace opyn
 {
-        // A `ScalingStep` that applies the Thin-Plate Spline (TPS) warp to any
+    // A `ScalingStep` that applies the Thin-Plate Spline (TPS) warp to any
     // `OpenSim::PathPoint`s it can find via the `path_points` search string.
     class ThinPlateSplinePathPointsScalingStep final : public ToggleableThinPlateSplineScalingStep {
         OpenSim_DECLARE_CONCRETE_OBJECT(ThinPlateSplinePathPointsScalingStep, ToggleableThinPlateSplineScalingStep)
@@ -31,6 +31,7 @@ namespace opyn
             setDescription("Warps the locations of path points in the model using the Thin-Plate Spline (TPS) warping algorithm.");
             constructProperty_path_points();
         }
+
     private:
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache& cache,
@@ -46,8 +47,7 @@ namespace opyn
                 if (not path_point) {
                     messages.emplace_back(
                         ScalingStepValidationState::Error,
-                        std::format("{}: Cannot find a PathPoint in 'path_points' in the source model (or it isn't a PathPoint)", get_path_points(i))
-                    );
+                        std::format("{}: Cannot find a PathPoint in 'path_points' in the source model (or it isn't a PathPoint)", get_path_points(i)));
                 }
             }
 
@@ -81,8 +81,7 @@ namespace opyn
                     *common_params.source_landmarks_frame,
                     *common_params.result_landmarks_frame,
                     common_params.tps_inputs,
-                    common_params.compensate_for_frame_changes
-                );
+                    common_params.compensate_for_frame_changes);
 
                 auto* result_path_point_mut = find_component_mut<OpenSim::PathPoint>(result_model, get_path_points(i));
                 OSC_ASSERT_ALWAYS(result_path_point_mut && "could not find a corresponding path point in the result model");

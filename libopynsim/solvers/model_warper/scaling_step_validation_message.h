@@ -13,7 +13,6 @@ namespace opyn
     // A message produced by a `ScalingStep`'s validation check.
     class ScalingStepValidationMessage {
     public:
-
         // Constructs a validation message that's related to the value(s) held in
         // a property with name `propertyName` on the `ScalingStep`.
         explicit ScalingStepValidationMessage(

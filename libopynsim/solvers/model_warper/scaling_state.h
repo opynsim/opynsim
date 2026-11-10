@@ -55,7 +55,7 @@ namespace opyn
             return *this;
         }
 
-    // Source Model Methods
+        // Source Model Methods
 
         const ModelStatePair& get_source_model() const { return *source_model_; }
         std::shared_ptr<ModelStatePair> get_source_model_ptr() { return source_model_; }
@@ -68,7 +68,7 @@ namespace opyn
             source_model_ = std::make_shared<BasicModelStatePair>();
         }
 
-    // Scaling Document Methods
+        // Scaling Document Methods
 
         std::shared_ptr<const ModelWarperV3Document> get_scaling_document_ptr() const { return scaling_document_; }
         bool has_scaling_steps() const { return scaling_document_->has_scaling_steps(); }
@@ -85,8 +85,7 @@ namespace opyn
         {
             if (auto* scaling_step = find_scaling_component_mut<ScalingStep>(path)) {
                 return erase_scaling_step(*scaling_step);
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -113,8 +112,7 @@ namespace opyn
                 scaling_document_->finalizeConnections(*scaling_document_);
                 scaling_document_->finalizeFromProperties();
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -162,8 +160,7 @@ namespace opyn
         {
             if (const auto filename = scaling_document_->getDocumentFileName(); not filename.empty()) {
                 return std::filesystem::path{filename};
-            }
-            else {
+            } else {
                 return std::nullopt;
             }
         }
@@ -175,7 +172,7 @@ namespace opyn
             return scaling_document_->set_scaling_parameter_override(scaling_param_name, new_value);
         }
 
-    // Model Scaling
+        // Model Scaling
 
         // Tries to generate a scaled version of the source model using the current
         // scaling steps and scaling parameters.

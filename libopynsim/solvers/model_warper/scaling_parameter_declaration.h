@@ -22,6 +22,7 @@ namespace opyn
 
         const std::string& name() const { return name_; }
         const ScalingParameterValue& default_value() const { return default_value_; }
+
     private:
         std::string name_;
         ScalingParameterValue default_value_;

@@ -17,7 +17,10 @@
 #include <string>
 #include <vector>
 
-namespace OpenSim { class Model; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace opyn
 {
@@ -34,6 +37,7 @@ namespace opyn
             constructProperty_station_path("");
             constructProperty_wrap_cylinder_path("");
         }
+
     private:
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache&,
@@ -47,8 +51,9 @@ namespace opyn
             if (not station) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    std::format("{}: Cannot find `station_path` in the source model (or it isn't a Station).", get_station_path())
-                );
+                    std::format(
+                        "{}: Cannot find `station_path` in the source model (or it isn't a Station).",
+                        get_station_path()));
             }
 
             // Ensure `wrap_cylinder_path` exists in the model (and is a `WrapCylinder`)
@@ -56,8 +61,7 @@ namespace opyn
             if (not wrap_cylinder) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    std::format("{}: Cannot find 'wrap_cylinder_path' in the source model (or it isn't a `WrapCylinder`).", get_wrap_cylinder_path())
-                );
+                    std::format("{}: Cannot find 'wrap_cylinder_path' in the source model (or it isn't a `WrapCylinder`).", get_wrap_cylinder_path()));
             }
 
             return messages;

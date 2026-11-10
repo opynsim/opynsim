@@ -57,7 +57,6 @@ struct std::hash<opyn::ThinPlateSplineCommonInputs> final {
             inputs.apply_affine_rotation,
             inputs.apply_non_affine_warp,
             inputs.blending_factor,
-            inputs.warping_penalty
-        );
+            inputs.warping_penalty);
     }
 };

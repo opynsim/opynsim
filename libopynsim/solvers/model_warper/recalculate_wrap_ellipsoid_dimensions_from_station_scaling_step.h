@@ -17,7 +17,10 @@
 #include <string>
 #include <vector>
 
-namespace OpenSim { class Model; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace opyn
 {
@@ -36,6 +39,7 @@ namespace opyn
             constructProperty_wrap_ellipsoid_path("");
             constructProperty_dimensions_scale_factors(SimTK::Vec3{1.0});
         }
+
     private:
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache&,
@@ -49,8 +53,7 @@ namespace opyn
             if (not station) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    std::format("{}: Cannot find `station_path` in the source model (or it isn't a Station).", get_station_path())
-                );
+                    std::format("{}: Cannot find `station_path` in the source model (or it isn't a Station).", get_station_path()));
             }
 
             // Ensure `wrap_ellipsoid_path` exists in the model (and is a `WrapEllipsoid`)
@@ -58,8 +61,7 @@ namespace opyn
             if (not wrap_ellipsoid) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    std::format("{}: Cannot find 'wrap_ellipsoid_path' in the source model (or it isn't a `WrapEllipsoid`).", get_wrap_ellipsoid_path())
-                );
+                    std::format("{}: Cannot find 'wrap_ellipsoid_path' in the source model (or it isn't a `WrapEllipsoid`).", get_wrap_ellipsoid_path()));
             }
 
             return messages;

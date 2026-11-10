@@ -5,7 +5,10 @@
 
 #include <string_view>
 
-namespace OpenSim { class Model; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace opyn
 {
@@ -37,8 +40,7 @@ namespace opyn
             auto rv = ThinPlateSplineScalingStep::calc_tps_scaling_step_common_params(
                 parameters,
                 source_model,
-                result_model
-            );
+                result_model);
             rv.tps_inputs.apply_affine_translation = get_apply_affine_translation();
             rv.tps_inputs.apply_affine_scale = get_apply_affine_scale();
             rv.tps_inputs.apply_affine_rotation = get_apply_affine_rotation();

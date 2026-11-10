@@ -47,7 +47,6 @@ namespace opyn
         };
 
     protected:
-
         // Constructs a `ThinPlateSplineScalingStep` with defaulted parameters.
         explicit ThinPlateSplineScalingStep(std::string_view label) :
             ScalingStep{label}
@@ -86,27 +85,23 @@ namespace opyn
             // Ensure the `source_landmarks_file` can be found (relative to the model osim).
             if (get_source_landmarks_file().empty()) {
                 messages.emplace_back(ScalingStepValidationState::Error, "`source_landmarks_file` is empty.");
-            }
-            else if (const auto source_landmarks_path = model_filesystem_location->parent_path() / osc::read_windows_or_unix_path_string(get_source_landmarks_file());
-                not std::filesystem::exists(source_landmarks_path)) {
+            } else if (const auto source_landmarks_path = model_filesystem_location->parent_path() / osc::read_windows_or_unix_path_string(get_source_landmarks_file());
+                       not std::filesystem::exists(source_landmarks_path)) {
 
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    std::format("{}: Cannot find source landmarks file on filesystem", source_landmarks_path.string())
-                );
+                    std::format("{}: Cannot find source landmarks file on filesystem", source_landmarks_path.string()));
             }
 
             // Ensure the `destination_landmarks_file` can be found (relative to the model osim).
             if (get_destination_landmarks_file().empty()) {
                 messages.emplace_back(ScalingStepValidationState::Error, "`destination_landmarks_file` is empty.");
-            }
-            else if (const auto destination_landmarks_path = model_filesystem_location->parent_path() / osc::read_windows_or_unix_path_string(get_destination_landmarks_file());
-                not std::filesystem::exists(destination_landmarks_path)) {
+            } else if (const auto destination_landmarks_path = model_filesystem_location->parent_path() / osc::read_windows_or_unix_path_string(get_destination_landmarks_file());
+                       not std::filesystem::exists(destination_landmarks_path)) {
 
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    std::format("{}: Cannot find destination landmarks file on filesystem", destination_landmarks_path.string())
-                );
+                    std::format("{}: Cannot find destination landmarks file on filesystem", destination_landmarks_path.string()));
             }
 
             // Ensure `landmarks_frame` exists in the model
@@ -114,8 +109,7 @@ namespace opyn
             if (not landmarks_frame) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    std::format("{}: Cannot find this frame in the source model (or it isn't a Frame).", get_landmarks_frame())
-                );
+                    std::format("{}: Cannot find this frame in the source model (or it isn't a Frame).", get_landmarks_frame()));
             }
 
             return messages;

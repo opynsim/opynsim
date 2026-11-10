@@ -15,7 +15,10 @@
 #include <string>
 #include <vector>
 
-namespace OpenSim { class Model; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace opyn
 {
@@ -33,6 +36,7 @@ namespace opyn
             setDescription("Warps the locations of body centers of mass in the model using the Thin-Plate Spline (TPS) warping algorithm.");
             constructProperty_bodies();
         }
+
     private:
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache& cache,
@@ -47,8 +51,7 @@ namespace opyn
                 if (not find_component<OpenSim::Body>(source_model, get_bodies(i))) {
                     messages.emplace_back(
                         ScalingStepValidationState::Error,
-                        std::format("{}: Cannot find a Body in 'bodies' in the source model (or it isn't a Body)", get_bodies(i))
-                    );
+                        std::format("{}: Cannot find a Body in 'bodies' in the source model (or it isn't a Body)", get_bodies(i)));
                 }
             }
 
@@ -87,12 +90,11 @@ namespace opyn
                     *common_params.source_landmarks_frame,
                     *common_params.result_landmarks_frame,
                     common_params.tps_inputs,
-                    common_params.compensate_for_frame_changes
-                );
+                    common_params.compensate_for_frame_changes);
 
                 // Update the body with the new CoM
                 auto* result_body_mut = find_component_mut<OpenSim::Body>(result_model, get_bodies(i));
-                OSC_ASSERT_ALWAYS(result_body_mut  && "could not find a corresponding body in the result model");
+                OSC_ASSERT_ALWAYS(result_body_mut && "could not find a corresponding body in the result model");
                 result_body_mut->set_mass_center(warped_location);
             }
             initialize_model(result_model);

@@ -13,7 +13,10 @@
 #include <string_view>
 #include <vector>
 
-namespace OpenSim { class Model; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace opyn
 {
@@ -80,6 +83,7 @@ namespace opyn
                 impl_apply_scaling_step(scaling_cache, scaling_parameters, source_model, result_model);
             }
         }
+
     private:
         // Implementors should provide the callback with any `ScalingParameterDeclaration`s in order
         // to ensure that the runtime can later provide the `ScalingParameterValue` during model

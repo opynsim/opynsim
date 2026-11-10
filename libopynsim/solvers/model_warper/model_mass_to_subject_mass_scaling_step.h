@@ -11,7 +11,10 @@
 #include <optional>
 #include <vector>
 
-namespace OpenSim { class Model; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace opyn
 {
@@ -36,15 +39,13 @@ namespace opyn
             if (parameters.lookup<double>("subject_mass").value_or(0.0) <= 0.0) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    "The subject_mass scaling parameter must be greater than zero"
-                );
+                    "The subject_mass scaling parameter must be greater than zero");
             }
 
             if (model.getTotalMass(model.getWorkingState()) <= 0.0) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
-                    "Cannot scale the model's mass to the subject's mass because the model itself has a mass of zero"
-                );
+                    "Cannot scale the model's mass to the subject's mass because the model itself has a mass of zero");
             }
 
             return messages;
@@ -71,8 +72,7 @@ namespace opyn
             const auto effective_target_mass = osc::lerp(
                 result_model.getTotalMass(result_model.getWorkingState()),
                 subject_mass,
-                *blending_factor
-            );
+                *blending_factor);
 
             scale_model_mass_preserve_mass_distribution(result_model, result_model.getWorkingState(), effective_target_mass);
             initialize_model(result_model);

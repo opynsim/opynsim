@@ -15,7 +15,10 @@
 #include <string>
 #include <vector>
 
-namespace OpenSim { class Model; }
+namespace OpenSim
+{
+    class Model;
+}
 
 namespace opyn
 {
@@ -35,7 +38,6 @@ namespace opyn
         }
 
     private:
-
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache& cache,
             const ScalingParameters& params,
@@ -50,8 +52,7 @@ namespace opyn
                 if (not offset_frame) {
                     messages.emplace_back(
                         ScalingStepValidationState::Error,
-                        std::format("{}: Cannot find a `PhysicalOffsetFrame` in 'offset_frames' in the source model (or it isn't a `PhysicalOffsetFrame`).", get_offset_frames(i))
-                    );
+                        std::format("{}: Cannot find a `PhysicalOffsetFrame` in 'offset_frames' in the source model (or it isn't a `PhysicalOffsetFrame`).", get_offset_frames(i)));
                 }
             }
 
@@ -86,8 +87,7 @@ namespace opyn
                     *common_params.source_landmarks_frame,
                     *common_params.result_landmarks_frame,
                     common_params.tps_inputs,
-                    common_params.compensate_for_frame_changes
-                );
+                    common_params.compensate_for_frame_changes);
 
                 auto* result_offset_frame_mut = find_component_mut<OpenSim::PhysicalOffsetFrame>(result_model, get_offset_frames(i));
                 OSC_ASSERT_ALWAYS(result_offset_frame_mut && "could not find a corresponding `PhysicalOffsetFrame` in the result model");

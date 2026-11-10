@@ -20,9 +20,8 @@ namespace opyn
 {
     // Top-level document that describes a sequence of `ScalingStep`s that can be applied to
     // the source model in order to yield a scaled model.
-    class ModelWarperV3Document final :
-        public OpenSim::Component,
-        public VersionedComponentAccessor {
+    class ModelWarperV3Document final : public OpenSim::Component,
+                                        public VersionedComponentAccessor {
         OpenSim_DECLARE_CONCRETE_OBJECT(ModelWarperV3Document, OpenSim::Component)
 
         OpenSim_DECLARE_LIST_PROPERTY(scaling_parameter_overrides, ScalingParameterOverride, "A sequence of `ScalingParameterOverride`s that should be used in place of the default values used by the `ScalingStep`s.");
@@ -120,14 +119,13 @@ namespace opyn
 
             // Get/merge values from the scaling steps
             for (const ScalingStep& step : iterate_scaling_steps()) {
-                step.for_each_scaling_parameter_declaration([&step, &rv](const ScalingParameterDeclaration& decl)
-                {
+                step.for_each_scaling_parameter_declaration([&step, &rv](const ScalingParameterDeclaration& decl) {
                     const auto [it, inserted] = rv.try_emplace(decl.name(), decl.default_value());
                     if (not inserted and it->second != decl.default_value()) {
-                        auto msg = std::format("{}: declares a scaling parameter ({}) that has the same name as another scaling parameter, but they differ: the engine cannot figure out how to rectify this difference. The parameter should have a different name, or a disambiguating prefix added to it",
+                        auto msg = std::format(
+                            "{}: declares a scaling parameter ({}) that has the same name as another scaling parameter, but they differ: the engine cannot figure out how to rectify this difference. The parameter should have a different name, or a disambiguating prefix added to it",
                             step.getAbsolutePathString(),
-                            decl.name()
-                        );
+                            decl.name());
                         throw std::runtime_error{msg};
                     }
                 });
@@ -193,7 +191,7 @@ namespace opyn
 
         OpenSim::Component& impl_upd_component() final
         {
-            throw std::runtime_error{ "component updating not implemented for this IComponentAccessor" };
+            throw std::runtime_error{"component updating not implemented for this IComponentAccessor"};
         }
     };
 }

@@ -51,15 +51,13 @@ namespace opyn
                 result_mesh.getFrame(),
                 source_landmarks_frame,
                 result_landmarks_frame,
-                compensate_for_frame_changes
-            );
+                compensate_for_frame_changes);
 
             // Convert the input mesh into an OSC mesh, so that it's suitable for warping.
             osc::Mesh result_osc_mesh = to_osc_mesh(
                 result_model,
                 result_model.getWorkingState(),
-                result_mesh
-            );
+                result_mesh);
 
             // Warp the vertices in-place.
             auto vertices = result_osc_mesh.vertices();
@@ -103,8 +101,7 @@ namespace opyn
                 result_parent_frame,
                 source_landmarks_frame,
                 result_landmarks_frame,
-                compensate_for_frame_changes
-            );
+                compensate_for_frame_changes);
 
             const auto result_location_in_landmark_frame = transform_point(transforms.local_to_landmarks, osc::to<osc::Vector3>(result_location));
             const auto warped_location_in_landmark_frame = tps3d_warp_point(coefficients, osc::to<SimTK::fVec3>(result_location_in_landmark_frame), static_cast<float>(tps_inputs.blending_factor));
@@ -132,6 +129,7 @@ namespace opyn
         }
 
         void clear() { coefficient_cache_.clear(); }
+
     private:
         struct Transforms final {
             osc::Matrix4x4 local_to_landmarks;
@@ -178,14 +176,12 @@ namespace opyn
             // Pair the source+destination landmarks together into a TPS coefficient solver's inputs
             TPSCoefficientSolverInputs3D<float> inputs;
             inputs.landmarks.reserve(osc::max(source_landmarks.size(), destination_landmarks.size()));
-            try_pairing_landmarks(source_landmarks, destination_landmarks, [&inputs, &tps_inputs](const MaybeNamedLandmarkPair& p)
-            {
+            try_pairing_landmarks(source_landmarks, destination_landmarks, [&inputs, &tps_inputs](const MaybeNamedLandmarkPair& p) {
                 if (auto landmark3d = p.try_get_paired_locations()) {
                     landmark3d->source = tps_inputs.source_landmarks_prescale * landmark3d->source;
                     landmark3d->destination = tps_inputs.destination_landmarks_prescale * landmark3d->destination;
                     inputs.landmarks.push_back(*landmark3d);
-                }
-                else {
+                } else {
                     osc::log_warn("The landmarks {} could not be paired, might be missing in the source/destination?", p.name());
                 }
             });
