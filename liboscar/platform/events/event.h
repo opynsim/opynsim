@@ -13,7 +13,8 @@ namespace osc
     class Event {
     protected:
         Event() = default;
-        explicit Event(EventType type) : type_{type} {}
+        explicit Event(EventType type) :
+            type_{type} {}
         Event(const Event&) = default;
         Event(Event&&) noexcept = default;
         Event& operator=(const Event&) = default;

@@ -10,6 +10,7 @@ namespace osc
     // button or Alt+F4).
     class QuitEvent final : public Event {
     public:
-        explicit QuitEvent() : Event{EventType::Quit} {}
+        explicit QuitEvent() :
+            Event{EventType::Quit} {}
     };
 }

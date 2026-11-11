@@ -21,6 +21,7 @@ namespace osc
 
         WindowEventType type() const { return type_; }
         WindowID window_id() const { return window_id_; }
+
     private:
         WindowEventType type_ = WindowEventType::Unknown;
         WindowID window_id_;
