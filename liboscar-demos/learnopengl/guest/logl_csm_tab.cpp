@@ -59,7 +59,7 @@ namespace
 
         auto rng = std::default_random_engine{std::random_device{}()};
         auto dist = std::normal_distribution{0.3f, 0.2f};
-        const AABB grid_bounds = {{-5.0f,  0.0f, -5.0f}, {5.0f, 0.0f, 5.0f}};
+        const AABB grid_bounds = {{-5.0f, 0.0f, -5.0f}, {5.0f, 0.0f, 5.0f}};
         const Vector3 grid_dimensions = dimensions_of(grid_bounds);
         const Vector2uz num_grid_cells = {10, 10};
 
@@ -78,8 +78,7 @@ namespace
                     .transform = {
                         .scale = Vector3{abs(dist(rng))},
                         .translation = cell_pos,
-                    }
-                });
+                    }});
             }
         }
 
@@ -122,7 +121,7 @@ namespace
 
     // the distance of each plane (incl. the near place) as a normalized range [0.0f, 1.0f], where
     // 0.0f means `znear` and 1.0f means `zfar`.
-    constexpr auto c_normalized_cascade_planes = std::to_array({0.0f, 10.0f/100.0f, 50.0f/100.0f, 100.0f/100.0f});
+    constexpr auto c_normalized_cascade_planes = std::to_array({0.0f, 10.0f / 100.0f, 50.0f / 100.0f, 100.0f / 100.0f});
 
     // returns orthogonal projection information for each cascade
     std::vector<OrthogonalProjectionParameters> calculate_light_source_orthographic_projections(
@@ -149,21 +148,22 @@ namespace
         // calculate `OrthogonalProjectionParameters` for each cascade
         std::vector<OrthogonalProjectionParameters> rv;
         rv.reserve(c_normalized_cascade_planes.size() - 1);
-        for (size_t i = 0; i < c_normalized_cascade_planes.size()-1; ++i) {
+        for (size_t i = 0; i < c_normalized_cascade_planes.size() - 1; ++i) {
             const float view_cascade_znear = lerp(view_znear, view_zfar, c_normalized_cascade_planes[i]);
-            const float view_cascade_zfar = lerp(view_znear, view_zfar, c_normalized_cascade_planes[i+1]);
+            const float view_cascade_zfar = lerp(view_znear, view_zfar, c_normalized_cascade_planes[i + 1]);
 
             // imagine a triangle with a point where the viewer is (0,0,0 in view space) and another
             // point thats znear along the minus Z axis (i.e. moving away from the front of the viewer
             // in a right-handed coordinate system). The FOV dictates the angle of the corner
             // that originates from the viewer.
             const float view_cascade_xnear = view_cascade_znear * view_tan_half_hfov;
-            const float view_cascade_xfar  = view_cascade_zfar  * view_tan_half_hfov;
+            const float view_cascade_xfar = view_cascade_zfar * view_tan_half_hfov;
             const float view_cascade_ynear = view_cascade_znear * view_tan_half_vfov;
-            const float view_cascade_yfar  = view_cascade_zfar  * view_tan_half_vfov;
+            const float view_cascade_yfar = view_cascade_zfar * view_tan_half_vfov;
 
             // note: Z points opposite to the viewing direction in a right-handed system, so we negate
             // all the Zs here.
+            // clang-format off
             const auto view_frustum_corners = std::to_array<Vector3>({
                 // near face
                 { view_cascade_xnear,  view_cascade_ynear, -view_cascade_znear},  // top-right
@@ -177,23 +177,23 @@ namespace
                 { view_cascade_xfar,  -view_cascade_yfar,  -view_cascade_zfar},   // bottom-right
                 {-view_cascade_xfar,  -view_cascade_yfar,  -view_cascade_zfar},   // bottom-left
             });
+            // clang-format on
 
             // compute the bounds of the frustum in light space (the perspective of the light) by
             // projecting each frustum corner into light-space.
-            const AABB light_bounds = bounding_aabb_of(view_frustum_corners, [&view_to_light](const Vector3& frustum_corner)
-            {
+            const AABB light_bounds = bounding_aabb_of(view_frustum_corners, [&view_to_light](const Vector3& frustum_corner) {
                 return transform_point(view_to_light, frustum_corner);
             });
 
             // because the light source is directional, the bounds of the corners in light space are
             // give-or-take equivalent to the bounds of the orthogonal projection cube corners.
             rv.push_back(OrthogonalProjectionParameters{
-                .left   = light_bounds.min.x(),
-                .right  = light_bounds.max.x(),
+                .left = light_bounds.min.x(),
+                .right = light_bounds.max.x(),
                 .bottom = light_bounds.min.y(),
-                .top    = light_bounds.max.y(),
-                .near   = light_bounds.max.z(),  // note: Z points opposite to the viewing direction
-                .far    = light_bounds.min.z(),
+                .top = light_bounds.max.y(),
+                .near = light_bounds.max.z(),  // note: Z points opposite to the viewing direction
+                .far = light_bounds.min.z(),
             });
         }
         return rv;
@@ -211,8 +211,8 @@ namespace
 
         // Create a transform that maps the edges of the orthogonal proection to NDC (i.e. [-1.0, +1.0])
         return matrix4x4_cast(Transform{
-            .scale       = {  2.0f/(r - l)  ,   2.0f/(t - b)  ,   2.0f/(f - n)  },
-            .translation = {-(r + l)/(r - l), -(t + b)/(t - b), -(f + n)/(f - n)},
+            .scale = {2.0f / (r - l), 2.0f / (t - b), 2.0f / (f - n)},
+            .translation = {-(r + l) / (r - l), -(t + b) / (t - b), -(f + n) / (f - n)},
         });
     }
 }
@@ -283,8 +283,7 @@ private:
                 render_queue_.emplace(
                     decoration.mesh,
                     decoration.transform,
-                    shadow_mapping_material_
-                );
+                    shadow_mapping_material_);
             }
 
             graphics::render_to(cascade_rasters_[i], render_queue_, camera);
@@ -313,7 +312,7 @@ private:
 
         // TODO: the clip space maths feels a bit wrong compared to just doing it in NDC?
         std::vector<float> ends;
-        ends.reserve(c_normalized_cascade_planes.size()-1);
+        ends.reserve(c_normalized_cascade_planes.size() - 1);
         for (size_t i = 1; i < c_normalized_cascade_planes.size(); ++i) {
             const auto [near, far] = user_camera_.clipping_planes();
             const Vector4 viewer_position = {0.0f, 0.0f, -lerp(near, far, c_normalized_cascade_planes[i]), 1.0f};
@@ -358,7 +357,6 @@ private:
     // ui
     LogViewerPanel log_viewer_{&owner()};
 };
-
 
 osc::CStringView osc::LOGLCSMTab::id() { return Impl::static_label(); }
 osc::LOGLCSMTab::LOGLCSMTab(Widget* parent) :
