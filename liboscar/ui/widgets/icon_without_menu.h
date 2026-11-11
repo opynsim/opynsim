@@ -13,8 +13,7 @@ namespace osc
         explicit IconWithoutMenu(
             Icon icon,
             CStringView title,
-            CStringView description
-        );
+            CStringView description);
 
         CStringView icon_id() const { return button_id_; }
 

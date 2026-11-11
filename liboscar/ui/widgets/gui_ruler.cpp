@@ -43,16 +43,14 @@ void osc::GuiRuler::on_draw(
     const float line_thickness = 3.0f;
 
     ui::DrawListView draw_list = ui::get_panel_draw_list();
-    const auto draw_tooltip_with_bg = [&draw_list, &text_background_color, &text_color](const Vector2& pos, CStringView tooltip_text)
-    {
+    const auto draw_tooltip_with_bg = [&draw_list, &text_background_color, &text_color](const Vector2& pos, CStringView tooltip_text) {
         const Vector2 text_size = ui::calc_text_size(tooltip_text);
         const float background_padding = 5.0f;
         const float edge_rounding = background_padding - 2.0f;
 
         const Rect background_rect = Rect::from_corners(
             pos - background_padding,
-            pos + text_size + background_padding
-        );
+            pos + text_size + background_padding);
         draw_list.add_rect_filled(background_rect, text_background_color, edge_rounding);
         draw_list.add_text(pos, text_color, tooltip_text);
     };
@@ -62,8 +60,7 @@ void osc::GuiRuler::on_draw(
             // not mousing over anything
             draw_list.add_circle_filled(Circle{mouse_ui_pos, circle_radius}, circle_moused_over_nothing_color);
             return;
-        }
-        else {
+        } else {
             // mousing over something
             draw_list.add_circle_filled(Circle{mouse_ui_pos, circle_radius}, circle_color);
 
@@ -73,8 +70,7 @@ void osc::GuiRuler::on_draw(
             }
             return;
         }
-    }
-    else if (state_ == State::WaitingForSecondPoint) {
+    } else if (state_ == State::WaitingForSecondPoint) {
         const Vector2 start_ui_pos = camera.world_to_ui(start_world_pos_, render_rect);
 
         if (maybe_mouseover) {
@@ -91,8 +87,7 @@ void osc::GuiRuler::on_draw(
 
             // label the line's length
             draw_tooltip_with_bg(line_midpoint + offset_vec, std::format("{:.5f}", line_world_length));
-        }
-        else {
+        } else {
             draw_list.add_circle_filled({start_ui_pos, circle_radius}, circle_color);
         }
     }
@@ -112,8 +107,7 @@ void osc::GuiRuler::toggle_measuring()
 {
     if (state_ == State::Inactive) {
         state_ = State::WaitingForFirstPoint;
-    }
-    else {
+    } else {
         state_ = State::Inactive;
     }
 }

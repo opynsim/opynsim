@@ -6,10 +6,10 @@
 #include <string>
 #include <utility>
 
-namespace osc { class UndoRedoBase; }
-
 namespace osc
 {
+    class UndoRedoBase;
+
     class RedoButton final : public Widget {
     public:
         explicit RedoButton(

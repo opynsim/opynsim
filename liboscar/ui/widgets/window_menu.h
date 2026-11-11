@@ -4,10 +4,10 @@
 
 #include <memory>
 
-namespace osc { class PanelManager; }
-
 namespace osc
 {
+    class PanelManager;
+
     class WindowMenu final : public Widget {
     public:
         explicit WindowMenu(Widget* parent, std::shared_ptr<PanelManager>);

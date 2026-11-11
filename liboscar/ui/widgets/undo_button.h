@@ -6,10 +6,10 @@
 #include <string>
 #include <utility>
 
-namespace osc { class UndoRedoBase; }
-
 namespace osc
 {
+    class UndoRedoBase;
+
     // a user-visible button, with a history dropdown menu, that performs an undo operation
     class UndoButton final : public Widget {
     public:

@@ -23,7 +23,7 @@ osc::IconWithoutMenu::IconWithoutMenu(
 Vector2 osc::IconWithoutMenu::dimensions() const
 {
     const Vector2 padding = ui::get_style_frame_padding();
-    return icon_.dimensions() + 2.0f*padding;
+    return icon_.dimensions() + (2.0f * padding);
 }
 
 bool osc::IconWithoutMenu::on_draw()

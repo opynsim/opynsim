@@ -11,8 +11,8 @@
 
 class osc::SceneViewer::Impl final {
 public:
-
-    explicit Impl(SceneCache& scene_cache) : renderer_{scene_cache} {}
+    explicit Impl(SceneCache& scene_cache) :
+        renderer_{scene_cache} {}
 
     void on_draw(
         std::span<const SceneDecoration> decorations,
