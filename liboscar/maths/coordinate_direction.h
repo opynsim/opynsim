@@ -62,10 +62,12 @@ namespace osc
         constexpr CoordinateDirection() = default;
 
         // constructs a `CoordinateDirection` that points positively along `axis`
-        constexpr CoordinateDirection(CoordinateAxis axis) : axis_{axis} {}
+        constexpr CoordinateDirection(CoordinateAxis axis) :
+            axis_{axis} {}
 
         // constructs a `CoordinateDirection` that points negatively along `axis`
-        constexpr CoordinateDirection(CoordinateAxis axis, Negative) : axis_{axis}, direction_{-1} {}
+        constexpr CoordinateDirection(CoordinateAxis axis, Negative) :
+            axis_{axis}, direction_{-1} {}
 
         // `CoordinateDirection`s are equality comparable and totally ordered as -X < +X < -Y < +Y < -Z < +Z
         friend constexpr auto operator<=>(const CoordinateDirection&, const CoordinateDirection&) = default;
@@ -104,6 +106,7 @@ namespace osc
         {
             return axis_.index() + (direction_ < 0 ? 3 : 0);
         }
+
     private:
         friend constexpr CoordinateDirection cross(CoordinateDirection, CoordinateDirection);
 
@@ -125,12 +128,10 @@ namespace osc
     {
         if (x.axis() == y.axis()) {
             return x;
-        }
-        else if (x.axis().next() == y.axis()) {
-            return CoordinateDirection{y.axis().next(), static_cast<int8_t>(x.direction<int>()*y.direction<int>())};
-        }
-        else {
-            return CoordinateDirection{x.axis().next(), static_cast<int8_t>(-1*x.direction<int>()*y.direction<int>())};
+        } else if (x.axis().next() == y.axis()) {
+            return CoordinateDirection{y.axis().next(), static_cast<int8_t>(x.direction<int>() * y.direction<int>())};
+        } else {
+            return CoordinateDirection{x.axis().next(), static_cast<int8_t>(-1 * x.direction<int>() * y.direction<int>())};
         }
     }
 }

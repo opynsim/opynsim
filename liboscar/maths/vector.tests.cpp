@@ -197,20 +197,20 @@ TEST(Vector, size_can_return_vector_size_at_compile_time)
 
 TEST(Vector, binary_operator_plus_with_scalar_works_as_expected)
 {
-    static_assert(std::same_as<decltype(Vector3f{1.0f, 2.0f, 3.0f} + 2.0 ), Vector3d>);
-    static_assert(std::same_as<decltype(Vector3i{1,    2,    3}    + 2.0f), Vector3f>);
-    static_assert(std::same_as<decltype(Vector3i{1,    2,    3}    + 2.0 ), Vector3d>);
+    static_assert(std::same_as<decltype(Vector3f{1.0f, 2.0f, 3.0f} + 2.0), Vector3d>);
+    static_assert(std::same_as<decltype(Vector3i{1, 2, 3} + 2.0f), Vector3f>);
+    static_assert(std::same_as<decltype(Vector3i{1, 2, 3} + 2.0), Vector3d>);
 
-    ASSERT_EQ((Vector3i{1, 2, 3} + 2.0f), Vector3f(1+2.0f, 2+2.0f, 3+2.0f));
+    ASSERT_EQ((Vector3i{1, 2, 3} + 2.0f), Vector3f(1 + 2.0f, 2 + 2.0f, 3 + 2.0f));
 }
 
 TEST(Vector, binary_operator_plus_works_with_Vector_as_expected)
 {
-    static_assert(std::same_as<decltype(Vector3f{1.0f, 2.0f, 3.0f} + Vector3d{2.0} ), Vector3d>);
-    static_assert(std::same_as<decltype(Vector3i{1,    2,    3}    + Vector3f{2.0f}), Vector3f>);
-    static_assert(std::same_as<decltype(Vector3i{1,    2,    3}    + Vector3d{2.0} ), Vector3d>);
+    static_assert(std::same_as<decltype(Vector3f{1.0f, 2.0f, 3.0f} + Vector3d{2.0}), Vector3d>);
+    static_assert(std::same_as<decltype(Vector3i{1, 2, 3} + Vector3f{2.0f}), Vector3f>);
+    static_assert(std::same_as<decltype(Vector3i{1, 2, 3} + Vector3d{2.0}), Vector3d>);
 
-    ASSERT_EQ((Vector3i{1, 2, 3} + Vector3f{4.0f, 5.0f, 9.0f}), Vector3f(1+4.0f, 2+5.0f, 3+9.0f));
+    ASSERT_EQ((Vector3i{1, 2, 3} + Vector3f{4.0f, 5.0f, 9.0f}), Vector3f(1 + 4.0f, 2 + 5.0f, 3 + 9.0f));
 }
 
 TEST(Vector, can_be_written_to_a_std_ostream)
@@ -236,7 +236,7 @@ TEST(Vector, x_can_return_mutable_reference)
 {
     Vector3d v{1.0, 2.0, 3.0};
     v.x() += 3.0;
-    ASSERT_EQ(v.x(), 1.0+3.0);
+    ASSERT_EQ(v.x(), 1.0 + 3.0);
 }
 
 TEST(Vector, y_returns_second_element_as_const_reference)
@@ -255,7 +255,7 @@ TEST(Vector, y_can_return_mutable_reference)
 {
     Vector3d v{1.0, 2.0, 3.0};
     v.y() += 3.0;
-    ASSERT_EQ(v.y(), 2.0+3.0);
+    ASSERT_EQ(v.y(), 2.0 + 3.0);
 }
 
 TEST(Vector, z_returns_third_element_as_const_reference)
@@ -274,7 +274,7 @@ TEST(Vector, z_can_return_mutable_reference)
 {
     Vector3d v{1.0, 2.0, 3.0};
     v.z() += 3.0;
-    ASSERT_EQ(v.z(), 3.0+3.0);
+    ASSERT_EQ(v.z(), 3.0 + 3.0);
 }
 
 TEST(Vector, w_returns_fourth_element_as_const_reference)
@@ -293,7 +293,7 @@ TEST(Vector, w_can_return_mutable_reference)
 {
     Vector4d v{1.0, 2.0, 3.0, 4.0};
     v.w() += 3.0;
-    ASSERT_EQ(v.w(), 4.0+3.0);
+    ASSERT_EQ(v.w(), 4.0 + 3.0);
 }
 
 TEST(Vector, xy_returns_expected_elements)
@@ -364,7 +364,7 @@ TEST(Vector, zy_is_constexpr)
 
 TEST(Vector, can_be_formatted)
 {
-    ASSERT_EQ(std::format("{}", Vector3i{1,2,3}), "Vector(1, 2, 3)");
+    ASSERT_EQ(std::format("{}", Vector3i{1, 2, 3}), "Vector(1, 2, 3)");
 }
 
 TEST(Vector, uses_formatting_string_correctly)

@@ -33,8 +33,7 @@ namespace osc
                 column_type{s, T{}, T{}, T{}},
                 column_type{T{}, s, T{}, T{}},
                 column_type{T{}, T{}, s, T{}},
-                column_type{T{}, T{}, T{}, s}
-            }
+                column_type{T{}, T{}, T{}, s}}
         {}
 
         constexpr Matrix(
@@ -47,8 +46,7 @@ namespace osc
                 column_type{x0, y0, z0, w0},
                 column_type{x1, y1, z1, w1},
                 column_type{x2, y2, z2, w2},
-                column_type{x3, y3, z3, w3}
-            }
+                column_type{x3, y3, z3, w3}}
         {}
 
         constexpr Matrix(
@@ -75,8 +73,7 @@ namespace osc
                 column_type{x0, y0, z0, w0},
                 column_type{x1, y1, z1, w1},
                 column_type{x2, y2, z2, w2},
-                column_type{x3, y3, z3, w3}
-            }
+                column_type{x3, y3, z3, w3}}
         {}
 
         template<typename V1, typename V2, typename V3, typename V4>
@@ -90,8 +87,7 @@ namespace osc
                 column_type{v1},
                 column_type{v2},
                 column_type{v3},
-                column_type{v4}
-            }
+                column_type{v4}}
         {}
 
         constexpr Matrix(const Matrix<T, 3, 3>& m) :
@@ -99,8 +95,7 @@ namespace osc
                 column_type{m[0], T{}},
                 column_type{m[1], T{}},
                 column_type{m[2], T{}},
-                column_type{T{}, T{}, T{}, T(1)}
-            }
+                column_type{T{}, T{}, T{}, T(1)}}
         {}
 
         template<typename U>
@@ -319,8 +314,7 @@ namespace osc
             m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2] + m[0][3] * v[3],
             m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2] + m[1][3] * v[3],
             m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2] + m[2][3] * v[3],
-            m[3][0] * v[0] + m[3][1] * v[1] + m[3][2] * v[2] + m[3][3] * v[3]
-        );
+            m[3][0] * v[0] + m[3][1] * v[1] + m[3][2] * v[2] + m[3][3] * v[3]);
     }
 
     template<typename T>

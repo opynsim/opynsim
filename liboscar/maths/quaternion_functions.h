@@ -34,7 +34,7 @@ namespace osc
     requires std::is_arithmetic_v<T>
     constexpr T dot(const Qua<T>& a, const Qua<T>& b)
     {
-        return (a.w*b.w + a.x*b.x) + (a.y*b.y + a.z*b.z);
+        return ((a.w * b.w) + (a.x * b.x)) + ((a.y * b.y) + (a.z * b.z));
     }
 
     template<typename T>
@@ -61,8 +61,7 @@ namespace osc
                 static_cast<T>(1),
                 static_cast<T>(0),
                 static_cast<T>(0),
-                static_cast<T>(0)
-            );
+                static_cast<T>(0));
         }
 
         const T one_over_len = static_cast<T>(1) / len;
@@ -95,7 +94,7 @@ namespace osc
         const T biggest_val = sqrt(four_biggest_squared_minus_1 + static_cast<T>(1)) * static_cast<T>(0.5);
         const T mult = static_cast<T>(0.25) / biggest_val;
 
-        switch(biggest_index) {
+        switch (biggest_index) {
         case 0:
             return Qua<T>::wxyz(biggest_val, (m[1][2] - m[2][1]) * mult, (m[2][0] - m[0][2]) * mult, (m[0][1] - m[1][0]) * mult);
         case 1:
@@ -130,17 +129,17 @@ namespace osc
 
         Matrix<T, 3, 3> rv(T(1));
 
-        rv[0][0] = T(1) - T(2) * (qyy +  qzz);
+        rv[0][0] = T(1) - (T(2) * (qyy + qzz));
         rv[0][1] = T(2) * (qxy + qwz);
         rv[0][2] = T(2) * (qxz - qwy);
 
         rv[1][0] = T(2) * (qxy - qwz);
-        rv[1][1] = T(1) - T(2) * (qxx +  qzz);
+        rv[1][1] = T(1) - (T(2) * (qxx + qzz));
         rv[1][2] = T(2) * (qyz + qwx);
 
         rv[2][0] = T(2) * (qxz + qwy);
         rv[2][1] = T(2) * (qyz - qwx);
-        rv[2][2] = T(1) - T(2) * (qxx +  qyy);
+        rv[2][2] = T(1) - (T(2) * (qxx + qyy));
 
         return rv;
     }
@@ -158,15 +157,13 @@ namespace osc
             static_cast<T>(1),
             static_cast<T>(0),
             static_cast<T>(0),
-            static_cast<T>(0)
-        );
+            static_cast<T>(0));
     }
 
     template<
         std::floating_point T,
         AngularUnitTraits Units,
-        std::convertible_to<const Vector<T, 3>&> VectorLike
-    >
+        std::convertible_to<const Vector<T, 3>&> VectorLike>
     Qua<T> angle_axis(Angle<T, Units> angle, VectorLike&& axis)
     {
         const T s = sin(angle * static_cast<T>(0.5));
@@ -175,8 +172,7 @@ namespace osc
 
     template<
         std::floating_point T,
-        AngularUnitTraits Units
-    >
+        AngularUnitTraits Units>
     Qua<T> angle_axis(Angle<T, Units> angle, CoordinateDirection direction)
     {
         return angle_axis(angle, direction.direction_vector<T>());
@@ -200,7 +196,7 @@ namespace osc
             // This implementation favors a rotation around the Up axis (Y),
             // since it's often what you want to do.
             rotation_axis = cross(Vector<T, 3>(0, 0, 1), origin);
-            if (length2(rotation_axis) < epsilon_v<T>) { // bad luck, they were parallel, try again!
+            if (length2(rotation_axis) < epsilon_v<T>) {  // bad luck, they were parallel, try again!
                 rotation_axis = cross(Vector<T, 3>(1, 0, 0), origin);
             }
 
@@ -218,8 +214,7 @@ namespace osc
             s * static_cast<T>(0.5f),
             rotation_axis.x() * invs,
             rotation_axis.y() * invs,
-            rotation_axis.z() * invs
-        );
+            rotation_axis.z() * invs);
     }
 
     template<typename T>
@@ -238,7 +233,7 @@ namespace osc
         const T x = q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z;
 
         if (all_of(equal_within_epsilon(Vector<T, 2>(x, y), Vector<T, 2>(0)))) {
-            //avoid atan2(0,0) - handle singularity - Matiis
+            // avoid atan2(0,0) - handle singularity - Matiis
             return static_cast<T>(2) * atan2(q.x, q.w);
         }
 
@@ -258,7 +253,7 @@ namespace osc
         const T x = q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z;
 
         if (all_of(equal_within_epsilon(Vector<T, 2>(x, y), Vector<T, 2>(0)))) {
-            //avoid atan2(0,0) - handle singularity - Matiis
+            // avoid atan2(0,0) - handle singularity - Matiis
             return RadiansT<T>{0};
         }
 

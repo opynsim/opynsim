@@ -67,14 +67,13 @@ namespace osc
             T real_part = norm_u_norm_v + dot(u, v);
             Vector<T, 3> t;
 
-            if(real_part < static_cast<T>(1.e-6f) * norm_u_norm_v) {
+            if (real_part < static_cast<T>(1.e-6f) * norm_u_norm_v) {
                 // If u and v are exactly opposite, rotate 180 degrees
                 // around an arbitrary orthogonal axis. Axis normalisation
                 // can happen later, when we normalise the quaternion.
                 real_part = static_cast<T>(0);
                 t = abs(u.x()) > abs(u.z()) ? Vector<T, 3>(-u.y(), u.x(), static_cast<T>(0)) : Vector<T, 3>(static_cast<T>(0), -u.z(), u.y());
-            }
-            else {
+            } else {
                 // Otherwise, build quaternion the standard way.
                 t = cross(u, v);
             }

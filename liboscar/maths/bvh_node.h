@@ -26,6 +26,7 @@ namespace osc
             bounds_{bounds},
             data_{data}
         {}
+
     public:
         const AABB& bounds() const
         {
@@ -58,7 +59,7 @@ namespace osc
         }
 
     private:
-        static constexpr size_t c_leaf_mask = 1uz << (8*sizeof(size_t) - 1);
+        static constexpr size_t c_leaf_mask = 1uz << ((8 * sizeof(size_t)) - 1);
 
         // the union of all AABBs below, and including, this node
         AABB bounds_{};

@@ -24,7 +24,7 @@ TEST(ClosedInterval, can_use_structured_bindings_to_get_lower_and_upper)
 
 TEST(ClosedInterval, can_be_constructed_from_ints)
 {
-    [[maybe_unused]] const ClosedInterval<int> r{0, 1}; // shouldn't throw etc
+    [[maybe_unused]] const ClosedInterval<int> r{0, 1};  // shouldn't throw etc
 }
 
 TEST(ClosedInterval, reversing_lower_and_upper_is_allowed)

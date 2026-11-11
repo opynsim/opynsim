@@ -64,8 +64,7 @@ namespace osc
         {
             if (lower == upper) {
                 return T{0};  // the inverse of `std::lerp`'s behavior (ignoring `std::isfinite`)
-            }
-            else {
+            } else {
                 return (v - lower) / (upper - lower);
             }
         }

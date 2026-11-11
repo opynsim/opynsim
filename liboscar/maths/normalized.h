@@ -13,13 +13,15 @@ namespace osc
     class Normalized final {
     public:
         constexpr Normalized() = default;
-        constexpr Normalized(T value) : value_{saturate(value)} {}
+        constexpr Normalized(T value) :
+            value_{saturate(value)} {}
 
         friend bool operator==(const Normalized&, const Normalized&) = default;
         friend auto operator<=>(const Normalized&, const Normalized&) = default;
 
         constexpr const T& get() const { return value_; }
-        constexpr operator const T& () const { return value_; }
+        constexpr operator const T&() const { return value_; }
+
     private:
         T value_{};
     };

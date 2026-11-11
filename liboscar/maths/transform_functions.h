@@ -66,7 +66,7 @@ namespace osc
     {
         const Matrix4x4 translator = translate(identity<Matrix4x4>(), -transform.translation);
         const Matrix4x4 rotator = matrix4x4_cast(conjugate(transform.rotation));
-        const Matrix4x4 scaler = scale(identity<Matrix4x4>(), 1.0f/transform.scale);
+        const Matrix4x4 scaler = scale(identity<Matrix4x4>(), 1.0f / transform.scale);
 
         return scaler * rotator * translator;
     }

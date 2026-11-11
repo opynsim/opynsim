@@ -13,10 +13,10 @@
 #include <span>
 #include <vector>
 
-namespace osc { struct Ray; }
-
 namespace osc
 {
+    struct Ray;
+
     // a bounding volume hierarchy (BVH) of numerically IDed `AABB`s
     //
     // the `AABB`s may be computed from triangles, commonly called a "triangle BVH"
@@ -29,24 +29,20 @@ namespace osc
         // `prim.id()` will refer to the index of the first vertex in the triangle
         void build_from_indexed_triangles(
             std::span<const Vector3> vertices,
-            std::span<const uint16_t> indices
-        );
+            std::span<const uint16_t> indices);
         void build_from_indexed_triangles(
             std::span<const Vector3> vertices,
-            std::span<const uint32_t> indices
-        );
+            std::span<const uint32_t> indices);
 
         // returns the position of the closest ray-triangle collision along the ray, if any
         std::optional<BVHCollision> closest_ray_indexed_triangle_collision(
             std::span<const Vector3> vertices,
             std::span<const uint16_t> indices,
-            const Ray&
-        ) const;
+            const Ray&) const;
         std::optional<BVHCollision> closest_ray_indexed_triangle_collision(
             std::span<const Vector3> vertices,
             std::span<const uint32_t> indices,
-            const Ray&
-        ) const;
+            const Ray&) const;
 
         // `AABB` `BVH`es
         //

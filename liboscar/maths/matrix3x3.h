@@ -32,8 +32,7 @@ namespace osc
             value_{
                 column_type{s, T{}, T{}},
                 column_type{T{}, s, T{}},
-                column_type{T{}, T{}, s}
-            }
+                column_type{T{}, T{}, s}}
         {}
 
         constexpr Matrix(
@@ -44,8 +43,7 @@ namespace osc
             value_{
                 column_type{x0, y0, z0},
                 column_type{x1, y1, z1},
-                column_type{x2, y2, z2}
-            }
+                column_type{x2, y2, z2}}
         {}
 
         constexpr Matrix(
@@ -68,8 +66,7 @@ namespace osc
             value_{
                 column_type{x0, y0, z0},
                 column_type{x1, y1, z1},
-                column_type{x2, y2, z2}
-            }
+                column_type{x2, y2, z2}}
         {}
 
         template<typename V1, typename V2, typename V3>
@@ -81,8 +78,7 @@ namespace osc
             value_{
                 column_type{v1},
                 column_type{v2},
-                column_type{v3}
-            }
+                column_type{v3}}
         {}
 
         template<typename U>
@@ -90,16 +86,14 @@ namespace osc
             value_{
                 column_type{m[0]},
                 column_type{m[1]},
-                column_type{m[2]}
-            }
+                column_type{m[2]}}
         {}
 
         explicit constexpr Matrix(const Matrix<T, 4, 4>& m) :
             value_{
                 column_type{m[0]},
                 column_type{m[1]},
-                column_type{m[2]}
-            }
+                column_type{m[2]}}
         {}
 
         template<typename U>

@@ -27,18 +27,18 @@ namespace osc
         const Vector<T, 3> u(cross(s, f));
 
         Matrix<T, 4, 4> rv(1);
-        rv[0][0] =  s.x();
-        rv[1][0] =  s.y();
-        rv[2][0] =  s.z();
-        rv[0][1] =  u.x();
-        rv[1][1] =  u.y();
-        rv[2][1] =  u.z();
+        rv[0][0] = s.x();
+        rv[1][0] = s.y();
+        rv[2][0] = s.z();
+        rv[0][1] = u.x();
+        rv[1][1] = u.y();
+        rv[2][1] = u.z();
         rv[0][2] = -f.x();
         rv[1][2] = -f.y();
         rv[2][2] = -f.z();
         rv[3][0] = -dot(s, eye);
         rv[3][1] = -dot(u, eye);
-        rv[3][2] =  dot(f, eye);
+        rv[3][2] = dot(f, eye);
         return rv;
     }
 
@@ -58,9 +58,9 @@ namespace osc
         Matrix<T, 4, 4> rv(static_cast<T>(0));
         rv[0][0] = static_cast<T>(1) / (aspect * tan_half_fovy);
         rv[1][1] = static_cast<T>(1) / (tan_half_fovy);
-        rv[2][2] = - (z_far + z_near) / (z_far - z_near);
-        rv[2][3] = - static_cast<T>(1);
-        rv[3][2] = - (static_cast<T>(2) * z_far * z_near) / (z_far - z_near);
+        rv[2][2] = -(z_far + z_near) / (z_far - z_near);
+        rv[2][3] = -static_cast<T>(1);
+        rv[3][2] = -(static_cast<T>(2) * z_far * z_near) / (z_far - z_near);
         return rv;
     }
 
@@ -70,10 +70,10 @@ namespace osc
         Matrix<T, 4, 4> rv(1);
         rv[0][0] = static_cast<T>(2) / (right - left);
         rv[1][1] = static_cast<T>(2) / (top - bottom);
-        rv[2][2] = - static_cast<T>(2) / (z_far - z_near);
-        rv[3][0] = - (right + left) / (right - left);
-        rv[3][1] = - (top + bottom) / (top - bottom);
-        rv[3][2] = - (z_far + z_near) / (z_far - z_near);
+        rv[2][2] = -static_cast<T>(2) / (z_far - z_near);
+        rv[3][0] = -(right + left) / (right - left);
+        rv[3][1] = -(top + bottom) / (top - bottom);
+        rv[3][2] = -(z_far + z_near) / (z_far - z_near);
         return rv;
     }
 
@@ -146,15 +146,13 @@ namespace osc
         const T subfactor_05 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
 
         const Vector<T, 4> determinant_coef(
-            + (m[1][1] * subfactor_00 - m[1][2] * subfactor_01 + m[1][3] * subfactor_02),
-            - (m[1][0] * subfactor_00 - m[1][2] * subfactor_03 + m[1][3] * subfactor_04),
-            + (m[1][0] * subfactor_01 - m[1][1] * subfactor_03 + m[1][3] * subfactor_05),
-            - (m[1][0] * subfactor_02 - m[1][1] * subfactor_04 + m[1][2] * subfactor_05)
-        );
+            +(m[1][1] * subfactor_00 - m[1][2] * subfactor_01 + m[1][3] * subfactor_02),
+            -(m[1][0] * subfactor_00 - m[1][2] * subfactor_03 + m[1][3] * subfactor_04),
+            +(m[1][0] * subfactor_01 - m[1][1] * subfactor_03 + m[1][3] * subfactor_05),
+            -(m[1][0] * subfactor_02 - m[1][1] * subfactor_04 + m[1][2] * subfactor_05));
 
-        return
-            m[0][0] * determinant_coef[0] + m[0][1] * determinant_coef[1] +
-            m[0][2] * determinant_coef[2] + m[0][3] * determinant_coef[3];
+        return (m[0][0] * determinant_coef[0]) + (m[0][1] * determinant_coef[1]) +
+               (m[0][2] * determinant_coef[2]) + (m[0][3] * determinant_coef[3]);
     }
 
     template<std::floating_point T>
@@ -163,15 +161,15 @@ namespace osc
         const T one_over_determinant = static_cast<T>(1) / determinant_of(m);
 
         Matrix<T, 3, 3> rv;
-        rv[0][0] = + (m[1][1] * m[2][2] - m[2][1] * m[1][2]) * one_over_determinant;
-        rv[1][0] = - (m[1][0] * m[2][2] - m[2][0] * m[1][2]) * one_over_determinant;
-        rv[2][0] = + (m[1][0] * m[2][1] - m[2][0] * m[1][1]) * one_over_determinant;
-        rv[0][1] = - (m[0][1] * m[2][2] - m[2][1] * m[0][2]) * one_over_determinant;
-        rv[1][1] = + (m[0][0] * m[2][2] - m[2][0] * m[0][2]) * one_over_determinant;
-        rv[2][1] = - (m[0][0] * m[2][1] - m[2][0] * m[0][1]) * one_over_determinant;
-        rv[0][2] = + (m[0][1] * m[1][2] - m[1][1] * m[0][2]) * one_over_determinant;
-        rv[1][2] = - (m[0][0] * m[1][2] - m[1][0] * m[0][2]) * one_over_determinant;
-        rv[2][2] = + (m[0][0] * m[1][1] - m[1][0] * m[0][1]) * one_over_determinant;
+        rv[0][0] = +(m[1][1] * m[2][2] - m[2][1] * m[1][2]) * one_over_determinant;
+        rv[1][0] = -(m[1][0] * m[2][2] - m[2][0] * m[1][2]) * one_over_determinant;
+        rv[2][0] = +(m[1][0] * m[2][1] - m[2][0] * m[1][1]) * one_over_determinant;
+        rv[0][1] = -(m[0][1] * m[2][2] - m[2][1] * m[0][2]) * one_over_determinant;
+        rv[1][1] = +(m[0][0] * m[2][2] - m[2][0] * m[0][2]) * one_over_determinant;
+        rv[2][1] = -(m[0][0] * m[2][1] - m[2][0] * m[0][1]) * one_over_determinant;
+        rv[0][2] = +(m[0][1] * m[1][2] - m[1][1] * m[0][2]) * one_over_determinant;
+        rv[1][2] = -(m[0][0] * m[1][2] - m[1][0] * m[0][2]) * one_over_determinant;
+        rv[2][2] = +(m[0][0] * m[1][1] - m[1][0] * m[0][1]) * one_over_determinant;
         return rv;
     }
 
@@ -282,11 +280,11 @@ namespace osc
     Vector<RadiansT<T>, 3> extract_eulers_xyz(const Matrix<T, 4, 4>& m)
     {
         const RadiansT<T> t1 = atan2(m[2][1], m[2][2]);
-        const T c2 = sqrt(m[0][0]*m[0][0] + m[1][0]*m[1][0]);
+        const T c2 = sqrt((m[0][0] * m[0][0]) + (m[1][0] * m[1][0]));
         const RadiansT<T> t2 = atan2(-m[2][0], c2);
         const T s1 = sin(t1);
         const T c1 = cos(t1);
-        const RadiansT<T> t3 = atan2(s1*m[0][2] - c1*m[0][1], c1*m[1][1] - s1*m[1][2  ]);
+        const RadiansT<T> t3 = atan2((s1 * m[0][2]) - (c1 * m[0][1]), (c1 * m[1][1]) - (s1 * m[1][2]));
 
         return Vector<RadiansT<T>, 3>{-t1, -t2, -t3};
     }
@@ -349,8 +347,7 @@ namespace osc
         if (
             not equal_within_epsilon(local_matrix[0][3], static_cast<T>(0)) or
             not equal_within_epsilon(local_matrix[1][3], static_cast<T>(0)) or
-            not equal_within_epsilon(local_matrix[2][3], static_cast<T>(0)))
-        {
+            not equal_within_epsilon(local_matrix[2][3], static_cast<T>(0))) {
             // `right_hand_side` is the right hand side of the equation
             const Vector<T, 4> right_hand_side = {
                 local_matrix[0][3],
@@ -363,15 +360,14 @@ namespace osc
             // `right_hand_side` by the inverse. This is the easiest way, not
             // necessarily the best.
             const Matrix<T, 4, 4> inverse_perspective_matrix = inverse(perspective_matrix);
-            const Matrix<T, 4, 4> transposed_inverse_perspective_matrix = transpose(inverse_perspective_matrix);//   transposeMatrix4(inversePerspectiveMatrix, transposedInversePerspectiveMatrix);
+            const Matrix<T, 4, 4> transposed_inverse_perspective_matrix = transpose(inverse_perspective_matrix);  //   transposeMatrix4(inversePerspectiveMatrix, transposedInversePerspectiveMatrix);
 
             r_perspective = transposed_inverse_perspective_matrix * right_hand_side;
 
             // clear the perspective partition
             local_matrix[0][3] = local_matrix[1][3] = local_matrix[2][3] = static_cast<T>(0);
             local_matrix[3][3] = static_cast<T>(1);
-        }
-        else {
+        } else {
             // no perspective
             r_perspective = Vector<T, 4>(0, 0, 0, 1);
         }
@@ -384,7 +380,7 @@ namespace osc
         std::array<Vector<T, 3>, 3> row;
         Vector<T, 3> pdum3;
         for (size_t i = 0; i < 3; ++i) {
-            for(size_t j = 0; j < 3; ++j) {
+            for (size_t j = 0; j < 3; ++j) {
                 row[i][j] = local_matrix[i][j];
             }
         }
@@ -457,14 +453,16 @@ namespace osc
             r_orientation.x = root * (row[1].z() - row[2].y());
             r_orientation.y = root * (row[2].x() - row[0].z());
             r_orientation.z = root * (row[0].y() - row[1].x());
-        } // end_panel if > 0
+        }  // end_panel if > 0
         else {
             std::array<int, 3> next = {1, 2, 0};
             i = 0;
-            if(row[1].y() > row[0].x()) { i = 1;
-}
-            if(row[2].z() > row[i][i]) { i = 2;
-}
+            if (row[1].y() > row[0].x()) {
+                i = 1;
+            }
+            if (row[2].z() > row[i][i]) {
+                i = 2;
+            }
             j = next[i];
             k = next[j];
 
@@ -477,7 +475,7 @@ namespace osc
             r_orientation[j + off] = root * (row[i][j] + row[j][i]);
             r_orientation[k + off] = root * (row[i][k] + row[k][i]);
             r_orientation.w = root * (row[j][k] - row[k][j]);
-        } // end_panel if <= 0
+        }  // end_panel if <= 0
 
         return true;
     }
@@ -491,15 +489,15 @@ namespace osc
         //     inverse(M) = Adjugate(M) / determinant_of(M);
 
         Matrix<T, 3, 3> rv;
-        rv[0][0] = + (m[1][1] * m[2][2] - m[2][1] * m[1][2]);
-        rv[1][0] = - (m[1][0] * m[2][2] - m[2][0] * m[1][2]);
-        rv[2][0] = + (m[1][0] * m[2][1] - m[2][0] * m[1][1]);
-        rv[0][1] = - (m[0][1] * m[2][2] - m[2][1] * m[0][2]);
-        rv[1][1] = + (m[0][0] * m[2][2] - m[2][0] * m[0][2]);
-        rv[2][1] = - (m[0][0] * m[2][1] - m[2][0] * m[0][1]);
-        rv[0][2] = + (m[0][1] * m[1][2] - m[1][1] * m[0][2]);
-        rv[1][2] = - (m[0][0] * m[1][2] - m[1][0] * m[0][2]);
-        rv[2][2] = + (m[0][0] * m[1][1] - m[1][0] * m[0][1]);
+        rv[0][0] = +(m[1][1] * m[2][2] - m[2][1] * m[1][2]);
+        rv[1][0] = -(m[1][0] * m[2][2] - m[2][0] * m[1][2]);
+        rv[2][0] = +(m[1][0] * m[2][1] - m[2][0] * m[1][1]);
+        rv[0][1] = -(m[0][1] * m[2][2] - m[2][1] * m[0][2]);
+        rv[1][1] = +(m[0][0] * m[2][2] - m[2][0] * m[0][2]);
+        rv[2][1] = -(m[0][0] * m[2][1] - m[2][0] * m[0][1]);
+        rv[0][2] = +(m[0][1] * m[1][2] - m[1][1] * m[0][2]);
+        rv[1][2] = -(m[0][0] * m[1][2] - m[1][0] * m[0][2]);
+        rv[2][2] = +(m[0][0] * m[1][1] - m[1][0] * m[0][1]);
         return rv;
     }
 

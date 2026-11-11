@@ -210,12 +210,11 @@ namespace
 INSTANTIATE_TEST_SUITE_P(
     CoordinateDirectionParsingTest,
     ParsingTestFixture,
-    testing::ValuesIn(c_parsing_test_cases)
-);
+    testing::ValuesIn(c_parsing_test_cases));
 
 TEST_P(ParsingTestFixture, Check)
 {
-    const ParsingTestCase test_case =  GetParam();
+    const ParsingTestCase test_case = GetParam();
     ASSERT_EQ(CoordinateDirection::try_parse(test_case.input), test_case.expected) << "input = " << test_case.input;
 }
 
@@ -242,8 +241,7 @@ namespace
 INSTANTIATE_TEST_SUITE_P(
     CoordinateDirectionPrintingTest,
     PrintingTestFixture,
-    testing::ValuesIn(c_printing_test_cases)
-);
+    testing::ValuesIn(c_printing_test_cases));
 
 TEST_P(PrintingTestFixture, Check)
 {
@@ -275,7 +273,7 @@ TEST(CoordinateDirection, direction_vector_returns_expected_results)
     ASSERT_EQ(CoordinateDirection::minus_y().direction_vector(), Vector3(0.0f, -1.0f, 0.0f));
     ASSERT_EQ(CoordinateDirection::minus_z().direction_vector(), Vector3(0.0f, 0.0f, -1.0f));
 }
- TEST(CoordinateDirection, index_returns_expected_results)
+TEST(CoordinateDirection, index_returns_expected_results)
 {
     static_assert(CoordinateDirection::x().index() == 0);
     static_assert(CoordinateDirection::y().index() == 1);

@@ -53,8 +53,7 @@ namespace osc
         return Vector<T, 3>(
             x.y() * y.z() - y.y() * x.z(),
             x.z() * y.x() - y.z() * x.x(),
-            x.x() * y.y() - y.x() * x.y()
-        );
+            x.x() * y.y() - y.x() * x.y());
     }
 
     // returns the length of the provided vector
@@ -103,7 +102,7 @@ namespace osc
     // Returns true if unit vectors `a` and `b` are parallel within `tolerance`.
     // The sign of the direction is ignored.
     template<std::floating_point T, size_t N>
-    requires (N > 1)
+    requires(N > 1)
     bool is_parallel(
         const Vector<T, N>& a,
         const Vector<T, N>& b,
@@ -114,7 +113,7 @@ namespace osc
 
     // Returns true if unit vectors `a` and `b` are codirectional within `tolerance`.
     template<std::floating_point T, size_t N>
-    requires (N > 1)
+    requires(N > 1)
     bool is_codirectional(
         const Vector<T, N>& a,
         const Vector<T, N>& b,

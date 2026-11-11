@@ -63,27 +63,27 @@ namespace osc
 
         // Returns the X coordinate of this `Rect`'s left edge. Assumes X "points right"
         // in the coordinate system of this `Rect`.
-        float left() const { return origin_.x() - 0.5f*dimensions_.x(); }
+        float left() const { return origin_.x() - (0.5f * dimensions_.x()); }
 
         // Returns the X coordinate of this `Rect`'s right edge. Assumes X "points right"
         // in the coordinate system of this `Rect`.
-        float right() const { return origin_.x() + 0.5f*dimensions_.x(); }
+        float right() const { return origin_.x() + (0.5f * dimensions_.x()); }
 
         // Assuming Y "points down" in the coordinate system of this `Rect`, returns the
         // Y coordinate of this `Rect`'s top edge.
-        float ypd_top() const { return origin_.y() - 0.5f*dimensions_.y(); }
+        float ypd_top() const { return origin_.y() - (0.5f * dimensions_.y()); }
 
         // Assuming Y "points down" in the coordinate system of this `Rect`, returns the
         // Y coordinate of this `Rect`'s bottom edge.
-        float ypd_bottom() const { return origin_.y() + 0.5f*dimensions_.y(); }
+        float ypd_bottom() const { return origin_.y() + (0.5f * dimensions_.y()); }
 
         // Assuming Y "points up" in the coordinate system of this `Rect`, returns the
         // Y coordinate of this `Rect`'s top edge.
-        float ypu_top() const { return origin_.y() + 0.5f*dimensions_.y(); }
+        float ypu_top() const { return origin_.y() + (0.5f * dimensions_.y()); }
 
         // Assuming Y "points up" in the coordinate system of this `Rect`, returns the
         // Y coordinate of this `Rect`'s bottom edge.
-        float ypu_bottom() const { return origin_.y() - 0.5f*dimensions_.y(); }
+        float ypu_bottom() const { return origin_.y() - (0.5f * dimensions_.y()); }
 
         // Returns the minimum and maximum opposite corner points of this `Rect`.
         RectCorners corners() const
@@ -121,11 +121,19 @@ namespace osc
 
         // Assuming Y "points down" in the coordinate system of this `Rect`, returns a point
         // that represents the top-right corner of this `Rect` in that coordinate system.
-        Vector2 ypd_top_right() const { const auto c = corners(); return Vector2{c.max.x(), c.min.y()}; }
+        Vector2 ypd_top_right() const
+        {
+            const auto c = corners();
+            return Vector2{c.max.x(), c.min.y()};
+        }
 
         // Assuming Y "points down" in the coordinate system of this `Rect`, returns a point
         // that represents the bottom-left corner of this `Rect` in that coordinate system.
-        Vector2 ypd_bottom_left() const { const auto c = corners(); return Vector2{c.min.x(), c.max.y()}; }
+        Vector2 ypd_bottom_left() const
+        {
+            const auto c = corners();
+            return Vector2{c.min.x(), c.max.y()};
+        }
 
         // Assuming Y "points down" in the coordinate system of this `Rect`, returns a point
         // that represents the bottom-right corner of this `Rect` in that coordinate system.
@@ -133,7 +141,11 @@ namespace osc
 
         // Assuming Y "points up" in the coordinate system of this `Rect`, returns a point
         // that represents the top-left corner of this `Rect` in that coordinate system.
-        Vector2 ypu_top_left() const { const auto c = corners(); return Vector2{c.min.x(), c.max.y()}; }
+        Vector2 ypu_top_left() const
+        {
+            const auto c = corners();
+            return Vector2{c.min.x(), c.max.y()};
+        }
 
         // Assuming Y "points up" in the coordinate system of this `Rect`, returns a point
         // that represents the top-right corner of this `Rect` in that coordinate system.
@@ -145,7 +157,11 @@ namespace osc
 
         // Assuming Y "points up" in the coordinate system of this `Rect`, returns a point
         // that represents the bottom-right corner of this `Rect` in that coordinate system.
-        Vector2 ypu_bottom_right() const { const auto c = corners(); return Vector2{c.max.x(), c.min.y()}; }
+        Vector2 ypu_bottom_right() const
+        {
+            const auto c = corners();
+            return Vector2{c.max.x(), c.min.y()};
+        }
 
         // Assuming the Y axis in the coordinate system of this `Rect` points in one direction
         // (up or down), returns a new `Rect` in a flipped coordinate system that has the
@@ -182,6 +198,7 @@ namespace osc
         {
             return Rect{scale_factor * origin_, scale_factor * dimensions_};
         }
+
     private:
         // Constructs a `Rect` from its data members.
         explicit constexpr Rect(const Vector2& origin, const Vector2& dimensions) :

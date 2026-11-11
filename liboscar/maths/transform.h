@@ -42,7 +42,7 @@ namespace osc
     constexpr Vector3 operator*(const Transform& transform, Vector3 point)
     {
         point *= transform.scale;
-        point  = transform.rotation * point;
+        point = transform.rotation * point;
         point += transform.translation;
         return point;
     }

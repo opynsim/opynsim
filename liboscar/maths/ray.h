@@ -5,11 +5,12 @@
 
 #include <iosfwd>
 
-namespace osc { template<typename T, size_t C, size_t R> struct Matrix; }
-namespace osc { struct Transform; }
-
 namespace osc
 {
+    template<typename T, size_t C, size_t R>
+    struct Matrix;
+    struct Transform;
+
     // an infinitely long object with no width with an origin position and direction in 3D space
     //
     // - see `LineSegment` for the finite version of this
@@ -29,8 +30,7 @@ namespace osc
     bool is_colinear_and_codirectional(
         const Ray& a,
         const Ray& b,
-        float tolerance = epsilon_v<float>
-    );
+        float tolerance = epsilon_v<float>);
 
     // returns a `Ray` that has been transformed by the matrix.
     Ray transform_ray(const Ray&, const Matrix<float, 4, 4>&);

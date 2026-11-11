@@ -63,7 +63,7 @@ namespace
 {
     bool has_nonzero_volume(const Triangle& t)
     {
-        return not (t.p0 == t.p1 or t.p0 == t.p2 or t.p1 == t.p2);
+        return not(t.p0 == t.p1 or t.p0 == t.p2 or t.p1 == t.p2);
     }
 
     // recursively build the BVH
@@ -77,8 +77,7 @@ namespace
             // recursion bottomed out: create a leaf node
             nodes.push_back(BVHNode::leaf(
                 prims.at(begin).bounds(),
-                begin
-            ));
+                begin));
             return;
         }
 
@@ -100,8 +99,7 @@ namespace
             const float midpoint_x2 = aabb.min[longest_dim_index] + aabb.max[longest_dim_index];
 
             // returns `true` if a given primitive is below the midpoint along the dim
-            const auto is_below_midpoint = [longest_dim_index, midpoint_x2](const BVHPrim& p)
-            {
+            const auto is_below_midpoint = [longest_dim_index, midpoint_x2](const BVHPrim& p) {
                 const float prim_midpoint_x2 = p.bounds().min[longest_dim_index] + p.bounds().max[longest_dim_index];
                 return prim_midpoint_x2 <= midpoint_x2;
             };
@@ -113,7 +111,7 @@ namespace
             midpoint = std::distance(prims.begin(), it);
             if (midpoint == begin or midpoint == end) {
                 // edge-case: failed to spatially partition: just naively partition
-                midpoint = begin + n/2;
+                midpoint = begin + n / 2;
             }
 
             internal_node_loc = std::ssize(nodes);
@@ -126,7 +124,7 @@ namespace
         }
 
         // build left-hand subtree
-        bvh_recursive_build(nodes, prims, begin, midpoint-begin);
+        bvh_recursive_build(nodes, prims, begin, midpoint - begin);
 
         // the left-hand build allocated nodes for the left hand side contiguously in memory
         const ptrdiff_t num_lhs_nodes = (std::ssize(nodes) - 1) - internal_node_loc;
@@ -135,7 +133,7 @@ namespace
 
         // build right node
         bvh_recursive_build(nodes, prims, midpoint, (begin + n) - midpoint);
-        OSC_ASSERT(internal_node_loc+num_lhs_nodes < std::ssize(nodes));
+        OSC_ASSERT(internal_node_loc + num_lhs_nodes < std::ssize(nodes));
     }
 
     // returns `true` if something hit (recursively)
@@ -167,8 +165,8 @@ namespace
         }
 
         // else: we've "hit" an internal node and need to recurse to find the leaf
-        const bool lhs_hit = bvh_for_each_ray_aabb_collisions_recursive(nodes, prims, ray, node_index+1, callback);
-        const bool rhs_hit = bvh_for_each_ray_aabb_collisions_recursive(nodes, prims, ray, node_index+node.num_lhs_nodes()+1, callback);
+        const bool lhs_hit = bvh_for_each_ray_aabb_collisions_recursive(nodes, prims, ray, node_index + 1, callback);
+        const bool rhs_hit = bvh_for_each_ray_aabb_collisions_recursive(nodes, prims, ray, node_index + node.num_lhs_nodes() + 1, callback);
         return lhs_hit or rhs_hit;
     }
 
@@ -200,8 +198,8 @@ namespace
 
             const Triangle triangle = {
                 at(vertices, at(indices, prim.id())),
-                at(vertices, at(indices, prim.id()+1)),
-                at(vertices, at(indices, prim.id()+2)),
+                at(vertices, at(indices, prim.id() + 1)),
+                at(vertices, at(indices, prim.id() + 2)),
             };
 
             const std::optional<RayCollision> triangle_collision = find_collision(ray, triangle);
@@ -209,8 +207,7 @@ namespace
             if (triangle_collision and triangle_collision->distance < closest) {
                 closest = triangle_collision->distance;
                 return BVHCollision{triangle_collision->distance, triangle_collision->position, prim.id()};
-            }
-            else {
+            } else {
                 return std::nullopt;  // it didn't collide with the triangle
             }
         }
@@ -223,8 +220,7 @@ namespace
             indices,
             ray,
             closest,
-            node_index+1
-        );
+            node_index + 1);
         const std::optional<BVHCollision> rhs = bvh_get_closest_ray_indexed_triangle_collision_recursive(
             nodes,
             prims,
@@ -232,8 +228,7 @@ namespace
             indices,
             ray,
             closest,
-            node_index+node.num_lhs_nodes()+1
-        );
+            node_index + node.num_lhs_nodes() + 1);
 
         return rhs ? rhs : lhs;
     }
@@ -250,12 +245,12 @@ namespace
         prims.clear();
 
         // build up the prim list for each triangle
-        prims.reserve(indices.size()/3);  // guess: upper limit
-        for (size_t i = 0; (i+2) < indices.size(); i += 3) {
+        prims.reserve(indices.size() / 3);  // guess: upper limit
+        for (size_t i = 0; (i + 2) < indices.size(); i += 3) {
             const Triangle triangle{
                 at(vertices, indices[i]),
-                at(vertices, indices[i+1]),
-                at(vertices, indices[i+2]),
+                at(vertices, indices[i + 1]),
+                at(vertices, indices[i + 2]),
             };
 
             if (has_nonzero_volume(triangle)) {
@@ -321,8 +316,7 @@ void osc::BVH::build_from_indexed_triangles(std::span<const Vector3> vertices, s
         nodes_,
         prims_,
         vertices,
-        indices
-    );
+        indices);
 }
 
 void osc::BVH::build_from_indexed_triangles(std::span<const Vector3> vertices, std::span<const uint32_t> indices)
@@ -331,8 +325,7 @@ void osc::BVH::build_from_indexed_triangles(std::span<const Vector3> vertices, s
         nodes_,
         prims_,
         vertices,
-        indices
-    );
+        indices);
 }
 
 std::optional<BVHCollision> osc::BVH::closest_ray_indexed_triangle_collision(
@@ -345,8 +338,7 @@ std::optional<BVHCollision> osc::BVH::closest_ray_indexed_triangle_collision(
         prims_,
         vertices,
         indices,
-        ray
-    );
+        ray);
 }
 
 std::optional<BVHCollision> osc::BVH::closest_ray_indexed_triangle_collision(
@@ -359,8 +351,7 @@ std::optional<BVHCollision> osc::BVH::closest_ray_indexed_triangle_collision(
         prims_,
         vertices,
         indices,
-        ray
-    );
+        ray);
 }
 
 void osc::BVH::build_from_aabbs(std::span<const AABB> aabbs)
@@ -398,8 +389,7 @@ void osc::BVH::for_each_ray_aabb_collision(
         prims_,
         ray,
         0,
-        callback
-    );
+        callback);
 }
 
 bool osc::BVH::empty() const
@@ -421,15 +411,13 @@ size_t osc::BVH::max_depth() const
 
             if (stack.empty()) {
                 break;  // nowhere to traverse to: exit
-            }
-            else {
+            } else {
                 // traverse up to a parent node and try the right-hand side
                 const size_t next = stack.top();
                 stack.pop();
                 cur = next + nodes_[next].num_lhs_nodes() + 1;
             }
-        }
-        else {
+        } else {
             // internal node: push into the (right-hand) history stack and then
             //                traverse to the left-hand side
 
@@ -491,9 +479,9 @@ std::optional<CoordinateAxis> osc::CoordinateAxis::try_parse(std::string_view st
 std::ostream& osc::operator<<(std::ostream& out, CoordinateAxis axis)
 {
     switch (axis.index()) {
-    case 0:  return out << 'x';
-    case 1:  return out << 'y';
-    case 2:  return out << 'z';
+    case 0: return out << 'x';
+    case 1: return out << 'y';
+    case 2: return out << 'z';
     default: return out;
     }
 }
@@ -574,7 +562,6 @@ float osc::volume_of(const Tetrahedron& tetrahedron)
     return determinant_of(mat) / 6.0f;
 }
 
-
 namespace
 {
     struct QuadraticFormulaResult final {
@@ -591,7 +578,7 @@ namespace
         QuadraticFormulaResult res{};
 
         // b2 - 4ac
-        const float discriminant = b*b - 4.0f*a*c;
+        const float discriminant = (b * b) - (4.0f * a * c);
 
         if (discriminant < 0.0f) {
             res.computable = false;
@@ -641,10 +628,9 @@ namespace
         //     https://math.stackexchange.com/questions/1340267/alternative-quadratic-formula
         //     https://en.wikipedia.org/wiki/Quadratic_equation
 
-
         res.computable = true;
-        res.x0 = q/a;  // textbook "complete the square" equation
-        res.x1 = c/q;  // Muller's method equation
+        res.x0 = q / a;  // textbook "complete the square" equation
+        res.x1 = c / q;  // Muller's method equation
         return res;
     }
 
@@ -695,10 +681,9 @@ namespace
             }
         }
 
-        return RayCollision{t0, ray.origin + t0*ray.direction};
+        return RayCollision{t0, ray.origin + (t0 * ray.direction)};
     }
 }
-
 
 Radians osc::vertical_to_horizontal_field_of_view(Radians vertical_field_of_view, float aspect_ratio)
 {
@@ -706,7 +691,6 @@ Radians osc::vertical_to_horizontal_field_of_view(Radians vertical_field_of_view
 
     return 2.0f * atan(tan(0.5f * vertical_field_of_view) * aspect_ratio);
 }
-
 
 Matrix4x4 osc::matrix4x4_transform_between_directions(const Vector3& dir1, const Vector3& dir2)
 {
@@ -733,8 +717,7 @@ Matrix4x4 osc::matrix4x4_transform_between_directions(const Vector3& dir1, const
 
         theta = 180_deg;
         rotation_axis = normalize(rotation_axis);
-    }
-    else {
+    } else {
         theta = acos(cos_theta);
         rotation_axis = normalize(cross(dir1, dir2));
     }
@@ -750,7 +733,7 @@ EulerAngles osc::extract_eulers_xyz(const Quaternion& quaternion)
 Vector2 osc::topleft_normalized_point_to_ndc(Vector2 normalized_point)
 {
     normalized_point.y() = 1.0f - normalized_point.y();
-    return 2.0f*normalized_point - 1.0f;
+    return (2.0f * normalized_point) - 1.0f;
 }
 
 Vector2 osc::ndc_point_to_topleft_normalized(Vector2 ndc_point)
@@ -790,8 +773,7 @@ Ray osc::perspective_unproject_topleft_normalized_pos_to_world(
     const Vector3 ray_origin_world = topleft_normalized_point_to_world_znear(
         normalized_point,
         camera_view_matrix,
-        camera_proj_matrix
-    );
+        camera_proj_matrix);
 
     // direction vector from camera position to mouse position (i.e. the projection)
     const Vector3 ray_direction_world = normalize(ray_origin_world - camera_world_space_origin);
@@ -813,8 +795,7 @@ Rect osc::clamp(const Rect& r, const Vector2& min, const Vector2& max)
     const auto corners = r.corners();
     return Rect::from_corners(
         elementwise_clamp(corners.min, min, max),
-        elementwise_clamp(corners.max, min, max)
-    );
+        elementwise_clamp(corners.max, min, max));
 }
 
 Rect osc::ndc_rect_to_topleft_viewport_rect(const Rect& ndc_rect, const Rect& viewport)
@@ -827,8 +808,7 @@ Rect osc::ndc_rect_to_topleft_viewport_rect(const Rect& ndc_rect, const Rect& vi
     // the viewport's top-left is
     return Rect::from_corners(
         viewport_top_left + (viewport_dimensions * (0.5f * (ndc_corners.min + 1.0f))),
-        viewport_top_left + (viewport_dimensions * (0.5f * (ndc_corners.max + 1.0f)))
-    );
+        viewport_top_left + (viewport_dimensions * (0.5f * (ndc_corners.max + 1.0f))));
 }
 
 Vector2 osc::project_onto_viewport_rect(
@@ -845,10 +825,10 @@ Vector2 osc::project_onto_viewport_rect(
     const Vector3 ndc_3d = Vector3{clip} / clip.w();  // perspective divide (clip space -> NDC)
 
     Vector2 ndc_2d = {ndc_3d.x(), -ndc_3d.y()};  // [-1, 1], Y points down
-    ndc_2d += 1.0f;                            // [0, 2]
-    ndc_2d *= 0.5f;                            // [0, 1]
-    ndc_2d *= viewport_rect.dimensions();      // [0, w]
-    ndc_2d += viewport_rect.min_corner();      // [x, x + w]
+    ndc_2d += 1.0f;                              // [0, 2]
+    ndc_2d *= 0.5f;                              // [0, 1]
+    ndc_2d *= viewport_rect.dimensions();        // [0, w]
+    ndc_2d += viewport_rect.min_corner();        // [x, x + w]
 
     return ndc_2d;  // It's the caller's responsibility to check if it's within 2D bounds
 }
@@ -905,7 +885,7 @@ Matrix4x4 osc::matrix4x4_transform_between(const Disc& src_disc, const Disc& des
     // along the line's original direction
 
     // scale factor
-    const float s = dest_disc.radius/src_disc.radius;
+    const float s = dest_disc.radius / src_disc.radius;
 
     // LERP the axes as follows
     //
@@ -922,14 +902,13 @@ Matrix4x4 osc::matrix4x4_transform_between(const Disc& src_disc, const Disc& des
     Matrix4x4 rotator;
     if (cos_theta > 0.9999f) {
         rotator = identity<Matrix4x4>();
-    }
-    else {
+    } else {
         const Radians theta = acos(cos_theta);
         const Vector3 axis = cross(src_disc.normal, dest_disc.normal);
         rotator = rotate(identity<Matrix4x4>(), theta, axis);
     }
 
-    const Matrix4x4 translator = translate(identity<Matrix4x4>(), dest_disc.origin-src_disc.origin);
+    const Matrix4x4 translator = translate(identity<Matrix4x4>(), dest_disc.origin - src_disc.origin);
 
     return translator * rotator * scaler;
 }
@@ -955,8 +934,7 @@ std::array<Vector3, 8> osc::corner_vertices_of(const AABB& aabb)
 
 AABB osc::transform_aabb(const Matrix4x4& mat, const AABB& aabb)
 {
-    return bounding_aabb_of(corner_vertices_of(aabb), [&](const Vector3& vertex)
-    {
+    return bounding_aabb_of(corner_vertices_of(aabb), [&](const Vector3& vertex) {
         const Vector4 p = mat * Vector4{vertex, 1.0f};
         return Vector3{p / p.w()};  // perspective divide
     });
@@ -981,8 +959,7 @@ AABB osc::transform_aabb(const Transform& transform, const AABB& aabb)
             if (e < f) {
                 rv.min[i] += e;
                 rv.max[i] += f;
-            }
-            else {
+            } else {
                 rv.min[i] += f;
                 rv.max[i] += e;
             }
@@ -1036,13 +1013,13 @@ Matrix4x4 osc::matrix4x4_transform_between(const LineSegment& a, const LineSegme
     const Vector3 a_direction = a1_to_a2 / a_length;
     const Vector3 b_direction = b1_to_b2 / b_length;
 
-    const Vector3 a_center = (a.start + a.end)/2.0f;
-    const Vector3 b_center = (b.start + b.end)/2.0f;
+    const Vector3 a_center = (a.start + a.end) / 2.0f;
+    const Vector3 b_center = (b.start + b.end) / 2.0f;
 
     // this is essentially LERPing [0,1] onto [1, l] to rescale only
     // along the line's original direction
-    const float s = b_length/a_length;
-    const Vector3 scaler = Vector3{1.0f, 1.0f, 1.0f} + (s-1.0f)*a_direction;
+    const float s = b_length / a_length;
+    const Vector3 scaler = Vector3{1.0f, 1.0f, 1.0f} + (s - 1.0f) * a_direction;
 
     const Matrix4x4 rotate = matrix4x4_transform_between_directions(a_direction, b_direction);
     const Matrix4x4 move = translate(identity<Matrix4x4>(), b_center - a_center);
@@ -1061,12 +1038,12 @@ Transform osc::transform_between(const LineSegment& a, const LineSegment& b)
     const Vector3 a_direction = a1_to_a2 / a_length;
     const Vector3 b_direction = b1_to_b2 / b_length;
 
-    const Vector3 a_center = (a.start + a.end)/2.0f;
-    const Vector3 b_center = (b.start + b.end)/2.0f;
+    const Vector3 a_center = (a.start + a.end) / 2.0f;
+    const Vector3 b_center = (b.start + b.end) / 2.0f;
 
     // for scale: LERP [0,1] onto [1,l] along original direction
     return Transform{
-        .scale = Vector3{1.0f, 1.0f, 1.0f} + ((b_length/a_length - 1.0f)*a_direction),
+        .scale = Vector3{1.0f, 1.0f, 1.0f} + ((b_length / a_length - 1.0f) * a_direction),
         .rotation = rotation(a_direction, b_direction),
         .translation = b_center - a_center,
     };
@@ -1097,8 +1074,8 @@ void osc::apply_world_space_rotation(
     const Vector3& rotation_center)
 {
     const Quaternion q = to_world_space_rotation_quaternion(euler_angles);
-    application_target.translation = q*(application_target.translation - rotation_center) + rotation_center;
-    application_target.rotation = normalize(q*application_target.rotation);
+    application_target.translation = q * (application_target.translation - rotation_center) + rotation_center;
+    application_target.rotation = normalize(q * application_target.rotation);
 }
 
 bool osc::is_intersecting(const Rect& rect, const Vector2& point)
@@ -1142,7 +1119,7 @@ std::optional<RayCollision> osc::find_collision(const Ray& ray, const AABB& aabb
         }
     }
 
-    return RayCollision{t0, ray.origin + t0*ray.direction};
+    return RayCollision{t0, ray.origin + (t0 * ray.direction)};
 }
 
 std::optional<RayCollision> osc::find_collision(const Ray& ray, const Plane& plane)
@@ -1175,9 +1152,8 @@ std::optional<RayCollision> osc::find_collision(const Ray& ray, const Plane& pla
     if (abs(denominator) > 1e-6) {
         const float numerator = dot(plane.origin - ray.origin, plane.normal);
         const float distance = numerator / denominator;
-        return RayCollision{distance, ray.origin + distance*ray.direction};
-    }
-    else {
+        return RayCollision{distance, ray.origin + distance * ray.direction};
+    } else {
         // the ray is *very* parallel to the plane, which could cause
         // some divide-by-zero havoc: pretend it didn't intersect
         return std::nullopt;
@@ -1253,7 +1229,7 @@ std::optional<RayCollision> osc::find_collision(const Ray& ray, const Triangle& 
     }
 
     // intersection point on triangle plane, computed from ray equation
-    const Vector3 p = ray.origin + t*ray.direction;
+    const Vector3 p = ray.origin + (t * ray.direction);
 
     // figure out if that point is inside the triangle's bounds using the
     // "inside-outside" test
@@ -1261,7 +1237,7 @@ std::optional<RayCollision> osc::find_collision(const Ray& ray, const Triangle& 
     // test each triangle edge: {0, 1}, {1, 2}, {2, 0}
     for (size_t i = 0; i < 3; ++i) {
         const Vector3& start = triangle[i];
-        const Vector3& end = triangle[(i+1)%3];
+        const Vector3& end = triangle[(i + 1) % 3];
 
         // corner[n] to corner[n+1]
         const Vector3 e = end - start;
@@ -1282,17 +1258,17 @@ std::optional<RayCollision> osc::find_collision(const Ray& ray, const Triangle& 
         }
     }
 
-    return RayCollision{t, ray.origin + t*ray.direction};
+    return RayCollision{t, ray.origin + (t * ray.direction)};
 }
 
 float osc::ease_out_elastic(float x)
 {
     // adopted from: https://easings.net/#easeOutElastic
 
-    constexpr float c4 = 2.0f*pi_v<float> / 3.0f;
+    constexpr float c4 = 2.0f * pi_v<float> / 3.0f;
     const float normalized = saturate(x);
 
-    return pow(2.0f, -5.0f*normalized) * sin((normalized*10.0f - 0.75f) * c4) + 1.0f;
+    return (pow(2.0f, -5.0f * normalized) * sin(((normalized * 10.0f) - 0.75f) * c4)) + 1.0f;
 }
 
 std::array<Matrix4x4, 6> osc::calc_cubemap_view_proj_matrices(

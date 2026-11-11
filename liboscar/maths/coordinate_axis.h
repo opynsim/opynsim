@@ -44,7 +44,7 @@ namespace osc
         explicit constexpr CoordinateAxis(int axis_index) :
             axis_index_{static_cast<uint8_t>(axis_index)}
         {
-            if (not (0 <= axis_index && axis_index <= 2)) {
+            if (not(0 <= axis_index && axis_index <= 2)) {
                 throw std::runtime_error{"out-of-range index given to a CoordinateAxis"};
             }
         }
@@ -69,6 +69,7 @@ namespace osc
         {
             return CoordinateAxis{static_cast<uint8_t>((axis_index_ + 1) % 3), SkipRangeCheck{}};
         }
+
     private:
         struct SkipRangeCheck {};
         explicit constexpr CoordinateAxis(uint8_t v, SkipRangeCheck) :

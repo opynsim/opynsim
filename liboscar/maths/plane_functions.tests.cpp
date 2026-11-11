@@ -35,6 +35,7 @@ TEST(is_in_front_of, produces_expected_answers_in_precalculated_cases)
         bool expected;
     };
 
+    // clang-format off
     constexpr auto precalculated_cases = std::to_array<TestCase>({
         // origin                        // normal                     // min                 // max                  // is in front of plane
         {{Vector3{},                     Vector3{ 0.0f, 1.0f, 0.0f}}, {{ 1.0f,  1.0f,  1.0f}, { 2.0f,  2.0f,  2.0f}}, true},
@@ -51,6 +52,7 @@ TEST(is_in_front_of, produces_expected_answers_in_precalculated_cases)
         {{Vector3{-2.01f, 0.0f, 0.0f},   Vector3{ 1.0f, 0.0f, 0.0f}}, {{-2.0f, -2.0f, -2.0f}, {-1.0f, -1.0f, -1.0f}}, true},
         {{Vector3{-2.00f, 0.0f, 0.0f},   Vector3{ 1.0f, 0.0f, 0.0f}}, {{-2.0f, -2.0f, -2.0f}, {-1.0f, -1.0f, -1.0f}}, false},  // coincident
     });
+    // clang-format on
 
     for (const auto& [plane, aabb, expected] : precalculated_cases) {
         ASSERT_EQ(is_in_front_of(plane, aabb), expected) << "plane = " << plane << ", aabb = " << aabb << " (dimensions_of = " << dimensions_of(aabb) << ", half_widths . normal = " << dot(half_widths_of(aabb), abs(plane.normal)) << ", signed distance = " << signed_distance_between(plane, centroid_of(aabb)) << ')';

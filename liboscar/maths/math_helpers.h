@@ -13,10 +13,13 @@
 
 #include <array>
 
-namespace osc { struct Circle; }
-namespace osc { struct Disc; }
-namespace osc { struct LineSegment; }
-namespace osc { struct Tetrahedron; }
+namespace osc
+{
+    struct Circle;
+    struct Disc;
+    struct LineSegment;
+    struct Tetrahedron;
+}
 
 // math helpers: generally handy math functions that aren't attached to a particular
 //               osc struct
@@ -65,8 +68,7 @@ namespace osc
     Vector3 topleft_normalized_point_to_world_znear(
         Vector2 normalized_point,
         const Matrix4x4& camera_view_matrix,
-        const Matrix4x4& camera_proj_matrix
-    );
+        const Matrix4x4& camera_proj_matrix);
 
     // "un-project" a point defined in a normalized y-points-down space into world
     // space, assuming a perspective projection
@@ -80,8 +82,7 @@ namespace osc
         Vector2 normalized_point,
         Vector3 camera_world_space_origin,
         const Matrix4x4& camera_view_matrix,
-        const Matrix4x4& camera_proj_matrix
-    );
+        const Matrix4x4& camera_proj_matrix);
 
     // returns a rectangular region defined in, and bounded by, normalized device coordinates
     // (NDCs) mapped from a region defined in a normalized y-points-down space bounded
@@ -94,22 +95,19 @@ namespace osc
         const Vector3& world_space_position,
         const Matrix4x4& view_matrix,
         const Matrix4x4& projection_matrix,
-        const Rect& viewport_rect
-    );
+        const Rect& viewport_rect);
 
     // returns arrays that transforms cube faces from world space to projection
     // space such that the observer is looking at each face of the cube from
     // the center of the cube
     std::array<Matrix4x4, 6> calc_cubemap_view_proj_matrices(
         const Matrix4x4& projection_matrix,
-        Vector3 cube_center
-    );
+        Vector3 cube_center);
 
     // ----- `Disc` helpers -----
 
     // returns a `Mat4` that maps one `Disc` to another `Disc`
     Matrix4x4 matrix4x4_transform_between(const Disc&, const Disc&);
-
 
     // ----- `Segment` helpers -----
 
@@ -137,8 +135,7 @@ namespace osc
     void apply_world_space_rotation(
         Transform& application_target,
         const EulerAngles& euler_angles,
-        const Vector3& rotation_center
-    );
+        const Vector3& rotation_center);
 
     // returns the volume of a given tetrahedron, defined as 4 points in space
     float volume_of(const Tetrahedron&);

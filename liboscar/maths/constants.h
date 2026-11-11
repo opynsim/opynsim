@@ -14,10 +14,14 @@ namespace osc
         struct sqrt_epsilon_impl;
 
         template<>
-        struct sqrt_epsilon_impl<float> { static constexpr float value = 0.00034526698f; };
+        struct sqrt_epsilon_impl<float> {
+            static constexpr float value = 0.00034526698f;
+        };
 
         template<>
-        struct sqrt_epsilon_impl<double> { static constexpr double value = 0.000000014901161193847656; };
+        struct sqrt_epsilon_impl<double> {
+            static constexpr double value = 0.000000014901161193847656;
+        };
     }
 
     // the mathematical constant, pi

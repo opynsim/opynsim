@@ -13,7 +13,7 @@ namespace osc
     // returns an `AnalyticPlane` converted from a point on a plane's surface, plus the plane's normal direction
     constexpr AnalyticPlane to_analytic_plane(const Vector3& point, const Vector3& normal)
     {
-        return AnalyticPlane{.distance = dot(point, normal), .normal = normal };
+        return AnalyticPlane{.distance = dot(point, normal), .normal = normal};
     }
 
     // returns an `AnalyticPlane` converted from a (point-normal form) `Plane`

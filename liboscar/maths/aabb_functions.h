@@ -14,10 +14,10 @@
 #include <optional>
 #include <ranges>
 
-namespace osc { struct Sphere; }
-
 namespace osc
 {
+    struct Sphere;
+
     // returns the average centroid of `aabb`
     constexpr Vector3 centroid_of(const AABB& aabb)
     {
@@ -203,6 +203,5 @@ namespace osc
         const Matrix4x4& view_mat,
         const Matrix4x4& proj_mat,
         float znear,
-        float zfar
-    );
+        float zfar);
 }

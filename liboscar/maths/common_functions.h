@@ -35,7 +35,7 @@ namespace osc
 
     // satisfied if `abs(x)` is a valid expression for type `T`
     template<typename T>
-    concept HasAbsFunction = requires (T x) {
+    concept HasAbsFunction = requires(T x) {
         { abs(x) } -> std::same_as<T>;
     };
 
@@ -55,7 +55,7 @@ namespace osc
 
     // satisfied if `floor(x)` is a valid expression for type `T`
     template<typename T>
-    concept HasFloorFunction = requires (T x) {
+    concept HasFloorFunction = requires(T x) {
         { floor(x) } -> std::same_as<T>;
     };
 
@@ -89,7 +89,7 @@ namespace osc
 
     // satisfied if `mod(x, y)` is a valid expression for type `T`
     template<typename T>
-    concept HasModFunction = requires (T x, T y) {
+    concept HasModFunction = requires(T x, T y) {
         { mod(x, y) } -> std::same_as<T>;
     };
 
@@ -171,12 +171,10 @@ namespace osc
     template<
         typename Arithmetic1,
         typename Arithmetic2,
-        typename Arithmetic3
-    >
-    requires
-        std::is_arithmetic_v<Arithmetic1> and
-        std::is_arithmetic_v<Arithmetic2> and
-        std::is_arithmetic_v<Arithmetic3>
+        typename Arithmetic3>
+    requires std::is_arithmetic_v<Arithmetic1> and
+             std::is_arithmetic_v<Arithmetic2> and
+             std::is_arithmetic_v<Arithmetic3>
     constexpr auto lerp(const Arithmetic1& a, const Arithmetic2& b, const Arithmetic3& t)
     {
         return std::lerp(a, b, t);
@@ -367,8 +365,7 @@ namespace osc
     template<
         std::ranges::range R,
         typename T = typename std::ranges::range_value_t<R>::value_type,
-        size_t N = std::tuple_size_v<typename std::ranges::range_value_t<R>>
-    >
+        size_t N = std::tuple_size_v<typename std::ranges::range_value_t<R>>>
     requires std::is_arithmetic_v<T>
     constexpr Vector<T, N> centroid_of(const R& r)
     {
