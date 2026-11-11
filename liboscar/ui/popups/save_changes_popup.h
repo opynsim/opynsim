@@ -2,17 +2,16 @@
 
 #include <liboscar/ui/popups/popup.h>
 
-namespace osc { struct SaveChangesPopupConfig; }
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Widget;
+    struct SaveChangesPopupConfig;
+
     class SaveChangesPopup final : public Popup {
     public:
         explicit SaveChangesPopup(
             Widget* parent,
-            const SaveChangesPopupConfig&
-        );
+            const SaveChangesPopupConfig&);
 
     private:
         void impl_draw_content() final;

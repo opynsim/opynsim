@@ -8,7 +8,6 @@
 
 class osc::SaveChangesPopup::Impl final : public PopupPrivate {
 public:
-
     explicit Impl(
         SaveChangesPopup& owner,
         Widget* parent,
@@ -44,10 +43,10 @@ public:
             }
         }
     }
+
 private:
     SaveChangesPopupConfig config_;
 };
-
 
 osc::SaveChangesPopup::SaveChangesPopup(
     Widget* parent,

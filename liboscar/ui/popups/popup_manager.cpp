@@ -27,14 +27,13 @@ void osc::PopupManager::on_draw()
         if (popups_[i]->begin_popup()) {
             popups_[i]->on_draw();
             ++num_opened;
-        }
-        else {
+        } else {
             break;
         }
     }
 
     // end the opened popups top-to-bottom
-    for (auto i = static_cast<ptrdiff_t>(num_opened)-1; i >= 0; --i) {
+    for (auto i = static_cast<ptrdiff_t>(num_opened) - 1; i >= 0; --i) {
         popups_[i]->end_popup();
     }
 

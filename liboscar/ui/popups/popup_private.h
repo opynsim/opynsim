@@ -8,10 +8,10 @@
 #include <optional>
 #include <string_view>
 
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Widget;
+
     class PopupPrivate : public WidgetPrivate {
     public:
         explicit PopupPrivate(
@@ -19,8 +19,7 @@ namespace osc
             Widget* parent,
             std::string_view name,
             Vector2 dimensions = {512.0f, 0.0f},
-            ui::PanelFlags = ui::PanelFlag::AlwaysAutoResize
-        );
+            ui::PanelFlags = ui::PanelFlag::AlwaysAutoResize);
 
     protected:
         bool is_popup_opened_this_frame() const;
@@ -28,6 +27,7 @@ namespace osc
         void set_modal(bool);
 
         OSC_OWNER_GETTERS(Popup);
+
     private:
         friend class Popup;
 

@@ -92,15 +92,12 @@ bool osc::Popup::begin_popup()
         if (pimpl.maybe_position_) {
             ui::set_next_panel_ui_position(
                 static_cast<Vector2>(*pimpl.maybe_position_),
-                ui::Conditional::Appearing
-            );
-        }
-        else {
+                ui::Conditional::Appearing);
+        } else {
             ui::set_next_panel_ui_position(
-                0.5f*App::get().main_window_dimensions(),
+                0.5f * App::get().main_window_dimensions(),
                 ui::Conditional::Appearing,
-                Vector2{0.5f, 0.5f}
-            );
+                Vector2{0.5f, 0.5f});
         }
 
         // if the modal doesn't auto-resize each frame, then set the size of
@@ -108,16 +105,13 @@ bool osc::Popup::begin_popup()
         //
         // else, set the position every frame, because the __nonzero__ dimensions
         // will stretch out the modal accordingly
-        if (not (pimpl.panel_flags_ & ui::PanelFlag::AlwaysAutoResize)) {
+        if (not(pimpl.panel_flags_ & ui::PanelFlag::AlwaysAutoResize)) {
             ui::set_next_panel_size(
                 Vector2{pimpl.dimensions_},
-                ui::Conditional::Appearing
-            );
-        }
-        else {
+                ui::Conditional::Appearing);
+        } else {
             ui::set_next_panel_size(
-                Vector2{pimpl.dimensions_}
-            );
+                Vector2{pimpl.dimensions_});
         }
 
         // try to begin the modal window
@@ -130,8 +124,7 @@ bool osc::Popup::begin_popup()
             pimpl.is_open_ = false;
             return false;
         }
-    }
-    else {
+    } else {
         // if specified, set the position of the modal upon appearing
         //
         // else, do nothing - the popup's position will be determined
@@ -141,8 +134,7 @@ bool osc::Popup::begin_popup()
         if (pimpl.maybe_position_) {
             ui::set_next_panel_ui_position(
                 static_cast<Vector2>(*pimpl.maybe_position_),
-                ui::Conditional::Appearing
-            );
+                ui::Conditional::Appearing);
         }
 
         // try to begin the popup window
