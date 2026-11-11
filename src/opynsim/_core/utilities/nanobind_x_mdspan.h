@@ -25,7 +25,7 @@ namespace opyn
         // Converts an `nb::shape`, as used by `nb::ndarray` into the equivalent `std::extents`, as
         // used by `std::mdspan`.
         template<nanobind::ssize_t... NbExtents, size_t... I>
-        requires (sizeof...(NbExtents) == sizeof...(I))
+        requires(sizeof...(NbExtents) == sizeof...(I))
         constexpr auto to_stdlib_extents(
             nanobind::shape<NbExtents...>,
             const int64_t* runtime_extents,
@@ -67,7 +67,6 @@ namespace opyn
     {
         return {
             ndary.data(),
-            opyn::cpp23::layout_stride::mapping{detail::to_stdlib_extents(Shape{}, ndary.shape_ptr()), detail::to_stdlib_strides(ndary)}
-        };
+            opyn::cpp23::layout_stride::mapping{detail::to_stdlib_extents(Shape{}, ndary.shape_ptr()), detail::to_stdlib_strides(ndary)}};
     }
 }

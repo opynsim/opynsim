@@ -31,7 +31,7 @@ namespace opyn
     {
         // Returns a `Vec` constructed from elements in `ndarray` at the specified indices.
         template<nanobind::ssize_t N, std::copy_constructible T, size_t... I>
-        requires (sizeof...(I) == N)
+        requires(sizeof...(I) == N)
         SimTK::Vec<static_cast<int>(N), T> to_vec(
             const nanobind::ndarray<const T, nanobind::shape<N>, nanobind::device::cpu>& ndarray,
             std::index_sequence<I...>)

@@ -12,7 +12,9 @@ namespace opyn
     {
         return nanobind::capsule{
             p.release(),
-            [](void* ptr) noexcept { delete static_cast<T*>(ptr); }  // NOLINT(cppcoreguidelines-owning-memory)
+            [](void* ptr) noexcept {
+                delete static_cast<T*>(ptr);  // NOLINT(cppcoreguidelines-owning-memory)
+            }
         };
     }
 
@@ -22,7 +24,9 @@ namespace opyn
     {
         return nanobind::capsule{
             p.release(),
-            [](void* ptr) noexcept { delete[] static_cast<T*>(ptr); }  // NOLINT(cppcoreguidelines-owning-memory)
+            [](void* ptr) noexcept {
+                delete[] static_cast<T*>(ptr);  // NOLINT(cppcoreguidelines-owning-memory)
+            }
         };
     }
 }
