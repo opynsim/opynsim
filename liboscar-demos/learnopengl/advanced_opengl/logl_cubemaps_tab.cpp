@@ -42,8 +42,7 @@ namespace
         // load the first face, so we know the width
         Texture2D face_texture = Image::read_into_texture(
             loader.open(ResourcePath{"oscar_demos/learnopengl/textures"} / c_skybox_texture_filenames.front()),
-            ColorSpace::sRGB
-        );
+            ColorSpace::sRGB);
 
         const Vector2i texture_dimensions = face_texture.pixel_dimensions();
         OSC_ASSERT(texture_dimensions.x() == texture_dimensions.y());
@@ -55,12 +54,10 @@ namespace
         auto face_iterator = cubemap_faces.begin();
         Cubemap cubemap{texture_dimensions.x(), face_texture.texture_format()};
         cubemap.set_pixel_data(*face_iterator++, face_texture.pixel_data());
-        for (; face_iterator != cubemap_faces.end(); ++face_iterator)
-        {
+        for (; face_iterator != cubemap_faces.end(); ++face_iterator) {
             face_texture = Image::read_into_texture(
                 loader.open(ResourcePath{"oscar_demos/learnopengl/textures"} / c_skybox_texture_filenames[to_index(*face_iterator)]),
-                ColorSpace::sRGB
-            );
+                ColorSpace::sRGB);
             OSC_ASSERT(face_texture.pixel_dimensions().x() == texture_dimensions.x());
             OSC_ASSERT(face_texture.pixel_dimensions().y() == texture_dimensions.x());
             OSC_ASSERT(face_texture.texture_format() == cubemap.texture_format());
@@ -169,8 +166,7 @@ private:
             cube_mesh_,
             identity<Transform>(),
             cube_materials_.at(cube_material_index_).material,
-            cube_properties_
-        );
+            cube_properties_);
         graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
             .clear_color = {0.1f, 1.0f},
@@ -214,8 +210,7 @@ private:
     Mesh cube_mesh_ = BoxGeometry{}.mesh();
     Texture2D container_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/container.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
     float ior_ = 1.52f;
 
     Material skybox_material_{Shader{
@@ -228,7 +223,6 @@ private:
     MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
     RenderQueue render_queue_;
 };
-
 
 CStringView osc::LOGLCubemapsTab::id() { return Impl::static_label(); }
 

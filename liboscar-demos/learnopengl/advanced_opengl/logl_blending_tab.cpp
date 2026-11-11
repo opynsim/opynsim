@@ -26,14 +26,15 @@ namespace
 {
     constexpr auto c_window_positions = std::to_array<Vector3>({
         {-1.5f, 0.0f, -0.48f},
-        { 1.5f, 0.0f,  0.51f},
-        { 0.0f, 0.0f,  0.7f},
+        {1.5f, 0.0f, 0.51f},
+        {0.0f, 0.0f, 0.7f},
         {-0.3f, 0.0f, -2.3f},
-        { 0.5f, 0.0f, -0.6},
+        {0.5f, 0.0f, -0.6},
     });
 
     Mesh generate_plane()
     {
+        // clang-format off
         Mesh mesh;
         mesh.set_vertices({
             { 5.0f, -0.5f,  5.0f},
@@ -54,11 +55,13 @@ namespace
             {2.0f, 2.0f},
         });
         mesh.set_indices({0, 2, 1, 3, 5, 4});
+        // clang-format on
         return mesh;
     }
 
     Mesh generate_transparent()
     {
+        // clang-format off
         Mesh mesh;
         mesh.set_vertices({
             {0.0f,  0.5f, 0.0f},
@@ -79,6 +82,7 @@ namespace
             {1.0f, 0.0f},
         });
         mesh.set_indices({0, 1, 2, 3, 4, 5});
+        // clang-format on
         return mesh;
     }
 
@@ -131,13 +135,11 @@ public:
             render_queue_.emplace(
                 cube_mesh_,
                 {.translation = {-1.0f, 0.0f, -1.0f}},
-                opaque_material_
-            );
+                opaque_material_);
             render_queue_.emplace(
                 cube_mesh_,
-                {.translation = { 1.0f, 0.0f, -1.0f}},
-                opaque_material_
-            );
+                {.translation = {1.0f, 0.0f, -1.0f}},
+                opaque_material_);
         }
 
         // floor
@@ -153,8 +155,7 @@ public:
                 render_queue_.emplace(
                     transparent_mesh_,
                     {.translation = window_position},
-                    blending_material_
-                );
+                    blending_material_);
             }
         }
 
@@ -183,20 +184,16 @@ private:
     RenderQueue render_queue_;
     Texture2D marble_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/marble.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
     Texture2D metal_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/metal.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
     Texture2D window_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/window.png"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
     LogViewerPanel log_viewer_{&owner()};
     PerfPanel perf_panel_{&owner()};
 };
-
 
 CStringView osc::LOGLBlendingTab::id() { return Impl::static_label(); }
 

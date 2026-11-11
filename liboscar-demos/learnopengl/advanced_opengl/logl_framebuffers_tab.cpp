@@ -24,6 +24,7 @@ namespace
 {
     Mesh generate_plane()
     {
+        // clang-format off
         Mesh mesh;
         mesh.set_vertices({
             { 5.0f, -0.5f,  5.0f},
@@ -44,6 +45,7 @@ namespace
             {2.0f, 2.0f},
         });
         mesh.set_indices({0, 2, 1,    3, 5, 4});
+        // clang-format on
         return mesh;
     }
 
@@ -100,7 +102,7 @@ public:
             // cubes
             scene_render_material_.set("uTexture1", container_texture_);
             render_queue_.emplace(cube_mesh_, {.translation = {-1.0f, 0.0f, -1.0f}}, scene_render_material_);
-            render_queue_.emplace(cube_mesh_, {.translation = { 1.0f, 0.0f, -1.0f}}, scene_render_material_);
+            render_queue_.emplace(cube_mesh_, {.translation = {1.0f, 0.0f, -1.0f}}, scene_render_material_);
 
             // floor
             scene_render_material_.set("uTexture1", metal_texture_);
@@ -130,12 +132,10 @@ private:
 
     Texture2D container_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/container.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
     Texture2D metal_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/metal.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
 
     Mesh cube_mesh_ = BoxGeometry{}.mesh();
     Mesh plane_mesh_ = generate_plane();
@@ -149,7 +149,6 @@ private:
     LogViewerPanel log_viewer_{&owner()};
     PerfPanel perf_panel_{&owner()};
 };
-
 
 CStringView osc::LOGLFramebuffersTab::id() { return Impl::static_label(); }
 

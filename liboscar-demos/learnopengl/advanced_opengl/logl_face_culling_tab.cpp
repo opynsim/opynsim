@@ -32,9 +32,7 @@ namespace
             loader.slurp("oscar_demos/learnopengl/shaders/AdvancedOpenGL/FaceCulling.frag"),
         }};
 
-        material.set("uTexture", SVG::read_into_texture(
-            loader.open("oscar_demos/learnopengl/textures/uv_checker.svg")
-        ));
+        material.set("uTexture", SVG::read_into_texture(loader.open("oscar_demos/learnopengl/textures/uv_checker.svg")));
 
         return material;
     }
@@ -113,7 +111,6 @@ private:
     MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
     RenderQueue render_queue_;
 };
-
 
 CStringView osc::LOGLFaceCullingTab::id() { return Impl::static_label(); }
 osc::LOGLFaceCullingTab::LOGLFaceCullingTab(Widget* parent) :
