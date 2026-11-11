@@ -48,7 +48,7 @@
 #include <liboscar/utilities/scope_exit.h>
 
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
-    #define IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
 #endif
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -95,6 +95,7 @@ namespace
         "Screen : %5.2f deg %5.2f rad",
     });
 
+    // clang-format off
     constexpr auto c_translation_info_index = std::to_array<int>({
         0,0,0,
         1,0,0,
@@ -104,7 +105,9 @@ namespace
         0,1,0,
         0,1,2,
     });
+    // clang-format on
 
+    // clang-format off
     constexpr float c_quad_min = 0.5f;
     constexpr float c_quad_max = 0.8f;
     constexpr auto c_quad_uv = std::to_array<float>({
@@ -115,17 +118,18 @@ namespace
     });
     constexpr int c_half_circle_segment_count = 64;
     constexpr float c_snap_tension = 0.5f;
+    // clang-format on
 
     enum COLOR {
-        DIRECTION_X,      // directionColor[0]
-        DIRECTION_Y,      // directionColor[1]
-        DIRECTION_Z,      // directionColor[2]
-        PLANE_X,          // planeColor[0]
-        PLANE_Y,          // planeColor[1]
-        PLANE_Z,          // planeColor[2]
-        SELECTION,        // selectionColor
-        INACTIVE,         // inactiveColor
-        TRANSLATION_LINE, // translationLineColor
+        DIRECTION_X,       // directionColor[0]
+        DIRECTION_Y,       // directionColor[1]
+        DIRECTION_Z,       // directionColor[2]
+        PLANE_X,           // planeColor[0]
+        PLANE_Y,           // planeColor[1]
+        PLANE_Z,           // planeColor[2]
+        SELECTION,         // selectionColor
+        INACTIVE,          // inactiveColor
+        TRANSLATION_LINE,  // translationLineColor
         SCALE_LINE,
         ROTATION_USING_BORDER,
         ROTATION_USING_FILL,
@@ -170,6 +174,7 @@ namespace
     struct Style {
         Style()
         {
+            // clang-format off
             Colors[DIRECTION_X]           = ImVec4(0.666f, 0.000f, 0.000f, 1.000f);
             Colors[DIRECTION_Y]           = ImVec4(0.000f, 0.666f, 0.000f, 1.000f);
             Colors[DIRECTION_Z]           = ImVec4(0.000f, 0.000f, 0.666f, 1.000f);
@@ -185,16 +190,17 @@ namespace
             Colors[HATCHED_AXIS_LINES]    = ImVec4(0.000f, 0.000f, 0.000f, 0.500f);
             Colors[TEXT]                  = ImVec4(1.000f, 1.000f, 1.000f, 1.000f);
             Colors[TEXT_SHADOW]           = ImVec4(0.000f, 0.000f, 0.000f, 1.000f);
+            // clang-format on
         }
 
-        float TranslationLineThickness   = 5.0f;  // Thickness of lines for translation gizmo
-        float TranslationLineArrowSize   = 8.0f;  // Size of arrow at the end of lines for translation gizmo
-        float RotationLineThickness      = 5.0f;  // Thickness of lines for rotation gizmo
+        float TranslationLineThickness = 5.0f;    // Thickness of lines for translation gizmo
+        float TranslationLineArrowSize = 8.0f;    // Size of arrow at the end of lines for translation gizmo
+        float RotationLineThickness = 5.0f;       // Thickness of lines for rotation gizmo
         float RotationOuterLineThickness = 7.0f;  // Thickness of line surrounding the rotation gizmo
-        float ScaleLineThickness         = 5.0f;  // Thickness of lines for scale gizmo
-        float ScaleLineCircleSize        = 8.0f;  // Size of circle at the end of lines for scale gizmo
-        float HatchedAxisLineThickness   = 6.0f;  // Thickness of hatched axis lines
-        float CenterCircleSize           = 6.0f;  // Size of circle at the center of the translate/scale gizmo
+        float ScaleLineThickness = 5.0f;          // Thickness of lines for scale gizmo
+        float ScaleLineCircleSize = 8.0f;         // Size of circle at the end of lines for scale gizmo
+        float HatchedAxisLineThickness = 6.0f;    // Thickness of hatched axis lines
+        float CenterCircleSize = 6.0f;            // Size of circle at the center of the translate/scale gizmo
 
         ImVec4 Colors[COLOR::COUNT]{};
     };
@@ -262,7 +268,7 @@ namespace
         const Vector4& ptB)
     {
         auto pts = std::to_array({ptO, ptA, ptB});
-        for (auto& pt: pts) {
+        for (auto& pt : pts) {
             pt = imguizmo_transform_point(MVP, pt);
             if (fabsf(pt.w()) > FLT_EPSILON) {
                 // check for axis aligned with camera direction
@@ -529,7 +535,7 @@ public:
 
     void PopID()
     {
-        IM_ASSERT(mIDStack.Size > 1); // Too many PopID(), or could be popping in a wrong/different window?
+        IM_ASSERT(mIDStack.Size > 1);  // Too many PopID(), or could be popping in a wrong/different window?
         mIDStack.pop_back();
     }
 
@@ -597,8 +603,7 @@ public:
             Vector4 closestPointOnAxis = PointOnSegment(
                 Vector4{posOnPlanScreen.x, posOnPlanScreen.y, 0.0f, 0.0f},
                 Vector4{axisStartOnScreen.x, axisStartOnScreen.y, 0.0f, 0.0f},
-                Vector4{axisEndOnScreen.x, axisEndOnScreen.y, 0.0f, 0.0f}
-            );
+                Vector4{axisEndOnScreen.x, axisEndOnScreen.y, 0.0f, 0.0f});
 
             if (length(closestPointOnAxis - Vector4{posOnPlanScreen.x, posOnPlanScreen.y, 0.0f, 0.0f}) < 12.f) {  // pixel size
                 if (not isAxisMasked) {
@@ -629,8 +634,8 @@ public:
             if (belowAxisLimit) {
                 bool hasTranslateOnAxis = Contains(op, Operation::TranslateX << i);
                 float markerScale = hasTranslateOnAxis ? 1.4f : 1.0f;
-                //ImVec2 baseSSpace = worldToPos(dirAxis * 0.1f * context.mScreenFactor, context.mMVPLocal);
-                //ImVec2 worldDirSSpaceNoScale = worldToPos(dirAxis * markerScale * context.mScreenFactor, context.mMVP);
+                // ImVec2 baseSSpace = worldToPos(dirAxis * 0.1f * context.mScreenFactor, context.mMVPLocal);
+                // ImVec2 worldDirSSpaceNoScale = worldToPos(dirAxis * markerScale * context.mScreenFactor, context.mMVP);
                 ImVec2 worldDirSSpace = worldToPos((dirAxis * markerScale) * mScreenFactor, mMVPLocal);
 
                 float distance = sqrtf(ImLengthSqr(worldDirSSpace - io.MousePos));
@@ -688,7 +693,7 @@ public:
             const ImVec2 idealPosOnCircleScreen = worldToPos(
                 idealPosOnCircle * c_rotation_display_factor * mScreenFactor, mMVP);
 
-            //context.mDrawList->AddCircle(idealPosOnCircleScreen, 5.f, IM_COL32_WHITE);
+            // context.mDrawList->AddCircle(idealPosOnCircleScreen, 5.f, IM_COL32_WHITE);
             const ImVec2 distanceOnScreen = idealPosOnCircleScreen - io.MousePos;
 
             const float distance = length(Vector4{distanceOnScreen.x, distanceOnScreen.y, 0.0f, 0.0f});
@@ -746,9 +751,8 @@ public:
             Vector4 closestPointOnAxis = PointOnSegment(
                 screenCoord,
                 Vector4{axisStartOnScreen.x, axisStartOnScreen.y, 0.0f, 0.0f},
-                Vector4{axisEndOnScreen.x, axisEndOnScreen.y, 0.0f, 0.0f}
-            );
-            if (length(closestPointOnAxis - screenCoord) < 12.f and (op & (Operation::TranslateX << i))) // pixel size
+                Vector4{axisEndOnScreen.x, axisEndOnScreen.y, 0.0f, 0.0f});
+            if (length(closestPointOnAxis - screenCoord) < 12.f and (op & (Operation::TranslateX << i)))  // pixel size
             {
                 if (isAxisMasked)
                     break;
@@ -759,6 +763,7 @@ public:
             const float dy = dot<float, 3>(dirPlaneY, (posOnPlan - mModel[3]) * (1.f / mScreenFactor));
             if (belowPlaneLimit && dx >= c_quad_uv[0] && dx <= c_quad_uv[4] && dy >= c_quad_uv[1] && dy <= c_quad_uv[3]
                 && Contains(op, TRANSLATE_PLANS[i])) {
+
                 if ((!isAxisMasked || isMultipleAxesMasked) && !isNoAxesMasked)
                     break;
                 type = MT_MOVE_YZ + i;
@@ -784,9 +789,10 @@ public:
         mDrawList->PushClipRect(
             ImVec2(mX, mY),
             ImVec2(mX + mWidth, mY + mHeight),
-            false
-        );
-        const ScopeExit popClipRectOnExit{[&] { mDrawList->PopClipRect(); }};
+            false);
+        const ScopeExit popClipRectOnExit{[&] {
+            mDrawList->PopClipRect();
+        }};
 
         // Scale is always local or matrix will be skewed when applying world scale or oriented matrix
         ComputeContext(view, projection, matrix, (operation & Operation::Scale) ? Mode::Local : mode);
@@ -885,8 +891,7 @@ public:
                 activeMVP,
                 mDisplayRatio,
                 Vector4{},
-                dirAxis * mScreenFactor
-            );
+                dirAxis * mScreenFactor);
 
             float paraSurf = GetParallelogram(mMVP, mDisplayRatio, Vector4{}, dirPlaneX * mScreenFactor, dirPlaneY * mScreenFactor);
 
@@ -928,8 +933,7 @@ public:
             length(mModelSource[0]),
             length(mModelSource[1]),
             length(mModelSource[2]),
-            0.0f
-        };
+            0.0f};
 
         mModelInverse = inverse(mModel);
         mModelSourceInverse = inverse(mModelSource);
@@ -981,8 +985,7 @@ public:
             rayOrigin,
             rayDir,
             ImVec2(mX, mY),
-            ImVec2(mWidth, mHeight)
-        );
+            ImVec2(mWidth, mHeight));
     }
 
     bool IsHoveringWindow() const
@@ -1023,7 +1026,7 @@ public:
             ImGui::SetNextFrameWantCaptureMouse(true);
 
             const float signedLength = IntersectRayPlane(mRayOrigin, mRayVector, mTranslationPlan);
-            const float len = fabsf(signedLength); // near plan
+            const float len = fabsf(signedLength);  // near plan
             const Vector4 newPos = mRayOrigin + mRayVector * len;
 
             // compute delta
@@ -1115,7 +1118,7 @@ public:
         Matrix4x4* deltaMatrix,
         Operation op,
         int& type,
-        const osc::ui::GizmoOperationSnappingSteps *snap)
+        const osc::ui::GizmoOperationSnappingSteps* snap)
     {
         if ((not(op & Operation::Scale) and not(op & Operation::ScaleU))
             or type != MT_NONE
@@ -1139,9 +1142,7 @@ public:
                 mEditingID = GetCurrentID();
                 mCurrentOperation = type;
                 const Vector4 movePlanNormal[] = {
-                    mModelLocal[1], mModelLocal[2], mModelLocal[0], mModelLocal[2], mModelLocal[1], mModelLocal[0],
-                    -mCameraDir
-                };
+                    mModelLocal[1], mModelLocal[2], mModelLocal[0], mModelLocal[2], mModelLocal[1], mModelLocal[0], -mCameraDir};
                 // pickup plan
 
                 mTranslationPlan = BuildPlan(mModelLocal[3], movePlanNormal[type - MT_SCALE_X]);
@@ -1154,8 +1155,7 @@ public:
                     length(mModelSource[0]),
                     length(mModelSource[1]),
                     length(mModelSource[2]),
-                    0.0f
-                };
+                    0.0f};
                 mSaveMousePosx = io.MousePos.x;
             }
         }
@@ -1427,7 +1427,7 @@ public:
                     float t2 = static_cast<float>(j) * stepLength + stepLength * 0.5f;
                     ImVec2 worldBoundSS1 = ImLerp(worldBound1, worldBound2, ImVec2(t1, t1));
                     ImVec2 worldBoundSS2 = ImLerp(worldBound1, worldBound2, ImVec2(t2, t2));
-                    //drawList->AddLine(worldBoundSS1, worldBoundSS2, IM_COL32(0, 0, 0, 0) + anchorAlpha, 3.f);
+                    // drawList->AddLine(worldBoundSS1, worldBoundSS2, IM_COL32(0, 0, 0, 0) + anchorAlpha, 3.f);
                     drawList->AddLine(worldBoundSS1, worldBoundSS2, IM_COL32(0xAA, 0xAA, 0xAA, 0) + anchorAlpha, 2.f);
                 }
                 Vector4 midPoint = (aabb[i] + aabb[(i + 1) % 4]) * 0.5f;
@@ -1558,13 +1558,11 @@ public:
                 drawList->AddText(
                     ImVec2(destinationPosOnScreen.x + annotation_offset() + 1.0f, destinationPosOnScreen.y + annotation_offset() + 1.0f),
                     GetColorU32(TEXT_SHADOW),
-                    tmps
-                );
+                    tmps);
                 drawList->AddText(
                     ImVec2(destinationPosOnScreen.x + annotation_offset(), destinationPosOnScreen.y + annotation_offset()),
                     GetColorU32(TEXT),
-                    tmps
-                );
+                    tmps);
             }
 
             if (not io.MouseDown[0]) {
@@ -1594,32 +1592,32 @@ public:
             ImU32 selectionColor = GetColorU32(SELECTION);
 
             switch (operation) {
-                case Operation::Translate:
-                    colors[0] = (type == MT_MOVE_SCREEN) ? selectionColor : ImGui::ColorConvertFloat4ToU32({0.8f, 0.5f, 0.3f, 0.8f});
+            case Operation::Translate:
+                colors[0] = (type == MT_MOVE_SCREEN) ? selectionColor : ImGui::ColorConvertFloat4ToU32({0.8f, 0.5f, 0.3f, 0.8f});
 
-                    // HACK: osc: make translation circle orange, which stands out from the mostly-white geometry
-                    for (int i = 0; i < 3; i++) {
-                        colors[i + 1] = (type == static_cast<int>(MT_MOVE_X + i)) ? selectionColor : GetColorU32(DIRECTION_X + i);
-                        colors[i + 4] = (type == static_cast<int>(MT_MOVE_YZ + i)) ? selectionColor : GetColorU32(PLANE_X + i);
-                        colors[i + 4] = (type == MT_MOVE_SCREEN) ? selectionColor : colors[i + 4];
-                    }
-                    break;
-                case Operation::Rotate:
-                    colors[0] = (type == MT_ROTATE_SCREEN) ? selectionColor : IM_COL32_WHITE;
-                    for (int i = 0; i < 3; i++) {
-                        colors[i + 1] = (type == static_cast<int>(MT_ROTATE_X + i)) ? selectionColor : GetColorU32(DIRECTION_X + i);
-                    }
-                    break;
-                case Operation::ScaleU:
-                case Operation::Scale:
-                    colors[0] = (type == MT_SCALE_XYZ) ? selectionColor : IM_COL32_WHITE;
-                    for (int i = 0; i < 3; i++) {
-                        colors[i + 1] = (type == static_cast<int>(MT_SCALE_X + i)) ? selectionColor : GetColorU32(DIRECTION_X + i);
-                    }
-                    break;
-                // note: this internal function is only called with three possible values for operation
-                default:
-                    break;
+                // HACK: osc: make translation circle orange, which stands out from the mostly-white geometry
+                for (int i = 0; i < 3; i++) {
+                    colors[i + 1] = (type == static_cast<int>(MT_MOVE_X + i)) ? selectionColor : GetColorU32(DIRECTION_X + i);
+                    colors[i + 4] = (type == static_cast<int>(MT_MOVE_YZ + i)) ? selectionColor : GetColorU32(PLANE_X + i);
+                    colors[i + 4] = (type == MT_MOVE_SCREEN) ? selectionColor : colors[i + 4];
+                }
+                break;
+            case Operation::Rotate:
+                colors[0] = (type == MT_ROTATE_SCREEN) ? selectionColor : IM_COL32_WHITE;
+                for (int i = 0; i < 3; i++) {
+                    colors[i + 1] = (type == static_cast<int>(MT_ROTATE_X + i)) ? selectionColor : GetColorU32(DIRECTION_X + i);
+                }
+                break;
+            case Operation::ScaleU:
+            case Operation::Scale:
+                colors[0] = (type == MT_SCALE_XYZ) ? selectionColor : IM_COL32_WHITE;
+                for (int i = 0; i < 3; i++) {
+                    colors[i + 1] = (type == static_cast<int>(MT_SCALE_X + i)) ? selectionColor : GetColorU32(DIRECTION_X + i);
+                }
+                break;
+            // note: this internal function is only called with three possible values for operation
+            default:
+                break;
             }
         } else {
             ImU32 inactiveColor = GetColorU32(INACTIVE);
@@ -1671,12 +1669,12 @@ public:
 
             std::vector<ImVec2> circlePositions;
             circlePositions.reserve(circleMul * c_half_circle_segment_count + 1);
-            ImVec2 *circlePos = circlePositions.data();
+            ImVec2* circlePos = circlePositions.data();
 
             float angleStart = atan2f(cameraToModelNormalized[(4 - axis) % 3], cameraToModelNormalized[(3 - axis) % 3]) + pi_v<float> * 0.5f;
 
             for (int i = 0; i < circleMul * c_half_circle_segment_count + 1; i++) {
-                float ng = angleStart + (float) circleMul * pi_v<float> * ((float) i / (float) (circleMul * c_half_circle_segment_count));
+                float ng = angleStart + (float)circleMul * pi_v<float> * ((float)i / (float)(circleMul * c_half_circle_segment_count));
                 Vector4 axisPos = {cosf(ng), sinf(ng), 0.f, 0.f};
                 Vector4 pos = Vector4{axisPos[axis], axisPos[(axis + 1) % 3], axisPos[(axis + 2) % 3], 0.0f} * mScreenFactor * c_rotation_display_factor;
                 circlePos[i] = worldToPos(pos, mMVP);
@@ -1684,10 +1682,10 @@ public:
             if (not mbUsing or usingAxis) {
                 drawList->AddPolyline(
                     circlePos,
-                    circleMul * c_half_circle_segment_count + 1, colors[3 - axis],
+                    circleMul * c_half_circle_segment_count + 1,
+                    colors[3 - axis],
                     false,
-                    mStyle.RotationLineThickness
-                );
+                    mStyle.RotationLineThickness);
             }
 
             float radiusAxis = sqrtf((ImLengthSqr(worldToPos(mModel[3], mViewProjection) - circlePos[0])));
@@ -1701,8 +1699,7 @@ public:
                 mRadiusSquareCenter,
                 colors[0],
                 64,
-                mStyle.RotationOuterLineThickness
-            );
+                mStyle.RotationOuterLineThickness);
         }
 
         if (mbUsing and (GetCurrentID() == mEditingID) and IsRotateType(type)) {
@@ -1710,7 +1707,7 @@ public:
 
             circlePos[0] = worldToPos(mModel[3], mViewProjection);
             for (unsigned int i = 1; i < c_half_circle_segment_count + 1; i++) {
-                float ng = mRotationAngle * ((float) (i - 1) / (float) (c_half_circle_segment_count - 1));
+                float ng = mRotationAngle * ((float)(i - 1) / (float)(c_half_circle_segment_count - 1));
                 Matrix4x4 rotateVectorMatrix = matrix4x4_cast(angle_axis(Radians{ng}, Vector3{mTranslationPlan}));
                 Vector4 pos = imguizmo_transform_point(rotateVectorMatrix, mRotationVectorSource);
                 pos *= mScreenFactor * c_rotation_display_factor;
@@ -1719,15 +1716,13 @@ public:
             drawList->AddConvexPolyFilled(
                 circlePos,
                 c_half_circle_segment_count + 1,
-                GetColorU32(ROTATION_USING_FILL)
-            );
+                GetColorU32(ROTATION_USING_FILL));
             drawList->AddPolyline(
                 circlePos,
                 c_half_circle_segment_count + 1,
                 GetColorU32(ROTATION_USING_BORDER),
                 true,
-                mStyle.RotationLineThickness
-            );
+                mStyle.RotationLineThickness);
 
             ImVec2 destinationPosOnScreen = circlePos[1];
             char tmps[512]{};  // TODO: use std::format
@@ -1741,31 +1736,28 @@ public:
             drawList->AddText(
                 ImVec2(destinationPosOnScreen.x + annotation_offset() + 1.0f, destinationPosOnScreen.y + annotation_offset() + 1.0f),
                 GetColorU32(TEXT_SHADOW),
-                tmps
-            );
+                tmps);
             drawList->AddText(
                 ImVec2(destinationPosOnScreen.x + annotation_offset(), destinationPosOnScreen.y + annotation_offset()),
                 GetColorU32(TEXT),
-                tmps
-            );
+                tmps);
         }
     }
 
-    void DrawHatchedAxis(const Vector4 &axis) const
+    void DrawHatchedAxis(const Vector4& axis) const
     {
         if (mStyle.HatchedAxisLineThickness <= 0.0f) {
             return;
         }
 
         for (int j = 1; j < 10; j++) {
-            ImVec2 baseSSpace2 = worldToPos(axis * 0.05f * (float) (j * 2) * mScreenFactor, mMVP);
-            ImVec2 worldDirSSpace2 = worldToPos(axis * 0.05f * (float) (j * 2 + 1) * mScreenFactor, mMVP);
+            ImVec2 baseSSpace2 = worldToPos(axis * 0.05f * (float)(j * 2) * mScreenFactor, mMVP);
+            ImVec2 worldDirSSpace2 = worldToPos(axis * 0.05f * (float)(j * 2 + 1) * mScreenFactor, mMVP);
             mDrawList->AddLine(
                 baseSSpace2,
                 worldDirSSpace2,
                 GetColorU32(HATCHED_AXIS_LINES),
-                mStyle.HatchedAxisLineThickness
-            );
+                mStyle.HatchedAxisLineThickness);
         }
     }
 
@@ -1829,7 +1821,7 @@ public:
         drawList->AddCircleFilled(mScreenSquareCenter, mStyle.CenterCircleSize, colors[0], 32);
 
         if (mbUsing and (GetCurrentID() == mEditingID) and IsScaleType(type)) {
-            //ImVec2 sourcePosOnScreen = worldToPos(context.mMatrixOrigin, context.mViewProjection);
+            // ImVec2 sourcePosOnScreen = worldToPos(context.mMatrixOrigin, context.mViewProjection);
             ImVec2 destinationPosOnScreen = worldToPos(mModel[3], mViewProjection);
             /*Vector4 dif(destinationPosOnScreen.x - sourcePosOnScreen.x, destinationPosOnScreen.y - sourcePosOnScreen.y);
             dif.Normalize();
@@ -1839,24 +1831,21 @@ public:
             drawList->AddLine(ImVec2(sourcePosOnScreen.x + dif.x, sourcePosOnScreen.y + dif.y), ImVec2(destinationPosOnScreen.x - dif.x, destinationPosOnScreen.y - dif.y), translationLineColor, 2.f);
             */
             char tmps[512]{};  // TODO: use std::format
-            //Vector4 deltaInfo = context.mModel.v.position - context.mMatrixOrigin;
+            // Vector4 deltaInfo = context.mModel.v.position - context.mMatrixOrigin;
             int componentInfoIndex = (type - MT_SCALE_X) * 3;
             ImFormatString(
                 tmps,
                 sizeof(tmps),
                 c_scale_info_mask[type - MT_SCALE_X].c_str(),
-                scaleDisplay[c_translation_info_index[componentInfoIndex]]
-            );
+                scaleDisplay[c_translation_info_index[componentInfoIndex]]);
             drawList->AddText(
                 ImVec2(destinationPosOnScreen.x + 15, destinationPosOnScreen.y + 15),
                 GetColorU32(TEXT_SHADOW),
-                tmps
-            );
+                tmps);
             drawList->AddText(
                 ImVec2(destinationPosOnScreen.x + 14, destinationPosOnScreen.y + 14),
                 GetColorU32(TEXT),
-                tmps
-            );
+                tmps);
         }
     }
 
@@ -1893,8 +1882,8 @@ public:
                 if (belowAxisLimit) {
                     bool hasTranslateOnAxis = Contains(op, Operation::TranslateX << i);
                     float markerScale = hasTranslateOnAxis ? 1.4f : 1.0f;
-                    //ImVec2 baseSSpace = worldToPos(dirAxis * 0.1f * context.mScreenFactor, context.mMVPLocal);
-                    //ImVec2 worldDirSSpaceNoScale = worldToPos(dirAxis * markerScale * context.mScreenFactor, context.mMVP);
+                    // ImVec2 baseSSpace = worldToPos(dirAxis * 0.1f * context.mScreenFactor, context.mMVPLocal);
+                    // ImVec2 worldDirSSpaceNoScale = worldToPos(dirAxis * markerScale * context.mScreenFactor, context.mMVP);
                     ImVec2 worldDirSSpace = worldToPos((dirAxis * markerScale * scaleDisplay[i]) * mScreenFactor, mMVPLocal);
 
 #if 0
@@ -1918,7 +1907,7 @@ public:
         drawList->AddCircle(mScreenSquareCenter, 20.f, colors[0], 32, mStyle.CenterCircleSize);
 
         if (mbUsing and (GetCurrentID() == mEditingID) and IsScaleType(type)) {
-            //ImVec2 sourcePosOnScreen = worldToPos(context.mMatrixOrigin, context.mViewProjection);
+            // ImVec2 sourcePosOnScreen = worldToPos(context.mMatrixOrigin, context.mViewProjection);
             ImVec2 destinationPosOnScreen = worldToPos(mModel[3], mViewProjection);
             /*Vector4 dif(destinationPosOnScreen.x - sourcePosOnScreen.x, destinationPosOnScreen.y - sourcePosOnScreen.y);
             dif.Normalize();
@@ -1928,20 +1917,17 @@ public:
             drawList->AddLine(ImVec2(sourcePosOnScreen.x + dif.x, sourcePosOnScreen.y + dif.y), ImVec2(destinationPosOnScreen.x - dif.x, destinationPosOnScreen.y - dif.y), translationLineColor, 2.f);
             */
             char tmps[512]{};  // TODO: use std::format
-            //Vector4 deltaInfo = context.mModel.v.position - context.mMatrixOrigin;
+            // Vector4 deltaInfo = context.mModel.v.position - context.mMatrixOrigin;
             int componentInfoIndex = (type - MT_SCALE_X) * 3;
-            ImFormatString(tmps, sizeof(tmps), c_scale_info_mask[type - MT_SCALE_X].c_str(),
-                           scaleDisplay[c_translation_info_index[componentInfoIndex]]);
+            ImFormatString(tmps, sizeof(tmps), c_scale_info_mask[type - MT_SCALE_X].c_str(), scaleDisplay[c_translation_info_index[componentInfoIndex]]);
             drawList->AddText(
                 ImVec2(destinationPosOnScreen.x + 15, destinationPosOnScreen.y + 15),
                 GetColorU32(TEXT_SHADOW),
-                tmps
-            );
+                tmps);
             drawList->AddText(
                 ImVec2(destinationPosOnScreen.x + 14, destinationPosOnScreen.y + 14),
                 GetColorU32(TEXT),
-                tmps
-            );
+                tmps);
         }
     }
 
@@ -1981,17 +1967,16 @@ public:
                     ImVec2 dir(origin - worldDirSSpace);
 
                     float d = sqrtf(ImLengthSqr(dir));
-                    dir /= d; // Normalize
+                    dir /= d;  // Normalize
                     dir *= mStyle.TranslationLineArrowSize;
 
-                    ImVec2 ortogonalDir(dir.y, -dir.x); // Perpendicular vector
+                    ImVec2 ortogonalDir(dir.y, -dir.x);  // Perpendicular vector
                     ImVec2 a(worldDirSSpace + dir);
                     drawList->AddTriangleFilled(
                         worldDirSSpace - dir,
                         a + ortogonalDir,
                         a - ortogonalDir,
-                        colors[i + 1]
-                    );
+                        colors[i + 1]);
                     // Arrow head end
 
                     if (mAxisFactor[i] < 0.f) {
@@ -2024,15 +2009,15 @@ public:
                 destinationPosOnScreen.x - sourcePosOnScreen.x,
                 destinationPosOnScreen.y - sourcePosOnScreen.y,
                 0.f,
-                0.f
-            };
+                0.f};
             dif = normalize(dif);
             dif *= 5.f;
             drawList->AddCircle(sourcePosOnScreen, 6.f, translationLineColor);
             drawList->AddCircle(destinationPosOnScreen, 6.f, translationLineColor);
             drawList->AddLine(ImVec2(sourcePosOnScreen.x + dif.x(), sourcePosOnScreen.y + dif.y()),
                               ImVec2(destinationPosOnScreen.x - dif.x(), destinationPosOnScreen.y - dif.y()),
-                              translationLineColor, 2.f);
+                              translationLineColor,
+                              2.f);
 
             char tmps[512]{};  // TODO: use std::format
             Vector4 deltaInfo = mModel[3] - mMatrixOrigin;
@@ -2043,18 +2028,15 @@ public:
                 c_translation_info_mask[type - MT_MOVE_X].c_str(),
                 deltaInfo[c_translation_info_index[componentInfoIndex]],
                 deltaInfo[c_translation_info_index[componentInfoIndex + 1]],
-                deltaInfo[c_translation_info_index[componentInfoIndex + 2]]
-            );
+                deltaInfo[c_translation_info_index[componentInfoIndex + 2]]);
             drawList->AddText(
                 ImVec2(destinationPosOnScreen.x + 15, destinationPosOnScreen.y + 15),
                 GetColorU32(TEXT_SHADOW),
-                tmps
-            );
+                tmps);
             drawList->AddText(
                 ImVec2(destinationPosOnScreen.x + 14, destinationPosOnScreen.y + 14),
                 GetColorU32(TEXT),
-                tmps
-            );
+                tmps);
         }
     }
 
@@ -2065,12 +2047,12 @@ public:
     Matrix4x4 mViewMat;
     Matrix4x4 mProjectionMat;
     Matrix4x4 mModel;
-    Matrix4x4 mModelLocal; // orthonormalized model
+    Matrix4x4 mModelLocal;  // orthonormalized model
     Matrix4x4 mModelInverse;
     Matrix4x4 mModelSource;
     Matrix4x4 mModelSourceInverse;
     Matrix4x4 mMVP;
-    Matrix4x4 mMVPLocal; // MVP with full model matrix whereas mMVP's model matrix might only be translation in case of World space edition
+    Matrix4x4 mMVPLocal;  // MVP with full model matrix whereas mMVP's model matrix might only be translation in case of World space edition
     Matrix4x4 mViewProjection;
 
     Vector4 mModelScaleOrigin;
@@ -2081,7 +2063,7 @@ public:
     Vector4 mRayOrigin;
     Vector4 mRayVector;
 
-    float  mRadiusSquareCenter{};
+    float mRadiusSquareCenter{};
     ImVec2 mScreenSquareCenter{};
     ImVec2 mScreenSquareMin{};
     ImVec2 mScreenSquareMax{};
@@ -2092,7 +2074,7 @@ public:
     bool mbUsing = false;
     bool mbEnable = true;
     bool mbMouseOver{};
-    bool mReversed{}; // reversed projection matrix
+    bool mReversed{};  // reversed projection matrix
 
     // translation
     Vector4 mTranslationPlan;
@@ -2104,7 +2086,7 @@ public:
     Vector4 mRotationVectorSource;
     float mRotationAngle{};
     float mRotationAngleOrigin{};
-    //Vector4 mWorldToLocalAxis;
+    // Vector4 mWorldToLocalAxis;
 
     // scale
     Vector4 mScale;
@@ -2118,8 +2100,8 @@ public:
     bool mBelowPlaneLimit[3]{};
     float mAxisFactor[3]{};
 
-    float mAxisLimit=0.0025f;
-    float mPlaneLimit=0.02f;
+    float mAxisLimit = 0.0025f;
+    float mPlaneLimit = 0.02f;
 
     // bounds stretching
     Vector4 mBoundsPivot;
@@ -2153,11 +2135,12 @@ public:
     float mGizmoSizeClipSpace = 0.1f;
 };
 
-osc::ui::gizmo::detail::GizmoContext::GizmoContext() : impl_{std::make_unique<Impl>()} {}
+osc::ui::gizmo::detail::GizmoContext::GizmoContext() :
+    impl_{std::make_unique<Impl>()} {}
 osc::ui::gizmo::detail::GizmoContext::GizmoContext(GizmoContext&&) noexcept = default;
 osc::ui::gizmo::detail::GizmoContext::~GizmoContext() noexcept = default;
 GizmoContext& osc::ui::gizmo::detail::GizmoContext::operator=(GizmoContext&&) noexcept = default;
-void osc::ui::gizmo::detail::GizmoContext::set_drawlist(ImDrawList *drawlist) { impl_->SetDrawlist(drawlist); }
+void osc::ui::gizmo::detail::GizmoContext::set_drawlist(ImDrawList* drawlist) { impl_->SetDrawlist(drawlist); }
 void osc::ui::gizmo::detail::GizmoContext::begin_frame() { impl_->BeginFrame(); }
 bool osc::ui::gizmo::detail::GizmoContext::is_over() { return impl_->IsOver(); }
 bool osc::ui::gizmo::detail::GizmoContext::is_over(Operation op) { return impl_->IsOver(op); }
@@ -2182,7 +2165,7 @@ std::optional<Transform> osc::ui::gizmo::detail::GizmoContext::manipulate(
     const AABB* local_bounds,
     const float* bounds_snap)
 {
-   return impl_->Manipulate(view, projection, operation, mode, matrix, snap, local_bounds, bounds_snap);
+    return impl_->Manipulate(view, projection, operation, mode, matrix, snap, local_bounds, bounds_snap);
 }
 
 // NOLINTEND

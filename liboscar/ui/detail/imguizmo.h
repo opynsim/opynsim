@@ -48,11 +48,18 @@
 
 struct ImDrawList;
 
-namespace osc::ui { struct GizmoOperationSnappingSteps; }
-namespace osc { struct AABB; }
+namespace osc::ui
+{
+    struct GizmoOperationSnappingSteps;
+}
+namespace osc
+{
+    struct AABB;
+}
 
 namespace osc::ui::gizmo::detail
 {
+    // clang-format off
     enum class Operation {
         None           =  0,
         TranslateX     = (1u << 0),
@@ -76,6 +83,7 @@ namespace osc::ui::gizmo::detail
         ScaleU         = ScaleXU | ScaleYU | ScaleZU, // universal
         Universal      = Translate | Rotate | ScaleU
     };
+    // clang-format on
 
     constexpr Operation operator|(Operation lhs, Operation rhs)
     {
@@ -147,8 +155,8 @@ namespace osc::ui::gizmo::detail
         void set_orthographic(bool is_orthographic);
 
         // Push/Pop IDs from the current gizmo context's local ID stack
-        void          push_id(UID);
-        void          pop_id();                                                        // pop from the ID stack.
+        void push_id(UID);
+        void pop_id();  // pop from the ID stack.
 
         void set_gizmo_size_clip_space(float value);
 
@@ -173,10 +181,10 @@ namespace osc::ui::gizmo::detail
             Matrix4x4& matrix,
             const GizmoOperationSnappingSteps* snap = nullptr,
             const AABB* local_bounds = nullptr,
-            const float* bounds_snap = nullptr
-        );
+            const float* bounds_snap = nullptr);
 
         class Impl;
+
     private:
         std::unique_ptr<Impl> impl_;
     };
