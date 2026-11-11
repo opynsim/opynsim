@@ -53,6 +53,8 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   landmarks to the click location.
 - `osc::ui::MouseButton` was merged into `osc::MouseButton`, to reduce enum/type duplication.
 - Refactored `osc::num_options<T>()` `constexpr` function to a `constexpr` typedef `osc::num_options_v<T>`.
+- Fixed a bug in OpenSim Creator where the global geometry directory took precedence
+  over the local geometry directory (#51).
 
   
 

@@ -75,7 +75,9 @@ bool osc::globally_init_open_sim()
 void osc::globally_add_directory_to_open_sim_geometry_search_path(const std::filesystem::path& p)
 {
     if (std::filesystem::exists(p) and std::filesystem::is_directory(p)) {
-        opyn::prepend_search_path(p);
+        // Always append to the _end_ of the geometry search path, so that the
+        // existing paths (e.g. local to the model file) take precedence (#51).
+        opyn::append_search_path(p);
         log_info("added geometry search path entry: {}", p.string());
     } else {
         log_warn("{}: does not exist, it will not be added to the geometry search path", p.string());
