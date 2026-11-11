@@ -2,10 +2,10 @@
 
 #include <liboscar/platform/widget.h>
 
-namespace osc { class TabRegistryEntry; }
-
 namespace osc
 {
+    class TabRegistryEntry;
+
     class TabTestingScreen final : public Widget {
     public:
         explicit TabTestingScreen(TabRegistryEntry const&);
