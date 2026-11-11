@@ -21,7 +21,7 @@ namespace
     class NamedWidget final {
     public:
         template<typename TWidget>
-        requires (requires { TWidget::id(); })
+        requires(requires { TWidget::id(); })
         static NamedWidget create()
         {
             return NamedWidget{TWidget::id(), [](Widget* owner) { return std::make_unique<TWidget>(owner); }};
@@ -29,9 +29,10 @@ namespace
 
         const auto& name() const { return name_; }
         std::unique_ptr<Widget> construct(Widget* owner) { return constructor_(owner); }
+
     private:
         template<typename StringLike, typename Constructor>
-        requires (std::constructible_from<std::string, StringLike> and std::invocable<Constructor, Widget*>)
+        requires(std::constructible_from<std::string, StringLike> and std::invocable<Constructor, Widget*>)
         NamedWidget(StringLike&& name, Constructor&& constructor) :
             name_{std::forward<StringLike>(name)},
             constructor_{std::forward<Constructor>(constructor)}
@@ -44,8 +45,7 @@ namespace
     std::vector<NamedWidget> all_demos()
     {
         std::vector<NamedWidget> rv;
-        [&rv]<typename... Demos>(Typelist<Demos...>)
-        {
+        [&rv]<typename... Demos>(Typelist<Demos...>) {
             static_assert(sizeof...(Demos) > 0);
             (rv.push_back(NamedWidget::create<Demos>()), ...);
         }(OscarDemosTypelist{});
