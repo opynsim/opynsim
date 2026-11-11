@@ -25,7 +25,6 @@ struct nanobind::detail::type_caster<osc::Radians> final {
     static handle from_cpp(const cpp_type& src, rv_policy policy, cleanup_list* cleanup) noexcept
     {
         return nanobind::detail::type_caster<double>::from_cpp(
-            static_cast<double>(src.count()), policy, cleanup
-        );
+            static_cast<double>(src.count()), policy, cleanup);
     }
 };

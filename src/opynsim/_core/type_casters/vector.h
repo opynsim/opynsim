@@ -5,7 +5,7 @@
 #include <liboscar/maths/vector.h>
 #include <nanobind/nanobind.h>
 #pragma warning(push)
-#pragma warning(disable : 4702) // Disable "unreachable code"
+#pragma warning(disable : 4702)  // Disable "unreachable code"
 #include <nanobind/ndarray.h>
 #pragma warning(pop)
 
@@ -42,8 +42,7 @@ struct nanobind::detail::type_caster<osc::Vector3f> final {
                     value = cpp_type{
                         nanobind::cast<value_type>(src[0]),
                         nanobind::cast<value_type>(src[1]),
-                        nanobind::cast<value_type>(src[2])
-                    };
+                        nanobind::cast<value_type>(src[2])};
                     return true;
                 }
             } catch (...) {
@@ -62,7 +61,7 @@ struct nanobind::detail::type_caster<osc::Vector3f> final {
         static_assert(std::tuple_size_v<cpp_type> == 3);
         auto data = std::unique_ptr<value_type[]>(new value_type[3]{src[0], src[1], src[2]});  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays, bugprone-unhandled-exception-at-new)
         value_type* ptr = data.get();
-        const auto shape = std::to_array({ 3uz });
+        const auto shape = std::to_array({3uz});
 
         python_output_type ndarray{ptr, shape.size(), shape.data(), opyn::to_capsule(std::move(data))};
 
