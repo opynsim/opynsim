@@ -49,13 +49,16 @@ void main()
         {}
 
         CStringView name() const { return name_; }
+
     private:
         std::string name_;
     };
 
     class HelloWorldMaterial final : public BookOfShadersMaterial {
     public:
-        HelloWorldMaterial() : BookOfShadersMaterial{"hello_world", c_fragment_source} {}
+        HelloWorldMaterial() :
+            BookOfShadersMaterial{"hello_world", c_fragment_source} {}
+
     private:
         static constexpr CStringView c_fragment_source = R"(
 #version 330 core
@@ -70,7 +73,9 @@ void main() {
 
     class UniformsTimeColored final : public BookOfShadersMaterial {
     public:
-        UniformsTimeColored() : BookOfShadersMaterial{"uniforms_time_colored", c_fragment_source} {}
+        UniformsTimeColored() :
+            BookOfShadersMaterial{"uniforms_time_colored", c_fragment_source} {}
+
     private:
         static constexpr CStringView c_fragment_source = R"(
 #version 330 core
@@ -87,7 +92,9 @@ void main() {
 
     class UniformsGlFragCoord final : public BookOfShadersMaterial {
     public:
-        UniformsGlFragCoord() : BookOfShadersMaterial{"uniforms_gl_FragCoord", c_fragment_source} {}
+        UniformsGlFragCoord() :
+            BookOfShadersMaterial{"uniforms_gl_FragCoord", c_fragment_source} {}
+
     private:
         static constexpr CStringView c_fragment_source = R"(
 #version 330 core
@@ -105,7 +112,9 @@ void main() {
 
     class AlgorithmicDrawingSmoothstep final : public BookOfShadersMaterial {
     public:
-        AlgorithmicDrawingSmoothstep() : BookOfShadersMaterial{"algorithmic_drawing", c_fragment_source} {}
+        AlgorithmicDrawingSmoothstep() :
+            BookOfShadersMaterial{"algorithmic_drawing", c_fragment_source} {}
+
     private:
         static constexpr CStringView c_fragment_source = R"(
 #version 330 core
@@ -168,8 +177,7 @@ private:
             quad_,
             {.scale = {aspect_ratio_of(workspace_dimensions), 1.0f, 1.0f}},
             materials_.at(current_material_index_),
-            props_
-        );
+            props_);
         graphics::render_to_main_window(render_queue_, camera_);
         render_queue_.clear();
     }
