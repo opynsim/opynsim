@@ -107,8 +107,7 @@ void opyn::init_tps3d_submodule(nanobind::module_& tps3d_module)
 
                 Returns:
                     A 3-element ndarray that represents the warped point.
-            )"
-        )
+            )")
         .def("__eq__", std::equal_to<TPSCoefficients3D<double>>{});
 
     tps3d_module.def(
@@ -138,6 +137,5 @@ void opyn::init_tps3d_submodule(nanobind::module_& tps3d_module)
             Returns:
                 A :class:`TPSCoefficients3D` object that contains the calculated coefficients.
 
-        )"
-    );
+        )");
 }

@@ -30,13 +30,11 @@ namespace
             // Every UI loop tick, the Python interpreter should be checked
             // for signals (e.g. keyboard interrupts) so that the user can
             // close the UI from the terminal with `Ctrl+C` (for example).
-            .on_tick_begin = []
-            {
+            .on_tick_begin = [] {
                 if (PyErr_CheckSignals() != 0) {
                     throw nb::python_error{};
                 }
-            }
-        };
+            }};
     }
 }
 
@@ -49,8 +47,7 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
             Displays OPynSim's 'hello world' user interface in a window.
 
             Blocks and runs the GUI main loop until the window is closed.
-        )"
-    );
+        )");
     ui_module.def(
         "show_model_in_state",
         [](
@@ -60,8 +57,7 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
             const osc::Color& background_color,
             bool draw_floor,
             osc::SceneCache* scene_cache,
-            osc::Camera* camera)
-        {
+            osc::Camera* camera) {
             show_model_in_state(
                 get_lazy_loaded_opynsim_app(),
                 model,
@@ -71,8 +67,7 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
                 draw_floor,
                 scene_cache,
                 camera,
-                default_python_callbacks()
-            );
+                default_python_callbacks());
         },
         nb::arg("model"),
         nb::arg("model_state"),
@@ -96,6 +91,5 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
                 draw_floor (bool): Toggles drawing a chequered floor at Y=0 in the scene.
                 scene_cache (opynsim.SceneCache): A scene cache from which the implementation pulls cached scene elements (shaders, meshes, etc.). Otherwise, the implementation loads all assets every time this function is called (slow).
                 camera (opynsim.Camera): A camera that the UI uses, updates, and manipulates (default: an internal camera that looks down -Z and pulls back from the origin until the entire model fits in-frame).
-        )"
-    );
+        )");
 }

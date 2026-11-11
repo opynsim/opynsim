@@ -21,8 +21,7 @@ void opyn::python::def_camera(nb::module_& m)
         "Camera",
         "Represents a virtual camera at `position` in world space, looking along\n"
         "a normalized `direction` vector. The `up` vector (also normalized)\n"
-        "specifies which direction corresponds to the 'top' of the rendered image.\n"
-    );
+        "specifies which direction corresponds to the 'top' of the rendered image.\n");
     cls.def_static(
         "look_at",
         &osc::Camera::look_at,
@@ -39,8 +38,7 @@ void opyn::python::def_camera(nb::module_& m)
         "    target: A point in world-space that the camera should look at.\n"
         "    up: Direction towards the top of the camera's image plane. Normalized by the \n"
         "        implementation. If it is parallel with ``target`` then the implementation \n"
-        "        will select a fallback that is non-parallel.\n"
-    );
+        "        will select a fallback that is non-parallel.\n");
     cls.def(
         nb::init<const osc::Vector3&, const osc::Vector3&, const osc::Vector3&, osc::Radians>{},
         nb::arg("position") = osc::Vector3{},
@@ -57,31 +55,26 @@ void opyn::python::def_camera(nb::module_& m)
         "    direction: Direction the camera is pointing towards in world-space. Normalized by the implementation.\n"
         "    up: Direction towards the top of the camera's image plane. Normalized by the implementation. If\n"
         "        it is parallel with ``direction`` then the implementation will select a fallback that is non-parallel.\n"
-        "    vertical_field_of_view: The vertical field-of-view angle of the camera in radians\n"
-    );
+        "    vertical_field_of_view: The vertical field-of-view angle of the camera in radians\n");
     cls.def_prop_rw(
         "position",
         &osc::Camera::position,
         &osc::Camera::set_position,
-        "Get/set the position of the camera in world space."
-    );
+        "Get/set the position of the camera in world space.");
     cls.def_prop_rw(
         "direction",
         &osc::Camera::direction,
         &osc::Camera::set_direction,
-        "Get/set the direction the camera is looking toward. Normalized by the implementation."
-    );
+        "Get/set the direction the camera is looking toward. Normalized by the implementation.");
     cls.def_prop_rw(
         "up",
         &osc::Camera::up,
         &osc::Camera::set_up,
-        "Get/set the direction that corresponds to the 'top' of the rendered image. Normalized by the implementation."
-    );
+        "Get/set the direction that corresponds to the 'top' of the rendered image. Normalized by the implementation.");
     cls.def_prop_rw(
         "vertical_field_of_view",
         &osc::Camera::vertical_field_of_view,
         &osc::Camera::set_vertical_field_of_view,
-        "Get/set the vertical field-of-view angle of the camera in radians. Only applicable to perspective cameras."
-    );
-    cls.def("__repr__",  [](const osc::Camera& camera) { return std::format("{}", camera); });
+        "Get/set the vertical field-of-view angle of the camera in radians. Only applicable to perspective cameras.");
+    cls.def("__repr__", [](const osc::Camera& camera) { return std::format("{}", camera); });
 }

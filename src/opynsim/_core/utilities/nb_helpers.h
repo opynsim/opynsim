@@ -14,8 +14,7 @@ namespace opyn
             p.release(),
             [](void* ptr) noexcept {
                 delete static_cast<T*>(ptr);  // NOLINT(cppcoreguidelines-owning-memory)
-            }
-        };
+            }};
     }
 
     /// Wrap a unique pointer to an array of `T` into a capsule.
@@ -26,7 +25,6 @@ namespace opyn
             p.release(),
             [](void* ptr) noexcept {
                 delete[] static_cast<T*>(ptr);  // NOLINT(cppcoreguidelines-owning-memory)
-            }
-        };
+            }};
     }
 }

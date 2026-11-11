@@ -9,7 +9,7 @@
 #include <liboscar/utilities/assertions.h>
 #include <nanobind/nanobind.h>
 #pragma warning(push)
-#pragma warning(disable : 4702) // Disable "unreachable code"
+#pragma warning(disable : 4702)  // Disable "unreachable code"
 #include <nanobind/ndarray.h>
 #pragma warning(pop)
 
@@ -52,7 +52,7 @@ namespace
         static_assert(sizeof(T) == std::tuple_size_v<T> * sizeof(typename T::value_type));
 
         const uint8_t* pixel_pointer = std::launder(reinterpret_cast<const uint8_t*>(pixels->data()));
-        const auto shape = std::to_array<size_t>({ dimensions.y(), dimensions.x(), std::tuple_size_v<T> });
+        const auto shape = std::to_array<size_t>({dimensions.y(), dimensions.x(), std::tuple_size_v<T>});
 
         return {pixel_pointer, shape.size(), shape.data(), to_capsule(std::move(pixels))};
     }
@@ -97,8 +97,7 @@ void opyn::python::def_texture2d(nanobind::module_& m)
         "Texture2D",
         R"(
             Represents a two-dimensional image.
-        )"
-    );
+        )");
     texture2d_class.def(
         "pixels_rgba32",
         pixels_rgba32_impl,
@@ -118,8 +117,7 @@ void opyn::python::def_texture2d(nanobind::module_& m)
             for each component is 255, representing the maximum intensity of that
             component. The color components (R, G, and B) are in an sRGB color space, while the
             alpha component (A) is linear.
-        )"
-    );
+        )");
     texture2d_class.def(
         "pixels_rgb24",
         pixels_rgb24_impl,
@@ -138,6 +136,5 @@ void opyn::python::def_texture2d(nanobind::module_& m)
             component is zero, representing zero intensity of that component. The highest value
             for each component is 255, representing the maximum intensity of that
             component. All components are in an sRGB color space.
-        )"
-    );
+        )");
 }

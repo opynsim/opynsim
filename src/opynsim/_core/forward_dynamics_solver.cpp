@@ -20,8 +20,7 @@ void opyn::python::def_forward_dynamics_solver(nb::module_& m)
 
             The solver manages a :class:`ModelState` that it integrates forward
             in time to a caller-specified timepoint (see :meth:`integrate_to`).
-        )"
-    );
+        )");
     cls.def(
         nb::init<Model, std::optional<ModelState>, std::optional<IntegratorSettings>>{},
         nb::arg("model"),
@@ -35,8 +34,7 @@ void opyn::python::def_forward_dynamics_solver(nb::module_& m)
                 model_state (ModelState): If supplied, the state of ``model`` that the solver begins
                     integration from. Otherwise, defaults to ``model.initial_state()``.
                 integrator_settings (IntegratorSettings): The integrator settings of the solvers's integrator.
-        )"
-    );
+        )");
     cls.def(
         "integrate_to",
         &ForwardDynamicsSolver::integrate_to,
@@ -54,13 +52,11 @@ void opyn::python::def_forward_dynamics_solver(nb::module_& m)
             Returns:
                 A copy of the solver's :class:`ModelState`, representing the model's state
                 at ``time`` realized to ``realized_to``.
-        )"
-    );
+        )");
     cls.def_prop_ro(
         "model_state",
         &ForwardDynamicsSolver::model_state,
         R"(
             Returns a copy of the solver's :class:`ModelState`.
-        )"
-    );
+        )");
 }

@@ -12,7 +12,6 @@ void opyn::python::def_scene_cache(nanobind::module_& m)
         "SceneCache",
         R"(
             Caches slow-to-load assets (shaders, meshes).
-        )"
-    );
+        )");
     cls.def(nb::init<>{});
 }

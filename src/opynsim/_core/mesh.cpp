@@ -6,7 +6,7 @@
 #include <liboscar/maths/vector.h>
 #include <nanobind/nanobind.h>
 #pragma warning(push)
-#pragma warning(disable : 4702) // Disable "unreachable code"
+#pragma warning(disable : 4702)  // Disable "unreachable code"
 #include <nanobind/ndarray.h>
 #pragma warning(pop)
 
@@ -26,7 +26,7 @@ namespace
     nb::ndarray<nb::numpy, const float, nb::shape<-1, 3>> mesh_vertices_impl(
         const osc::Mesh& mesh)
     {
-        static_assert(sizeof(osc::Vector3f) == 3*sizeof(float), "required to cast the pointer to float with no gaps between vertices");
+        static_assert(sizeof(osc::Vector3f) == 3 * sizeof(float), "required to cast the pointer to float with no gaps between vertices");
         static_assert(alignof(osc::Vector3f) == alignof(float));
 
         // Copy the vertices out of the `Mesh` and into a capsule-friendly pointer
@@ -36,7 +36,7 @@ namespace
         // it matches what the ndarray API needs.
         const auto* data_ptr = std::launder(reinterpret_cast<const float*>(vertices->data()));
         constexpr size_t ndim = 2;
-        const auto shape = std::to_array<size_t>({ vertices->size(), 3 });
+        const auto shape = std::to_array<size_t>({vertices->size(), 3});
 
         return {data_ptr, ndim, shape.data(), to_capsule(std::move(vertices))};
     }
@@ -52,7 +52,7 @@ namespace
             // that's always presented via the getters, so just copy their data into
             // the mesh.
 
-            static_assert(sizeof(osc::Vector3f) == 3*sizeof(float));
+            static_assert(sizeof(osc::Vector3f) == 3 * sizeof(float));
             static_assert(alignof(osc::Vector3f) <= alignof(float));
             mesh.set_vertices({static_cast<const osc::Vector3f*>(input.data()), num_vertices});
 
@@ -61,12 +61,11 @@ namespace
             // always returns 32-bit encoded vertices so, to keep things simple, the data
             // should be converted to 32-bit.
 
-            static_assert(sizeof(osc::Vector3d) == 3*sizeof(double));
+            static_assert(sizeof(osc::Vector3d) == 3 * sizeof(double));
             static_assert(alignof(osc::Vector3d) <= alignof(double));
             const std::span<const osc::Vector3d> source_vertices{
                 static_cast<const osc::Vector3d*>(input.data()),
-                num_vertices
-            };
+                num_vertices};
 
             std::vector<osc::Vector3f> converted_vertices;
             converted_vertices.reserve(num_vertices);
@@ -132,8 +131,7 @@ void opyn::python::def_mesh(nanobind::module_& m)
         "Mesh",
         R"(
             Represents a renderable mesh.
-        )"
-    );
+        )");
     mesh_class.def(nb::init<>());
     mesh_class.def_prop_rw(
         "vertices",
@@ -142,8 +140,7 @@ void opyn::python::def_mesh(nanobind::module_& m)
         nb::rv_policy::move,
         R"(
             Gets/sets the vertices of the mesh as an Nx3 ndarray.
-        )"
-    );
+        )");
     mesh_class.def_prop_rw(
         "faces",
         mesh_faces_impl,
@@ -151,6 +148,5 @@ void opyn::python::def_mesh(nanobind::module_& m)
         nb::rv_policy::move,
         R"(
             Gets/sets the faces (indices) of the mesh as an 1-dimensional ndarray.
-        )"
-    );
+        )");
 }

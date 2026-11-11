@@ -19,10 +19,11 @@ namespace opyn
         auto data = std::make_unique<T[]>(N);  // NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
         std::uninitialized_copy_n(&vec[0], N, data.get());
         auto* handle = data.get();
-        nanobind::capsule owner{data.release(), [](void* p) noexcept
-        {
-            delete[] static_cast<T*>(p);  // NOLINT(cppcoreguidelines-owning-memory)
-        }};
+        nanobind::capsule owner{
+            data.release(),
+            [](void* p) noexcept {
+                delete[] static_cast<T*>(p);  // NOLINT(cppcoreguidelines-owning-memory)
+            }};
         return {handle, {}, owner};
     }
 
