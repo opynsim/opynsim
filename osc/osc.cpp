@@ -46,12 +46,11 @@ int main(int argc, char* argv[])
 
         if (arg.empty()) {
             // do nothing (this shouldn't happen)
-        }
-        else if (arg.front() != '-') {
+        } else if (arg.front() != '-') {
             unnamed_args.push_back(arg);
-        }
-        else if (arg == "--help") {
-            std::cout << c_usage << '\n' << c_help << '\n';
+        } else if (arg == "--help") {
+            std::cout << c_usage << '\n'
+                      << c_help << '\n';
             return EXIT_SUCCESS;
         }
     }
