@@ -85,7 +85,6 @@ private:
     RenderQueue render_queue_;
 };
 
-
 CStringView osc::MandelbrotTab::id() { return Impl::static_label(); }
 
 osc::MandelbrotTab::MandelbrotTab(Widget* parent) :

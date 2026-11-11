@@ -21,7 +21,6 @@ public:
     }
 };
 
-
 CStringView osc::ImGuiDemoTab::id() { return Impl::static_label(); }
 
 osc::ImGuiDemoTab::ImGuiDemoTab(Widget* parent) :

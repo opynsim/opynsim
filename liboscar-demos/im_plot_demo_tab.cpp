@@ -22,7 +22,6 @@ public:
     }
 };
 
-
 CStringView osc::ImPlotDemoTab::id() { return Impl::static_label(); }
 
 osc::ImPlotDemoTab::ImPlotDemoTab(Widget* parent) :

@@ -36,19 +36,17 @@ namespace
             pos.y() + size.y() / 2.0f,
         };
         const Rect bg_rect = Rect::from_corners(
-            {pos.x(),            pmid.y() - slot_half_height},
-            {pos.x() + size.x(), pmid.y() + slot_half_height}
-        );
+            {pos.x(), pmid.y() - slot_half_height},
+            {pos.x() + size.x(), pmid.y() + slot_half_height});
 
         ui::DrawListView draw_list = ui::get_panel_draw_list();
         draw_list.add_rect_filled(bg_rect, bg_color, rounding);
 
         if (draw_circular_grabber) {
             draw_list.add_circle_filled({pmid, radius * 0.8f}, ui::get_color(ui::ColorVar::SliderGrab));
-        }
-        else {
-            const Vector2 offs = {radius*0.8f, radius*0.8f};
-            draw_list.add_rect_filled(Rect::from_origin_and_dimensions(pmid, 2.0f*offs), ui::get_color(ui::ColorVar::SliderGrab), rounding);
+        } else {
+            const Vector2 offs = {radius * 0.8f, radius * 0.8f};
+            draw_list.add_rect_filled(Rect::from_origin_and_dimensions(pmid, 2.0f * offs), ui::get_color(ui::ColorVar::SliderGrab), rounding);
         }
     }
 
@@ -80,7 +78,7 @@ namespace
         const Vector2 toggle_size = {toggle_height * 1.75f, toggle_height};
         const Vector2 toggle_pos{
             button_bottom_right.x() - toggle_size.x() - frame_padding.x(),
-            button_top_left.y() + (title_height - toggle_size.y())/2.0f + frame_padding.y(),
+            button_top_left.y() + (title_height - toggle_size.y()) / 2.0f + frame_padding.y(),
         };
         draw_toggler(*v, ui::is_item_hovered(), toggle_pos, toggle_size);
 
@@ -112,7 +110,6 @@ private:
     float float_value_ = 10.0f;
     bool toggle_state_ = false;
 };
-
 
 CStringView osc::CustomWidgetsTab::id() { return Impl::static_label(); }
 

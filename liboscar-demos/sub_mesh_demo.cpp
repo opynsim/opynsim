@@ -86,8 +86,7 @@ public:
                 mesh_with_sub_meshes_,
                 identity<Transform>(),
                 material_,
-                sub_mesh_index
-            );
+                sub_mesh_index);
         }
         graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),

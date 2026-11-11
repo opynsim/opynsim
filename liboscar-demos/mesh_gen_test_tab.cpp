@@ -94,8 +94,7 @@ public:
             const bool modified = ui::update_orbit_controller_from_mouse_inputs(
                 camera_controller_,
                 camera_,
-                ui::get_main_window_workspace_dimensions()
-            );
+                ui::get_main_window_workspace_dimensions());
             if (modified) {
                 camera_controller_.update_camera(camera_);
             }
@@ -151,7 +150,6 @@ private:
     OrbitCameraController camera_controller_;
     CameraViewAxes camera_axes_ui_;
 };
-
 
 CStringView osc::MeshGenTestTab::id() { return Impl::static_label(); }
 

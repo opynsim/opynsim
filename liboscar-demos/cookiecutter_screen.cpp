@@ -35,11 +35,10 @@ public:
             // user clicked the X, or Alt+F4, etc.)
             App::upd().request_quit();
             return true;
-        }
-        else if (ui_context_.on_event(e)) {
+        } else if (ui_context_.on_event(e)) {
             return true;  // an element in the 2D UI handled this event
         }
-        return false;   // nothing handled the event
+        return false;  // nothing handled the event
     }
 
     void on_tick()

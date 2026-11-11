@@ -2,15 +2,16 @@
 
 #include <liboscar/ui/tabs/tab.h>
 
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Widget;
+
     class FrustumCullingTab final : public Tab {
     public:
         static CStringView id();
 
         explicit FrustumCullingTab(Widget*);
+
     private:
         void impl_on_mount() final;
         void impl_on_unmount() final;

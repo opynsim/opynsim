@@ -37,12 +37,13 @@ namespace
 {
     constexpr auto c_triangle_vertices = std::to_array<Vector3>({
         {-10.0f, -10.0f, 0.0f},
-        {+ 0.0f, +10.0f, 0.0f},
+        {+0.0f, +10.0f, 0.0f},
         {+10.0f, -10.0f, 0.0f},
     });
 
     struct SceneSphere final {
-        explicit SceneSphere(Vector3 pos) : pos{pos} {}
+        explicit SceneSphere(Vector3 pos) :
+            pos{pos} {}
 
         Vector3 pos;
         bool is_hovered = false;
@@ -60,7 +61,7 @@ namespace
                 for (int32_t z = min; z <= max; z += step) {
                     rv.emplace_back(Vector3{
                         static_cast<float>(x),
-                        50.0f + 2.0f*static_cast<float>(y),
+                        50.0f + (2.0f * static_cast<float>(y)),
                         static_cast<float>(z),
                     });
                 }
@@ -74,10 +75,10 @@ namespace
         Mesh rv;
         rv.set_topology(MeshTopology::Lines);
         rv.set_vertices({
-            {-0.05f, 0.0f,  0.0f},  // -X
-            {+0.05f, 0.0f,  0.0f},  // +X
-            { 0.0f, -0.05f, 0.0f},  // -Y
-            { 0.0f, +0.05f, 0.0f},  // +Y
+            {-0.05f, 0.0f, 0.0f},  // -X
+            {+0.05f, 0.0f, 0.0f},  // +X
+            {0.0f, -0.05f, 0.0f},  // -Y
+            {0.0f, +0.05f, 0.0f},  // +Y
         });
         rv.set_indices({0, 1, 2, 3});
         return rv;
@@ -155,8 +156,7 @@ public:
                 sphere_mesh_,
                 {.translation = scene_sphere.pos},
                 material_,
-                scene_sphere.is_hovered ? blue_color_material_props_ : red_color_material_props_
-            );
+                scene_sphere.is_hovered ? blue_color_material_props_ : red_color_material_props_);
 
             // draw sphere AABBs
             if (showing_aabbs_) {
@@ -164,8 +164,7 @@ public:
                     wireframe_mesh_,
                     {.scale = half_widths_of(scene_sphere_aabb_), .translation = scene_sphere.pos},
                     material_,
-                    black_color_material_props_
-                );
+                    black_color_material_props_);
             }
         }
 
@@ -191,23 +190,20 @@ public:
                 circle_mesh_,
                 matrix4x4_transform_between(mesh_disc, scene_disc),
                 material_,
-                maybe_collision ? blue_color_material_props_ : red_color_material_props_
-            );
+                maybe_collision ? blue_color_material_props_ : red_color_material_props_);
         }
 
         // hit-test + draw triangle
         {
             const std::optional<RayCollision> maybe_collision = find_collision(
                 camera_.principal_ray(),
-                Triangle{c_triangle_vertices.at(0), c_triangle_vertices.at(1), c_triangle_vertices.at(2)}
-            );
+                Triangle{c_triangle_vertices.at(0), c_triangle_vertices.at(1), c_triangle_vertices.at(2)});
 
             render_queue_.emplace(
                 triangle_mesh_,
                 identity<Transform>(),
                 material_,
-                maybe_collision ? blue_color_material_props_ : red_color_material_props_
-            );
+                maybe_collision ? blue_color_material_props_ : red_color_material_props_);
         }
 
         const Rect workspace_screen_space_rect = ui::get_main_window_workspace_screen_space_rect();
@@ -217,8 +213,7 @@ public:
             crosshair_mesh_,
             camera_.inverse_view_projection_matrix(aspect_ratio_of(workspace_screen_space_rect)),
             material_,
-            black_color_material_props_
-        );
+            black_color_material_props_);
 
         // render scene
         graphics::render_to_main_window(render_queue_, camera_, {
@@ -247,7 +242,6 @@ private:
     Sphere sphere_bounding_sphere_ = bounding_sphere_of(sphere_mesh_).value();
     bool showing_aabbs_ = true;
 };
-
 
 CStringView osc::HittestTab::id() { return Impl::static_label(); }
 

@@ -27,7 +27,7 @@ public:
     void on_draw()
     {
         RenderTexture tex{{
-            .pixel_dimensions = Vector2i{static_cast<int>(App::get().main_window_device_pixel_ratio()*256.0f)},
+            .pixel_dimensions = Vector2i{static_cast<int>(App::get().main_window_device_pixel_ratio() * 256.0f)},
             .device_pixel_ratio = App::get().main_window_device_pixel_ratio(),
         }};
         OSC_ASSERT(all_of(equal_within_absdiff(tex.dimensions(), Vector2{256.0f}, 0.5f)));
@@ -50,5 +50,5 @@ osc::DrawingTestTab::DrawingTestTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
 bool osc::DrawingTestTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::DrawingTestTab::impl_on_tick() { private_data().on_tick();  }
+void osc::DrawingTestTab::impl_on_tick() { private_data().on_tick(); }
 void osc::DrawingTestTab::impl_on_draw() { private_data().on_draw(); }

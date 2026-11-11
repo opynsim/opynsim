@@ -39,8 +39,7 @@ namespace
 
         std::optional<AABB> world_space_bounds() const
         {
-            return mesh.bounds().transform([this](const AABB& local_aabb)
-            {
+            return mesh.bounds().transform([this](const AABB& local_aabb) {
                 return transform_aabb(transform, local_aabb);
             });
         }
@@ -78,8 +77,7 @@ namespace
                         .transform = {
                             .scale = Vector3{dist(rng)},
                             .translation = pos,
-                        }
-                    });
+                        }});
                 }
             }
         }
@@ -125,12 +123,10 @@ public:
         const float x_midpoint = workspace_screen_space_rect.origin().x();
         const Rect lhs_screen_space_rect = Rect::from_corners(
             workspace_screen_space_rect_corners.min,
-            {x_midpoint, workspace_screen_space_rect_corners.max.y()}
-        );
+            {x_midpoint, workspace_screen_space_rect_corners.max.y()});
         const Rect rhs_screen_space_rect = Rect::from_corners(
             {x_midpoint, workspace_screen_space_rect_corners.min.y()},
-            workspace_screen_space_rect_corners.max
-        );
+            workspace_screen_space_rect_corners.max);
         const FrustumPlanes frustum = calc_frustum_planes(camera_, aspect_ratio_of(lhs_screen_space_rect));
 
         camera_.on_draw();  // update from inputs etc.
@@ -150,15 +146,14 @@ public:
         // render from top-down perspective on right-hand side
         for (const auto& decoration : decorations_) {
             const std::optional<AABB> decoration_world_aabb = decoration.world_space_bounds();
-            const auto & props = (decoration_world_aabb and is_intersecting(frustum, *decoration_world_aabb)) ? blue_material_props_ : red_material_props_;
+            const auto& props = (decoration_world_aabb and is_intersecting(frustum, *decoration_world_aabb)) ? blue_material_props_ : red_material_props_;
             render_queue_.emplace(decoration.mesh, decoration.transform, material_, props);
         }
         render_queue_.emplace(
             SphereGeometry{},
             {.scale = Vector3{0.1f}, .translation = camera_.position()},
             material_,
-            green_material_props_
-        );
+            green_material_props_);
         graphics::render_to_main_window(render_queue_, top_down_camera_, {
             .viewport_rect = rhs_screen_space_rect,
             .scissor_rect = rhs_screen_space_rect,  // stops clear from clearing left-hand side
@@ -177,7 +172,6 @@ private:
     MeshBasicMaterial::PropertyBlock blue_material_props_{Color::blue()};
     MeshBasicMaterial::PropertyBlock green_material_props_{Color::green()};
 };
-
 
 osc::CStringView osc::FrustumCullingTab::id() { return Impl::static_label(); }
 
