@@ -41,8 +41,7 @@ namespace
         {
             Texture2D container = Image::read_into_texture(
                 loader.open("oscar_demos/learnopengl/textures/container.jpg"),
-                ColorSpace::sRGB
-            );
+                ColorSpace::sRGB);
             container.set_wrap_mode(TextureWrapMode::Clamp);
 
             rv.set("uTexture1", container);
@@ -52,8 +51,7 @@ namespace
         {
             const Texture2D face = Image::read_into_texture(
                 loader.open("oscar_demos/learnopengl/textures/awesomeface.png"),
-                ColorSpace::sRGB
-            );
+                ColorSpace::sRGB);
 
             rv.set("uTexture2", face);
         }
@@ -94,7 +92,6 @@ private:
     Camera camera_ = create_identity_camera();
     RenderQueue render_queue_;
 };
-
 
 CStringView osc::LOGLTexturingTab::id() { return Impl::static_label(); }
 

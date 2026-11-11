@@ -22,8 +22,8 @@ namespace
         Mesh mesh;
         mesh.set_vertices({
             {-1.0f, -1.0f, 0.0f},  // bottom-left
-            { 1.0f, -1.0f, 0.0f},  // bottom-right
-            { 0.0f,  1.0f, 0.0f},  // top-middle
+            {1.0f, -1.0f, 0.0f},   // bottom-right
+            {0.0f, 1.0f, 0.0f},    // top-middle
         });
         mesh.set_colors({
             Color::red(),
@@ -75,7 +75,6 @@ private:
     Camera camera_ = create_scene_camera();
     RenderQueue render_queue_;
 };
-
 
 CStringView osc::LOGLHelloTriangleTab::id() { return Impl::static_label(); }
 

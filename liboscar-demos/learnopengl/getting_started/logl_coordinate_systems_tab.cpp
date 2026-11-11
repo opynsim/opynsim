@@ -24,6 +24,7 @@ using namespace osc;
 namespace
 {
     // world space positions of each cube (step 2)
+    // clang-format off
     constexpr auto c_cube_positions = std::to_array<Vector3>({
         { 0.0f,  0.0f,  0.0f },
         { 2.0f,  5.0f, -15.0f},
@@ -36,6 +37,7 @@ namespace
         { 1.5f,  0.2f, -1.5f },
         {-1.3f,  1.0f, -1.5f },
     });
+    // clang-format on
 
     MouseCapturingCamera create_camera_that_matches_learnopengl()
     {
@@ -57,17 +59,13 @@ namespace
             "uTexture1",
             Image::read_into_texture(
                 loader.open("oscar_demos/learnopengl/textures/container.jpg"),
-                ColorSpace::sRGB
-            )
-        );
+                ColorSpace::sRGB));
 
         material.set(
             "uTexture2",
             Image::read_into_texture(
                 loader.open("oscar_demos/learnopengl/textures/awesomeface.png"),
-                ColorSpace::sRGB
-            )
-        );
+                ColorSpace::sRGB));
 
         return material;
     }
@@ -116,8 +114,7 @@ private:
     {
         if (show_step1_) {
             render_queue_.emplace(mesh_, step1_transform_, material_);
-        }
-        else {
+        } else {
             const Vector3 axis = normalize(Vector3{1.0f, 0.3f, 0.5f});
 
             for (size_t i = 0; i < c_cube_positions.size(); ++i) {
@@ -127,8 +124,7 @@ private:
                         .rotation = angle_axis(i * 20_deg, axis),
                         .translation = c_cube_positions[i],
                     },
-                    material_
-                );
+                    material_);
             }
         }
 
@@ -165,7 +161,6 @@ private:
     Transform step1_transform_;
     PerfPanel perf_panel_{&owner()};
 };
-
 
 CStringView osc::LOGLCoordinateSystemsTab::id() { return Impl::static_label(); }
 
