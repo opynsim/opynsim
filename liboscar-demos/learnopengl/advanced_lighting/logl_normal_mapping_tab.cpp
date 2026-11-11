@@ -35,13 +35,11 @@ namespace
     {
         const Texture2D diffuse_map = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/brickwall.jpg"),
-            ColorSpace::sRGB
-        );
+            ColorSpace::sRGB);
         const Texture2D normal_map = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/brickwall_normal.jpg"),
             ColorSpace::Linear,
-            ImageLoadingFlag::TreatComponentsAsSpatialVectors
-        );
+            ImageLoadingFlag::TreatComponentsAsSpatialVectors);
 
         Material rv{Shader{
             loader.slurp("oscar_demos/learnopengl/shaders/AdvancedLighting/NormalMapping.vert"),
@@ -146,7 +144,6 @@ private:
     };
     bool normal_mapping_enabled_ = true;
 };
-
 
 CStringView osc::LOGLNormalMappingTab::id() { return Impl::static_label(); }
 

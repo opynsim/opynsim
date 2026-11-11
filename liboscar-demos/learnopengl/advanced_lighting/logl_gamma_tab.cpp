@@ -25,8 +25,8 @@ namespace
     constexpr auto c_light_positions = std::to_array<Vector3>({
         {-3.0f, 0.0f, 0.0f},
         {-1.0f, 0.0f, 0.0f},
-        { 1.0f, 0.0f, 0.0f},
-        { 3.0f, 0.0f, 0.0f},
+        {+1.0f, 0.0f, 0.0f},
+        {+3.0f, 0.0f, 0.0f},
     });
 
     constexpr auto c_light_colors = std::to_array<Color>({
@@ -38,6 +38,7 @@ namespace
 
     Mesh generate_plane()
     {
+        // clang-format off
         Mesh mesh;
         mesh.set_vertices({
             { 10.0f, -0.5f,  10.0f},
@@ -67,6 +68,7 @@ namespace
             {0.0f, 1.0f, 0.0f},
         });
         mesh.set_indices({0, 2, 1, 3, 5, 4});
+        // clang-format on
         return mesh;
     }
 
@@ -83,8 +85,7 @@ namespace
     {
         const Texture2D wood_texture = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/wood.jpg"),
-            ColorSpace::sRGB
-        );
+            ColorSpace::sRGB);
 
         Material material{Shader{
             loader.slurp("oscar_demos/learnopengl/shaders/AdvancedLighting/Gamma.vert"),
@@ -154,7 +155,6 @@ private:
     MouseCapturingCamera camera_ = create_scene_camera();
     RenderQueue render_queue_;
 };
-
 
 CStringView osc::LOGLGammaTab::id() { return Impl::static_label(); }
 

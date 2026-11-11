@@ -2,10 +2,10 @@
 
 #include <liboscar/ui/tabs/tab.h>
 
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Widget;
+
     class LOGLHDRTab final : public Tab {
     public:
         static CStringView id();

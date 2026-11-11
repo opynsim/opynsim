@@ -51,8 +51,8 @@ namespace
         rv.reserve(num_samples);
         for (size_t i = 0; i < num_samples; ++i) {
             // scale such that they are more aligned to the center of the kernel
-            float scale = static_cast<float>(i)/static_cast<float>(num_samples);
-            scale = lerp(0.1f, 1.0f, scale*scale);
+            float scale = static_cast<float>(i) / static_cast<float>(num_samples);
+            scale = lerp(0.1f, 1.0f, scale * scale);
 
             Vector3 sample = {minus_one_to_one(rng), minus_one_to_one(rng), minus_one_to_one(rng)};
             sample = normalize(sample);
@@ -65,7 +65,8 @@ namespace
         return rv;
     }
 
-    std::vector<Color> generate_noise_texture_pixels(size_t num_pixels) {
+    std::vector<Color> generate_noise_texture_pixels(size_t num_pixels)
+    {
         std::default_random_engine rng{std::random_device{}()};
         std::uniform_real_distribution<float> minus_one_to_one{-1.0f, 1.0f};
 
@@ -204,8 +205,7 @@ private:
             render_queue_.emplace(
                 cube_mesh_,
                 {.scale = Vector3{7.5f}, .translation = {0.0f, 7.0f, 0.0f}},
-                gbuffer_state_.material
-            );
+                gbuffer_state_.material);
         }
 
         // render sphere
@@ -214,8 +214,7 @@ private:
             render_queue_.emplace(
                 sphere_mesh_,
                 {.translation = {0.0f, 0.5f, 0.0f}},
-                gbuffer_state_.material
-            );
+                gbuffer_state_.material);
         }
 
         graphics::render_to(gbuffer_state_.render_target, render_queue_, camera_, {
@@ -295,7 +294,7 @@ private:
 
         const Vector2 viewport_top_left = viewport_screen_space_rect.ypu_top_left();
         for (size_t i = 0; i < textures.size(); ++i) {
-            const float offset = static_cast<float>(i)*overlay_size;
+            const float offset = static_cast<float>(i) * overlay_size;
             const Vector2 overlay_bottom_left = {viewport_top_left.x() + offset, viewport_top_left.y() - overlay_size};
             const Vector2 overlay_top_right = overlay_bottom_left + Vector2{overlay_size};
             graphics::blit_to_main_window(*textures[i], Rect::from_corners(overlay_bottom_left, overlay_top_right));
@@ -397,7 +396,6 @@ private:
 
     PerfPanel perf_panel_{&owner()};
 };
-
 
 CStringView osc::LOGLSSAOTab::id() { return Impl::static_label(); }
 osc::LOGLSSAOTab::LOGLSSAOTab(Widget* parent) :

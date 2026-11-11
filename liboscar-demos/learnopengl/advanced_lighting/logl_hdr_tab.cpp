@@ -26,10 +26,10 @@ using namespace osc;
 namespace
 {
     constexpr auto c_light_positions = std::to_array<Vector3>({
-        { 0.0f,  0.0f, 49.5f},
+        {0.0f, 0.0f, 49.5f},
         {-1.4f, -1.9f, 9.0f},
-        { 0.0f, -1.8f, 4.0f},
-        { 0.8f, -1.7f, 6.0f},
+        {0.0f, -1.8f, 4.0f},
+        {0.8f, -1.7f, 6.0f},
     });
 
     std::array<Color, c_light_positions.size()> get_light_colors()
@@ -61,8 +61,7 @@ namespace
     {
         const Texture2D wood_texture = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/wood.jpg"),
-            ColorSpace::sRGB
-        );
+            ColorSpace::sRGB);
 
         Material material{Shader{
             loader.slurp("oscar_demos/learnopengl/shaders/AdvancedLighting/HDR/Scene.vert"),
@@ -189,7 +188,6 @@ private:
     bool use_16bit_format_ = true;
     bool use_tonemap_ = true;
 };
-
 
 CStringView osc::LOGLHDRTab::id() { return Impl::static_label(); }
 

@@ -33,17 +33,14 @@ namespace
     {
         const Texture2D diffuse_map = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/bricks2.jpg"),
-            ColorSpace::sRGB
-        );
+            ColorSpace::sRGB);
         const Texture2D normal_map = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/bricks2_normal.jpg"),
             ColorSpace::Linear,
-            ImageLoadingFlag::TreatComponentsAsSpatialVectors
-        );
+            ImageLoadingFlag::TreatComponentsAsSpatialVectors);
         const Texture2D displacement_map = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/bricks2_disp.jpg"),
-            ColorSpace::Linear
-        );
+            ColorSpace::Linear);
 
         Material rv{Shader{
             loader.slurp("oscar_demos/learnopengl/shaders/AdvancedLighting/ParallaxMapping.vert"),
@@ -140,7 +137,6 @@ private:
     };
     bool parallax_mapping_enabled_ = true;
 };
-
 
 CStringView osc::LOGLParallaxMappingTab::id() { return Impl::static_label(); }
 

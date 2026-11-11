@@ -32,6 +32,7 @@ namespace rgs = std::ranges;
 
 namespace
 {
+    // clang-format off
     constexpr auto c_object_positions = std::to_array<Vector3>({
         {-3.0,  -0.5, -3.0},
         { 0.0,  -0.5, -3.0},
@@ -44,6 +45,7 @@ namespace
         { 3.0,  -0.5,  3.0},
     });
     constexpr size_t c_num_lights = 32;
+    // clang-format on
 
     Vector3 generate_scene_light_position(std::default_random_engine& rng)
     {
@@ -59,8 +61,7 @@ namespace
 
     std::vector<Vector3> generate_n_scene_light_positions(size_t n)
     {
-        const auto generator = [rng = std::default_random_engine{std::random_device{}()}]() mutable
-        {
+        const auto generator = [rng = std::default_random_engine{std::random_device{}()}] mutable {
             return generate_scene_light_position(rng);
         };
 
@@ -72,8 +73,7 @@ namespace
 
     std::vector<Vector3> generate_n_scene_light_colors(size_t n)
     {
-        const auto generator = [rng = std::default_random_engine{std::random_device{}()}]() mutable
-        {
+        const auto generator = [rng = std::default_random_engine{std::random_device{}()}] mutable {
             const Color srgb_color = generate_scene_light_color(rng);
             const Color linear_color = to_linear_colorspace(srgb_color);
             return Vector3{linear_color.r, linear_color.g, linear_color.b};
@@ -235,8 +235,7 @@ private:
             render_queue_.emplace(
                 cube_mesh_,
                 {.scale = Vector3{0.5f}, .translation = object_position},
-                gbuffer_.material
-            );
+                gbuffer_.material);
         }
         graphics::render_to(gbuffer_.render_target, render_queue_, camera_, {
             .clear_color = Color::black(),
@@ -253,24 +252,18 @@ private:
         graphics::blit_to_main_window(
             gbuffer_.albedo,
             Rect::from_corners(
-                overlays_bottom_left + Vector2{0.0f*overlay_size, 0.0f},
-                overlays_bottom_left + Vector2{0.0f*overlay_size, 0.0f} + overlay_size
-            )
-        );
+                overlays_bottom_left + Vector2{0.0f * overlay_size, 0.0f},
+                overlays_bottom_left + Vector2{0.0f * overlay_size, 0.0f} + overlay_size));
         graphics::blit_to_main_window(
             gbuffer_.normal,
             Rect::from_corners(
-                overlays_bottom_left + Vector2{1.0f*overlay_size, 0.0f},
-                overlays_bottom_left + Vector2{1.0f*overlay_size, 0.0f} + overlay_size
-            )
-        );
+                overlays_bottom_left + Vector2{1.0f * overlay_size, 0.0f},
+                overlays_bottom_left + Vector2{1.0f * overlay_size, 0.0f} + overlay_size));
         graphics::blit_to_main_window(
             gbuffer_.position,
             Rect::from_corners(
-                overlays_bottom_left + Vector2{2.0f*overlay_size, 0.0f},
-                overlays_bottom_left + Vector2{2.0f*overlay_size, 0.0f} + overlay_size
-            )
-        );
+                overlays_bottom_left + Vector2{2.0f * overlay_size, 0.0f},
+                overlays_bottom_left + Vector2{2.0f * overlay_size, 0.0f} + overlay_size));
     }
 
     void render_lighting_pass()
@@ -304,8 +297,7 @@ private:
             render_queue_.emplace(
                 cube_mesh_,
                 {.scale = Vector3{0.125f}, .translation = light_positions_[i]},
-                light_box_material_
-            );
+                light_box_material_);
         }
 
         const RenderTarget render_target{
@@ -339,12 +331,10 @@ private:
     Mesh quad_mesh_ = PlaneGeometry{{.dimensions = Vector2{2.0f}}};
     Texture2D diffuse_map_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/container2.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
     Texture2D specular_map_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/container2_specular.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
 
     // rendering state
     GBufferRenderingState gbuffer_{loader_};
@@ -357,7 +347,6 @@ private:
 
     RenderTexture output_texture_;
 };
-
 
 CStringView osc::LOGLDeferredShadingTab::id() { return Impl::static_label(); }
 

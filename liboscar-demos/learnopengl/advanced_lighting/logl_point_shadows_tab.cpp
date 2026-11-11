@@ -142,8 +142,7 @@ private:
             90_deg,
             aspect_ratio_of(c_shadow_map_pixel_dimensions),
             znear,
-            zfar
-        );
+            zfar);
 
         // have the cone point toward all 6 faces of the cube
         const auto shadow_matrices =
@@ -186,8 +185,7 @@ private:
         render_queue_.emplace(
             cube_mesh_,
             {.scale = Vector3{0.1f}, .translation = light_pos_},
-            material
-        );
+            material);
 
         graphics::render_to_main_window(render_queue_, camera_, {
             .viewport_rect = viewport_screen_space_rect,
@@ -228,8 +226,7 @@ private:
     RenderQueue render_queue_;
     Texture2D wood_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/wood.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
     Mesh cube_mesh_ = BoxGeometry{{.dimensions = Vector3{2.0f}}};
     std::array<SceneCube, 6> scene_cubes_ = make_scene_cubes();
     RenderTexture depth_texture_ = create_depth_texture();
@@ -239,7 +236,6 @@ private:
 
     PerfPanel perf_panel_{&owner()};
 };
-
 
 CStringView osc::LOGLPointShadowsTab::id() { return Impl::static_label(); }
 

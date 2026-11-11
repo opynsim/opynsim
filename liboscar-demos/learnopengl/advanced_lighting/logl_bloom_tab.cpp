@@ -33,19 +33,19 @@ using namespace osc;
 namespace
 {
     constexpr auto c_scene_light_positions = std::to_array<Vector3>({
-        { 0.0f, 0.5f,  1.5f},
+        {0.0f, 0.5f, 1.5f},
         {-4.0f, 0.5f, -3.0f},
-        { 3.0f, 0.5f,  1.0f},
+        {3.0f, 0.5f, 1.0f},
         {-0.8f, 2.4f, -1.0f},
     });
 
     const std::array<Color, c_scene_light_positions.size()>& get_scene_light_colors()
     {
         static const auto s_scene_light_colors = std::to_array<Color>({
-            to_srgb_colorspace({ 5.0f, 5.0f,  5.0f}),
-            to_srgb_colorspace({10.0f, 0.0f,  0.0f}),
-            to_srgb_colorspace({ 0.0f, 0.0f, 15.0f}),
-            to_srgb_colorspace({ 0.0f, 5.0f,  0.0f}),
+            to_srgb_colorspace({5.0f, 5.0f, 5.0f}),
+            to_srgb_colorspace({10.0f, 0.0f, 0.0f}),
+            to_srgb_colorspace({0.0f, 0.0f, 15.0f}),
+            to_srgb_colorspace({0.0f, 5.0f, 0.0f}),
         });
         return s_scene_light_colors;
     }
@@ -204,8 +204,7 @@ private:
                 cube_mesh_,
                 floor_transform,
                 scene_material_,
-                floor_props
-            );
+                floor_props);
         }
 
         MaterialPropertyBlock cube_props;
@@ -215,8 +214,7 @@ private:
                 cube_mesh_,
                 cube_transform,
                 scene_material_,
-                cube_props
-            );
+                cube_props);
         }
     }
 
@@ -236,8 +234,7 @@ private:
                 cube_mesh_,
                 light_transform,
                 lightbox_material_,
-                light_props
-            );
+                light_props);
         }
     }
 
@@ -313,11 +310,10 @@ private:
         });
 
         for (size_t i = 0; i < texture_pointers.size(); ++i) {
-            const Vector2 offset = {static_cast<float>(i)*overlay_width, 0.0f};
+            const Vector2 offset = {static_cast<float>(i) * overlay_width, 0.0f};
             const Rect overlay_rect = Rect::from_corners(
                 viewport_screen_space_rect.ypu_bottom_left() + offset,
-                viewport_screen_space_rect.ypu_bottom_left() + offset + overlay_width
-            );
+                viewport_screen_space_rect.ypu_bottom_left() + offset + overlay_width);
 
             graphics::blit_to_main_window(*texture_pointers[i], overlay_rect);
         }
@@ -347,12 +343,10 @@ private:
 
     Texture2D wood_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/wood.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
     Texture2D container_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/container2.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
     Mesh cube_mesh_ = BoxGeometry{{.dimensions = Vector3{2.0f}}};
     Mesh quad_mesh_ = PlaneGeometry{{.dimensions = Vector2{2.0f}}};
 
@@ -363,7 +357,6 @@ private:
     MouseCapturingCamera camera_ = create_camera_that_matches_learnopengl();
     RenderQueue render_queue_;
 };
-
 
 CStringView osc::LOGLBloomTab::id() { return Impl::static_label(); }
 

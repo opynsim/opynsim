@@ -27,6 +27,7 @@ namespace
     // this matches the plane vertices used in the LearnOpenGL tutorial
     Mesh generate_learnopengl_plane_mesh()
     {
+        // clang-format off
         Mesh mesh;
         mesh.set_vertices({
             { 25.0f, -0.5f,  25.0f},
@@ -56,6 +57,7 @@ namespace
             {25.0f, 25.0f},
         });
         mesh.set_indices({0, 1, 2, 3, 4, 5});
+        // clang-format on
         return mesh;
     }
 
@@ -131,9 +133,7 @@ private:
             depth_texture_,
             Rect::from_corners(
                 workspace_screen_space_top_left - Vector2{0.0f, depth_overlay_size},
-                workspace_screen_space_top_left + Vector2{depth_overlay_size, 0.0f}
-            )
-        );
+                workspace_screen_space_top_left + Vector2{depth_overlay_size, 0.0f}));
         render_queue_.clear();
         scene_material_.unset("uShadowMapTexture");
     }
@@ -147,13 +147,11 @@ private:
         render_queue_.emplace(
             cube_mesh_,
             {.scale = Vector3{0.5f}, .translation = {0.0f, 1.0f, 0.0f}},
-            material
-        );
+            material);
         render_queue_.emplace(
             cube_mesh_,
             {.scale = Vector3{0.5f}, .translation = {2.0f, 0.0f, 1.0f}},
-            material
-        );
+            material);
         render_queue_.emplace(
             cube_mesh_,
             Transform{
@@ -161,8 +159,7 @@ private:
                 .rotation = angle_axis(60_deg, normalize(Vector3{1.0f, 0.0f, 1.0f})),
                 .translation = {-1.0f, 0.0f, 2.0f},
             },
-            material
-        );
+            material);
     }
 
     void render_shadows_to_depth_texture()
@@ -190,8 +187,7 @@ private:
     RenderQueue render_queue_;
     Texture2D wood_texture_ = Image::read_into_texture(
         loader_.open("oscar_demos/learnopengl/textures/wood.jpg"),
-        ColorSpace::sRGB
-    );
+        ColorSpace::sRGB);
     Mesh cube_mesh_ = BoxGeometry{{.dimensions = Vector3{2.0f}}};
     Mesh plane_mesh_ = generate_learnopengl_plane_mesh();
     Material scene_material_{Shader{
