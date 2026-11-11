@@ -21,7 +21,7 @@ namespace osc
         };
 
         template<HasTupleSize T>
-        requires (not HasExtent<T>)
+        requires(not HasExtent<T>)
         struct SizeHelper<T> {
             static constexpr size_t size = std::tuple_size_v<std::remove_cvref_t<T>>;
         };

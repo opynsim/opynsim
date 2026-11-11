@@ -1236,9 +1236,7 @@ public:
         int& type,
         const osc::ui::GizmoOperationSnappingSteps* snap)
     {
-        if (not(op & Operation::Rotate)
-            or type != MT_NONE
-            or not mbMouseOver) {
+        if (not(op & Operation::Rotate) or type != MT_NONE or not mbMouseOver) {
             return false;
         }
 

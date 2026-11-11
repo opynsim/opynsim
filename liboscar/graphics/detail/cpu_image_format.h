@@ -23,6 +23,5 @@ namespace osc::detail
         CPUImageFormat::RGB,
         CPUImageFormat::RGBA,
         CPUImageFormat::Depth,
-        CPUImageFormat::DepthStencil
-    >;
+        CPUImageFormat::DepthStencil>;
 }

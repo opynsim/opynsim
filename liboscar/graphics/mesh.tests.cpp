@@ -1016,9 +1016,9 @@ TEST(Mesh, bounds_on_Mesh_without_indices_returns_std_nullopt)
 {
     constexpr auto pyramid_vertices = std::to_array<Vector3>({
         {-1.0f, -1.0f, 0.0f},  // base: bottom-left
-        { 1.0f, -1.0f, 0.0f},  // base: bottom-right
-        { 0.0f,  1.0f, 0.0f},  // base: top-middle
-        { 0.0f,  0.0f, 1.0f},  // tip
+        {+1.0f, -1.0f, 0.0f},  // base: bottom-right
+        {+0.0f, +1.0f, 0.0f},  // base: top-middle
+        {+0.0f, +0.0f, 1.0f},  // tip
     });
 
     Mesh m;
@@ -1030,8 +1030,8 @@ TEST(Mesh, bounds_on_correctly_initialized_Mesh_returns_expected_AABB)
 {
     constexpr auto triangle_vertices = std::to_array<Vector3>({
         {-1.0f, -1.0f, 0.0f},  // bottom-left
-        { 1.0f, -1.0f, 0.0f},  // bottom-right
-        { 0.0f,  1.0f, 0.0f},  // top-middle
+        {+1.0f, -1.0f, 0.0f},  // bottom-right
+        {+0.0f, +1.0f, 0.0f},  // top-middle
     });
     constexpr auto triangle_indices = std::to_array<uint16_t>({0, 1, 2});
 
@@ -1049,10 +1049,10 @@ TEST(Mesh, centroid_of_empty_Mesh_returns_std_nullopt)
 TEST(Mesh, centroid_of_Mesh_without_indicies_returns_std_nullopt)
 {
     constexpr auto square_vertices = std::to_array<Vector3>({
-        {-1.0f,  1.0f, 0.0f},  // top-left
+        {-1.0f, +1.0f, 0.0f},  // top-left
         {-1.0f, -1.0f, 0.0f},  // bottom-left
-        { 1.0f, -1.0f, 0.0f},  // bottom-right
-        { 1.0f,  1.0f, 0.0f},  // top-right
+        {+1.0f, -1.0f, 0.0f},  // bottom-right
+        {+1.0f, +1.0f, 0.0f},  // top-right
     });
 
     Mesh m;
@@ -1063,10 +1063,10 @@ TEST(Mesh, centroid_of_Mesh_without_indicies_returns_std_nullopt)
 TEST(Mesh, centroid_of_correctly_initialized_Mesh_returns_centroid_of_bounds)
 {
     constexpr auto square_vertices = std::to_array<Vector3>({
-        {-1.0f,  1.0f, 0.0f},  // top-left
+        {-1.0f, +1.0f, 0.0f},  // top-left
         {-1.0f, -1.0f, 0.0f},  // bottom-left
-        { 1.0f, -1.0f, 0.0f},  // bottom-right
-        { 1.0f,  1.0f, 0.0f},  // top-right
+        {+1.0f, -1.0f, 0.0f},  // bottom-right
+        {+1.0f, +1.0f, 0.0f},  // top-right
     });
     constexpr auto square_indices = std::to_array<uint16_t>({
         0, 1, 3,  // bottom-left triangle
@@ -1082,10 +1082,10 @@ TEST(Mesh, centroid_of_correctly_initialized_Mesh_returns_centroid_of_bounds)
 TEST(Mesh, centroid_of_works_with_line_topology_Mesh)
 {
     constexpr auto square_vertices = std::to_array<Vector3>({
-        {-1.0f,  1.0f, 0.0f},  // top-left
+        {-1.0f, +1.0f, 0.0f},  // top-left
         {-1.0f, -1.0f, 0.0f},  // bottom-left
-        { 1.0f, -1.0f, 0.0f},  // bottom-right
-        { 1.0f,  1.0f, 0.0f},  // top-right
+        {+1.0f, -1.0f, 0.0f},  // bottom-right
+        {+1.0f, +1.0f, 0.0f},  // top-right
     });
     constexpr auto square_edge_indices = std::to_array<uint16_t>({
         0, 1,
@@ -1138,8 +1138,8 @@ TEST(Mesh, num_submesh_descriptors_returns_zero_for_Mesh_with_data_but_no_descri
 {
     constexpr auto pyramid_vertices = std::to_array<Vector3>({
         {-1.0f, -1.0f, 0.0f},  // base: bottom-left
-        { 1.0f, -1.0f, 0.0f},  // base: bottom-right
-        { 0.0f,  1.0f, 0.0f},  // base: top-middle
+        {+1.0f, -1.0f, 0.0f},  // base: bottom-right
+        {+0.0f, +1.0f, 0.0f},   // base: top-middle
     });
     constexpr auto pyramid_indices = std::to_array<uint16_t>({0, 1, 2});
 
@@ -1998,10 +1998,10 @@ TEST(Mesh, recalculate_normals_averages_normals_of_shared_vertices)
     // triangle's normals (which point outwards at an angle)
 
     const auto vertices = std::to_array<Vector3>({
-        {-1.0f, 0.0f,  0.0f},  // bottom-left "pin"
-        { 0.0f, 1.0f,  1.0f},  // front of "top"
-        { 0.0f, 1.0f, -1.0f},  // back of "top"
-        { 1.0f, 0.0f,  0.0f},  // bottom-right "pin"
+        {-1.0f, 0.0f, +0.0f},  // bottom-left "pin"
+        {+0.0f, 1.0f, +1.0f},  // front of "top"
+        {+0.0f, 1.0f, -1.0f},  // back of "top"
+        {+1.0f, 0.0f, +0.0f},  // bottom-right "pin"
     });
 
     Mesh mesh;

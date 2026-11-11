@@ -8,6 +8,5 @@ namespace osc::detail
     using DepthStencilRenderBufferFormatList = OptionList<
         DepthStencilRenderBufferFormat,
         DepthStencilRenderBufferFormat::D24_UNorm_S8_UInt,
-        DepthStencilRenderBufferFormat::D32_SFloat
-    >;
+        DepthStencilRenderBufferFormat::D32_SFloat>;
 }

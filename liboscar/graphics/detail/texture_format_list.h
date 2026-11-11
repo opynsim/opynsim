@@ -13,6 +13,5 @@ namespace osc::detail
         TextureFormat::RGBA32,
         TextureFormat::RGFloat,
         TextureFormat::RGBFloat,
-        TextureFormat::RGBAFloat
-    >;
+        TextureFormat::RGBAFloat>;
 }

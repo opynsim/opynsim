@@ -18,17 +18,19 @@ namespace osc
     struct PolyhedronGeometryParams final {
         friend bool operator==(const PolyhedronGeometryParams&, const PolyhedronGeometryParams&);
 
+        // clang-format off
         std::vector<Vector3> vertices = {
-            {1.0f, 1.0f, 1.0f},
-            {-1.0f, -1.0f, 1.0f},
-            {-1.0f, 1.0f, -1.0f},
-            {1.0f, -1.0f, -1.0f},
+            { 1.0f,  1.0f,  1.0f},
+            {-1.0f, -1.0f,  1.0f},
+            {-1.0f,  1.0f, -1.0f},
+            { 1.0f, -1.0f, -1.0f},
         };
         std::vector<uint32_t> indices = {
             2, 1, 0,    0, 3, 2,    1, 3, 0,    2, 3, 1,
         };
         float radius = 1.0f;
         size_t detail_level = 0;
+        // clang-format on
     };
 
     // generates a 3D solid with flat faces by projecting triangle faces (`indices`

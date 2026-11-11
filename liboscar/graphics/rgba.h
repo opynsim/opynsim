@@ -106,15 +106,15 @@ namespace osc
             a{alpha}
         {}
 
-        constexpr reference       operator[](size_type pos)       { return *(begin() + pos); }
+        constexpr reference operator[](size_type pos) { return *(begin() + pos); }
         constexpr const_reference operator[](size_type pos) const { return *(begin() + pos); }
 
         constexpr size_t size() const { return 4; }
 
-        constexpr iterator       begin()       { return &r; }
+        constexpr iterator begin() { return &r; }
         constexpr const_iterator begin() const { return &r; }
 
-        constexpr iterator       end()       { return &r + size(); }
+        constexpr iterator end() { return &r + size(); }
         constexpr const_iterator end() const { return &r + size(); }
 
         friend bool operator==(const Rgba&, const Rgba&) = default;

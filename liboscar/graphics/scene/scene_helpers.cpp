@@ -371,6 +371,7 @@ FrustumPlanes osc::calc_frustum_planes(const Camera& camera, float aspect_ratio)
     const Vector3 front_mult_near = z_near * front;
     const Vector3 front_mult_far = z_far * front;
 
+    // clang-format off
     return {
                           // origin              // normal
         to_analytic_plane(pos + front_mult_near, -front                                                   ),  // near
@@ -380,6 +381,7 @@ FrustumPlanes osc::calc_frustum_planes(const Camera& camera, float aspect_ratio)
         to_analytic_plane(pos                  , -normalize(cross(right, front_mult_far - up*half_v_size))),  // top
         to_analytic_plane(pos                  , -normalize(cross(front_mult_far + up*half_v_size, right))),  // bottom
     };
+    // clang-format on
 }
 
 Vector3 osc::recommended_light_direction(const Camera& camera)

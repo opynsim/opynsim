@@ -16,8 +16,7 @@ namespace osc::cpp23
     template<
         std::input_or_output_iterator O,
         std::sentinel_for<O> S,
-        std::weakly_incrementable T
-    >
+        std::weakly_incrementable T>
     requires std::indirectly_writable<O, const T&>
     constexpr iota_result<O, T> iota(O first, S last, T value)
     {

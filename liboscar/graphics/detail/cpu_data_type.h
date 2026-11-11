@@ -19,6 +19,5 @@ namespace osc::detail
         CPUDataType::UnsignedByte,
         CPUDataType::Float,
         CPUDataType::UnsignedInt24_8,
-        CPUDataType::HalfFloat
-    >;
+        CPUDataType::HalfFloat>;
 }

@@ -34,7 +34,8 @@ TEST(Vector, can_be_used_to_construct_a_span_of_floats)
 
 TEST(Vector, can_be_used_as_arg_to_sized_span_func)
 {
-    const auto f = []([[maybe_unused]] std::span<float, 2>) {};
+    const auto f = []([[maybe_unused]] std::span<float, 2>) {
+    };
     static_assert(std::invocable<decltype(f), Vector2>);
 }
 
@@ -67,7 +68,9 @@ TEST(Vector, element_by_element_constructor_fills_each_element_of_the_Vector)
 TEST(Vector, element_by_element_constructor_can_convert_args)
 {
     struct B final {};
-    struct A final { explicit operator B() const { return B{}; }};
+    struct A final {
+        explicit operator B() const { return B{}; }
+    };
 
     [[maybe_unused]] const Vector<B, 3> v{A{}, A{}, A{}};
 }
@@ -153,8 +156,14 @@ TEST(Vector, constructed_from_bigger_range_results_in_truncation)
 
 TEST(Vector, assignment_correctly_handles_truncation_move_assignment_and_convertability)
 {
-    struct A { explicit A(int v) : v_{v} {} int v_; };
-    struct B : A { using A::A; };
+    struct A {
+        explicit A(int v) :
+            v_{v} {}
+        int v_;
+    };
+    struct B : A {
+        using A::A;
+    };
     Vector<std::unique_ptr<B>, 3> bs = {
         std::make_unique<B>(5),
         std::make_unique<B>(6),

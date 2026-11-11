@@ -85,9 +85,7 @@ void osc::OrbitCameraController::focus_on(
     if (camera.projection() == CameraProjection::Perspective) {
         const Sphere bounding_sphere = bounding_sphere_of(aabb);
         const Radians vfov = camera.vertical_field_of_view();
-        const Radians smallest_fov = aspect_ratio >= 1.0f ?
-            vfov :
-            vertical_to_horizontal_field_of_view(vfov, aspect_ratio);
+        const Radians smallest_fov = aspect_ratio >= 1.0f ? vfov : vertical_to_horizontal_field_of_view(vfov, aspect_ratio);
 
         // use a minimum radius of 1m
         //

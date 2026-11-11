@@ -234,6 +234,7 @@ TEST(NodePath, normalizes_the_input_string_as_expected_for_a_variety_of_inputs)
         std::string_view expectedOutput;
     };
 
+    // clang-format off
     constexpr auto test_cases = std::to_array<TestCase>({
         {"",                       "" },
         {"/",                      "/" },
@@ -272,6 +273,7 @@ TEST(NodePath, normalizes_the_input_string_as_expected_for_a_variety_of_inputs)
         {"/a/././b/c/..//d/.././", "/a/b"},
         {"/a/b/c/d/../..",         "/a/b"},
     });
+    // clang-format on
 
     for (const TestCase& test_case : test_cases) {
         ASSERT_EQ(NodePath(test_case.input), test_case.expectedOutput) << std::string_view{test_case.input};

@@ -11,6 +11,5 @@ namespace osc::detail
         VertexAttribute::Normal,
         VertexAttribute::Tangent,
         VertexAttribute::Color,
-        VertexAttribute::TexCoord0
-    >;
+        VertexAttribute::TexCoord0>;
 }

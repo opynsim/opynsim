@@ -18,9 +18,7 @@ namespace rgs = std::ranges;
 
 namespace
 {
-    constexpr auto c_nibble_to_character_lut = std::to_array({
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-    });
+    constexpr auto c_nibble_to_character_lut = std::to_array({'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'});
 }
 
 bool osc::contains_case_insensitive(std::string_view sv, std::string_view substr)

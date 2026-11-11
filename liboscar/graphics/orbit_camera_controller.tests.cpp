@@ -110,8 +110,8 @@ TEST(OrbitCameraController, set_position_and_direction_from_works_as_expected)
 {
     const Camera camera{
         {-1.0f, 3.0f, -5.0f},  // position
-        { 0.0f, 0.0f, -1.0f},  // direction
-        { 0.0f, 1.0f,  0.0f},  // up
+        {+0.0f, 0.0f, -1.0f},  // direction
+        {+0.0f, 1.0f, +0.0f},  // up
     };
     OrbitCameraController controller;
     controller.set_position_and_direction_from(camera);

@@ -55,9 +55,9 @@ TEST(Image, read_into_texture_can_load_image_from_ResourceStream)
 TEST(Image, read_into_texture_throws_when_called_with_an_invalid_path)
 {
     ASSERT_ANY_THROW({
-    Image::read_into_texture(
-        ResourceStream{"oscar/textures/doesnt_exist.png"},
-        ColorSpace::sRGB);
+        Image::read_into_texture(
+            ResourceStream{"oscar/textures/doesnt_exist.png"},
+            ColorSpace::sRGB);
     });
 }
 

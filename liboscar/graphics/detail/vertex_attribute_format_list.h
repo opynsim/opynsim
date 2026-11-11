@@ -11,6 +11,5 @@ namespace osc::detail
         VertexAttributeFormat::Float32x3,
         VertexAttributeFormat::Float32x4,
         VertexAttributeFormat::Unorm8x4,
-        VertexAttributeFormat::Snorm8x4
-    >;
+        VertexAttributeFormat::Snorm8x4>;
 }

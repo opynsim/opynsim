@@ -17,6 +17,5 @@ namespace osc::detail
         ShaderPropertyType::Bool,
         ShaderPropertyType::Sampler2D,
         ShaderPropertyType::SamplerCube,
-        ShaderPropertyType::Unknown
-    >;
+        ShaderPropertyType::Unknown>;
 }

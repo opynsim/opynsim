@@ -381,14 +381,14 @@ TEST(rsplit_once, works_as_intended)
         std::string_view::value_type delimiter;
         std::optional<std::pair<std::string_view, std::string_view>> expected_output;
     };
-    // clang-format on
+    // clang-format off
     constexpr auto test_cases = std::to_array<TestCase>({
         {"a/b/c", '/', std::pair{"a/b"sv, "c"sv}},
         {"a/b.c", '.', std::pair{"a/b"sv, "c"sv}},
         {"",      '/', std::nullopt},
         {"/",     '/', std::pair{""sv, ""sv}},
     });
-    // clang-format off
+    // clang-format on
     for (const auto& [input, delimiter, expected_output] : test_cases) {
         const auto output = rsplit_once(input, delimiter);
         ASSERT_EQ(output, expected_output);

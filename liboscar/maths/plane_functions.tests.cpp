@@ -14,6 +14,7 @@ TEST(signed_distance_between, produces_expected_answers_in_precalculated_cases)
         float expected;
     };
 
+    // clang-format off
     constexpr auto precalculated_cases = std::to_array<TestCase>({
          // origin       // normal                   // point                    // expected signed distance
         {{Vector3{},     Vector3{0.0f, 1.0f, 0.0f}}, Vector3{0.0f,  0.5f, 0.0f},  0.5f                      },
@@ -21,6 +22,7 @@ TEST(signed_distance_between, produces_expected_answers_in_precalculated_cases)
         {{Vector3{1.0f}, Vector3{0.0f, 1.0f, 0.0f}}, Vector3{0.0f, 0.25f, 0.0f}, -0.75f                     },
         {{Vector3{1.0f}, Vector3{1.0f, 0.0f, 0.0f}}, Vector3{0.0f, 0.25f, 0.0f}, -1.0f                      },
     });
+    // clang-format on
 
     for (const auto& [plane, point, expected] : precalculated_cases) {
         ASSERT_NEAR(signed_distance_between(plane, point), expected, epsilon_v<float>);
