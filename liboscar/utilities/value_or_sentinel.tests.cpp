@@ -60,10 +60,10 @@ TEST(ValueOrSentinel, compares_true_with_value_when_filled_with_value)
 TEST(ValueOrSentinel, compares_true_with_sentinel_value)
 {
     const ValueOrSentinel<int, -50> a;  // Sentinel-constructed
-    ASSERT_EQ( a,  -50);
-    ASSERT_EQ(-50,  a);
-    ASSERT_NE( a,   7);
-    ASSERT_NE( 7,   a);
+    ASSERT_EQ(a, -50);
+    ASSERT_EQ(-50, a);
+    ASSERT_NE(a, 7);
+    ASSERT_NE(7, a);
 }
 
 TEST(ValueOrSentinel, value_throws_if_called_on_sentinel)

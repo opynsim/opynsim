@@ -15,6 +15,5 @@ void osc::detail::on_assertion_failure(
         file_name,
         function_name,
         file_line,
-        failing_code
-    );
+        failing_code);
 }

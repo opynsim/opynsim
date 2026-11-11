@@ -94,7 +94,8 @@ TEST(StringName, default_constructed_can_convert_to_blank_CStringView)
 TEST(StringName, can_be_used_as_an_argument_to_functions_that_accept_CStringView)
 {
     const StringName string_name;
-    const auto f = [](CStringView) {};
+    const auto f = [](CStringView) {
+    };
     f(string_name);  // should compile
 }
 
@@ -283,7 +284,8 @@ TEST(StringName, can_be_constructed_from_a_cstring)
 
 TEST(StringName, can_be_implicitly_constructed_from_a_CStringView)
 {
-    const auto f = [](const CStringView&) {};
+    const auto f = [](const CStringView&) {
+    };
     f(CStringView{"cstring"});  // should compile
 }
 
@@ -342,7 +344,7 @@ TEST(StringName, back_returns_last_character)
 
 TEST(StringName, data_returns_NUL_terminated_pointer_to_first_element)
 {
-    constexpr auto c_input_characters = std::to_array({ 's', 't', 'r', 'i', 'n', 'g'}); // not NUL-terminated (the implementation should handle it)
+    constexpr auto c_input_characters = std::to_array({'s', 't', 'r', 'i', 'n', 'g'});  // not NUL-terminated (the implementation should handle it)
 
     const StringName string_name{std::string_view{c_input_characters.data(), 6}};
     const std::span<const StringName::value_type> stringname_span{string_name.data(), std::size(c_input_characters)};
@@ -407,7 +409,7 @@ TEST(StringName, empty_returns_false_when_nonempty)
 TEST(StringName, size_returns_expected_value_when_nonempty)
 {
     const StringName string_name{c_long_cstring_to_avoid_sso};
-    ASSERT_EQ(string_name.size(), c_long_character_data_array_to_avoid_sso.size()-1);  // minus nul
+    ASSERT_EQ(string_name.size(), c_long_character_data_array_to_avoid_sso.size() - 1);  // minus nul
 }
 
 TEST(StringName, nonempty_StringName_compares_equal_to_another_nonempty_StringName_with_the_same_content)

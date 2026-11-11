@@ -56,8 +56,7 @@ namespace osc
     // before `delimiter` and suffix after `delimiter`.
     std::optional<std::pair<std::string_view, std::string_view>> rsplit_once(
         std::string_view sv,
-        std::string_view::value_type delimiter
-    );
+        std::string_view::value_type delimiter);
 
     // converts the given byte into a 2-length hex character representation
     //
@@ -69,7 +68,7 @@ namespace osc
 
     // satisfied if `T` can be written to a `std::ostream`
     template<typename T>
-    concept OutputStreamable = requires (T v, std::ostream& o) {
+    concept OutputStreamable = requires(T v, std::ostream& o) {
         { o << v } -> std::same_as<std::ostream&>;
     };
 

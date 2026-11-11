@@ -47,7 +47,7 @@ namespace osc
 
     template<typename T, T Head, T... Tails, size_t Index>
     struct NonTypeAt<NonTypelist<T, Head, Tails...>, Index> {
-        static_assert(Index < sizeof...(Tails)+1, "index out of range");
-        static constexpr T value = NonTypeAt<NonTypelist<T, Tails...>, Index-1>::value;
+        static_assert(Index < sizeof...(Tails) + 1, "index out of range");
+        static constexpr T value = NonTypeAt<NonTypelist<T, Tails...>, Index - 1>::value;
     };
 }

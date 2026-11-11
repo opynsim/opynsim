@@ -15,7 +15,8 @@ namespace osc
     public:
         StringName() = default;
         explicit StringName(std::string_view);
-        explicit StringName(const char* s) : StringName{std::string_view{s}} {}
+        explicit StringName(const char* s) :
+            StringName{std::string_view{s}} {}
         explicit StringName(std::nullptr_t) = delete;
         StringName(const StringName&) = default;
         StringName(StringName&&) noexcept = default;

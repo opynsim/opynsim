@@ -27,7 +27,8 @@ namespace osc
         }
 
         constexpr Flags() = default;
-        constexpr Flags(TEnum flag) : value_{static_cast<underlying_type>(flag)} {}
+        constexpr Flags(TEnum flag) :
+            value_{static_cast<underlying_type>(flag)} {}
         constexpr Flags(std::initializer_list<TEnum> flags)
         {
             for (TEnum flag : flags) {
@@ -40,7 +41,7 @@ namespace osc
             return !static_cast<bool>(*this);
         }
 
-        explicit constexpr operator bool () const
+        explicit constexpr operator bool() const
         {
             return value_ != 0;
         }
@@ -106,7 +107,8 @@ namespace osc
         }
 
     private:
-        explicit constexpr Flags(underlying_type value) : value_{value} {}
+        explicit constexpr Flags(underlying_type value) :
+            value_{value} {}
 
         underlying_type value_{};
     };
@@ -125,6 +127,7 @@ struct std::hash<osc::Flags<T>> final {
     {
         return inner_hasher_(flags.underlying_value());
     }
+
 private:
     std::hash<typename osc::Flags<T>::underlying_type> inner_hasher_{};
 };

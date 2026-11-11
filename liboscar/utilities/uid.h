@@ -26,13 +26,14 @@ namespace osc
         }
 
         template<std::integral T>
-        requires (sizeof(T) <= sizeof(element_type))
+        requires(sizeof(T) <= sizeof(element_type))
         static constexpr UID from_int_unchecked(T i)
         {
             return UID{static_cast<element_type>(i)};
         }
 
-        UID() : value_{allocate_next_id()}
+        UID() :
+            value_{allocate_next_id()}
         {}
         constexpr UID(const UID&) = default;
         constexpr UID(UID&&) noexcept = default;
@@ -65,7 +66,8 @@ namespace osc
             return g_next_available_id.fetch_add(1, std::memory_order_relaxed);
         }
 
-        constexpr UID(element_type value) : value_{value}
+        constexpr UID(element_type value) :
+            value_{value}
         {}
 
         element_type value_;

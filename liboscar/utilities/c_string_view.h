@@ -65,7 +65,7 @@ namespace osc
             return data_;
         }
 
-        constexpr operator std::string_view () const
+        constexpr operator std::string_view() const
         {
             return std::string_view{data_, size_};
         }
@@ -93,6 +93,7 @@ namespace osc
         {
             return static_cast<std::string_view>(lhs) <=> static_cast<std::string_view>(rhs);
         }
+
     private:
         const value_type* data_ = "";
         size_type size_ = std::string_view{data_}.size();

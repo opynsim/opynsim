@@ -161,7 +161,6 @@ TEST(SharedPreHashedString, can_stream_to_ostream)
     ASSERT_EQ(ss.str(), "stream me");
 }
 
-
 TEST(SharedPreHashedString, std_hash_returns_same_as_std_string_view)
 {
     const auto source_strings = std::to_array<std::string_view>({

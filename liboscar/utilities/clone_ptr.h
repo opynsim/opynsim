@@ -22,29 +22,33 @@ namespace osc
         using deleter_type = Deleter;
 
         // constructs a `ClonePtr` that owns nothing
-        constexpr ClonePtr() noexcept : value_{nullptr} {}
+        constexpr ClonePtr() noexcept :
+            value_{nullptr} {}
 
         // constructs a `ClonePtr` that owns nothing
-        constexpr ClonePtr(std::nullptr_t) noexcept : value_{nullptr} {}
+        constexpr ClonePtr(std::nullptr_t) noexcept :
+            value_{nullptr} {}
 
         // constructs a `ClonePtr` that owns `p`
-        explicit ClonePtr(pointer p) noexcept : value_{p} {}
+        explicit ClonePtr(pointer p) noexcept :
+            value_{p} {}
 
         // constructs a `ClonePtr` that owns `p`
-        explicit ClonePtr(std::unique_ptr<element_type, deleter_type> p) noexcept : value_{std::move(p)} {}
+        explicit ClonePtr(std::unique_ptr<element_type, deleter_type> p) noexcept :
+            value_{std::move(p)} {}
 
         // constructs a `ClonePtr` by `clone`ing `src`
-        ClonePtr(const ClonePtr& src) : value_{src.value_ ? src.value_->clone() : nullptr} {}
+        ClonePtr(const ClonePtr& src) :
+            value_{src.value_ ? src.value_->clone() : nullptr} {}
 
         // constructs `ClonePtr` by transferring ownership from a rvalue
         ClonePtr(ClonePtr&&) noexcept = default;
 
         // constructs `ClonePtr` by transferring ownership from a rvalue (with conversion)
         template<typename U, typename E>
-        requires
-            std::convertible_to<typename ClonePtr<U, E>::pointer, pointer> and
-            (not std::is_array_v<U>) and
-            std::convertible_to<E, deleter_type>
+        requires std::convertible_to<typename ClonePtr<U, E>::pointer, pointer> and
+                 (not std::is_array_v<U>) and
+                 std::convertible_to<E, deleter_type>
         ClonePtr(ClonePtr<U, E>&& tmp) noexcept :  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
             value_{std::move(tmp.value_)}
         {}
@@ -56,11 +60,9 @@ namespace osc
         ClonePtr& operator=(ClonePtr const& rhs)
         {
             if (&rhs == this) {
-            }
-            else if (rhs.get()) {
+            } else if (rhs.get()) {
                 value_ = std::unique_ptr<element_type>{rhs.value_->clone()};
-            }
-            else {
+            } else {
                 reset();
             }
             return *this;
@@ -75,10 +77,9 @@ namespace osc
         }
 
         template<typename U, typename E>
-        requires
-            (not std::is_array_v<U>) and
-            std::convertible_to<typename ClonePtr<U, E>::element_type, element_type> and
-            std::is_assignable_v<Deleter&, E&&>
+        requires(not std::is_array_v<U>) and
+                std::convertible_to<typename ClonePtr<U, E>::element_type, element_type> and
+                std::is_assignable_v<Deleter&, E&&>
         ClonePtr& operator=(ClonePtr<U, E>&& rhs) noexcept  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
         {
             value_ = std::move(rhs.value_);
@@ -154,7 +155,8 @@ namespace osc
         }
 
     private:
-        template<typename, typename> friend class ClonePtr;
+        template<typename, typename>
+        friend class ClonePtr;
 
         std::unique_ptr<T, Deleter> value_;
     };

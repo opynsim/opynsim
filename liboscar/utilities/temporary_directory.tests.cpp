@@ -75,12 +75,12 @@ TEST(TemporaryDirectory, non_empty_directories_also_removed_by_destructor)
 
 TEST(TemporaryDirectory, filename_begins_with_prefix_when_constructed_with_a_prefix)
 {
-    const TemporaryDirectory temporary_directory({ .prefix = "someprefix" });
+    const TemporaryDirectory temporary_directory({.prefix = "someprefix"});
     ASSERT_TRUE(temporary_directory.filename().string().starts_with("someprefix"));
 }
 
 TEST(TemporaryDirectory, filename_ends_with_suffix_when_constructed_with_a_suffix)
 {
-    const TemporaryDirectory temporary_directory({ .suffix = "somesuffix" });
+    const TemporaryDirectory temporary_directory({.suffix = "somesuffix"});
     ASSERT_TRUE(temporary_directory.filename().string().ends_with("somesuffix"));
 }

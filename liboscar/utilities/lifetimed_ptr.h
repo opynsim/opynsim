@@ -28,7 +28,8 @@ namespace osc
         constexpr LifetimedPtr() = default;
 
         // constructs a `nullptr` with an already-dead lifetime
-        constexpr LifetimedPtr(std::nullptr_t) : LifetimedPtr{} {}
+        constexpr LifetimedPtr(std::nullptr_t) :
+            LifetimedPtr{} {}
 
         // constructs a `LifetimedPtr` that ties `lifetime_watcher` to `ptr`
         LifetimedPtr(LifetimeWatcher lifetime_watcher, T* ptr) :
@@ -113,6 +114,7 @@ namespace osc
         {
             return {lifetime_watcher_, dynamic_cast<U*>(ptr_)};
         }
+
     private:
         void assert_within_lifetime() const
         {
@@ -122,7 +124,8 @@ namespace osc
         }
 
         // self-friend-class for the coercing constructor
-        template<typename> friend class LifetimedPtr;
+        template<typename>
+        friend class LifetimedPtr;
 
         template<typename T1, typename T2>
         friend bool operator==(const LifetimedPtr<T1>&, const LifetimedPtr<T2>&);
@@ -137,7 +140,7 @@ namespace osc
     template<typename T, typename U>
     bool operator==(const LifetimedPtr<T>& lhs, const LifetimedPtr<U>& rhs)
     {
-        return lhs.ptr_ == rhs .ptr_;
+        return lhs.ptr_ == rhs.ptr_;
     }
 
     template<typename T>

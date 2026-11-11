@@ -16,16 +16,15 @@ namespace
             not std::filesystem::exists(path)) {
 
             return std::filesystem::file_time_type{};
-        }
-        else {
+        } else {
             return std::filesystem::last_write_time(path);
         }
     }
 }
 
 osc::FileChangePoller::FileChangePoller(
-        std::chrono::milliseconds delay_between_checks,
-        const std::string& path) :
+    std::chrono::milliseconds delay_between_checks,
+    const std::string& path) :
 
     delay_between_checks_{delay_between_checks},
     next_polling_time_{std::chrono::steady_clock::now() + delay_between_checks},

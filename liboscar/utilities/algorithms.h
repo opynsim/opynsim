@@ -20,8 +20,7 @@ namespace osc
     template<
         class T,
         class Proj = std::identity,
-        std::indirect_strict_weak_order<std::projected<const T*, Proj>> Comp = std::ranges::less
-    >
+        std::indirect_strict_weak_order<std::projected<const T*, Proj>> Comp = std::ranges::less>
     constexpr const T& max(const T& a, const T& b, Comp comp = {}, Proj proj = {})
     {
         return std::ranges::max(a, b, std::ref(comp), std::ref(proj));
@@ -31,8 +30,7 @@ namespace osc
     template<
         class T,
         class Proj = std::identity,
-        std::indirect_strict_weak_order<std::projected<const T*, Proj>> Comp = std::ranges::less
-    >
+        std::indirect_strict_weak_order<std::projected<const T*, Proj>> Comp = std::ranges::less>
     constexpr const T& min(const T& a, const T& b, Comp comp = {}, Proj proj = {})
     {
         return std::ranges::min(a, b, std::ref(comp), std::ref(proj));
@@ -42,8 +40,7 @@ namespace osc
     template<
         class T,
         class Proj = std::identity,
-        std::indirect_strict_weak_order<std::projected<const T*, Proj>> Comp = std::ranges::less
-    >
+        std::indirect_strict_weak_order<std::projected<const T*, Proj>> Comp = std::ranges::less>
     constexpr const T& clamp(const T& v, const T& lo, const T& hi, Comp comp = {}, Proj proj = {})
     {
         return std::ranges::clamp(v, lo, hi, std::ref(comp), std::ref(proj));
@@ -53,8 +50,7 @@ namespace osc
     template<
         std::ranges::random_access_range R,
         class Proj = std::identity,
-        std::indirect_strict_weak_order<std::projected<std::ranges::iterator_t<R>, Proj>> Comp = std::ranges::less
-    >
+        std::indirect_strict_weak_order<std::projected<std::ranges::iterator_t<R>, Proj>> Comp = std::ranges::less>
     constexpr typename std::ranges::range_size_t<R> max_element_index(R&& r, Comp comp = {}, Proj proj = {})  // NOLINT(cppcoreguidelines-missing-std-forward)
     {
         const auto first = std::ranges::begin(r);
@@ -68,8 +64,7 @@ namespace osc
     {
         if (pos < std::ranges::size(r)) {
             return std::forward<R>(r)[pos];
-        }
-        else {
+        } else {
             throw std::out_of_range{"out of bounds index given to a container"};
         }
     }
@@ -78,10 +73,8 @@ namespace osc
     template<
         std::ranges::input_range R,
         typename T,
-        typename Proj = std::identity
-    >
-    requires
-        std::indirect_binary_predicate<std::ranges::equal_to, std::projected<std::ranges::iterator_t<R>, Proj>, const T*>
+        typename Proj = std::identity>
+    requires std::indirect_binary_predicate<std::ranges::equal_to, std::projected<std::ranges::iterator_t<R>, Proj>, const T*>
     std::optional<std::ranges::range_value_t<R>> find_or_nullopt(R&& r, const T& value, Proj proj = {})  // NOLINT(cppcoreguidelines-missing-std-forward)
     {
         const auto it = std::ranges::find(r, value, std::ref(proj));
@@ -102,8 +95,7 @@ namespace osc
     template<
         std::ranges::input_range R,
         typename T,
-        typename Proj = std::identity
-    >
+        typename Proj = std::identity>
     requires std::ranges::borrowed_range<R>
     auto find_or_nullptr(R&& r, const T& value, Proj proj = {}) -> decltype(std::addressof(*std::ranges::begin(r)))  // NOLINT(cppcoreguidelines-missing-std-forward)
     {
@@ -137,11 +129,10 @@ namespace osc
 
     // returns `true` if both `lhs` and `rhs` can be successfully `dynamic_cast`ed to `Downcasted` and compare equal
     template<typename Downcasted, typename T1, typename T2>
-    requires
-        std::equality_comparable<Downcasted> and
-        std::is_polymorphic_v<Downcasted> and
-        std::derived_from<Downcasted, T1> and
-        std::derived_from<Downcasted, T2>
+    requires std::equality_comparable<Downcasted> and
+             std::is_polymorphic_v<Downcasted> and
+             std::derived_from<Downcasted, T1> and
+             std::derived_from<Downcasted, T2>
     constexpr bool is_eq_downcasted(const T1& lhs, const T2& rhs)
     {
         const auto* lhs_casted = dynamic_cast<const Downcasted*>(std::addressof(lhs));
@@ -153,9 +144,8 @@ namespace osc
     }
 
     template<std::ranges::range R1, std::ranges::input_range R2>
-    requires
-        std::convertible_to<std::ranges::range_value_t<R2>, std::ranges::range_value_t<R1>> and
-        requires (R1& r1, std::ranges::iterator_t<R1> it, std::ranges::iterator_t<R2> first, std::ranges::sentinel_t<R2> last) { r1.insert(it, first, last); }
+    requires std::convertible_to<std::ranges::range_value_t<R2>, std::ranges::range_value_t<R1>> and
+             requires(R1& r1, std::ranges::iterator_t<R1> it, std::ranges::iterator_t<R2> first, std::ranges::sentinel_t<R2> last) { r1.insert(it, first, last); }
     constexpr void append_range(R1& r1, R2&& r2)  // NOLINT(cppcoreguidelines-missing-std-forward)
     {
         r1.insert(std::ranges::end(r1), std::ranges::begin(r2), std::ranges::end(r2));

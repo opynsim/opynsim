@@ -11,10 +11,11 @@ namespace osc
     class BoolLike final {
     public:
         BoolLike() = default;
-        BoolLike(bool value) : value_{value} {}
+        BoolLike(bool value) :
+            value_{value} {}
 
-        operator bool& () { return value_; }
-        operator const bool& () const { return value_; }
+        operator bool&() { return value_; }
+        operator const bool&() const { return value_; }
 
     private:
         bool value_;

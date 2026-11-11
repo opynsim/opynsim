@@ -12,10 +12,10 @@ using namespace osc;
 namespace
 {
     enum class ExampleDenseFlag : uint8_t {
-        None      = 0,
-        Flag1     = 1<<0,
-        Flag2     = 1<<1,
-        Flag3     = 1<<2,
+        None = 0,
+        Flag1 = 1 << 0,
+        Flag2 = 1 << 1,
+        Flag3 = 1 << 2,
         NUM_FLAGS = 3,
     };
 }

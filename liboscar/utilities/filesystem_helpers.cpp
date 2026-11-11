@@ -43,8 +43,7 @@ std::vector<std::filesystem::path> osc::find_files_with_extensions_recursive(
     for_each_file_with_extensions_recursive(
         root,
         [&rv](auto p) { rv.push_back(std::move(p)); },
-        extensions
-    );
+        extensions);
     return rv;
 }
 
@@ -90,6 +89,4 @@ std::filesystem::path osc::read_windows_or_unix_path_string(const std::string& s
     std::string copy{s};
     rgs::replace(copy, '\\', '/');
     return std::filesystem::path{copy};
-
 }
-

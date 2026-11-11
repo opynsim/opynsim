@@ -62,6 +62,7 @@ namespace osc
         {
             ++impl_->num_senders_;
         }
+
     public:
         SpscSender(const SpscSender&) = delete;
         SpscSender(SpscSender&&) noexcept = default;
@@ -77,7 +78,8 @@ namespace osc
         }
 
         // asynchronously (non-blocking) send data
-        void send(T v) {
+        void send(T v)
+        {
             {
                 std::lock_guard l{impl_->mutex_};
                 impl_->message_queue_.push_front(std::move(v));
@@ -104,6 +106,7 @@ namespace osc
         {
             ++impl_->num_receivers_;
         }
+
     public:
         SpscReceiver(SpscReceiver const&) = delete;
         SpscReceiver(SpscReceiver&&) noexcept = default;
@@ -136,8 +139,7 @@ namespace osc
             std::unique_lock l{impl_->mutex_};
 
             // easy case: queue is not empty
-            if (not impl_->message_queue_.empty())
-            {
+            if (not impl_->message_queue_.empty()) {
                 std::optional<T> rv{std::move(impl_->message_queue_.back())};
                 impl_->message_queue_.pop_back();
                 return rv;
@@ -145,8 +147,7 @@ namespace osc
 
             // harder case: sleep until the queue is not empty, *or* until
             // the sender hangs up
-            impl_->condition_variable_.wait(l, [&]()
-            {
+            impl_->condition_variable_.wait(l, [&] {
                 return not impl_->message_queue_.empty() or impl_->num_senders_ == 0;
             });
 
@@ -159,8 +160,7 @@ namespace osc
                 std::optional<T> rv{std::move(impl_->message_queue_.back())};
                 impl_->message_queue_.pop_back();
                 return rv;
-            }
-            else {
+            } else {
                 return std::nullopt;
             }
         }
@@ -228,7 +228,6 @@ namespace osc
         {}
 
     public:
-
         // create a new worker
         static SpscWorker create(Func message_processor)
         {

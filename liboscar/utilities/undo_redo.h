@@ -35,6 +35,7 @@ namespace osc
             UndoRedoEntryMetadata(UndoRedoEntryMetadata&&) noexcept = default;
             UndoRedoEntryMetadata& operator=(const UndoRedoEntryMetadata&) = default;
             UndoRedoEntryMetadata& operator=(UndoRedoEntryMetadata&&) noexcept = default;
+
         public:
             virtual ~UndoRedoEntryMetadata() noexcept = default;
 
@@ -75,6 +76,7 @@ namespace osc
         {}
 
         const detail::UndoRedoEntryMetadata& metadata() const { return *data_; }
+
     public:
         UID id() const { return data_->id(); }
         CStringView message() const { return data_->message(); }

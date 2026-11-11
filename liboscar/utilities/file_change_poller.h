@@ -10,8 +10,7 @@ namespace osc
     public:
         FileChangePoller(
             std::chrono::milliseconds delay_between_checks,
-            const std::string& path
-        );
+            const std::string& path);
 
         bool change_detected(const std::string& path);
 

@@ -71,7 +71,8 @@ namespace osc
         explicit SharedPreHashedString(std::string_view str) :
             storage_{Storage::create(str)}
         {}
-        explicit SharedPreHashedString(const char* s) : SharedPreHashedString{std::string_view{s}} {}
+        explicit SharedPreHashedString(const char* s) :
+            SharedPreHashedString{std::string_view{s}} {}
         explicit SharedPreHashedString(std::nullptr_t) = delete;
 
         SharedPreHashedString(const SharedPreHashedString& src) noexcept :
@@ -263,6 +264,7 @@ namespace osc
         {
             return storage_->hash;
         }
+
     private:
         static const SharedPreHashedString& static_default_instance()
         {
@@ -302,8 +304,7 @@ namespace osc
                 ptr->~Storage();
                 ::operator delete(
                     static_cast<void*>(ptr),
-                    std::align_val_t{alignof(Storage)}
-                );
+                    std::align_val_t{alignof(Storage)});
             }
 
             value_type* data() noexcept
@@ -326,7 +327,7 @@ namespace osc
             {
                 // Header + data + NUL
                 static_assert(alignof(Storage) >= alignof(value_type));
-                return sizeof(Storage) + (sizeof(value_type)*(string_len + 1));
+                return sizeof(Storage) + (sizeof(value_type) * (string_len + 1));
             }
 
             explicit Storage(std::string_view str) noexcept :

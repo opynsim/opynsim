@@ -18,15 +18,16 @@ namespace rgs = std::ranges;
 
 namespace
 {
-    constexpr auto c_nibble_to_character_lut = std::to_array(
-    {
+    constexpr auto c_nibble_to_character_lut = std::to_array({
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     });
 }
 
 bool osc::contains_case_insensitive(std::string_view sv, std::string_view substr)
 {
-    const auto tolower = [](const auto c) { return std::tolower(c); };
+    const auto tolower = [](const auto c) {
+        return std::tolower(c);
+    };
     return std::ranges::search(sv, substr, std::ranges::equal_to{}, tolower, tolower).size() == substr.size();
 }
 
@@ -59,20 +60,16 @@ bool osc::is_equal_case_insensitive(std::string_view a, std::string_view b)
 bool osc::is_valid_identifier(std::string_view sv)
 {
     // helpers
-    const auto is_valid_first_character_of_identifier = [](std::string_view::value_type c)
-    {
-        return
-            ('A' <= c && c <= 'Z') or
-            (     '_' == c       ) or
-            ('a' <= c && c <= 'z');
+    const auto is_valid_first_character_of_identifier = [](std::string_view::value_type c) {
+        return ('A' <= c && c <= 'Z') or
+               ('_' == c) or
+               ('a' <= c && c <= 'z');
     };
-    const auto is_valid_non_first_character_of_identifier = [](std::string_view::value_type c)
-    {
-        return
-            ('0' <= c && c <= '9') or
-            ('A' <= c && c <= 'Z') or
-            (     '_' == c       ) or
-            ('a' <= c && c <= 'z');
+    const auto is_valid_non_first_character_of_identifier = [](std::string_view::value_type c) {
+        return ('0' <= c && c <= '9') or
+               ('A' <= c && c <= 'Z') or
+               ('_' == c) or
+               ('a' <= c && c <= 'z');
     };
 
     if (sv.empty()) {
@@ -106,12 +103,10 @@ std::optional<float> osc::from_chars_strip_whitespace(std::string_view sv)
 
     try {
         fpv = std::stof(std::string{sv}, &i);
-    }
-    catch (const std::invalid_argument&) {
+    } catch (const std::invalid_argument&) {
         // no conversion could be performed
         return std::nullopt;
-    }
-    catch (const std::out_of_range&) {
+    } catch (const std::out_of_range&) {
         // value is out of the range of representable values of a float
         return std::nullopt;
     }
@@ -125,7 +120,7 @@ std::string osc::truncate_with_ellipsis(std::string_view v, size_t max_length)
         return std::string{v};
     }
 
-    const std::string_view substring = v.substr(0, max(0z, static_cast<ptrdiff_t>(max_length)-3));
+    const std::string_view substring = v.substr(0, max(0z, static_cast<ptrdiff_t>(max_length) - 3));
     std::string rv;
     rv.reserve(substring.length() + 3);
     rv = substring;
@@ -139,12 +134,10 @@ std::string_view osc::substring_after_last(std::string_view sv, std::string_view
 
     if (pos == std::string_view::npos) {
         return sv;  // `sv` is empty or contains no delimiter
-    }
-    else if (pos == sv.size()-1) {
+    } else if (pos == sv.size() - 1) {
         return {};  // `delimiter` is the last in `sv`
-    }
-    else {
-        return sv.substr(pos+1);
+    } else {
+        return sv.substr(pos + 1);
     }
 }
 
@@ -157,15 +150,15 @@ std::optional<std::pair<std::string_view, std::string_view>> osc::rsplit_once(
         return std::nullopt;
     }
 
-    return std::pair{sv.substr(0, pos), sv.substr(pos+1)};
+    return std::pair{sv.substr(0, pos), sv.substr(pos + 1)};
 }
 
 std::pair<char, char> osc::to_hex_chars(uint8_t b)
 {
     static_assert((std::numeric_limits<decltype(b)>::max() & 0xf) < c_nibble_to_character_lut.size());
-    static_assert(((std::numeric_limits<decltype(b)>::max()>>1) & 0xf) < c_nibble_to_character_lut.size());
+    static_assert(((std::numeric_limits<decltype(b)>::max() >> 1) & 0xf) < c_nibble_to_character_lut.size());
 
-    const char msn = c_nibble_to_character_lut[(b>>4) & 0xf];
+    const char msn = c_nibble_to_character_lut[(b >> 4) & 0xf];
     const char lsn = c_nibble_to_character_lut[b & 0xf];
     return {msn, lsn};
 }
@@ -193,19 +186,14 @@ std::optional<uint8_t> osc::try_parse_hex_chars_as_byte(char a, char b)
     // feel free to change this and re-run the test suite if you can dream up a
     // better approach though (I know this is ass)
 
-
-    const auto try_convert_nibble_char_to_uint8 = [](char c) -> std::optional<uint8_t>
-    {
+    const auto try_convert_nibble_char_to_uint8 = [](char c) -> std::optional<uint8_t> {
         if ('0' <= c && c <= '9') {
             return static_cast<uint8_t>(c - '0');
-        }
-        else if ('a' <= c && c <= 'f') {
+        } else if ('a' <= c && c <= 'f') {
             return static_cast<uint8_t>(10 + (c - 'a'));
-        }
-        else if ('A' <= c && c <= 'F') {
+        } else if ('A' <= c && c <= 'F') {
             return static_cast<uint8_t>(10 + (c - 'A'));
-        }
-        else {
+        } else {
             return std::nullopt;
         }
     };
@@ -216,8 +204,7 @@ std::optional<uint8_t> osc::try_parse_hex_chars_as_byte(char a, char b)
     if (most_significant_nibble and least_significant_nibble) {
         const auto v = static_cast<uint8_t>((*most_significant_nibble << 4) | *least_significant_nibble);
         return v;
-    }
-    else {
+    } else {
         return std::nullopt;
     }
 }
@@ -231,8 +218,7 @@ std::string osc::replace(std::string_view str, std::string_view from, std::strin
         rv.insert(rv.size(), to);
         rv.insert(rv.size(), str.substr(pos + from.size()));
         return rv;
-    }
-    else {
+    } else {
         return std::string{str};
     }
 }

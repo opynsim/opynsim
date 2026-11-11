@@ -27,6 +27,7 @@ namespace osc
         explicit CopyOnUpdPtr(std::shared_ptr<T> ptr) :
             ptr_{std::move(ptr)}
         {}
+
     public:
         using pointer = T*;
         using element_type = std::remove_extent_t<T>;

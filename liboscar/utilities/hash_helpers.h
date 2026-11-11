@@ -17,7 +17,7 @@ namespace osc
     template<Hashable T>
     size_t hash_combine(size_t seed, const T& v) noexcept(noexcept(std::hash<T>{}(v)))
     {
-        return seed ^ (std::hash<T>{}(v) + 0x9e3779b9 + (seed<<6) + (seed>>2));
+        return seed ^ (std::hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2));
     }
 
     template<Hashable T>

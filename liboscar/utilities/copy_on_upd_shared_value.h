@@ -92,7 +92,8 @@ namespace osc
             void* data;
         };
 
-        explicit CopyOnUpdSharedValue(ControlBlock* ptr) noexcept : ptr_{ptr} {}
+        explicit CopyOnUpdSharedValue(ControlBlock* ptr) noexcept :
+            ptr_{ptr} {}
 
         template<typename... Args>
         requires std::constructible_from<T, Args&&...>
@@ -104,15 +105,14 @@ namespace osc
             constexpr std::align_val_t allocation_alignment{std::max(alignof(ControlBlock), alignof(T))};
 
             // Generate a type-erased and stateless destructor for `T`
-            auto deleter = [](ControlBlock* cb) noexcept -> void
-            {
+            auto deleter = [](ControlBlock* cb) noexcept -> void {
                 std::destroy_at(static_cast<T*>(cb->data));
                 std::destroy_at(cb);
                 ::operator delete(static_cast<void*>(cb), allocation_alignment);
             };
 
             // Allocate a memory block containing both the control block and data
-            std::unique_ptr<void, void(*)(void*)> allocation{
+            std::unique_ptr<void, void (*)(void*)> allocation{
                 ::operator new(allocation_size, allocation_alignment),
                 [](void* p) { ::operator delete(p, allocation_alignment); },
             };

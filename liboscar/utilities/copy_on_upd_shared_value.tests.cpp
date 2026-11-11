@@ -12,13 +12,15 @@ using namespace osc;
 namespace
 {
     struct TestStruct {
-        explicit TestStruct(int v) : value(v) {}
+        explicit TestStruct(int v) :
+            value(v) {}
 
         int value;
     };
 
     struct alignas(64) OveralignedStruct {
-        explicit OveralignedStruct(int v) : value(v) {}
+        explicit OveralignedStruct(int v) :
+            value(v) {}
 
         int value;
         std::array<char, 60> padding{};  // Add some padding to make sure alignment matters

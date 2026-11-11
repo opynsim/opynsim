@@ -14,7 +14,7 @@
 namespace osc
 {
     template<typename T, size_t N>
-    requires (N > 1)
+    requires(N > 1)
     class CircularBuffer final {
 
         // iterator implementation
@@ -108,8 +108,7 @@ namespace osc
 
                 if (im > offset_) {
                     offset_ = N - (im - offset_);
-                }
-                else {
+                } else {
                     offset_ = offset_ - im;
                 }
 
@@ -161,102 +160,124 @@ namespace osc
             std::destroy(this->begin(), this->end());
         }
 
-
         // element access
 
-        constexpr reference at(size_type pos) {
+        constexpr reference at(size_type pos)
+        {
             return at(*this, pos);
         }
 
-        constexpr const_reference at(size_type pos) const {
+        constexpr const_reference at(size_type pos) const
+        {
             return at(*this, pos);
         }
 
-        constexpr reference operator[](size_type pos) {
+        constexpr reference operator[](size_type pos)
+        {
             return at(*this, pos);
         }
 
-        constexpr const_reference operator[](size_type pos) const {
+        constexpr const_reference operator[](size_type pos) const
+        {
             return at(*this, pos);
         }
 
-        constexpr reference front() {
+        constexpr reference front()
+        {
             return at(*this, 0);
         }
 
-        constexpr const_reference front() const {
+        constexpr const_reference front() const
+        {
             return at(*this, 0);
         }
 
-        constexpr reference back() {
+        constexpr reference back()
+        {
             return *rbegin();
         }
 
-        constexpr const_reference back() const {
+        constexpr const_reference back() const
+        {
             return *rbegin();
         }
 
         // iterators
 
-        constexpr const_iterator begin() const {
+        constexpr const_iterator begin() const
+        {
             return iterator_at(*this, begin_offset_);
         }
 
-        constexpr iterator begin() {
+        constexpr iterator begin()
+        {
             return iterator_at(*this, begin_offset_);
         }
 
-        constexpr const_iterator cbegin() const {
+        constexpr const_iterator cbegin() const
+        {
             return begin();
         }
 
-        constexpr const_iterator end() const {
+        constexpr const_iterator end() const
+        {
             return iterator_at(*this, end_offset_);
         }
 
-        constexpr iterator end() {
+        constexpr iterator end()
+        {
             return iterator_at(*this, end_offset_);
         }
 
-        constexpr const_iterator cend() const {
+        constexpr const_iterator cend() const
+        {
             return end();
         }
 
-        constexpr const_reverse_iterator rbegin() const {
+        constexpr const_reverse_iterator rbegin() const
+        {
             return const_reverse_iterator{end()};
         }
 
-        constexpr reverse_iterator rbegin() {
+        constexpr reverse_iterator rbegin()
+        {
             return reverse_iterator{end()};
         }
 
-        constexpr const_reverse_iterator crbegin() const {
+        constexpr const_reverse_iterator crbegin() const
+        {
             return const_reverse_iterator{end()};
         }
 
-        constexpr const_reverse_iterator rend() const {
+        constexpr const_reverse_iterator rend() const
+        {
             return const_reverse_iterator{begin()};
         }
 
-        constexpr reverse_iterator rend() {
+        constexpr reverse_iterator rend()
+        {
             return reverse_iterator{begin()};
         }
 
-        constexpr const_reverse_iterator crend() const {
+        constexpr const_reverse_iterator crend() const
+        {
             return const_reverse_iterator{begin()};
         }
 
         // capacity
 
-        constexpr bool empty() const {
+        constexpr bool empty() const
+        {
             return begin_offset_ == end_offset_;
         }
 
-        constexpr size_type size() const {
+        constexpr size_type size() const
+        {
             return end_offset_ >= begin_offset_ ? end_offset_ - begin_offset_ : (N - begin_offset_) + end_offset_;
         }
 
-        constexpr size_type max_size() const {
+        constexpr size_type max_size() const
+        {
             return N;
         }
 
@@ -349,7 +370,8 @@ namespace osc
 
     private:
         template<typename CircularBuf>
-        static constexpr auto at(CircularBuf& buf, size_type pos) -> decltype(*buf.begin()) {
+        static constexpr auto at(CircularBuf& buf, size_type pos) -> decltype(*buf.begin())
+        {
             if (pos >= buf.size()) {
                 throw std::out_of_range{"tried to access a circular buffer element outside of its range"};
             }
@@ -357,7 +379,8 @@ namespace osc
         }
 
         template<typename CircularBuf>
-        static constexpr auto iterator_at(CircularBuf& buf, ptrdiff_t pos) {
+        static constexpr auto iterator_at(CircularBuf& buf, ptrdiff_t pos)
+        {
             using Value = std::conditional_t<std::is_const_v<CircularBuf>, const T, T>;
 
             static_assert(alignof(Value) == alignof(typename decltype(buf.raw_storage_bytes_)::value_type));
@@ -388,7 +411,9 @@ namespace osc
         // - this behavior makes the implementation simpler, because
         //   you don't have to handle `begin_offset_ == end_offset_` edge
         //   cases and one-past-the end out-of-bounds checks
-        class alignas(T) ObjectBytes { std::array<std::byte, sizeof(T)> data_; };
+        class alignas(T) ObjectBytes {
+            std::array<std::byte, sizeof(T)> data_;
+        };
         std::array<ObjectBytes, N> raw_storage_bytes_{};
 
         // index (`T`-based, not raw byte based) of the first element

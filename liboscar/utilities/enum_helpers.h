@@ -52,8 +52,7 @@ namespace osc
     {
         if (pos < num_options_v<TEnum>) {
             return static_cast<TEnum>(pos);
-        }
-        else {
+        } else {
             return std::nullopt;
         }
     }
@@ -62,8 +61,7 @@ namespace osc
     // each enum option projected via `Proj`
     template<
         DenselyPackedOptionsEnum TEnum,
-        typename Proj = std::identity
-    >
+        typename Proj = std::identity>
     class DenselyPackedOptionsIterable final {
     public:
         class Iterator {
@@ -99,6 +97,7 @@ namespace osc
                 ++(*this);
                 return copy;
             }
+
         private:
             TEnum current_ = static_cast<TEnum>(0);
             const Proj* proj_ = nullptr;
@@ -113,7 +112,7 @@ namespace osc
         {}
 
         auto front() const { return std::invoke(proj_, static_cast<TEnum>(0)); }
-        auto back() const { return std::invoke(proj_, static_cast<TEnum>(std::to_underlying(TEnum::NUM_OPTIONS)-1)); }
+        auto back() const { return std::invoke(proj_, static_cast<TEnum>(std::to_underlying(TEnum::NUM_OPTIONS) - 1)); }
         Iterator begin() const { return Iterator{proj_, static_cast<TEnum>(0)}; }
         Iterator end() const { return Iterator{proj_, TEnum::NUM_OPTIONS}; }
 

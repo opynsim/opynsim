@@ -19,18 +19,17 @@ namespace osc
         size_t allocate_perf_mesurement_id(
             std::string_view label,
             std::string_view filename,
-            unsigned int line
-        );
+            unsigned int line);
 
         void submit_perf_measurement(
             size_t id,
             PerfClock::time_point start,
-            PerfClock::time_point end
-        );
+            PerfClock::time_point end);
 
         class PerfTimer final {
         public:
-            explicit PerfTimer(size_t id) : id_{id} {}
+            explicit PerfTimer(size_t id) :
+                id_{id} {}
             PerfTimer(PerfTimer const&) = delete;
             PerfTimer(PerfTimer&&) noexcept = delete;
             PerfTimer& operator=(const PerfTimer&) = delete;
@@ -39,6 +38,7 @@ namespace osc
             {
                 submit_perf_measurement(id_, start_time_, PerfClock::now());
             }
+
         private:
             size_t id_;
             PerfClock::time_point start_time_ = PerfClock::now();
@@ -47,11 +47,11 @@ namespace osc
 }
 
 #if OPYN_RUNTIME_PERF_MEASUREMENTS_ENABLED
-    #define OSC_PERF_TOKENPASTE(x, y) x##y
-    #define OSC_PERF_TOKENPASTE2(x, y) OSC_PERF_TOKENPASTE(x, y)
-    #define OSC_PERF(label) \
-        static const size_t OSC_PERF_TOKENPASTE2(s_TimerID, __LINE__) = osc::detail::allocate_perf_mesurement_id(label, osc::extract_filename(__FILE__), __LINE__); \
-        const osc::detail::PerfTimer OSC_PERF_TOKENPASTE2(timer, __LINE__) (OSC_PERF_TOKENPASTE2(s_TimerID, __LINE__));
+#define OSC_PERF_TOKENPASTE(x, y) x##y
+#define OSC_PERF_TOKENPASTE2(x, y) OSC_PERF_TOKENPASTE(x, y)
+#define OSC_PERF(label)                                                                                                                                         \
+    static const size_t OSC_PERF_TOKENPASTE2(s_TimerID, __LINE__) = osc::detail::allocate_perf_mesurement_id(label, osc::extract_filename(__FILE__), __LINE__); \
+    const osc::detail::PerfTimer OSC_PERF_TOKENPASTE2(timer, __LINE__)(OSC_PERF_TOKENPASTE2(s_TimerID, __LINE__));
 #else
-    #define OSC_PERF(label)
+#define OSC_PERF(label)
 #endif

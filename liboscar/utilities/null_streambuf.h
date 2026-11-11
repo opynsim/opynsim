@@ -18,6 +18,7 @@ namespace osc
         {
             return num_chars_written_ > 0;
         }
+
     protected:
         int overflow(int c) override
         {
@@ -31,6 +32,7 @@ namespace osc
             num_chars_written_ += count;
             return count;
         }
+
     private:
         std::array<char_type, 512> dummy_buffer_{};
         size_t num_chars_written_ = 0;

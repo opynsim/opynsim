@@ -29,6 +29,7 @@ namespace osc
     class VariableLengthArray final {
     private:
         using underlying_vector = std::pmr::vector<T>;
+
     public:
         using value_type = typename underlying_vector::value_type;
         using allocator_type = typename underlying_vector::allocator_type;
@@ -50,7 +51,7 @@ namespace osc
         }
 
         VariableLengthArray(const VariableLengthArray& other)
-            requires std::copy_constructible<T> :
+        requires std::copy_constructible<T> :
             pool_{stack_data_.data(), stack_data_.size(), other.pool_.upstream_resource()}
         {
             vector_.reserve(N);  // reserve the stack as one unit of allocation
@@ -58,7 +59,7 @@ namespace osc
         }
 
         VariableLengthArray(VariableLengthArray&& other) noexcept
-            requires std::move_constructible<T> :
+        requires std::move_constructible<T> :
             pool_{stack_data_.data(), stack_data_.size(), other.pool_.upstream_resource()}
         {
             vector_.reserve(N);  // reserve the stack as one unit of allocation
@@ -68,7 +69,7 @@ namespace osc
         VariableLengthArray(
             std::initializer_list<T> init,
             std::pmr::memory_resource* upstream_allocator = std::pmr::new_delete_resource())
-            requires std::copy_constructible<T> :
+        requires std::copy_constructible<T> :
             pool_{stack_data_.data(), stack_data_.size(), upstream_allocator}
         {
             vector_.reserve(N);  // reserve the stack as one unit of allocation
@@ -78,14 +79,14 @@ namespace osc
         ~VariableLengthArray() noexcept = default;
 
         VariableLengthArray& operator=(const VariableLengthArray& other)
-            requires std::is_copy_assignable_v<T>
+        requires std::is_copy_assignable_v<T>
         {
             vector_.assign(other.begin(), other.end());
             return *this;
         }
 
         VariableLengthArray& operator=(VariableLengthArray&& other) noexcept
-            requires std::is_move_assignable_v<T>
+        requires std::is_move_assignable_v<T>
         {
             vector_.assign(std::make_move_iterator(other.vector_.begin()), std::make_move_iterator(other.vector_.end()));
             return *this;
@@ -128,13 +129,12 @@ namespace osc
 //
 // see: https://developercommunity.visualstudio.com/t/debug-version-of-stl-is-not-excepion-safe-and-caus/77779
 #if defined(_MSC_VER) && _ITERATOR_DEBUG_LEVEL > 0
-        static inline constexpr size_t extra_bytes_ = []()
-        {
+        static inline constexpr size_t extra_bytes_ = []() {
             // from MSVC
             constexpr size_t proxy_size = sizeof(std::_Container_proxy);
             // ensure the extra bytes also account for the remainder of the buffer being used
             // for over-aligned datastructures
-            constexpr size_t num_align_windows = (proxy_size + (alignof(T) - 1))/alignof(T);
+            constexpr size_t num_align_windows = (proxy_size + (alignof(T) - 1)) / alignof(T);
             return alignof(T) * num_align_windows;
         }();
 #else

@@ -13,8 +13,7 @@ namespace osc
     template<
         typename T,
         typename Mutex = std::mutex,
-        typename MutexGuard = std::lock_guard<Mutex>
-    >
+        typename MutexGuard = std::lock_guard<Mutex>>
     class SynchronizedValue final {
     public:
         using value_type = T;
@@ -78,10 +77,9 @@ namespace osc
         template<
             typename U,
             typename Getter,
-            typename TGuard = MutexGuard
-        >
+            typename TGuard = MutexGuard>
         SynchronizedValueGuard<const U, mutex_type, TGuard> lock_child(Getter f) const
-            requires std::is_same_v<decltype(f(std::declval<value_type>())), const U&>
+        requires std::is_same_v<decltype(f(std::declval<value_type>())), const U&>
         {
             return SynchronizedValueGuard<const U, mutex_type, TGuard>{mutex_, f(value_)};
         }
