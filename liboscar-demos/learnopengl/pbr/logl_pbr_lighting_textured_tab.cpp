@@ -23,10 +23,10 @@ using namespace osc;
 namespace
 {
     constexpr auto c_light_positions = std::to_array<Vector3>({
-        {-10.0f,  10.0f, 10.0f},
-        { 10.0f,  10.0f, 10.0f},
+        {-10.0f, 10.0f, 10.0f},
+        {10.0f, 10.0f, 10.0f},
         {-10.0f, -10.0f, 10.0f},
-        { 10.0f, -10.0f, 10.0f},
+        {10.0f, -10.0f, 10.0f},
     });
 
     constexpr std::array<Vector3, c_light_positions.size()> c_light_radiances = std::to_array<Vector3>({
@@ -53,25 +53,20 @@ namespace
     {
         const Texture2D albedo = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/pbr/rusted_iron/albedo.jpg"),
-            ColorSpace::sRGB
-        );
+            ColorSpace::sRGB);
         const Texture2D normal = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/pbr/rusted_iron/normal.jpg"),
             ColorSpace::Linear,
-            ImageLoadingFlag::TreatComponentsAsSpatialVectors
-        );
+            ImageLoadingFlag::TreatComponentsAsSpatialVectors);
         const Texture2D metallic = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/pbr/rusted_iron/metallic.jpg"),
-            ColorSpace::Linear
-        );
+            ColorSpace::Linear);
         const Texture2D roughness = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/pbr/rusted_iron/roughness.jpg"),
-            ColorSpace::Linear
-        );
+            ColorSpace::Linear);
         const Texture2D ao = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/pbr/rusted_iron/ao.jpg"),
-            ColorSpace::Linear
-        );
+            ColorSpace::Linear);
 
         Material rv{Shader{
             loader.slurp("oscar_demos/learnopengl/shaders/PBR/lighting_textured/PBR.vert"),
@@ -141,8 +136,8 @@ private:
     {
         for (int row = 0; row < c_num_rows; ++row) {
             for (int col = 0; col < c_num_cols; ++col) {
-                const float x = (static_cast<float>(col) - static_cast<float>(c_num_cols)/2.0f) * c_cell_spacing;
-                const float y = (static_cast<float>(row) - static_cast<float>(c_num_rows)/2.0f) * c_cell_spacing;
+                const float x = (static_cast<float>(col) - static_cast<float>(c_num_cols) / 2.0f) * c_cell_spacing;
+                const float y = (static_cast<float>(row) - static_cast<float>(c_num_rows) / 2.0f) * c_cell_spacing;
                 render_queue_.emplace(sphere_mesh_, {.translation = {x, y, 0.0f}}, pbr_material_);
             }
         }
@@ -162,7 +157,6 @@ private:
     Material pbr_material_ = create_material(loader_);
     PerfPanel perf_panel_{&owner()};
 };
-
 
 CStringView osc::LOGLPBRLightingTexturedTab::id() { return Impl::static_label(); }
 

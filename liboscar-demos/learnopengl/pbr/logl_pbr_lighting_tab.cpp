@@ -22,10 +22,10 @@ using namespace osc;
 namespace
 {
     constexpr auto c_light_positions = std::to_array<Vector3>({
-        {-10.0f,  10.0f, 10.0f},
-        { 10.0f,  10.0f, 10.0f},
+        {-10.0f, 10.0f, 10.0f},
+        {10.0f, 10.0f, 10.0f},
         {-10.0f, -10.0f, 10.0f},
-        { 10.0f, -10.0f, 10.0f},
+        {10.0f, -10.0f, 10.0f},
     });
 
     constexpr std::array<Vector3, c_light_positions.size()> c_light_radiances = std::to_array<Vector3>({
@@ -67,7 +67,7 @@ public:
         TabPrivate{owner, parent, static_label()}
     {}
 
-   void on_mount()
+    void on_mount()
     {
         App::upd().make_main_loop_polling();
         camera_.on_mount();
@@ -119,8 +119,8 @@ private:
                 const float normalized_col = static_cast<float>(col) / static_cast<float>(c_num_cols);
                 pbr_material_.set("uRoughness", clamp(normalized_col, 0.005f, 1.0f));
 
-                const float x = (static_cast<float>(col) - static_cast<float>(c_num_cols)/2.0f) * c_cell_spacing;
-                const float y = (static_cast<float>(row) - static_cast<float>(c_num_rows)/2.0f) * c_cell_spacing;
+                const float x = (static_cast<float>(col) - static_cast<float>(c_num_cols) / 2.0f) * c_cell_spacing;
+                const float y = (static_cast<float>(row) - static_cast<float>(c_num_rows) / 2.0f) * c_cell_spacing;
                 render_queue_.emplace(sphere_mesh_, {.translation = {x, y, 0.0f}}, pbr_material_);
             }
         }
@@ -147,7 +147,6 @@ private:
     Material pbr_material_ = load_pbr_material(loader_);
     PerfPanel perf_panel_{&owner()};
 };
-
 
 CStringView osc::LOGLPBRLightingTab::id() { return Impl::static_label(); }
 

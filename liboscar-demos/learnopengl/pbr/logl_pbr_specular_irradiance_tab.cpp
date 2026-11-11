@@ -30,10 +30,10 @@ using namespace osc;
 namespace
 {
     constexpr auto c_light_positions = std::to_array<Vector3>({
-        {-10.0f,  10.0f, 10.0f},
-        { 10.0f,  10.0f, 10.0f},
+        {-10.0f, 10.0f, 10.0f},
+        {10.0f, 10.0f, 10.0f},
         {-10.0f, -10.0f, 10.0f},
-        { 10.0f, -10.0f, 10.0f},
+        {10.0f, -10.0f, 10.0f},
     });
 
     constexpr std::array<Vector3, c_light_positions.size()> c_light_radiances = std::to_array<Vector3>({
@@ -60,8 +60,7 @@ namespace
     {
         Texture2D hdr_texture = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/hdr/newport_loft.hdr"),
-            ColorSpace::Linear
-        );
+            ColorSpace::Linear);
         hdr_texture.set_wrap_mode(TextureWrapMode::Clamp);
         hdr_texture.set_filter_mode(TextureFilterMode::Linear);
 
@@ -83,8 +82,7 @@ namespace
         material.set("uEquirectangularMap", hdr_texture);
         material.set_array(
             "uShadowMatrices",
-            calc_cubemap_view_proj_matrices(projection_matrix, Vector3{})
-        );
+            calc_cubemap_view_proj_matrices(projection_matrix, Vector3{}));
 
         Camera camera;
         RenderQueue render_queue;
@@ -113,8 +111,7 @@ namespace
         material.set("uEnvironmentMap", skybox);
         material.set_array(
             "uShadowMatrices",
-            calc_cubemap_view_proj_matrices(capture_projection, Vector3{})
-        );
+            calc_cubemap_view_proj_matrices(capture_projection, Vector3{}));
 
         Camera camera;
         RenderQueue render_queue;
@@ -164,7 +161,7 @@ namespace
             const size_t mip_width = level_zero_width >> mip;
             capture_render_texture.set_pixel_dimensions({static_cast<int>(mip_width), static_cast<int>(mip_width)});
 
-            const float mip_roughness = static_cast<float>(mip)/static_cast<float>(max_mipmap_level);
+            const float mip_roughness = static_cast<float>(mip) / static_cast<float>(max_mipmap_level);
             material.set("uRoughness", mip_roughness);
 
             render_queue.emplace(BoxGeometry{{.dimensions = Vector3{2.0f}}}, identity<Transform>(), material);
@@ -292,8 +289,8 @@ private:
                 const float normalized_color = static_cast<float>(col) / static_cast<float>(c_num_cols);
                 pbr_material_.set("uRoughness", clamp(normalized_color, 0.005f, 1.0f));
 
-                const float x = (static_cast<float>(col) - static_cast<float>(c_num_cols)/2.0f) * c_cell_spacing;
-                const float y = (static_cast<float>(row) - static_cast<float>(c_num_rows)/2.0f) * c_cell_spacing;
+                const float x = (static_cast<float>(col) - static_cast<float>(c_num_cols) / 2.0f) * c_cell_spacing;
+                const float y = (static_cast<float>(row) - static_cast<float>(c_num_rows) / 2.0f) * c_cell_spacing;
 
                 render_queue_.emplace(sphere_mesh_, {.translation = {x, y, 0.0f}}, pbr_material_);
             }
@@ -308,8 +305,7 @@ private:
             render_queue_.emplace(
                 sphere_mesh_,
                 {.scale = Vector3{0.5f}, .translation = pos},
-                pbr_material_
-            );
+                pbr_material_);
         }
     }
 
@@ -358,7 +354,6 @@ private:
 
     PerfPanel perf_panel_{&owner()};
 };
-
 
 CStringView osc::LOGLPBRSpecularIrradianceTab::id() { return Impl::static_label(); }
 

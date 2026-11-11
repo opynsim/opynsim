@@ -30,10 +30,10 @@ using namespace osc;
 namespace
 {
     constexpr auto c_light_positions = std::to_array<Vector3>({
-        {-10.0f,  10.0f, 10.0f},
-        { 10.0f,  10.0f, 10.0f},
+        {-10.0f, 10.0f, 10.0f},
+        {10.0f, 10.0f, 10.0f},
         {-10.0f, -10.0f, 10.0f},
-        { 10.0f, -10.0f, 10.0f},
+        {10.0f, -10.0f, 10.0f},
     });
 
     constexpr std::array<Vector3, c_light_positions.size()> c_light_radiances = std::to_array<Vector3>({
@@ -56,8 +56,7 @@ namespace
     {
         Texture2D hdr_texture = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/hdr/newport_loft.hdr"),
-            ColorSpace::Linear
-        );
+            ColorSpace::Linear);
         hdr_texture.set_wrap_mode(TextureWrapMode::Clamp);
         hdr_texture.set_filter_mode(TextureFilterMode::Linear);
 
@@ -155,7 +154,7 @@ namespace
             const size_t mip_width = level_zero_width >> mip;
             capture_render_target.set_pixel_dimensions({static_cast<int>(mip_width), static_cast<int>(mip_width)});
 
-            material.set("uRoughness", static_cast<float>(mip)/static_cast<float>(max_mipmap_level));
+            material.set("uRoughness", static_cast<float>(mip) / static_cast<float>(max_mipmap_level));
 
             render_queue.emplace(BoxGeometry{{.dimensions = Vector3{2.0f}}}, identity<Transform>(), material);
             graphics::render_to(capture_render_target, render_queue, camera);
@@ -180,8 +179,7 @@ namespace
             Material{Shader{
                 loader.slurp("oscar_demos/learnopengl/shaders/PBR/ibl_specular_textured/BRDF.vert"),
                 loader.slurp("oscar_demos/learnopengl/shaders/PBR/ibl_specular_textured/BRDF.frag"),
-            }}
-        );
+            }});
 
         RenderTexture render_texture{{
             .pixel_dimensions = {512, 512},
@@ -290,8 +288,7 @@ private:
             render_queue_.emplace(
                 sphere_mesh_,
                 {.scale = Vector3{0.5f}, .translation = position},
-                pbr_material_
-            );
+                pbr_material_);
         }
 
         graphics::render_to(output_render_, render_queue_, camera_, {
@@ -363,7 +360,6 @@ private:
 
     PerfPanel perf_panel_{&owner()};
 };
-
 
 CStringView osc::LOGLPBRSpecularIrradianceTexturedTab::id() { return Impl::static_label(); }
 

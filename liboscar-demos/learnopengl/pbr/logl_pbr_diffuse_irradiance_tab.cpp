@@ -28,10 +28,10 @@ using namespace osc;
 namespace
 {
     constexpr auto c_light_positions = std::to_array<Vector3>({
-        {-10.0f,  10.0f, 10.0f},
-        { 10.0f,  10.0f, 10.0f},
+        {-10.0f, 10.0f, 10.0f},
+        {10.0f, 10.0f, 10.0f},
         {-10.0f, -10.0f, 10.0f},
-        { 10.0f, -10.0f, 10.0f},
+        {10.0f, -10.0f, 10.0f},
     });
 
     constexpr std::array<Vector3, c_light_positions.size()> c_light_radiances = std::to_array<Vector3>({
@@ -58,8 +58,7 @@ namespace
     {
         Texture2D hdr_texture = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/hdr/newport_loft.hdr"),
-            ColorSpace::Linear
-        );
+            ColorSpace::Linear);
         hdr_texture.set_wrap_mode(TextureWrapMode::Clamp);
         hdr_texture.set_filter_mode(TextureFilterMode::Linear);
 
@@ -86,8 +85,7 @@ namespace
         render_queue.emplace(
             BoxGeometry{{.dimensions = Vector3{2.0f}}},
             identity<Transform>(),
-            material
-        );
+            material);
         graphics::render_to(cubemap_render_texture, render_queue, camera);
 
         // TODO: some way of copying it into an `osc::Cubemap` would make sense
@@ -196,8 +194,8 @@ private:
                 const float normalized_color = static_cast<float>(col) / static_cast<float>(c_num_cols);
                 pbr_material_.set("uRoughness", clamp(normalized_color, 0.005f, 1.0f));
 
-                const float x = (static_cast<float>(col) - static_cast<float>(c_num_cols)/2.0f) * c_cell_spacing;
-                const float y = (static_cast<float>(row) - static_cast<float>(c_num_rows)/2.0f) * c_cell_spacing;
+                const float x = (static_cast<float>(col) - static_cast<float>(c_num_cols) / 2.0f) * c_cell_spacing;
+                const float y = (static_cast<float>(row) - static_cast<float>(c_num_rows) / 2.0f) * c_cell_spacing;
 
                 render_queue_.emplace(sphere_mesh_, {.translation = {x, y, 0.0f}}, pbr_material_);
             }
@@ -253,7 +251,6 @@ private:
     MouseCapturingCamera camera_ = create_camera();
     RenderQueue render_queue_;
 };
-
 
 CStringView osc::LOGLPBRDiffuseIrradianceTab::id() { return Impl::static_label(); }
 
