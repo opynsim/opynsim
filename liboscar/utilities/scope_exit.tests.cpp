@@ -59,8 +59,8 @@ TEST(ScopeExit, calls_exit_function_when_exception_is_thrown)
                 called = true;
             }};
             throw std::runtime_error{"throw something"};
-        } catch (const std::exception&) {
-        }  // NOLINT(bugprone-empty-catch)
+        } catch (const std::exception&) {  // NOLINT(bugprone-empty-catch)
+        }
     }
     ASSERT_TRUE(called);
 }
@@ -146,8 +146,8 @@ TEST(ScopeExit, release_stops_exit_function_from_being_called_when_exception_is_
             }};
             exit.release();
             throw std::runtime_error{"throw something"};
-        } catch (const std::exception&) {
-        }  // NOLINT(bugprone-empty-catch)
+        } catch (const std::exception&) {  // NOLINT(bugprone-empty-catch)
+        }
     }
     ASSERT_FALSE(called);
 }
