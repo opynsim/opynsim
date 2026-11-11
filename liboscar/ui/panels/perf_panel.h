@@ -10,8 +10,7 @@ namespace osc
     public:
         explicit PerfPanel(
             Widget* parent = nullptr,
-            std::string_view panel_name = "Performance"
-        );
+            std::string_view panel_name = "Performance");
 
     private:
         void impl_draw_content() final;

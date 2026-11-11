@@ -6,17 +6,16 @@
 #include <memory>
 #include <string_view>
 
-namespace osc { class PanelPrivate; }
-
 namespace osc
 {
+    class PanelPrivate;
+
     class Panel : public Widget {
     public:
         explicit Panel(
             Widget* parent = nullptr,
             std::string_view panel_name = "unnamed",
-            ui::PanelFlags = {}
-        );
+            ui::PanelFlags = {});
 
         bool is_open() const;
         void open();

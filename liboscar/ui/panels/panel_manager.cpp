@@ -73,8 +73,7 @@ namespace
             if (instance_ and (*instance_)->is_open()) {
                 (*instance_)->close();
                 instance_.reset();
-            }
-            else {
+            } else {
                 instance_ = panel_constructor_(parent, name_);
                 (*instance_)->open();
             }
@@ -198,7 +197,6 @@ namespace
 
 class osc::PanelManager::Impl final {
 public:
-
     explicit Impl(Widget* parent) :
         parent_{parent}
     {}
@@ -413,8 +411,7 @@ private:
         dynamic_panels_.push_back(std::move(p));
 
         // re-sort so that panels are clustered correctly
-        rgs::sort(dynamic_panels_, rgs::less{}, [](auto const& p)
-        {
+        rgs::sort(dynamic_panels_, rgs::less{}, [](auto const& p) {
             return std::make_tuple(p.spawnable_panel_id(), p.instance_number());
         });
     }
@@ -425,7 +422,6 @@ private:
     std::vector<SpawnablePanel> spawnable_panels_;
     bool first_mount_ = true;
 };
-
 
 osc::PanelManager::PanelManager(Widget* parent) :
     impl_{std::make_unique<Impl>(parent)}

@@ -11,7 +11,6 @@ using namespace osc;
 
 class osc::LogViewerPanel::Impl final : public PanelPrivate {
 public:
-
     explicit Impl(LogViewerPanel& owner, Widget* parent, std::string_view panel_name) :
         PanelPrivate{owner, parent, panel_name, ui::PanelFlag::MenuBar}
     {}

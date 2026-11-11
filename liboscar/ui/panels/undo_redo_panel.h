@@ -5,10 +5,10 @@
 #include <memory>
 #include <string_view>
 
-namespace osc { class UndoRedoBase; }
-
 namespace osc
 {
+    class UndoRedoBase;
+
     // a user-visible panel that lists undo/redo history
     class UndoRedoPanel final : public Panel {
     public:
@@ -17,8 +17,7 @@ namespace osc
         explicit UndoRedoPanel(
             Widget* parent,
             std::string_view panel_name,
-            std::shared_ptr<UndoRedoBase>
-        );
+            std::shared_ptr<UndoRedoBase>);
 
     private:
         void impl_draw_content() final;

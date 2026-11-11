@@ -25,8 +25,7 @@ bool osc::PanelPrivate::is_open() const
 {
     if (auto v = App::settings().find_value(panel_enabled_config_key_)) {
         return to<bool>(*v);
-    }
-    else {
+    } else {
         return false;
     }
 }

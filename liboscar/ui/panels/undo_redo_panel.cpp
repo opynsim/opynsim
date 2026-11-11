@@ -33,7 +33,6 @@ private:
     std::shared_ptr<UndoRedoBase> storage_;
 };
 
-
 void osc::UndoRedoPanel::draw_content(UndoRedoBase& storage)
 {
     if (ui::draw_button("undo")) {
@@ -50,7 +49,7 @@ void osc::UndoRedoPanel::draw_content(UndoRedoBase& storage)
 
     // draw undo entries oldest (highest index) to newest (lowest index)
     std::optional<ptrdiff_t> user_enacted_undo;
-    for (auto i = static_cast<ptrdiff_t>(storage.num_undo_entries())-1; i >= 0; --i) {
+    for (auto i = static_cast<ptrdiff_t>(storage.num_undo_entries()) - 1; i >= 0; --i) {
         ui::push_id(ui_id++);
         if (ui::draw_selectable(storage.undo_entry_at(i).message())) {
             user_enacted_undo = i;
