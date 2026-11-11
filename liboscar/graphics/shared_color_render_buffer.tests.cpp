@@ -39,7 +39,7 @@ TEST(SharedColorRenderBuffer, dimensionality_is_based_on_parameters)
 TEST(SharedColorRenderBuffer, pixel_dimensions_is_based_on_parameters)
 {
     const SharedColorRenderBuffer buffer{ColorRenderBufferParams{.pixel_dimensions = Vector2i(3, 5)}};
-    ASSERT_EQ(buffer.pixel_dimensions(), Vector2i(3,5));
+    ASSERT_EQ(buffer.pixel_dimensions(), Vector2i(3, 5));
 }
 
 TEST(SharedColorRenderBuffer, anti_aliasing_level_is_based_on_parameters)

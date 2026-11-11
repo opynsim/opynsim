@@ -178,8 +178,7 @@ namespace
         "uFar",
     });
 
-    constexpr std::array<ShaderPropertyType, 14> c_expected_property_types = std::to_array(
-    {
+    constexpr std::array<ShaderPropertyType, 14> c_expected_property_types = std::to_array({
         ShaderPropertyType::Matrix4x4,
         ShaderPropertyType::Matrix4x4,
         ShaderPropertyType::Vector3,
@@ -386,7 +385,7 @@ TEST_F(ShaderTest, can_be_move_assigned)
 TEST_F(ShaderTest, copy_constructed_instance_compares_equivalent_to_copied_instance)
 {
     const Shader shader{c_vertex_shader_src, c_fragment_shader_src};
-    const Shader copy{shader}; // NOLINT(performance-unnecessary-copy-initialization)
+    const Shader copy{shader};  // NOLINT(performance-unnecessary-copy-initialization)
 
     ASSERT_EQ(shader, copy);
 }

@@ -12,10 +12,10 @@
 #include <format>
 #include <optional>
 
-namespace osc { class Rect; }
-
 namespace osc
 {
+    class Rect;
+
     /// Represents a camera at `position` in world space, pointing in
     /// `direction`, and oriented such that the top of its viewing plane
     /// points `up`.
@@ -31,8 +31,7 @@ namespace osc
         static Camera look_at(
             const Vector3& position,
             const Vector3& target,
-            const Vector3& up
-        );
+            const Vector3& up);
 
         Camera();
 
@@ -46,8 +45,7 @@ namespace osc
             const Vector3& position,
             const Vector3& direction,
             const Vector3& up = {0.0f, 1.0f, 0.0f},
-            Radians vertical_field_of_view = Degrees{90.0f}
-        );
+            Radians vertical_field_of_view = Degrees{90.0f});
 
         // resets the camera to default parameters
         void reset();
@@ -191,6 +189,7 @@ namespace osc
         // Returns the view volume's vertical extent in world units at a given depth
         // from the camera origin.
         float view_volume_height_at_depth(float depth) const;
+
     private:
         friend bool operator==(const Camera&, const Camera&);
         class Impl;
@@ -221,6 +220,7 @@ struct std::formatter<osc::Camera> {
         *it++ = ')';
         return it;
     }
+
 private:
     // Pretty prints a vector in a tuple-like format (e.g. "(a, b, c)").
     template<class FmtCtx>

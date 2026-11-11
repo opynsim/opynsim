@@ -164,7 +164,7 @@ namespace
     Texture2D generate_red_texture()
     {
         Texture2D rv{Vector2i{2, 2}};
-        rv.set_pixels(std::to_array({ Color::red(), Color::red(), Color::red(), Color::red() }));
+        rv.set_pixels(std::to_array({Color::red(), Color::red(), Color::red(), Color::red()}));
         return rv;
     }
 
@@ -217,7 +217,7 @@ TEST_F(MaterialTest, can_be_move_assigned)
 TEST_F(MaterialTest, copy_constructed_instance_compares_equal_to_copied_from_instance)
 {
     const Material material = generate_material();
-    const Material copy{material}; // NOLINT(performance-unnecessary-copy-initialization)
+    const Material copy{material};  // NOLINT(performance-unnecessary-copy-initialization)
 
     ASSERT_EQ(material, copy);
 }
@@ -365,7 +365,7 @@ TEST_F(MaterialTest, MaterialSetFloatArrayOnMaterialCausesGetFloatArrayToReturnT
 {
     Material material = generate_material();
     const std::string key = "someKey";
-    const auto values = std::to_array({ generate<float>(), generate<float>(), generate<float>(), generate<float>() });
+    const auto values = std::to_array({generate<float>(), generate<float>(), generate<float>(), generate<float>()});
 
     ASSERT_FALSE(material.get_array<float>(key));
 
@@ -432,7 +432,7 @@ TEST_F(MaterialTest, MaterialSetVector3ArrayOnMaterialCausesGetVector3ArrayToReu
 {
     Material material = generate_material();
     const std::string key = "someKey";
-    const auto values = std::to_array({ generate<Vector3>(), generate<Vector3>(), generate<Vector3>(), generate<Vector3>() });
+    const auto values = std::to_array({generate<Vector3>(), generate<Vector3>(), generate<Vector3>(), generate<Vector3>()});
 
     ASSERT_FALSE(material.get_array<Vector3>(key));
 
@@ -490,7 +490,7 @@ TEST_F(MaterialTest, MaterialSetMatrix4x4ArrayCausesGetMat4ArrayToReturnSameSequ
         generate<Matrix4x4>(),
         generate<Matrix4x4>(),
         generate<Matrix4x4>(),
-        generate<Matrix4x4>()
+        generate<Matrix4x4>(),
     });
 
     Material material = generate_material();

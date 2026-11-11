@@ -56,7 +56,7 @@ namespace osc
 
         constexpr float normalized_value() const
         {
-            return (1.0f/static_cast<float>(std::numeric_limits<T>::max())) * static_cast<float>(value_);
+            return (1.0f / static_cast<float>(std::numeric_limits<T>::max())) * static_cast<float>(value_);
         }
 
     private:

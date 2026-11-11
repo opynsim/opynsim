@@ -52,8 +52,8 @@ osc::SphereGeometry::SphereGeometry(const Params& p)
 
             const Vector3& vertex = vertices.emplace_back(
                 -p.radius * cos(p.phi_start + u * p.phi_length) * sin(p.theta_start + v * p.theta_length),
-                 p.radius * cos(p.theta_start + v * p.theta_length),
-                 p.radius * sin(p.phi_start + u * p.phi_length) * sin(p.theta_start + v * p.theta_length));
+                +p.radius * cos(p.theta_start + v * p.theta_length),
+                +p.radius * sin(p.phi_start + u * p.phi_length) * sin(p.theta_start + v * p.theta_length));
             normals.push_back(normalize(vertex));
             uvs.emplace_back(u + u_offset, 1.0f - v);
 

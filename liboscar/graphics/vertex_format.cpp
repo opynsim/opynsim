@@ -24,7 +24,7 @@ osc::VertexFormat::VertexFormat(std::span<const VertexAttributeDescriptor> descr
 
     const auto end = attribute_descriptions_.end();
     for (auto it = attribute_descriptions_.begin(); it != end; ++it) {
-        if (cpp23::contains(it+1, end, it->attribute(), &VertexAttributeDescriptor::attribute)) {
+        if (cpp23::contains(it + 1, end, it->attribute(), &VertexAttributeDescriptor::attribute)) {
             throw std::runtime_error{"Duplicate `VertexAttribute`s were passed to a `VertexFormat` each `VertexAttribute` must be unique"};
         }
     }
@@ -41,8 +41,7 @@ void osc::VertexFormat::insert(const VertexAttributeDescriptor& desc)
     const auto it = rgs::find(attribute_descriptions_, desc.attribute(), &VertexAttributeDescriptor::attribute);
     if (it != attribute_descriptions_.end()) {
         *it = desc;
-    }
-    else {
+    } else {
         attribute_descriptions_.push_back(desc);
     }
 

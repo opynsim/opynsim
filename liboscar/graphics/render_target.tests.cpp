@@ -72,7 +72,7 @@ TEST(RenderTarget, can_construct_with_2x_color_and_1x_depth_attachments)
 TEST(RenderTarget, can_construct_with_3x_color_and_1x_depth_attachments)
 {
     const RenderTargetColorAttachment color0_attachment;
-    const RenderTargetColorAttachment color1_attachment{.clear_color = Color::red()};  // so they compare inequivalent
+    const RenderTargetColorAttachment color1_attachment{.clear_color = Color::red()};    // so they compare inequivalent
     const RenderTargetColorAttachment color2_attachment{.clear_color = Color::green()};  // so they compare inequivalent
     const RenderTargetDepthStencilAttachment depth_attachment;
     const RenderTarget render_target{color0_attachment, color1_attachment, color2_attachment, depth_attachment};
@@ -90,7 +90,7 @@ TEST(RenderTarget, validate_or_throw_doesnt_throw_when_given_buffers_with_same_d
 {
     const SharedColorRenderBuffer color_buffer{ColorRenderBufferParams{.pixel_dimensions = Vector2i(3, 3), .anti_aliasing_level = AntiAliasingLevel{4}}};
     const RenderTargetColorAttachment color_attachment{.buffer = color_buffer};
-    const SharedDepthStencilRenderBuffer depth_buffer{DepthStencilRenderBufferParams{.pixel_dimensions = Vector2i(3,3), .anti_aliasing_level = AntiAliasingLevel{4}}};
+    const SharedDepthStencilRenderBuffer depth_buffer{DepthStencilRenderBufferParams{.pixel_dimensions = Vector2i(3, 3), .anti_aliasing_level = AntiAliasingLevel{4}}};
     const RenderTargetDepthStencilAttachment depth_attachment{.buffer = depth_buffer};
 
     const RenderTarget render_target{color_attachment, depth_attachment};

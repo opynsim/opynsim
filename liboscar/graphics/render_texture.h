@@ -62,6 +62,7 @@ namespace osc
 
         class Impl;
         const Impl& impl() const { return *impl_; }
+
     private:
         friend class GraphicsBackend;
 

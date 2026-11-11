@@ -25,8 +25,8 @@ using namespace osc::tests;
 TEST(Camera, look_at_returns_camera_that_points_towards_target)
 {
     const Vector3 position = {-1.0f, -3.0f, -5.0f};
-    const Vector3 target   = { 1.0f,  1.0f,  1.0f};
-    const Vector3 up       = { 0.0f,  1.0f,  0.0f};
+    const Vector3 target = {1.0f, 1.0f, 1.0f};
+    const Vector3 up = {0.0f, 1.0f, 0.0f};
 
     const auto camera = Camera::look_at(position, target, up);
 
@@ -36,9 +36,9 @@ TEST(Camera, look_at_returns_camera_that_points_towards_target)
 
 TEST(Camera, look_at_normalizes_up)
 {
-    const Vector3 position = { 1.0f,  0.0f,  0.0f};
-    const Vector3 target   = { 0.0f,  0.0f,  0.0f};
-    const Vector3 up       = { 0.0f,  1.0f,  1.0f};  // not normalized
+    const Vector3 position = {1.0f, 0.0f, 0.0f};
+    const Vector3 target = {0.0f, 0.0f, 0.0f};
+    const Vector3 up = {0.0f, 1.0f, 1.0f};  // not normalized
 
     const auto camera = Camera::look_at(position, target, up);
 
@@ -47,9 +47,9 @@ TEST(Camera, look_at_normalizes_up)
 
 TEST(Camera, look_at_falls_back_when_up_is_parallel_to_target)
 {
-    const Vector3 position = { 7.0f, 0.0f,  2.0f};
-    const Vector3 target   = { 0.0f, 0.0f,  0.0f};
-    const Vector3 up       = 0.3f * position;  // parallel to (target - position)
+    const Vector3 position = {7.0f, 0.0f, 2.0f};
+    const Vector3 target = {0.0f, 0.0f, 0.0f};
+    const Vector3 up = 0.3f * position;  // parallel to (target - position)
 
     const auto camera = Camera::look_at(position, target, up);
 
@@ -70,8 +70,7 @@ TEST(Camera, constructing_from_position_direction_up_is_equivalent_to_calling_se
     const Vector3 up = {0.0f, 0.0f, 1.0f};
 
     const Camera directly_constructed{position, direction, up};
-    const Camera from_setters = [&]
-    {
+    const Camera from_setters = [&] {
         Camera rv;
         rv.set_position(position);
         rv.set_direction(direction);
@@ -90,8 +89,7 @@ TEST(Camera, constructing_from_position_direction_up_vertical_field_of_view_is_e
     const Degrees vertical_field_of_view{37.0f};
 
     const Camera directly_constructed{position, direction, up, vertical_field_of_view};
-    const Camera from_setters = [&]
-    {
+    const Camera from_setters = [&] {
         Camera rv;
         rv.set_position(position);
         rv.set_direction(direction);
@@ -127,9 +125,9 @@ TEST(Camera, constructing_from_position_direction_up_normalizes_direction_vector
 
 TEST(Camera, constructing_from_position_direction_up_falls_back_when_direction_and_up_are_colinear)
 {
-    const Vector3 position  = { 1.0f, 2.0f, 3.0f};
-    const Vector3 direction = { 1.0f, 0.0f, 0.0f};
-    const Vector3 up        = {-2.0f, 0.0f, 0.0f};  // uh oh: co-linear with `direction`.
+    const Vector3 position = {1.0f, 2.0f, 3.0f};
+    const Vector3 direction = {1.0f, 0.0f, 0.0f};
+    const Vector3 up = {-2.0f, 0.0f, 0.0f};  // uh oh: co-linear with `direction`.
 
     const Camera camera{position, direction, up};
 
@@ -677,9 +675,9 @@ TEST(Camera, ui_to_world_returns_projected_out_ray_for_projection_camera)
         const float znear = camera.near_clipping_plane();
         const Radians vfov = camera.vertical_field_of_view();
         const Vector3 a = camera.position();
-        const Vector3 b = a + znear*camera.direction();
-        const float h = znear * tan(0.5f*vfov);
-        const Vector3 c = b + h*camera.up();
+        const Vector3 b = a + znear * camera.direction();
+        const float h = znear * tan(0.5f * vfov);
+        const Vector3 c = b + h * camera.up();
         const Ray expected{camera.position(), normalize(c)};
         const Ray got = camera.ui_to_world({32.0f, 0.0f}, ui_rect);
         ASSERT_TRUE(is_colinear_and_codirectional(expected, got)) << "expected = " << expected << "got = " << got;
@@ -702,9 +700,9 @@ TEST(Camera, ui_to_world_returns_projected_out_ray_for_projection_camera)
         const float znear = camera.near_clipping_plane();
         const Radians vfov = camera.vertical_field_of_view();
         const Vector3 a = camera.position();
-        const Vector3 b = a + znear*camera.direction();
-        const float h = znear * tan(0.5f*vfov);
-        const Vector3 c = b + h*-camera.up(); // (go down)
+        const Vector3 b = a + znear * camera.direction();
+        const float h = znear * tan(0.5f * vfov);
+        const Vector3 c = b + h * -camera.up();  // (go down)
         const Ray expected{camera.position(), normalize(c)};
         const Ray got = camera.ui_to_world({32.0f, 64.0f}, ui_rect);
         ASSERT_TRUE(is_colinear_and_codirectional(expected, got)) << "expected = " << expected << "got = " << got;
@@ -721,7 +719,7 @@ TEST(Camera, view_volume_height_at_depth_returns_orthographic_height_for_any_dep
     camera.set_up({1.0f, 0.0f, 0.0f});
 
     for (size_t i = 0; i < 16; ++i) {
-        const float h = camera.view_volume_height_at_depth(-8.0f + static_cast<float>(i)*1.0f);
+        const float h = camera.view_volume_height_at_depth(-8.0f + static_cast<float>(i) * 1.0f);
         ASSERT_EQ(h, 1.0f) << "The view volume height should always be the orthographic size with an orthographic camera";
     }
 }

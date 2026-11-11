@@ -52,6 +52,7 @@ namespace osc
         std::string backend_shading_language_version_string() const;
 
         class Impl;
+
     private:
         // no data - it uses globals (you can only have one of these, globally)
     };

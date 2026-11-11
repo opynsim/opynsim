@@ -20,7 +20,7 @@ namespace osc
 
         friend bool operator==(const ColorHSLA&, const ColorHSLA&) = default;
 
-        explicit operator Color () const;
+        explicit operator Color() const;
 
         float hue{};
         float saturation{};

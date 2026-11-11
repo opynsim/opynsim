@@ -13,8 +13,7 @@ using namespace osc::detail;
 
 TEST(VertexAttributeFormatList, every_entry_in_the_list_has_an_associated_VertexAttributeFormatTraits_implementation)
 {
-    [[maybe_unused]] auto ary = []<VertexAttributeFormat... Formats>(OptionList<VertexAttributeFormat, Formats...>)
-    {
+    [[maybe_unused]] auto ary = []<VertexAttributeFormat... Formats>(OptionList<VertexAttributeFormat, Formats...>) {
         return std::to_array({VertexAttributeFormatTraits<Formats>::num_components...});
     }(VertexAttributeFormatList{});
 }

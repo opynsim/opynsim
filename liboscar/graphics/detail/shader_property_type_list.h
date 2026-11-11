@@ -5,7 +5,8 @@
 
 namespace osc::detail
 {
-    using ShaderPropertyTypeList = OptionList<ShaderPropertyType,
+    using ShaderPropertyTypeList = OptionList<
+        ShaderPropertyType,
         ShaderPropertyType::Float,
         ShaderPropertyType::Vector2,
         ShaderPropertyType::Vector3,

@@ -50,13 +50,13 @@ TEST(Texture2D, default_constructor_constructs_a_1x1_white_RGBA32_sRGB_texture)
 
 TEST(Texture2D, constructor_throws_if_given_zero_or_negatively_sized_pixel_dimensions)
 {
-    ASSERT_ANY_THROW({ Texture2D(Vector2i(0, 0)); });   // x and y are zero
-    ASSERT_ANY_THROW({ Texture2D(Vector2i(0, 1)); });   // x is zero
-    ASSERT_ANY_THROW({ Texture2D(Vector2i(1, 0)); });   // y is zero
+    ASSERT_ANY_THROW({ Texture2D(Vector2i(0, 0)); });  // x and y are zero
+    ASSERT_ANY_THROW({ Texture2D(Vector2i(0, 1)); });  // x is zero
+    ASSERT_ANY_THROW({ Texture2D(Vector2i(1, 0)); });  // y is zero
 
-    ASSERT_ANY_THROW({ Texture2D(Vector2i(-1, -1)); }); // x any y are negative
-    ASSERT_ANY_THROW({ Texture2D(Vector2i(-1, 1)); });  // x is negative
-    ASSERT_ANY_THROW({ Texture2D(Vector2i(1, -1)); });  // y is negative
+    ASSERT_ANY_THROW({ Texture2D(Vector2i(-1, -1)); });  // x any y are negative
+    ASSERT_ANY_THROW({ Texture2D(Vector2i(-1, 1)); });   // x is negative
+    ASSERT_ANY_THROW({ Texture2D(Vector2i(1, -1)); });   // y is negative
 }
 
 TEST(Texture2D, default_constructor_creates_sRGBA_texture_with_expected_params)
@@ -92,10 +92,10 @@ TEST(Texture2D, pixels24_correctly_converts_from_floating_point_textures)
 {
     Texture2D texture_2d{Vector2i(2, 2), TextureFormat::RGBAFloat};
     texture_2d.set_pixels(std::to_array<Color>({
-        {1.5f, 0.0f, 0.0f,  0.25f},  // Note: HDR should saturate when converted to LDR
-        {0.0f, 0.5f, 0.0f,  0.50f},
+        {1.5f, 0.0f, 0.00f, 0.25f},  // Note: HDR should saturate when converted to LDR
+        {0.0f, 0.5f, 0.00f, 0.50f},
         {0.0f, 0.0f, 0.75f, 0.75f},
-        {1.0f, 1.0f, 1.0f,  1.0f},
+        {1.0f, 1.0f, 1.00f, 1.00f},
     }));
     const std::vector<Color24> expected = {
         Color24{Unorm8{1.5f}, Unorm8{0.0f}, Unorm8{0.0f}},
@@ -123,7 +123,7 @@ TEST(Texture2D, can_set_pixels32_on_default_constructed_instance)
 TEST(Texture2D, set_pixels_throws_if_number_of_pixels_does_not_match_pixel_dimensions)
 {
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<Color> incorrect_number_of_pixels(pixel_dimensions.x()*pixel_dimensions.y() + 1);
+    const std::vector<Color> incorrect_number_of_pixels(pixel_dimensions.x() * pixel_dimensions.y() + 1);
 
     Texture2D texture_2d{pixel_dimensions};
 
@@ -133,7 +133,7 @@ TEST(Texture2D, set_pixels_throws_if_number_of_pixels_does_not_match_pixel_dimen
 TEST(Texture2D, set_pixels32_throws_if_number_of_pixels_does_not_match_pixel_dimensions)
 {
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<Color32> incorrect_number_of_pixels(pixel_dimensions.x()*pixel_dimensions.y() + 1);
+    const std::vector<Color32> incorrect_number_of_pixels(pixel_dimensions.x() * pixel_dimensions.y() + 1);
 
     Texture2D texture_2d{pixel_dimensions};
     ASSERT_ANY_THROW({ texture_2d.set_pixels32(incorrect_number_of_pixels); });
@@ -142,7 +142,7 @@ TEST(Texture2D, set_pixels32_throws_if_number_of_pixels_does_not_match_pixel_dim
 TEST(Texture2D, set_pixel_data_throws_if_number_of_bytes_occupied_by_pixels_does_not_match_pixel_dimensions_and_format_of_Texture2D)
 {
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<Color32> incorrect_number_of_pixels(pixel_dimensions.x()*pixel_dimensions.y() + 1);
+    const std::vector<Color32> incorrect_number_of_pixels(pixel_dimensions.x() * pixel_dimensions.y() + 1);
 
     Texture2D texture_2d{pixel_dimensions};
 
@@ -153,7 +153,7 @@ TEST(Texture2D, set_pixel_data_throws_if_number_of_bytes_occupied_by_pixels_does
 TEST(Texture2D, set_pixel_data_does_not_throw_if_given_valid_number_of_pixel_bytes)
 {
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<Color32> pixels(static_cast<size_t>(pixel_dimensions.x()*pixel_dimensions.y()));
+    const std::vector<Color32> pixels(static_cast<size_t>(pixel_dimensions.x() * pixel_dimensions.y()));
 
     Texture2D texture_2d{pixel_dimensions};
 
@@ -165,7 +165,7 @@ TEST(Texture2D, set_pixel_data_does_not_throw_if_given_valid_number_of_pixel_byt
 TEST(Texture2D, set_pixel_data_works_fine_for_8_bit_single_component_data)
 {
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<uint8_t> single_component_pixels(static_cast<size_t>(pixel_dimensions.x()*pixel_dimensions.y()));
+    const std::vector<uint8_t> single_component_pixels(static_cast<size_t>(pixel_dimensions.x() * pixel_dimensions.y()));
 
     Texture2D texture_2d{pixel_dimensions, TextureFormat::R8};
     texture_2d.set_pixel_data(single_component_pixels);  // shouldn't throw
@@ -176,7 +176,7 @@ TEST(Texture2D, set_pixel_data_with_8_bit_single_component_data_followed_by_get_
     const uint8_t color_uint8{0x88};
     const float color_float = static_cast<float>(color_uint8) / 255.0f;
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<uint8_t> single_component_pixels(static_cast<size_t>(pixel_dimensions.x()*pixel_dimensions.y()), color_uint8);
+    const std::vector<uint8_t> single_component_pixels(static_cast<size_t>(pixel_dimensions.x() * pixel_dimensions.y()), color_uint8);
 
     Texture2D texture_2d{pixel_dimensions, TextureFormat::R8};
     texture_2d.set_pixel_data(single_component_pixels);
@@ -190,7 +190,7 @@ TEST(Texture2D, set_pixel_data_with_8_bit_single_component_data_followed_by_get_
 {
     const uint8_t color{0x88};
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<uint8_t> single_component_pixels(static_cast<size_t>(pixel_dimensions.x()*pixel_dimensions.y()), color);
+    const std::vector<uint8_t> single_component_pixels(static_cast<size_t>(pixel_dimensions.x() * pixel_dimensions.y()), color);
 
     Texture2D texture_2d{pixel_dimensions, TextureFormat::R8};
     texture_2d.set_pixel_data(single_component_pixels);
@@ -205,7 +205,7 @@ TEST(Texture2D, set_pixel_data_with_32bit_floating_point_components_followed_by_
 {
     const Vector4 color = generate<Vector4>();
     const Vector2i pixel_dimensions = {1, 1};
-    std::vector<Vector4> const rgba_float32_pixels(static_cast<size_t>(pixel_dimensions.x()*pixel_dimensions.y()), color);
+    std::vector<Vector4> const rgba_float32_pixels(static_cast<size_t>(pixel_dimensions.x() * pixel_dimensions.y()), color);
 
     Texture2D texture_2d(pixel_dimensions, TextureFormat::RGBAFloat);  // note: the format matches the incoming data
     texture_2d.set_pixel_data(view_object_representations<uint8_t>(rgba_float32_pixels));
@@ -217,7 +217,7 @@ TEST(Texture2D, set_pixel_data_with_32bit_HDR_floating_point_components_followed
 {
     const Color hdr_color = {1.2f, 1.4f, 1.3f, 1.0f};
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<Color> rgba_hdr_pixels(static_cast<size_t>(pixel_dimensions.x()*pixel_dimensions.y()), hdr_color);
+    const std::vector<Color> rgba_hdr_pixels(static_cast<size_t>(pixel_dimensions.x() * pixel_dimensions.y()), hdr_color);
 
     Texture2D texture_2d(pixel_dimensions, TextureFormat::RGBAFloat);
     texture_2d.set_pixel_data(view_object_representations<uint8_t>(rgba_hdr_pixels));
@@ -229,7 +229,7 @@ TEST(Texture2D, set_pixel_data_on_8bit_component_format_clamps_hdr_color_values)
 {
     const Color hdr_color = {1.2f, 1.4f, 1.3f, 1.0f};
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<Color> hdr_pixels(static_cast<size_t>(pixel_dimensions.x()*pixel_dimensions.y()), hdr_color);
+    const std::vector<Color> hdr_pixels(static_cast<size_t>(pixel_dimensions.x() * pixel_dimensions.y()), hdr_color);
 
     Texture2D texture_2d(pixel_dimensions, TextureFormat::RGBA32);  // note: not a HDR-capable format
     texture_2d.set_pixels(hdr_pixels);
@@ -242,8 +242,7 @@ TEST(Texture2D, update_pixel_data_calls_callback_with_span_that_is_identical_to_
     Texture2D texture = generate_2x2_texture();
     const std::vector<uint8_t> copy(texture.pixel_data().begin(), texture.pixel_data().end());
     bool called = false;
-    texture.update_pixel_data([&copy, &called](std::span<uint8_t> pixels)
-    {
+    texture.update_pixel_data([&copy, &called](std::span<uint8_t> pixels) {
         ASSERT_TRUE(rgs::equal(pixels, copy));
         called = true;
     });
@@ -258,8 +257,7 @@ TEST(Texture2D, update_pixel_data_makes_subsequent_pixel_data_show_mutated_versi
     ASSERT_FALSE(rgs::all_of(texture.pixel_data(), [](uint8_t byte) { return byte == fill_value; }));
 
     bool called = false;
-    texture.update_pixel_data([&called](std::span<uint8_t> pixels)
-    {
+    texture.update_pixel_data([&called](std::span<uint8_t> pixels) {
         rgs::fill(pixels, fill_value);
         called = true;
     });
@@ -270,7 +268,7 @@ TEST(Texture2D, set_pixels32_on_an_8bit_texture_performs_no_conversion)
 {
     const Color32 color32 = {0x77, 0x63, 0x24, 0x76};
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<Color32> pixels32(static_cast<size_t>(pixel_dimensions.x()*pixel_dimensions.y()), color32);
+    const std::vector<Color32> pixels32(static_cast<size_t>(pixel_dimensions.x() * pixel_dimensions.y()), color32);
 
     Texture2D texture_2d(pixel_dimensions, TextureFormat::RGBA32);  // note: matches pixel format
     texture_2d.set_pixels32(pixels32);
@@ -282,7 +280,7 @@ TEST(Texture2D, set_pixels32_on_32bit_texture_doesnt_observibly_change_component
 {
     const Color32 color32 = {0x77, 0x63, 0x24, 0x76};
     const Vector2i pixel_dimensions = {1, 1};
-    const std::vector<Color32> pixels32(static_cast<size_t>(pixel_dimensions.x()*pixel_dimensions.y()), color32);
+    const std::vector<Color32> pixels32(static_cast<size_t>(pixel_dimensions.x() * pixel_dimensions.y()), color32);
 
     Texture2D texture_2d(pixel_dimensions, TextureFormat::RGBAFloat);  // note: higher precision than input
     texture_2d.set_pixels32(pixels32);
@@ -547,9 +545,9 @@ TEST(Texture2D, dimensions_are_scaled_by_device_pixel_ratio)
 
     ASSERT_EQ(texture_2d.dimensions(), Vector2(7.0f, 7.0f));
     texture_2d.set_device_pixel_ratio(2.0f);
-    ASSERT_EQ(texture_2d.dimensions(), Vector2(7.0f,7.0f)/2.0f);
+    ASSERT_EQ(texture_2d.dimensions(), Vector2(7.0f, 7.0f) / 2.0f);
     texture_2d.set_device_pixel_ratio(0.5f);
-    ASSERT_EQ(texture_2d.dimensions(), Vector2(7.0f,7.0f)/0.5f);
+    ASSERT_EQ(texture_2d.dimensions(), Vector2(7.0f, 7.0f) / 0.5f);
 }
 
 TEST(Texture2D, device_pixel_ratio_is_initially_1)

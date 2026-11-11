@@ -8,30 +8,32 @@
 #include <cstddef>
 #include <optional>
 
-namespace osc { class Camera; }
-namespace osc { class Cubemap; }
-namespace osc { class Material; }
-namespace osc { class RenderQueue; }
-namespace osc { class RenderTarget; }
-namespace osc { class RenderTexture; }
-namespace osc { class SharedDepthStencilRenderBuffer; }
-namespace osc { class Texture2D; }
+namespace osc
+{
+    class Camera;
+    class Cubemap;
+    class Material;
+    class RenderQueue;
+    class RenderTarget;
+    class RenderTexture;
+    class SharedDepthStencilRenderBuffer;
+    class Texture2D;
+}
 
 // rendering functions
 //
 // these perform the necessary backend steps to get something useful done
 namespace osc::graphics
 {
-    void render_to_main_window(                     const RenderQueue&, const Camera&, const RenderPassConfig& = {});
-    void render_to(RenderTexture&,                  const RenderQueue&, const Camera&, const RenderPassConfig& = {});
-    void render_to(const RenderTarget&,             const RenderQueue&, const Camera&, const RenderPassConfig& = {});
+    void render_to_main_window(const RenderQueue&, const Camera&, const RenderPassConfig& = {});
+    void render_to(RenderTexture&, const RenderQueue&, const Camera&, const RenderPassConfig& = {});
+    void render_to(const RenderTarget&, const RenderQueue&, const Camera&, const RenderPassConfig& = {});
     void render_to(SharedDepthStencilRenderBuffer&, const RenderQueue&, const Camera&, const RenderPassConfig& = {});
 
     // Blits the `Texture` to the `RenderTexture`.
     void blit(
         const Texture2D&,
-        RenderTexture&
-    );
+        RenderTexture&);
 
     // Blits `render_texture` into a rectangular region of the main window.
     //
@@ -42,8 +44,7 @@ namespace osc::graphics
     void blit_to_main_window(
         const RenderTexture& render_texture,
         std::optional<Rect> destination_screen_rect = std::nullopt,
-        BlitFlags = {}
-    );
+        BlitFlags = {});
 
     // Renders `render_texture` as a quad using `material` into a rectangular region
     // of the main window.
@@ -61,8 +62,7 @@ namespace osc::graphics
         const RenderTexture& render_texture,
         const Material& material,
         std::optional<Rect> destination_screen_rect = std::nullopt,
-        BlitFlags = {}
-    );
+        BlitFlags = {});
 
     // Blits the texture into a rectangular region in the main window.
     //
@@ -73,25 +73,21 @@ namespace osc::graphics
     // - Ends in the top-right corner
     void blit_to_main_window(
         const Texture2D&,
-        const Rect&
-    );
+        const Rect&);
 
     // copy: copy a GPU texture to a (potentially, CPU-accessible) texture
 
     void copy_texture(
         const RenderTexture&,
-        Texture2D&
-    );
+        Texture2D&);
 
     void copy_texture(
         const RenderTexture&,
         Texture2D&,
-        CubemapFace
-    );
+        CubemapFace);
 
     void copy_texture(
         const RenderTexture&,
         Cubemap&,
-        size_t mipmap_level
-    );
+        size_t mipmap_level);
 }

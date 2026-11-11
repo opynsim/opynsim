@@ -4,11 +4,11 @@
 #include <liboscar/maths/coordinate_direction.h>
 #include <liboscar/maths/vector.h>
 
-namespace osc { struct AABB; }
-namespace osc { class Camera; }
-
 namespace osc
 {
+    class Camera;
+    struct AABB;
+
     /// Controls a camera that orbits around a focal point, similar to an
     /// "arcball" or "turntable" camera controller in other libraries.
     struct OrbitCameraController final {
@@ -16,8 +16,7 @@ namespace osc
         static OrbitCameraController focused_on(
             const AABB& aabb,
             const Camera& camera,
-            float aspect_ratio = 1.0f
-        );
+            float aspect_ratio = 1.0f);
 
         friend bool operator==(const OrbitCameraController&, const OrbitCameraController&) = default;
 
@@ -26,7 +25,7 @@ namespace osc
         void reset();
         void pan(float aspect_ratio, Vector2 normalized_delta, const Camera&);
         void drag(Vector2 normalized_delta);
-        void zoom_in()  { radius *= 0.8f; }
+        void zoom_in() { radius *= 0.8f; }
         void zoom_out() { radius *= 1.2f; }
         void focus_on(const AABB& aabb, const Camera& camera, float aspect_ratio = 1.0f);
         void focus_along(CoordinateDirection);

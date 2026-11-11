@@ -252,12 +252,12 @@ TEST_F(Graphics, graphics_render_blank_render_queue_to_render_texture_yields_sam
     graphics::render_to(final_output, render_queue, camera);
 
     // Test: ensure the second pass produces the purple color from the first pass.
-    Texture2D cpu_texture{{1,1}};
+    Texture2D cpu_texture{{1, 1}};
     graphics::copy_texture(final_output, cpu_texture);
     const auto pixels = cpu_texture.pixels();
     ASSERT_EQ(pixels.size(), 1);
-    ASSERT_NEAR(pixels.front().r, Color::purple().r, 1.0f/255.0f);
-    ASSERT_NEAR(pixels.front().g, Color::purple().g, 1.0f/255.0f);
-    ASSERT_NEAR(pixels.front().b, Color::purple().b, 1.0f/255.0f);
-    ASSERT_NEAR(pixels.front().a, Color::purple().a, 1.0f/255.0f);
+    ASSERT_NEAR(pixels.front().r, Color::purple().r, 1.0f / 255.0f);
+    ASSERT_NEAR(pixels.front().g, Color::purple().g, 1.0f / 255.0f);
+    ASSERT_NEAR(pixels.front().b, Color::purple().b, 1.0f / 255.0f);
+    ASSERT_NEAR(pixels.front().a, Color::purple().a, 1.0f / 255.0f);
 }

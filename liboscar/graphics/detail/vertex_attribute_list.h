@@ -5,7 +5,8 @@
 
 namespace osc::detail
 {
-    using VertexAttributeList = OptionList<VertexAttribute,
+    using VertexAttributeList = OptionList<
+        VertexAttribute,
         VertexAttribute::Position,
         VertexAttribute::Normal,
         VertexAttribute::Tangent,

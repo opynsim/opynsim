@@ -32,8 +32,7 @@ namespace osc
             TextureFormat = TextureFormat::RGBA32,
             ColorSpace = ColorSpace::sRGB,
             TextureWrapMode = TextureWrapMode::Repeat,
-            TextureFilterMode = TextureFilterMode::Linear
-        );
+            TextureFilterMode = TextureFilterMode::Linear);
 
         // Returns the dimensions of the texture in physical pixels.
         Vector2i pixel_dimensions() const;
@@ -154,6 +153,7 @@ namespace osc
 
         // returns a reference to the `Texture2D`'s private implementation (for internal use).
         const Impl& impl() const { return *impl_; }
+
     private:
         friend std::ostream& operator<<(std::ostream&, const Texture2D&);
         friend class GraphicsBackend;

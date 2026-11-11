@@ -61,6 +61,7 @@ struct std::formatter<osc::Color> final {
         *it++ = ')';
         return it;
     }
+
 private:
     std::formatter<osc::Color::value_type> inner_;
 };

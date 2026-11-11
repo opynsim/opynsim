@@ -98,5 +98,5 @@ TEST_F(RenderQueueFixture, distance_between_handles_begin_and_end_is_one_with_on
 TEST_F(RenderQueueFixture, handles_are_permutable)
 {
     // Required for sorting, partitioning, etc.
-    static_assert(requires (RenderQueue& render_queue) { { render_queue.handles().begin() } -> std::permutable; });
+    static_assert(requires(RenderQueue& render_queue) { { render_queue.handles().begin() } -> std::permutable; });
 }

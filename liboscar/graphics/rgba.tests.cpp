@@ -140,9 +140,11 @@ TEST(Rgba, can_explicitly_construct_from_Vector4_of_different_type)
 TEST(Rgba, map_with_unary_operation_works_as_expected)
 {
     const Rgba<float> inputs = {1.0f, 2.0f, 3.0f, 4.0f};
-    const auto f = [](float input) { return input + 1.0f; };
+    const auto f = [](float input) {
+        return input + 1.0f;
+    };
     const Rgba<float> result = map(inputs, f);
-    const Rgba<float> expected = {1.0f+1.0f, 2.0f+1.0f, 3.0f+1.0f, 4.0f+1.0f};
+    const Rgba<float> expected = {1.0f + 1.0f, 2.0f + 1.0f, 3.0f + 1.0f, 4.0f + 1.0f};
 
     ASSERT_EQ(result, expected);
 }
@@ -152,7 +154,7 @@ TEST(Rgba, map_with_binary_operation_works_as_expected)
     const Rgba<float> lhs = {1.0f, 2.0f, 3.0f, 4.0f};
     const Rgba<float> rhs = {1.0f, 2.0f, 3.0f, 4.0f};
     const Rgba<float> result = map(lhs, rhs, std::plus<float>{});
-    const Rgba<float> expected = {1.0f+1.0f, 2.0f+2.0f, 3.0f+3.0f, 4.0f+4.0f};
+    const Rgba<float> expected = {1.0f + 1.0f, 2.0f + 2.0f, 3.0f + 3.0f, 4.0f + 4.0f};
 
     ASSERT_EQ(result, expected);
 }
@@ -161,7 +163,7 @@ TEST(Rgba, lerp_works_with_unorm8)
 {
     const Rgba<Unorm8> lhs = {0x00, 0x00, 0x00, 0x00};
     const Rgba<Unorm8> rhs = {0xff, 0xff, 0xff, 0xff};
-    const Rgba<Unorm8> result = lerp(lhs, rhs, 123.0f/255.0f);
+    const Rgba<Unorm8> result = lerp(lhs, rhs, 123.0f / 255.0f);
     const Rgba<Unorm8> expected = {123, 123, 123, 123};
 
     ASSERT_EQ(result, expected);

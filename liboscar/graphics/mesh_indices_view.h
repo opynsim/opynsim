@@ -22,6 +22,7 @@ namespace osc
     class MeshIndicesView final {
     private:
         using U32PtrOrU16Ptr = std::variant<const uint16_t*, const uint32_t*>;
+
     public:
         class Iterator final {
         public:
@@ -33,14 +34,17 @@ namespace osc
 
             Iterator() = default;
 
-            explicit Iterator(U32PtrOrU16Ptr ptr) : ptr_{ptr}
+            explicit Iterator(U32PtrOrU16Ptr ptr) :
+                ptr_{ptr}
             {}
 
             value_type operator*() const
             {
-                return std::visit(Overload{
-                    [](const auto* ptr) { return static_cast<value_type>(*ptr); }
-                }, ptr_);
+                return std::visit(
+                    Overload{
+                        [](const auto* ptr) { return static_cast<value_type>(*ptr); },
+                    },
+                    ptr_);
             }
 
             friend bool operator==(const Iterator&, const Iterator&) = default;
@@ -71,6 +75,7 @@ namespace osc
                     [pos](const auto* ptr) { return static_cast<value_type>(ptr[pos]); }
                 }, ptr_);
             }
+
         private:
             U32PtrOrU16Ptr ptr_{static_cast<const uint16_t*>(nullptr)};
         };

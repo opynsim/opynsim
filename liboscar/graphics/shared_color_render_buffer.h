@@ -6,10 +6,10 @@
 
 #include <memory>
 
-namespace osc { struct ColorRenderBufferParams; }
-
 namespace osc
 {
+    struct ColorRenderBufferParams;
+
     // A render buffer that's shareable between `Material`s, `RenderTarget`s,
     // and `RenderTexture`s.
     //
@@ -64,6 +64,7 @@ namespace osc
 
         class ColorRenderBuffer;
         const ColorRenderBuffer& impl() const { return *impl_; }
+
     private:
         friend class GraphicsBackend;
         friend class RenderTexture;

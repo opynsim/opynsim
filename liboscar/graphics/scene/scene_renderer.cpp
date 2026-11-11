@@ -695,27 +695,21 @@ private:
                             dec.mesh,
                             dec.transform,
                             material,
-                            it->second
-                        );
+                            it->second);
                     },
-                    [this, &dec](const Material& material)
-                    {
+                    [this, &dec](const Material& material) {
                         render_queue_.emplace(
                             dec.mesh,
                             dec.transform,
-                            material
-                        );
+                            material);
                     },
-                    [this, &dec](const std::pair<Material, MaterialPropertyBlock>& material_props_pair)
-                    {
+                    [this, &dec](const std::pair<Material, MaterialPropertyBlock>& material_props_pair) {
                         render_queue_.emplace(
                             dec.mesh,
                             dec.transform,
                             material_props_pair.first,
-                            material_props_pair.second
-                        );
-                    }
-                },
+                            material_props_pair.second);
+                    }},
                 dec.shading);
 
             // if normals are requested, render the scene element via a normals geometry shader
@@ -785,24 +779,24 @@ private:
             std::visit(
                 Overload{
                     [this, &decoration, &oit_material](const Color& color) {
-                    const Color32 color32{color};  // Renderer doesn't need HDR colors
-                    if (color32.a == 0xff) {
-                        return;  // Skip opaque objects (already drawn)
-                    }
+                        const Color32 color32{color};  // Renderer doesn't need HDR colors
+                        if (color32.a == 0xff) {
+                            return;  // Skip opaque objects (already drawn)
+                        }
 
-                    const auto& [it, inserted] = color_cache_.try_emplace(color32);
-                    if (inserted) {
-                        it->second.set(diffuse_color_propname(), color32);
-                    }
-                    render_queue_.emplace(
-                        decoration.mesh,
-                        decoration.transform,
-                        oit_material,
-                        it->second);
+                        const auto& [it, inserted] = color_cache_.try_emplace(color32);
+                        if (inserted) {
+                            it->second.set(diffuse_color_propname(), color32);
+                        }
+                        render_queue_.emplace(
+                            decoration.mesh,
+                            decoration.transform,
+                            oit_material,
+                            it->second);
+                    },
+                    [](const auto&) {},  // Skip custom decorations (already done)
                 },
-                [](const auto&) {},  // Skip custom decorations (already done)
-            },
-            decoration.shading);
+                decoration.shading);
         }
 
         if (color_cache_.empty()) {

@@ -5,7 +5,8 @@
 
 namespace osc::detail
 {
-    using VertexAttributeFormatList = OptionList<VertexAttributeFormat,
+    using VertexAttributeFormatList = OptionList<
+        VertexAttributeFormat,
         VertexAttributeFormat::Float32x2,
         VertexAttributeFormat::Float32x3,
         VertexAttributeFormat::Float32x4,

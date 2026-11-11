@@ -88,7 +88,7 @@ TEST(PolyhedronGeometry, can_construct_with_custom_params)
 {
     const PolyhedronGeometry mesh{{
         .vertices = {{1.0f, 1.0f, 1.0f}, {-1.0f, -1.0f, 1.0f}, {-1.0f, 1.0f, -1.0f}, {1.0f, -1.0f, -1.0f}},
-        .indices = {2, 1, 0,    0, 3, 2,    1, 3, 0,    2, 3, 1},
+        .indices = {2, 1, 0, 0, 3, 2, 1, 3, 0, 2, 3, 1},
         .radius = 10.0f,
         .detail_level = 1,
     }};

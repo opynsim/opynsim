@@ -28,6 +28,7 @@ namespace osc
             friend bool operator==(const VertexAttributeLayout&, const VertexAttributeLayout&) = default;
 
             size_t offset() const { return offset_; }
+
         private:
             size_t offset_;
         };
@@ -71,6 +72,7 @@ namespace osc
             {
                 return VertexAttributeLayout{*iter_, offset_};
             }
+
         private:
             size_t offset_ = 0;
             std::vector<VertexAttributeDescriptor>::const_iterator iter_{};
@@ -97,6 +99,7 @@ namespace osc
             {
                 return VertexAttributeLayoutIterator{descriptions_->end()};
             }
+
         private:
             const std::vector<VertexAttributeDescriptor>* descriptions_ = nullptr;
         };
@@ -153,6 +156,7 @@ namespace osc
 
         void insert(const VertexAttributeDescriptor&);
         void erase(VertexAttribute);
+
     private:
         size_t calc_stride() const;
 

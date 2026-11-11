@@ -27,10 +27,10 @@ void osc::OrbitCameraController::update_camera(Camera& camera) const
     const float sin_phi = sin(phi);
     const float cos_theta = cos(theta);
     const float cos_phi = cos(phi);
-    const Vector3 back = { sin_theta*cos_phi, sin_phi,  cos_theta*cos_phi};
-    const Vector3 up =   {-sin_theta*sin_phi, cos_phi, -cos_theta*sin_phi};
+    const Vector3 back = {sin_theta * cos_phi, sin_phi, cos_theta * cos_phi};
+    const Vector3 up = {-sin_theta * sin_phi, cos_phi, -cos_theta * sin_phi};
 
-    camera.set_position(focus_point + radius*back);
+    camera.set_position(focus_point + (radius * back));
     camera.set_up(up);
     camera.set_direction(-back);
     camera.set_clipping_planes({0.1f * radius, 10.0f * radius});
@@ -51,7 +51,7 @@ void osc::OrbitCameraController::pan(
 
     // how much panning is done depends on how far the camera is from the
     // origin (easy, with polar coordinates) *and* the FoV of the camera.
-    const float x_amount =  normalized_delta.x() * (2.0f * tan(horizontal_field_of_view / 2.0f) * radius);
+    const float x_amount = normalized_delta.x() * (2.0f * tan(horizontal_field_of_view / 2.0f) * radius);
     const float y_amount = -normalized_delta.y() * (2.0f * tan(vertical_field_of_view / 2.0f) * radius);
 
     // this assumes the scene is not rotated, so we need to rotate these
@@ -94,20 +94,38 @@ void osc::OrbitCameraController::focus_on(
         // this will break autofocusing on very small models (e.g. insect legs) but
         // handles the edge-case of autofocusing an empty model (opensim-creator#552), which is a
         // more common use-case (e.g. for new users and users making human-sized models)
-        radius = max(bounding_sphere.radius / tan(smallest_fov/2.0), 1.0f);
+        radius = max(bounding_sphere.radius / tan(smallest_fov / 2.0), 1.0f);
     }
 }
 
 void osc::OrbitCameraController::focus_along(CoordinateDirection coordinate_direction)
 {
     switch (coordinate_direction.index()) {
-    case CoordinateDirection::x().index():       theta =  90_deg;  phi =  0_deg;  break;
-    case CoordinateDirection::y().index():       theta =  0_deg;   phi =  90_deg; break;
-    case CoordinateDirection::z().index():       theta =  0_deg;   phi =  0_deg;  break;
-    case CoordinateDirection::minus_x().index(): theta = -90_deg;  phi =  0_deg;  break;
-    case CoordinateDirection::minus_y().index(): theta =  0_deg;   phi = -90_deg; break;
-    case CoordinateDirection::minus_z().index(): theta =  180_deg; phi =  0_deg;  break;
-    default:                                                                      break;
+    case CoordinateDirection::x().index():
+        theta = 90_deg;
+        phi = 0_deg;
+        break;
+    case CoordinateDirection::y().index():
+        theta = 0_deg;
+        phi = 90_deg;
+        break;
+    case CoordinateDirection::z().index():
+        theta = 0_deg;
+        phi = 0_deg;
+        break;
+    case CoordinateDirection::minus_x().index():
+        theta = -90_deg;
+        phi = 0_deg;
+        break;
+    case CoordinateDirection::minus_y().index():
+        theta = 0_deg;
+        phi = -90_deg;
+        break;
+    case CoordinateDirection::minus_z().index():
+        theta = 180_deg;
+        phi = 0_deg;
+        break;
+    default: break;
     }
 }
 
@@ -123,8 +141,8 @@ Vector3 osc::OrbitCameraController::position() const
     const float cos_theta = cos(theta);
     const float sin_phi = sin(phi);
     const float cos_phi = cos(phi);
-    const Vector3 back = { sin_theta*cos_phi, sin_phi,  cos_theta*cos_phi};
-    return focus_point + radius*back;
+    const Vector3 back = {sin_theta * cos_phi, sin_phi, cos_theta * cos_phi};
+    return focus_point + radius * back;
 }
 
 Vector3 osc::OrbitCameraController::direction() const
@@ -133,13 +151,13 @@ Vector3 osc::OrbitCameraController::direction() const
     const float sin_phi = sin(phi);
     const float cos_theta = cos(theta);
     const float cos_phi = cos(phi);
-    return -Vector3{ sin_theta*cos_phi, sin_phi,  cos_theta*cos_phi};
+    return -Vector3{sin_theta * cos_phi, sin_phi, cos_theta * cos_phi};
 }
 
 void osc::OrbitCameraController::set_position_and_direction_from(const Camera& camera)
 {
     const Vector3 back = -camera.direction();
-    focus_point = camera.position() - radius*back;
+    focus_point = camera.position() - (radius * back);
     theta = atan2(back.x(), back.z());
     phi = asin(back.y());
 }

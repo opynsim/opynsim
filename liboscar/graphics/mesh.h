@@ -23,13 +23,13 @@
 #include <type_traits>
 #include <vector>
 
-namespace osc { struct AABB; }
-namespace osc { class SubMeshDescriptor; }
-namespace osc { struct Transform; }
-namespace osc { class VertexFormat; }
-
 namespace osc
 {
+    class SubMeshDescriptor;
+    class VertexFormat;
+    struct AABB;
+    struct Transform;
+
     class Mesh {
     public:
         Mesh();
@@ -184,6 +184,7 @@ namespace osc
 
         friend bool operator==(const Mesh&, const Mesh&) = default;
         friend std::ostream& operator<<(std::ostream&, const Mesh&);
+
     private:
         friend class GraphicsBackend;
         friend struct std::hash<Mesh>;

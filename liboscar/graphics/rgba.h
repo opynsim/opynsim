@@ -26,8 +26,8 @@ namespace osc
         using iterator = value_type*;
         using const_iterator = const value_type*;
 
-        static constexpr Rgba clear() { return {0.0f, 0.0f, 0.0f, 0.0f}; }
-
+        // clang-format off
+        static constexpr Rgba clear()         { return {0.0f, 0.0f, 0.0f, 0.0f}; }
         static constexpr Rgba white()         { return Rgb<T>::white();         }
         static constexpr Rgba lightest_grey() { return Rgb<T>::lightest_grey(); }
         static constexpr Rgba lighter_grey()  { return Rgb<T>::lighter_grey();  }
@@ -49,6 +49,7 @@ namespace osc
         static constexpr Rgba yellow()        { return Rgb<T>::yellow();        }
         static constexpr Rgba orange()        { return Rgb<T>::orange();        }
         static constexpr Rgba purple()        { return Rgb<T>::purple();        }
+        // clang-format on
 
         Rgba() = default;
 
@@ -91,8 +92,7 @@ namespace osc
 
         template<ColorComponent U>
         requires std::constructible_from<T, const U&>
-        explicit (not (std::convertible_to<U, T>))
-        constexpr Rgba(const Rgba<U>& v) :
+        explicit(not(std::convertible_to<U, T>)) constexpr Rgba(const Rgba<U>& v) :
             r{static_cast<T>(v.r)},
             g{static_cast<T>(v.g)},
             b{static_cast<T>(v.b)},

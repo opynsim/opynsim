@@ -45,7 +45,6 @@ namespace osc::detail
     struct MaterialValueTraits<float> final {
         static constexpr void constructor_assertions(std::span<const float>) {}
         static constexpr ShaderPropertyType shader_property_type(std::span<const float>) { return ShaderPropertyType::Float; }
-
     };
 
     template<>
@@ -108,7 +107,9 @@ namespace osc::detail
         {
             OSC_ASSERT(not render_textures.empty());
             const auto dimensionality = render_textures.front().dimensionality();
-            const auto has_same_texture_dimensionality = [dimensionality](TextureDimensionality d) { return d == dimensionality; };
+            const auto has_same_texture_dimensionality = [dimensionality](TextureDimensionality d) {
+                return d == dimensionality;
+            };
             OSC_ASSERT_ALWAYS(std::ranges::all_of(render_textures, has_same_texture_dimensionality, &RenderTexture::dimensionality));
         }
 
@@ -124,7 +125,9 @@ namespace osc::detail
         {
             OSC_ASSERT(not render_buffers.empty());
             const auto dimensionality = render_buffers.front().dimensionality();
-            const auto has_same_texture_dimensionality = [dimensionality](TextureDimensionality d) { return d == dimensionality; };
+            const auto has_same_texture_dimensionality = [dimensionality](TextureDimensionality d) {
+                return d == dimensionality;
+            };
             OSC_ASSERT_ALWAYS(std::ranges::all_of(render_buffers, has_same_texture_dimensionality, &SharedColorRenderBuffer::dimensionality));
         }
 
@@ -140,7 +143,9 @@ namespace osc::detail
         {
             OSC_ASSERT(not render_buffers.empty());
             const auto dimensionality = render_buffers.front().dimensionality();
-            const auto has_same_texture_dimensionality = [dimensionality](TextureDimensionality d) { return d == dimensionality; };
+            const auto has_same_texture_dimensionality = [dimensionality](TextureDimensionality d) {
+                return d == dimensionality;
+            };
             OSC_ASSERT_ALWAYS(std::ranges::all_of(render_buffers, has_same_texture_dimensionality, &SharedDepthStencilRenderBuffer::dimensionality));
         }
 

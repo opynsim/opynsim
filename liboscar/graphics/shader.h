@@ -16,15 +16,13 @@ namespace osc
         // throws on compile error
         Shader(
             std::string_view vertex_shader_src,
-            std::string_view fragment_shader_src
-        );
+            std::string_view fragment_shader_src);
 
         // throws on compile error
         Shader(
             std::string_view vertex_shader_src,
             std::string_view geometry_shader_src,
-            std::string_view fragment_shader_src
-        );
+            std::string_view fragment_shader_src);
 
         size_t num_properties() const;
         std::optional<size_t> property_index(std::string_view property_name) const;

@@ -16,9 +16,7 @@ namespace osc
     template<typename T>
     concept ColorComponent =
         std::floating_point<T> or
-        (
-            std::constructible_from<T, float> and
-            std::assignable_from<T&, float> and
-            std::constructible_from<float, const T&>
-        );
+        (std::constructible_from<T, float> and
+         std::assignable_from<T&, float> and
+         std::constructible_from<float, const T&>);
 }

@@ -372,7 +372,7 @@ TEST(Color, lerp_with_intermediate_interpolant_returns_expected_result)
     const Color rv = lerp(a, b, t);
 
     for (size_t i = 0; i < 4; ++i) {
-        ASSERT_NEAR(rv[i], (1.0f-t)*a[i] + t*b[i], tolerance);
+        ASSERT_NEAR(rv[i], ((1.0f - t) * a[i]) + (t * b[i]), tolerance);
     }
 }
 
@@ -414,7 +414,7 @@ TEST(Color, try_parse_html_color_string_parses_LDR_RGBx32_hex_string_to_Color)
     ASSERT_EQ(try_parse_html_color_string("#00000000"), Color::clear());
 
     // no color-space conversion occurs on intermediate values (e.g. no sRGB-to-linear)
-    ASSERT_EQ(try_parse_html_color_string("#110000ff"), Color((1.0f*16.0f + 1.0f)/255.0f, 0.0f, 0.0f, 1.0f));
+    ASSERT_EQ(try_parse_html_color_string("#110000ff"), Color(((1.0f * 16.0f) + 1.0f) / 255.0f, 0.0f, 0.0f, 1.0f));
 
     // when caller specifies 3 components, assume alpha == 1.0
     ASSERT_EQ(try_parse_html_color_string("#ff0000"), Color::red());
@@ -423,15 +423,15 @@ TEST(Color, try_parse_html_color_string_parses_LDR_RGBx32_hex_string_to_Color)
     // unparseable input
     ASSERT_EQ(try_parse_html_color_string("not a color"), std::nullopt);
     ASSERT_EQ(try_parse_html_color_string(" #ff0000ff"), std::nullopt);  // caller handles whitespace
-    ASSERT_EQ(try_parse_html_color_string("ff0000ff"), std::nullopt);  // caller must put the # prefix before the string
-    ASSERT_EQ(try_parse_html_color_string("red"), std::nullopt);  // literal hdr_color strings (e.g. as in Unity) aren't supported (yet)
+    ASSERT_EQ(try_parse_html_color_string("ff0000ff"), std::nullopt);    // caller must put the # prefix before the string
+    ASSERT_EQ(try_parse_html_color_string("red"), std::nullopt);         // literal hdr_color strings (e.g. as in Unity) aren't supported (yet)
 }
 
 TEST(Color, to_ColorHSLA_color_works_as_expected)
 {
     for (const auto& [rgba, expected] : c_rgba_to_hsla_known_conversion_values) {
         const auto got = to<ColorHSLA>(rgba);
-        ASSERT_NEAR(got.hue, expected.hue/360.0f, c_hlsl_conversion_tolerance_per_component);
+        ASSERT_NEAR(got.hue, expected.hue / 360.0f, c_hlsl_conversion_tolerance_per_component);
         ASSERT_NEAR(got.saturation, expected.saturation, c_hlsl_conversion_tolerance_per_component);
         ASSERT_NEAR(got.lightness, expected.lightness, c_hlsl_conversion_tolerance_per_component);
         ASSERT_NEAR(got.alpha, expected.alpha, c_hlsl_conversion_tolerance_per_component);
