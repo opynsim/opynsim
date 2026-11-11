@@ -118,7 +118,6 @@ private:
     float specular_strength_ = 1.0f;
 };
 
-
 CStringView osc::LOGLBasicLightingTab::id() { return Impl::static_label(); }
 
 osc::LOGLBasicLightingTab::LOGLBasicLightingTab(Widget* parent) :

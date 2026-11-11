@@ -25,6 +25,7 @@ using namespace osc;
 namespace
 {
     // positions of cubes within the scene
+    // clang-format off
     constexpr auto c_cube_positions = std::to_array<Vector3>({
         { 0.0f,  0.0f,  0.0f },
         { 2.0f,  5.0f, -15.0f},
@@ -37,13 +38,14 @@ namespace
         { 1.5f,  0.2f, -1.5f },
         {-1.3f,  1.0f, -1.5  },
     });
+    // clang-format on
 
     // positions of point lights within the scene (the camera also has a spotlight)
     constexpr auto c_point_light_positions = std::to_array<Vector3>({
-        { 0.7f,  0.2f,  2.0f },
-        { 2.3f, -3.3f, -4.0f },
-        {-4.0f,  2.0f, -12.0f},
-        { 0.0f,  0.0f, -3.0f },
+        {0.7f, 0.2f, 2.0f},
+        {2.3f, -3.3f, -4.0f},
+        {-4.0f, 2.0f, -12.0f},
+        {0.0f, 0.0f, -3.0f},
     });
     constexpr auto c_point_light_ambients = std::to_array<float>({0.001f, 0.001f, 0.001f, 0.001f});
     constexpr auto c_point_light_diffuses = std::to_array<float>({0.2f, 0.2f, 0.2f, 0.2f});
@@ -65,13 +67,11 @@ namespace
     {
         const Texture2D diffuse_map = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/container2.jpg"),
-            ColorSpace::sRGB
-        );
+            ColorSpace::sRGB);
 
         const Texture2D specular_map = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/container2_specular.jpg"),
-            ColorSpace::sRGB
-        );
+            ColorSpace::sRGB);
 
         Material rv{Shader{
             loader.slurp("oscar_demos/learnopengl/shaders/Lighting/MultipleLights.vert"),
@@ -95,13 +95,13 @@ namespace
         rv.set("uSpotLightCutoff", cos(45_deg));
         rv.set("uSpotLightOuterCutoff", cos(15_deg));
 
-        rv.set_array("uPointLightPos",       c_point_light_positions);
-        rv.set_array("uPointLightConstant",  c_point_light_constants);
-        rv.set_array("uPointLightLinear",    c_point_light_linears);
+        rv.set_array("uPointLightPos", c_point_light_positions);
+        rv.set_array("uPointLightConstant", c_point_light_constants);
+        rv.set_array("uPointLightLinear", c_point_light_linears);
         rv.set_array("uPointLightQuadratic", c_point_light_quadratics);
-        rv.set_array("uPointLightAmbient",   c_point_light_ambients);
-        rv.set_array("uPointLightDiffuse",   c_point_light_diffuses);
-        rv.set_array("uPointLightSpecular",  c_point_light_speculars);
+        rv.set_array("uPointLightAmbient", c_point_light_ambients);
+        rv.set_array("uPointLightDiffuse", c_point_light_diffuses);
+        rv.set_array("uPointLightSpecular", c_point_light_speculars);
 
         return rv;
     }
@@ -164,8 +164,7 @@ public:
             render_queue_.emplace(
                 mesh_,
                 {.rotation = angle_axis(angle, axis), .translation = pos},
-                multiple_lights_material_
-            );
+                multiple_lights_material_);
         }
 
         // render lamps
@@ -173,8 +172,7 @@ public:
             render_queue_.emplace(
                 mesh_,
                 {.scale = Vector3{0.2f}, .translation = light_position},
-                light_cube_material_
-            );
+                light_cube_material_);
         }
 
         // render to output (window)
@@ -208,7 +206,6 @@ private:
     LogViewerPanel log_viewer_{&owner()};
     PerfPanel perf_panel_{&owner()};
 };
-
 
 CStringView osc::LOGLMultipleLightsTab::id() { return Impl::static_label(); }
 

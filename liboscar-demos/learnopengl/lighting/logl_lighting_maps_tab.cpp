@@ -32,13 +32,11 @@ namespace
     {
         const Texture2D diffuse_map = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/container2.jpg"),
-            ColorSpace::sRGB
-        );
+            ColorSpace::sRGB);
 
         const Texture2D specular_map = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/container2_specular.jpg"),
-            ColorSpace::sRGB
-        );
+            ColorSpace::sRGB);
 
         Material rv{Shader{
             loader.slurp("oscar_demos/learnopengl/shaders/Lighting/LightingMaps.vert"),
@@ -128,7 +126,6 @@ private:
     float light_specular_ = 1.0f;
     float material_shininess_ = 64.0f;
 };
-
 
 CStringView osc::LOGLLightingMapsTab::id() { return Impl::static_label(); }
 
