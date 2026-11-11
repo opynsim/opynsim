@@ -39,7 +39,6 @@ private:
     SceneRenderer scene_renderer_;
 };
 
-
 osc::CachedSceneRenderer::CachedSceneRenderer(SceneCache& scene_cache) :
     impl_{std::make_unique<Impl>(scene_cache)}
 {}

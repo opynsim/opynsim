@@ -57,8 +57,7 @@ void osc::draw_bvh(
     const BVH& scene_bvh,
     const std::function<void(SceneDecoration&&)>& out)
 {
-    scene_bvh.for_each_leaf_or_inner_node([cube = cache.cube_wireframe_mesh(), &out](const BVHNode& node)
-    {
+    scene_bvh.for_each_leaf_or_inner_node([cube = cache.cube_wireframe_mesh(), &out](const BVHNode& node) {
         out(SceneDecoration{
             .mesh = cube,
             .transform = {
@@ -103,8 +102,7 @@ void osc::draw_bvh_leaf_nodes(
     const BVH& bvh,
     const std::function<void(SceneDecoration&&)>& out)
 {
-    bvh.for_each_leaf_node([&cache, &out](const BVHNode& node)
-    {
+    bvh.for_each_leaf_node([&cache, &out](const BVHNode& node) {
         draw_aabb(cache, node.bounds(), out);
     });
 }
@@ -172,7 +170,7 @@ void osc::draw_arrow(
     if (isnan(total_length) or equal_within_epsilon(total_length, 0.0f)) {
         return;  // edge-case: caller passed junk vectors to this implementation
     }
-    const Vector3 direction = start_to_end/total_length;
+    const Vector3 direction = start_to_end / total_length;
 
     // draw the arrow from tip-to-base, because the neck might be
     // excluded in the case where the total length of the arrow is
@@ -232,8 +230,7 @@ void osc::for_each_ray_collision_with_scene(
     const Ray& world_space_ray,
     const std::function<void(SceneCollision&&)>& out)
 {
-    scene_bvh.for_each_ray_aabb_collision(world_space_ray, [&cache, &decorations, &world_space_ray, &out](const BVHCollision& scene_collision)
-    {
+    scene_bvh.for_each_ray_aabb_collision(world_space_ray, [&cache, &decorations, &world_space_ray, &out](const BVHCollision& scene_collision) {
         // perform ray-triangle intersection tests on the scene collisions
         const SceneDecoration& decoration = at(decorations, scene_collision.id);
         const BVH& decoration_triangle_bvh = cache.get_bvh(decoration.mesh);
@@ -242,8 +239,7 @@ void osc::for_each_ray_collision_with_scene(
             decoration.mesh,
             decoration_triangle_bvh,
             decoration.transform,
-            world_space_ray
-        );
+            world_space_ray);
 
         if (maybe_triangle_collision) {
             out({
@@ -263,8 +259,7 @@ std::vector<SceneCollision> osc::get_all_ray_collisions_with_scene(
     const Ray& world_space_ray)
 {
     std::vector<SceneCollision> rv;
-    for_each_ray_collision_with_scene(scene_bvh, cache, decorations, world_space_ray, [&rv](SceneCollision&& scene_collision)
-    {
+    for_each_ray_collision_with_scene(scene_bvh, cache, decorations, world_space_ray, [&rv](SceneCollision&& scene_collision) {
         rv.push_back(std::move(scene_collision));
     });
     return rv;
@@ -285,8 +280,7 @@ std::optional<RayCollision> osc::get_closest_world_space_ray_triangle_collision(
 
     // then perform a ray-AABB (of triangles) collision
     std::optional<RayCollision> rv;
-    triangle_bvh.for_each_ray_aabb_collision(modespace_ray, [&mesh, &transform, &world_space_ray, &modespace_ray, &rv](BVHCollision model_space_bvh_collision)
-    {
+    triangle_bvh.for_each_ray_aabb_collision(modespace_ray, [&mesh, &transform, &world_space_ray, &modespace_ray, &rv](BVHCollision model_space_bvh_collision) {
         // then perform a ray-triangle collision
         if (auto model_space_triangle_collision = find_collision(modespace_ray, mesh.get_triangle_at(model_space_bvh_collision.id))) {
             // map it back into world space and check if it's closer
@@ -311,15 +305,13 @@ std::optional<RayCollision> osc::get_closest_world_space_ray_triangle_collision(
 {
     const Ray world_ray = camera.ui_to_world(
         mouse_screen_position,
-        screen_render_rect
-    );
+        screen_render_rect);
 
     return get_closest_world_space_ray_triangle_collision(
         mesh,
         triangle_bvh,
         identity<Transform>(),
-        world_ray
-    );
+        world_ray);
 }
 
 SceneRendererParams osc::calc_standard_dark_scene_render_params(
@@ -359,9 +351,8 @@ BVH osc::create_triangle_bvh(const Mesh& mesh)
     }
 
     if (indices.is_uint32()) {
-        rv.build_from_indexed_triangles(mesh.vertices() , indices.to_uint32_span());
-    }
-    else {
+        rv.build_from_indexed_triangles(mesh.vertices(), indices.to_uint32_span());
+    } else {
         rv.build_from_indexed_triangles(mesh.vertices(), indices.to_uint16_span());
     }
     return rv;

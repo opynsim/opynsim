@@ -29,6 +29,7 @@ namespace osc
 
     private:
         static constexpr size_t c_num_rim_groups = 2;
+
     public:
         static constexpr size_t num_rim_groups()
         {

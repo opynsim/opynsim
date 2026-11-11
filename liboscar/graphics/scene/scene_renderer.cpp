@@ -92,8 +92,8 @@ namespace
         Camera camera;
         camera_controller.update_camera(camera);
         camera.set_projection(CameraProjection::Orthographic);
-        camera.set_orthographic_size(2.0f*shadowcasters_sphere.radius);
-        camera.set_clipping_planes({0.0f, 2.0f*shadowcasters_sphere.radius});
+        camera.set_orthographic_size(2.0f * shadowcasters_sphere.radius);
+        camera.set_clipping_planes({0.0f, 2.0f * shadowcasters_sphere.radius});
         return camera;
     }
 
@@ -241,6 +241,7 @@ namespace
         explicit SceneOITCompositorMaterial() :
             Material{Shader{c_vertex_shader_src, c_fragment_shader_src}}
         {}
+
     private:
         static constexpr std::string_view c_vertex_shader_src = R"(
             #version 330 core
@@ -581,8 +582,7 @@ public:
                 render_queue_.emplace(
                     quad_mesh_,
                     camera_.inverse_view_projection_matrix(aspect_ratio_of(params.dimensions)),
-                    scene_oit_compositor_material_
-                );
+                    scene_oit_compositor_material_);
                 graphics::render_to(output_render_texture_, render_queue_, camera_, {
                     .clear_flags = ClearFlag::None,
                 });
@@ -595,8 +595,7 @@ public:
             render_queue_.emplace(
                 maybe_rims->mesh,
                 maybe_rims->transform,
-                maybe_rims->material
-            );
+                maybe_rims->material);
             graphics::render_to(output_render_texture_, render_queue_, camera_, {
                 .clear_flags = ClearFlag::None,
             });
@@ -638,8 +637,7 @@ private:
             scene_main_material_.set("uHasShadowMap", true);
             scene_main_material_.set("uLightSpaceMat", maybe_shadow_map->lightspace_matrix);
             scene_main_material_.set("uShadowMapTexture", maybe_shadow_map->shadow_map);
-        }
-        else {
+        } else {
             scene_main_material_.set("uHasShadowMap", false);
         }
 
@@ -670,55 +668,55 @@ private:
                     dec.mesh,
                     dec.transform,
                     wireframe_material_,
-                    wireframe_prop_block
-                );
+                    wireframe_prop_block);
             }
 
             if (dec.has_flag(SceneDecorationFlag::NoDrawInScene)) {
                 continue;  // skip drawing the decoration (and, potentially, its normals)
             }
 
-            std::visit(Overload{
-                [this, &params, &opaque_material, &backface_culled_opaque_material, &transparent_material, &backface_culled_transparent_material, &dec](const Color& color)
-                {
-                    const Color32 color32{color};  // Renderer doesn't need HDR colors
-                    if (color32.a != 0xff and params.order_independent_transparency) {
-                        return;  // OIT is handled in a separate pass
-                    }
+            std::visit(
+                Overload{
+                    [this, &params, &opaque_material, &backface_culled_opaque_material, &transparent_material, &backface_culled_transparent_material, &dec](const Color& color) {
+                        const Color32 color32{color};  // Renderer doesn't need HDR colors
+                        if (color32.a != 0xff and params.order_independent_transparency) {
+                            return;  // OIT is handled in a separate pass
+                        }
 
-                    const auto& [it, inserted] = color_cache_.try_emplace(color32);
-                    if (inserted) {
-                        it->second.set(diffuse_color_propname(), color32);
+                        const auto& [it, inserted] = color_cache_.try_emplace(color32);
+                        if (inserted) {
+                            it->second.set(diffuse_color_propname(), color32);
+                        }
+                        const bool backface_culled = dec.has_flag(SceneDecorationFlag::CanBackfaceCull);
+                        const Material& material = color32.a == 0xff ?
+                                (backface_culled ? backface_culled_opaque_material : opaque_material) :
+                                (backface_culled ? backface_culled_transparent_material : transparent_material);
+                        render_queue_.emplace(
+                            dec.mesh,
+                            dec.transform,
+                            material,
+                            it->second
+                        );
+                    },
+                    [this, &dec](const Material& material)
+                    {
+                        render_queue_.emplace(
+                            dec.mesh,
+                            dec.transform,
+                            material
+                        );
+                    },
+                    [this, &dec](const std::pair<Material, MaterialPropertyBlock>& material_props_pair)
+                    {
+                        render_queue_.emplace(
+                            dec.mesh,
+                            dec.transform,
+                            material_props_pair.first,
+                            material_props_pair.second
+                        );
                     }
-                    const bool backface_culled = dec.has_flag(SceneDecorationFlag::CanBackfaceCull);
-                    const Material& material = color32.a == 0xff ?
-                            (backface_culled ? backface_culled_opaque_material : opaque_material) :
-                            (backface_culled ? backface_culled_transparent_material : transparent_material);
-                    render_queue_.emplace(
-                        dec.mesh,
-                        dec.transform,
-                        material,
-                        it->second
-                    );
                 },
-                [this, &dec](const Material& material)
-                {
-                    render_queue_.emplace(
-                        dec.mesh,
-                        dec.transform,
-                        material
-                    );
-                },
-                [this, &dec](const std::pair<Material, MaterialPropertyBlock>& material_props_pair)
-                {
-                    render_queue_.emplace(
-                        dec.mesh,
-                        dec.transform,
-                        material_props_pair.first,
-                        material_props_pair.second
-                    );
-                }
-            }, dec.shading);
+                dec.shading);
 
             // if normals are requested, render the scene element via a normals geometry shader
             //
@@ -746,16 +744,14 @@ private:
                 scene_floor_material_.set("uHasShadowMap", true);
                 scene_floor_material_.set("uLightSpaceMat", maybe_shadow_map->lightspace_matrix);
                 scene_floor_material_.set("uShadowMapTexture", maybe_shadow_map->shadow_map);
-            }
-            else {
+            } else {
                 scene_floor_material_.set("uHasShadowMap", false);
             }
 
             render_queue_.emplace(
                 quad_mesh_,
                 calc_floor_transform(params.floor_position, params.fixup_scale_factor),
-                scene_floor_material_
-            );
+                scene_floor_material_);
         }
 
         graphics::render_to(output_render_texture_, render_queue_, camera_, {
@@ -786,9 +782,9 @@ private:
             }
 
             // Draw opaque/custom decoration
-            std::visit(Overload{
-                [this, &decoration, &oit_material](const Color& color)
-                {
+            std::visit(
+                Overload{
+                    [this, &decoration, &oit_material](const Color& color) {
                     const Color32 color32{color};  // Renderer doesn't need HDR colors
                     if (color32.a == 0xff) {
                         return;  // Skip opaque objects (already drawn)
@@ -802,11 +798,11 @@ private:
                         decoration.mesh,
                         decoration.transform,
                         oit_material,
-                        it->second
-                    );
+                        it->second);
                 },
                 [](const auto&) {},  // Skip custom decorations (already done)
-            }, decoration.shading);
+            },
+            decoration.shading);
         }
 
         if (color_cache_.empty()) {
@@ -839,11 +835,9 @@ private:
                     .buffer = output_render_texture_.upd_depth_buffer(),
                     .load_action = RenderBufferLoadAction::Load,        // Don't clear opaque depth
                     .store_action = RenderBufferStoreAction::DontCare,  // Depth writing is disabled
-                }
-            },
+                }},
             render_queue_,
-            camera_
-        );
+            camera_);
         render_queue_.clear();
 
         return true;
@@ -868,8 +862,7 @@ private:
             params.view_matrix,
             params.projection_matrix,
             params.near_clipping_plane,
-            params.far_clipping_plane
-        );
+            params.far_clipping_plane);
         if (not maybe_rim_ndc_rect) {
             return std::nullopt;  // the scene contains rim-highlighted geometry, but it isn't on-screen
         }
@@ -878,10 +871,10 @@ private:
         Rect& rim_ndc_rect = *maybe_rim_ndc_rect;
 
         // compute rim thickness in each direction (aspect ratio might not be 1:1)
-        const Vector2 rim_ndc_thickness = 2.0f * params.rim_thickness/params.dimensions;
+        const Vector2 rim_ndc_thickness = 2.0f * params.rim_thickness / params.dimensions;
 
         // expand by 2x the rim thickness, so that the output has space on both sides for the rims
-        rim_ndc_rect = rim_ndc_rect.with_dimensions(rim_ndc_rect.dimensions() + 2.0f*rim_ndc_thickness);
+        rim_ndc_rect = rim_ndc_rect.with_dimensions(rim_ndc_rect.dimensions() + 2.0f * rim_ndc_thickness);
 
         // constrain the result to within clip space
         rim_ndc_rect = clamp(rim_ndc_rect, {-1.0f, -1.0f}, {1.0f, 1.0f});
@@ -920,15 +913,12 @@ private:
                 if (inserted) {
                     it->second.set(MeshBasicMaterial::color_property_name(), color);
                 }
-                const Material& material = decoration.has_flag(SceneDecorationFlag::CanBackfaceCull) ?
-                    backface_culled_rim_filler_material_ :
-                    rim_filler_material_;
+                const Material& material = decoration.has_flag(SceneDecorationFlag::CanBackfaceCull) ? backface_culled_rim_filler_material_ : rim_filler_material_;
                 render_queue_.emplace(
                     decoration.mesh,
                     decoration.transform,
                     material,
-                    it->second
-                );
+                    it->second);
             }
         }
 
@@ -948,8 +938,7 @@ private:
             },
             render_queue_,
             camera_,
-            {.clear_color = Color::clear()}
-        );
+            {.clear_color = Color::clear()});
         render_queue_.clear();
 
         // configure a material that draws the off-screen colored texture on-screen
@@ -960,7 +949,7 @@ private:
         edge_detection_material_.set("uScreenTexture", rims_render_texture_.upd_color_buffer());
         edge_detection_material_.set("uRim0Color", params.rim_group_colors[0]);
         edge_detection_material_.set("uRim1Color", params.rim_group_colors[1]);
-        edge_detection_material_.set("uRimThickness", 0.5f*rim_ndc_thickness);
+        edge_detection_material_.set("uRimThickness", 0.5f * rim_ndc_thickness);
         edge_detection_material_.set("uTextureOffset", rim_rect_uv.ypu_bottom_left());
         edge_detection_material_.set("uTextureScale", rim_rect_uv.dimensions());
 
@@ -1011,12 +1000,11 @@ private:
                 },
             },
             render_queue_,
-            camera
-        );
+            camera);
         render_queue_.clear();
 
         return Shadows{
-            .shadow_map = shadow_map_render_buffer_ ,
+            .shadow_map = shadow_map_render_buffer_,
             .lightspace_matrix = projection_matrix * view_matrix,
         };
     }

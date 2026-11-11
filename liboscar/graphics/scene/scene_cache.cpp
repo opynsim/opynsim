@@ -189,8 +189,7 @@ public:
         const auto it = guard->find(key);
         if (it != guard->end()) {
             return it->second;
-        }
-        else {
+        } else {
             const std::string vertex_shader_src = resource_loader_.slurp(key.vertex_shader_path);
             const std::string fragment_shader_src = resource_loader_.slurp(key.fragment_shader_path);
             return guard->emplace_hint(it, key, Shader{vertex_shader_src, fragment_shader_src})->second;
@@ -207,8 +206,7 @@ public:
         const auto it = guard->find(key);
         if (it != guard->end()) {
             return it->second;
-        }
-        else {
+        } else {
             const std::string vertex_shader_src = resource_loader_.slurp(key.vertex_shader_path);
             const std::string geometry_shader_src = resource_loader_.slurp(key.geometry_shader_path);
             const std::string fragment_shader_src = resource_loader_.slurp(key.fragment_shader_path);
@@ -221,8 +219,7 @@ public:
         const auto guard = generic_objects_.lock();
         if (const auto it = guard->find(type_info); it != guard->end()) {
             return it->second.get();
-        }
-        else {
+        } else {
             return nullptr;
         }
     }
