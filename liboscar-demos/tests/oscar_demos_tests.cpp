@@ -27,7 +27,7 @@ int main(int argc, char** argv)
         unit->failed_test_suite_count() > 0) {
 
         return EXIT_FAILURE;
-        }
+    }
 
     return result;
 }
