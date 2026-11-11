@@ -17,21 +17,21 @@ namespace osc
     // which is why `ModifierKey` is virtualized in the first place.
     enum class PhysicalModifierKey : uint16_t {
         // No modifier key is pressed.
-        None         = 0,
+        None = 0,
 
         // A shift key on the keyboard is pressed.
-        Shift        = 1<<0,
+        Shift = 1 << 0,
 
         // A ctrl key on the keyboard is pressed.
-        Ctrl         = 1<<1,
+        Ctrl = 1 << 1,
 
         // A meta (Windows/Command) key on the keyboard is pressed.
-        Meta         = 1<<2,
+        Meta = 1 << 2,
 
         // An alt key on the keyboard is pressed.
-        Alt          = 1<<3,
+        Alt = 1 << 3,
 
-        NUM_FLAGS    =    4,
+        NUM_FLAGS = 4,
     };
     using PhysicalModifierKeys = Flags<PhysicalModifierKey>;
 

@@ -18,10 +18,10 @@ namespace osc
     // `Converter`s) if you need to know the underlying physical key.
     enum class ModifierKey : uint16_t {
         // No modifier key is pressed.
-        None         = 0,
+        None = 0,
 
         // A shift key on the keyboard is pressed.
-        Shift        = 1<<0,
+        Shift = 1 << 0,
 
         // If on MacOS, a command key on the keyboard is pressed.
         // Otherwise,   a ctrl key on the keyboard is pressed.
@@ -31,7 +31,7 @@ namespace osc
         // `Ctrl+V` on Windows usually has the same intent as `Command+V`
         // on MacOS. With this in mind, you should write your keybinds
         // as-if designing for Windows.
-        Ctrl         = 1<<1,
+        Ctrl = 1 << 1,
 
         // If on MacOS, a ctrl key on the keyboard is pressed.
         // Otherwise,   a meta (e.g. Windows) key on the keyboard is pressed.
@@ -41,12 +41,12 @@ namespace osc
         // Windows usually has the same intent as `Command+V` on MacOS.
         // With this in mind, you should write your keybinds as-if
         // designing for Windows.
-        Meta         = 1<<2,
+        Meta = 1 << 2,
 
         // An alt key on the keyboard is pressed.
-        Alt          = 1<<3,
+        Alt = 1 << 3,
 
-        NUM_FLAGS    =    4,
+        NUM_FLAGS = 4,
     };
     using ModifierKeys = Flags<ModifierKey>;
 

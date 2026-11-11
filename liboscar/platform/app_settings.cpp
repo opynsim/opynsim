@@ -34,6 +34,7 @@ namespace rgs = std::ranges;
 
 namespace
 {
+    // clang-format off
     constexpr CStringView c_config_file_header =
 R"(# configuration options
 #
@@ -44,6 +45,7 @@ R"(# configuration options
 # beware: this file is overwritten by the application when it detects that you have made changes
 
 )";
+    // clang-format on
 
     // a value stored in the AppSettings lookup table
     class AppSettingsLookupValue final {
@@ -68,8 +70,7 @@ R"(# configuration options
         {
             if (const auto v = lookup_or_nullptr(hashmap_, key)) {
                 return v->value();
-            }
-            else {
+            } else {
                 return std::nullopt;
             }
         }
@@ -89,37 +90,33 @@ R"(# configuration options
         {
             if (const auto v = lookup_or_nullptr(hashmap_, key)) {
                 return v->scope();
-            }
-            else {
+            } else {
                 return std::nullopt;
             }
         }
 
         auto begin() const { return hashmap_.begin(); }
         auto end() const { return hashmap_.end(); }
-    private:
 
+    private:
         using Storage = ankerl::unordered_dense::map<
             std::string,
             AppSettingsLookupValue,
             TransparentStringHasher,
-            std::equal_to<>
-        >;
+            std::equal_to<>>;
         Storage hashmap_;
     };
 
     // if available, returns the path to the system-wide configuration file
-    std::optional<std::filesystem::path>  try_get_system_config_path(
+    std::optional<std::filesystem::path> try_get_system_config_path(
         std::string_view application_config_file_name)
     {
         for (std::filesystem::path p = current_executable_directory(); p != p.root_path(); p = p.parent_path()) {
             if (auto dir_path = p / application_config_file_name; std::filesystem::exists(dir_path)) {
                 return dir_path;  // e.g. `C:/Program Files/App/config.toml`
-            }
-            else if (auto resources_path_capped = p / "Resources" / application_config_file_name; std::filesystem::exists(resources_path_capped)) {
+            } else if (auto resources_path_capped = p / "Resources" / application_config_file_name; std::filesystem::exists(resources_path_capped)) {
                 return resources_path_capped;  // e.g. `/Applications/App.app/Resources/config.toml`
-            }
-            else if (auto resources_path = p / "resources" / application_config_file_name; std::filesystem::exists(resources_path)) {
+            } else if (auto resources_path = p / "resources" / application_config_file_name; std::filesystem::exists(resources_path)) {
                 return resources_path;  // e.g. `/opt/app/resources/config.toml`
             }
         }
@@ -139,12 +136,10 @@ R"(# configuration options
 
         if (std::filesystem::exists(full_path)) {
             return full_path;
-        }
-        else if (auto new_user_file_stream = std::ofstream{full_path}) {  // create blank user file
+        } else if (auto new_user_file_stream = std::ofstream{full_path}) {  // create blank user file
             new_user_file_stream << c_config_file_header;
             return full_path;
-        }
-        else {
+        } else {
             return std::nullopt;
         }
     }
@@ -153,8 +148,7 @@ R"(# configuration options
     {
         try {
             return toml::parse_file(path.string());
-        }
-        catch (const std::exception& ex) {
+        } catch (const std::exception& ex) {
             log_warn("error parsing {}: {}", path.string(), ex.what());
             log_warn("the application will skip loading this configuration file, but you might want to fix it");
             return toml::table{};
@@ -186,12 +180,11 @@ R"(# configuration options
         //
         // - every section acts as a key prefix of `$section1/$section2/$key`
         std::vector<StackElement> stack;
-        stack.reserve(16);  // guess
+        stack.reserve(16);                // guess
         stack.emplace_back("", &config);  // required for .begin()+1
         while (not stack.empty()) {
 
-            const std::string key_prefix = [&stack]()
-            {
+            const std::string key_prefix = [&stack] {
                 std::string rv;
                 for (auto it = stack.begin() + 1; it != stack.end(); ++it) {
                     rv += it->table_name;
@@ -210,17 +203,13 @@ R"(# configuration options
                     recursing = true;
                     ++cur.iterator;
                     break;
-                }
-                else if (const auto* int_value = node.as_integer()) {
+                } else if (const auto* int_value = node.as_integer()) {
                     out.set_value(key_prefix + std::string{k.str()}, scope, Variant{static_cast<int>(**int_value)});
-                }
-                else if (const auto* float_value = node.as_floating_point()) {
+                } else if (const auto* float_value = node.as_floating_point()) {
                     out.set_value(key_prefix + std::string{k.str()}, scope, Variant{static_cast<float>(**float_value)});
-                }
-                else if (const auto* string_value = node.as_string()) {
+                } else if (const auto* string_value = node.as_string()) {
                     out.set_value(key_prefix + std::string{k.str()}, scope, Variant{**string_value});
-                }
-                else if (auto const* bool_value = node.as_boolean()) {
+                } else if (auto const* bool_value = node.as_boolean()) {
                     out.set_value(key_prefix + std::string{k.str()}, scope, Variant{**bool_value});
                 }
             }
@@ -250,9 +239,8 @@ R"(# configuration options
     std::pair<std::string_view, std::string_view> split_at_last_element(std::string_view key)
     {
         if (auto const pos = key.rfind('/'); pos != std::string_view::npos) {
-            return std::pair{key.substr(0, pos), key.substr(pos+1)};
-        }
-        else {
+            return std::pair{key.substr(0, pos), key.substr(pos + 1)};
+        } else {
             return std::pair{std::string_view{}, key};
         }
     }
@@ -284,18 +272,17 @@ R"(# configuration options
             if (auto* t = dynamic_cast<toml::table*>(n)) {
                 it->second = t;
                 current_table = it->second;
-            }
-            else {
+            } else {
                 // edge-case: it already exists in the TOML document as a non-table node,
                 //            which can happen if (e.g.) a user defines setting values with
                 //            both 'a/b' and 'a/b/c'
                 //
                 //            in this case, overwrite the value with a LUT (it's a user/app error)
                 it->second = dynamic_cast<toml::table*>(&current_table->insert_or_assign(name, toml::table{}).first->second);
-                current_table =  it->second;
+                current_table = it->second;
             }
 
-            current_path = table_path.substr(0, table_path.find('/', current_path.size()+1));
+            current_path = table_path.substr(0, table_path.find('/', current_path.size() + 1));
         }
         return *current_table;
     }
@@ -394,8 +381,8 @@ R"(# configuration options
             static_assert(num_options_v<AppSettingScope> == 2);
             switch (*scope) {
             case AppSettingScope::System: return system_config_path_;
-            case AppSettingScope::User:   return user_config_path_;
-            default:                      std::unreachable();
+            case AppSettingScope::User: return user_config_path_;
+            default: std::unreachable();
             }
         }
 
@@ -509,6 +496,7 @@ namespace
             }
             return it->second;
         }
+
     private:
         using Key = std::tuple<std::string, std::string, std::string>;
 

@@ -12,13 +12,16 @@ namespace osc
     // Represents a combination of a single `Key` with `ModifierKeys`.
     class KeyCombination final {
     public:
-        constexpr KeyCombination(Key key = Key::Unknown) : key_{key} {}
-        constexpr KeyCombination(ModifierKeys modifiers, Key key) : modifiers_{modifiers}, key_{key} {}
+        constexpr KeyCombination(Key key = Key::Unknown) :
+            key_{key} {}
+        constexpr KeyCombination(ModifierKeys modifiers, Key key) :
+            modifiers_{modifiers}, key_{key} {}
 
         friend bool operator==(const KeyCombination&, const KeyCombination&) = default;
 
         constexpr Key key() const { return key_; }
         constexpr ModifierKeys modifiers() const { return modifiers_; }
+
     private:
         ModifierKeys modifiers_{};
         Key key_ = Key::Unknown;

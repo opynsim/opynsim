@@ -45,6 +45,7 @@ osc::Widget::Widget(std::unique_ptr<WidgetPrivate>&& data) :
 
 bool osc::Widget::impl_on_event(Event& e)
 {
+    // clang-format off
     switch (e.type()) {
     case EventType::DropFile:           return impl_on_drop_file_event(dynamic_cast<DropFileEvent&>(e));
     case EventType::KeyDown:            [[fallthrough]];
@@ -59,6 +60,7 @@ bool osc::Widget::impl_on_event(Event& e)
     case EventType::Window:             return impl_on_window_event(dynamic_cast<WindowEvent&>(e));
     default:                            return false;
     }
+    // clang-format on
 }
 
 bool osc::Widget::impl_on_display_state_change_event(DisplayStateChangeEvent&) { return false; }

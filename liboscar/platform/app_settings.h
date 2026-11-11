@@ -16,8 +16,7 @@ namespace osc
         AppSettings(
             std::string_view organization_name,
             std::string_view application_name,
-            std::string_view application_config_file_name
-        );
+            std::string_view application_config_file_name);
         AppSettings(const AppSettings&);
         AppSettings(AppSettings&&) noexcept;
         AppSettings& operator=(const AppSettings&);
@@ -38,8 +37,7 @@ namespace osc
         {
             if (auto variant_value = find_value(key)) {
                 return T{*std::move(variant_value)};
-            }
-            else {
+            } else {
                 return std::nullopt;
             }
         }
@@ -55,8 +53,7 @@ namespace osc
         {
             if (auto v = find_value(key)) {
                 return static_cast<T>(*v);
-            }
-            else {
+            } else {
                 return T{std::forward<T>(fallback)};
             }
         }
@@ -101,6 +98,7 @@ namespace osc
         void sync();
 
         class Impl;
+
     private:
         std::shared_ptr<Impl> impl_;
     };

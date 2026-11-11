@@ -6,17 +6,6 @@
 #include <memory>
 #include <string_view>
 
-namespace osc { class DisplayStateChangeEvent; }
-namespace osc { class DropFileEvent; }
-namespace osc { class Event; }
-namespace osc { class KeyEvent; }
-namespace osc { class MouseEvent; }
-namespace osc { class MouseWheelEvent; }
-namespace osc { class QuitEvent; }
-namespace osc { class TextInputEvent; }
-namespace osc { class WidgetPrivate; }
-namespace osc { class WindowEvent; }
-
 // NOLINTBEGIN
 #define OSC_WIDGET_DATA_GETTERS(ImplClass)                                                                    \
     const ImplClass& private_data() const { return reinterpret_cast<const ImplClass&>(base_private_data()); } \
@@ -25,6 +14,17 @@ namespace osc { class WindowEvent; }
 
 namespace osc
 {
+    class DisplayStateChangeEvent;
+    class DropFileEvent;
+    class Event;
+    class KeyEvent;
+    class MouseEvent;
+    class MouseWheelEvent;
+    class QuitEvent;
+    class TextInputEvent;
+    class WidgetPrivate;
+    class WindowEvent;
+
     class Widget {
     public:
         Widget(Widget* parent = nullptr);
@@ -96,6 +96,7 @@ namespace osc
 
         // Sets the name of this `Widget` instance.
         void set_name(std::string_view);
+
     protected:
         explicit Widget(std::unique_ptr<WidgetPrivate>&&);
 
@@ -123,6 +124,7 @@ namespace osc
         virtual void impl_on_unmount();
         virtual void impl_on_tick();
         virtual void impl_on_draw();
+
     private:
         OSC_WIDGET_DATA_GETTERS(WidgetPrivate);
 

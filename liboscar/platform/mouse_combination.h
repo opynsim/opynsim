@@ -24,6 +24,7 @@ namespace osc
 
         constexpr MouseButton mouse_button() const { return mouse_button_; }
         constexpr ModifierKeys modifiers() const { return modifiers_; }
+
     private:
         ModifierKeys modifiers_{};
         MouseButton mouse_button_ = MouseButton::None;

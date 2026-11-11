@@ -53,7 +53,7 @@ namespace osc
 
         template<typename StringLike>
         ResourceLoader with_prefix(StringLike&& str) const
-            requires std::constructible_from<ResourceLoader, StringLike&&>
+        requires std::constructible_from<ResourceLoader, StringLike&&>
         {
             return with_prefix(ResourcePath{std::forward<StringLike>(str)});
         }
@@ -62,6 +62,7 @@ namespace osc
         {
             return impl_->iterate_directory(prefix_ / resource_path);
         }
+
     private:
         template<std::derived_from<VirtualFilesystem> TResourceLoader, typename... Args>
         requires std::constructible_from<TResourceLoader, Args&&...>

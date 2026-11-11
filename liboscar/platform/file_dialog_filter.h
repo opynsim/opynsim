@@ -22,9 +22,8 @@ namespace osc
         // - `name`    a humnan-readable representation of the filter, e.g. "Images"
         // - `pattern` a semicolon-delimited list of file extensions, e.g. "jpg;png;gif"
         template<typename StringLike1, typename StringLike2>
-        requires
-            std::constructible_from<std::string, StringLike1&&> and
-            std::constructible_from<std::string, StringLike2&&>
+        requires std::constructible_from<std::string, StringLike1&&> and
+                     std::constructible_from<std::string, StringLike2&&>
         explicit FileDialogFilter(StringLike1&& name, StringLike2&& pattern) :
             name_{std::forward<StringLike1>(name)},       // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
             pattern_{std::forward<StringLike2>(pattern)}  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
@@ -32,6 +31,7 @@ namespace osc
 
         CStringView name() const { return name_; }
         CStringView pattern() const { return pattern_; }
+
     private:
         std::string name_;
         std::string pattern_;

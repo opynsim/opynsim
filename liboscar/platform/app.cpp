@@ -97,9 +97,9 @@ PhysicalModifierKeys osc::Converter<ModifierKeys, PhysicalModifierKeys>::operato
     static_assert(num_flags_v<ModifierKey> == num_flags_v<PhysicalModifierKey>);
     static_assert(num_flags_v<ModifierKey> == 4);
     static_assert(std::to_underlying(ModifierKey::Shift) == std::to_underlying(PhysicalModifierKey::Shift));
-    static_assert(std::to_underlying(ModifierKey::Ctrl)  == std::to_underlying(PhysicalModifierKey::Ctrl));
-    static_assert(std::to_underlying(ModifierKey::Meta)  == std::to_underlying(PhysicalModifierKey::Meta));
-    static_assert(std::to_underlying(ModifierKey::Alt)   == std::to_underlying(PhysicalModifierKey::Alt));
+    static_assert(std::to_underlying(ModifierKey::Ctrl) == std::to_underlying(PhysicalModifierKey::Ctrl));
+    static_assert(std::to_underlying(ModifierKey::Meta) == std::to_underlying(PhysicalModifierKey::Meta));
+    static_assert(std::to_underlying(ModifierKey::Alt) == std::to_underlying(PhysicalModifierKey::Alt));
     static_assert(std::is_same_v<ModifierKeys::underlying_type, PhysicalModifierKeys::underlying_type>);
 
 #if defined(__APPLE__)
@@ -118,9 +118,9 @@ ModifierKeys osc::Converter<PhysicalModifierKeys, ModifierKeys>::operator()(Phys
     static_assert(num_flags_v<ModifierKey> == num_flags_v<PhysicalModifierKey>);
     static_assert(num_flags_v<ModifierKey> == 4);
     static_assert(std::to_underlying(ModifierKey::Shift) == std::to_underlying(PhysicalModifierKey::Shift));
-    static_assert(std::to_underlying(ModifierKey::Ctrl)  == std::to_underlying(PhysicalModifierKey::Ctrl));
-    static_assert(std::to_underlying(ModifierKey::Meta)  == std::to_underlying(PhysicalModifierKey::Meta));
-    static_assert(std::to_underlying(ModifierKey::Alt)   == std::to_underlying(PhysicalModifierKey::Alt));
+    static_assert(std::to_underlying(ModifierKey::Ctrl) == std::to_underlying(PhysicalModifierKey::Ctrl));
+    static_assert(std::to_underlying(ModifierKey::Meta) == std::to_underlying(PhysicalModifierKey::Meta));
+    static_assert(std::to_underlying(ModifierKey::Alt) == std::to_underlying(PhysicalModifierKey::Alt));
     static_assert(std::is_same_v<ModifierKeys::underlying_type, PhysicalModifierKeys::underlying_type>);
 
 #if defined(__APPLE__)
@@ -145,9 +145,11 @@ struct osc::Converter<Uint16, ModifierKeys> final {
         }
         return to<ModifierKeys>(physical_keymods);
     }
+
 private:
     using Mapping = std::pair<SDL_Keymod, PhysicalModifierKey>;
 
+    // clang-format off
     static constexpr auto c_mappings = std::to_array<Mapping>({
         {SDL_KMOD_LSHIFT, PhysicalModifierKey::Shift},
         {SDL_KMOD_RSHIFT, PhysicalModifierKey::Shift},
@@ -158,6 +160,7 @@ private:
         {SDL_KMOD_LGUI,   PhysicalModifierKey::Meta},
         {SDL_KMOD_RGUI,   PhysicalModifierKey::Meta},
     });
+    // clang-format on
 };
 
 template<>
@@ -166,6 +169,7 @@ struct osc::Converter<SDL_Keycode, Key> final {
     {
         static_assert(num_options_v<Key> == 120);
 
+        // clang-format off
         switch (code) {
         case SDLK_TAB:          return Key::Tab;
         case SDLK_LEFT:         return Key::LeftArrow;
@@ -288,6 +292,7 @@ struct osc::Converter<SDL_Keycode, Key> final {
         case SDLK_AC_FORWARD:   return Key::AppForward;
         default:                return Key::Unknown;
         }
+        // clang-format on
     }
 };
 
@@ -295,6 +300,7 @@ template<>
 struct osc::Converter<Uint8, osc::MouseButton> final {
     osc::MouseButton operator()(Uint8 sdlval) const
     {
+        // clang-format off
         switch (sdlval) {
         case SDL_BUTTON_LEFT:   return MouseButton::Left;
         case SDL_BUTTON_RIGHT:  return MouseButton::Right;
@@ -303,6 +309,7 @@ struct osc::Converter<Uint8, osc::MouseButton> final {
         case SDL_BUTTON_X2:     return MouseButton::Forward;
         default:                return MouseButton::None;
         }
+        // clang-format on
     }
 };
 
@@ -374,8 +381,7 @@ namespace
     {
         if (not SDL_GL_SetAttribute(attribute, new_attribute_value)) {
             throw formatted_runtime_error(
-                "SDL_GL_SetAttribute failed when setting {} = {}: {}", attribute_readable_name, value_readable_name, SDL_GetError()
-            );
+                "SDL_GL_SetAttribute failed when setting {} = {}: {}", attribute_readable_name, value_readable_name, SDL_GetError());
         }
     }
 #endif
@@ -461,7 +467,9 @@ namespace
         // SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, "1");
 
         SDL_PropertiesID properties = SDL_CreateProperties();
-        const ScopeExit g{[&]{ SDL_DestroyProperties(properties); }};
+        const ScopeExit g{[&] {
+            SDL_DestroyProperties(properties);
+        }};
 
         SDL_SetBooleanProperty(properties, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, true);
         SDL_SetBooleanProperty(properties, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
@@ -484,7 +492,7 @@ namespace
     {
         const auto dticks = static_cast<double>(ticks);
         const auto dfrequency = static_cast<double>(frequency);
-        const auto duration = static_cast<AppClock::rep>(dticks/dfrequency);
+        const auto duration = static_cast<AppClock::rep>(dticks / dfrequency);
 
         return AppClock::duration{duration};
     }
@@ -508,8 +516,7 @@ namespace
             auto resources_dir_path = system_config->parent_path() / "resources";
             if (std::filesystem::exists(resources_dir_path)) {
                 return resources_dir_path;
-            }
-            else {
+            } else {
                 log_warn("resources path fallback: tried {}, but it doesn't exist", resources_dir_path.string());
             }
         }
@@ -517,8 +524,7 @@ namespace
         auto resources_relative_to_exe = current_executable_directory().parent_path() / "resources";
         if (std::filesystem::exists(resources_relative_to_exe)) {
             return resources_relative_to_exe;
-        }
-        else {
+        } else {
             log_info("resources path fallback: using {} as a filler entry, but it doesn't actually exist: the application's configuration file has an incorrect/missing 'resources' key", resources_relative_to_exe.string());
         }
 
@@ -552,8 +558,7 @@ namespace
         std::filesystem::path config_file_dir;
         if (const auto p = settings.find_value_filesystem_source(resources_key)) {
             config_file_dir = p->parent_path();
-        }
-        else {
+        } else {
             config_file_dir = current_executable_directory().parent_path();  // assume the `bin/` dir is one-up from the settings
         }
         const std::filesystem::path configured_resources_dir{to<std::string>(*resources_dir_setting_value)};
@@ -586,6 +591,7 @@ namespace
 
     WindowEventType parse_as_window_event_type(Uint32 t)
     {
+        // clang-format off
         switch (t) {
         case SDL_EVENT_WINDOW_MOUSE_ENTER:           return WindowEventType::GainedMouseFocus;
         case SDL_EVENT_WINDOW_MOUSE_LEAVE:           return WindowEventType::LostMouseFocus;
@@ -597,6 +603,7 @@ namespace
         case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED: return WindowEventType::WindowDisplayScaleChanged;
         default:                                     return WindowEventType::Unknown;
         }
+        // clang-format on
     }
 
     std::unique_ptr<Event> try_parse_into_event(
@@ -606,39 +613,32 @@ namespace
     {
         if (e.type == SDL_EVENT_DROP_FILE and e.drop.data) {
             return std::make_unique<DropFileEvent>(std::filesystem::path{e.drop.data});
-        }
-        else if (e.type == SDL_EVENT_KEY_DOWN) {
+        } else if (e.type == SDL_EVENT_KEY_DOWN) {
             return std::make_unique<KeyEvent>(KeyEvent::key_down(KeyCombination{to<ModifierKeys>(e.key.mod), to<Key>(e.key.key)}));
-        }
-        else if (e.type == SDL_EVENT_KEY_UP) {
+        } else if (e.type == SDL_EVENT_KEY_UP) {
             return std::make_unique<KeyEvent>(KeyEvent::key_up(KeyCombination{to<ModifierKeys>(e.key.mod), to<Key>(e.key.key)}));
-        }
-        else if (e.type == SDL_EVENT_QUIT) {
+        } else if (e.type == SDL_EVENT_QUIT) {
             return std::make_unique<QuitEvent>();
-        }
-        else if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+        } else if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             const MouseInputSource source = e.button.which == SDL_TOUCH_MOUSEID ? MouseInputSource::TouchScreen : MouseInputSource::Mouse;
             return std::make_unique<MouseEvent>(MouseEvent::button_down(source, to<MouseButton>(e.button.button)));
-        }
-        else if (e.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+        } else if (e.type == SDL_EVENT_MOUSE_BUTTON_UP) {
             const MouseInputSource source = e.button.which == SDL_TOUCH_MOUSEID ? MouseInputSource::TouchScreen : MouseInputSource::Mouse;
             return std::make_unique<MouseEvent>(MouseEvent::button_up(source, to<MouseButton>(e.button.button)));
-        }
-        else if (e.type == SDL_EVENT_MOUSE_MOTION) {
+        } else if (e.type == SDL_EVENT_MOUSE_MOTION) {
             const MouseInputSource source = e.motion.which == SDL_TOUCH_MOUSEID ? MouseInputSource::TouchScreen : MouseInputSource::Mouse;
             const float os_to_main_window_device_independent_ratio = os_to_main_window_device_independent_ratio_getter();
 
             Vector2 relative_delta = {static_cast<float>(e.motion.xrel), static_cast<float>(e.motion.yrel)};
-            relative_delta *= os_to_main_window_device_independent_ratio;                  // Convert SDL3 units (pixels) to device-independent pixels.
-            relative_delta.y() = -relative_delta.y();                                      // Convert vector (no origin) from SDL3 space (y points down) to screen space (y points up).
+            relative_delta *= os_to_main_window_device_independent_ratio;  // Convert SDL3 units (pixels) to device-independent pixels.
+            relative_delta.y() = -relative_delta.y();                      // Convert vector (no origin) from SDL3 space (y points down) to screen space (y points up).
 
             Vector2 position_in_window = {static_cast<float>(e.motion.x), static_cast<float>(e.motion.y)};
             position_in_window *= os_to_main_window_device_independent_ratio;              // Convert SDL3 units (pixels) to device-independent pixels.
             position_in_window.y() = main_window_dimensions.y() - position_in_window.y();  // Convert point from SDL3 space (top-left origin, left-handed) to screen space.
 
             return std::make_unique<MouseEvent>(MouseEvent::motion(source, relative_delta, position_in_window));
-        }
-        else if (e.type == SDL_EVENT_MOUSE_WHEEL) {
+        } else if (e.type == SDL_EVENT_MOUSE_WHEEL) {
             Vector2 delta = {e.wheel.x, e.wheel.y};
             const MouseInputSource source = e.wheel.which == SDL_TOUCH_MOUSEID ? MouseInputSource::TouchScreen : MouseInputSource::Mouse;
             if (source == MouseInputSource::Mouse) {
@@ -656,22 +656,18 @@ namespace
                 }
             }
             return std::make_unique<MouseWheelEvent>(delta, source);
-        }
-        else if (e.type == SDL_EVENT_TEXT_INPUT) {
+        } else if (e.type == SDL_EVENT_TEXT_INPUT) {
             return std::make_unique<TextInputEvent>(std::string{e.text.text});
-        }
-        else if (SDL_EVENT_DISPLAY_FIRST <= e.type and e.type <=  SDL_EVENT_DISPLAY_LAST) {
+        } else if (SDL_EVENT_DISPLAY_FIRST <= e.type and e.type <= SDL_EVENT_DISPLAY_LAST) {
             return std::make_unique<DisplayStateChangeEvent>();
-        }
-        else if (SDL_EVENT_WINDOW_FIRST <= e.type and e.type <= SDL_EVENT_WINDOW_LAST) {
+        } else if (SDL_EVENT_WINDOW_FIRST <= e.type and e.type <= SDL_EVENT_WINDOW_LAST) {
             static_assert(num_options_v<WindowEventType> == 9);
             OSC_ASSERT(SDL_EVENT_WINDOW_FIRST <= e.type and e.type <= SDL_EVENT_WINDOW_LAST);
 
             const WindowEventType window_event_type = parse_as_window_event_type(e.type);
             const WindowID window_id{SDL_GetWindowFromID(e.window.windowID)};
             return std::make_unique<WindowEvent>(window_event_type, window_id);
-        }
-        else {
+        } else {
             return nullptr;
         }
     }
@@ -710,9 +706,10 @@ namespace
             ptr_(SDL_CreateSystemCursor(id))
         {}
 
-        explicit operator bool () const { return static_cast<bool>(ptr_); }
+        explicit operator bool() const { return static_cast<bool>(ptr_); }
 
         SDL_Cursor* get() { return ptr_.get(); }
+
     private:
         struct CursorDeleter {
             void operator()(SDL_Cursor* ptr) { SDL_DestroyCursor(ptr); }
@@ -725,6 +722,7 @@ namespace
     class SystemCursors final {
     public:
         SystemCursor& operator[](CursorShape shape) { return cursors_.at(to_index(shape)); }
+
     private:
         std::array<SystemCursor, num_options_v<CursorShape>> cursors_ = std::to_array({
             SystemCursor(SDL_SYSTEM_CURSOR_DEFAULT),      // CursorShape::Arrow
@@ -766,8 +764,7 @@ namespace
         {
             if (cursor.shape() != CursorShape::Hidden) {
                 SDL_ShowCursor();
-            }
-            else {
+            } else {
                 SDL_HideCursor();
             }
             SDL_SetCursor(system_mouse_cursors_[cursor.shape()].get());
@@ -784,11 +781,11 @@ namespace
             SDL_SetCursor(system_mouse_cursors_[cursor_stack_.back()].get());
             if (cursor_stack_.empty() or cursor_stack_.back() != CursorShape::Hidden) {
                 SDL_ShowCursor();
-            }
-            else {
+            } else {
                 SDL_HideCursor();
             }
         }
+
     private:
         // runtime lookup of all available mouse cursors
         SystemCursors system_mouse_cursors_;
@@ -807,6 +804,7 @@ namespace
         {}
 
         void invoke_callback() { callback_(); }
+
     private:
         std::function<void()> callback_;
     };
@@ -826,8 +824,7 @@ namespace
 
             // If there's an error, emit a `FileDialogResponse` that contains the error.
             if (not filelist) {
-                App::upd().request_invoke_on_main_thread([caller_callback = std::move(state->caller_callback), response = FileDialogResponse{SDL_GetError()}]() mutable
-                {
+                App::upd().request_invoke_on_main_thread([caller_callback = std::move(state->caller_callback), response = FileDialogResponse{SDL_GetError()}] mutable {
                     caller_callback(std::move(response));
                 });
                 return;
@@ -849,8 +846,7 @@ namespace
 
             // Marshal the call to the user's callback onto the main thread by packing it
             // into an `AppMarshalledCallbackEvent`.
-            App::upd().request_invoke_on_main_thread([caller_callback = std::move(state->caller_callback), response = FileDialogResponse{std::move(files)}]() mutable
-            {
+            App::upd().request_invoke_on_main_thread([caller_callback = std::move(state->caller_callback), response = FileDialogResponse{std::move(files)}] mutable {
                 // Call the user's callback (the event's callback happens on the main thread).
                 caller_callback(std::move(response));
             });
@@ -935,7 +931,7 @@ namespace
 
             Vector2i sdl_size;
             SDL_GetWindowSize(main_window_.get(), &sdl_size.x(), &sdl_size.y());
-            const Vector2 ratio = new_dims/dimensions();
+            const Vector2 ratio = new_dims / dimensions();
             const Vector2i scaled_dims(ratio * Vector2{sdl_size});
             SDL_SetWindowSize(main_window_.get(), scaled_dims.x(), scaled_dims.y());
         }
@@ -1006,8 +1002,7 @@ namespace
 
         void set_mouse_confinement(std::optional<Vector2> confinement_point)
         {
-            set_mouse_confinement(confinement_point.transform([](const auto& point)
-            {
+            set_mouse_confinement(confinement_point.transform([](const auto& point) {
                 return Rect::from_point(point).with_dimensions({1.0f, 1.0f});
             }));
         }
@@ -1063,9 +1058,8 @@ namespace
             // coordinate system that SDL3 wants, then convert it into an `SDL_Rect`
             const auto r = to<SDL_Rect>(
                 screen_rect
-                .with_flipped_y(dimensions().y())
-                .with_origin_and_dimensions_scaled_by(1.0f/os_to_main_window_device_independent_ratio())
-            );
+                    .with_flipped_y(dimensions().y())
+                    .with_origin_and_dimensions_scaled_by(1.0f / os_to_main_window_device_independent_ratio()));
 
             SDL_SetTextInputArea(main_window_.get(), &r, 0);
         }
@@ -1182,7 +1176,7 @@ namespace
                 return false;  // The window isn't showing an event yet.
             }
 
-            auto e = try_parse_into_event(sdl_event, dimensions(), [this]{ return os_to_main_window_device_independent_ratio(); });
+            auto e = try_parse_into_event(sdl_event, dimensions(), [this] { return os_to_main_window_device_independent_ratio(); });
             if (not e) {
                 return false;  // Could not parse the OS event into an `osc::Event`.
             }
@@ -1193,8 +1187,7 @@ namespace
                 transition_to_next_top_level_widget();
             }
 
-            if (not handled
-                and (SDL_EVENT_WINDOW_FIRST <= sdl_event.type and sdl_event.type <= SDL_EVENT_WINDOW_LAST)) {
+            if (not handled and (SDL_EVENT_WINDOW_FIRST <= sdl_event.type and sdl_event.type <= SDL_EVENT_WINDOW_LAST)) {
 
                 // The window may have been resized. Force a redraw to ensure any content
                 // has a chance to reflow, recalculate bounds, etc.
@@ -1314,8 +1307,7 @@ namespace
 
                 try {
                     widget_->on_unmount();
-                }
-                catch (const std::exception& ex) {
+                } catch (const std::exception& ex) {
                     log_error("error unmounting widget '{}': {}", widget_->name(), ex.what());
                     widget_.reset();
                     throw;
@@ -1387,11 +1379,9 @@ namespace
             // gc any invalid (i.e. handled) requests
             std::erase_if(
                 main_window_screenshot_requests_,
-                [](const AnnotatedScreenshotRequest& request)
-                {
+                [](const AnnotatedScreenshotRequest& request) {
                     return not request.underlying_future.valid();
-                }
-            );
+                });
         }
 
         friend class osc::AppPrivate;
@@ -1454,7 +1444,7 @@ public:
         // Reset main loop variables
         perf_counter_ = SDL_GetPerformanceCounter();
         frame_start_time_ = convert_perf_counter_to_appclock(perf_counter_, perf_counter_frequency_);
-        time_since_last_frame_ = AppClock::duration{1.0f/60.0f};  // (dummy value for the first frame)
+        time_since_last_frame_ = AppClock::duration{1.0f / 60.0f};  // (dummy value for the first frame)
         quit_requested_ = false;
         is_in_wait_mode_ = false;
 
@@ -1533,8 +1523,7 @@ public:
                 return true;
             }
             current = current->parent();
-        }
-        while (current != nullptr and event.propagates());
+        } while (current != nullptr and event.propagates());
 
         return false;
     }
@@ -1544,7 +1533,9 @@ public:
         setup_main_loop(std::move(widget));
 
         // ensure `teardown_main_loop` is called - even if there's an exception
-        const ScopeExit scope_guard{[this]() { teardown_main_loop(); }};
+        const ScopeExit scope_guard{[this] {
+            teardown_main_loop();
+        }};
 
         while (do_main_loop_step()) {
             ;  // keep ticking the loop until it's not ok
@@ -1593,8 +1584,7 @@ public:
         std::string default_location;
         if (initial_directory_to_show) {
             default_location = initial_directory_to_show->string();
-        }
-        else if (const auto fallback = prompt_initial_directory_to_show_fallback()) {
+        } else if (const auto fallback = prompt_initial_directory_to_show_fallback()) {
             default_location = fallback->string();
         }
 
@@ -1606,8 +1596,7 @@ public:
             sdl3_filters_ptr,
             sdl3_num_filters,
             default_location.empty() ? nullptr : default_location.c_str(),
-            allow_many
-        );
+            allow_many);
 
         // Ensure the UI immediately pumps the event queue etc. so that there isn't
         // a delay between the request and when the user sees the dialog.
@@ -1624,8 +1613,7 @@ public:
         std::string default_location;
         if (initial_directory_to_show) {
             default_location = initial_directory_to_show->string();
-        }
-        else if (const auto fallback = prompt_initial_directory_to_show_fallback()) {
+        } else if (const auto fallback = prompt_initial_directory_to_show_fallback()) {
             default_location = fallback->string();
         }
 
@@ -1635,8 +1623,7 @@ public:
             dialog_callback_state.release(),
             &main_window_.sdl3_window(),
             default_location.empty() ? nullptr : default_location.c_str(),
-            allow_many
-        );
+            allow_many);
     }
 
     void prompt_user_to_save_file_async(
@@ -1651,8 +1638,7 @@ public:
         std::string default_location;
         if (initial_directory_to_show) {
             default_location = initial_directory_to_show->string();
-        }
-        else if (const auto fallback = prompt_initial_directory_to_show_fallback()) {
+        } else if (const auto fallback = prompt_initial_directory_to_show_fallback()) {
             default_location = fallback->string();
         }
 
@@ -1663,8 +1649,7 @@ public:
             &main_window_.sdl3_window(),
             sdl3_filters_ptr,
             sdl3_num_filters,
-            default_location.empty() ? nullptr : default_location.c_str()
-        );
+            default_location.empty() ? nullptr : default_location.c_str());
 
         // Ensure the UI immediately pumps the event queue etc. so that there isn't
         // a delay between the request and when the user sees the dialog.
@@ -1711,8 +1696,7 @@ public:
         prompt_user_to_save_file_async(
             std::move(inner_callback),
             std::move(filters),
-            std::move(initial_directory_to_show)
-        );
+            std::move(initial_directory_to_show));
     }
 
     void push_cursor_override(const Cursor& cursor)
@@ -1874,7 +1858,9 @@ public:
     {
         int displays = 0;
         SDL_DisplayID* display_list_head = SDL_GetDisplays(&displays);
-        ScopeExit list_destructor{[display_list_head] { SDL_free(display_list_head); }};
+        ScopeExit list_destructor{[display_list_head] {
+            SDL_free(display_list_head);
+        }};
 
         // note: On some OSes, like MacOS, SDL_GetDisplayContentScale() might return
         //       a different (lower) value from SDL_GetWindowDisplayScale().
@@ -2025,16 +2011,14 @@ public:
                     auto custom_event = std::unique_ptr<Event>(static_cast<Event*>(e.user.data2));
                     notify(*receiver_widget, *custom_event);
                     continue;  // event handled - go get the next one
-                }
-                else if (not e.user.data1 and e.user.data2) {
+                } else if (not e.user.data1 and e.user.data2) {
                     // a custom event posted to "the top-level application" (thread marshalling)
                     auto custom_event = std::unique_ptr<Event>(static_cast<Event*>(e.user.data2));
                     if (auto* marshalled_event = dynamic_cast<AppMarshalledCallbackEvent*>(custom_event.get())) {
                         marshalled_event->invoke_callback();
                     }
                     continue;  // assume event is handled
-                }
-                else {
+                } else {
                     // a "blank" event (`request_redraw`)
                     continue;
                 }
@@ -2114,15 +2098,13 @@ private:
     // path to the writable user data directory
     std::filesystem::path user_data_dir_ = get_current_user_dir_and_log_it(
         metadata_.organization_name(),
-        metadata_.application_name()
-    );
+        metadata_.application_name());
 
     // internal native filesystem (we know its implementation at compile-time)
     std::shared_ptr<NativeFilesystem> native_filesystem_ = std::make_shared<NativeFilesystem>(
         // initialization-time resources dir (so that it doesn't have to be fetched
         // from the settings over-and-over)
-        get_current_resources_path_and_log_it(config_)
-    );
+        get_current_resources_path_and_log_it(config_));
 
     // the type-erased `ResourceLoader` that's dished out to callers
     ResourceLoader resource_loader_{native_filesystem_};
@@ -2165,8 +2147,7 @@ private:
     OscarWindow main_window_{
         metadata_.maximize_main_window().value_or(true),
         metadata_.headless_mode().value_or(config_.get_value<bool>("headless_mode")),
-        metadata_.human_readable_application_name().c_str()
-    };
+        metadata_.human_readable_application_name().c_str()};
 
     // runtime cache of initialized singletons
     //
@@ -2326,8 +2307,7 @@ void osc::App::prompt_user_to_select_file_async(
         std::move(callback),
         filters,
         std::move(initial_directory_to_show),
-        allow_many
-    );
+        allow_many);
 }
 
 void osc::App::prompt_user_to_select_directory_async(
@@ -2338,8 +2318,7 @@ void osc::App::prompt_user_to_select_directory_async(
     impl_->prompt_user_to_select_directory_async(
         std::move(callback),
         std::move(initial_directory_to_show),
-        allow_many
-    );
+        allow_many);
 }
 
 void osc::App::prompt_user_to_save_file_async(
@@ -2350,8 +2329,7 @@ void osc::App::prompt_user_to_save_file_async(
     impl_->prompt_user_to_save_file_async(
         std::move(callback),
         filters,
-        std::move(initial_directory_to_show)
-    );
+        std::move(initial_directory_to_show));
 }
 
 void osc::App::prompt_user_to_save_file_with_extension_async(
@@ -2362,8 +2340,7 @@ void osc::App::prompt_user_to_save_file_with_extension_async(
     impl_->prompt_user_to_save_file_with_extension_async(
         std::move(callback),
         maybe_extension,
-        std::move(initial_directory_to_show)
-    );
+        std::move(initial_directory_to_show));
 }
 
 void osc::App::push_cursor_override(const Cursor& cursor)
@@ -2663,8 +2640,7 @@ int osc::App::main_internal(const AppMetadata& metadata, const std::function<std
 #ifdef EMSCRIPTEN
     App* app = new App{metadata};
     app->setup_main_loop(widget_ctor());
-    emscripten_set_main_loop_arg([](void* ptr) -> void
-    {
+    emscripten_set_main_loop_arg([](void* ptr) -> void {
         if (not static_cast<App*>(ptr)->do_main_loop_step()) {
             throw std::runtime_error{"exit"};
         }

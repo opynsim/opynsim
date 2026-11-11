@@ -17,8 +17,7 @@ namespace rgs = std::ranges;
 
 namespace
 {
-    constexpr auto c_log_level_strings = std::to_array<CStringView>(
-    {
+    constexpr auto c_log_level_strings = std::to_array<CStringView>({
         "trace",
         "debug",
         "info",

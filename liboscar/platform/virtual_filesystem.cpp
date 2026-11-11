@@ -25,10 +25,8 @@ std::string osc::VirtualFilesystem::slurp(const ResourcePath& resource_path)
         // then assign to it via an iterator
         rv.assign(
             (std::istreambuf_iterator<char>{fd}),
-            std::istreambuf_iterator<char>{}
-        );
-    }
-    catch (const std::exception& ex) {
+            std::istreambuf_iterator<char>{});
+    } catch (const std::exception& ex) {
         throw formatted_runtime_error("{}: error reading resource: {}", resource_path.string(), ex.what());
     }
 

@@ -45,6 +45,7 @@ namespace osc
         {
             return out << resource_path.path_;
         }
+
     private:
         friend struct std::hash<osc::ResourcePath>;
         std::filesystem::path path_;

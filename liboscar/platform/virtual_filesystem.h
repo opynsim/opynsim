@@ -9,10 +9,10 @@
 #include <string>
 #include <utility>
 
-namespace osc { class ResourcePath; }
-
 namespace osc
 {
+    class ResourcePath;
+
     // An abstract base class for an object that can access `ResourceStream`s
     // from an implementation-defined data source (e.g. filesystem, database,
     // zip file). Commonly called a VFS (Virtual File System) in operating
@@ -24,6 +24,7 @@ namespace osc
         VirtualFilesystem(VirtualFilesystem&&) noexcept = default;
         VirtualFilesystem& operator=(const VirtualFilesystem&) = default;
         VirtualFilesystem& operator=(VirtualFilesystem&&) noexcept = default;
+
     public:
         virtual ~VirtualFilesystem() noexcept = default;
 

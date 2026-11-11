@@ -26,16 +26,15 @@
 #include <typeinfo>
 #include <utility>
 
-namespace osc { class AppMetadata; }
-namespace osc { class AppSettings; }
-namespace osc { class Cursor; }
-namespace osc { class Event; }
-namespace osc { class FileDialogResponse; }
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class AppMetadata;
     class AppPrivate;
+    class AppSettings;
+    class Cursor;
+    class Event;
+    class FileDialogResponse;
+    class Widget;
 
     // top-level application class
     //
@@ -44,17 +43,16 @@ namespace osc
     // logging, etc.)
     class App {
     public:
-
         template<std::destructible T, typename... Args>
         requires std::constructible_from<T, Args&&...>
         static std::shared_ptr<T> singleton(Args&&... args)  // NOLINT(cppcoreguidelines-missing-std-forward)
         {
-            const auto singleton_constructor = [args_tuple = std::make_tuple(std::forward<Args>(args)...)] mutable -> std::shared_ptr<void>
-            {
-                return std::apply([](auto&&... inner_args) -> std::shared_ptr<void>
-                {
-                     return std::make_shared<T>(std::forward<Args>(inner_args)...);
-                }, std::move(args_tuple));
+            const auto singleton_constructor = [args_tuple = std::make_tuple(std::forward<Args>(args)...)] mutable -> std::shared_ptr<void> {
+                return std::apply(
+                    [](auto&&... inner_args) -> std::shared_ptr<void> {
+                        return std::make_shared<T>(std::forward<Args>(inner_args)...);
+                    },
+                    std::move(args_tuple));
             };
 
             return std::static_pointer_cast<T>(App::upd().upd_singleton(typeid(T), singleton_constructor));
@@ -96,12 +94,12 @@ namespace osc
         {
             // Pack the `TWidget` constructor arguments into a type-erased `std::function` and defer
             // to the internal implementation.
-            return main_internal(metadata, [args_tuple = std::make_tuple(std::forward<Args>(args)...)] mutable -> std::unique_ptr<Widget>
-            {
-                return std::apply([](auto&&... inner_args) -> std::unique_ptr<Widget>
-                {
-                    return std::make_unique<TWidget>(std::forward<Args>(inner_args)...);
-                }, std::move(args_tuple));
+            return main_internal(metadata, [args_tuple = std::make_tuple(std::forward<Args>(args)...)] mutable -> std::unique_ptr<Widget> {
+                return std::apply(
+                    [](auto&&... inner_args) -> std::unique_ptr<Widget> {
+                        return std::make_unique<TWidget>(std::forward<Args>(inner_args)...);
+                    },
+                    std::move(args_tuple));
             });
         }
 
@@ -268,8 +266,7 @@ namespace osc
             std::function<void(FileDialogResponse&&)> callback,
             std::span<const FileDialogFilter> filters = {},
             std::optional<std::filesystem::path> initial_directory_to_show = std::nullopt,
-            bool allow_many = false
-        );
+            bool allow_many = false);
         void prompt_user_to_select_file_async(
             std::function<void(FileDialogResponse&&)> callback,
             std::initializer_list<const FileDialogFilter> filters = {},
@@ -280,8 +277,7 @@ namespace osc
                 std::move(callback),
                 std::span<const FileDialogFilter>{filters},
                 std::move(initial_directory_to_show),
-                allow_many
-            );
+                allow_many);
         }
 
         // Prompts the user to select a single existing directory.
@@ -300,8 +296,7 @@ namespace osc
         void prompt_user_to_select_directory_async(
             std::function<void(FileDialogResponse&&)> callback,
             std::optional<std::filesystem::path> initial_directory_to_show = std::nullopt,
-            bool allow_many = false
-        );
+            bool allow_many = false);
 
         // Prompts the user to select a new or existing filesystem path where they would like
         // to save a file.
@@ -320,8 +315,7 @@ namespace osc
         void prompt_user_to_save_file_async(
             std::function<void(FileDialogResponse&&)> callback,
             std::span<const FileDialogFilter> filters = {},
-            std::optional<std::filesystem::path> initial_directory_to_show = std::nullopt
-        );
+            std::optional<std::filesystem::path> initial_directory_to_show = std::nullopt);
         void prompt_user_to_save_file_async(
             std::function<void(FileDialogResponse&&)> callback,
             std::initializer_list<const FileDialogFilter> filters = {},
@@ -330,8 +324,7 @@ namespace osc
             prompt_user_to_save_file_async(
                 std::move(callback),
                 std::span{filters},
-                std::move(initial_directory_to_show)
-            );
+                std::move(initial_directory_to_show));
         }
 
         // Prompts a user to select a new or existing filesystem path where they would like
@@ -350,8 +343,7 @@ namespace osc
         void prompt_user_to_save_file_with_extension_async(
             std::function<void(std::optional<std::filesystem::path>)> callback,
             std::optional<std::string_view> maybe_extension = std::nullopt,
-            std::optional<std::filesystem::path> initial_directory_to_show = std::nullopt
-        );
+            std::optional<std::filesystem::path> initial_directory_to_show = std::nullopt);
 
         // Pushes the given cursor onto the application-wide cursor stack, making it
         // the currently-active cursor until it is either popped, via `pop_cursor_override`,

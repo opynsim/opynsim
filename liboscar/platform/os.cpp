@@ -43,7 +43,7 @@ namespace
 
         // remove trailing slash: it interferes with `std::filesystem::path`
         if (sv.back() == '/' or sv.back() == '\\') {
-            sv = sv.substr(0, sv.size()-1);
+            sv = sv.substr(0, sv.size() - 1);
         }
 
         return std::filesystem::weakly_canonical(sv);
@@ -107,8 +107,7 @@ void osc::open_url_in_os_default_web_browser(std::string_view url_view)
     const std::string url{url_view};
     if (SDL_OpenURL(url.c_str())) {
         log_info("opened {}", url);
-    }
-    else {
+    } else {
         log_error("could not open '{}': {}", url, SDL_GetError());
     }
 }
@@ -116,10 +115,11 @@ void osc::open_url_in_os_default_web_browser(std::string_view url_view)
 std::string osc::get_clipboard_text()
 {
     if (char* str = SDL_GetClipboardText()) {
-        const ScopeExit guard{[str]() { SDL_free(str); }};
+        const ScopeExit guard{[str] {
+            SDL_free(str);
+        }};
         return std::string{str};
-    }
-    else {
+    } else {
         return {};
     }
 }

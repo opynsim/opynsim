@@ -11,10 +11,10 @@
 #include <utility>
 #include <vector>
 
-namespace osc { class ResourcePath; }
-
 namespace osc
 {
+    class ResourcePath;
+
     // A `VirtualFilesystem` that overlays a sequence of sub-`VirtualFilesystem`s, where
     // each one is handled in-turn when resolving a resource.
     class OverlayFilesystem final : public VirtualFilesystem {
@@ -28,6 +28,7 @@ namespace osc
         }
 
         std::optional<std::filesystem::path> resource_filepath(const ResourcePath&) const;
+
     private:
         bool impl_resource_exists(const ResourcePath&) final;
         ResourceStream impl_open(const ResourcePath&) final;

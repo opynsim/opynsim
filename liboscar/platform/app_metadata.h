@@ -19,7 +19,7 @@ namespace osc
         void set_application_name(std::string_view new_application_name) { application_name_ = new_application_name; }
 
         CStringView config_filename() const { return config_filename_; }
-        void set_config_filename(std::string_view new_config_filename)  { config_filename_ = new_config_filename; }
+        void set_config_filename(std::string_view new_config_filename) { config_filename_ = new_config_filename; }
 
         std::optional<CStringView> long_appliation_name() const { return long_application_name_; }
         void set_long_application_name(std::string_view new_long_application_name) { long_application_name_ = new_long_application_name; }
@@ -51,6 +51,7 @@ namespace osc
 
         std::optional<bool> maximize_main_window() const { return maximize_main_window_; }
         void set_maximize_main_window(std::optional<bool> new_maximize_main_window) { maximize_main_window_ = new_maximize_main_window; }
+
     private:
         std::string organization_name_ = "oscarorg";
         std::string application_name_ = "osc";

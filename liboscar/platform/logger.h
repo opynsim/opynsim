@@ -45,7 +45,7 @@ namespace osc
             // else: there exists at least one sink that wants the message
 
             // format the format string with the arguments
-           const auto message = std::format(std::move(fmt), std::forward<Args>(args)...);
+            const auto message = std::format(std::move(fmt), std::forward<Args>(args)...);
 
             // create a readonly view of the message that sinks _may_ consume
             LogMessageView view{name_, CStringView{message}, log_level};

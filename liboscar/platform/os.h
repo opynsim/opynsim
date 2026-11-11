@@ -21,8 +21,7 @@ namespace osc
     // returns the full path to the user's data directory
     std::filesystem::path user_data_directory(
         std::string_view organization_name,
-        std::string_view application_name
-    );
+        std::string_view application_name);
 
     // tries to open the specified filepath in the OS's default application for opening
     // a path (usually, based on its extension)
@@ -54,14 +53,12 @@ namespace osc
     // returns an open handle to the file (opened with `w+b`) and the absolute path to the temporary file
     std::pair<std::fstream, std::filesystem::path> mkstemp(
         std::string_view suffix = {},
-        std::string_view prefix = {}
-    );
+        std::string_view prefix = {});
 
     // Creates a temporary directory in the most secure manner possible.
     //
     // The caller is responsible for deleting the temporary directory once it is no longer needed.
     std::filesystem::path mkdtemp(
         std::string_view suffix = {},
-        std::string_view prefix = {}
-    );
+        std::string_view prefix = {});
 }
