@@ -10,15 +10,15 @@
 #include <optional>
 #include <string_view>
 
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Widget;
+
     template<typename T>
     concept StandardRegisterableTab =
         std::derived_from<T, Tab> and
         std::constructible_from<T, Widget*> and
-        requires (T) {
+        requires(T) {
             { T::id() } -> std::same_as<CStringView>;
         };
 

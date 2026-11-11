@@ -4,10 +4,10 @@
 
 #include <exception>
 
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Widget;
+
     class ErrorTab final : public Tab {
     public:
         explicit ErrorTab(Widget&, const std::exception&);

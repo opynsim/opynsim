@@ -52,14 +52,13 @@ namespace
 
         if (ratio >= 1.0f) {
             // it will touch the top/bottom but may (ratio != 1.0f) fall short of the left/right
-            const Vector2 rv_dimensions = {target_dimensions.x()/ratio, target_dimensions.y()};
-            const Vector2 rv_top_left = {target_ui_top_left.x() + 0.5f*(target_dimensions.x() - rv_dimensions.x()), target_ui_top_left.y()};
+            const Vector2 rv_dimensions = {target_dimensions.x() / ratio, target_dimensions.y()};
+            const Vector2 rv_top_left = {target_ui_top_left.x() + (0.5f * (target_dimensions.x() - rv_dimensions.x())), target_ui_top_left.y()};
             return Rect::from_corners(rv_top_left, rv_top_left + rv_dimensions);
-        }
-        else {
+        } else {
             // it will touch the left/right but will not touch the top/bottom
-            const Vector2 rv_dimensions = {target_dimensions.x(), ratio*target_dimensions.y()};
-            const Vector2 rv_top_left = {target_ui_top_left.x(), target_ui_top_left.y() + 0.5f*(target_dimensions.y() - rv_dimensions.y())};
+            const Vector2 rv_dimensions = {target_dimensions.x(), ratio * target_dimensions.y()};
+            const Vector2 rv_top_left = {target_ui_top_left.x(), target_ui_top_left.y() + (0.5f * (target_dimensions.y() - rv_dimensions.y()))};
             return Rect::from_corners(rv_top_left, rv_top_left + rv_dimensions);
         }
     }
@@ -72,21 +71,23 @@ namespace
         const auto annotation_screen_rect_corners = annotation_screen_rect.corners();
 
         const Rect normalized_ypu_rect = Rect::from_corners(
-            annotation_screen_rect_corners.min/screen_dimensions,
-            annotation_screen_rect_corners.max/screen_dimensions
-        );
+            annotation_screen_rect_corners.min / screen_dimensions,
+            annotation_screen_rect_corners.max / screen_dimensions);
         const Rect normalized_ypd_rect = normalized_ypu_rect.with_flipped_y(1.0f);
         const auto normalized_ypd_corners = normalized_ypd_rect.corners();
 
         const Vector2 ui_dims = viewport_ui_rect.dimensions();
         const Vector2 ui_top_left = viewport_ui_rect.ypd_top_left();
         return Rect::from_corners(
-            ui_top_left + ui_dims*normalized_ypd_corners.min,
-            ui_top_left + ui_dims*normalized_ypd_corners.max
-        );
+            ui_top_left + ui_dims * normalized_ypd_corners.min,
+            ui_top_left + ui_dims * normalized_ypd_corners.max);
     }
 
-    enum class ScreenshotFileFormat { png, jpeg, NUM_OPTIONS };
+    enum class ScreenshotFileFormat {
+        png,
+        jpeg,
+        NUM_OPTIONS,
+    };
 }
 
 class osc::ScreenshotTab::Impl final : public TabPrivate {
@@ -159,7 +160,6 @@ public:
                 ui::end_table();
             }
 
-
             ui::end_panel();
         }
     }
@@ -198,8 +198,7 @@ private:
             if (hovered and left_click_released) {
                 if (selected) {
                     user_selected_annotations_.erase(annotation.label());
-                }
-                else {
+                } else {
                     user_selected_annotations_.insert(annotation.label());
                 }
             }
@@ -208,30 +207,30 @@ private:
                 annotation_ui_rect,
                 color,
                 c_annotation_rect_rounding,
-                c_annotation_rect_thickness
-            );
+                c_annotation_rect_thickness);
         }
     }
 
     void action_try_save_annotated_screenshot(ScreenshotFileFormat format)
     {
-        App::upd().prompt_user_to_save_file_with_extension_async([format, screenshot = render_annotated_screenshot(), jpeg_quality_level=jpeg_quality_level_](std::optional<std::filesystem::path> p)
-        {
-            if (not p) {
-                return;  // User cancelled out.
-            }
+        App::upd().prompt_user_to_save_file_with_extension_async(
+            [format, screenshot = render_annotated_screenshot(), jpeg_quality_level = jpeg_quality_level_](std::optional<std::filesystem::path> p) {
+                if (not p) {
+                    return;  // User cancelled out.
+                }
 
-            std::ofstream fout{*p, std::ios_base::binary};
-            if (not fout) {
-                throw std::runtime_error{p->string() + ": cannot open for writing"};
-            }
-            switch (format) {
-            case ScreenshotFileFormat::jpeg: JPEG::write(fout, screenshot, jpeg_quality_level); break;
-            case ScreenshotFileFormat::png:  PNG::write(fout, screenshot);  break;
-            default:                         std::unreachable();
-            }
-            open_file_in_os_default_application(*p);
-        }, format == ScreenshotFileFormat::jpeg ? "jpeg" : "png");
+                std::ofstream fout{*p, std::ios_base::binary};
+                if (not fout) {
+                    throw std::runtime_error{p->string() + ": cannot open for writing"};
+                }
+                switch (format) {
+                case ScreenshotFileFormat::jpeg: JPEG::write(fout, screenshot, jpeg_quality_level); break;
+                case ScreenshotFileFormat::png: PNG::write(fout, screenshot); break;
+                default: std::unreachable();
+                }
+                open_file_in_os_default_application(*p);
+            },
+            format == ScreenshotFileFormat::jpeg ? "jpeg" : "png");
         static_assert(num_options_v<ScreenshotFileFormat> == 2);
     }
 
@@ -253,8 +252,7 @@ private:
             draw_list,
             Rect::from_corners({}, image_texture_.dimensions()),
             Color::clear(),
-            c_selected_color.with_alpha(1.0f)
-        );
+            c_selected_color.with_alpha(1.0f));
 
         // render draw list to output
         draw_list.render_to(render_texture);

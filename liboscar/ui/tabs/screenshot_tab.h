@@ -2,11 +2,11 @@
 
 #include <liboscar/ui/tabs/tab.h>
 
-namespace osc { class Screenshot; }
-namespace osc { class Widget; }
-
 namespace osc
 {
+    class Screenshot;
+    class Widget;
+
     class ScreenshotTab final : public Tab {
     public:
         explicit ScreenshotTab(Widget*, Screenshot&&);
