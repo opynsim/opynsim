@@ -26,9 +26,9 @@ namespace osc
         explicit Variant(int);
         explicit Variant(std::string);
         explicit Variant(std::string_view);
-        explicit Variant(const char* ptr) : Variant{std::string_view{ptr}} {}
+        explicit Variant(const char* ptr);
         explicit Variant(std::nullopt_t) = delete;
-        explicit Variant(CStringView cstring_view) : Variant{std::string_view{cstring_view}} {}
+        explicit Variant(CStringView cstring_view);
         explicit Variant(const StringName&);
         explicit Variant(Vector2);
         explicit Variant(Vector3);
