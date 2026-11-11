@@ -34,14 +34,12 @@ public:
             Texture2D texture = SVG::read_into_texture(
                 loader_prefixed_at_dir_containing_svgs.open(p),
                 vertical_scale,
-                device_pixel_ratio
-            );
+                device_pixel_ratio);
 
             icons_by_name_.try_emplace(
                 p.stem(),
                 std::move(texture),
-                Rect::from_corners({0.0f, 1.0f}, {1.0f, 0.0f})
-            );
+                Rect::from_corners({0.0f, 1.0f}, {1.0f, 0.0f}));
         }
     }
 
@@ -56,7 +54,6 @@ public:
 private:
     ankerl::unordered_dense::map<std::string, Icon, TransparentStringHasher, std::equal_to<>> icons_by_name_;
 };
-
 
 osc::IconCache::IconCache(ResourceLoader loader_prefixed_at_dir_containing_svgs, float vertical_scale, float device_pixel_ratio) :
     impl_{std::make_unique<Impl>(loader_prefixed_at_dir_containing_svgs, vertical_scale, device_pixel_ratio)}

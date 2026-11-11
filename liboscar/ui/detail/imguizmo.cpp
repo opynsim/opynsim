@@ -1730,9 +1730,8 @@ public:
                 tmps,
                 sizeof(tmps),
                 c_rotation_info_mask[type - MT_ROTATE_X].c_str(),
-                (mRotationAngle / pi_v<float>) * 180.f,
-                mRotationAngle
-            );
+                (mRotationAngle / pi_v<float>)*180.f,
+                mRotationAngle);
             drawList->AddText(
                 ImVec2(destinationPosOnScreen.x + annotation_offset() + 1.0f, destinationPosOnScreen.y + annotation_offset() + 1.0f),
                 GetColorU32(TEXT_SHADOW),

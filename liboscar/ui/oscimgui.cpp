@@ -66,15 +66,31 @@
 
 #include <ankerl/unordered_dense.h>
 
-#define IM_VEC4_CLASS_EXTRA                                                 \
-        ImVec4(const osc::Vector4& v) { x = v.x(); y = v.y(); z = v.z(); w = v.w(); }  \
-        operator osc::Vector4() const { return osc::Vector4(x, y, z, w); }        \
-        ImVec4(const osc::Color& v) { x = v.r; y = v.g; z = v.b; w = v.a; } \
-        operator osc::Color() const { return osc::Color{x, y, z, w};        }
+#define IM_VEC4_CLASS_EXTRA                                            \
+    ImVec4(const osc::Vector4& v)                                      \
+    {                                                                  \
+        x = v.x();                                                     \
+        y = v.y();                                                     \
+        z = v.z();                                                     \
+        w = v.w();                                                     \
+    }                                                                  \
+    operator osc::Vector4() const { return osc::Vector4(x, y, z, w); } \
+    ImVec4(const osc::Color& v)                                        \
+    {                                                                  \
+        x = v.r;                                                       \
+        y = v.g;                                                       \
+        z = v.b;                                                       \
+        w = v.a;                                                       \
+    }                                                                  \
+    operator osc::Color() const { return osc::Color{x, y, z, w}; }
 
-#define IM_VEC2_CLASS_EXTRA                                                 \
-         ImVec2(const osc::Vector2& f) { x = f.x(); y = f.y(); }                   \
-         operator osc::Vector2() const { return osc::Vector2(x,y); }
+#define IM_VEC2_CLASS_EXTRA       \
+    ImVec2(const osc::Vector2& f) \
+    {                             \
+        x = f.x();                \
+        y = f.y();                \
+    }                             \
+    operator osc::Vector2() const { return osc::Vector2(x, y); }
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
@@ -111,6 +127,7 @@ struct osc::Converter<ImGuiMouseCursor, CursorShape> final {
     {
         static_assert(ImGuiMouseCursor_COUNT == 11);
 
+        // clang-format off
         switch (cursor) {
         case ImGuiMouseCursor_None:       return CursorShape::Hidden;
         case ImGuiMouseCursor_Arrow:      return CursorShape::Arrow;
@@ -126,6 +143,7 @@ struct osc::Converter<ImGuiMouseCursor, CursorShape> final {
         case ImGuiMouseCursor_NotAllowed: return CursorShape::Forbidden;
         default:                          return CursorShape::Default;
         }
+        // clang-format on
     }
 };
 
@@ -325,18 +343,18 @@ namespace
             const auto r_srgb = static_cast<uint8_t>((color >> IM_COL32_R_SHIFT) & 0xFF);
             const auto g_srgb = static_cast<uint8_t>((color >> IM_COL32_G_SHIFT) & 0xFF);
             const auto b_srgb = static_cast<uint8_t>((color >> IM_COL32_B_SHIFT) & 0xFF);
-            const auto alpha  = static_cast<uint8_t>((color >> IM_COL32_A_SHIFT) & 0xFF);
+            const auto alpha = static_cast<uint8_t>((color >> IM_COL32_A_SHIFT) & 0xFF);
 
             const uint8_t r_linear = lut_[r_srgb];
             const uint8_t g_linear = lut_[g_srgb];
             const uint8_t b_linear = lut_[b_srgb];
 
-            return
-                static_cast<ImU32>(r_linear) << IM_COL32_R_SHIFT |
-                static_cast<ImU32>(g_linear) << IM_COL32_G_SHIFT |
-                static_cast<ImU32>(b_linear) << IM_COL32_B_SHIFT |
-                static_cast<ImU32>(alpha)    << IM_COL32_A_SHIFT;
+            return static_cast<ImU32>(r_linear) << IM_COL32_R_SHIFT |
+                   static_cast<ImU32>(g_linear) << IM_COL32_G_SHIFT |
+                   static_cast<ImU32>(b_linear) << IM_COL32_B_SHIFT |
+                   static_cast<ImU32>(alpha) << IM_COL32_A_SHIFT;
         }
+
     private:
         static std::array<uint8_t, 256> create_srgb_to_linear_lut()
         {
@@ -359,7 +377,7 @@ namespace
         using texture_type = std::variant<Texture2D, RenderTexture>;
 
         template<typename Texture>
-        requires (std::constructible_from<texture_type, Texture>)
+        requires(std::constructible_from<texture_type, Texture>)
         ImTextureID allocate_imgui_texture(Texture&& texture)
         {
             return allocate_texture(textures_allocated_by_imgui_, std::forward<Texture>(texture));
@@ -370,7 +388,7 @@ namespace
         }
 
         template<typename Texture>
-        requires (std::constructible_from<texture_type, Texture>)
+        requires(std::constructible_from<texture_type, Texture>)
         ImTextureID allocate_texture_for_this_frame(Texture&& texture)
         {
             return allocate_texture(textures_allocated_this_frame_, std::forward<Texture>(texture));
@@ -385,14 +403,14 @@ namespace
             static_assert(sizeof(decltype(UID{}.get())) <= sizeof(ImTextureID));
             if (auto* t = lookup_or_nullptr(textures_allocated_this_frame_, UID::from_int_unchecked(id))) {
                 return t;
-            }
-            else {
+            } else {
                 return lookup_or_nullptr(textures_allocated_by_imgui_, UID::from_int_unchecked(id));
             }
         }
+
     private:
         template<typename Texture>
-        requires (std::constructible_from<texture_type, Texture>)
+        requires(std::constructible_from<texture_type, Texture>)
         ImTextureID allocate_texture(ankerl::unordered_dense::map<UID, texture_type>& storage, Texture&& texture)
         {
             UID id;
@@ -438,42 +456,42 @@ namespace
 
         CopyOnUpdPtr<ui::ContextConfiguration::Impl> caller_config;
 
-        WindowID                                     window_id;
-        WindowID                                     ime_window_id;      // important: used for UI's textual inputs (e.g. `ImGui::InputText`)
-        std::string                                  clipboard_text;  // necessary because ImGui dishes out C-strings that need lifetime management
-        std::optional<AppClock::time_point>          last_frame_time;
+        WindowID window_id;
+        WindowID ime_window_id;      // important: used for UI's textual inputs (e.g. `ImGui::InputText`)
+        std::string clipboard_text;  // necessary because ImGui dishes out C-strings that need lifetime management
+        std::optional<AppClock::time_point> last_frame_time;
 
         // Mouse handling
-        WindowID                                     mouse_window_id;
-        std::optional<CursorShape>                   current_custom_cursor;
-        int                                          mouse_buttons_down = 0;
-        int                                          mouse_last_leave_frame = 0;
-        Vector2                                      mouse_delta_this_frame;   // Delta vector of the mouse in ui space this frame.
-        Vector2                                      mouse_delta_from_events;  // Delta vector of the mouse in ui space, accumulated from events.
+        WindowID mouse_window_id;
+        std::optional<CursorShape> current_custom_cursor;
+        int mouse_buttons_down = 0;
+        int mouse_last_leave_frame = 0;
+        Vector2 mouse_delta_this_frame;   // Delta vector of the mouse in ui space this frame.
+        Vector2 mouse_delta_from_events;  // Delta vector of the mouse in ui space, accumulated from events.
         std::unordered_map<MouseButton, CStringView> mouse_button_ui_icons_or_strings = {
-            {MouseButton::Left,    "LeftClick"},
-            {MouseButton::Right,   "RightClick"},
-            {MouseButton::Middle,  "MiddleClick"},
-            {MouseButton::Back,    "Mouse4"},
+            {MouseButton::Left, "LeftClick"},
+            {MouseButton::Right, "RightClick"},
+            {MouseButton::Middle, "MiddleClick"},
+            {MouseButton::Back, "Mouse4"},
             {MouseButton::Forward, "Mouse5"},
         };
         CStringView mouse_button_ui_icon_or_string_fallback = "MouseUNKNOWN";
 
         // Font handling (CARE: this is here because ImGui requires it outlives the ImGui context)
-        std::array<ImWchar, 3>                       icon_font_glyph_ranges{};
+        std::array<ImWchar, 3> icon_font_glyph_ranges{};
 
         // Config handling (CARE: this is here because ImGui requires it outlives the ImGui context)
-        std::string                                  imgui_ini_file_path;
+        std::string imgui_ini_file_path;
 
         // Graphics
-        SRGBToLinearConverter                        srgb_to_linear_converter;
-        Material                                     ui_material{Shader{c_ui_vertex_shader_src, c_ui_fragment_shader_src}};
-        Camera                                       camera;
-        RenderQueue                                  render_queue;
-        Mesh                                         mesh;
-        OscarUITextureStorage                        textures;
+        SRGBToLinearConverter srgb_to_linear_converter;
+        Material ui_material{Shader{c_ui_vertex_shader_src, c_ui_fragment_shader_src}};
+        Camera camera;
+        RenderQueue render_queue;
+        Mesh mesh;
+        OscarUITextureStorage textures;
 
-        ui::gizmo::detail::GizmoContext              gizmo_context;
+        ui::gizmo::detail::GizmoContext gizmo_context;
     };
 
     OscarUIBackendData* try_get_ui_backend_data(ImGuiContext* context)
@@ -508,12 +526,14 @@ namespace
         const float top = draw_data.DisplayPos.y;
         const float bottom = draw_data.DisplayPos.y + draw_data.DisplaySize.y;
 
+        // clang-format off
         return {
             {2.0f/(right-left),         0.0f,                        0.0f, 0.0f},
             {0.0f,                      2.0f/(top-bottom),           0.0f, 0.0f},
             {0.0f,                      0.0f,                       -1.0f, 0.0f},
             {(right+left)/(left-right), (top+bottom)/(bottom-top),   0.0f, 1.0f},
         };
+        // clang-format on
     }
 
     void render_draw_command(
@@ -528,7 +548,7 @@ namespace
 
         // Project scissor/clipping rectangles from ui space, in device-independent
         // pixels, into screenspace, also in device-independent pixels.
-        const Vector2 clip_off = draw_data.DisplayPos;         // (0,0) unless using multi-viewports
+        const Vector2 clip_off = draw_data.DisplayPos;  // (0,0) unless using multi-viewports
         const Vector2 clip_min(draw_command.ClipRect.x - clip_off.x(), draw_command.ClipRect.y - clip_off.y());
         const Vector2 clip_max(draw_command.ClipRect.z - clip_off.x(), draw_command.ClipRect.w - clip_off.y());
 
@@ -544,8 +564,7 @@ namespace
             draw_command.IdxOffset,
             draw_command.ElemCount,
             MeshTopology::Triangles,
-            draw_command.VtxOffset
-        });
+            draw_command.VtxOffset});
 
         // setup texture binding (it's almost always the font texture)
         //
@@ -558,17 +577,18 @@ namespace
             draw_command.TexRef._TexData->TexID :
             draw_command.TexRef.GetTexID();
         if (const auto* texture = bd.textures.lookup_texture(tex_id)) {
-            std::visit(Overload{
-                [&bd](const auto& texture) { bd.ui_material.set("uTexture", texture); },
-            }, *texture);
+            std::visit(
+                Overload{
+                    [&bd](const auto& texture) { bd.ui_material.set("uTexture", texture); },
+                },
+                *texture);
         }
 
         bd.render_queue.emplace(
             mesh,
             identity<Matrix4x4>(),
             bd.ui_material,
-            sub_mesh_index
-        );
+            sub_mesh_index);
 
         // flush render queue to output
         const RenderPassConfig render_pass_config{
@@ -577,8 +597,7 @@ namespace
         };
         if (maybe_target) {
             graphics::render_to(*maybe_target, bd.render_queue, bd.camera, render_pass_config);
-        }
-        else {
+        } else {
             graphics::render_to_main_window(bd.render_queue, bd.camera, render_pass_config);
         }
         bd.render_queue.clear();
@@ -629,10 +648,10 @@ namespace
     }
 
     template<typename Texture>
-    requires (std::constructible_from<OscarUITextureStorage::texture_type, Texture>)
+    requires(std::constructible_from<OscarUITextureStorage::texture_type, Texture>)
     ImTextureID allocate_texture_for_current_frame(const Texture& texture)
     {
-        OscarUIBackendData * bd = try_get_ui_backend_data();
+        OscarUIBackendData* bd = try_get_ui_backend_data();
         OSC_ASSERT(bd != nullptr && "no oscar ImGui renderer backend was available to shutdown - this is a developer error");
         return bd->textures.allocate_texture_for_this_frame(texture);
     }
@@ -688,8 +707,7 @@ namespace
             OSC_ASSERT(t and std::holds_alternative<Texture2D>(*t) && "the texture should've been created by ImTextureStatus_WantCreate");
 
             // Update pixel data in the texture
-            std::get<Texture2D>(*t).update_pixel_data([&texture_data](std::span<uint8_t> pixel_data)
-            {
+            std::get<Texture2D>(*t).update_pixel_data([&texture_data](std::span<uint8_t> pixel_data) {
                 // Unpack all of ImGui's numbers into `ptrdiff_t`s so that integer widening is explicit.
                 const auto texture_data_width = static_cast<ptrdiff_t>(texture_data.Width);
                 const auto texture_data_bytes_per_pixel = static_cast<ptrdiff_t>(texture_data.BytesPerPixel);
@@ -702,7 +720,7 @@ namespace
                     const size_t num_pixels_per_row = source_rect_w * texture_data_bytes_per_pixel;
 
                     const auto* source_first_pixel = static_cast<const uint8_t*>(texture_data.GetPixelsAt(source_rect.x, source_rect.y));
-                    auto* destination_first_pixel = pixel_data.data() + ((source_rect_x + source_rect_y*texture_data_width) * texture_data_bytes_per_pixel);
+                    auto* destination_first_pixel = pixel_data.data() + ((source_rect_x + (source_rect_y * texture_data_width)) * texture_data_bytes_per_pixel);
                     for (ptrdiff_t row = 0; row < source_rect_h; ++row) {
                         std::span<const uint8_t> source_row{source_first_pixel + (row * texture_data_pitch), num_pixels_per_row};
                         uint8_t* destination_row_begin = destination_first_pixel + (row * texture_data_pitch);
@@ -722,7 +740,7 @@ namespace
             texture_data.SetStatus(ImTextureStatus_Destroyed);
             break;
         }
-        case ImTextureStatus_OK:  // nothing to do
+        case ImTextureStatus_OK:         // nothing to do
         case ImTextureStatus_Destroyed:  // nothing to do (no callback-style behavior in this backend)
         default: break;
         }
@@ -810,10 +828,11 @@ namespace
             for (auto v = to_underlying(flags); v;) {
                 const size_t index = std::countr_zero(v);
                 rv |= lut_[index];
-                v ^= 1<<index;
+                v ^= 1 << index;
             }
             return rv;
         }
+
     private:
         std::array<DestinationImGuiFlagsType, num_flags_v<SourceFlagType>> lut_{};
     };
@@ -860,13 +879,14 @@ public:
 
     const MainFontConfig* main_font_config() const
     {
-        return custom_font_config_ ? &custom_font_config_->main_font: nullptr;
+        return custom_font_config_ ? &custom_font_config_->main_font : nullptr;
     }
 
     const IconFontConfig* icon_font_config() const
     {
-        return custom_font_config_ ? &custom_font_config_->icon_font: nullptr;
+        return custom_font_config_ ? &custom_font_config_->icon_font : nullptr;
     }
+
 private:
     std::optional<ResourcePath> base_imgui_ini_config_;
     std::optional<CustomFontConfig> custom_font_config_;
@@ -898,8 +918,7 @@ namespace
             static_cast<int>(data_including_nul_terminator.size()),
             config.SizePixels,
             &config,
-            glyph_ranges
-        );
+            glyph_ranges);
     }
 
     const char* ui_get_clipboard_text(ImGuiContext* context)
@@ -989,7 +1008,7 @@ namespace
                 icon_font_config.GlyphMaxAdvanceX = floor(1.5f * icon_font_config.SizePixels);
                 static_assert(sizeof(decltype(icon_font->codepoint_range.lower)) == sizeof(ImWchar));
                 // CARE: icon_font_glyph_ranges has to outlive the ImGui context
-                bd.icon_font_glyph_ranges = std::to_array<ImWchar>({icon_font->codepoint_range.lower, icon_font->codepoint_range.upper, 0 });
+                bd.icon_font_glyph_ranges = std::to_array<ImWchar>({icon_font->codepoint_range.lower, icon_font->codepoint_range.upper, 0});
 
                 add_resource_as_font(loader, icon_font_config, *io.Fonts, icon_font->path, bd.icon_font_glyph_ranges.data());
             }
@@ -1023,8 +1042,7 @@ namespace
 
             app.set_main_window_unicode_input_rect(Rect::from_corners(
                 input_bottom_left_screen,
-                input_bottom_left_screen + input_dimensions
-            ));
+                input_bottom_left_screen + input_dimensions));
             app.start_text_input(bd->window_id);
             bd->ime_window_id = viewport_window;
         }
@@ -1059,12 +1077,14 @@ namespace
             const auto& button_event = dynamic_cast<const MouseEvent&>(e);
             const auto button = button_event.button();
 
+            // clang-format off
             int mouse_button = -1;
             if (button == MouseButton::Left)    { mouse_button = 0; }
             if (button == MouseButton::Right)   { mouse_button = 1; }
             if (button == MouseButton::Middle)  { mouse_button = 2; }
             if (button == MouseButton::Back)    { mouse_button = 3; }
             if (button == MouseButton::Forward) { mouse_button = 4; }
+            // clang-format on
 
             if (mouse_button == -1) {
                 return false;
@@ -1083,9 +1103,9 @@ namespace
             // the key modifiers "in the raw" (PhysicalModifierKey, opensim-creator#1069).
             //
             // see: ImGuiIO's `ConfigMacOSXBehaviors`
-            io.AddKeyEvent(ImGuiMod_Ctrl,  key_event.has_modifier(PhysicalModifierKey::Ctrl));
+            io.AddKeyEvent(ImGuiMod_Ctrl, key_event.has_modifier(PhysicalModifierKey::Ctrl));
             io.AddKeyEvent(ImGuiMod_Shift, key_event.has_modifier(PhysicalModifierKey::Shift));
-            io.AddKeyEvent(ImGuiMod_Alt,   key_event.has_modifier(PhysicalModifierKey::Alt));
+            io.AddKeyEvent(ImGuiMod_Alt, key_event.has_modifier(PhysicalModifierKey::Alt));
             io.AddKeyEvent(ImGuiMod_Super, key_event.has_modifier(PhysicalModifierKey::Meta));
 
             io.AddKeyEvent(to<ImGuiKey>(key_event.key()), key_event.type() == EventType::KeyDown);
@@ -1181,8 +1201,7 @@ namespace
         platform_io.Platform_GetClipboardTextFn = ui_get_clipboard_text;
         platform_io.Platform_ClipboardUserData = nullptr;
         platform_io.Platform_SetImeDataFn = imgui_oscar_platform_set_ime_data;
-        platform_io.Platform_OpenInShellFn = [](ImGuiContext*, const char* url)
-        {
+        platform_io.Platform_OpenInShellFn = [](ImGuiContext*, const char* url) {
             osc::open_url_in_os_default_web_browser(url);
             return true;
         };
@@ -1277,7 +1296,7 @@ namespace
                 static_assert(static_cast<float>(std::chrono::duration<AppClock::rep, std::nano>{1}.count()) > std::numeric_limits<float>::epsilon());
                 t = *bd.last_frame_time + std::chrono::nanoseconds{1};
             }
-            const auto delta = bd.last_frame_time ? t - *bd.last_frame_time : AppClock::duration{1.0/60.0};
+            const auto delta = bd.last_frame_time ? t - *bd.last_frame_time : AppClock::duration{1.0 / 60.0};
             io.DeltaTime = static_cast<float>(delta.count());
             bd.last_frame_time = t;
         }
@@ -1472,10 +1491,10 @@ struct osc::Converter<ui::GizmoOperation, ui::gizmo::detail::Operation> final {
     {
         static_assert(num_flags_v<ui::GizmoOperation> == 3);
         switch (op) {
-        case ui::GizmoOperation::Scale:     return ui::gizmo::detail::Operation::Scale;
-        case ui::GizmoOperation::Rotate:    return ui::gizmo::detail::Operation::Rotate;
+        case ui::GizmoOperation::Scale: return ui::gizmo::detail::Operation::Scale;
+        case ui::GizmoOperation::Rotate: return ui::gizmo::detail::Operation::Rotate;
         case ui::GizmoOperation::Translate:
-        default:                            return ui::gizmo::detail::Operation::Translate;
+        default: return ui::gizmo::detail::Operation::Translate;
         }
     }
 };
@@ -1488,7 +1507,7 @@ struct osc::Converter<ui::GizmoMode, ui::gizmo::detail::Mode> final {
         switch (mode) {
         case ui::GizmoMode::Local: return ui::gizmo::detail::Mode::Local;
         case ui::GizmoMode::World:
-        default:                   return ui::gizmo::detail::Mode::World;
+        default: return ui::gizmo::detail::Mode::World;
         }
     }
 };
@@ -1496,7 +1515,9 @@ struct osc::Converter<ui::GizmoMode, ui::gizmo::detail::Mode> final {
 template<>
 struct osc::Converter<ui::TreeNodeFlags, ImGuiTreeNodeFlags> final {
     ImGuiTreeNodeFlags operator()(ui::TreeNodeFlags flags) const { return c_mappings(flags); }
+
 private:
+    // clang-format off
     static constexpr FlagMapper<ui::TreeNodeFlag, ImGuiTreeNodeFlags> c_mappings = {
         {ui::TreeNodeFlag::DefaultOpen,      ImGuiTreeNodeFlags_DefaultOpen},
         {ui::TreeNodeFlag::OpenOnArrow,      ImGuiTreeNodeFlags_OpenOnArrow},
@@ -1505,18 +1526,22 @@ private:
         {ui::TreeNodeFlag::DrawLinesToNodes, ImGuiTreeNodeFlags_DrawLinesToNodes},
         {ui::TreeNodeFlag::DrawLinesFull,    ImGuiTreeNodeFlags_DrawLinesFull},
     };
+    // clang-format on
 };
 
 template<>
 struct osc::Converter<ui::TabItemFlags, ImGuiTabItemFlags> final {
     ImGuiTabItemFlags operator()(ui::TabItemFlags flags) const { return c_mappings(flags); }
+
 private:
+    // clang-format off
     static constexpr FlagMapper<ui::TabItemFlag, ImGuiTabItemFlags> c_mappings = {
         {ui::TabItemFlag::NoReorder,       ImGuiTabItemFlags_NoReorder},
         {ui::TabItemFlag::NoCloseButton,   ImGuiTabItemFlags_NoCloseButton},
         {ui::TabItemFlag::UnsavedDocument, ImGuiTabItemFlags_UnsavedDocument},
         {ui::TabItemFlag::SetSelected,     ImGuiTabItemFlags_SetSelected},
     };
+    // clang-format on
 };
 
 template<>
@@ -1527,10 +1552,10 @@ struct osc::Converter<MouseButton, std::optional<ImGuiMouseButton>> final {
         static_assert(num_flags_v<MouseButton> == 5);
 
         switch (button) {
-        case MouseButton::Left:   return ImGuiMouseButton_Left;
-        case MouseButton::Right:  return ImGuiMouseButton_Right;
+        case MouseButton::Left: return ImGuiMouseButton_Left;
+        case MouseButton::Right: return ImGuiMouseButton_Right;
         case MouseButton::Middle: return ImGuiMouseButton_Middle;
-        default:                  return std::nullopt;
+        default: return std::nullopt;
         }
     }
 };
@@ -1541,11 +1566,12 @@ struct osc::Converter<ui::SliderFlags, ImGuiSliderFlags> final {
     {
         return c_mappings(flags);
     }
+
 private:
     static constexpr FlagMapper<ui::SliderFlag, ImGuiSliderFlags> c_mappings = {
         {ui::SliderFlag::Logarithmic, ImGuiSliderFlags_Logarithmic},
         {ui::SliderFlag::AlwaysClamp, ImGuiSliderFlags_AlwaysClamp},
-        {ui::SliderFlag::NoInput,     ImGuiSliderFlags_NoInput},
+        {ui::SliderFlag::NoInput, ImGuiSliderFlags_NoInput},
     };
 };
 
@@ -1564,10 +1590,11 @@ struct osc::Converter<ui::TextInputFlags, ImGuiInputTextFlags> final {
     {
         return c_mappings(flags);
     }
+
 private:
     static constexpr FlagMapper<ui::TextInputFlag, ImGuiInputTextFlags> c_mappings = {
         {ui::TextInputFlag::EnterReturnsTrue, ImGuiInputTextFlags_EnterReturnsTrue},
-        {ui::TextInputFlag::ReadOnly,         ImGuiInputTextFlags_ReadOnly},
+        {ui::TextInputFlag::ReadOnly, ImGuiInputTextFlags_ReadOnly},
     };
 };
 
@@ -1577,6 +1604,7 @@ struct osc::Converter<ui::ComboFlags, ImGuiComboFlags> final {
     {
         return c_mappings(flags);
     }
+
 private:
     static constexpr FlagMapper<ui::ComboFlag, ImGuiComboFlags> c_mappings = {
         {ui::ComboFlag::NoArrowButton, ImGuiComboFlags_NoArrowButton},
@@ -1589,7 +1617,9 @@ struct osc::Converter<ui::PanelFlags, ImGuiWindowFlags> final {
     {
         return c_mappings(flags);
     }
+
 private:
+    // clang-format off
     static constexpr FlagMapper<ui::PanelFlag, ImGuiWindowFlags> c_mappings = {
         {ui::PanelFlag::NoMove                 , ImGuiWindowFlags_NoMove                 },
         {ui::PanelFlag::NoTitleBar             , ImGuiWindowFlags_NoTitleBar             },
@@ -1608,6 +1638,7 @@ private:
         {ui::PanelFlag::HorizontalScrollbar    , ImGuiWindowFlags_HorizontalScrollbar    },
         {ui::PanelFlag::AlwaysVerticalScrollbar, ImGuiWindowFlags_AlwaysVerticalScrollbar},
     };
+    // clang-format on
 };
 
 template<>
@@ -1616,6 +1647,7 @@ struct osc::Converter<ui::ChildPanelFlags, ImGuiChildFlags> final {
     {
         return c_mappings(flags);
     }
+
 private:
     static constexpr FlagMapper<ui::ChildPanelFlag, ImGuiChildFlags> c_mappings = {
         {ui::ChildPanelFlag::Border, ImGuiChildFlags_Borders},
@@ -1629,10 +1661,10 @@ struct osc::Converter<ui::Conditional, ImGuiCond> final {
         static_assert(num_options_v<ui::Conditional> == 3);
 
         switch (conditional) {
-        case ui::Conditional::Always:    return ImGuiCond_Always;
-        case ui::Conditional::Once:      return ImGuiCond_Once;
+        case ui::Conditional::Always: return ImGuiCond_Always;
+        case ui::Conditional::Once: return ImGuiCond_Once;
         case ui::Conditional::Appearing: return ImGuiCond_Appearing;
-        default:                         return ImGuiCond_Always;
+        default: return ImGuiCond_Always;
         }
     }
 };
@@ -1643,7 +1675,9 @@ struct osc::Converter<ui::HoveredFlags, ImGuiHoveredFlags> final {
     {
         return c_mappings(flags);
     }
+
 private:
+    // clang-format off
     static constexpr FlagMapper<ui::HoveredFlag, ImGuiHoveredFlags> c_mappings = {
         {ui::HoveredFlag::AllowWhenDisabled           , ImGuiHoveredFlags_AllowWhenDisabled           },
         {ui::HoveredFlag::AllowWhenBlockedByPopup     , ImGuiHoveredFlags_AllowWhenBlockedByPopup     },
@@ -1654,6 +1688,7 @@ private:
         {ui::HoveredFlag::RootAndChildPanels          , ImGuiHoveredFlags_RootAndChildWindows         },
         {ui::HoveredFlag::ChildPanels                 , ImGuiHoveredFlags_ChildWindows                },
     };
+    // clang-format on
 };
 
 template<>
@@ -1662,9 +1697,10 @@ struct osc::Converter<ui::ItemFlags, ImGuiItemFlags> final {
     {
         return c_mappings(flags);
     }
+
 private:
     static constexpr FlagMapper<ui::ItemFlag, ImGuiItemFlags> c_mappings = {
-        {ui::ItemFlag::Disabled , ImGuiItemFlags_Disabled },
+        {ui::ItemFlag::Disabled, ImGuiItemFlags_Disabled},
         {ui::ItemFlag::Inputable, ImGuiItemFlags_Inputable},
     };
 };
@@ -1675,9 +1711,10 @@ struct osc::Converter<ui::PopupFlags, ImGuiPopupFlags> final {
     {
         return c_mappings(flags);
     }
+
 private:
     static constexpr FlagMapper<ui::PopupFlag, ImGuiPopupFlags> c_mappings = {
-        {ui::PopupFlag::MouseButtonLeft , ImGuiPopupFlags_MouseButtonLeft },
+        {ui::PopupFlag::MouseButtonLeft, ImGuiPopupFlags_MouseButtonLeft},
         {ui::PopupFlag::MouseButtonRight, ImGuiPopupFlags_MouseButtonRight},
     };
 };
@@ -1688,7 +1725,9 @@ struct osc::Converter<ui::TableFlags, ImGuiTableFlags> final {
     {
         return c_mappings(flags);
     }
+
 private:
+    // clang-format off
     static constexpr FlagMapper<ui::TableFlag, ImGuiTableFlags> c_mappings = {
         {ui::TableFlag::BordersInner     , ImGuiTableFlags_BordersInner     },
         {ui::TableFlag::BordersInnerV    , ImGuiTableFlags_BordersInnerV    },
@@ -1701,6 +1740,7 @@ private:
         {ui::TableFlag::Sortable         , ImGuiTableFlags_Sortable         },
         {ui::TableFlag::SortTristate     , ImGuiTableFlags_SortTristate     },
     };
+    // clang-format on
 };
 
 template<>
@@ -1709,9 +1749,10 @@ struct osc::Converter<ui::ColumnFlags, ImGuiTableColumnFlags> final {
     {
         return c_mappings(flags);
     }
+
 private:
     static constexpr FlagMapper<ui::ColumnFlag, ImGuiTableColumnFlags> c_mappings = {
-        {ui::ColumnFlag::NoSort,       ImGuiTableColumnFlags_NoSort},
+        {ui::ColumnFlag::NoSort, ImGuiTableColumnFlags_NoSort},
         {ui::ColumnFlag::WidthStretch, ImGuiTableColumnFlags_WidthStretch},
     };
 };
@@ -1722,6 +1763,7 @@ struct osc::Converter<ui::ColorVar, ImGuiCol> final {
     {
         static_assert(num_options_v<ui::ColorVar> == 11);
 
+        // clang-format off
         switch (option) {
         case ui::ColorVar::Text:           return ImGuiCol_Text;
         case ui::ColorVar::Button:         return ImGuiCol_Button;
@@ -1736,6 +1778,7 @@ struct osc::Converter<ui::ColorVar, ImGuiCol> final {
         case ui::ColorVar::PanelBg:        return ImGuiCol_WindowBg;
         default:                           return ImGuiCol_Text;
         }
+        // clang-format on
     }
 };
 
@@ -1745,6 +1788,7 @@ struct osc::Converter<ui::StyleVar, ImGuiStyleVar> final {
     {
         static_assert(num_options_v<ui::StyleVar> == 10);
 
+        // clang-format off
         switch (option) {
         case ui::StyleVar::Alpha:            return ImGuiStyleVar_Alpha;
         case ui::StyleVar::ButtonTextAlign:  return ImGuiStyleVar_ButtonTextAlign;
@@ -1758,6 +1802,7 @@ struct osc::Converter<ui::StyleVar, ImGuiStyleVar> final {
         case ui::StyleVar::PanelPadding:     return ImGuiStyleVar_WindowPadding;
         default:                             return ImGuiStyleVar_Alpha;
         }
+        // clang-format on
     }
 };
 
@@ -1768,14 +1813,13 @@ struct osc::Converter<ImGuiSortDirection, ui::SortDirection> final {
         static_assert(num_options_v<ui::SortDirection> == 3);
 
         switch (option) {
-        case ImGuiSortDirection_None:       return ui::SortDirection::None;
-        case ImGuiSortDirection_Ascending:  return ui::SortDirection::Ascending;
+        case ImGuiSortDirection_None: return ui::SortDirection::None;
+        case ImGuiSortDirection_Ascending: return ui::SortDirection::Ascending;
         case ImGuiSortDirection_Descending: return ui::SortDirection::Descending;
-        default:                            return ui::SortDirection::None;
+        default: return ui::SortDirection::None;
         }
     }
 };
-
 
 template<>
 struct osc::Converter<ImGuiTableColumnSortSpecs, ui::TableColumnSortSpec> final {
@@ -1807,8 +1851,7 @@ void osc::ui::ContextConfiguration::set_main_font_as_standard_plus_icon_font(
     impl_.upd()->set_main_font_as_standard_plus_icon_font(
         std::move(main_font_ttf_path),
         std::move(icon_font_ttf_path),
-        codepoint_range
-    );
+        codepoint_range);
 }
 
 osc::ui::Context::Context(App& app, const ContextConfiguration& configuration)
@@ -1879,8 +1922,7 @@ void osc::ui::Context::init(
         // our (C++ stdlib) application
         ImGui::SetAllocatorFunctions(
             [](size_t count, [[maybe_unused]] void* user_data) { return ::operator new(count); },
-            [](void* ptr, [[maybe_unused]] void* user_data) { ::operator delete(ptr); }
-        );
+            [](void* ptr, [[maybe_unused]] void* user_data) { ::operator delete(ptr); });
 
         // ensure oscar data is initialized first, so that it definitely outlives the
         // ImGui context.
@@ -1902,8 +1944,7 @@ void osc::ui::Context::init(
         // init ImGui for oscar
         imgui_oscar_platform_init(
             std::move(context_data),  // CARE: ImGui owns the oscar context data
-            app.main_window_id()
-        );
+            app.main_window_id());
     }
 
     // init extra parts (plotting, gizmos, etc.)
@@ -2092,7 +2133,7 @@ bool osc::ui::is_mouse_clicked(MouseButton button, bool repeat)
 bool osc::ui::is_mouse_clicked(MouseButton button, ID owner_id)
 {
     if (const auto imgui_button = to<std::optional<ImGuiMouseButton>>(button); imgui_button) {
-        return ImGui::IsMouseClicked(*imgui_button, ImGuiInputFlags_None,  owner_id.value());
+        return ImGui::IsMouseClicked(*imgui_button, ImGuiInputFlags_None, owner_id.value());
     }
     return false;
 }
@@ -2838,7 +2879,6 @@ osc::ui::DrawList::DrawList(DrawList&&) noexcept = default;
 osc::ui::DrawList& osc::ui::DrawList::operator=(DrawList&&) noexcept = default;
 osc::ui::DrawList::~DrawList() noexcept = default;
 
-
 void osc::ui::show_demo_panel()
 {
     ImGui::ShowDemoWindow();
@@ -2918,7 +2958,7 @@ bool osc::ui::update_orbit_controller_from_mouse_inputs(
 
     // handle mousewheel scrolling
     if (const float wheel = ImGui::GetIO().MouseWheel; wheel != 0.0f) {
-        orbit_controller.radius *= (1.0f - 0.2f*wheel);
+        orbit_controller.radius *= (1.0f - (0.2f * wheel));
         modified = true;
     }
 
@@ -2940,29 +2980,25 @@ bool osc::ui::update_orbit_controller_from_mouse_inputs(
 
     const bool left_dragging = ui::is_mouse_dragging(MouseButton::Left);
     const bool middle_dragging = ui::is_mouse_dragging(MouseButton::Middle);
-    const Vector2 delta = get_backend_data().mouse_delta_this_frame; // Track actual physical movement of the mouse (relevant in relative mode).
+    const Vector2 delta = get_backend_data().mouse_delta_this_frame;  // Track actual physical movement of the mouse (relevant in relative mode).
 
     if (delta != Vector2{} and (left_dragging or middle_dragging)) {
         if (is_ctrl_down()) {
-            orbit_controller.pan(aspect_ratio, delta/viewport_dimensions, associated_camera);
+            orbit_controller.pan(aspect_ratio, delta / viewport_dimensions, associated_camera);
+            modified = true;
+        } else if (is_ctrl_or_super_down()) {
+            orbit_controller.radius *= 1.0f + (4.0f * delta.y()) / viewport_dimensions.y();
+            modified = true;
+        } else {
+            orbit_controller.drag(delta / viewport_dimensions);
             modified = true;
         }
-        else if (is_ctrl_or_super_down()) {
-            orbit_controller.radius *= 1.0f + 4.0f*delta.y()/viewport_dimensions.y();
-            modified = true;
-        }
-        else {
-            orbit_controller.drag(delta/viewport_dimensions);
-            modified = true;
-        }
-    }
-    else if (ui::is_mouse_dragging(MouseButton::Right)) {
+    } else if (ui::is_mouse_dragging(MouseButton::Right)) {
         if (is_alt_down()) {
-            orbit_controller.radius *= 1.0f + 4.0f*delta.y()/viewport_dimensions.y();
+            orbit_controller.radius *= 1.0f + (4.0f * delta.y()) / viewport_dimensions.y();
             modified = true;
-        }
-        else {
-            orbit_controller.pan(aspect_ratio, delta/viewport_dimensions, associated_camera);
+        } else {
+            orbit_controller.pan(aspect_ratio, delta / viewport_dimensions, associated_camera);
             modified = true;
         }
     }
@@ -2983,106 +3019,85 @@ bool osc::ui::update_orbit_controller_from_keyboard_inputs(
         if (ctrl_or_super_down) {
             orbit_controller.focus_along(CoordinateDirection::minus_x());
             return true;
-        }
-        else {
+        } else {
             orbit_controller.focus_along(CoordinateDirection::x());
             return true;
         }
-    }
-    else if (ui::is_key_pressed(Key::Y)) {
+    } else if (ui::is_key_pressed(Key::Y)) {
         // Ctrl+Y already does something?
         if (not ctrl_or_super_down) {
             orbit_controller.focus_along(CoordinateDirection::y());
             return true;
         }
-    }
-    else if (ui::is_key_pressed(Key::F)) {
+    } else if (ui::is_key_pressed(Key::F)) {
         if (ctrl_or_super_down) {
             if (maybe_scene_world_space_aabb) {
                 orbit_controller.focus_on(
                     *maybe_scene_world_space_aabb,
                     associated_camera,
-                    aspect_ratio_of(viewport_rect)
-                );
+                    aspect_ratio_of(viewport_rect));
                 return true;
             }
-        }
-        else {
+        } else {
             orbit_controller.reset();
             return true;
         }
-    }
-    else if (ctrl_or_super_down and ui::is_key_pressed(Key::_8)) {
+    } else if (ctrl_or_super_down and ui::is_key_pressed(Key::_8)) {
         if (maybe_scene_world_space_aabb) {
             orbit_controller.focus_on(
                 *maybe_scene_world_space_aabb,
                 associated_camera,
-                aspect_ratio_of(viewport_rect)
-            );
+                aspect_ratio_of(viewport_rect));
             return true;
         }
-    }
-    else if (ui::is_key_down(Key::UpArrow)) {
+    } else if (ui::is_key_down(Key::UpArrow)) {
         if (ctrl_or_super_down) {
             // pan
             orbit_controller.pan(aspect_ratio_of(viewport_rect), {0.0f, -0.1f}, associated_camera);
-        }
-        else if (shift_down) {
+        } else if (shift_down) {
             orbit_controller.phi -= 90_deg;  // rotate in 90-deg increments
-        }
-        else {
+        } else {
             orbit_controller.phi -= 10_deg;  // rotate in 10-deg increments
         }
         return true;
-    }
-    else if (ui::is_key_down(Key::DownArrow)) {
+    } else if (ui::is_key_down(Key::DownArrow)) {
         if (ctrl_or_super_down) {
             // pan
             orbit_controller.pan(aspect_ratio_of(viewport_rect), {0.0f, +0.1f}, associated_camera);
-        }
-        else if (shift_down) {
+        } else if (shift_down) {
             // rotate in 90-deg increments
             orbit_controller.phi += 90_deg;
-        }
-        else {
+        } else {
             // rotate in 10-deg increments
             orbit_controller.phi += 10_deg;
         }
         return true;
-    }
-    else if (ui::is_key_down(Key::LeftArrow)) {
+    } else if (ui::is_key_down(Key::LeftArrow)) {
         if (ctrl_or_super_down) {
             // pan
             orbit_controller.pan(aspect_ratio_of(viewport_rect), {-0.1f, 0.0f}, associated_camera);
-        }
-        else if (shift_down) {
+        } else if (shift_down) {
             // rotate in 90-deg increments
             orbit_controller.theta += 90_deg;
-        }
-        else {
+        } else {
             // rotate in 10-deg increments
             orbit_controller.theta += 10_deg;
         }
         return true;
-    }
-    else if (ui::is_key_down(Key::RightArrow)) {
+    } else if (ui::is_key_down(Key::RightArrow)) {
         if (ctrl_or_super_down) {
             // pan
             orbit_controller.pan(aspect_ratio_of(viewport_rect), {+0.1f, 0.0f}, associated_camera);
-        }
-        else if (shift_down) {
+        } else if (shift_down) {
             orbit_controller.theta -= 90_deg;  // rotate in 90-deg increments
-        }
-        else {
+        } else {
             orbit_controller.theta -= 10_deg;  // rotate in 10-deg increments
         }
         return true;
-    }
-    else if (ui::is_key_down(Key::Minus)) {
+    } else if (ui::is_key_down(Key::Minus)) {
         orbit_controller.radius *= 1.1f;
         return true;
-    }
-    else if (ui::is_key_down(Key::Equals)) {
+    } else if (ui::is_key_down(Key::Equals)) {
         orbit_controller.radius *= 0.9f;
         return true;
     }
@@ -3104,8 +3119,7 @@ bool osc::ui::update_orbit_controller_from_all_inputs(
         update_orbit_controller_from_mouse_inputs(
             orbit_controller,
             associated_camera,
-            viewport_rect.dimensions()
-        );
+            viewport_rect.dimensions());
 
     const bool keyboard_handled = not io.WantCaptureKeyboard ?
         update_orbit_controller_from_keyboard_inputs(
@@ -3192,7 +3206,7 @@ void osc::ui::draw_image(const RenderTexture& texture, Vector2 dimensions)
 
 Vector2 osc::ui::calc_button_size(CStringView content)
 {
-    return ui::calc_text_size(content) + 2.0f*ui::get_style_frame_padding();
+    return ui::calc_text_size(content) + (2.0f * ui::get_style_frame_padding());
 }
 
 float osc::ui::calc_button_width(CStringView content)
@@ -3237,8 +3251,7 @@ Rect osc::ui::get_last_drawn_item_screen_rect()
     const float ui_height = ImGui::GetIO().DisplaySize.y;
     return Rect::from_corners(
         {ui_rect_corners.min.x(), ui_height - ui_rect_corners.max.y()},
-        {ui_rect_corners.max.x(), ui_height - ui_rect_corners.min.y()}
-    );
+        {ui_rect_corners.max.x(), ui_height - ui_rect_corners.min.y()});
 }
 
 void osc::ui::add_screenshot_annotation_to_last_drawn_item(std::string_view label)
@@ -3321,10 +3334,9 @@ bool osc::ui::is_mouse_released_without_dragging(MouseButton mouse_button, float
 
 bool osc::ui::is_mouse_dragging_with_any_button_down()
 {
-    return
-        ui::is_mouse_dragging(MouseButton::Left) or
-        ui::is_mouse_dragging(MouseButton::Middle) or
-        ui::is_mouse_dragging(MouseButton::Right);
+    return ui::is_mouse_dragging(MouseButton::Left) or
+           ui::is_mouse_dragging(MouseButton::Middle) or
+           ui::is_mouse_dragging(MouseButton::Right);
 }
 
 void osc::ui::begin_tooltip(std::optional<float> wrap_width)
@@ -3346,7 +3358,7 @@ void osc::ui::draw_tooltip_header_text(CStringView content)
 
 void osc::ui::draw_tooltip_description_spacer()
 {
-    ui::draw_vertical_spacer(1.0f/15.0f);
+    ui::draw_vertical_spacer(1.0f / 15.0f);
 }
 
 void osc::ui::draw_tooltip_description_text(CStringView content)
@@ -3410,7 +3422,7 @@ bool osc::ui::draw_string_input(CStringView label, std::string& edited_string, T
 
 bool osc::ui::draw_string_input_with_hint(CStringView label, CStringView hint, std::string& edited_string, TextInputFlags flags)
 {
-    return ImGui::InputTextWithHint(label.c_str(), hint.c_str(), & edited_string, to<ImGuiInputTextFlags>(flags));
+    return ImGui::InputTextWithHint(label.c_str(), hint.c_str(), &edited_string, to<ImGuiInputTextFlags>(flags));
 }
 
 bool osc::ui::draw_float_meters_input(CStringView label, float& v, float step, float step_fast, TextInputFlags flags)
@@ -3490,15 +3502,13 @@ bool osc::ui::main_window_has_workspace()
     return get_main_window_workspace_ui_rect().area() > 0.0f;
 }
 
-
 Rect osc::ui::get_main_window_workspace_ui_rect()
 {
     const ImGuiViewport& viewport = *ImGui::GetMainViewport();
 
     return Rect::from_corners(
         viewport.WorkPos,
-        Vector2{viewport.WorkPos} + Vector2{viewport.WorkSize}
-    );
+        Vector2{viewport.WorkPos} + Vector2{viewport.WorkSize});
 }
 
 Rect osc::ui::get_main_window_workspace_screen_space_rect()
@@ -3534,8 +3544,7 @@ bool osc::ui::begin_main_window_top_bar(CStringView label, float height, PanelFl
         ImGui::GetMainViewport(),
         ImGuiDir_Up,
         height,
-        to<ImGuiWindowFlags>(flags)
-    );
+        to<ImGuiWindowFlags>(flags));
 }
 
 bool osc::ui::begin_main_window_bottom_bar(CStringView label)
@@ -3548,15 +3557,14 @@ bool osc::ui::begin_main_window_bottom_bar(CStringView label)
         ImGui::GetMainViewport(),
         ImGuiDir_Down,
         height,
-        flags
-    );
+        flags);
 }
 
 bool osc::ui::draw_button_centered(CStringView label)
 {
-    const float button_width = ui::calc_text_size(label).x() + 2.0f*ui::get_style_frame_padding().x();
-    const float midpoint = ui::get_cursor_ui_position().x() + 0.5f*ui::get_content_region_available().x();
-    const float button_start_x = midpoint - 0.5f*button_width;
+    const float button_width = ui::calc_text_size(label).x() + (2.0f * ui::get_style_frame_padding().x());
+    const float midpoint = ui::get_cursor_ui_position().x() + (0.5f * ui::get_content_region_available().x());
+    const float button_start_x = midpoint - (0.5f * button_width);
 
     ui::set_cursor_ui_position({button_start_x, ui::get_cursor_ui_position().y()});
 
@@ -3566,7 +3574,7 @@ bool osc::ui::draw_button_centered(CStringView label)
 void osc::ui::draw_text_centered(CStringView content)
 {
     const float panel_width = ui::get_panel_size().x();
-    const float text_width   = ui::calc_text_size(content).x();
+    const float text_width = ui::calc_text_size(content).x();
 
     ui::set_cursor_panel_x(0.5f * (panel_width - text_width));
     draw_text(content);
@@ -3601,7 +3609,7 @@ void osc::ui::draw_text_column_centered(CStringView content)
     const float column_offset = ui::get_cursor_panel_position().x();
     const float text_width = ui::calc_text_size(content).x();
 
-    ui::set_cursor_panel_x(column_offset + 0.5f*(column_width-text_width));
+    ui::set_cursor_panel_x(column_offset + (0.5f * (column_width - text_width)));
     draw_text(content);
 }
 
@@ -3645,9 +3653,7 @@ bool osc::ui::draw_combobox(
     size_t size,
     const std::function<CStringView(size_t)>& accessor)
 {
-    const CStringView preview = current != nullptr ?
-        accessor(*current) :
-        CStringView{};
+    const CStringView preview = current != nullptr ? accessor(*current) : CStringView{};
 
     if (not ui::begin_combobox(label, preview)) {
         return false;
@@ -3687,8 +3693,7 @@ bool osc::ui::draw_combobox(
         label,
         current,
         items.size(),
-        [items](size_t i) { return items[i]; }
-    );
+        [items](size_t i) { return items[i]; });
 }
 
 void osc::ui::draw_vertical_separator()
@@ -3702,8 +3707,6 @@ void osc::ui::draw_same_line_with_vertical_separator()
     draw_vertical_separator();
     ui::same_line();
 }
-
-
 
 bool osc::ui::draw_float_circular_slider(
     CStringView label,
@@ -3723,8 +3726,7 @@ bool osc::ui::draw_float_circular_slider(
 
     // prefetch top-level state
     ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems)
-    {
+    if (window->SkipItems) {
         // skip drawing: the window is not visible or it is clipped
         return false;
     }
@@ -3734,7 +3736,7 @@ bool osc::ui::draw_float_circular_slider(
 
     // calculate top-level item info for early-cull checks etc.
     const Vector2 label_size = ui::calc_text_size(label, true);
-    const Vector2 frame_dims = {ImGui::CalcItemWidth(), label_size.y() + 2.0f*style.FramePadding.y};
+    const Vector2 frame_dims = {ImGui::CalcItemWidth(), label_size.y() + (2.0f * style.FramePadding.y)};
     const Vector2 cursor_screen_pos = ui::get_cursor_ui_position();
     const ImRect frame_bounds = {cursor_screen_pos, cursor_screen_pos + frame_dims};
     const float label_width_with_spacing = label_size.x() > 0.0f ? label_size.x() + style.ItemInnerSpacing.x : 0.0f;
@@ -3787,8 +3789,7 @@ bool osc::ui::draw_float_circular_slider(
             static_cast<void*>(v),
             format.c_str(),
             should_clamp_textual_input ? static_cast<const void*>(&min) : nullptr,
-            should_clamp_textual_input ? static_cast<const void*>(&max) : nullptr
-        );
+            should_clamp_textual_input ? static_cast<const void*>(&max) : nullptr);
     }
 
     // else: draw the slider (remainder of this func)
@@ -3808,8 +3809,7 @@ bool osc::ui::draw_float_circular_slider(
         max,
         format.c_str(),
         to<ImGuiSliderFlags>(flags),
-        &grab_bounding_box
-    );
+        &grab_bounding_box);
     if (value_changed) {
         ImGui::MarkItemEdited(id);
     }
@@ -3820,8 +3820,8 @@ bool osc::ui::draw_float_circular_slider(
         const Vector2 slider_nob_center = ::centroid_of(grab_bounding_box);
         const float slider_nob_radius = 0.75f * shortest_edge_length_of(grab_bounding_box);
         const float slider_rail_thickness = 0.5f * slider_nob_radius;
-        const float slider_rail_top_y = slider_nob_center.y() - 0.5f*slider_rail_thickness;
-        const float slider_rail_bottom_y = slider_nob_center.y() + 0.5f*slider_rail_thickness;
+        const float slider_rail_top_y = slider_nob_center.y() - (0.5f * slider_rail_thickness);
+        const float slider_rail_bottom_y = slider_nob_center.y() + (0.5f * slider_rail_thickness);
 
         const bool is_active = g.ActiveId == id;
         const ImU32 rail_color = ImGui::GetColorU32(is_hovered ? ImGuiCol_FrameBgHovered : is_active ? ImGuiCol_FrameBgActive : ImGuiCol_FrameBg);
@@ -3837,8 +3837,7 @@ bool osc::ui::draw_float_circular_slider(
                 lhs_rail_topleft,
                 lhs_rail_bottomright,
                 brightened_rail_color,
-                g.Style.FrameRounding
-            );
+                g.Style.FrameRounding);
         }
 
         // render right-hand rail
@@ -3850,16 +3849,14 @@ bool osc::ui::draw_float_circular_slider(
                 rhs_rail_topleft,
                 rhs_rail_bottomright,
                 rail_color,
-                g.Style.FrameRounding
-            );
+                g.Style.FrameRounding);
         }
 
         // render slider grab on top of rail
         window->DrawList->AddCircleFilled(
             slider_nob_center,
             slider_nob_radius,  // visible nob is slightly smaller than virtual nob
-            grab_color
-        );
+            grab_color);
 
         // render current slider value using user-provided display format
         {
@@ -3875,8 +3872,7 @@ bool osc::ui::draw_float_circular_slider(
         if (label_size.x() > 0.0f) {
             ImGui::RenderText(ImVec2(frame_bounds.Max.x + style.ItemInnerSpacing.x, frame_bounds.Min.y + style.FramePadding.y), label.c_str());
         }
-    }
-    else {
+    } else {
         // render slider background frame
         {
             const ImU32 frame_color = ImGui::GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : is_hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
@@ -3910,9 +3906,6 @@ bool osc::ui::draw_float_circular_slider(
     return value_changed;
 }
 
-
-// gizmo stuff
-
 bool osc::ui::draw_gizmo_mode_selector(Gizmo& gizmo)
 {
     GizmoMode mode = gizmo.mode();
@@ -3925,8 +3918,8 @@ bool osc::ui::draw_gizmo_mode_selector(Gizmo& gizmo)
 
 bool osc::ui::draw_gizmo_mode_selector(GizmoMode& mode)
 {
-    constexpr auto mode_labels = std::to_array<CStringView>({ "local", "global" });
-    constexpr auto modes = std::to_array<GizmoMode, 2>({ GizmoMode::Local, GizmoMode::World });
+    constexpr auto mode_labels = std::to_array<CStringView>({"local", "global"});
+    constexpr auto modes = std::to_array<GizmoMode, 2>({GizmoMode::Local, GizmoMode::World});
 
     bool rv = false;
     size_t current_mode = std::distance(rgs::begin(modes), rgs::find(modes, mode));
@@ -4044,8 +4037,7 @@ std::optional<Transform> osc::ui::Gizmo::draw(
         ui_rect,
         ImGui::GetWindowDrawList(),
         snap,
-        local_bounds
-    );
+        local_bounds);
 }
 
 std::optional<Transform> osc::ui::Gizmo::draw_to_foreground(
@@ -4063,8 +4055,7 @@ std::optional<Transform> osc::ui::Gizmo::draw_to_foreground(
         ui_rect,
         ImGui::GetForegroundDrawList(),
         snap,
-        local_bounds
-    );
+        local_bounds);
 }
 
 std::optional<Transform> osc::ui::Gizmo::draw_to(
@@ -4086,7 +4077,9 @@ std::optional<Transform> osc::ui::Gizmo::draw_to(
     auto& gizmo_context = get_backend_data().gizmo_context;
 
     gizmo_context.push_id(id_);
-    const ScopeExit g{[&gizmo_context]{ gizmo_context.pop_id(); }};
+    const ScopeExit g{[&gizmo_context] {
+        gizmo_context.pop_id();
+    }};
 
     // update last-frame cache
     was_using_last_frame_ = gizmo_context.is_using();
@@ -4100,8 +4093,7 @@ std::optional<Transform> osc::ui::Gizmo::draw_to(
         to<gizmo::detail::Mode>(mode_),
         model_matrix,
         snap,
-        local_bounds
-    );
+        local_bounds);
 }
 
 bool osc::ui::Gizmo::is_using() const
@@ -4184,11 +4176,11 @@ namespace
     {
         static_assert(num_options_v<plot::PlotStyleVar> == 4);
         switch (var) {
-        case plot::PlotStyleVar::FitPadding:        return ImPlotStyleVar_FitPadding;
-        case plot::PlotStyleVar::PlotPadding:       return ImPlotStyleVar_PlotPadding;
-        case plot::PlotStyleVar::PlotBorderSize:    return ImPlotStyleVar_PlotBorderSize;
+        case plot::PlotStyleVar::FitPadding: return ImPlotStyleVar_FitPadding;
+        case plot::PlotStyleVar::PlotPadding: return ImPlotStyleVar_PlotPadding;
+        case plot::PlotStyleVar::PlotBorderSize: return ImPlotStyleVar_PlotBorderSize;
         case plot::PlotStyleVar::AnnotationPadding: return ImPlotStyleVar_AnnotationPadding;
-        default:                                    std::unreachable();
+        default: std::unreachable();
         }
     }
 
@@ -4196,9 +4188,9 @@ namespace
     {
         static_assert(num_options_v<plot::PlotColorVar> == 2);
         switch (var) {
-        case plot::PlotColorVar::Line:           return ImPlotCol_Line;
+        case plot::PlotColorVar::Line: return ImPlotCol_Line;
         case plot::PlotColorVar::PlotBackground: return ImPlotCol_PlotBg;
-        default:                                 std::unreachable();
+        default: std::unreachable();
         }
     }
 
@@ -4208,7 +4200,7 @@ namespace
         switch (axis) {
         case plot::Axis::X1: return ImAxis_X1;
         case plot::Axis::Y1: return ImAxis_Y1;
-        default:             std::unreachable();
+        default: std::unreachable();
         }
     }
 
@@ -4234,8 +4226,8 @@ namespace
         static_assert(num_options_v<plot::Condition> == 2);
         switch (condition) {
         case plot::Condition::Always: return ImPlotCond_Always;
-        case plot::Condition::Once:   return ImPlotCond_Once;
-        default:                      std::unreachable();
+        case plot::Condition::Once: return ImPlotCond_Once;
+        default: std::unreachable();
         }
     }
 
@@ -4243,9 +4235,9 @@ namespace
     {
         static_assert(num_options_v<plot::MarkerType> == 2);
         switch (marker_type) {
-        case plot::MarkerType::None:   return ImPlotMarker_None;
+        case plot::MarkerType::None: return ImPlotMarker_None;
         case plot::MarkerType::Circle: return ImPlotMarker_Circle;
-        default:                       std::unreachable();
+        default: std::unreachable();
         }
     }
 
@@ -4261,6 +4253,7 @@ namespace
     constexpr ImPlotLocation to_ImPlotLocation(plot::Location location)  // NOLINT(readability-identifier-naming)
     {
         static_assert(num_options_v<plot::Location> == 9);
+        // clang-format off
         switch (location) {
         case plot::Location::Center:    return ImPlotLocation_Center;
         case plot::Location::North:     return ImPlotLocation_North;
@@ -4273,6 +4266,7 @@ namespace
         case plot::Location::NorthWest: return ImPlotLocation_NorthWest;
         default:                        std::unreachable();
         }
+        // clang-format on
     }
 
     constexpr ImPlotLegendFlags to_ImPlotLegendFlags(plot::LegendFlags flags)  // NOLINT(readability-identifier-naming)
@@ -4363,8 +4357,7 @@ void osc::ui::plot::set_next_marker_style(
         size ? *size : IMPLOT_AUTO,
         fill ? ImVec4{*fill} : IMPLOT_AUTO_COL,
         weight ? *weight : IMPLOT_AUTO,
-        outline ? ImVec4{*outline} : IMPLOT_AUTO_COL
-    );
+        outline ? ImVec4{*outline} : IMPLOT_AUTO_COL);
 }
 
 void osc::ui::plot::plot_line(CStringView name, std::span<const Vector2> points)
@@ -4376,8 +4369,7 @@ void osc::ui::plot::plot_line(CStringView name, std::span<const Vector2> points)
         static_cast<int>(points.size()),
         0,
         0,
-        sizeof(Vector2)
-    );
+        sizeof(Vector2));
 }
 
 void osc::ui::plot::plot_line(CStringView name, std::span<const float> y_values, std::optional<ClosedInterval<float>> x_range)
