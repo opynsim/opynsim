@@ -43,7 +43,7 @@ namespace osc
         // (maybe) elements the assignment is ultimately assigning
         std::unordered_set<UID> maybe_els_attaching_to;
 
-        // false implies the user is attaching "away from" what they select (used for drawing arrows)
+        // false means the user is attaching "away from" their selection (used for drawing arrows)
         bool is_attaching_toward_el = true;
 
         // (maybe) elements that are being replaced by the user's choice
@@ -74,15 +74,11 @@ namespace osc
             MeshImporterUILayer{parent},
             shared_{std::move(shared)},
             options_{std::move(options)}
-        {
-        }
+        {}
 
     private:
         // returns true if the user's mouse is hovering over the given scene element
-        bool is_hovered(const MiObject& el) const
-        {
-            return el.get_id() == maybe_hover_.id;
-        }
+        bool is_hovered(const MiObject& el) const { return el.get_id() == maybe_hover_.id; }
 
         // returns true if the user has already selected the given scene element
         bool is_selected(const MiObject& el) const
@@ -127,7 +123,8 @@ namespace osc
                 return;
             }
 
-            std::erase_if(selected_object_ids_, [el_id = el.get_id()](UID id) { return id == el_id; });
+            std::erase_if(
+                selected_object_ids_, [el_id = el.get_id()](UID id) { return id == el_id; });
         }
 
         void try_toggle_selection_state_of(const MiObject& el)
@@ -180,7 +177,8 @@ namespace osc
 
                     if (not is_selectable_el) {
                         if (std::holds_alternative<Color>(d.shading)) {
-                            std::get<Color>(d.shading).a = faded_alpha;  // fade non-selectable colored scene elements
+                            // fade non-selectable colored scene elements
+                            std::get<Color>(d.shading).a = faded_alpha;
                         }
                         d.id = MiIDs::empty();
                         d.group_id = MiIDs::empty();
@@ -198,7 +196,9 @@ namespace osc
 
         void handle_possible_completion()
         {
-            if (static_cast<int>(selected_object_ids_.size()) < options_.num_elements_user_must_choose) {
+            if (static_cast<int>(selected_object_ids_.size()) <
+                options_.num_elements_user_must_choose) {
+
                 return;  // user hasn't selected enough stuff yet
             }
 
@@ -250,14 +250,17 @@ namespace osc
             if (!maybe_hover_) {
                 // user isn't hovering anything, so just draw all existing connection
                 // lines, but faintly
-                shared_->draw_connection_lines(faintify_color(shared_->get_color_connection_line()));
+                shared_->draw_connection_lines(
+                    faintify_color(shared_->get_color_connection_line()));
                 return;
             }
 
             // else: user is hovering *something*
 
             // draw all other connection lines but exclude the thing being assigned (if any)
-            shared_->draw_connection_lines(faintify_color(shared_->get_color_connection_line()), options_.maybe_els_being_replaced_by_choice);
+            shared_->draw_connection_lines(
+                faintify_color(shared_->get_color_connection_line()),
+                options_.maybe_els_being_replaced_by_choice);
 
             // draw strong connection line between the things being attached to and the hover
             for (UID el_attaching_to : options_.maybe_els_attaching_to) {
@@ -268,7 +271,8 @@ namespace osc
                     std::swap(parent_pos, child_pos);
                 }
 
-                shared_->draw_connection_line(shared_->get_color_connection_line(), parent_pos, child_pos);
+                shared_->draw_connection_line(
+                    shared_->get_color_connection_line(), parent_pos, child_pos);
             }
         }
 
@@ -292,7 +296,8 @@ namespace osc
 
             const CStringView text = MSMICONS_ARROW_LEFT " Cancel (ESC)";
             const Vector2 margin = {25.0f, 35.0f};
-            const Vector2 button_top_left = shared_->scene_ui_rect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
+            const Vector2 button_top_left =
+                shared_->scene_ui_rect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
 
             ui::set_cursor_ui_position(button_top_left);
             if (ui::draw_button(text)) {
@@ -303,12 +308,9 @@ namespace osc
             ui::pop_style_var();
         }
 
-        bool impl_on_event(Event& e) final
-        {
-            return shared_->on_event(e);
-        }
+        bool impl_on_event(Event& e) override { return shared_->on_event(e); }
 
-        void impl_tick(float dt) final
+        void impl_tick(float dt) override
         {
             shared_->tick(dt);
 
@@ -321,9 +323,7 @@ namespace osc
 
             if (is_render_hovered) {
                 const bool controller_updated = ui::update_orbit_controller_from_mouse_inputs(
-                    shared_->upd_camera_controller(),
-                    shared_->get_camera(),
-                    shared_->scene_dims());
+                    shared_->upd_camera_controller(), shared_->get_camera(), shared_->scene_dims());
                 if (controller_updated) {
                     shared_->get_camera_controller().update_camera(shared_->upd_camera());
                 }
@@ -335,7 +335,7 @@ namespace osc
             }
         }
 
-        void impl_on_draw() final
+        void impl_on_draw() override
         {
             shared_->set_content_region_avail_as_scene_rect();
 

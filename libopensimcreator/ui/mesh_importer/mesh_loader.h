@@ -63,21 +63,13 @@ namespace osc
             worker_{Worker::create(respond_to_meshload_request)}
         {}
 
-        void send(MeshLoadRequest req)
-        {
-            worker_.send(std::move(req));
-        }
+        void send(MeshLoadRequest req) { worker_.send(std::move(req)); }
 
-        std::optional<MeshLoadResponse> poll()
-        {
-            return worker_.poll();
-        }
+        std::optional<MeshLoadResponse> poll() { return worker_.poll(); }
 
     private:
-        using Worker = SpscWorker<
-            MeshLoadRequest,
-            MeshLoadResponse,
-            decltype(respond_to_meshload_request)>;
+        using Worker =
+            SpscWorker<MeshLoadRequest, MeshLoadResponse, decltype(respond_to_meshload_request)>;
         Worker worker_;
     };
 }

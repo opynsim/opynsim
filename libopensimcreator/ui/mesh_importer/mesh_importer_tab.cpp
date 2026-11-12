@@ -76,30 +76,22 @@ using namespace osc;
 using namespace osc::literals;
 
 // mesh importer tab implementation
-class osc::MeshImporterTab::Impl final : public TabPrivate,
-                                         public MeshImporterUILayerHost {
+class osc::MeshImporterTab::Impl final : public TabPrivate, public MeshImporterUILayerHost {
 public:
-    explicit Impl(
-        MeshImporterTab& owner,
-        Widget* parent) :
+    explicit Impl(MeshImporterTab& owner, Widget* parent) :
 
         TabPrivate{owner, parent, "MeshImporterTab"},
         shared_{std::make_shared<MeshImporterSharedState>(&owner)}
     {}
 
     explicit Impl(
-        MeshImporterTab& owner,
-        Widget* parent,
-        std::vector<std::filesystem::path> mesh_paths) :
+        MeshImporterTab& owner, Widget* parent, std::vector<std::filesystem::path> mesh_paths) :
 
         TabPrivate{owner, parent, "MeshImporterTab"},
         shared_{std::make_shared<MeshImporterSharedState>(&owner, std::move(mesh_paths))}
     {}
 
-    bool is_unsaved() const
-    {
-        return !shared_->is_model_graph_up_to_date_with_disk();
-    }
+    bool is_unsaved() const { return !shared_->is_model_graph_up_to_date_with_disk(); }
 
     std::future<TabSaveResult> try_save()
     {
@@ -118,10 +110,7 @@ public:
         popup_manager_.on_mount();
     }
 
-    void on_unmount()
-    {
-        App::upd().make_main_loop_polling();
-    }
+    void on_unmount() { App::upd().make_main_loop_polling(); }
 
     bool on_event(Event& e)
     {
@@ -130,7 +119,9 @@ public:
         }
 
         if (maybe_3d_viewer_modal_) {
-            std::shared_ptr<MeshImporterUILayer> ptr = maybe_3d_viewer_modal_;  // ensure it stays alive - even if it pops itself during the drawcall
+            // ensure it stays alive - even if it pops itself during the drawcall
+            std::shared_ptr<MeshImporterUILayer> ptr = maybe_3d_viewer_modal_;
+
             if (ptr->on_event(e)) {
                 return true;
             }
@@ -146,7 +137,8 @@ public:
         shared_->tick(dt);
 
         if (maybe_3d_viewer_modal_) {
-            std::shared_ptr<MeshImporterUILayer> ptr = maybe_3d_viewer_modal_;  // ensure it stays alive - even if it pops itself during the drawcall
+            // ensure it stays alive - even if it pops itself during the drawcall
+            std::shared_ptr<MeshImporterUILayer> ptr = maybe_3d_viewer_modal_;
             ptr->tick(dt);
         }
 
@@ -192,9 +184,7 @@ public:
 
         if (!maybe_3d_viewer_modal_ && shared_->is_render_hovered() && !gizmo_.is_using()) {
             const bool controller_updated = ui::update_orbit_controller_from_mouse_inputs(
-                shared_->upd_camera_controller(),
-                shared_->get_camera(),
-                shared_->scene_dims());
+                shared_->upd_camera_controller(), shared_->get_camera(), shared_->scene_dims());
             if (controller_updated) {
                 shared_->get_camera_controller().update_camera(shared_->upd_camera());
             }
@@ -355,7 +345,8 @@ private:
             return;
         }
 
-        add_station_at_location(shared_->upd_committable_model_graph(), maybe_hover_.id, maybe_hover_.pos);
+        add_station_at_location(
+            shared_->upd_committable_model_graph(), maybe_hover_.id, maybe_hover_.pos);
     }
 
     //
@@ -365,7 +356,8 @@ private:
     //
 
     // transition the shown UI layer to one where the user is assigning a mesh
-    void transition_to_assigning_meshes_next_frame(const std::unordered_set<UID>& meshes, const std::unordered_set<UID>& existing_attachments)
+    void transition_to_assigning_meshes_next_frame(
+        const std::unordered_set<UID>& meshes, const std::unordered_set<UID>& existing_attachments)
     {
         ChooseElLayerOptions opts;
         opts.can_choose_bodies = true;
@@ -381,7 +373,8 @@ private:
                 return false;
             }
 
-            return try_assign_mesh_attachments(shared->upd_committable_model_graph(), meshes, choices.front());
+            return try_assign_mesh_attachments(
+                shared->upd_committable_model_graph(), meshes, choices.front());
         };
 
         // request a state transition
@@ -399,18 +392,20 @@ private:
         opts.header = "choose joint parent (ESC to cancel)";
         opts.maybe_els_attaching_to = {child.get_id()};
         opts.is_attaching_toward_el = false;  // away from the body
-        opts.on_user_choice = [shared = shared_, child_id = child.get_id()](std::span<UID> choices) {
+        opts.on_user_choice = [shared = shared_,
+                               child_id = child.get_id()](std::span<UID> choices) {
             if (choices.empty()) {
                 return false;
             }
 
-            return try_create_joint(shared->upd_committable_model_graph(), child_id, choices.front());
+            return try_create_joint(
+                shared->upd_committable_model_graph(), child_id, choices.front());
         };
         maybe_3d_viewer_modal_ = std::make_shared<ChooseElLayer>(*this, shared_, opts);
     }
 
-    // transition the shown UI layer to one where the user is choosing which element in the scene to point
-    // an element's axis towards
+    // transition the shown UI layer to one where the user is choosing which element in the scene to
+    // point an element's axis towards
     void transition_to_choosing_which_element_to_point_axis_towards(MiObject& el, int axis)
     {
         ChooseElLayerOptions opts;
@@ -426,14 +421,15 @@ private:
                 return false;
             }
 
-            return point_axis_towards(shared->upd_committable_model_graph(), id, axis, choices.front());
+            return point_axis_towards(
+                shared->upd_committable_model_graph(), id, axis, choices.front());
         };
         maybe_3d_viewer_modal_ = std::make_shared<ChooseElLayer>(*this, shared_, opts);
     }
 
-    // transition the shown UI layer to one where the user is choosing two elements that the given axis
-    // should be aligned along (i.e. the direction vector from the first element to the second element
-    // becomes the direction vector of the given axis)
+    // transition the shown UI layer to one where the user is choosing two elements that the given
+    // axis should be aligned along (i.e. the direction vector from the first element to the second
+    // element becomes the direction vector of the given axis)
     void transition_to_choosing_two_elements_to_align_axis_along(MiObject& el, int axis)
     {
         ChooseElLayerOptions opts;
@@ -451,11 +447,7 @@ private:
             }
 
             return try_orient_object_axis_along_two_objects(
-                shared->upd_committable_model_graph(),
-                id,
-                axis,
-                choices[0],
-                choices[1]);
+                shared->upd_committable_model_graph(), id, axis, choices[0], choices[1]);
         };
         maybe_3d_viewer_modal_ = std::make_shared<ChooseElLayer>(*this, shared_, opts);
     }
@@ -475,7 +467,8 @@ private:
                 return false;
             }
 
-            return try_translate_object_to_another_object(shared->upd_committable_model_graph(), id, choices.front());
+            return try_translate_object_to_another_object(
+                shared->upd_committable_model_graph(), id, choices.front());
         };
         maybe_3d_viewer_modal_ = std::make_shared<ChooseElLayer>(*this, shared_, opts);
     }
@@ -497,10 +490,7 @@ private:
             }
 
             return try_translate_between_two_objects(
-                shared->upd_committable_model_graph(),
-                id,
-                choices[0],
-                choices[1]);
+                shared->upd_committable_model_graph(), id, choices[0], choices[1]);
         };
         maybe_3d_viewer_modal_ = std::make_shared<ChooseElLayer>(*this, shared_, opts);
     }
@@ -529,9 +519,11 @@ private:
     void transition_to_orienting_element_along_two_mesh_points(MiObject& el, int axis)
     {
         Select2MeshPointsOptions opts;
-        opts.on_two_points_chosen = [shared = shared_, id = el.get_id(), axis](Vector3 a, Vector3 b) {
-            return try_orient_object_axis_along_two_points(shared->upd_committable_model_graph(), id, axis, a, b);
-        };
+        opts.on_two_points_chosen =
+            [shared = shared_, id = el.get_id(), axis](Vector3 a, Vector3 b) {
+                return try_orient_object_axis_along_two_points(
+                    shared->upd_committable_model_graph(), id, axis, a, b);
+            };
         maybe_3d_viewer_modal_ = std::make_shared<Select2MeshPointsLayer>(*this, shared_, opts);
     }
 
@@ -541,7 +533,8 @@ private:
     {
         Select2MeshPointsOptions opts;
         opts.on_two_points_chosen = [shared = shared_, id = el.get_id()](Vector3 a, Vector3 b) {
-            return try_translate_object_between_two_points(shared->upd_committable_model_graph(), id, a, b);
+            return try_translate_object_between_two_points(
+                shared->upd_committable_model_graph(), id, a, b);
         };
         maybe_3d_viewer_modal_ = std::make_shared<Select2MeshPointsLayer>(*this, shared_, opts);
     }
@@ -559,7 +552,8 @@ private:
                 return false;
             }
 
-            return try_translate_to_mesh_average_center(shared->upd_committable_model_graph(), id, choices.front());
+            return try_translate_to_mesh_average_center(
+                shared->upd_committable_model_graph(), id, choices.front());
         };
         maybe_3d_viewer_modal_ = std::make_shared<ChooseElLayer>(*this, shared_, opts);
     }
@@ -577,7 +571,8 @@ private:
                 return false;
             }
 
-            return try_translate_to_mesh_bounds_center(shared->upd_committable_model_graph(), id, choices.front());
+            return try_translate_to_mesh_bounds_center(
+                shared->upd_committable_model_graph(), id, choices.front());
         };
         maybe_3d_viewer_modal_ = std::make_shared<ChooseElLayer>(*this, shared_, opts);
     }
@@ -595,7 +590,8 @@ private:
                 return false;
             }
 
-            return try_translate_to_mesh_mass_center(shared->upd_committable_model_graph(), id, choices.front());
+            return try_translate_to_mesh_mass_center(
+                shared->upd_committable_model_graph(), id, choices.front());
         };
         maybe_3d_viewer_modal_ = std::make_shared<ChooseElLayer>(*this, shared_, opts);
     }
@@ -616,7 +612,8 @@ private:
                 return false;
             }
 
-            return try_translate_object_to_another_object(shared->upd_committable_model_graph(), id, choices.front());
+            return try_translate_object_to_another_object(
+                shared->upd_committable_model_graph(), id, choices.front());
         };
         maybe_3d_viewer_modal_ = std::make_shared<ChooseElLayer>(*this, shared_, opts);
     }
@@ -629,25 +626,30 @@ private:
             return;  // invalid index?
         }
 
-        const MiObject* old = shared_->get_model_graph().try_get_by_id(el.get_cross_reference_connectee_id(crossref_idx));
+        const MiObject* old = shared_->get_model_graph().try_get_by_id(
+            el.get_cross_reference_connectee_id(crossref_idx));
 
         if (not old) {
             return;  // old el doesn't exist?
         }
 
         ChooseElLayerOptions opts;
-        opts.can_choose_bodies = (dynamic_cast<const MiBody*>(old) != nullptr) || (dynamic_cast<const MiGround*>(old) != nullptr);
-        opts.can_choose_ground = (dynamic_cast<const MiBody*>(old) != nullptr) || (dynamic_cast<const MiGround*>(old) != nullptr);
+        opts.can_choose_bodies = (dynamic_cast<const MiBody*>(old) != nullptr) or
+                                 (dynamic_cast<const MiGround*>(old) != nullptr);
+        opts.can_choose_ground = (dynamic_cast<const MiBody*>(old) != nullptr) or
+                                 (dynamic_cast<const MiGround*>(old) != nullptr);
         opts.can_choose_joints = dynamic_cast<const MiJoint*>(old) != nullptr;
         opts.can_choose_meshes = dynamic_cast<const Mesh*>(old) != nullptr;
         opts.maybe_els_attaching_to = {el.get_id()};
         opts.header = "choose what to attach to";
-        opts.on_user_choice = [shared = shared_, id = el.get_id(), crossref_idx](std::span<UID> choices) {
-            if (choices.empty()) {
-                return false;
-            }
-            return try_reassign_crossref(shared->upd_committable_model_graph(), id, crossref_idx, choices.front());
-        };
+        opts.on_user_choice =
+            [shared = shared_, id = el.get_id(), crossref_idx](std::span<UID> choices) {
+                if (choices.empty()) {
+                    return false;
+                }
+                return try_reassign_crossref(
+                    shared->upd_committable_model_graph(), id, crossref_idx, choices.front());
+            };
         maybe_3d_viewer_modal_ = std::make_shared<ChooseElLayer>(*this, shared_, opts);
     }
 
@@ -743,7 +745,11 @@ private:
             return true;
         } else if (gizmo_.handle_keyboard_inputs()) {
             return true;
-        } else if (ui::update_orbit_controller_from_keyboard_inputs(shared_->upd_camera_controller(), shared_->get_camera(), shared_->scene_ui_rect(), calc_scene_aabb())) {
+        } else if (ui::update_orbit_controller_from_keyboard_inputs(
+                       shared_->upd_camera_controller(),
+                       shared_->get_camera(),
+                       shared_->scene_ui_rect(),
+                       calc_scene_aabb())) {
             shared_->get_camera_controller().update_camera(shared_->upd_camera());
             return true;
         } else {
@@ -785,7 +791,9 @@ private:
                 shared_->commit_current_model_graph(std::move(ss).str());
             }
             ui::same_line();
-            ui::draw_help_marker("Component Name", "This is the name that the component will have in the exported OpenSim model.");
+            ui::draw_help_marker(
+                "Component Name",
+                "This is the name that the component will have in the exported OpenSim model.");
         }
 
         // position editor
@@ -817,7 +825,9 @@ private:
                 shared_->commit_current_model_graph(std::move(ss).str());
             }
             ui::same_line();
-            ui::draw_help_marker("Rotation", "These are the rotation Euler angles for the component in ground. Positive rotations are anti-clockwise along that axis.\n\nNote: the numbers may contain slight rounding error, due to backend constraints. Your values *should* be accurate to a few decimal places.");
+            ui::draw_help_marker(
+                "Rotation",
+                "These are the rotation Euler angles for the component in ground. Positive rotations are anti-clockwise along that axis.\n\nNote: the numbers may contain slight rounding error, due to backend constraints. Your values *should* be accurate to a few decimal places.");
         }
 
         // scale factor editor
@@ -832,7 +842,9 @@ private:
                 shared_->commit_current_model_graph(std::move(ss).str());
             }
             ui::same_line();
-            ui::draw_help_marker("Scale", "These are the scale factors of the component in ground. These scale-factors are applied to the element before any other transform (it scales first, then rotates, then translates).");
+            ui::draw_help_marker(
+                "Scale",
+                "These are the scale factors of the component in ground. These scale-factors are applied to the element before any other transform (it scales first, then rotates, then translates).");
         }
     }
 
@@ -862,7 +874,10 @@ private:
         if (el.has_physical_size()) {
             if (ui::begin_menu(MSMICONS_CIRCLE " Body")) {
                 if (ui::draw_menu_item(MSMICONS_COMPRESS_ARROWS_ALT " at center")) {
-                    add_body(shared_->upd_committable_model_graph(), el.get_pos(shared_->get_model_graph()), el.get_id());
+                    add_body(
+                        shared_->upd_committable_model_graph(),
+                        el.get_pos(shared_->get_model_graph()),
+                        el.get_id());
                 }
                 ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_body_description);
 
@@ -901,7 +916,10 @@ private:
             }
         } else {
             if (ui::draw_menu_item(MSMICONS_CIRCLE " Body")) {
-                add_body(shared_->upd_committable_model_graph(), el.get_pos(shared_->get_model_graph()), el.get_id());
+                add_body(
+                    shared_->upd_committable_model_graph(),
+                    el.get_pos(shared_->get_model_graph()),
+                    el.get_id());
             }
             ui::draw_tooltip_if_item_hovered("Add Body", MiStrings::c_body_description);
         }
@@ -912,7 +930,9 @@ private:
             if (ui::draw_menu_item(MSMICONS_LINK " Joint")) {
                 transition_to_choosing_joint_parent(*body);
             }
-            ui::draw_tooltip_if_item_hovered("Creating Joints", "Create a joint from this body (the \"child\") to some other body in the model (the \"parent\").\n\nAll bodies in an OpenSim model must eventually connect to ground via joints. If no joint is added to the body then OpenSim Creator will automatically add a WeldJoint between the body and ground.");
+            ui::draw_tooltip_if_item_hovered(
+                "Creating Joints",
+                "Create a joint from this body (the \"child\") to some other body in the model (the \"parent\").\n\nAll bodies in an OpenSim model must eventually connect to ground via joints. If no joint is added to the body then OpenSim Creator will automatically add a WeldJoint between the body and ground.");
         }
         ui::pop_id();
 
@@ -921,32 +941,48 @@ private:
             if (el.has_physical_size()) {
                 if (ui::begin_menu(MSMICONS_MAP_PIN " Station")) {
                     if (ui::draw_menu_item(MSMICONS_COMPRESS_ARROWS_ALT " at center")) {
-                        add_station_at_location(shared_->upd_committable_model_graph(), el, el.get_pos(shared_->get_model_graph()));
+                        add_station_at_location(
+                            shared_->upd_committable_model_graph(),
+                            el,
+                            el.get_pos(shared_->get_model_graph()));
                     }
-                    ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_station_description);
+                    ui::draw_tooltip_if_item_hovered(
+                        "Add Station", MiStrings::c_station_description);
 
                     if (ui::draw_menu_item(MSMICONS_MOUSE_POINTER " at click position")) {
-                        add_station_at_location(shared_->upd_committable_model_graph(), el, click_pos);
+                        add_station_at_location(
+                            shared_->upd_committable_model_graph(), el, click_pos);
                     }
-                    ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_station_description);
+                    ui::draw_tooltip_if_item_hovered(
+                        "Add Station", MiStrings::c_station_description);
 
                     if (ui::draw_menu_item(MSMICONS_DOT_CIRCLE " at ground")) {
-                        add_station_at_location(shared_->upd_committable_model_graph(), el, Vector3{});
+                        add_station_at_location(
+                            shared_->upd_committable_model_graph(), el, Vector3{});
                     }
-                    ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_station_description);
+                    ui::draw_tooltip_if_item_hovered(
+                        "Add Station", MiStrings::c_station_description);
 
                     if (dynamic_cast<const Mesh*>(&el)) {
                         if (ui::draw_menu_item(MSMICONS_BORDER_ALL " at bounds center")) {
-                            add_station_at_location(shared_->upd_committable_model_graph(), el, centroid_of(el.calc_bounds(shared_->get_model_graph()).value_or(AABB{})));
+                            add_station_at_location(
+                                shared_->upd_committable_model_graph(),
+                                el,
+                                centroid_of(
+                                    el.calc_bounds(shared_->get_model_graph()).value_or(AABB{})));
                         }
-                        ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_station_description);
+                        ui::draw_tooltip_if_item_hovered(
+                            "Add Station", MiStrings::c_station_description);
                     }
 
                     ui::end_menu();
                 }
             } else {
                 if (ui::draw_menu_item(MSMICONS_MAP_PIN " Station")) {
-                    add_station_at_location(shared_->upd_committable_model_graph(), el, el.get_pos(shared_->get_model_graph()));
+                    add_station_at_location(
+                        shared_->upd_committable_model_graph(),
+                        el,
+                        el.get_pos(shared_->get_model_graph()));
                 }
                 ui::draw_tooltip_if_item_hovered("Add Station", MiStrings::c_station_description);
             }
@@ -971,9 +1007,12 @@ private:
     void draw_mi_object_actions(MiObject& el, const Vector3& click_pos)
     {
         if (ui::draw_menu_item(MSMICONS_CAMERA " Focus camera on this")) {
-            shared_->focus_camera_on(centroid_of(el.calc_bounds(shared_->get_model_graph()).value_or(AABB{})));
+            shared_->focus_camera_on(
+                centroid_of(el.calc_bounds(shared_->get_model_graph()).value_or(AABB{})));
         }
-        ui::draw_tooltip_if_item_hovered("Focus camera on this scene element", "Focuses the scene camera on this element. This is useful for tracking the camera around that particular object in the scene");
+        ui::draw_tooltip_if_item_hovered(
+            "Focus camera on this scene element",
+            "Focuses the scene camera on this element. This is useful for tracking the camera around that particular object in the scene");
 
         if (ui::begin_menu(MSMICONS_PLUS " Add")) {
             draw_add_other_to_mi_object_actions(el, click_pos);
@@ -984,7 +1023,9 @@ private:
             if (ui::draw_menu_item(MSMICONS_LINK " Join to")) {
                 transition_to_choosing_joint_parent(*body);
             }
-            ui::draw_tooltip_if_item_hovered("Creating Joints", "Create a joint from this body (the \"child\") to some other body in the model (the \"parent\").\n\nAll bodies in an OpenSim model must eventually connect to ground via joints. If no joint is added to the body then OpenSim Creator will automatically add a WeldJoint between the body and ground.");
+            ui::draw_tooltip_if_item_hovered(
+                "Creating Joints",
+                "Create a joint from this body (the \"child\") to some other body in the model (the \"parent\").\n\nAll bodies in an OpenSim model must eventually connect to ground via joints. If no joint is added to the body then OpenSim Creator will automatically add a WeldJoint between the body and ground.");
         }
 
         if (el.can_delete()) {
@@ -993,7 +1034,9 @@ private:
                 garbage_collect_stale_refs();
                 ui::close_current_popup();
             }
-            ui::draw_tooltip_if_item_hovered("Delete", "Deletes the component from the model. Deletion is undo-able (use the undo/redo feature). Anything attached to this element (e.g. joints, meshes) will also be deleted.");
+            ui::draw_tooltip_if_item_hovered(
+                "Delete",
+                "Deletes the component from the model. Deletion is undo-able (use the undo/redo feature). Anything attached to this element (e.g. joints, meshes) will also be deleted.");
         }
     }
 
@@ -1013,7 +1056,10 @@ private:
         for (int i = 0, len = el.get_num_cross_references(); i < len; ++i) {
             std::string label = "To " + el.get_cross_reference_label(i);
             if (ui::draw_menu_item(label)) {
-                try_translate_object_to_another_object(shared_->upd_committable_model_graph(), el.get_id(), el.get_cross_reference_connectee_id(i));
+                try_translate_object_to_another_object(
+                    shared_->upd_committable_model_graph(),
+                    el.get_id(),
+                    el.get_cross_reference_connectee_id(i));
             }
         }
 
@@ -1022,11 +1068,13 @@ private:
         }
 
         if (el.get_num_cross_references() == 2) {
-            std::string label = "Between " + el.get_cross_reference_label(0) + " and " + el.get_cross_reference_label(1);
+            std::string label = "Between " + el.get_cross_reference_label(0) + " and " +
+                                el.get_cross_reference_label(1);
             if (ui::draw_menu_item(label)) {
                 UID a = el.get_cross_reference_connectee_id(0);
                 UID b = el.get_cross_reference_connectee_id(1);
-                try_translate_between_two_objects(shared_->upd_committable_model_graph(), el.get_id(), a, b);
+                try_translate_between_two_objects(
+                    shared_->upd_committable_model_graph(), el.get_id(), a, b);
             }
         }
 
@@ -1041,17 +1089,23 @@ private:
         if (ui::draw_menu_item("To mesh bounds center")) {
             transition_to_translating_element_to_mesh_bounds_center(el);
         }
-        ui::draw_tooltip_if_item_hovered("Translate to mesh bounds center", "Translates the given element to the center of the selected mesh's bounding box. The bounding box is the smallest box that contains all mesh vertices");
+        ui::draw_tooltip_if_item_hovered(
+            "Translate to mesh bounds center",
+            "Translates the given element to the center of the selected mesh's bounding box. The bounding box is the smallest box that contains all mesh vertices");
 
         if (ui::draw_menu_item("To mesh average center")) {
             transition_to_translating_element_to_mesh_average_center(el);
         }
-        ui::draw_tooltip_if_item_hovered("Translate to mesh average center", "Translates the given element to the average center point of vertices in the selected mesh.\n\nEffectively, this adds each vertex location in the mesh, divides the sum by the number of vertices in the mesh, and sets the translation of the given object to that location.");
+        ui::draw_tooltip_if_item_hovered(
+            "Translate to mesh average center",
+            "Translates the given element to the average center point of vertices in the selected mesh.\n\nEffectively, this adds each vertex location in the mesh, divides the sum by the number of vertices in the mesh, and sets the translation of the given object to that location.");
 
         if (ui::draw_menu_item("To mesh mass center")) {
             transition_to_translating_element_to_mesh_mass_center(el);
         }
-        ui::draw_tooltip_if_item_hovered("Translate to mesh mess center", "Translates the given element to the mass center of the selected mesh.\n\nCAREFUL: the algorithm used to do this heavily relies on your triangle winding (i.e. normals) being correct and your mesh being a closed surface. If your mesh doesn't meet these requirements, you might get strange results (apologies: the only way to get around that problems involves complicated voxelization and leak-detection algorithms :( )");
+        ui::draw_tooltip_if_item_hovered(
+            "Translate to mesh mess center",
+            "Translates the given element to the mass center of the selected mesh.\n\nCAREFUL: the algorithm used to do this heavily relies on your triangle winding (i.e. normals) being correct and your mesh being a closed surface. If your mesh doesn't meet these requirements, you might get strange results (apologies: the only way to get around that problems involves complicated voxelization and leak-detection algorithms :( )");
 
         ui::pop_style_var();
         ui::end_menu();
@@ -1076,7 +1130,11 @@ private:
                     std::string label = "Towards " + el.get_cross_reference_label(i);
 
                     if (ui::draw_menu_item(label)) {
-                        point_axis_towards(shared_->upd_committable_model_graph(), el.get_id(), axis, el.get_cross_reference_connectee_id(i));
+                        point_axis_towards(
+                            shared_->upd_committable_model_graph(),
+                            el.get_id(),
+                            axis,
+                            el.get_cross_reference_connectee_id(i));
                     }
                 }
 
@@ -1122,7 +1180,9 @@ private:
         }
 
         if (ui::draw_menu_item("reset")) {
-            el.set_xform(shared_->get_model_graph(), Transform{.translation = el.get_pos(shared_->get_model_graph())});
+            el.set_xform(
+                shared_->get_model_graph(),
+                Transform{.translation = el.get_pos(shared_->get_model_graph())});
             shared_->commit_current_model_graph("reset " + el.get_label() + " orientation");
         }
 
@@ -1135,13 +1195,17 @@ private:
     {
         auto cur_mass = static_cast<float>(body_el.get_mass());
         if (ui::draw_float_input("Mass", &cur_mass, 0.0f, 0.0f, "%.6f")) {
-            shared_->upd_model_graph().upd_by_id<MiBody>(body_el.get_id()).set_mass(static_cast<double>(cur_mass));
+            shared_->upd_model_graph()
+                .upd_by_id<MiBody>(body_el.get_id())
+                .set_mass(static_cast<double>(cur_mass));
         }
         if (ui::is_item_deactivated_after_edit()) {
             shared_->commit_current_model_graph("changed body mass");
         }
         ui::same_line();
-        ui::draw_help_marker("Mass", "The mass of the body. OpenSim defines this as 'unitless'; however, models conventionally use kilograms.");
+        ui::draw_help_marker(
+            "Mass",
+            "The mass of the body. OpenSim defines this as 'unitless'; however, models conventionally use kilograms.");
     }
 
     // draw the "Joint Type" editor for a `JointEl`
@@ -1149,15 +1213,21 @@ private:
     {
         if (ui::begin_combobox("Joint Type", joint_el.get_specific_type_name())) {
             for (const auto& joint : opyn::get_component_registry<OpenSim::Joint>()) {
-                if (ui::draw_selectable(joint.name(), joint.name() == joint_el.get_specific_type_name())) {
-                    shared_->upd_model_graph().upd_by_id<MiJoint>(joint_el.get_id()).set_specific_type_name(joint.name());
+                if (ui::draw_selectable(
+                        joint.name(), joint.name() == joint_el.get_specific_type_name())) {
+
+                    shared_->upd_model_graph()
+                        .upd_by_id<MiJoint>(joint_el.get_id())
+                        .set_specific_type_name(joint.name());
                     shared_->commit_current_model_graph("changed joint type");
                 }
             }
             ui::end_combobox();
         }
         ui::same_line();
-        ui::draw_help_marker("Joint Type", "This is the type of joint that should be added into the OpenSim model. The joint's type dictates what types of motion are permitted around the joint center. See the official OpenSim documentation for an explanation of each joint type.");
+        ui::draw_help_marker(
+            "Joint Type",
+            "This is the type of joint that should be added into the OpenSim model. The joint's type dictates what types of motion are permitted around the joint center. See the official OpenSim documentation for an explanation of each joint type.");
     }
 
     // draw the "Reassign Connection" menu, which lets users change an element's cross reference
@@ -1184,8 +1254,7 @@ private:
         }
     }
 
-    void action_prompt_user_to_save_mesh_as_obj(
-        const osc::Mesh& mesh)
+    void action_prompt_user_to_save_mesh_as_obj(const osc::Mesh& mesh)
     {
         // prompt user for a save location
         App::upd().prompt_user_to_save_file_with_extension_async(
@@ -1212,8 +1281,7 @@ private:
             "obj");
     }
 
-    void action_prompt_user_to_save_mesh_as_stl(
-        const osc::Mesh& mesh)
+    void action_prompt_user_to_save_mesh_as_stl(const osc::Mesh& mesh)
     {
         // prompt user for a save location
         App::upd().prompt_user_to_save_file_with_extension_async(
@@ -1251,9 +1319,12 @@ private:
                     ui::draw_separator();
 
                     if (ui::draw_menu_item(".obj")) {
-                        const Transform mi_object_to_ground = mi_object.get_x_form(shared_->get_model_graph());
+                        const Transform mi_object_to_ground =
+                            mi_object.get_x_form(shared_->get_model_graph());
                         const Transform mesh_vert_to_ground = el.get_x_form();
-                        const Matrix4x4 mesh_vert_to_mi_object_vert = inverse_matrix4x4_cast(mi_object_to_ground) * matrix4x4_cast(mesh_vert_to_ground);
+                        const Matrix4x4 mesh_vert_to_mi_object_vert =
+                            inverse_matrix4x4_cast(mi_object_to_ground) *
+                            matrix4x4_cast(mesh_vert_to_ground);
 
                         osc::Mesh mesh = el.get_mesh_data();
                         mesh.transform_vertices(mesh_vert_to_mi_object_vert);
@@ -1261,9 +1332,12 @@ private:
                     }
 
                     if (ui::draw_menu_item(".stl")) {
-                        const Transform mi_object_to_ground = mi_object.get_x_form(shared_->get_model_graph());
+                        const Transform mi_object_to_ground =
+                            mi_object.get_x_form(shared_->get_model_graph());
                         const Transform mesh_vert_to_ground = el.get_x_form();
-                        const Matrix4x4 mesh_vert_to_mi_object_vert = inverse_matrix4x4_cast(mi_object_to_ground) * matrix4x4_cast(mesh_vert_to_ground);
+                        const Matrix4x4 mesh_vert_to_mi_object_vert =
+                            inverse_matrix4x4_cast(mi_object_to_ground) *
+                            matrix4x4_cast(mesh_vert_to_ground);
 
                         osc::Mesh mesh = el.get_mesh_data();
                         mesh.transform_vertices(mesh_vert_to_mi_object_vert);
@@ -1277,10 +1351,7 @@ private:
         }
     }
 
-    void draw_context_menu_spacer()
-    {
-        ui::draw_dummy({0.0f, 0.0f});
-    }
+    void draw_context_menu_spacer() { ui::draw_dummy({0.0f, 0.0f}); }
 
     // draw context menu content for when user right-clicks nothing
     void draw_nothing_context_menu_content()
@@ -1382,11 +1453,15 @@ private:
     {
         std::visit(
             Overload{
-                [this, &click_pos](MiGround& el) { this->draw_context_menu_content(el, click_pos); },
+                [this, &click_pos](MiGround& el) {
+                    this->draw_context_menu_content(el, click_pos);
+                },
                 [this, &click_pos](MiMesh& el) { this->draw_context_menu_content(el, click_pos); },
                 [this, &click_pos](MiBody& el) { this->draw_context_menu_content(el, click_pos); },
                 [this, &click_pos](MiJoint& el) { this->draw_context_menu_content(el, click_pos); },
-                [this, &click_pos](MiStation& el) { this->draw_context_menu_content(el, click_pos); },
+                [this, &click_pos](MiStation& el) {
+                    this->draw_context_menu_content(el, click_pos);
+                },
             },
             el.to_variant());
     }
@@ -1408,7 +1483,9 @@ private:
                 ui::pop_id();
             }};
             draw_nothing_context_menu_content();
-        } else if (MiObject* el = shared_->upd_model_graph().try_upd_by_id(maybe_opened_context_menu_.id)) {
+        } else if (
+            MiObject* el =
+                shared_->upd_model_graph().try_upd_by_id(maybe_opened_context_menu_.id)) {
             // context menu was opened on a scene element that exists in the modelgraph
             ui::push_id(el->get_id());
             const ScopeExit g{[] {
@@ -1519,7 +1596,8 @@ private:
 
         if (ui::draw_menu_item(MSMICONS_MAP_PIN " Station")) {
             MiDocument& mg = shared_->upd_model_graph();
-            auto& e = mg.emplace<MiStation>(UID{}, MiIDs::ground(), Vector3{}, MiStation::get_class().generate_name());
+            auto& e = mg.emplace<MiStation>(
+                UID{}, MiIDs::ground(), Vector3{}, MiStation::get_class().generate_name());
             mg.select_only(e);
         }
         ui::draw_tooltip_if_item_hovered("Add Station", MiStation::get_class().get_description());
@@ -1549,9 +1627,12 @@ private:
         ui::same_line();
 
         ui::draw_button(MSMICONS_PAINT_ROLLER " Colors");
-        ui::draw_tooltip_if_item_hovered("Change scene display colors", "This only changes the decroative display colors of model elements in this screen. Color changes are not saved to the exported OpenSim model. Changing these colors can be handy for spotting things, or constrasting scene elements more strongly");
+        ui::draw_tooltip_if_item_hovered(
+            "Change scene display colors",
+            "This only changes the decroative display colors of model elements in this screen. Color changes are not saved to the exported OpenSim model. Changing these colors can be handy for spotting things, or constrasting scene elements more strongly");
 
-        if (ui::begin_popup_context_menu("##addpainttoscenepopup", ui::PopupFlag::MouseButtonLeft)) {
+        if (ui::begin_popup_context_menu(
+                "##addpainttoscenepopup", ui::PopupFlag::MouseButtonLeft)) {
             std::span<const Color> colors = shared_->colors();
             std::span<const char* const> labels = shared_->get_color_labels();
             OSC_ASSERT(colors.size() == labels.size() && "every color should have a label");
@@ -1570,12 +1651,17 @@ private:
         ui::same_line();
 
         ui::draw_button(MSMICONS_EYE " Visibility");
-        ui::draw_tooltip_if_item_hovered("Change what's visible in the 3D scene", "This only changes what's visible in this screen. Visibility options are not saved to the exported OpenSim model. Changing these visibility options can be handy if you have a lot of overlapping/intercalated scene elements");
+        ui::draw_tooltip_if_item_hovered(
+            "Change what's visible in the 3D scene",
+            "This only changes what's visible in this screen. Visibility options are not saved to the exported OpenSim model. Changing these visibility options can be handy if you have a lot of overlapping/intercalated scene elements");
 
-        if (ui::begin_popup_context_menu("##changevisibilitypopup", ui::PopupFlag::MouseButtonLeft)) {
+        if (ui::begin_popup_context_menu(
+                "##changevisibilitypopup", ui::PopupFlag::MouseButtonLeft)) {
             std::span<const bool> visibilities = shared_->get_visibility_flags();
             std::span<const char* const> labels = shared_->get_visibility_flag_labels();
-            OSC_ASSERT(visibilities.size() == labels.size() && "every visibility flag should have a label");
+            OSC_ASSERT(
+                visibilities.size() == labels.size() &&
+                "every visibility flag should have a label");
 
             for (size_t i = 0; i < visibilities.size(); ++i) {
                 bool v = visibilities[i];
@@ -1591,9 +1677,12 @@ private:
         ui::same_line();
 
         ui::draw_button(MSMICONS_LOCK " Interactivity");
-        ui::draw_tooltip_if_item_hovered("Change what your mouse can interact with in the 3D scene", "This does not prevent being able to edit the model - it only affects whether you can click that type of element in the 3D scene. Combining these flags with visibility and custom colors can be handy if you have heavily overlapping/intercalated scene elements.");
+        ui::draw_tooltip_if_item_hovered(
+            "Change what your mouse can interact with in the 3D scene",
+            "This does not prevent being able to edit the model - it only affects whether you can click that type of element in the 3D scene. Combining these flags with visibility and custom colors can be handy if you have heavily overlapping/intercalated scene elements.");
 
-        if (ui::begin_popup_context_menu("##changeinteractionlockspopup", ui::PopupFlag::MouseButtonLeft)) {
+        if (ui::begin_popup_context_menu(
+                "##changeinteractionlockspopup", ui::PopupFlag::MouseButtonLeft)) {
             std::span<const bool> interactables = shared_->get_ineractivity_flags();
             std::span<const char* const> labels = shared_->get_interactivity_flag_labels();
             OSC_ASSERT(interactables.size() == labels.size());
@@ -1611,7 +1700,14 @@ private:
 
         ui::same_line();
 
-        ui::draw_gizmo_operation_selector(gizmo_, true, true, true, MSMICONS_ARROWS_ALT, MSMICONS_REDO, MSMICONS_EXPAND_ARROWS_ALT);
+        ui::draw_gizmo_operation_selector(
+            gizmo_,
+            true,
+            true,
+            true,
+            MSMICONS_ARROWS_ALT,
+            MSMICONS_REDO,
+            MSMICONS_EXPAND_ARROWS_ALT);
 
         ui::push_style_var(ui::StyleVar::ItemSpacing, {0.0f, 0.0f});
         ui::same_line();
@@ -1624,7 +1720,8 @@ private:
         // scale factor
         {
             const CStringView tooltip_title = "Change scene scale factor";
-            const CStringView tooltip_desc = "This rescales *some* elements in the scene. Specifically, the ones that have no 'size', such as body frames, joint frames, and the chequered floor texture.\n\nChanging this is handy if you are working on smaller or larger models, where the size of the (decorative) frames and floor are too large/small compared to the model you are working on.\n\nThis is purely decorative and does not affect the exported OpenSim model in any way.";
+            const CStringView tooltip_desc =
+                "This rescales *some* elements in the scene. Specifically, the ones that have no 'size', such as body frames, joint frames, and the chequered floor texture.\n\nChanging this is handy if you are working on smaller or larger models, where the size of the (decorative) frames and floor are too large/small compared to the model you are working on.\n\nThis is purely decorative and does not affect the exported OpenSim model in any way.";
 
             float sf = shared_->get_scene_scale_factor();
             ui::set_next_item_width(ui::calc_text_size("1000.00").x());
@@ -1644,12 +1741,13 @@ private:
 
     std::optional<AABB> calc_scene_aabb() const
     {
-        return bounding_aabb_of(drawables_buffer_, [](const DrawableThing& drawable) -> std::optional<AABB> {
-            if (drawable.id != MiIDs::empty()) {
-                return calc_bounds(drawable);
-            }
-            return std::nullopt;
-        });
+        return bounding_aabb_of(
+            drawables_buffer_, [](const DrawableThing& drawable) -> std::optional<AABB> {
+                if (drawable.id != MiIDs::empty()) {
+                    return calc_bounds(drawable);
+                }
+                return std::nullopt;
+            });
     }
 
     void draw_3d_viewer_overlay_bottom_bar()
@@ -1661,14 +1759,17 @@ private:
             CameraViewAxes axes;
 
             const Vector2 window_padding = ui::get_style_panel_padding();
-            const Vector2 axes_top_left = shared_->scene_ui_rect().ypd_bottom_left() + Vector2{window_padding.x(), -window_padding.y()} - Vector2{0.0f, axes.dimensions().y()};
+            const Vector2 axes_top_left = shared_->scene_ui_rect().ypd_bottom_left() +
+                                          Vector2{window_padding.x(), -window_padding.y()} -
+                                          Vector2{0.0f, axes.dimensions().y()};
             ui::set_cursor_ui_position(axes_top_left);
             if (axes.draw(shared_->upd_camera_controller(), shared_->get_camera())) {
                 shared_->get_camera_controller().update_camera(shared_->upd_camera());
             }
         }
 
-        ui::set_cursor_ui_position(shared_->scene_ui_rect().ypd_bottom_left() + Vector2{100.0f, -55.0f});
+        ui::set_cursor_ui_position(
+            shared_->scene_ui_rect().ypd_bottom_left() + Vector2{100.0f, -55.0f});
 
         if (ui::draw_button(MSMICONS_SEARCH_MINUS)) {
             shared_->upd_camera_controller().radius *= 1.2f;
@@ -1689,13 +1790,13 @@ private:
         if (ui::draw_button(MSMICONS_EXPAND_ARROWS_ALT)) {
             if (const std::optional<AABB> scene_aabb = calc_scene_aabb()) {
                 shared_->upd_camera_controller().focus_on(
-                    *scene_aabb,
-                    shared_->get_camera(),
-                    aspect_ratio_of(shared_->scene_dims()));
+                    *scene_aabb, shared_->get_camera(), aspect_ratio_of(shared_->scene_dims()));
                 shared_->get_camera_controller().update_camera(shared_->upd_camera());
             }
         }
-        ui::draw_tooltip_if_item_hovered("Autoscale Scene", "Zooms camera to try and fit everything in the scene into the viewer");
+        ui::draw_tooltip_if_item_hovered(
+            "Autoscale Scene",
+            "Zooms camera to try and fit everything in the scene into the viewer");
 
         ui::same_line();
 
@@ -1709,7 +1810,9 @@ private:
             shared_->upd_camera_controller().phi = 0_deg;
             shared_->get_camera_controller().update_camera(shared_->upd_camera());
         }
-        ui::draw_tooltip_if_item_hovered("Face camera facing along X", "Right-clicking faces it along X, but in the opposite direction");
+        ui::draw_tooltip_if_item_hovered(
+            "Face camera facing along X",
+            "Right-clicking faces it along X, but in the opposite direction");
 
         ui::same_line();
 
@@ -1723,7 +1826,9 @@ private:
             shared_->upd_camera_controller().phi = -90_deg;
             shared_->get_camera_controller().update_camera(shared_->upd_camera());
         }
-        ui::draw_tooltip_if_item_hovered("Face camera facing along Y", "Right-clicking faces it along Y, but in the opposite direction");
+        ui::draw_tooltip_if_item_hovered(
+            "Face camera facing along Y",
+            "Right-clicking faces it along Y, but in the opposite direction");
 
         ui::same_line();
 
@@ -1737,14 +1842,18 @@ private:
             shared_->upd_camera_controller().phi = 0_deg;
             shared_->get_camera_controller().update_camera(shared_->upd_camera());
         }
-        ui::draw_tooltip_if_item_hovered("Face camera facing along Z", "Right-clicking faces it along Z, but in the opposite direction");
+        ui::draw_tooltip_if_item_hovered(
+            "Face camera facing along Z",
+            "Right-clicking faces it along Z, but in the opposite direction");
 
         ui::same_line();
 
         if (ui::draw_button(MSMICONS_CAMERA)) {
             shared_->reset_camera();
         }
-        ui::draw_tooltip_if_item_hovered("Reset camera", "Resets the camera to its default position (the position it's in when the wizard is first loaded)");
+        ui::draw_tooltip_if_item_hovered(
+            "Reset camera",
+            "Resets the camera to its default position (the position it's in when the wizard is first loaded)");
 
         ui::pop_id();
     }
@@ -1763,7 +1872,9 @@ private:
         const Vector2 viewport_bottom_right = shared_->scene_ui_rect().ypd_bottom_right();
 
         const Vector2 button_top_left = {
-            viewport_bottom_right.x() - (margin.x() + spacing_between_main_and_settings_buttons.x() + setting_button_dims.x() + main_button_dims.x()),
+            viewport_bottom_right.x() -
+                (margin.x() + spacing_between_main_and_settings_buttons.x() +
+                 setting_button_dims.x() + main_button_dims.x()),
             viewport_bottom_right.y() - (margin.y() + main_button_dims.y()),
         };
 
@@ -1775,7 +1886,9 @@ private:
         ui::pop_style_color();
 
         ui::pop_style_var();
-        ui::draw_tooltip_if_item_hovered("Convert current scene to an OpenSim Model", "This will attempt to convert the current scene into an OpenSim model, followed by showing the model in OpenSim Creator's OpenSim model editor screen.\n\nYour progress in this tab will remain untouched.");
+        ui::draw_tooltip_if_item_hovered(
+            "Convert current scene to an OpenSim Model",
+            "This will attempt to convert the current scene into an OpenSim model, followed by showing the model in OpenSim Creator's OpenSim model editor screen.\n\nYour progress in this tab will remain untouched.");
 
         ui::push_style_var(ui::StyleVar::FramePadding, {10.0f, 10.0f});
         ui::same_line(0.0f, spacing_between_main_and_settings_buttons.x());
@@ -1788,9 +1901,9 @@ private:
             {
                 bool v = flags & ModelCreationFlags::ExportStationsAsMarkers;
                 if (ui::draw_checkbox("Export Stations as Markers", &v)) {
-                    const ModelCreationFlags new_flags = v ?
-                        flags + ModelCreationFlags::ExportStationsAsMarkers :
-                        flags - ModelCreationFlags::ExportStationsAsMarkers;
+                    const ModelCreationFlags new_flags =
+                        v ? flags + ModelCreationFlags::ExportStationsAsMarkers
+                          : flags - ModelCreationFlags::ExportStationsAsMarkers;
                     shared_->set_model_creation_flags(new_flags);
                 }
             }
@@ -1895,7 +2008,10 @@ private:
             MiObject& el = shared_->upd_model_graph().upd_by_id(id);
             switch (gizmo_.operation()) {
             case ui::GizmoOperation::Rotate:
-                el.apply_rotation(shared_->get_model_graph(), extract_eulers_xyz(user_manipulation->rotation), Vector3{gizmo_model_matrix_[3]});
+                el.apply_rotation(
+                    shared_->get_model_graph(),
+                    extract_eulers_xyz(user_manipulation->rotation),
+                    Vector3{gizmo_model_matrix_[3]});
                 break;
             case ui::GizmoOperation::Translate: {
                 el.apply_translation(shared_->get_model_graph(), user_manipulation->translation);
@@ -1904,8 +2020,7 @@ private:
             case ui::GizmoOperation::Scale:
                 el.apply_scale(shared_->get_model_graph(), user_manipulation->scale);
                 break;
-            default:
-                break;
+            default: break;
             }
         }
     }
@@ -1990,7 +2105,9 @@ private:
 
         // draw 3D scene (effectively, as an ui::Image)
         shared_->draw_scene(mi_objects);
-        if (shared_->is_render_hovered() && ui::is_mouse_released_without_dragging(MouseButton::Right) && !gizmo_.is_using()) {
+        if (shared_->is_render_hovered() and
+            ui::is_mouse_released_without_dragging(MouseButton::Right) and not gizmo_.is_using()) {
+
             maybe_opened_context_menu_ = maybe_hover_;
             ui::open_popup("##maincontextmenu");
         }
@@ -2002,7 +2119,9 @@ private:
             ui::end_popup();
         }
 
-        if (shared_->is_render_hovered() && maybe_hover_ && (ctx_menu_showing ? maybe_hover_.id != maybe_opened_context_menu_.id : true)) {
+        if (shared_->is_render_hovered() and maybe_hover_ and
+            (ctx_menu_showing ? maybe_hover_.id != maybe_opened_context_menu_.id : true)) {
+
             draw_hover_tooltip();
         }
 
@@ -2023,29 +2142,32 @@ private:
             if (ui::draw_menu_item(MSMICONS_FOLDER_OPEN " Import", ModifierKey::Ctrl | Key::O)) {
                 shared_->open_osim_file_as_model_graph();
             }
-            ui::draw_tooltip_if_item_hovered("Import osim into mesh importer", "Try to import an existing osim file into the mesh importer.\n\nBEWARE: the mesh importer is *not* an OpenSim model editor. The import process will delete information from your osim in order to 'jam' it into this screen. The main purpose of this button is to export/import mesh editor scenes, not to edit existing OpenSim models.");
+            ui::draw_tooltip_if_item_hovered(
+                "Import osim into mesh importer",
+                "Try to import an existing osim file into the mesh importer.\n\nBEWARE: the mesh importer is *not* an OpenSim model editor. The import process will delete information from your osim in order to 'jam' it into this screen. The main purpose of this button is to export/import mesh editor scenes, not to edit existing OpenSim models.");
 
             if (ui::draw_menu_item(MSMICONS_SAVE " Export", ModifierKey::Ctrl | Key::S)) {
                 shared_->export_model_graph_as_osim_file();
             }
-            ui::draw_tooltip_if_item_hovered("Export mesh impoter scene to osim", "Try to export the current mesh importer scene to an osim.\n\nBEWARE: the mesh importer scene may not map 1:1 onto an OpenSim model, so re-importing the scene *may* change a few things slightly. The main utility of this button is to try and save some progress in the mesh importer.");
+            ui::draw_tooltip_if_item_hovered(
+                "Export mesh impoter scene to osim",
+                "Try to export the current mesh importer scene to an osim.\n\nBEWARE: the mesh importer scene may not map 1:1 onto an OpenSim model, so re-importing the scene *may* change a few things slightly. The main utility of this button is to try and save some progress in the mesh importer.");
 
-            if (ui::draw_menu_item(MSMICONS_SAVE " Export As", ModifierKey::Ctrl | ModifierKey::Shift | Key::S)) {
+            if (ui::draw_menu_item(
+                    MSMICONS_SAVE " Export As", ModifierKey::Ctrl | ModifierKey::Shift | Key::S)) {
                 shared_->export_as_model_graph_as_osim_file();
             }
-            ui::draw_tooltip_if_item_hovered("Export mesh impoter scene to osim", "Try to export the current mesh importer scene to an osim.\n\nBEWARE: the mesh importer scene may not map 1:1 onto an OpenSim model, so re-importing the scene *may* change a few things slightly. The main utility of this button is to try and save some progress in the mesh importer.");
+            ui::draw_tooltip_if_item_hovered(
+                "Export mesh impoter scene to osim",
+                "Try to export the current mesh importer scene to an osim.\n\nBEWARE: the mesh importer scene may not map 1:1 onto an OpenSim model, so re-importing the scene *may* change a few things slightly. The main utility of this button is to try and save some progress in the mesh importer.");
 
             ui::draw_separator();
 
             if (ui::draw_menu_item(MSMICONS_FOLDER_OPEN " Import Stations from CSV")) {
                 auto popup = std::make_shared<ImportStationsFromCSVPopup>(
-                    &owner(),
-                    "Import Stations from CSV",
-                    [state = shared_](auto data) {
+                    &owner(), "Import Stations from CSV", [state = shared_](auto data) {
                         action_import_landmarks(
-                            state->upd_committable_model_graph(),
-                            data.landmarks,
-                            data.maybe_label);
+                            state->upd_committable_model_graph(), data.landmarks, data.maybe_label);
                     });
                 popup->open();
                 popup_manager_.push_back(std::move(popup));
@@ -2068,10 +2190,18 @@ private:
     void draw_main_menu_edit_menu()
     {
         if (ui::begin_menu("Edit")) {
-            if (ui::draw_menu_item(MSMICONS_UNDO " Undo", ModifierKey::Ctrl | Key::Z, false, shared_->can_undo_current_model_graph())) {
+            if (ui::draw_menu_item(
+                    MSMICONS_UNDO " Undo",
+                    ModifierKey::Ctrl | Key::Z,
+                    false,
+                    shared_->can_undo_current_model_graph())) {
                 shared_->undo_current_model_graph();
             }
-            if (ui::draw_menu_item(MSMICONS_REDO " Redo", ModifierKey::Ctrl | ModifierKey::Shift | Key::Z, false, shared_->can_redo_current_model_graph())) {
+            if (ui::draw_menu_item(
+                    MSMICONS_REDO " Redo",
+                    ModifierKey::Ctrl | ModifierKey::Shift | Key::Z,
+                    false,
+                    shared_->can_redo_current_model_graph())) {
                 shared_->redo_current_model_graph();
             }
             ui::end_menu();
@@ -2092,10 +2222,7 @@ private:
         }
     }
 
-    void draw_main_menu_about_menu()
-    {
-        MainMenuAboutTab{}.on_draw();
-    }
+    void draw_main_menu_about_menu() { MainMenuAboutTab{}.on_draw(); }
 
     // draws main 3D viewer, or a modal (if one is active)
     void draw_main_viewer_panel_or_modal()
@@ -2130,7 +2257,8 @@ private:
             if (ui::begin_panel("wizard_3dViewer")) {
                 ui::pop_style_var();
                 draw_3d_viewer();
-                ui::set_cursor_panel_position(ui::get_cursor_start_panel_position() + Vector2{10.0f, 10.0f});
+                ui::set_cursor_panel_position(
+                    ui::get_cursor_start_panel_position() + Vector2{10.0f, 10.0f});
                 draw_3d_viewer_overlay();
             } else {
                 ui::pop_style_var();
@@ -2162,22 +2290,43 @@ private:
     PopupManager popup_manager_;
 };
 
-osc::MeshImporterTab::MeshImporterTab(
-    Widget* parent) :
+osc::MeshImporterTab::MeshImporterTab(Widget* parent) :
 
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-osc::MeshImporterTab::MeshImporterTab(
-    Widget* parent,
-    std::vector<std::filesystem::path> files) :
+osc::MeshImporterTab::MeshImporterTab(Widget* parent, std::vector<std::filesystem::path> files) :
 
     Tab{std::make_unique<Impl>(*this, parent, std::move(files))}
 {}
-bool osc::MeshImporterTab::impl_is_unsaved() const { return private_data().is_unsaved(); }
-std::future<TabSaveResult> osc::MeshImporterTab::impl_try_save() { return private_data().try_save(); }
-void osc::MeshImporterTab::impl_on_mount() { private_data().on_mount(); }
-void osc::MeshImporterTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::MeshImporterTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::MeshImporterTab::impl_on_tick() { private_data().on_tick(); }
-void osc::MeshImporterTab::impl_on_draw_main_menu() { private_data().draw_main_menu(); }
-void osc::MeshImporterTab::impl_on_draw() { private_data().on_draw(); }
+bool osc::MeshImporterTab::impl_is_unsaved() const
+{
+    return private_data().is_unsaved();
+}
+std::future<TabSaveResult> osc::MeshImporterTab::impl_try_save()
+{
+    return private_data().try_save();
+}
+void osc::MeshImporterTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::MeshImporterTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::MeshImporterTab::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::MeshImporterTab::impl_on_tick()
+{
+    private_data().on_tick();
+}
+void osc::MeshImporterTab::impl_on_draw_main_menu()
+{
+    private_data().draw_main_menu();
+}
+void osc::MeshImporterTab::impl_on_draw()
+{
+    private_data().on_draw();
+}

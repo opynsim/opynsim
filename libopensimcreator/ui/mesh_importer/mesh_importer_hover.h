@@ -16,15 +16,9 @@ namespace osc
             pos{pos}
         {}
 
-        explicit operator bool() const
-        {
-            return id != MiIDs::empty();
-        }
+        explicit operator bool() const { return id != MiIDs::empty(); }
 
-        void reset()
-        {
-            *this = MeshImporterHover{};
-        }
+        void reset() { *this = MeshImporterHover{}; }
 
         UID id = MiIDs::empty();
         Vector3 pos;

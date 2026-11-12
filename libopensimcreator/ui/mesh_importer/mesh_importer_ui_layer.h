@@ -27,26 +27,14 @@ namespace osc
     public:
         virtual ~MeshImporterUILayer() noexcept = default;
 
-        bool on_event(Event& e)
-        {
-            return impl_on_event(e);
-        }
+        bool on_event(Event& e) { return impl_on_event(e); }
 
-        void tick(float dt)
-        {
-            impl_tick(dt);
-        }
+        void tick(float dt) { impl_tick(dt); }
 
-        void on_draw()
-        {
-            impl_on_draw();
-        }
+        void on_draw() { impl_on_draw(); }
 
     protected:
-        void request_pop()
-        {
-            parent_->request_pop(*this);
-        }
+        void request_pop() { parent_->request_pop(*this); }
 
     private:
         virtual bool impl_on_event(Event&) = 0;

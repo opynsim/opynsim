@@ -32,7 +32,8 @@ namespace osc
             return true;
         };
 
-        std::string header = "choose first (left-click) and second (right click) mesh positions (ESC to cancel)";
+        std::string header =
+            "choose first (left-click) and second (right click) mesh positions (ESC to cancel)";
     };
 
     // UI layer that lets the user select two points on a mesh with left-click and
@@ -47,8 +48,7 @@ namespace osc
             MeshImporterUILayer{parent},
             shared_{std::move(shared)},
             options_{std::move(options)}
-        {
-        }
+        {}
 
     private:
         bool is_both_points_selected() const
@@ -68,7 +68,8 @@ namespace osc
                 return;  // user hasn't selected two points yet
             }
 
-            bool points_accepted = options_.on_two_points_chosen(*maybe_first_location_, *maybe_second_location_);
+            bool points_accepted =
+                options_.on_two_points_chosen(*maybe_first_location_, *maybe_second_location_);
 
             if (points_accepted) {
                 request_pop();
@@ -129,7 +130,8 @@ namespace osc
 
             ui::begin_tooltip_nowrap();
             ui::draw_text(pos);
-            ui::draw_text_disabled("(left-click to assign as first point, right-click to assign as second point)");
+            ui::draw_text_disabled(
+                "(left-click to assign as first point, right-click to assign as second point)");
             ui::end_tooltip_nowrap();
         }
 
@@ -140,7 +142,8 @@ namespace osc
                 return;
             }
 
-            Vector3 clicked_world_pos = maybe_first_location_ ? *maybe_first_location_ : *maybe_second_location_;
+            Vector3 clicked_world_pos =
+                maybe_first_location_ ? *maybe_first_location_ : *maybe_second_location_;
             Vector2 clicked_scr_pos = shared_->world_pos_to_ui_pos(clicked_world_pos);
 
             auto color = Color::black();
@@ -178,7 +181,8 @@ namespace osc
 
             const CStringView text = MSMICONS_ARROW_LEFT " Cancel (ESC)";
             const Vector2 margin = {25.0f, 35.0f};
-            const Vector2 button_top_left = shared_->scene_ui_rect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
+            const Vector2 button_top_left =
+                shared_->scene_ui_rect().ypd_bottom_right() - (ui::calc_button_size(text) + margin);
 
             ui::set_cursor_ui_position(button_top_left);
             if (ui::draw_button(text)) {
@@ -189,12 +193,9 @@ namespace osc
             ui::pop_style_var();
         }
 
-        bool impl_on_event(Event& e) final
-        {
-            return shared_->on_event(e);
-        }
+        bool impl_on_event(Event& e) override { return shared_->on_event(e); }
 
-        void impl_tick(float dt) final
+        void impl_tick(float dt) override
         {
             shared_->tick(dt);
 
@@ -207,16 +208,14 @@ namespace osc
 
             if (is_render_hovered) {
                 const bool controller_updated = ui::update_orbit_controller_from_mouse_inputs(
-                    shared_->upd_camera_controller(),
-                    shared_->get_camera(),
-                    shared_->scene_dims());
+                    shared_->upd_camera_controller(), shared_->get_camera(), shared_->scene_dims());
                 if (controller_updated) {
                     shared_->get_camera_controller().update_camera(shared_->upd_camera());
                 }
             }
         }
 
-        void impl_on_draw() final
+        void impl_on_draw() override
         {
             shared_->set_content_region_avail_as_scene_rect();
             std::vector<DrawableThing>& drawables = generate_drawables();
