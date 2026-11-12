@@ -25,7 +25,7 @@ namespace osc
         explicit Panel(std::unique_ptr<PanelPrivate>&&);
 
     private:
-        void impl_on_draw() final;  // `Panel` handles drawing the outer panel decorations etc.
+        void impl_on_draw() override;  // `Panel` handles drawing the outer panel decorations etc.
         virtual void impl_before_imgui_begin() {}
         virtual void impl_after_imgui_begin() {}
         virtual void impl_draw_content() {}

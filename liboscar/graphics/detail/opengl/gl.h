@@ -33,7 +33,7 @@ namespace osc::gl
             message_{std::move(message)}
         {}
 
-        const char* what() const noexcept final { return message_.c_str(); }
+        const char* what() const noexcept override { return message_.c_str(); }
 
     private:
         std::string message_;

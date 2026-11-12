@@ -608,7 +608,7 @@ namespace osc::ui
         {}
 
     private:
-        ImDrawList& impl_get_drawlist() final { return *inner_list_; }
+        ImDrawList& impl_get_drawlist() override { return *inner_list_; }
 
         ImDrawList* inner_list_;
     };
@@ -625,7 +625,7 @@ namespace osc::ui
         operator DrawListView() { return DrawListView{underlying_drawlist_.get()}; }
 
     private:
-        ImDrawList& impl_get_drawlist() final { return *underlying_drawlist_; }
+        ImDrawList& impl_get_drawlist() override { return *underlying_drawlist_; }
 
         std::unique_ptr<ImDrawList> underlying_drawlist_;
     };

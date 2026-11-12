@@ -175,12 +175,12 @@ namespace osc
         }
 
     private:
-        UndoRedoEntryBase impl_construct_commit_from_scratch(std::string_view commit_message) final
+        UndoRedoEntryBase impl_construct_commit_from_scratch(std::string_view commit_message) override
         {
             return UndoRedoEntry<T>{commit_message, scratch_};
         }
 
-        void impl_copy_assign_scratch_from_commit(const UndoRedoEntryBase& commit) final
+        void impl_copy_assign_scratch_from_commit(const UndoRedoEntryBase& commit) override
         {
             scratch_ = static_cast<const UndoRedoEntry<T>&>(commit).value();
         }

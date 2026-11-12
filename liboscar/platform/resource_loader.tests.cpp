@@ -29,7 +29,7 @@ namespace
         {}
 
     private:
-        bool impl_resource_exists(const ResourcePath& resource_path) final
+        bool impl_resource_exists(const ResourcePath& resource_path) override
         {
             state_->last_existence_check_path = resource_path;
             return true;

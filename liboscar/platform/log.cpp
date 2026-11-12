@@ -13,7 +13,7 @@ namespace
 {
     class StdoutSink final : public LogSink {
     private:
-        void impl_sink_message(const LogMessageView& message) final
+        void impl_sink_message(const LogMessageView& message) override
         {
             static std::mutex s_stdout_mutex;
 
@@ -30,7 +30,7 @@ namespace
         }
 
     private:
-        void impl_sink_message(const LogMessageView& message_view) final
+        void impl_sink_message(const LogMessageView& message_view) override
         {
             auto l = messages_.lock();
             l->emplace_back(message_view);

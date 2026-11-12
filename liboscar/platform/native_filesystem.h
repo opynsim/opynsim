@@ -25,9 +25,9 @@ namespace osc
         std::optional<std::filesystem::path> resource_filepath(const ResourcePath&) const;
 
     private:
-        bool impl_resource_exists(const ResourcePath&) final;
-        ResourceStream impl_open(const ResourcePath&) final;
-        cpp23::generator<ResourceDirectoryEntry> impl_iterate_directory(ResourcePath) final;
+        bool impl_resource_exists(const ResourcePath&) override;
+        ResourceStream impl_open(const ResourcePath&) override;
+        cpp23::generator<ResourceDirectoryEntry> impl_iterate_directory(ResourcePath) override;
 
         std::filesystem::path root_directory_;
     };
