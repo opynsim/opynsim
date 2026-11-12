@@ -134,7 +134,7 @@ namespace
 
     private:
         // perform runtime lookup for `AssociatedComponent` and forward into concrete implementation
-        Matrix4x4 impl_get_current_transform_in_ground() const final
+        Matrix4x4 impl_get_current_transform_in_ground() const override
         {
             const AssociatedComponent* maybe_selected = find_selection();
             if (not maybe_selected) {
@@ -144,7 +144,7 @@ namespace
         }
 
         // perform runtime lookup for `AssociatedComponent` and forward into concrete implementation
-        void impl_on_apply_transform(const SimTK::Transform& transform_in_ground) final
+        void impl_on_apply_transform(const SimTK::Transform& transform_in_ground) override
         {
             const AssociatedComponent* maybe_selected = find_selection();
             if (not maybe_selected) {
@@ -153,7 +153,7 @@ namespace
             impl_on_apply_transform(*maybe_selected, transform_in_ground);
         }
 
-        void impl_on_save() final
+        void impl_on_save() override
         {
             const AssociatedComponent* maybe_selected = find_selection();
             if (not maybe_selected) {
@@ -191,13 +191,13 @@ namespace
         {}
 
     private:
-        ui::GizmoOperations impl_get_supported_manipulation_ops() const final
+        ui::GizmoOperations impl_get_supported_manipulation_ops() const override
         {
             return ui::GizmoOperation::Translate;
         }
 
         Matrix4x4 impl_get_current_transform_in_ground(
-            const OpenSim::Station& station) const final
+            const OpenSim::Station& station) const override
         {
             const SimTK::State& state = get_state();
             auto transform_in_ground = to<Matrix4x4>(station.getParentFrame().getRotationInGround(state));
@@ -208,7 +208,7 @@ namespace
 
         void impl_on_apply_transform(
             const OpenSim::Station& station,
-            const SimTK::Transform& transform_in_ground) final
+            const SimTK::Transform& transform_in_ground) override
         {
             // ignores `rotation`
 
@@ -219,7 +219,7 @@ namespace
             action_translate_station(get_undoable_model(), station, translation_in_parent);
         }
 
-        void impl_on_save(const OpenSim::Station& station) final
+        void impl_on_save(const OpenSim::Station& station) override
         {
             action_translate_station_and_save(get_undoable_model(), station, {});
         }
@@ -235,13 +235,13 @@ namespace
         {}
 
     private:
-        ui::GizmoOperations impl_get_supported_manipulation_ops() const final
+        ui::GizmoOperations impl_get_supported_manipulation_ops() const override
         {
             return ui::GizmoOperation::Translate;
         }
 
         Matrix4x4 impl_get_current_transform_in_ground(
-            const OpenSim::PathPoint& path_point) const final
+            const OpenSim::PathPoint& path_point) const override
         {
             const SimTK::State& state = get_state();
             auto transform_in_ground = to<Matrix4x4>(path_point.getParentFrame().getRotationInGround(state));
@@ -252,7 +252,7 @@ namespace
 
         void impl_on_apply_transform(
             const OpenSim::PathPoint& path_point,
-            const SimTK::Transform& transform_in_ground) final
+            const SimTK::Transform& transform_in_ground) override
         {
             // ignores `rotation`
 
@@ -263,7 +263,7 @@ namespace
             action_translate_path_point(get_undoable_model(), path_point, translation_in_parent);
         }
 
-        void impl_on_save(const OpenSim::PathPoint& path_point) final
+        void impl_on_save(const OpenSim::PathPoint& path_point) override
         {
             action_translate_path_point_and_save(get_undoable_model(), path_point, {});
         }
@@ -290,13 +290,13 @@ namespace
         {}
 
     private:
-        ui::GizmoOperations impl_get_supported_manipulation_ops() const final
+        ui::GizmoOperations impl_get_supported_manipulation_ops() const override
         {
             return {ui::GizmoOperation::Translate, ui::GizmoOperation::Rotate};
         }
 
         Matrix4x4 impl_get_current_transform_in_ground(
-            const OpenSim::PhysicalOffsetFrame& pof) const final
+            const OpenSim::PhysicalOffsetFrame& pof) const override
         {
             if (is_child_frame_of_joint_) {
                 // if the POF that's being edited is the child frame of a joint then
@@ -310,7 +310,7 @@ namespace
 
         void impl_on_apply_transform(
             const OpenSim::PhysicalOffsetFrame& pof,
-            const SimTK::Transform& m_n) final
+            const SimTK::Transform& m_n) override
         {
             if (is_child_frame_of_joint_) {
                 // the difference here is that the child frame's translation/rotation in ground
@@ -360,7 +360,7 @@ namespace
             ui::DrawListView draw_list,
             const Matrix4x4& view_matrix,
             const Matrix4x4& projection_matrix,
-            const Rect& screen_rect) const final
+            const Rect& screen_rect) const override
         {
             if (not is_child_frame_of_joint_) {
                 return;  // "normal" offset frames have no additional overlays
@@ -398,13 +398,13 @@ namespace
         {}
 
     private:
-        ui::GizmoOperations impl_get_supported_manipulation_ops() const final
+        ui::GizmoOperations impl_get_supported_manipulation_ops() const override
         {
             return {ui::GizmoOperation::Rotate, ui::GizmoOperation::Translate};
         }
 
         Matrix4x4 impl_get_current_transform_in_ground(
-            const OpenSim::WrapObject& wrap_obj) const final
+            const OpenSim::WrapObject& wrap_obj) const override
         {
             const SimTK::Transform& wrap_to_frame = wrap_obj.getTransform();
             const SimTK::Transform frame_to_ground = wrap_obj.getFrame().getTransformInGround(get_state());
@@ -415,7 +415,7 @@ namespace
 
         void impl_on_apply_transform(
             const OpenSim::WrapObject& wrap_obj,
-            const SimTK::Transform& m_n) final
+            const SimTK::Transform& m_n) override
         {
             // solve for X:
             //
@@ -448,13 +448,13 @@ namespace
         {}
 
     private:
-        ui::GizmoOperations impl_get_supported_manipulation_ops() const final
+        ui::GizmoOperations impl_get_supported_manipulation_ops() const override
         {
             return {ui::GizmoOperation::Rotate, ui::GizmoOperation::Translate};
         }
 
         Matrix4x4 impl_get_current_transform_in_ground(
-            const OpenSim::ContactGeometry& contact_geom) const final
+            const OpenSim::ContactGeometry& contact_geom) const override
         {
             const SimTK::Transform wrap_to_frame = contact_geom.getTransform();
             const SimTK::Transform frame_to_ground = contact_geom.getFrame().getTransformInGround(get_state());
@@ -465,7 +465,7 @@ namespace
 
         void impl_on_apply_transform(
             const OpenSim::ContactGeometry& contact_geom,
-            const SimTK::Transform& m_n) final
+            const SimTK::Transform& m_n) override
         {
             // solve for X:
             //
@@ -517,18 +517,18 @@ namespace
         {}
 
     private:
-        ui::GizmoOperations impl_get_supported_manipulation_ops() const final
+        ui::GizmoOperations impl_get_supported_manipulation_ops() const override
         {
             return {ui::GizmoOperation::Translate, ui::GizmoOperation::Rotate};
         }
 
-        Matrix4x4 impl_get_current_transform_in_ground(const OpenSim::Joint& joint) const final
+        Matrix4x4 impl_get_current_transform_in_ground(const OpenSim::Joint& joint) const override
         {
             // present the "joint center" as equivalent to the parent frame
             return to<Matrix4x4>(joint.getParentFrame().getTransformInGround(get_state()));
         }
 
-        void impl_on_apply_transform(const OpenSim::Joint& joint, const SimTK::Transform& m_n) final
+        void impl_on_apply_transform(const OpenSim::Joint& joint, const SimTK::Transform& m_n) override
         {
             // in order to move a joint center without every child also moving around, we need to:
             //
@@ -608,7 +608,7 @@ namespace
             ui::DrawListView draw_list,
             const Matrix4x4& view_matrix,
             const Matrix4x4& projection_matrix,
-            const Rect& screen_rect) const final
+            const Rect& screen_rect) const override
         {
             const OpenSim::Joint* joint = find_selection();
             if (not joint) {
@@ -641,13 +641,13 @@ namespace
         {}
 
     private:
-        ui::GizmoOperations impl_get_supported_manipulation_ops() const final
+        ui::GizmoOperations impl_get_supported_manipulation_ops() const override
         {
             return ui::GizmoOperation::Translate;
         }
 
         Matrix4x4 impl_get_current_transform_in_ground(
-            const OpenSim::Scholz2015GeometryPathObstacle& obstacle) const final
+            const OpenSim::Scholz2015GeometryPathObstacle& obstacle) const override
         {
             const OpenSim::ContactGeometry& geom = obstacle.getContactGeometry();
             const SimTK::Rotation rotation_in_ground = geom.getFrame().getTransformInGround(get_state()).R() * geom.getTransform().R();
@@ -657,7 +657,7 @@ namespace
 
         void impl_on_apply_transform(
             const OpenSim::Scholz2015GeometryPathObstacle& obstacle,
-            const SimTK::Transform& transform_in_ground) final
+            const SimTK::Transform& transform_in_ground) override
         {
             // ignores `rotation`
             const OpenSim::ContactGeometry& geom = obstacle.getContactGeometry();
@@ -665,7 +665,7 @@ namespace
             action_translate_contact_hint(get_undoable_model(), obstacle, to<Vector3>(translation_in_contact_geom));
         }
 
-        void impl_on_save([[maybe_unused]] const OpenSim::Scholz2015GeometryPathObstacle& obstacle) final
+        void impl_on_save([[maybe_unused]] const OpenSim::Scholz2015GeometryPathObstacle& obstacle) override
         {
             action_translate_contact_hint_and_save(get_undoable_model(), obstacle, {});
         }

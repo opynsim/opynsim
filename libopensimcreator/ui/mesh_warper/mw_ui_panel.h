@@ -11,11 +11,11 @@ namespace osc
         using Panel::Panel;
 
     private:
-        void impl_before_imgui_begin() final
+        void impl_before_imgui_begin() override
         {
             ui::push_style_var(ui::StyleVar::PanelPadding, {0.0f, 0.0f});
         }
 
-        void impl_after_imgui_begin() final { ui::pop_style_var(); }
+        void impl_after_imgui_begin() override { ui::pop_style_var(); }
     };
 }

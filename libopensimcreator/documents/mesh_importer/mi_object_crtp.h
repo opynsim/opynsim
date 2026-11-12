@@ -28,28 +28,28 @@ namespace osc
         }
 
     private:
-        const MiClass& impl_get_class() const final
+        const MiClass& impl_get_class() const override
         {
             static_assert(std::is_reference_v<decltype(T::get_class())>);
             static_assert(std::is_same_v<decltype(T::get_class()), const MiClass&>);
             return T::get_class();
         }
 
-        std::unique_ptr<MiObject> impl_clone() const final
+        std::unique_ptr<MiObject> impl_clone() const override
         {
             static_assert(std::is_base_of_v<MiObject, T>);
             static_assert(std::is_final_v<T>);
             return std::make_unique<T>(static_cast<T const&>(*this));
         }
 
-        MiVariantConstReference impl_to_variant() const final
+        MiVariantConstReference impl_to_variant() const override
         {
             static_assert(std::is_base_of_v<MiObject, T>);
             static_assert(std::is_final_v<T>);
             return static_cast<T const&>(*this);
         }
 
-        MiVariantReference impl_to_variant() final
+        MiVariantReference impl_to_variant() override
         {
             static_assert(std::is_base_of_v<MiObject, T>);
             static_assert(std::is_final_v<T>);

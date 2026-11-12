@@ -632,7 +632,7 @@ namespace
             return data_points_.lock();
         }
 
-        void operator()(PlotDataPoint p) final
+        void operator()(PlotDataPoint p) override
         {
             {
                 auto lock = data_points_.lock();
@@ -1473,7 +1473,7 @@ namespace
         {}
 
     private:
-        std::unique_ptr<MusclePlotState> impl_on_draw() final
+        std::unique_ptr<MusclePlotState> impl_on_draw() override
         {
             on_before_drawing();  // perform pre-draw cleanups/updates etc.
 
@@ -2064,7 +2064,7 @@ namespace
         }
 
     private:
-        std::unique_ptr<MusclePlotState> impl_on_draw() final
+        std::unique_ptr<MusclePlotState> impl_on_draw() override
         {
             std::unique_ptr<MusclePlotState> rv;
 
@@ -2100,7 +2100,7 @@ namespace
         }
 
     private:
-        std::unique_ptr<MusclePlotState> impl_on_draw() final
+        std::unique_ptr<MusclePlotState> impl_on_draw() override
         {
             std::unique_ptr<MusclePlotState> rv;
 

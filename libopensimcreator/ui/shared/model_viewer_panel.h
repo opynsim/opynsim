@@ -46,8 +46,8 @@ namespace osc
         void impl_draw_content() override;
 
     private:
-        void impl_before_imgui_begin() final;
-        void impl_after_imgui_begin() final;
+        void impl_before_imgui_begin() override;
+        void impl_after_imgui_begin() override;
 
         class Impl;
         OSC_WIDGET_DATA_GETTERS(Impl);

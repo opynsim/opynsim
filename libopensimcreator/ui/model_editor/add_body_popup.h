@@ -22,8 +22,8 @@ namespace osc
             std::shared_ptr<opyn::ModelStatePair>);
 
     private:
-        void impl_draw_content() final;
-        void impl_on_close() final;
+        void impl_draw_content() override;
+        void impl_on_close() override;
 
         class Impl;
         OSC_WIDGET_DATA_GETTERS(Impl);

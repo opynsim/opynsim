@@ -247,7 +247,7 @@ private:
     //
 
     // pop the current UI layer
-    void impl_request_pop(MeshImporterUILayer&) final
+    void impl_request_pop(MeshImporterUILayer&) override
     {
         maybe_3d_viewer_modal_.reset();
         App::upd().request_redraw();

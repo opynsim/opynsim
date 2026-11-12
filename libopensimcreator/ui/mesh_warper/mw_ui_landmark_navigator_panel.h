@@ -28,7 +28,7 @@ namespace osc
         {}
 
     private:
-        void impl_draw_content() final
+        void impl_draw_content() override
         {
             ui::draw_text("Landmarks:");
             ui::draw_separator();

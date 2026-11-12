@@ -38,7 +38,7 @@ namespace osc
         }
 
     private:
-        void impl_draw_content() final
+        void impl_draw_content() override
         {
             draw_context_menu_header("Input Mesh", "Mesh");
             draw_context_menu_separator();

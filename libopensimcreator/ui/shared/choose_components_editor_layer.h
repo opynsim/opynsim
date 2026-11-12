@@ -31,19 +31,19 @@ namespace osc
     private:
         bool impl_handle_keyboard_inputs(
             ModelViewerPanelParameters&,
-            ModelViewerPanelState&) final;
+            ModelViewerPanelState&) override;
 
         bool impl_handle_mouse_inputs(
             ModelViewerPanelParameters&,
-            ModelViewerPanelState&) final;
+            ModelViewerPanelState&) override;
 
         void impl_on_draw(
             ModelViewerPanelParameters&,
-            ModelViewerPanelState&) final;
+            ModelViewerPanelState&) override;
 
-        float impl_get_background_alpha() const final;
+        float impl_get_background_alpha() const override;
 
-        bool impl_should_close() const final;
+        bool impl_should_close() const override;
 
         class Impl;
         std::unique_ptr<Impl> impl_;

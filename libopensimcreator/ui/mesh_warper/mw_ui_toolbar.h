@@ -16,7 +16,7 @@ namespace osc
             Widget* parent, std::string_view label, std::shared_ptr<MwUiSharedState>);
 
     private:
-        void impl_on_draw() final;
+        void impl_on_draw() override;
 
         class Impl;
         OSC_WIDGET_DATA_GETTERS(Impl);

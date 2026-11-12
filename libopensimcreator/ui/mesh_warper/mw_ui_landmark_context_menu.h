@@ -38,7 +38,7 @@ namespace osc
         }
 
     private:
-        void impl_draw_content() final
+        void impl_draw_content() override
         {
             const MwDocumentElement* el = find_element(state_->get_scratch(), element_id_);
             if (not el) {

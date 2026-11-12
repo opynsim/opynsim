@@ -502,7 +502,7 @@ namespace
         {}
 
     private:
-        void impl_draw_content() final
+        void impl_draw_content() override
         {
             // if linked, read linked camera controller into local camera
             if (state_->update_local_controller_if_linked(upd_orbit_camera_controller())) {
@@ -532,7 +532,7 @@ namespace
         {}
 
     private:
-        void impl_draw_content() final
+        void impl_draw_content() override
         {
             std::visit(
                 Overload{
@@ -617,7 +617,7 @@ namespace
         {}
 
     private:
-        void impl_draw_content() final
+        void impl_draw_content() override
         {
             ui::draw_text("hello, popup content!");
         }
@@ -637,7 +637,7 @@ namespace
         }
 
     private:
-        void impl_on_draw() final
+        void impl_on_draw() override
         {
             if (begin_toolbar(name())) {
                 draw_content();
@@ -779,7 +779,7 @@ namespace
         {}
 
     private:
-        void impl_draw_content() final
+        void impl_draw_content() override
         {
             draw_scaling_parameters();
             ui::draw_vertical_spacer(0.75f);

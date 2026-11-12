@@ -16,7 +16,7 @@ namespace
     class LoadingTabTestingScreen final : public Widget {
     public:
     private:
-        bool impl_on_event(Event& e) final
+        bool impl_on_event(Event& e) override
         {
             if (ui_context_.on_event(e)) {
                 return true;
@@ -24,22 +24,22 @@ namespace
             return loading_tab_.on_event(e);
         }
 
-        void impl_on_mount() final
+        void impl_on_mount() override
         {
             loading_tab_.on_mount();
         }
 
-        void impl_on_unmount() final
+        void impl_on_unmount() override
         {
             loading_tab_.on_unmount();
         }
 
-        void impl_on_tick() final
+        void impl_on_tick() override
         {
             loading_tab_.on_tick();
         }
 
-        void impl_on_draw() final
+        void impl_on_draw() override
         {
             ui_context_.on_start_new_frame();
             loading_tab_.on_draw();

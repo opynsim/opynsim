@@ -26,7 +26,7 @@ namespace osc
             std::function<void(const OpenSim::ComponentPath&)> on_selection);
 
     private:
-        void impl_draw_content() final;
+        void impl_draw_content() override;
 
         class Impl;
         OSC_WIDGET_DATA_GETTERS(Impl);

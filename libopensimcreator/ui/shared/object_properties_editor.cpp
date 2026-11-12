@@ -426,7 +426,7 @@ namespace
         }
 
     private:
-        bool impl_is_compatible_with(const OpenSim::AbstractProperty& prop) const final
+        bool impl_is_compatible_with(const OpenSim::AbstractProperty& prop) const override
         {
             return Traits::is_compatible_with(&prop);
         }
@@ -444,7 +444,7 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() override
         {
             // fetch property from object
             const property_type* prop = try_get_downcasted_property();
@@ -557,7 +557,7 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() override
         {
             const property_type* maybe_prop = try_get_downcasted_property();
             if (not maybe_prop) {
@@ -635,7 +635,7 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() override
         {
             const property_type* maybe_prop = try_get_downcasted_property();
             if (not maybe_prop) {
@@ -839,7 +839,7 @@ namespace
             return ValueConverter{conversion_coefficient, transform};
         }
 
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() override
         {
             const property_type* maybe_prop = try_get_downcasted_property();
             if (not maybe_prop) {
@@ -1036,7 +1036,7 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() override
         {
             const property_type* maybe_prop = try_get_downcasted_property();
             if (not maybe_prop) {
@@ -1122,7 +1122,7 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() override
         {
             const property_type* maybe_prop = try_get_downcasted_property();
             if (not maybe_prop) {
@@ -1207,7 +1207,7 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() override
         {
             const property_type* maybe_prop = try_get_downcasted_property();
             if (not maybe_prop) {
@@ -1316,7 +1316,7 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() override
         {
             std::optional<std::function<void(OpenSim::AbstractProperty&)>> rv;
 
@@ -1373,7 +1373,7 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() override
         {
             const property_type* maybe_prop = try_get_downcasted_property();
             if (not maybe_prop) {
@@ -1461,7 +1461,7 @@ namespace
         using PropertyEditor::PropertyEditor;
 
     private:
-        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() final
+        std::optional<std::function<void(OpenSim::AbstractProperty&)>> impl_on_draw() override
         {
             const OpenSim::AbstractProperty* prop = try_get_property();
             if (not prop) {

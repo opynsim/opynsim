@@ -45,22 +45,22 @@ namespace osc
         void set_simulation_report(SimulationReport);
 
     private:
-        const OpenSim::Model& impl_get_model() const final;
-        UID impl_get_model_version() const final;
+        const OpenSim::Model& impl_get_model() const override;
+        UID impl_get_model_version() const override;
 
-        const SimTK::State& impl_get_state() const final;
-        UID impl_get_state_version() const final;
+        const SimTK::State& impl_get_state() const override;
+        UID impl_get_state_version() const override;
 
-        const OpenSim::Component* impl_get_selected() const final;
-        void impl_set_selected(const OpenSim::Component*) final;
+        const OpenSim::Component* impl_get_selected() const override;
+        void impl_set_selected(const OpenSim::Component*) override;
 
-        const OpenSim::Component* impl_get_hovered() const final;
-        void impl_set_hovered(const OpenSim::Component*) final;
+        const OpenSim::Component* impl_get_hovered() const override;
+        void impl_set_hovered(const OpenSim::Component*) override;
 
-        float impl_get_fixup_scale_factor() const final;
-        void impl_set_fixup_scale_factor(float) final;
+        float impl_get_fixup_scale_factor() const override;
+        void impl_set_fixup_scale_factor(float) override;
 
-        std::shared_ptr<Environment> impl_upd_associated_environment() const final;
+        std::shared_ptr<Environment> impl_upd_associated_environment() const override;
 
         class Impl;
         std::unique_ptr<Impl> impl_;

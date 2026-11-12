@@ -43,7 +43,7 @@ namespace osc
         }
 
     private:
-        void impl_draw_content() final
+        void impl_draw_content() override
         {
             // fill the entire available region with the render
             const Vector2 dims = ui::get_content_region_available();

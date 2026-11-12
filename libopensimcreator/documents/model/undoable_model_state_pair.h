@@ -83,30 +83,30 @@ namespace osc
         void load_model(const std::filesystem::path&);
 
     private:
-        const OpenSim::Model& impl_get_model() const final;
-        const SimTK::State& impl_get_state() const final;
+        const OpenSim::Model& impl_get_model() const override;
+        const SimTK::State& impl_get_state() const override;
 
-        bool impl_can_upd_model() const final { return true; }
-        OpenSim::Model& impl_upd_model() final;
+        bool impl_can_upd_model() const override { return true; }
+        OpenSim::Model& impl_upd_model() override;
 
-        void impl_commit(std::string_view) final;
+        void impl_commit(std::string_view) override;
 
-        UID impl_get_model_version() const final;
-        void impl_set_model_version(UID) final;
-        UID impl_get_state_version() const final;
+        UID impl_get_model_version() const override;
+        void impl_set_model_version(UID) override;
+        UID impl_get_state_version() const override;
 
-        float impl_get_fixup_scale_factor() const final;
-        void impl_set_fixup_scale_factor(float) final;
+        float impl_get_fixup_scale_factor() const override;
+        void impl_set_fixup_scale_factor(float) override;
 
-        const OpenSim::Component* impl_get_selected() const final;
-        void impl_set_selected(const OpenSim::Component* c) final;
+        const OpenSim::Component* impl_get_selected() const override;
+        void impl_set_selected(const OpenSim::Component* c) override;
 
-        const OpenSim::Component* impl_get_hovered() const final;
-        void impl_set_hovered(const OpenSim::Component* c) final;
+        const OpenSim::Component* impl_get_hovered() const override;
+        void impl_set_hovered(const OpenSim::Component* c) override;
 
-        std::shared_ptr<Environment> impl_upd_associated_environment() const final;
+        std::shared_ptr<Environment> impl_upd_associated_environment() const override;
 
-        void impl_set_up_to_date_with_filesystem(std::filesystem::file_time_type) final;
+        void impl_set_up_to_date_with_filesystem(std::filesystem::file_time_type) override;
 
         class Impl;
         std::unique_ptr<Impl> impl_;

@@ -66,7 +66,7 @@ namespace osc
 
     private:
         // draws all of the panel's content
-        void impl_draw_content() final
+        void impl_draw_content() override
         {
             // compute top-level UI variables (render rect, mouse position, etc.)
             const Rect content_rect = ui::get_content_region_available_ui_rect();

@@ -46,13 +46,13 @@ namespace osc
         // clang-format on
 
     private:
-        const OpenSim::Model& impl_get_model() const final;
-        const SimTK::State& impl_get_state() const final;
+        const OpenSim::Model& impl_get_model() const override;
+        const SimTK::State& impl_get_state() const override;
 
-        float impl_get_fixup_scale_factor() const final;
-        void impl_set_fixup_scale_factor(float) final;
+        float impl_get_fixup_scale_factor() const override;
+        void impl_set_fixup_scale_factor(float) override;
 
-        std::shared_ptr<Environment> impl_upd_associated_environment() const final;
+        std::shared_ptr<Environment> impl_upd_associated_environment() const override;
 
         class Impl;
         ClonePtr<Impl> impl_;

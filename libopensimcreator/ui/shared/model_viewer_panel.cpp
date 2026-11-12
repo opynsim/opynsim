@@ -55,21 +55,21 @@ namespace
         }
 
     private:
-        ModelViewerPanelLayerFlags impl_get_flags() const final
+        ModelViewerPanelLayerFlags impl_get_flags() const override
         {
             return ModelViewerPanelLayerFlags::CapturesMouseInputs;
         }
 
         bool impl_handle_mouse_inputs(
             ModelViewerPanelParameters&,
-            ModelViewerPanelState&) final
+            ModelViewerPanelState&) override
         {
             return true;  // always handles the mouse
         }
 
         void impl_on_draw(
             ModelViewerPanelParameters& params,
-            ModelViewerPanelState& state) final
+            ModelViewerPanelState& state) override
         {
             ruler_.on_draw(
                 params.get_camera(),
@@ -77,7 +77,7 @@ namespace
                 state.maybe_base_layer_hittest);
         }
 
-        bool impl_should_close() const final
+        bool impl_should_close() const override
         {
             return !ruler_.is_measuring();
         }
@@ -98,7 +98,7 @@ namespace
         {}
 
     private:
-        ModelViewerPanelLayerFlags impl_get_flags() const final
+        ModelViewerPanelLayerFlags impl_get_flags() const override
         {
             ModelViewerPanelLayerFlags flags = ModelViewerPanelLayerFlags::None;
             if (gizmo_.is_using()) {
@@ -107,14 +107,14 @@ namespace
             return flags;
         }
 
-        float impl_get_background_alpha() const final
+        float impl_get_background_alpha() const override
         {
             return 0.0f;
         }
 
         bool impl_handle_mouse_inputs(
             ModelViewerPanelParameters&,
-            ModelViewerPanelState&) final
+            ModelViewerPanelState&) override
         {
             // care: `is_using` can return `true` even if it isn't being drawn this frame
             return gizmo_.is_using();
@@ -122,7 +122,7 @@ namespace
 
         bool impl_handle_keyboard_inputs(
             ModelViewerPanelParameters&,
-            ModelViewerPanelState&) final
+            ModelViewerPanelState&) override
         {
             return gizmo_.handle_keyboard_inputs();
         }
@@ -159,7 +159,7 @@ namespace
             gizmo_.on_draw(state.viewport_ui_rect, params.get_camera());
         }
 
-        bool impl_should_close() const final
+        bool impl_should_close() const override
         {
             return false;  // never closes
         }
@@ -216,12 +216,12 @@ namespace
         explicit InformationalOverlaysLayer() = default;
 
     private:
-        ModelViewerPanelLayerFlags impl_get_flags() const final
+        ModelViewerPanelLayerFlags impl_get_flags() const override
         {
             return ModelViewerPanelLayerFlags::None;
         }
 
-        void impl_on_draw(ModelViewerPanelParameters& params, ModelViewerPanelState& state) final
+        void impl_on_draw(ModelViewerPanelParameters& params, ModelViewerPanelState& state) override
         {
             draw_coordinate_line_overlay_or_reset_cache(params, state);
         }
@@ -400,14 +400,14 @@ namespace
     // etc. if no upper layer decides to handle it
     class BaseInteractionLayer final : public ModelViewerPanelLayer {
     private:
-        void impl_on_new_frame() final
+        void impl_on_new_frame() override
         {
             is_handling_mouse_inputs_ = false;
         }
 
         bool impl_handle_keyboard_inputs(
             ModelViewerPanelParameters& params,
-            ModelViewerPanelState& state) final
+            ModelViewerPanelState& state) override
         {
             const bool controller_updated = ui::update_orbit_controller_from_keyboard_inputs(
                 params.upd_orbit_camera_controller(),
@@ -422,7 +422,7 @@ namespace
 
         bool impl_handle_mouse_inputs(
             ModelViewerPanelParameters& params,
-            ModelViewerPanelState& state) final
+            ModelViewerPanelState& state) override
         {
             is_handling_mouse_inputs_ = true;
 
@@ -458,7 +458,7 @@ namespace
 
         void impl_on_draw(
             ModelViewerPanelParameters& params,
-            ModelViewerPanelState& state) final
+            ModelViewerPanelState& state) override
         {
             // hover, but not panning: show tooltip
             if (not state.maybe_hovered_component_abs_path.toString().empty() and
@@ -485,7 +485,7 @@ namespace
             }
         }
 
-        bool impl_should_close() const final
+        bool impl_should_close() const override
         {
             return false;
         }

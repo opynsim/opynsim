@@ -283,22 +283,22 @@ private:
         }
     }
 
-    const AbstractSimulation& impl_get_simulation() const final
+    const AbstractSimulation& impl_get_simulation() const override
     {
         return *simulation_;
     }
 
-    AbstractSimulation& impl_upd_simulation() final
+    AbstractSimulation& impl_upd_simulation() override
     {
         return *simulation_;
     }
 
-    SimulationUIPlaybackState impl_get_simulation_playback_state() final
+    SimulationUIPlaybackState impl_get_simulation_playback_state() override
     {
         return playback_state_;
     }
 
-    void impl_set_simulation_playback_state(SimulationUIPlaybackState new_state) final
+    void impl_set_simulation_playback_state(SimulationUIPlaybackState new_state) override
     {
         if (new_state == SimulationUIPlaybackState::Playing) {
             playback_start_wall_time_ = std::chrono::steady_clock::now();
@@ -309,27 +309,27 @@ private:
         }
     }
 
-    SimulationUILoopingState impl_get_simulation_looping_state() const final
+    SimulationUILoopingState impl_get_simulation_looping_state() const override
     {
         return looping_state_;
     }
 
-    void impl_set_simulation_looping_state(SimulationUILoopingState s) final
+    void impl_set_simulation_looping_state(SimulationUILoopingState s) override
     {
         looping_state_ = s;
     }
 
-    float impl_get_simulation_playback_speed() final
+    float impl_get_simulation_playback_speed() override
     {
         return playback_speed_;
     }
 
-    void impl_set_simulation_playback_speed(float v) final
+    void impl_set_simulation_playback_speed(float v) override
     {
         playback_speed_ = v;
     }
 
-    SimulationClock::time_point impl_get_simulation_scrub_time() final
+    SimulationClock::time_point impl_get_simulation_scrub_time() override
     {
         if (playback_state_ == SimulationUIPlaybackState::Stopped) {
             return playback_start_simtime_;
@@ -359,13 +359,13 @@ private:
         }
     }
 
-    void impl_set_simulation_scrub_time(SimulationClock::time_point t) final
+    void impl_set_simulation_scrub_time(SimulationClock::time_point t) override
     {
         playback_start_simtime_ = t;
         playback_start_wall_time_ = std::chrono::steady_clock::now();
     }
 
-    void impl_step_back() final
+    void impl_step_back() override
     {
         const std::optional<SimulationReport> maybe_prev = try_find_nth_report_after(get_simulation_scrub_time(), -1);
         if (maybe_prev) {
@@ -373,7 +373,7 @@ private:
         }
     }
 
-    void impl_step_forward() final
+    void impl_step_forward() override
     {
         const std::optional<SimulationReport> maybe_next = try_find_nth_report_after(get_simulation_scrub_time(), 1);
         if (maybe_next) {
@@ -381,12 +381,12 @@ private:
         }
     }
 
-    std::optional<SimulationReport> impl_try_select_report_based_on_scrubbing() final
+    std::optional<SimulationReport> impl_try_select_report_based_on_scrubbing() override
     {
         return try_find_nth_report_after(get_simulation_scrub_time());
     }
 
-    SimulationModelStatePair* impl_try_get_current_simulation_state() final
+    SimulationModelStatePair* impl_try_get_current_simulation_state() override
     {
         return shown_model_state_.get();
     }

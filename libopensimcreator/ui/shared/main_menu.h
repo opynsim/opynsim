@@ -25,7 +25,7 @@ namespace osc
         std::vector<std::filesystem::path> example_osim_files;
 
     private:
-        void impl_on_draw() final { on_draw(); }
+        void impl_on_draw() override { on_draw(); }
     };
 
     class MainMenuAboutTab final {

@@ -27,7 +27,7 @@ namespace osc
         void set_target_parent_component(const OpenSim::ComponentPath&);
 
     private:
-        void impl_on_draw() final;
+        void impl_on_draw() override;
 
         class Impl;
         OSC_WIDGET_DATA_GETTERS(Impl);
