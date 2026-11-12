@@ -2,6 +2,7 @@
 
 # NEXT: for ext in "cpp" "h"; do find $(./scripts/tmp_format_sources.py) -name "*.${ext}" -exec clang-format-20 -i -style=file {} + ; done
 # COMPLETE: d=$(./scripts/tmp_format_sources.py) ; touch "${d}/.formatted" && find "${d}" -mindepth 2 -name ".formatted" -delete && git add "$d"
+# MARK: d=$(./scripts/tmp_format_sources.py) ; touch "${d}/.formatted" && find "${d}" -mindepth 2 -name ".formatted" -delete
 
 from pathlib import Path
 import sys
