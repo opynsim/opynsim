@@ -66,6 +66,7 @@
 #include <algorithm>
 #include <chrono>
 #include <exception>
+#include <format>
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -90,8 +91,7 @@ namespace
     void do_open_file_via_dialog(Widget& api)
     {
         App::upd().prompt_user_to_select_file_async(
-            [widget_ptr = api.weak_ref()](FileDialogResponse response)  // NOLINT(performance-unnecessary-value-param)
-            {
+            [widget_ptr = api.weak_ref()](FileDialogResponse response) {
                 if (not widget_ptr) {
                     return;  // widget was deleted at some point
                 }
@@ -113,7 +113,8 @@ namespace
 
     bool is_an_example_file(const std::filesystem::path& path)
     {
-        if (const auto example_models_directory_path = App::resource_filepath("OpenSimCreator/models")) {
+        if (const auto example_models_directory_path =
+                App::resource_filepath("OpenSimCreator/models")) {
             return is_subpath(*example_models_directory_path, path);
         } else {
             return false;
@@ -193,10 +194,13 @@ namespace
         }
 
         const SimTK::Transform current_parent_to_ground = spatial_rep->parent_to_ground;
-        const SimTK::Transform ground_to_new_connectee = new_frame->getTransformInGround(state).invert();
-        const SimTK::Transform current_parent_to_new_connectee = ground_to_new_connectee * current_parent_to_ground;
+        const SimTK::Transform ground_to_new_connectee =
+            new_frame->getTransformInGround(state).invert();
+        const SimTK::Transform current_parent_to_new_connectee =
+            ground_to_new_connectee * current_parent_to_ground;
 
-        if (auto* positional_prop = find_simple_property_mut<SimTK::Vec3>(component, spatial_rep->location_vec3_property_name)) {
+        if (auto* positional_prop = find_simple_property_mut<SimTK::Vec3>(
+                component, spatial_rep->location_vec3_property_name)) {
             const SimTK::Vec3 old_position = positional_prop->getValue();
             const SimTK::Vec3 new_position = current_parent_to_new_connectee * old_position;
 
@@ -204,15 +208,20 @@ namespace
         }
 
         if (spatial_rep->maybe_orientation_vec3_eulers_property_name) {
-            if (auto* orientational_prop = find_simple_property_mut<SimTK::Vec3>(component, *spatial_rep->maybe_orientation_vec3_eulers_property_name)) {
-                const SimTK::Rotation current_rotation_in_ground = spatial_rep->parent_to_ground.R();
-                const SimTK::Rotation ground_to_new_connectee_rotation = new_frame->getRotationInGround(state).invert();
-                const SimTK::Rotation current_parent_rotation_to_new_connectee_rotation = ground_to_new_connectee_rotation * current_rotation_in_ground;
+            if (auto* orientational_prop = find_simple_property_mut<SimTK::Vec3>(
+                    component, *spatial_rep->maybe_orientation_vec3_eulers_property_name)) {
+                const SimTK::Rotation current_rotation_in_ground =
+                    spatial_rep->parent_to_ground.R();
+                const SimTK::Rotation ground_to_new_connectee_rotation =
+                    new_frame->getRotationInGround(state).invert();
+                const SimTK::Rotation current_parent_rotation_to_new_connectee_rotation =
+                    ground_to_new_connectee_rotation * current_rotation_in_ground;
 
                 const SimTK::Vec3 old_eulers = orientational_prop->getValue();
                 SimTK::Rotation old_rotation;
                 old_rotation.setRotationToBodyFixedXYZ(old_eulers);
-                const SimTK::Rotation new_rotation = current_parent_rotation_to_new_connectee_rotation * old_rotation;
+                const SimTK::Rotation new_rotation =
+                    current_parent_rotation_to_new_connectee_rotation * old_rotation;
                 const SimTK::Vec3 new_eulers = new_rotation.convertRotationToBodyFixedXYZ();
 
                 orientational_prop->setValue(new_eulers);
@@ -273,32 +282,32 @@ void osc::action_open_model(Widget& api, const std::filesystem::path& path)
 }
 
 void osc::action_save_model_async(
-    const std::shared_ptr<ModelStatePair>& model,
-    std::function<void(bool)> callback)
+    const std::shared_ptr<ModelStatePair>& model, std::function<void(bool)> callback)
 {
     // Handling function that's passed to the dialog backend (if necessary)
-    std::function<void(std::optional<std::filesystem::path>)> handle_file = [callback = std::move(callback), model](std::optional<std::filesystem::path> p) {
-        if (not p) {
-            callback(false);
-            return;  // user probably cancelled out
-        }
+    std::function<void(std::optional<std::filesystem::path>)> handle_file =
+        [callback = std::move(callback), model](std::optional<std::filesystem::path> p) {
+            if (not p) {
+                callback(false);
+                return;  // user probably cancelled out
+            }
 
-        if (not try_save_model(model->get_model(), *p)) {
-            callback(false);  // there was an error saving the model
-            return;
-        }
+            if (not try_save_model(model->get_model(), *p)) {
+                callback(false);  // there was an error saving the model
+                return;
+            }
 
-        const std::string old_path = model->get_model().getInputFileName();
-        model->upd_model().setInputFileName(p->string());
+            const std::string old_path = model->get_model().getInputFileName();
+            model->upd_model().setInputFileName(p->string());
 
-        if (p->string() != old_path) {
-            model->commit("changed osim path");
-        }
-        model->set_up_to_date_with_filesystem(std::filesystem::last_write_time(*p));
+            if (p->string() != old_path) {
+                model->commit("changed osim path");
+            }
+            model->set_up_to_date_with_filesystem(std::filesystem::last_write_time(*p));
 
-        App::singleton<RecentFiles>()->push_back(*p);
-        callback(true);
-    };
+            App::singleton<RecentFiles>()->push_back(*p);
+            callback(true);
+        };
 
     // Now figure out how to actually get/handle the path...
     if (const std::string& backing_path = model->get_model().getInputFileName();
@@ -308,7 +317,8 @@ void osc::action_save_model_async(
         //
         // we can save over this document - *IF* it's not an example file
         if (is_an_example_file(backing_path)) {
-            App::upd().prompt_user_to_save_file_with_extension_async(std::move(handle_file), "osim");
+            App::upd().prompt_user_to_save_file_with_extension_async(
+                std::move(handle_file), "osim");
         } else {
             handle_file(backing_path);
         }
@@ -372,7 +382,8 @@ void osc::action_disable_all_wrapping_surfaces(ModelStatePair& model)
         initialize_state(mut_model);
         model.commit("disabled all wrapping surfaces");
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while disabling wrapping surfaces"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while disabling wrapping surfaces"});
     }
 }
 
@@ -389,7 +400,8 @@ void osc::action_enable_all_wrapping_surfaces(ModelStatePair& model)
         initialize_state(mut_model);
         model.commit("enabled all wrapping surfaces");
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while enabling wrapping surfaces"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while enabling wrapping surfaces"});
     }
 }
 
@@ -413,19 +425,22 @@ bool osc::action_load_sto_file_against_model(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to load an STO file against the model"});
+        std::throw_with_nested(
+            std::runtime_error{
+                "error detected while trying to load an STO file against the model"});
         return false;
     }
 }
 
 bool osc::action_start_simulating_model(
-    Widget& parent,
-    const ModelStatePairWithSharedEnvironment& uim)
+    Widget& parent, const ModelStatePairWithSharedEnvironment& uim)
 {
     BasicModelStatePairWithSharedEnvironment model_state{uim};
-    ForwardDynamicSimulatorParams params = from_param_block(uim.try_upd_environment()->get_simulation_params());
+    ForwardDynamicSimulatorParams params =
+        from_param_block(uim.try_upd_environment()->get_simulation_params());
 
-    auto simulation = std::make_shared<Simulation>(ForwardDynamicSimulation{std::move(model_state), params});
+    auto simulation =
+        std::make_shared<Simulation>(ForwardDynamicSimulation{std::move(model_state), params});
     auto tab = std::make_unique<SimulationTab>(&parent, std::move(simulation));
     App::post_event<OpenTabEvent>(parent, std::move(tab));
 
@@ -441,7 +456,8 @@ bool osc::action_update_model_from_backing_file(UndoableModelStatePair& uim)
     }
 
     if (not std::filesystem::exists(*path)) {
-        return false;  // the file does not exist? (e.g. because the user deleted it externally - #495)
+        // the file does not exist? (e.g. because the user deleted it externally - #495).
+        return false;
     }
 
     const auto current_timestamp = uim.get_last_filesystem_write_time();
@@ -553,7 +569,8 @@ bool osc::action_toggle_contact_geometry(ModelStatePair& uim)
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to toggle contact geometry"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to toggle contact geometry"});
         return false;
     }
 }
@@ -593,7 +610,8 @@ bool osc::action_toggle_wrap_geometry(ModelStatePair& uim)
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to toggle wrap geometry"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to toggle wrap geometry"});
         return false;
     }
 }
@@ -624,7 +642,9 @@ bool osc::action_reload_osim_from_disk(UndoableModelStatePair& uim, SceneCache& 
     const auto input_file = try_find_input_file(uim.get_model());
 
     if (not input_file) {
-        log_error("cannot reload the osim file: the model doesn't appear to have a backing file (is it saved?)");
+        log_error(
+            "cannot reload the osim file: the model doesn't appear to have a backing file (is it "
+            "saved?)");
         return false;
     }
 
@@ -652,8 +672,7 @@ bool osc::action_reload_osim_from_disk(UndoableModelStatePair& uim, SceneCache& 
 }
 
 bool osc::action_add_offset_frame_to_physical_frame(
-    ModelStatePair& uim,
-    const OpenSim::ComponentPath& path)
+    ModelStatePair& uim, const OpenSim::ComponentPath& path)
 {
     if (uim.is_readonly()) {
         return false;
@@ -689,7 +708,8 @@ bool osc::action_add_offset_frame_to_physical_frame(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a frame to " + path.toString()});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to add a frame to " + path.toString()});
         return false;
     }
 }
@@ -713,9 +733,7 @@ bool osc::can_rezero_joint(ModelStatePair& uim, const OpenSim::ComponentPath& jo
     return dynamic_cast<const OpenSim::PhysicalOffsetFrame*>(&joint->getParentFrame()) != nullptr;
 }
 
-bool osc::action_rezero_joint(
-    ModelStatePair& uim,
-    const OpenSim::ComponentPath& joint_path)
+bool osc::action_rezero_joint(ModelStatePair& uim, const OpenSim::ComponentPath& joint_path)
 {
     if (uim.is_readonly()) {
         return false;
@@ -726,7 +744,8 @@ bool osc::action_rezero_joint(
         return false;  // nothing/invalid component type specified
     }
 
-    const auto* const parent_pof = dynamic_cast<const OpenSim::PhysicalOffsetFrame*>(&target->getParentFrame());
+    const auto* const parent_pof =
+        dynamic_cast<const OpenSim::PhysicalOffsetFrame*>(&target->getParentFrame());
     if (not parent_pof) {
         return false;  // target has no parent frame
     }
@@ -748,9 +767,11 @@ bool osc::action_rezero_joint(
             return false;
         }
 
-        auto* const mut_parent = find_component_mut<OpenSim::PhysicalOffsetFrame>(mut_model, parent_path);
+        auto* const mut_parent =
+            find_component_mut<OpenSim::PhysicalOffsetFrame>(mut_model, parent_path);
         if (not mut_parent) {
-            uim.set_model_version(old_version);  // cannot find mutable version of the parent offset frame
+            // cannot find mutable version of the parent offset frame
+            uim.set_model_version(old_version);
             return false;
         }
 
@@ -782,8 +803,7 @@ bool osc::action_rezero_joint(
 }
 
 bool osc::action_add_parent_offset_frame_to_joint(
-    ModelStatePair& uim,
-    const OpenSim::ComponentPath& joint_path)
+    ModelStatePair& uim, const OpenSim::ComponentPath& joint_path)
 {
     if (uim.is_readonly()) {
         return false;
@@ -818,14 +838,14 @@ bool osc::action_add_parent_offset_frame_to_joint(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a parent offset frame"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to add a parent offset frame"});
         return false;
     }
 }
 
 bool osc::action_add_child_offset_frame_to_joint(
-    ModelStatePair& uim,
-    const OpenSim::ComponentPath& joint_path)
+    ModelStatePair& uim, const OpenSim::ComponentPath& joint_path)
 {
     if (uim.is_readonly()) {
         return false;
@@ -860,15 +880,14 @@ bool osc::action_add_child_offset_frame_to_joint(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a child offset frame"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to add a child offset frame"});
         return false;
     }
 }
 
 bool osc::action_set_component_name(
-    ModelStatePair& uim,
-    const OpenSim::ComponentPath& path,
-    const std::string& new_name)
+    ModelStatePair& uim, const OpenSim::ComponentPath& path, const std::string& new_name)
 {
     if (uim.is_readonly()) {
         return false;
@@ -906,7 +925,8 @@ bool osc::action_set_component_name(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to set a component's name"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to set a component's name"});
         return false;
     }
 }
@@ -921,7 +941,9 @@ bool osc::action_change_joint_type_to(
     }
 
     if (not new_type) {
-        log_error("new joint type provided to ChangeJointType function is nullptr: cannot continue: this is a developer error and should be reported");
+        log_error(
+            "new joint type provided to ChangeJointType function is nullptr: cannot continue: this "
+            "is a developer error and should be reported");
         return false;
     }
 
@@ -978,7 +1000,8 @@ bool osc::action_change_joint_type_to(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to change a joint's type"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to change a joint's type"});
         return false;
     }
 }
@@ -992,7 +1015,8 @@ bool osc::action_attach_geometry_to_physical_frame(
         return false;
     }
 
-    const auto* const target = find_component<OpenSim::PhysicalFrame>(uim.get_model(), phys_frame_path);
+    const auto* const target =
+        find_component<OpenSim::PhysicalFrame>(uim.get_model(), phys_frame_path);
     if (not target) {
         return false;
     }
@@ -1001,7 +1025,8 @@ bool osc::action_attach_geometry_to_physical_frame(
     try {
         OpenSim::Model& mut_model = uim.upd_model();
 
-        auto* const mut_pof = find_component_mut<OpenSim::PhysicalFrame>(mut_model, phys_frame_path);
+        auto* const mut_pof =
+            find_component_mut<OpenSim::PhysicalFrame>(mut_model, phys_frame_path);
         if (not mut_pof) {
             uim.set_model_version(old_version);
             return false;
@@ -1020,7 +1045,9 @@ bool osc::action_attach_geometry_to_physical_frame(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to attach geometry to the a physical frame"});
+        std::throw_with_nested(
+            std::runtime_error{
+                "error detected while trying to attach geometry to the a physical frame"});
         return false;
     }
 }
@@ -1034,12 +1061,14 @@ bool osc::action_assign_contact_geometry_to_hcf(
         return false;
     }
 
-    const auto* const target = find_component<OpenSim::HuntCrossleyForce>(uim.get_model(), hcf_path);
+    const auto* const target =
+        find_component<OpenSim::HuntCrossleyForce>(uim.get_model(), hcf_path);
     if (not target) {
         return false;
     }
 
-    const auto* const geom = find_component<OpenSim::ContactGeometry>(uim.get_model(), contact_geom_path);
+    const auto* const geom =
+        find_component<OpenSim::ContactGeometry>(uim.get_model(), contact_geom_path);
     if (not geom) {
         return false;
     }
@@ -1067,7 +1096,8 @@ bool osc::action_assign_contact_geometry_to_hcf(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to assign contact geometry to a HCF"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to assign contact geometry to a HCF"});
         return false;
     }
 }
@@ -1082,13 +1112,15 @@ bool osc::action_apply_property_edit(ModelStatePair& uim, ObjectPropertyEdit& re
     try {
         OpenSim::Model& model = uim.upd_model();
 
-        OpenSim::Component* const component = find_component_mut(model, resp.get_component_abs_path());
+        OpenSim::Component* const component =
+            find_component_mut(model, resp.get_component_abs_path());
         if (not component) {
             uim.set_model_version(old_version);
             return false;
         }
 
-        OpenSim::AbstractProperty* const prop = find_property_mut(*component, resp.get_property_name());
+        OpenSim::AbstractProperty* const prop =
+            find_property_mut(*component, resp.get_property_name());
         if (not prop) {
             uim.set_model_version(old_version);
             return false;
@@ -1109,7 +1141,8 @@ bool osc::action_apply_property_edit(ModelStatePair& uim, ObjectPropertyEdit& re
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to apply a property edit"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to apply a property edit"});
         return false;
     }
 }
@@ -1123,12 +1156,14 @@ bool osc::action_add_path_point_to_geometry_path(
         return false;
     }
 
-    const auto* const gp = find_component<OpenSim::GeometryPath>(uim.get_model(), geometry_path_path);
+    const auto* const gp =
+        find_component<OpenSim::GeometryPath>(uim.get_model(), geometry_path_path);
     if (not gp) {
         return false;
     }
 
-    const auto* const pf = find_component<OpenSim::PhysicalFrame>(uim.get_model(), point_phys_frame);
+    const auto* const pf =
+        find_component<OpenSim::PhysicalFrame>(uim.get_model(), point_phys_frame);
     if (not pf) {
         return false;
     }
@@ -1141,7 +1176,8 @@ bool osc::action_add_path_point_to_geometry_path(
     try {
         OpenSim::Model& mut_model = uim.upd_model();
 
-        auto* const mut_gp = find_component_mut<OpenSim::GeometryPath>(mut_model, geometry_path_path);
+        auto* const mut_gp =
+            find_component_mut<OpenSim::GeometryPath>(mut_model, geometry_path_path);
         if (not mut_gp) {
             uim.set_model_version(old_version);
             return false;
@@ -1156,7 +1192,8 @@ bool osc::action_add_path_point_to_geometry_path(
 
         // try to select the new path point, if possible, so that the user
         // can immediately see the grab handles etc. (#779)
-        if (const auto* gp_after_finalization = find_component<OpenSim::GeometryPath>(mut_model, geometry_path_path)) {
+        if (const auto* gp_after_finalization =
+                find_component<OpenSim::GeometryPath>(mut_model, geometry_path_path)) {
             const auto& pps = gp_after_finalization->getPathPointSet();
             if (not empty(pps)) {
                 uim.set_selected(&opyn::at(pps, ssize(pps) - 1));
@@ -1169,7 +1206,9 @@ bool osc::action_add_path_point_to_geometry_path(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a path point to a geometry path"});
+        std::throw_with_nested(
+            std::runtime_error{
+                "error detected while trying to add a path point to a geometry path"});
         return false;
     }
 }
@@ -1183,19 +1222,22 @@ bool osc::action_add_path_point_to_path_actuator(
         return false;
     }
 
-    const auto* const pa = find_component<OpenSim::PathActuator>(uim.get_model(), path_actuator_path);
+    const auto* const pa =
+        find_component<OpenSim::PathActuator>(uim.get_model(), path_actuator_path);
     if (not pa) {
         return false;
     }
 
-    const auto* const pf = find_component<OpenSim::PhysicalFrame>(uim.get_model(), point_phys_frame);
+    const auto* const pf =
+        find_component<OpenSim::PhysicalFrame>(uim.get_model(), point_phys_frame);
     if (not pf) {
         return false;
     }
 
     const auto* const gp = dynamic_cast<const OpenSim::GeometryPath*>(&pa->getPath());
     if (not gp) {
-        log_warn("Cannot add a path point to an AbstractGeometryPath that isn't a normal GeometryPath");
+        log_warn(
+            "Cannot add a path point to an AbstractGeometryPath that isn't a normal GeometryPath");
         return false;
     }
 
@@ -1207,7 +1249,8 @@ bool osc::action_add_path_point_to_path_actuator(
     try {
         OpenSim::Model& mut_model = uim.upd_model();
 
-        auto* const mut_pa = find_component_mut<OpenSim::PathActuator>(mut_model, path_actuator_path);
+        auto* const mut_pa =
+            find_component_mut<OpenSim::PathActuator>(mut_model, path_actuator_path);
         if (not mut_pa) {
             uim.set_model_version(old_version);
             return false;
@@ -1222,8 +1265,11 @@ bool osc::action_add_path_point_to_path_actuator(
 
         // try to select the new path point, if possible, so that the user
         // can immediately see the grab handles etc. (#779)
-        if (const auto* pa_after_finalization = find_component<OpenSim::PathActuator>(mut_model, path_actuator_path)) {
-            if (const auto* gp_after_finalization = dynamic_cast<const OpenSim::GeometryPath*>(&pa_after_finalization->getPath())) {
+        if (const auto* pa_after_finalization =
+                find_component<OpenSim::PathActuator>(mut_model, path_actuator_path)) {
+            if (const auto* gp_after_finalization =
+                    dynamic_cast<const OpenSim::GeometryPath*>(&pa_after_finalization->getPath())) {
+
                 const auto& pps = gp_after_finalization->getPathPointSet();
                 if (not empty(pps)) {
                     uim.set_selected(&opyn::at(pps, ssize(pps) - 1));
@@ -1237,7 +1283,9 @@ bool osc::action_add_path_point_to_path_actuator(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a path point to a path actuator"});
+        std::throw_with_nested(
+            std::runtime_error{
+                "error detected while trying to add a path point to a path actuator"});
         return false;
     }
 }
@@ -1261,7 +1309,9 @@ bool osc::action_reassign_component_socket(
     //
     // issue #3299 in opensim-core
     if (socket_name == "child_frame" && &connectee == &uim.get_model().getGround()) {
-        error = "Error: you cannot assign a joint's child frame to ground: this is a known bug in OpenSim (see issue #382 in ComputationalBiomechanicsLab/opensim-creator and issue #3299 in opensim-org/opensim-core)";
+        error = "Error: you cannot assign a joint's child frame to ground: this is a known bug in "
+                "OpenSim (see issue #382 in ComputationalBiomechanicsLab/opensim-creator and issue "
+                "#3299 in opensim-org/opensim-core)";
         return false;
     }
 
@@ -1288,9 +1338,10 @@ bool osc::action_reassign_component_socket(
 
     try {
         const bool component_properties_reexpressed =
-            flags & SocketReassignmentFlags::TryReexpressComponentInNewConnectee ?
-            try_reexpress_component_spatial_properties_in_new_connectee(*mut_component, connectee, uim.get_state()) :
-            false;
+            flags & SocketReassignmentFlags::TryReexpressComponentInNewConnectee
+                ? try_reexpress_component_spatial_properties_in_new_connectee(
+                      *mut_component, connectee, uim.get_state())
+                : false;
 
         if (component_properties_reexpressed) {
             finalize_from_properties(mut_model);
@@ -1303,13 +1354,15 @@ bool osc::action_reassign_component_socket(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to reassign a socket"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to reassign a socket"});
         return false;
     }
 }
 
 osc::BodyDetails::BodyDetails() :
-    joint_type_index{index_of<OpenSim::WeldJoint>(get_component_registry<OpenSim::Joint>()).value_or(0)}
+    joint_type_index{
+        index_of<OpenSim::WeldJoint>(get_component_registry<OpenSim::Joint>()).value_or(0)}
 {}
 
 bool osc::action_add_body_to_model(ModelStatePair& uim, const BodyDetails& details)
@@ -1318,7 +1371,8 @@ bool osc::action_add_body_to_model(ModelStatePair& uim, const BodyDetails& detai
         return false;
     }
 
-    const auto* const parent = find_component<OpenSim::PhysicalFrame>(uim.get_model(), details.parent_frame_abs_path);
+    const auto* const parent =
+        find_component<OpenSim::PhysicalFrame>(uim.get_model(), details.parent_frame_abs_path);
     if (not parent) {
         return false;
     }
@@ -1331,7 +1385,8 @@ bool osc::action_add_body_to_model(ModelStatePair& uim, const BodyDetails& detai
     auto body = std::make_unique<OpenSim::Body>(details.body_name, mass, com, inertia);
 
     // create joint between body and whatever the frame is
-    const OpenSim::Joint& joint_proto = get_component_registry<OpenSim::Joint>().at(details.joint_type_index).prototype();
+    const OpenSim::Joint& joint_proto =
+        get_component_registry<OpenSim::Joint>().at(details.joint_type_index).prototype();
     std::unique_ptr<OpenSim::Joint> joint = make_joint(details, *body, joint_proto, *parent);
 
     // attach decorative geom
@@ -1356,14 +1411,14 @@ bool osc::action_add_body_to_model(ModelStatePair& uim, const BodyDetails& detai
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a body to the model"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to add a body to the model"});
         return false;
     }
 }
 
 bool osc::action_add_component_to_model(
-    ModelStatePair& model,
-    std::unique_ptr<OpenSim::Component> c)
+    ModelStatePair& model, std::unique_ptr<OpenSim::Component> c)
 {
     return action_add_component_to_model(model, std::move(c), OpenSim::ComponentPath{});
 }
@@ -1391,7 +1446,10 @@ bool osc::action_add_component_to_model(
         } else if (OpenSim::Component* desired = find_component_mut(mut_model, desired_parent)) {
             added = &add_component(*desired, std::move(c));
         } else {
-            log_error("The target parent component, {}, could not be found: adding component to the model instead.", desired_parent.toString());
+            log_error(
+                "The target parent component, {}, could not be found: adding component to the "
+                "model instead.",
+                desired_parent.toString());
             added = &add_component_to_appropriate_set(mut_model, std::move(c));
         }
 
@@ -1406,7 +1464,8 @@ bool osc::action_add_component_to_model(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a component to the model"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to add a component to the model"});
         return false;
     }
 }
@@ -1429,7 +1488,8 @@ bool osc::action_add_wrap_object_to_physical_frame(
     try {
         OpenSim::Model& mut_model = model.upd_model();
         auto* frame = find_component_mut<OpenSim::PhysicalFrame>(mut_model, physical_frame_path);
-        OSC_ASSERT_ALWAYS(frame != nullptr && "cannot find the given OpenSim::PhysicalFrame in the model");
+        OSC_ASSERT_ALWAYS(
+            frame != nullptr && "cannot find the given OpenSim::PhysicalFrame in the model");
 
         OpenSim::WrapObject& wrap_obj = add_wrap_object(*frame, std::move(wrap_obj_ptr));
         finalize_connections(mut_model);
@@ -1443,7 +1503,8 @@ bool osc::action_add_wrap_object_to_physical_frame(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a wrap object to the model"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to add a wrap object to the model"});
         return false;
     }
 }
@@ -1459,9 +1520,11 @@ bool osc::action_add_wrap_object_to_geometry_path_wraps(
 
     try {
         OpenSim::Model& mut_model = model.upd_model();
-        auto* mut_geom_path = find_component_mut<OpenSim::GeometryPath>(mut_model, geom_path.getAbsolutePath());
+        auto* mut_geom_path =
+            find_component_mut<OpenSim::GeometryPath>(mut_model, geom_path.getAbsolutePath());
         OSC_ASSERT_ALWAYS(mut_geom_path != nullptr && "cannot find the geometry path in the model");
-        auto* mut_wrap_object = find_component_mut<OpenSim::WrapObject>(mut_model, wrap_object.getAbsolutePath());
+        auto* mut_wrap_object =
+            find_component_mut<OpenSim::WrapObject>(mut_model, wrap_object.getAbsolutePath());
         OSC_ASSERT_ALWAYS(mut_wrap_object != nullptr && "cannot find wrap object in the model");
 
         std::stringstream msg;
@@ -1474,7 +1537,9 @@ bool osc::action_add_wrap_object_to_geometry_path_wraps(
         model.commit(std::move(msg).str());
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a wrap object to a geometry path"});
+        std::throw_with_nested(
+            std::runtime_error{
+                "error detected while trying to add a wrap object to a geometry path"});
         return false;
     }
 }
@@ -1498,15 +1563,18 @@ bool osc::action_remove_wrap_object_from_geometry_path_wraps(
     }
 
     if (!index) {
-        log_info("cannot find {} in {}: skipping deletion", wrap_object.getName(), geom_path.getName());
+        log_info(
+            "cannot find {} in {}: skipping deletion", wrap_object.getName(), geom_path.getName());
         return false;
     }
 
     try {
         OpenSim::Model& mut_model = model.upd_model();
-        auto* mut_geom_path = find_component_mut<OpenSim::GeometryPath>(mut_model, geom_path.getAbsolutePath());
+        auto* mut_geom_path =
+            find_component_mut<OpenSim::GeometryPath>(mut_model, geom_path.getAbsolutePath());
         OSC_ASSERT_ALWAYS(mut_geom_path != nullptr && "cannot find the geometry path in the model");
-        auto* mut_wrap_object = find_component_mut<OpenSim::WrapObject>(mut_model, wrap_object.getAbsolutePath());
+        auto* mut_wrap_object =
+            find_component_mut<OpenSim::WrapObject>(mut_model, wrap_object.getAbsolutePath());
         OSC_ASSERT_ALWAYS(mut_wrap_object != nullptr && "cannot find wrap object in the model");
 
         std::stringstream msg;
@@ -1520,7 +1588,9 @@ bool osc::action_remove_wrap_object_from_geometry_path_wraps(
         model.commit(std::move(msg).str());
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a wrap object to a geometry path"});
+        std::throw_with_nested(
+            std::runtime_error{
+                "error detected while trying to add a wrap object to a geometry path"});
         return false;
     }
 }
@@ -1543,15 +1613,14 @@ bool osc::action_zero_all_coordinates(ModelStatePair& model)
         model.commit("zeroed all coordinates");
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while zeroing all coordinates in the model"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while zeroing all coordinates in the model"});
         return false;
     }
 }
 
 bool osc::action_set_coordinate_speed(
-    ModelStatePair& model,
-    const OpenSim::Coordinate& coord,
-    double new_speed)
+    ModelStatePair& model, const OpenSim::Coordinate& coord, double new_speed)
 {
     if (model.is_readonly()) {
         return false;
@@ -1565,7 +1634,8 @@ bool osc::action_set_coordinate_speed(
 
         auto* const mut_coord = find_component_mut<OpenSim::Coordinate>(mut_model, coord_path);
         if (not mut_coord) {
-            model.set_model_version(old_version);  // can't find the coordinate within the provided model
+            // can't find the coordinate within the provided model
+            model.set_model_version(old_version);
             return false;
         }
 
@@ -1578,15 +1648,14 @@ bool osc::action_set_coordinate_speed(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to set a coordinate's speed"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to set a coordinate's speed"});
         return false;
     }
 }
 
 bool osc::action_set_coordinate_speed_and_save(
-    ModelStatePair& model,
-    const OpenSim::Coordinate& coord,
-    double new_speed)
+    ModelStatePair& model, const OpenSim::Coordinate& coord, double new_speed)
 {
     if (model.is_readonly()) {
         return false;
@@ -1608,9 +1677,7 @@ bool osc::action_set_coordinate_speed_and_save(
 }
 
 bool osc::action_set_coordinate_locked_and_save(
-    ModelStatePair& model,
-    const OpenSim::Coordinate& coord,
-    bool v)
+    ModelStatePair& model, const OpenSim::Coordinate& coord, bool v)
 {
     if (model.is_readonly()) {
         return false;
@@ -1624,7 +1691,8 @@ bool osc::action_set_coordinate_locked_and_save(
 
         auto* const mut_coord = find_component_mut<OpenSim::Coordinate>(mut_model, coord_path);
         if (not mut_coord) {
-            model.set_model_version(old_version);  // can't find the coordinate within the provided model
+            // can't find the coordinate within the provided model
+            model.set_model_version(old_version);
             return false;
         }
 
@@ -1639,16 +1707,15 @@ bool osc::action_set_coordinate_locked_and_save(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to lock a coordinate"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to lock a coordinate"});
         return false;
     }
 }
 
 // set the value of a coordinate, but don't save it to the model (yet)
 bool osc::action_set_coordinate_value(
-    ModelStatePair& model,
-    const OpenSim::Coordinate& coord,
-    double new_value)
+    ModelStatePair& model, const OpenSim::Coordinate& coord, double new_value)
 {
     if (model.is_readonly()) {
         return false;
@@ -1662,7 +1729,8 @@ bool osc::action_set_coordinate_value(
 
         auto* const mut_coord = find_component_mut<OpenSim::Coordinate>(mut_model, coord_path);
         if (not mut_coord) {
-            model.set_model_version(old_version);  // can't find the coordinate within the provided model
+            // can't find the coordinate within the provided model
+            model.set_model_version(old_version);
             return false;
         }
 
@@ -1670,7 +1738,8 @@ bool osc::action_set_coordinate_value(
         const double range_max = max(mut_coord->getRangeMin(), mut_coord->getRangeMax());
 
         if (not(range_min <= new_value and new_value <= range_max)) {
-            model.set_model_version(old_version);  // the requested edit is outside the coordinate's allowed range
+            // the requested edit is outside the coordinate's allowed range
+            model.set_model_version(old_version);
             return false;
         }
 
@@ -1683,15 +1752,14 @@ bool osc::action_set_coordinate_value(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to set a coordinate's value"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to set a coordinate's value"});
         return false;
     }
 }
 
 bool osc::action_set_coordinate_value_and_save(
-    ModelStatePair& model,
-    const OpenSim::Coordinate& coord,
-    double new_value)
+    ModelStatePair& model, const OpenSim::Coordinate& coord, double new_value)
 {
     if (model.is_readonly()) {
         return false;
@@ -1715,10 +1783,11 @@ bool osc::action_set_coordinate_value_and_save(
         initialize_model(mut_model);
         initialize_state(mut_model);
 
-        std::stringstream ss;
-        ss << "set " << coord.getName() << " to " << convert_coord_value_to_display_value(coord, new_value);
-        model.commit(std::move(ss).str());
-
+        model.commit(
+            std::format(
+                "set {} to {}",
+                coord.getName(),
+                convert_coord_value_to_display_value(coord, new_value)));
         return true;
     } else {
         return false;  // an edit wasn't made
@@ -1726,9 +1795,7 @@ bool osc::action_set_coordinate_value_and_save(
 }
 
 bool osc::action_set_component_and_all_childrens_is_visible_to(
-    ModelStatePair& model,
-    const OpenSim::ComponentPath& path,
-    bool new_visibility)
+    ModelStatePair& model, const OpenSim::ComponentPath& path, bool new_visibility)
 {
     if (model.is_readonly()) {
         return false;
@@ -1740,7 +1807,8 @@ bool osc::action_set_component_and_all_childrens_is_visible_to(
 
         OpenSim::Component* const mut_component = find_component_mut(mut_model, path);
         if (not mut_component) {
-            model.set_model_version(old_version);  // can't find the coordinate within the provided model
+            // can't find the coordinate within the provided model
+            model.set_model_version(old_version);
             return false;
         }
 
@@ -1759,14 +1827,14 @@ bool osc::action_set_component_and_all_childrens_is_visible_to(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to hide a component"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to hide a component"});
         return false;
     }
 }
 
 bool osc::action_show_only_component_and_all_children(
-    ModelStatePair& model,
-    const OpenSim::ComponentPath& path)
+    ModelStatePair& model, const OpenSim::ComponentPath& path)
 {
     if (model.is_readonly()) {
         return false;
@@ -1778,7 +1846,8 @@ bool osc::action_show_only_component_and_all_children(
 
         OpenSim::Component* const mut_component = find_component_mut(mut_model, path);
         if (not mut_component) {
-            model.set_model_version(old_version);  // can't find the coordinate within the provided model
+            // can't find the coordinate within the provided model
+            model.set_model_version(old_version);
             return false;
         }
 
@@ -1806,7 +1875,8 @@ bool osc::action_show_only_component_and_all_children(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to hide a component"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to hide a component"});
         return false;
     }
 }
@@ -1827,7 +1897,8 @@ bool osc::action_set_component_and_all_children_with_given_concrete_class_name_i
 
         const OpenSim::Component* const mut_component = find_component_mut(mut_model, root);
         if (not mut_component) {
-            model.set_model_version(old_version);  // can't find the coordinate within the provided model
+            // can't find the coordinate within the provided model
+            model.set_model_version(old_version);
             return false;
         }
 
@@ -1859,15 +1930,15 @@ bool osc::action_set_component_and_all_children_with_given_concrete_class_name_i
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to show/hide components of a given type"});
+        std::throw_with_nested(
+            std::runtime_error{
+                "error detected while trying to show/hide components of a given type"});
         return false;
     }
 }
 
 bool osc::action_translate_station(
-    ModelStatePair& model,
-    const OpenSim::Station& station,
-    const Vector3& delta_position)
+    ModelStatePair& model, const OpenSim::Station& station, const Vector3& delta_position)
 {
     if (model.is_readonly()) {
         return false;
@@ -1904,9 +1975,7 @@ bool osc::action_translate_station(
 }
 
 bool osc::action_translate_station_and_save(
-    ModelStatePair& model,
-    const OpenSim::Station& station,
-    const Vector3& delta_position)
+    ModelStatePair& model, const OpenSim::Station& station, const Vector3& delta_position)
 {
     if (model.is_readonly()) {
         return false;
@@ -1928,9 +1997,7 @@ bool osc::action_translate_station_and_save(
 }
 
 bool osc::action_translate_path_point(
-    ModelStatePair& model,
-    const OpenSim::PathPoint& path_point,
-    const Vector3& delta_position)
+    ModelStatePair& model, const OpenSim::PathPoint& path_point, const Vector3& delta_position)
 {
     if (model.is_readonly()) {
         return false;
@@ -1956,15 +2023,14 @@ bool osc::action_translate_path_point(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to move a path point"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to move a path point"});
         return false;
     }
 }
 
 bool osc::action_translate_path_point_and_save(
-    ModelStatePair& model,
-    const OpenSim::PathPoint& path_point,
-    const Vector3& delta_position)
+    ModelStatePair& model, const OpenSim::PathPoint& path_point, const Vector3& delta_position)
 {
     if (model.is_readonly()) {
         return false;
@@ -2014,7 +2080,8 @@ bool osc::action_transform_pof_v2(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to transform a POF"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to transform a POF"});
         return false;
     }
     return false;
@@ -2052,7 +2119,8 @@ bool osc::action_transform_wrap_object(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to transform a POF"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to transform a POF"});
         return false;
     }
     return false;
@@ -2090,7 +2158,8 @@ bool osc::action_transform_contact_geometry(
 
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to transform a POF"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to transform a POF"});
         return false;
     }
     return false;
@@ -2105,10 +2174,12 @@ bool osc::action_fit_sphere_to_mesh(ModelStatePair& model, const OpenSim::Mesh& 
     // fit a sphere to the mesh
     Sphere sphere;
     try {
-        const Mesh mesh = to_osc_mesh_bake_scale_factors(model.get_model(), model.get_state(), open_sim_mesh);
+        const Mesh mesh =
+            to_osc_mesh_bake_scale_factors(model.get_model(), model.get_state(), open_sim_mesh);
         sphere = opyn::fit_sphere_htbad(mesh);
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to fit a sphere to a mesh"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to fit a sphere to a mesh"});
         return false;
     }
 
@@ -2116,7 +2187,8 @@ bool osc::action_fit_sphere_to_mesh(ModelStatePair& model, const OpenSim::Mesh& 
     // places the origin-centered `OpenSim::Sphere` at the computed `origin`
     auto offset_frame = std::make_unique<OpenSim::PhysicalOffsetFrame>();
     offset_frame->setName("sphere_fit");
-    offset_frame->connectSocket_parent(dynamic_cast<const OpenSim::PhysicalFrame&>(open_sim_mesh.getFrame()));
+    offset_frame->connectSocket_parent(
+        dynamic_cast<const OpenSim::PhysicalFrame&>(open_sim_mesh.getFrame()));
     offset_frame->setOffsetTransform(SimTK::Transform{to<SimTK::Vec3>(sphere.origin)});
 
     // create an origin-centered `OpenSim::Sphere` geometry to visually represent the computed
@@ -2131,7 +2203,8 @@ bool osc::action_fit_sphere_to_mesh(ModelStatePair& model, const OpenSim::Mesh& 
     const UID old_version = model.get_model_version();
     try {
         OpenSim::Model& mut_model = model.upd_model();
-        auto* const mut_open_sim_mesh = find_component_mut<OpenSim::Mesh>(mut_model, open_sim_mesh_path);
+        auto* const mut_open_sim_mesh =
+            find_component_mut<OpenSim::Mesh>(mut_model, open_sim_mesh_path);
         if (not mut_open_sim_mesh) {
             model.set_model_version(old_version);  // the provided path doesn't exist in the model
             return false;
@@ -2150,7 +2223,9 @@ bool osc::action_fit_sphere_to_mesh(ModelStatePair& model, const OpenSim::Mesh& 
         ss << "computed " << sphere_name;
         model.commit(std::move(ss).str());
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a sphere fit to the OpenSim model"});
+        std::throw_with_nested(
+            std::runtime_error{
+                "error detected while trying to add a sphere fit to the OpenSim model"});
         return false;
     }
 
@@ -2166,10 +2241,12 @@ bool osc::action_fit_ellipsoid_to_mesh(ModelStatePair& model, const OpenSim::Mes
     // fit an ellipsoid to the mesh
     Ellipsoid ellipsoid;
     try {
-        const Mesh mesh = to_osc_mesh_bake_scale_factors(model.get_model(), model.get_state(), open_sim_mesh);
+        const Mesh mesh =
+            to_osc_mesh_bake_scale_factors(model.get_model(), model.get_state(), open_sim_mesh);
         ellipsoid = opyn::fit_ellipsoid_htbad(mesh);
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to fit an ellipsoid to a mesh"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to fit an ellipsoid to a mesh"});
         return false;
     }
 
@@ -2180,7 +2257,8 @@ bool osc::action_fit_ellipsoid_to_mesh(ModelStatePair& model, const OpenSim::Mes
     // (OSC note: `fit_ellipsoid_htbad` in OSC should yield a right-handed coordinate system)
     auto offset_frame = std::make_unique<OpenSim::PhysicalOffsetFrame>();
     offset_frame->setName("ellipsoid_fit");
-    offset_frame->connectSocket_parent(dynamic_cast<const OpenSim::PhysicalFrame&>(open_sim_mesh.getFrame()));
+    offset_frame->connectSocket_parent(
+        dynamic_cast<const OpenSim::PhysicalFrame&>(open_sim_mesh.getFrame()));
     {
         // compute offset transform for ellipsoid
         SimTK::Mat33 m;
@@ -2194,7 +2272,8 @@ bool osc::action_fit_ellipsoid_to_mesh(ModelStatePair& model, const OpenSim::Mes
 
     // create an origin-centered `OpenSim::Ellipsoid` geometry to visually represent the computed
     // ellipsoid
-    auto open_sim_ellipsoid = std::make_unique<OpenSim::Ellipsoid>(ellipsoid.radii[0], ellipsoid.radii[1], ellipsoid.radii[2]);
+    auto open_sim_ellipsoid = std::make_unique<OpenSim::Ellipsoid>(
+        ellipsoid.radii[0], ellipsoid.radii[1], ellipsoid.radii[2]);
     open_sim_ellipsoid->setName("ellipsoid_geom");
     open_sim_ellipsoid->connectSocket_frame(*offset_frame);
     upd_appearance_to_fitted_geom(open_sim_ellipsoid->upd_Appearance());
@@ -2204,7 +2283,8 @@ bool osc::action_fit_ellipsoid_to_mesh(ModelStatePair& model, const OpenSim::Mes
     const UID old_version = model.get_model_version();
     try {
         OpenSim::Model& mut_model = model.upd_model();
-        auto* const mut_open_sim_mesh = find_component_mut<OpenSim::Mesh>(mut_model, open_sim_mesh_path);
+        auto* const mut_open_sim_mesh =
+            find_component_mut<OpenSim::Mesh>(mut_model, open_sim_mesh_path);
         if (not mut_open_sim_mesh) {
             model.set_model_version(old_version);  // the provided path doesn't exist in the model
             return false;
@@ -2223,7 +2303,9 @@ bool osc::action_fit_ellipsoid_to_mesh(ModelStatePair& model, const OpenSim::Mes
         ss << "computed" << ellipsoid_name;
         model.commit(std::move(ss).str());
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a sphere fit to the OpenSim model"});
+        std::throw_with_nested(
+            std::runtime_error{
+                "error detected while trying to add a sphere fit to the OpenSim model"});
         return false;
     }
 
@@ -2239,10 +2321,12 @@ bool osc::action_fit_plane_to_mesh(ModelStatePair& model, const OpenSim::Mesh& o
     // fit a plane to the mesh
     Plane plane;
     try {
-        const Mesh mesh = to_osc_mesh_bake_scale_factors(model.get_model(), model.get_state(), open_sim_mesh);
+        const Mesh mesh =
+            to_osc_mesh_bake_scale_factors(model.get_model(), model.get_state(), open_sim_mesh);
         plane = opyn::fit_plane_htbad(mesh);
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to fit a plane to a mesh"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to fit a plane to a mesh"});
         return false;
     }
 
@@ -2251,17 +2335,20 @@ bool osc::action_fit_plane_to_mesh(ModelStatePair& model, const OpenSim::Mesh& o
     // also reorients the +1 in Y brick along the plane's normal
     auto offset_frame = std::make_unique<OpenSim::PhysicalOffsetFrame>();
     offset_frame->setName("plane_fit");
-    offset_frame->connectSocket_parent(dynamic_cast<const OpenSim::PhysicalFrame&>(open_sim_mesh.getFrame()));
+    offset_frame->connectSocket_parent(
+        dynamic_cast<const OpenSim::PhysicalFrame&>(open_sim_mesh.getFrame()));
     {
         // +1Y in "brick space" should map to the plane's normal
         const Quaternion q = rotation({0.0f, 1.0f, 0.0f}, plane.normal);
-        offset_frame->setOffsetTransform(SimTK::Transform{to<SimTK::Rotation>(q), to<SimTK::Vec3>(plane.origin)});
+        offset_frame->setOffsetTransform(
+            SimTK::Transform{to<SimTK::Rotation>(q), to<SimTK::Vec3>(plane.origin)});
     }
 
     // create an origin-centered `OpenSim::Brick` geometry to visually represent the computed
     // plane
+    // half-lengths are hard-coded, for now - the thin axis points along the normal
     auto open_sim_brick = std::make_unique<OpenSim::Brick>();
-    open_sim_brick->set_half_lengths({0.2, 0.0005, 0.2});  // hard-coded, for now - the thin axis points along the normal
+    open_sim_brick->set_half_lengths({0.2, 0.0005, 0.2});
     open_sim_brick->setName("plane_geom");
     open_sim_brick->connectSocket_frame(*offset_frame);
     upd_appearance_to_fitted_geom(open_sim_brick->upd_Appearance());
@@ -2271,7 +2358,8 @@ bool osc::action_fit_plane_to_mesh(ModelStatePair& model, const OpenSim::Mesh& o
     const UID old_version = model.get_model_version();
     try {
         OpenSim::Model& mut_model = model.upd_model();
-        auto* const mut_open_sim_mesh = find_component_mut<OpenSim::Mesh>(mut_model, open_sim_mesh_path);
+        auto* const mut_open_sim_mesh =
+            find_component_mut<OpenSim::Mesh>(mut_model, open_sim_mesh_path);
         if (not mut_open_sim_mesh) {
             model.set_model_version(old_version);  // the provided path doesn't exist in the model
             return false;
@@ -2290,7 +2378,9 @@ bool osc::action_fit_plane_to_mesh(ModelStatePair& model, const OpenSim::Mesh& o
         ss << "computed " << fit_name;
         model.commit(std::move(ss).str());
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to add a sphere fit to the OpenSim model"});
+        std::throw_with_nested(
+            std::runtime_error{
+                "error detected while trying to add a sphere fit to the OpenSim model"});
         return false;
     }
 
@@ -2312,13 +2402,15 @@ bool osc::action_import_landmarks(
 
         OpenSim::PhysicalFrame* maybe_target_frame = nullptr;
         if (maybe_target_frame_abs_path) {
-            auto* f = find_component_mut<OpenSim::PhysicalFrame>(mut_model, *maybe_target_frame_abs_path);
+            auto* f =
+                find_component_mut<OpenSim::PhysicalFrame>(mut_model, *maybe_target_frame_abs_path);
             if (f) {
                 maybe_target_frame = f;
             } else {
-                std::stringstream msg;
-                msg << "Could not find the specified frame in the model: " << *maybe_target_frame_abs_path;
-                throw std::runtime_error(std::move(msg).str());
+                throw std::runtime_error(
+                    std::format(
+                        "Could not find the specified frame in the model: {}",
+                        *maybe_target_frame_abs_path));
             }
         }
 
@@ -2327,9 +2419,17 @@ bool osc::action_import_landmarks(
                 // If the caller specified a target frame then the markers should be imported
                 // as direct children of the target frame, rather than being dumped into the
                 // generic markerset.
-                add_component<OpenSim::Marker>(*maybe_target_frame, landmark.name, *maybe_target_frame, to<SimTK::Vec3>(landmark.position));
+                add_component<OpenSim::Marker>(
+                    *maybe_target_frame,
+                    landmark.name,
+                    *maybe_target_frame,
+                    to<SimTK::Vec3>(landmark.position));
             } else {
-                add_marker(mut_model, landmark.name, mut_model.getGround(), to<SimTK::Vec3>(landmark.position));
+                add_marker(
+                    mut_model,
+                    landmark.name,
+                    mut_model.getGround(),
+                    to<SimTK::Vec3>(landmark.position));
             }
         }
         finalize_connections(mut_model);
@@ -2341,7 +2441,8 @@ bool osc::action_import_landmarks(
         model.commit(std::move(ss).str());
         return true;
     } catch (const std::exception&) {
-        std::throw_with_nested(std::runtime_error{"error detected while trying to import landmarks to the model"});
+        std::throw_with_nested(
+            std::runtime_error{"error detected while trying to import landmarks to the model"});
         return false;
     }
 }
@@ -2400,7 +2501,8 @@ bool osc::action_bake_station_defined_frames(ModelStatePair& model)
     return true;
 }
 
-bool osc::action_move_marker_to_model_marker_set(ModelStatePair& model, const OpenSim::Marker& marker)
+bool osc::action_move_marker_to_model_marker_set(
+    ModelStatePair& model, const OpenSim::Marker& marker)
 {
     if (model.is_readonly()) {
         return false;
@@ -2411,7 +2513,9 @@ bool osc::action_move_marker_to_model_marker_set(ModelStatePair& model, const Op
         return false;  // The marker is either the root (uhh) or disowned
     }
 
-    if (dynamic_cast<const OpenSim::MarkerSet*>(owner) and get_owner<OpenSim::Model>(*owner) == &model.get_model()) {
+    if (dynamic_cast<const OpenSim::MarkerSet*>(owner) and
+        get_owner<OpenSim::Model>(*owner) == &model.get_model()) {
+
         return false;  // The marker is already in the model's `MarkerSet`
     }
 
@@ -2454,13 +2558,15 @@ bool osc::action_translate_contact_hint(
 
     try {
         OpenSim::Model& mut_model = model.upd_model();
-        auto* mut_obstacle = find_component_mut<OpenSim::Scholz2015GeometryPathObstacle>(mut_model, obstacle.getAbsolutePath());
+        auto* mut_obstacle = find_component_mut<OpenSim::Scholz2015GeometryPathObstacle>(
+            mut_model, obstacle.getAbsolutePath());
         if (not mut_obstacle) {
             return false;  // Something went wrong trying to unlock/mutate the obstacle
         }
-        mut_obstacle->set_contact_hint(mut_obstacle->get_contact_hint() + to<SimTK::Vec3>(delta_position));
-        // Don't update state or reinitialize model: the wrapping requires a full rebuild, which happens
-        // during `action_translate_contact_hint_and_save`.
+        mut_obstacle->set_contact_hint(
+            mut_obstacle->get_contact_hint() + to<SimTK::Vec3>(delta_position));
+        // Don't update state or reinitialize model: the wrapping requires a full rebuild, which
+        // happens during `action_translate_contact_hint_and_save`.
         return true;
     } catch (const std::exception&) {
         std::throw_with_nested(std::runtime_error{"error detected while moving a contact hint"});

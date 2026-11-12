@@ -17,13 +17,17 @@ namespace osc
         const ParamBlock& get_simulation_params() const { return param_block_; }
         ParamBlock& upd_simulation_params() { return param_block_; }
 
-        int get_num_user_output_extractors() const { return static_cast<int>(output_extractors_.size()); }
+        int get_num_user_output_extractors() const
+        {
+            return static_cast<int>(output_extractors_.size());
+        }
         const opyn::SharedOutputExtractor& get_user_output_extractor(int index) const;
         void add_user_output_extractor(const opyn::SharedOutputExtractor& extractor);
         void remove_user_output_extractor(int index);
         bool has_user_output_extractor(const opyn::SharedOutputExtractor& extractor) const;
         bool remove_user_output_extractor(const opyn::SharedOutputExtractor& extractor);
-        bool overwrite_or_add_new_user_output_extractor(const opyn::SharedOutputExtractor& old, const opyn::SharedOutputExtractor& newer);
+        bool overwrite_or_add_new_user_output_extractor(
+            const opyn::SharedOutputExtractor& old, const opyn::SharedOutputExtractor& newer);
 
         std::vector<opyn::SharedOutputExtractor> get_all_user_output_extractors() const;
 

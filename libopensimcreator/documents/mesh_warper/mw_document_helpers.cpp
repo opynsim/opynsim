@@ -77,9 +77,11 @@ namespace
     }
 
     template<std::convertible_to<MwDocument> TDocument>
-    auto find_non_participating_landmark_impl(TDocument& doc, UID id) -> decltype(doc.non_participating_landmarks.data())
+    auto find_non_participating_landmark_impl(TDocument& doc, UID id)
+        -> decltype(doc.non_participating_landmarks.data())
     {
-        return find_or_nullptr(doc.non_participating_landmarks, id, id_of<MwDocumentNonParticipatingLandmark>);
+        return find_or_nullptr(
+            doc.non_participating_landmarks, id, id_of<MwDocumentNonParticipatingLandmark>);
     }
 
     size_t count_fully_paired(const MwDocument& doc)
@@ -88,14 +90,19 @@ namespace
     }
 }
 
-std::optional<Vector3> osc::find_landmark_location(const MwDocument& doc, UID uid, MiDocumentInputIdentifier input, MwDocumentElementType element_type)
+std::optional<Vector3> osc::find_landmark_location(
+    const MwDocument& doc,
+    UID uid,
+    MiDocumentInputIdentifier input,
+    MwDocumentElementType element_type)
 {
     static_assert(num_options_v<MwDocumentElementType> == 2);
     switch (element_type) {
     case MwDocumentElementType::Landmark: {
         if (const MwDocumentLandmarkPair* p = find_landmark_pair(doc, uid)) {
             static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
-            return input == MiDocumentInputIdentifier::Source ? p->maybe_source_location : p->maybe_destination_location;
+            return input == MiDocumentInputIdentifier::Source ? p->maybe_source_location
+                                                              : p->maybe_destination_location;
         }
         break;
     }
@@ -122,7 +129,9 @@ bool osc::translate_landmark_by_id(
     case MwDocumentElementType::Landmark: {
         if (MwDocumentLandmarkPair* p = find_landmark_pair(doc, uid)) {
             static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
-            if (auto& pos = input == MiDocumentInputIdentifier::Source ? p->maybe_source_location : p->maybe_destination_location) {
+            if (auto& pos = input == MiDocumentInputIdentifier::Source
+                                ? p->maybe_source_location
+                                : p->maybe_destination_location) {
                 *pos += translation;
                 return true;
             }
@@ -153,7 +162,9 @@ bool osc::set_landmark_location_by_id(
     case MwDocumentElementType::Landmark: {
         if (MwDocumentLandmarkPair* p = find_landmark_pair(doc, uid)) {
             static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
-            if (auto& pos = input == MiDocumentInputIdentifier::Source ? p->maybe_source_location : p->maybe_destination_location) {
+            if (auto& pos = input == MiDocumentInputIdentifier::Source
+                                ? p->maybe_source_location
+                                : p->maybe_destination_location) {
                 *pos = location;
                 return true;
             }
@@ -182,7 +193,8 @@ MwDocumentLandmarkPair* osc::find_landmark_pair(MwDocument& doc, UID uid)
     return find_landmark_pair_impl(doc, uid);
 }
 
-const MwDocumentNonParticipatingLandmark* osc::find_non_participating_landmark(const MwDocument& doc, UID id)
+const MwDocumentNonParticipatingLandmark* osc::find_non_participating_landmark(
+    const MwDocument& doc, UID id)
 {
     return find_non_participating_landmark_impl(doc, id);
 }
@@ -203,12 +215,14 @@ const MwDocumentElement* osc::find_element(const MwDocument& doc, const MwDocume
         } else {
             return nullptr;
         }
-    case MwDocumentElementType::NonParticipatingLandmark: return find_non_participating_landmark(doc, id.uid);
+    case MwDocumentElementType::NonParticipatingLandmark:
+        return find_non_participating_landmark(doc, id.uid);
     default: return nullptr;
     }
 }
 
-const MwDocumentLandmarkPair* osc::find_landmark_pair_by_name(const MwDocument& doc, const StringName& name)
+const MwDocumentLandmarkPair* osc::find_landmark_pair_by_name(
+    const MwDocument& doc, const StringName& name)
 {
     return find_or_nullptr(doc.landmark_pairs, name, name_of<MwDocumentLandmarkPair>);
 }
@@ -218,14 +232,18 @@ MwDocumentLandmarkPair* osc::find_landmark_pair_by_name(MwDocument& doc, const S
     return find_or_nullptr(doc.landmark_pairs, name, name_of<MwDocumentLandmarkPair>);
 }
 
-const MwDocumentNonParticipatingLandmark* osc::find_non_participating_landmark_by_name(const MwDocument& doc, const StringName& name)
+const MwDocumentNonParticipatingLandmark* osc::find_non_participating_landmark_by_name(
+    const MwDocument& doc, const StringName& name)
 {
-    return find_or_nullptr(doc.non_participating_landmarks, name, name_of<MwDocumentNonParticipatingLandmark>);
+    return find_or_nullptr(
+        doc.non_participating_landmarks, name, name_of<MwDocumentNonParticipatingLandmark>);
 }
 
-MwDocumentNonParticipatingLandmark* osc::find_non_participating_landmark_by_name(MwDocument& doc, const StringName& name)
+MwDocumentNonParticipatingLandmark* osc::find_non_participating_landmark_by_name(
+    MwDocument& doc, const StringName& name)
 {
-    return find_or_nullptr(doc.non_participating_landmarks, name, name_of<MwDocumentNonParticipatingLandmark>);
+    return find_or_nullptr(
+        doc.non_participating_landmarks, name, name_of<MwDocumentNonParticipatingLandmark>);
 }
 
 bool osc::contains_element_with_name(const MwDocument& doc, const StringName& name)
@@ -234,10 +252,13 @@ bool osc::contains_element_with_name(const MwDocument& doc, const StringName& na
            find_non_participating_landmark_by_name(doc, name) != nullptr;
 }
 
-std::optional<opyn::LandmarkPair3D<float>> osc::try_extract_landmark_pair(const MwDocumentLandmarkPair& p)
+std::optional<opyn::LandmarkPair3D<float>> osc::try_extract_landmark_pair(
+    const MwDocumentLandmarkPair& p)
 {
     if (is_fully_paired(p)) {
-        return opyn::LandmarkPair3D<float>{to<SimTK::fVec3>(*p.maybe_source_location), to<SimTK::fVec3>(*p.maybe_destination_location)};
+        return opyn::LandmarkPair3D<float>{
+            to<SimTK::fVec3>(*p.maybe_source_location),
+            to<SimTK::fVec3>(*p.maybe_destination_location)};
     } else {
         return std::nullopt;
     }
@@ -249,7 +270,10 @@ std::vector<opyn::LandmarkPair3D<float>> osc::get_landmark_pairs(const MwDocumen
     rv.reserve(count_fully_paired(doc));
     for (const auto& p : doc.landmark_pairs) {
         if (is_fully_paired(p)) {
-            rv.push_back(opyn::LandmarkPair3D<float>{to<SimTK::fVec3>(*p.maybe_source_location), to<SimTK::fVec3>(*p.maybe_destination_location)});
+            rv.push_back(
+                opyn::LandmarkPair3D<float>{
+                    to<SimTK::fVec3>(*p.maybe_source_location),
+                    to<SimTK::fVec3>(*p.maybe_destination_location)});
         }
     }
     return rv;
@@ -261,7 +285,11 @@ std::vector<MwNamedLandmarkPair3D> osc::get_named_landmark_pairs(const MwDocumen
     rv.reserve(count_fully_paired(doc));
     for (const auto& p : doc.landmark_pairs) {
         if (is_fully_paired(p)) {
-            rv.push_back(MwNamedLandmarkPair3D{{to<SimTK::fVec3>(*p.maybe_source_location), to<SimTK::fVec3>(*p.maybe_destination_location)}, p.name});
+            rv.push_back(
+                MwNamedLandmarkPair3D{
+                    {to<SimTK::fVec3>(*p.maybe_source_location),
+                     to<SimTK::fVec3>(*p.maybe_destination_location)},
+                    p.name});
         }
     }
     return rv;
@@ -330,9 +358,7 @@ void osc::add_landmark_to_input(
 }
 
 void osc::add_non_participating_landmark(
-    MwDocument& doc,
-    const Vector3& location,
-    std::optional<std::string_view> suggested_name)
+    MwDocument& doc, const Vector3& location, std::optional<std::string_view> suggested_name)
 {
     if (suggested_name) {
         // if a name is suggested, then lookup the non-participating landmark
@@ -349,7 +375,8 @@ void osc::add_non_participating_landmark(
     } else {
         // if no name is suggested, generate one
 
-        doc.non_participating_landmarks.emplace_back(next_non_participating_landmark_name(doc), location);
+        doc.non_participating_landmarks.emplace_back(
+            next_non_participating_landmark_name(doc), location);
     }
 }
 
@@ -389,9 +416,7 @@ bool osc::delete_element_by_id(MwDocument& doc, UID id)
 }
 
 CStringView osc::find_element_name_or(
-    const MwDocument& doc,
-    const MwDocumentElementID& id,
-    CStringView alternative)
+    const MwDocument& doc, const MwDocumentElementID& id, CStringView alternative)
 {
     if (const auto* p = find_element(doc, id)) {
         return p->get_name();
@@ -405,11 +430,19 @@ std::vector<MwDocumentElementID> osc::get_all_element_ids(const MwDocument& doc)
     std::vector<MwDocumentElementID> rv;
     rv.reserve(2 * doc.landmark_pairs.size() + doc.non_participating_landmarks.size());
     for (const auto& lm : doc.landmark_pairs) {
-        rv.push_back(MwDocumentElementID{lm.uid, MwDocumentElementType::Landmark, MiDocumentInputIdentifier::Source});
-        rv.push_back(MwDocumentElementID{lm.uid, MwDocumentElementType::Landmark, MiDocumentInputIdentifier::Destination});
+        rv.push_back(
+            MwDocumentElementID{
+                lm.uid, MwDocumentElementType::Landmark, MiDocumentInputIdentifier::Source});
+        rv.push_back(
+            MwDocumentElementID{
+                lm.uid, MwDocumentElementType::Landmark, MiDocumentInputIdentifier::Destination});
     }
     for (const auto& npl : doc.non_participating_landmarks) {
-        rv.push_back(MwDocumentElementID{npl.uid, MwDocumentElementType::NonParticipatingLandmark, MiDocumentInputIdentifier::Source});
+        rv.push_back(
+            MwDocumentElementID{
+                npl.uid,
+                MwDocumentElementType::NonParticipatingLandmark,
+                MiDocumentInputIdentifier::Source});
     }
     return rv;
 }

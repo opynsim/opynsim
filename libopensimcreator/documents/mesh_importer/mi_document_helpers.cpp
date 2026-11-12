@@ -53,9 +53,7 @@ bool osc::is_garbage_joint(const MiDocument& doc, const MiJoint& joint)
 }
 
 bool osc::is_joint_attached_to_ground(
-    const MiDocument& doc,
-    const MiJoint& joint,
-    std::unordered_set<UID>& previous_visits)
+    const MiDocument& doc, const MiJoint& joint, std::unordered_set<UID>& previous_visits)
 {
     OSC_ASSERT_ALWAYS(!is_garbage_joint(doc, joint));
 
@@ -73,9 +71,7 @@ bool osc::is_joint_attached_to_ground(
 }
 
 bool osc::is_body_attached_to_ground(
-    const MiDocument& doc,
-    const MiBody& body,
-    std::unordered_set<UID>& previously_visited_joints)
+    const MiDocument& doc, const MiBody& body, std::unordered_set<UID>& previously_visited_joints)
 {
     bool child_in_at_least_one_joint = false;
 
@@ -99,9 +95,7 @@ bool osc::is_body_attached_to_ground(
     return !child_in_at_least_one_joint;
 }
 
-bool osc::get_issues(
-    const MiDocument& doc,
-    std::vector<std::string>& issues_out)
+bool osc::get_issues(const MiDocument& doc, std::vector<std::string>& issues_out)
 {
     issues_out.clear();
 
@@ -117,7 +111,9 @@ bool osc::get_issues(
         std::unordered_set<UID> previously_visited_joints;
         if (!is_body_attached_to_ground(doc, body, previously_visited_joints)) {
             std::stringstream ss;
-            ss << body.get_label() << ": body is not attached to ground: it is connected by a joint that, itself, does not connect to ground";
+            ss << body.get_label()
+               << ": body is not attached to ground: it is connected by a joint that, itself, does "
+                  "not connect to ground";
             issues_out.push_back(std::move(ss).str());
         }
     }
@@ -125,9 +121,7 @@ bool osc::get_issues(
     return !issues_out.empty();
 }
 
-std::string osc::get_context_menu_sub_header_text(
-    const MiDocument& doc,
-    const MiObject& obj)
+std::string osc::get_context_menu_sub_header_text(const MiDocument& doc, const MiObject& obj)
 {
     std::stringstream ss;
     // clang-format off
@@ -158,10 +152,7 @@ std::string osc::get_context_menu_sub_header_text(
     return std::move(ss).str();
 }
 
-bool osc::is_in_selection_group_of(
-    const MiDocument& doc,
-    UID parent,
-    UID id)
+bool osc::is_in_selection_group_of(const MiDocument& doc, UID parent, UID id)
 {
     if (id == MiIDs::empty() || parent == MiIDs::empty()) {
         return false;
@@ -193,9 +184,7 @@ bool osc::is_in_selection_group_of(
 
 void osc::select_anything_grouped_with(MiDocument& doc, UID id)
 {
-    for_each_id_in_selection_group(doc, id, [&doc](UID other) {
-        doc.select(other);
-    });
+    for_each_id_in_selection_group(doc, id, [&doc](UID other) { doc.select(other); });
 }
 
 UID osc::get_station_attachment_parent(const MiDocument& doc, const MiObject& obj)
@@ -212,11 +201,7 @@ UID osc::get_station_attachment_parent(const MiDocument& doc, const MiObject& ob
     // clang-format on
 }
 
-void osc::point_axis_towards(
-    MiDocument& doc,
-    UID id,
-    int axis,
-    UID other)
+void osc::point_axis_towards(MiDocument& doc, UID id, int axis, UID other)
 {
     const Vector3 choice_pos = doc.get_pos_by_id(other);
     const Transform source_xform = {.translation = doc.get_pos_by_id(id)};
@@ -225,9 +210,7 @@ void osc::point_axis_towards(
 }
 
 SceneDecorationFlags osc::compute_flags(
-    const MiDocument& doc,
-    UID id,
-    std::optional<UID> maybe_hover_id)
+    const MiDocument& doc, UID id, std::optional<UID> maybe_hover_id)
 {
     if (id == MiIDs::empty()) {
         return SceneDecorationFlag::Default;

@@ -40,7 +40,7 @@ TEST(StringName, can_default_constructs)
 TEST(StringName, copy_constructing_default_constructed_instance_compares_equivalent)
 {
     const StringName a;
-    const StringName b{a};  // NOLINT(performance-unnecessary-copy-initialization)
+    const StringName b{a};
     ASSERT_EQ(a, b);
 }
 

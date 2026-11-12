@@ -19,65 +19,44 @@ namespace osc
     // a body, as understood by the mesh importer
     class MiBody final : public MiObjectCRTP<MiBody> {
     public:
-        MiBody(
-            UID id,
-            const std::string& name,
-            const Transform& xform);
+        MiBody(UID id, const std::string& name, const Transform& xform);
 
-        double get_mass() const
-        {
-            return mass_;
-        }
+        double get_mass() const { return mass_; }
 
-        void set_mass(double new_mass)
-        {
-            mass_ = new_mass;
-        }
+        void set_mass(double new_mass) { mass_ = new_mass; }
 
-        Transform get_x_form() const
-        {
-            return xform_;
-        }
+        Transform get_x_form() const { return xform_; }
 
     private:
         friend class MiObjectCRTP<MiBody>;
         static MiClass create_class();
 
-        MiObjectFlags impl_get_flags() const final
+        MiObjectFlags impl_get_flags() const override
         {
-            return MiObjectFlags::CanChangeLabel |
-                   MiObjectFlags::CanChangePosition |
-                   MiObjectFlags::CanChangeRotation |
-                   MiObjectFlags::CanDelete |
+            return MiObjectFlags::CanChangeLabel |     //
+                   MiObjectFlags::CanChangePosition |  //
+                   MiObjectFlags::CanChangeRotation |  //
+                   MiObjectFlags::CanDelete |          //
                    MiObjectFlags::CanSelect;
         }
 
-        UID impl_get_id() const final
-        {
-            return id_;
-        }
+        UID impl_get_id() const override { return id_; }
 
-        std::ostream& impl_write_to_stream(std::ostream&) const final;
+        std::ostream& impl_write_to_stream(std::ostream&) const override;
 
-        CStringView impl_get_label() const final
-        {
-            return name_;
-        }
+        CStringView impl_get_label() const override { return name_; }
 
-        void impl_set_label(std::string_view sv) final;
+        void impl_set_label(std::string_view sv) override;
 
-        Transform impl_get_xform(const MiObjectFinder&) const final
-        {
-            return get_x_form();
-        }
+        Transform impl_get_xform(const MiObjectFinder&) const override { return get_x_form(); }
 
-        void impl_set_xform(const MiObjectFinder&, const Transform& new_xform) final
+        void impl_set_xform(const MiObjectFinder&, const Transform& new_xform) override
         {
             xform_ = new_xform;
             xform_.scale = {1.0f, 1.0f, 1.0f};
         }
 
-        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const final
+        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const override
         {
             return bounding_aabb_of(xform_.translation);
         }

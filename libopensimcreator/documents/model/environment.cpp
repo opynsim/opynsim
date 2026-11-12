@@ -24,7 +24,8 @@ const opyn::SharedOutputExtractor& osc::Environment::get_user_output_extractor(i
 void osc::Environment::add_user_output_extractor(const opyn::SharedOutputExtractor& extractor)
 {
     output_extractors_.push_back(extractor);
-    App::upd_settings().set_value("panels/Output Watches/enabled", true);  // TODO: this should be an event... ;)
+    // TODO: this should be an event... ;)
+    App::upd_settings().set_value("panels/Output Watches/enabled", true);
 }
 void osc::Environment::remove_user_output_extractor(int index)
 {
@@ -39,7 +40,8 @@ bool osc::Environment::remove_user_output_extractor(const opyn::SharedOutputExtr
 {
     return std::erase(output_extractors_, extractor) > 0;
 }
-bool osc::Environment::overwrite_or_add_new_user_output_extractor(const opyn::SharedOutputExtractor& old, const opyn::SharedOutputExtractor& newer)
+bool osc::Environment::overwrite_or_add_new_user_output_extractor(
+    const opyn::SharedOutputExtractor& old, const opyn::SharedOutputExtractor& newer)
 {
     if (auto it = find_or_nullptr(output_extractors_, old)) {
         *it = newer;

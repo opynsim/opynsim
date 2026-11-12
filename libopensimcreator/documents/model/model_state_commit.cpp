@@ -31,40 +31,22 @@ public:
         opyn::initialize_state(*model_);
     }
 
-    UID get_id() const
-    {
-        return id_;
-    }
+    UID get_id() const { return id_; }
 
-    bool has_parent() const
-    {
-        return maybe_parent_id_ != UID::empty();
-    }
+    bool has_parent() const { return maybe_parent_id_ != UID::empty(); }
 
-    UID get_parent_id() const
-    {
-        return maybe_parent_id_;
-    }
+    UID get_parent_id() const { return maybe_parent_id_; }
 
-    CStringView get_commit_message() const
-    {
-        return commit_message_;
-    }
+    CStringView get_commit_message() const { return commit_message_; }
 
     SynchronizedValueGuard<const OpenSim::Model> get_model() const
     {
         return {access_mutex_, *model_};
     }
 
-    UID get_model_version() const
-    {
-        return model_version_;
-    }
+    UID get_model_version() const { return model_version_; }
 
-    float get_fixup_scale_factor() const
-    {
-        return fixup_scale_factor_;
-    }
+    float get_fixup_scale_factor() const { return fixup_scale_factor_; }
 
 private:
     mutable std::mutex access_mutex_;
@@ -79,7 +61,9 @@ private:
 osc::ModelStateCommit::ModelStateCommit(const opyn::ModelStatePair& p, std::string_view message) :
     impl_{std::make_shared<Impl>(p, message)}
 {}
-osc::ModelStateCommit::ModelStateCommit(const opyn::ModelStatePair& p, std::string_view message, UID parent) :
+osc::ModelStateCommit::ModelStateCommit(
+    const opyn::ModelStatePair& p, std::string_view message, UID parent) :
+
     impl_{std::make_shared<Impl>(p, message, parent)}
 {}
 

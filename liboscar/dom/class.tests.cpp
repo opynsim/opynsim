@@ -223,7 +223,7 @@ TEST(Class, equality_returns_true_when_comparing_copied_class_instances)
     });
 
     const Class klass{class_name, parent, properties};
-    const Class klass_copy = klass;  // NOLINT(performance-unnecessary-copy-initialization)
+    const Class klass_copy = klass;
 
     ASSERT_EQ(klass_copy, klass);
 }

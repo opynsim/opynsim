@@ -23,42 +23,23 @@ namespace osc
             CStringView description) :
 
             data_{std::make_shared<Data>(
-                name,
-                name_pluralized,
-                name_optionally_pluralized,
-                icon,
-                description)}
+                name, name_pluralized, name_optionally_pluralized, icon, description)}
         {}
 
-        UID get_id() const
-        {
-            return data_->id;
-        }
+        UID get_id() const { return data_->id; }
 
-        CStringView get_name() const
-        {
-            return data_->name;
-        }
+        CStringView get_name() const { return data_->name; }
 
-        CStringView get_name_pluralized() const
-        {
-            return data_->name_pluralized;
-        }
+        CStringView get_name_pluralized() const { return data_->name_pluralized; }
 
         CStringView get_name_optionally_pluralized() const
         {
             return data_->name_optionally_pluralized;
         }
 
-        CStringView get_icon_utf8() const
-        {
-            return data_->icon;
-        }
+        CStringView get_icon_utf8() const { return data_->icon; }
 
-        CStringView get_description() const
-        {
-            return data_->description;
-        }
+        CStringView get_description() const { return data_->description; }
 
         // returns a unique string that can be used to name an instance of the given class
         std::string generate_name() const

@@ -27,7 +27,8 @@ TEST(UndoableModelStatePair, CanLoadAndRenderAllUserFacingExampleFiles)
     // the central `geometry/` directory
     {
         globally_init_open_sim();
-        globally_add_directory_to_open_sim_geometry_search_path(std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/geometry");
+        globally_add_directory_to_open_sim_geometry_search_path(
+            std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/geometry");
     }
 
     SceneCache mesh_cache;
@@ -37,11 +38,14 @@ TEST(UndoableModelStatePair, CanLoadAndRenderAllUserFacingExampleFiles)
     opyn::OpenSimDecorationOptions decoration_opts;
     decoration_opts.set_should_show_everything(true);
 
-    const std::filesystem::path examples_dir = std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/models";
-    ASSERT_TRUE(std::filesystem::exists(examples_dir) && std::filesystem::is_directory(examples_dir));
+    const std::filesystem::path examples_dir =
+        std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/models";
+    ASSERT_TRUE(
+        std::filesystem::exists(examples_dir) && std::filesystem::is_directory(examples_dir));
 
     size_t n_examples_tested = 0;
-    for (const std::filesystem::directory_entry& e : std::filesystem::recursive_directory_iterator{examples_dir}) {
+    for (const std::filesystem::directory_entry& e :
+         std::filesystem::recursive_directory_iterator{examples_dir}) {
         if (e.is_regular_file() and opyn::has_model_file_extension(e.path())) {
             // all files are loadable
             UndoableModelStatePair p{e.path()};
@@ -75,11 +79,14 @@ TEST(UndoableModelStatePair, canWriteRajagopalModelToDAE)
     // the central `geometry/` directory
     {
         globally_init_open_sim();
-        globally_add_directory_to_open_sim_geometry_search_path(std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/geometry");
+        globally_add_directory_to_open_sim_geometry_search_path(
+            std::filesystem::path{OSC_RESOURCES_DIR} / "OpenSimCreator/geometry");
     }
 
     // load model
-    const UndoableModelStatePair p{std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "models" / "RajagopalModel" / "Rajagopal2015.osim"};
+    const UndoableModelStatePair p{
+        std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "models" / "RajagopalModel" /
+        "Rajagopal2015.osim"};
 
     // setup rendering state
     SceneCache mesh_cache;
@@ -103,7 +110,8 @@ TEST(UndoableModelStatePair, canWriteRajagopalModelToDAE)
 
     // write decorations to a fake (testing) `std::ostream`
     NullOstream stream;
-    const DAEMetadata metadata{TESTOPENSIMCREATOR_APPNAME_STRING, TESTOPENSIMCREATOR_APPNAME_STRING};
+    const DAEMetadata metadata{
+        TESTOPENSIMCREATOR_APPNAME_STRING, TESTOPENSIMCREATOR_APPNAME_STRING};
     DAE::write(stream, decorations, metadata);
 
     ASSERT_TRUE(stream.was_written_to()) << "the DAE writer should write content to the stream";
@@ -144,12 +152,16 @@ TEST(UndoableModelStatePair, CanCommitWhenModelContainsExternalLoads)
 {
     const std::filesystem::path example_model =
         std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "opensim-creator_924_repro.osim";
-    const std::filesystem::path example_external_loads_file =
-        std::filesystem::weakly_canonical(std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "opensim-creator_924_external-loads.xml");
+    const std::filesystem::path example_external_loads_file = std::filesystem::weakly_canonical(
+        std::filesystem::path{OSC_TESTING_RESOURCES_DIR} /
+        "opensim-creator_924_external-loads.xml");
 
     UndoableModelStatePair p{example_model};
-    p.upd_model().addModelComponent(&dynamic_cast<OpenSim::ExternalLoads&>(*OpenSim::Object::makeObjectFromFile(example_external_loads_file.string())));
-    ASSERT_NO_THROW({ p.commit("this shouldn't throw if `OpenSim::ExternalLoads` is behaving itself"); }) << "this shouldn't throw (see: opensim-core/3926 or opensim-core/3927)";
+    p.upd_model().addModelComponent(&dynamic_cast<OpenSim::ExternalLoads&>(
+        *OpenSim::Object::makeObjectFromFile(example_external_loads_file.string())));
+    ASSERT_NO_THROW({
+        p.commit("this shouldn't throw if `OpenSim::ExternalLoads` is behaving itself");
+    }) << "this shouldn't throw (see: opensim-core/3926 or opensim-core/3927)";
 }
 
 // repro for #1070

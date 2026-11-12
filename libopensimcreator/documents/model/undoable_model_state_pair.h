@@ -61,8 +61,8 @@ namespace osc
         // gets the last time when the model was set as up to date with the filesystem
         std::filesystem::file_time_type get_last_filesystem_write_time() const;
 
-        // returns latest *comitted* model state (i.e. not the one being actively edited, but the one saved into
-        // the safer undo/redo buffer)
+        // returns latest *comitted* model state (i.e. not the one being actively edited, but the
+        // one saved into the safer undo/redo buffer)
         ModelStateCommit get_latest_commit() const;
 
         // manipulate undo/redo state

@@ -27,35 +27,17 @@ namespace osc
             Mesh mesh_data,
             std::filesystem::path path);
 
-        const Mesh& get_mesh_data() const
-        {
-            return mesh_data_;
-        }
+        const Mesh& get_mesh_data() const { return mesh_data_; }
 
-        const std::filesystem::path& get_path() const
-        {
-            return path_;
-        }
+        const std::filesystem::path& get_path() const { return path_; }
 
-        UID get_parent_id() const
-        {
-            return attachment_;
-        }
+        UID get_parent_id() const { return attachment_; }
 
-        void set_parent_id(UID new_parent)
-        {
-            attachment_ = new_parent;
-        }
+        void set_parent_id(UID new_parent) { attachment_ = new_parent; }
 
-        Transform get_x_form() const
-        {
-            return transform_;
-        }
+        Transform get_x_form() const { return transform_; }
 
-        void set_xform(const Transform& t)
-        {
-            transform_ = t;
-        }
+        void set_xform(const Transform& t) { transform_ = t; }
 
         std::optional<AABB> calc_bounds() const;
 
@@ -65,9 +47,9 @@ namespace osc
         friend class MiObjectCRTP<MiMesh>;
         static MiClass create_class();
 
-        std::vector<MiCrossrefDescriptor> impl_get_cross_references() const final;
+        std::vector<MiCrossrefDescriptor> impl_get_cross_references() const override;
 
-        void impl_set_cross_reference_connectee_id(int i, UID id) final
+        void impl_set_cross_reference_connectee_id(int i, UID id) override
         {
             if (i != 0) {
                 throw std::runtime_error{"invalid index accessed for cross reference"};
@@ -75,42 +57,30 @@ namespace osc
             attachment_ = id;
         }
 
-        MiObjectFlags impl_get_flags() const final
+        MiObjectFlags impl_get_flags() const override
         {
-            return MiObjectFlags::CanChangeLabel |
-                   MiObjectFlags::CanChangePosition |
-                   MiObjectFlags::CanChangeRotation |
-                   MiObjectFlags::CanChangeScale |
-                   MiObjectFlags::CanDelete |
-                   MiObjectFlags::CanSelect |
+            return MiObjectFlags::CanChangeLabel |     //
+                   MiObjectFlags::CanChangePosition |  //
+                   MiObjectFlags::CanChangeRotation |  //
+                   MiObjectFlags::CanChangeScale |     //
+                   MiObjectFlags::CanDelete |          //
+                   MiObjectFlags::CanSelect |          //
                    MiObjectFlags::HasPhysicalSize;
         }
 
-        UID impl_get_id() const final
-        {
-            return id_;
-        }
+        UID impl_get_id() const override { return id_; }
 
-        std::ostream& impl_write_to_stream(std::ostream&) const final;
+        std::ostream& impl_write_to_stream(std::ostream&) const override;
 
-        CStringView impl_get_label() const final
-        {
-            return name_;
-        }
+        CStringView impl_get_label() const override { return name_; }
 
-        void impl_set_label(std::string_view sv) final;
+        void impl_set_label(std::string_view sv) override;
 
-        Transform impl_get_xform(const MiObjectFinder&) const final
-        {
-            return get_x_form();
-        }
+        Transform impl_get_xform(const MiObjectFinder&) const override { return get_x_form(); }
 
-        void impl_set_xform(const MiObjectFinder&, const Transform& t) final
-        {
-            set_xform(t);
-        }
+        void impl_set_xform(const MiObjectFinder&, const Transform& t) override { set_xform(t); }
 
-        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const final
+        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const override
         {
             return calc_bounds();
         }

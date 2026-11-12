@@ -23,7 +23,8 @@ TEST(ActionWriteLandmarksAsCSV, worksOnBasicExample)
     // clang-format on
 
     std::stringstream ss;
-    action_write_landmarks_as_csv(pairs, MiDocumentInputIdentifier::Source, opyn::LandmarkCSVFlags::None, ss);
+    action_write_landmarks_as_csv(
+        pairs, MiDocumentInputIdentifier::Source, opyn::LandmarkCSVFlags::None, ss);
     const std::string output = std::move(ss).str();
 
     ASSERT_FALSE(output.empty());

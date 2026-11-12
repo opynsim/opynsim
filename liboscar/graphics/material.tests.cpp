@@ -189,7 +189,7 @@ TEST_F(MaterialTest, can_be_constructed_from_a_shader)
 TEST_F(MaterialTest, can_be_copy_constructed)
 {
     const Material material = generate_material();
-    const Material copy{material};  // NOLINT(performance-unnecessary-copy-initialization)
+    const Material copy{material};
 }
 
 TEST_F(MaterialTest, can_be_move_constructed)
@@ -217,7 +217,7 @@ TEST_F(MaterialTest, can_be_move_assigned)
 TEST_F(MaterialTest, copy_constructed_instance_compares_equal_to_copied_from_instance)
 {
     const Material material = generate_material();
-    const Material copy{material};  // NOLINT(performance-unnecessary-copy-initialization)
+    const Material copy{material};
 
     ASSERT_EQ(material, copy);
 }
@@ -815,7 +815,7 @@ TEST_F(MaterialTest, MaterialSetCullModeCausesMaterialCopiesToBeNonEqual)
 TEST_F(MaterialTest, MaterialCanCompareEquals)
 {
     const Material material = generate_material();
-    const Material material_copy{material};  // NOLINT(performance-unnecessary-copy-initialization)
+    const Material material_copy{material};
 
     ASSERT_EQ(material, material_copy);
 }

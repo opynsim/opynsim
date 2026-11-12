@@ -43,7 +43,7 @@ TEST(MaterialPropertyBlock, can_default_construct)
 TEST(MaterialPropertyBlock, can_copy_construct)
 {
     const MaterialPropertyBlock mpb;
-    const MaterialPropertyBlock copy{mpb};  // NOLINT(performance-unnecessary-copy-initialization)
+    const MaterialPropertyBlock copy{mpb};
 }
 
 TEST(MaterialPropertyBlock, can_move_construct)
@@ -303,7 +303,7 @@ TEST(MaterialPropertyBlock, MaterialPropertyBlockCanCompareEquals)
 TEST(MaterialPropertyBlock, MaterialPropertyBlockCopyConstructionComparesEqual)
 {
     const MaterialPropertyBlock m;
-    const MaterialPropertyBlock copy{m};  // NOLINT(performance-unnecessary-copy-initialization)
+    const MaterialPropertyBlock copy{m};
 
     ASSERT_EQ(m, copy);
 }

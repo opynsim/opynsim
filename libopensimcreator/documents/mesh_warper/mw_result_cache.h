@@ -29,12 +29,19 @@ namespace osc
             return cached_result_mesh_;
         }
 
-        std::span<const Vector3> get_warped_non_participating_landmark_locations(const MwDocument& doc)
+        std::span<const Vector3> get_warped_non_participating_landmark_locations(
+            const MwDocument& doc)
         {
             update_all(doc);
-            static_assert(alignof(decltype(cached_result_non_participating_landmarks_.front())) == alignof(SimTK::fVec3));
-            static_assert(sizeof(decltype(cached_result_non_participating_landmarks_.front())) == sizeof(SimTK::fVec3));
-            const auto* ptr = std::launder(reinterpret_cast<const Vector3*>(cached_result_non_participating_landmarks_.data()));
+            static_assert(
+                alignof(decltype(cached_result_non_participating_landmarks_.front())) ==
+                alignof(SimTK::fVec3));
+            static_assert(
+                sizeof(decltype(cached_result_non_participating_landmarks_.front())) ==
+                sizeof(SimTK::fVec3));
+            const auto* ptr = std::launder(
+                reinterpret_cast<const Vector3*>(
+                    cached_result_non_participating_landmarks_.data()));
             return {ptr, cached_result_non_participating_landmarks_.size()};
         }
 
@@ -42,17 +49,27 @@ namespace osc
         void update_all(const MwDocument& doc)
         {
             const bool updated_coefficients = update_coefficients(doc);
-            const bool updated_non_participating_landmarks = update_source_non_participating_landmarks(doc);
+            const bool updated_non_participating_landmarks =
+                update_source_non_participating_landmarks(doc);
             const bool updated_mesh = update_input_mesh(doc);
             const bool updated_blending_factor = update_blending_factor(doc);
             const bool updated_recalculate_normals_state = update_recalculate_normals_state(doc);
 
-            if (updated_coefficients || updated_non_participating_landmarks || updated_mesh || updated_blending_factor || updated_recalculate_normals_state) {
-                cached_result_mesh_ = tps3d_warp_mesh(cached_coefficients_, cached_source_mesh_, cached_blending_factor_);
+            if (updated_coefficients or                 //
+                updated_non_participating_landmarks or  //
+                updated_mesh or                         //
+                updated_blending_factor or              //
+                updated_recalculate_normals_state) {
+
+                cached_result_mesh_ = tps3d_warp_mesh(
+                    cached_coefficients_, cached_source_mesh_, cached_blending_factor_);
                 if (cached_recalculate_normals_state_) {
                     cached_result_mesh_.recalculate_normals();
                 }
-                cached_result_non_participating_landmarks_ = opyn::tps3d_warp_points(cached_coefficients_, cached_source_non_participating_landmarks_, cached_blending_factor_);
+                cached_result_non_participating_landmarks_ = opyn::tps3d_warp_points(
+                    cached_coefficients_,
+                    cached_source_non_participating_landmarks_,
+                    cached_blending_factor_);
             }
         }
 
@@ -100,15 +117,14 @@ namespace osc
         {
             const auto& doc_landmarks = doc.non_participating_landmarks;
 
-            const auto same_position = [](const MwDocumentNonParticipatingLandmark& lm, const SimTK::fVec3& position) {
-                return lm.location.x() == position[0] and
-                       lm.location.y() == position[1] and
+            const auto same_position = [](const MwDocumentNonParticipatingLandmark& lm,
+                                          const SimTK::fVec3& position) {
+                return lm.location.x() == position[0] and  //
+                       lm.location.y() == position[1] and  //
                        lm.location.z() == position[2];
             };
             const bool same_positions = rgs::equal(
-                doc_landmarks,
-                cached_source_non_participating_landmarks_,
-                same_position);
+                doc_landmarks, cached_source_non_participating_landmarks_, same_position);
 
             if (!same_positions) {
                 cached_source_non_participating_landmarks_.clear();

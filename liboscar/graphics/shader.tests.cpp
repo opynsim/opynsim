@@ -357,7 +357,7 @@ TEST_F(ShaderTest, can_be_constructed_from_vertex_geometry_and_fragment_shader_s
 TEST_F(ShaderTest, can_be_copy_constructed)
 {
     const Shader shader{c_vertex_shader_src, c_fragment_shader_src};
-    const Shader copy{shader};  // NOLINT(performance-unnecessary-copy-initialization)
+    const Shader copy{shader};
 }
 
 TEST_F(ShaderTest, can_be_move_constructed)
@@ -385,7 +385,7 @@ TEST_F(ShaderTest, can_be_move_assigned)
 TEST_F(ShaderTest, copy_constructed_instance_compares_equivalent_to_copied_instance)
 {
     const Shader shader{c_vertex_shader_src, c_fragment_shader_src};
-    const Shader copy{shader};  // NOLINT(performance-unnecessary-copy-initialization)
+    const Shader copy{shader};
 
     ASSERT_EQ(shader, copy);
 }

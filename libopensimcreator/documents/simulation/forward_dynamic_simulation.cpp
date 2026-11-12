@@ -64,14 +64,14 @@ public:
         simulator_output_extractors_(get_fd_simulator_output_extractors_as_vector())
     {}
 
-    void join()
-    {
-        simulation_.join();
-    }
+    void join() { simulation_.join(); }
 
     SynchronizedValueGuard<const OpenSim::Model> get_model() const
     {
-        return model_state_.lock_child<OpenSim::Model>([](const BasicModelStatePairWithSharedEnvironment& p) -> decltype(auto) { return p.get_model(); });
+        return model_state_.lock_child<OpenSim::Model>(
+            [](const BasicModelStatePairWithSharedEnvironment& p) -> decltype(auto) {
+                return p.get_model();
+            });
     }
 
     ptrdiff_t get_num_reports() const
@@ -92,14 +92,12 @@ public:
         return reports_;
     }
 
-    SimulationStatus get_status() const
-    {
-        return simulation_.get_status();
-    }
+    SimulationStatus get_status() const { return simulation_.get_status(); }
 
     SimulationClock::time_point get_start_time() const
     {
-        return SimulationClock::start() + SimulationClock::duration{model_state_.lock()->get_state().getTime()};
+        return SimulationClock::start() +
+               SimulationClock::duration{model_state_.lock()->get_state().getTime()};
     }
 
     SimulationClock::time_point get_cur_time() const
@@ -107,7 +105,8 @@ public:
         pop_reports_hack();
 
         if (not reports_.empty()) {
-            return SimulationClock::start() + SimulationClock::duration{reports_.back().state().getTime()};
+            return SimulationClock::start() +
+                   SimulationClock::duration{reports_.back().state().getTime()};
         } else {
             return get_start_time();
         }
@@ -120,10 +119,7 @@ public:
         return SimulationClocks{{start, end}, get_cur_time()};
     }
 
-    const ParamBlock& get_params() const
-    {
-        return params_as_param_block_;
-    }
+    const ParamBlock& get_params() const { return params_as_param_block_; }
 
     std::span<const opyn::SharedOutputExtractor> get_output_extractors() const
     {
@@ -148,10 +144,12 @@ public:
         // if necessary, truncate any dangling reports
         if (new_end_time < old_end_time and not reports_.empty()) {
 
-            const auto report_before_or_equal_to_new_end_time = [new_end_time](const SimulationReport& r) {
-                return r.get_time() <= new_end_time;
-            };
-            const auto it = find_if(reports_.rbegin(), reports_.rend(), report_before_or_equal_to_new_end_time);
+            const auto report_before_or_equal_to_new_end_time =
+                [new_end_time](const SimulationReport& r) {
+                    return r.get_time() <= new_end_time;
+                };
+            const auto it =
+                find_if(reports_.rbegin(), reports_.rend(), report_before_or_equal_to_new_end_time);
             reports_.erase(it.base(), reports_.end());
         }
 
@@ -170,7 +168,8 @@ public:
         // otherwise, create a new simulator with the new parameters
         {
             const auto guard = model_state_.lock();
-            const SimTK::State& latest_state = reports_.empty() ? guard->get_state() : reports_.back().state();
+            const SimTK::State& latest_state =
+                reports_.empty() ? guard->get_state() : reports_.back().state();
 
             simulation_ = make_simulation(
                 BasicModelStatePairWithSharedEnvironment{guard->get_model(), latest_state},
@@ -182,25 +181,13 @@ public:
         }
     }
 
-    void request_stop()
-    {
-        simulation_.request_stop();
-    }
+    void request_stop() { simulation_.request_stop(); }
 
-    void stop()
-    {
-        simulation_.stop();
-    }
+    void stop() { simulation_.stop(); }
 
-    float get_fixup_scale_factor() const
-    {
-        return model_state_.lock()->get_fixup_scale_factor();
-    }
+    float get_fixup_scale_factor() const { return model_state_.lock()->get_fixup_scale_factor(); }
 
-    void set_fixup_scale_factor(float v)
-    {
-        model_state_.lock()->set_fixup_scale_factor(v);
-    }
+    void set_fixup_scale_factor(float v) { model_state_.lock()->set_fixup_scale_factor(v); }
 
     std::shared_ptr<Environment> impl_upd_associated_environment() const
     {
@@ -229,7 +216,8 @@ private:
 
         // pop them onto the local reports queue
         {
-            auto guard = const_cast<SynchronizedValue<std::vector<SimulationReport>>&>(report_queue_).lock();
+            auto guard =
+                const_cast<SynchronizedValue<std::vector<SimulationReport>>&>(report_queue_).lock();
             reports.reserve(reports.size() + guard->size());
             for (SimulationReport& report : *guard) {
                 if (report.get_time() == latest_report_time) {
@@ -262,11 +250,15 @@ private:
     std::vector<opyn::SharedOutputExtractor> simulator_output_extractors_;
 };
 
-osc::ForwardDynamicSimulation::ForwardDynamicSimulation(BasicModelStatePairWithSharedEnvironment ms, const ForwardDynamicSimulatorParams& params) :
+osc::ForwardDynamicSimulation::ForwardDynamicSimulation(
+    BasicModelStatePairWithSharedEnvironment ms, const ForwardDynamicSimulatorParams& params) :
+
     impl_{std::make_unique<Impl>(std::move(ms), params)}
 {}
-osc::ForwardDynamicSimulation::ForwardDynamicSimulation(ForwardDynamicSimulation&&) noexcept = default;
-osc::ForwardDynamicSimulation& osc::ForwardDynamicSimulation::operator=(ForwardDynamicSimulation&&) noexcept = default;
+osc::ForwardDynamicSimulation::ForwardDynamicSimulation(ForwardDynamicSimulation&&) noexcept =
+    default;
+osc::ForwardDynamicSimulation& osc::ForwardDynamicSimulation::operator=(
+    ForwardDynamicSimulation&&) noexcept = default;
 osc::ForwardDynamicSimulation::~ForwardDynamicSimulation() noexcept = default;
 
 void osc::ForwardDynamicSimulation::join()
@@ -284,7 +276,8 @@ ptrdiff_t osc::ForwardDynamicSimulation::impl_get_num_reports() const
     return impl_->get_num_reports();
 }
 
-SimulationReport osc::ForwardDynamicSimulation::impl_get_simulation_report(ptrdiff_t report_index) const
+SimulationReport osc::ForwardDynamicSimulation::impl_get_simulation_report(
+    ptrdiff_t report_index) const
 {
     return impl_->get_simulation_report(report_index);
 }
@@ -309,7 +302,8 @@ const ParamBlock& osc::ForwardDynamicSimulation::impl_get_params() const
     return impl_->get_params();
 }
 
-std::span<const opyn::SharedOutputExtractor> osc::ForwardDynamicSimulation::impl_get_output_extractors() const
+std::span<const opyn::SharedOutputExtractor> osc::ForwardDynamicSimulation::
+    impl_get_output_extractors() const
 {
     return impl_->get_output_extractors();
 }

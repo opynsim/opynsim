@@ -29,8 +29,10 @@ namespace osc
     //
     // this is a *basic* class that only guarantees the model is *initialized* this way. It
     // does not guarantee that everything is up-to-date after a caller mutates the model.
-    class BasicModelStatePairWithSharedEnvironment final : public ModelStatePairWithSharedEnvironment {
+    class BasicModelStatePairWithSharedEnvironment final
+        : public ModelStatePairWithSharedEnvironment {
     public:
+        // clang-format off
         BasicModelStatePairWithSharedEnvironment();
         explicit BasicModelStatePairWithSharedEnvironment(const ModelStatePairWithSharedEnvironment&);
         explicit BasicModelStatePairWithSharedEnvironment(const std::filesystem::path&);
@@ -41,6 +43,7 @@ namespace osc
         BasicModelStatePairWithSharedEnvironment& operator=(const BasicModelStatePairWithSharedEnvironment&);
         BasicModelStatePairWithSharedEnvironment& operator=(BasicModelStatePairWithSharedEnvironment&&) noexcept;
         ~BasicModelStatePairWithSharedEnvironment() noexcept override;
+        // clang-format on
 
     private:
         const OpenSim::Model& impl_get_model() const final;

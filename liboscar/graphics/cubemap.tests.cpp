@@ -29,7 +29,7 @@ TEST(Cubemap, constructor_throws_if_given_negative_width)
 TEST(Cubemap, can_copy_construct)
 {
     const Cubemap source{1, TextureFormat::RGBA32};
-    const Cubemap copy = source;  // NOLINT(performance-unnecessary-copy-initialization)
+    const Cubemap copy = source;
 }
 
 static_assert(std::is_nothrow_move_constructible_v<Cubemap>);
@@ -86,7 +86,7 @@ TEST(Cubemap, operator_equals_is_available)
 TEST(Cubemap, operator_equals_returns_true_for_copies)
 {
     const Cubemap cubemap{1, TextureFormat::RGBA32};
-    const Cubemap copy = cubemap;  // NOLINT(performance-unnecessary-copy-initialization)
+    const Cubemap copy = cubemap;
 
     ASSERT_EQ(cubemap, copy);
 }

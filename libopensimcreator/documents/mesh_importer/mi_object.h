@@ -20,15 +20,9 @@
 
 namespace osc
 {
-    class MiObjectFinder;
-}
-namespace osc
-{
     class MiClass;
-}
+    class MiObjectFinder;
 
-namespace osc
-{
     // an object, as defined by the mesh importer
     class MiObject {
     protected:
@@ -41,25 +35,13 @@ namespace osc
     public:
         virtual ~MiObject() noexcept = default;
 
-        const MiClass& get_class() const
-        {
-            return impl_get_class();
-        }
+        const MiClass& get_class() const { return impl_get_class(); }
 
-        std::unique_ptr<MiObject> clone() const
-        {
-            return impl_clone();
-        }
+        std::unique_ptr<MiObject> clone() const { return impl_clone(); }
 
-        MiVariantConstReference to_variant() const
-        {
-            return impl_to_variant();
-        }
+        MiVariantConstReference to_variant() const { return impl_to_variant(); }
 
-        MiVariantReference to_variant()
-        {
-            return impl_to_variant();
-        }
+        MiVariantReference to_variant() { return impl_to_variant(); }
 
         int get_num_cross_references() const
         {
@@ -86,30 +68,15 @@ namespace osc
             return impl_get_cross_references().at(i).get_direction();
         }
 
-        UID get_id() const
-        {
-            return impl_get_id();
-        }
+        UID get_id() const { return impl_get_id(); }
 
-        std::ostream& operator<<(std::ostream& o) const
-        {
-            return impl_write_to_stream(o);
-        }
+        std::ostream& operator<<(std::ostream& o) const { return impl_write_to_stream(o); }
 
-        CStringView get_label() const
-        {
-            return impl_get_label();
-        }
+        CStringView get_label() const { return impl_get_label(); }
 
-        void set_label(std::string_view new_label)
-        {
-            impl_set_label(new_label);
-        }
+        void set_label(std::string_view new_label) { impl_set_label(new_label); }
 
-        Transform get_x_form(const MiObjectFinder& lookup) const
-        {
-            return impl_get_xform(lookup);
-        }
+        Transform get_x_form(const MiObjectFinder& lookup) const { return impl_get_xform(lookup); }
         void set_xform(const MiObjectFinder& lookup, const Transform& new_transform)
         {
             impl_set_xform(lookup, new_transform);
@@ -124,10 +91,7 @@ namespace osc
             set_xform(lookup, get_x_form(lookup).with_translation(new_pos));
         }
 
-        Vector3 get_scale(const MiObjectFinder& lookup) const
-        {
-            return get_x_form(lookup).scale;
-        }
+        Vector3 get_scale(const MiObjectFinder& lookup) const { return get_x_form(lookup).scale; }
 
         void set_scale(const MiObjectFinder& lookup, const Vector3& new_scale)
         {
@@ -164,10 +128,7 @@ namespace osc
             set_scale(lookup, get_scale(lookup) * scale_factors);
         }
 
-        bool can_change_label() const
-        {
-            return impl_get_flags() & MiObjectFlags::CanChangeLabel;
-        }
+        bool can_change_label() const { return impl_get_flags() & MiObjectFlags::CanChangeLabel; }
 
         bool can_change_position() const
         {
@@ -179,29 +140,16 @@ namespace osc
             return impl_get_flags() & MiObjectFlags::CanChangeRotation;
         }
 
-        bool can_change_scale() const
-        {
-            return impl_get_flags() & MiObjectFlags::CanChangeScale;
-        }
+        bool can_change_scale() const { return impl_get_flags() & MiObjectFlags::CanChangeScale; }
 
-        bool can_delete() const
-        {
-            return impl_get_flags() & MiObjectFlags::CanDelete;
-        }
+        bool can_delete() const { return impl_get_flags() & MiObjectFlags::CanDelete; }
 
-        bool can_select() const
-        {
-            return impl_get_flags() & MiObjectFlags::CanSelect;
-        }
+        bool can_select() const { return impl_get_flags() & MiObjectFlags::CanSelect; }
 
-        bool has_physical_size() const
-        {
-            return impl_get_flags() & MiObjectFlags::HasPhysicalSize;
-        }
+        bool has_physical_size() const { return impl_get_flags() & MiObjectFlags::HasPhysicalSize; }
 
         bool is_cross_referencing(
-            UID id,
-            MiCrossrefDirection direction = MiCrossrefDirection::Both) const;
+            UID id, MiCrossrefDirection direction = MiCrossrefDirection::Both) const;
 
     private:
         virtual const MiClass& impl_get_class() const = 0;

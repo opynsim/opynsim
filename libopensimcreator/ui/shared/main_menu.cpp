@@ -117,7 +117,7 @@ osc::MainMenuFileTab::MainMenuFileTab(Widget* parent) :
     example_osim_files{try_load_example_osim_files()}
 {}
 
-void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybe_model)  // NOLINT(performance-unnecessary-value-param)
+void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybe_model)
 {
     auto undoable_model = std::dynamic_pointer_cast<UndoableModelStatePair>(maybe_model);
 

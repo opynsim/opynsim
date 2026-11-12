@@ -94,10 +94,7 @@ namespace osc
                 return copy;
             }
 
-            reference operator*() const
-            {
-                return dynamic_cast<reference>(*pos_->second);
-            }
+            reference operator*() const { return dynamic_cast<reference>(*pos_->second); }
 
             // EqualityComparable
 
@@ -105,11 +102,7 @@ namespace osc
 
             // LegacyInputIterator
 
-            pointer operator->() const
-            {
-
-                return &dynamic_cast<reference>(*pos_->second);
-            }
+            pointer operator->() const { return &dynamic_cast<reference>(*pos_->second); }
 
         private:
             InternalIterator pos_{};
@@ -120,7 +113,8 @@ namespace osc
         template<std::derived_from<MiObject> T>
         class Iterable final {
         public:
-            using MapRef = std::conditional_t<std::is_const_v<T>, const ObjectLookup&, ObjectLookup&>;
+            using MapRef =
+                std::conditional_t<std::is_const_v<T>, const ObjectLookup&, ObjectLookup&>;
 
             explicit Iterable(MapRef objects) :
                 begin_{objects.begin(), objects.end()},
@@ -162,20 +156,11 @@ namespace osc
             return find_by_id_or_throw<T>(objects_, id);
         }
 
-        CStringView get_label_by_id(UID id) const
-        {
-            return get_by_id(id).get_label();
-        }
+        CStringView get_label_by_id(UID id) const { return get_by_id(id).get_label(); }
 
-        Transform get_x_form_by_id(UID id) const
-        {
-            return get_by_id(id).get_x_form(*this);
-        }
+        Transform get_x_form_by_id(UID id) const { return get_by_id(id).get_x_form(*this); }
 
-        Vector3 get_pos_by_id(UID id) const
-        {
-            return get_by_id(id).get_pos(*this);
-        }
+        Vector3 get_pos_by_id(UID id) const { return get_by_id(id).get_pos(*this); }
 
         template<std::derived_from<MiObject> T = MiObject>
         bool contains(UID id) const
@@ -207,7 +192,10 @@ namespace osc
             for (int i = 0, len = obj->get_num_cross_references(); i < len; ++i) {
                 if (!contains(obj->get_cross_reference_connectee_id(i))) {
                     std::stringstream ss;
-                    ss << "cannot add '" << obj->get_label() << "' (ID = " << obj->get_id() << ") to the document because it contains a cross reference (label = " << obj->get_cross_reference_label(i) << ") to another object that does not exist in the document";
+                    ss << "cannot add '" << obj->get_label() << "' (ID = " << obj->get_id()
+                       << ") to the document because it contains a cross reference (label = "
+                       << obj->get_cross_reference_label(i)
+                       << ") to another object that does not exist in the document";
                     throw std::runtime_error{std::move(ss).str()};
                 }
             }
@@ -249,32 +237,17 @@ namespace osc
             return !deletion_set.empty();
         }
 
-        void garbage_collect()
-        {
-            deleted_objects_.clear();
-        }
+        void garbage_collect() { deleted_objects_.clear(); }
 
         // selection logic
 
-        bool has_selection() const
-        {
-            return !selected_object_ids_.empty();
-        }
+        bool has_selection() const { return !selected_object_ids_.empty(); }
 
-        const std::unordered_set<UID>& get_selected() const
-        {
-            return selected_object_ids_;
-        }
+        const std::unordered_set<UID>& get_selected() const { return selected_object_ids_; }
 
-        bool is_selected(UID id) const
-        {
-            return selected_object_ids_.contains(id);
-        }
+        bool is_selected(UID id) const { return selected_object_ids_.contains(id); }
 
-        bool is_selected(const MiObject& obj) const
-        {
-            return is_selected(obj.get_id());
-        }
+        bool is_selected(const MiObject& obj) const { return is_selected(obj.get_id()); }
 
         void select(UID id)
         {
@@ -285,10 +258,7 @@ namespace osc
             }
         }
 
-        void select(const MiObject& obj)
-        {
-            select(obj.get_id());
-        }
+        void select(const MiObject& obj) { select(obj.get_id()); }
 
         void select_only(const MiObject& obj)
         {
@@ -296,15 +266,9 @@ namespace osc
             select(obj);
         }
 
-        void de_select(UID id)
-        {
-            selected_object_ids_.erase(id);
-        }
+        void de_select(UID id) { selected_object_ids_.erase(id); }
 
-        void de_select(const MiObject& obj)
-        {
-            de_select(obj.get_id());
-        }
+        void de_select(const MiObject& obj) { de_select(obj.get_id()); }
 
         void select_all()
         {
@@ -315,10 +279,7 @@ namespace osc
             }
         }
 
-        void de_select_all()
-        {
-            selected_object_ids_.clear();
-        }
+        void de_select_all() { selected_object_ids_.clear(); }
 
         void delete_selected()
         {
@@ -333,9 +294,7 @@ namespace osc
         }
 
     private:
-        template<
-            std::derived_from<MiObject> T = MiObject,
-            typename AssociativeContainer>
+        template<std::derived_from<MiObject> T = MiObject, typename AssociativeContainer>
         static T* find_by_id(AssociativeContainer& container, UID id)
         {
             const auto it = container.find(id);
@@ -351,25 +310,21 @@ namespace osc
             }
         }
 
-        template<
-            std::derived_from<MiObject> T = MiObject,
-            typename AssociativeContainer>
+        template<std::derived_from<MiObject> T = MiObject, typename AssociativeContainer>
         static T& find_by_id_or_throw(AssociativeContainer& container, UID id)
         {
             T* ptr = find_by_id<T>(container, id);
             if (!ptr) {
                 std::stringstream msg;
-                msg << "could not find an object of type " << typeid(T).name() << " with ID = " << id;
+                msg << "could not find an object of type " << typeid(T).name()
+                    << " with ID = " << id;
                 throw std::runtime_error{std::move(msg).str()};
             }
 
             return *ptr;
         }
 
-        const MiObject* impl_find(UID id) const final
-        {
-            return find_by_id(objects_, id);
-        }
+        const MiObject* impl_find(UID id) const override { return find_by_id(objects_, id); }
 
         void populate_deletion_set(const MiObject& deletion_target, std::unordered_set<UID>& out)
         {

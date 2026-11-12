@@ -197,7 +197,7 @@ namespace osc
 
         // MAIN function for an SPSC worker thread
         static int main(
-            cpp20::stop_token,  // NOLINT(performance-unnecessary-value-param)
+            cpp20::stop_token,
             SpscReceiver<Input> receiver,
             SpscSender<Output> sender,
             Func message_processor)

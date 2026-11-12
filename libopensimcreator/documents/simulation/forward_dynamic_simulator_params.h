@@ -11,7 +11,8 @@ namespace osc
     struct ForwardDynamicSimulatorParams final {
 
         // final time for the simulation
-        SimulationClock::time_point final_time = SimulationClock::start() + SimulationClock::duration{10.0};
+        SimulationClock::time_point final_time =
+            SimulationClock::start() + SimulationClock::duration{10.0};
 
         // which integration method to use for the simulation
         opyn::IntegratorMethod integrator_method_used = opyn::IntegratorMethod::Default;
@@ -45,7 +46,8 @@ namespace osc
         // to improve accuracy (e.g. by taking many more steps)
         double integrator_accuracy = 1.0e-5;
 
-        friend bool operator==(const ForwardDynamicSimulatorParams&, const ForwardDynamicSimulatorParams&) = default;
+        friend bool operator==(
+            const ForwardDynamicSimulatorParams&, const ForwardDynamicSimulatorParams&) = default;
     };
 
     // convert to a generic parameter block (for UI binding)

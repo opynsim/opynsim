@@ -34,7 +34,9 @@ namespace
 
     void sort_newest_to_oldest(std::vector<RecentFile>& files)
     {
-        rgs::sort(files, rgs::greater{}, [](const RecentFile& rf) { return rf.last_opened_unix_timestamp; });
+        rgs::sort(files, rgs::greater{}, [](const RecentFile& rf) {
+            return rf.last_opened_unix_timestamp;
+        });
     }
 
     // load the "recent files" file that the application persists to disk
@@ -51,7 +53,8 @@ namespace
         if (!fd) {
             // do not throw, because it probably shouldn't crash the application if this
             // is an issue
-            log_error("{}: could not be opened for reading: cannot load recent files list", p.string());
+            log_error(
+                "{}: could not be opened for reading: cannot load recent files list", p.string());
             return {};
         }
 
@@ -80,7 +83,8 @@ namespace
     }
 
     // returns the filesystem path to the "recent files" file
-    std::filesystem::path get_recent_files_file_path(const std::filesystem::path& user_data_dir_path)
+    std::filesystem::path get_recent_files_file_path(
+        const std::filesystem::path& user_data_dir_path)
     {
         return user_data_dir_path / "recent_files.txt";
     }
@@ -108,15 +112,14 @@ osc::RecentFiles::~RecentFiles() noexcept  // NOLINT(bugprone-exception-escape)
 void osc::RecentFiles::push_back(const std::filesystem::path& path)
 {
     // remove duplicates
-    std::erase_if(files_, [&path](const RecentFile& f) {
-        return f.path == path;
-    });
+    std::erase_if(files_, [&path](const RecentFile& f) { return f.path == path; });
 
-    files_.push_back(RecentFile{
-        std::filesystem::exists(path),
-        get_current_time_as_unix_timestamp(),
-        path,
-    });
+    files_.push_back(
+        RecentFile{
+            std::filesystem::exists(path),
+            get_current_time_as_unix_timestamp(),
+            path,
+        });
 
     ::sort_newest_to_oldest(files_);
 }
@@ -126,7 +129,9 @@ void osc::RecentFiles::sync()
     // write by truncating existing list file
     std::ofstream fd{disk_location_, std::ios::trunc};
     if (!fd) {
-        log_error("{}: could not be opened for writing: cannot update recent files list", disk_location_.string());
+        log_error(
+            "{}: could not be opened for writing: cannot update recent files list",
+            disk_location_.string());
         return;
     }
 

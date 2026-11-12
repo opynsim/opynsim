@@ -19,7 +19,8 @@ using namespace osc;
 class osc::SimulationModelStatePair::Impl final {
 public:
     Impl() :
-        simulation_{std::make_shared<Simulation>(SingleStateSimulation{BasicModelStatePairWithSharedEnvironment{}})}
+        simulation_{std::make_shared<Simulation>(
+            SingleStateSimulation{BasicModelStatePairWithSharedEnvironment{}})}
     {}
 
     Impl(std::shared_ptr<Simulation> simulation, SimulationReport simulation_report) :
@@ -32,20 +33,11 @@ public:
         return *simulation_->get_model();  // TODO: UH OH - lock leak (#707 - are locks necessary?)
     }
 
-    UID get_model_version() const
-    {
-        return model_version_;
-    }
+    UID get_model_version() const { return model_version_; }
 
-    const SimTK::State& get_state() const
-    {
-        return simulation_report_.state();
-    }
+    const SimTK::State& get_state() const { return simulation_report_.state(); }
 
-    UID get_state_version() const
-    {
-        return state_version_;
-    }
+    UID get_state_version() const { return state_version_; }
 
     const OpenSim::Component* get_selected() const
     {
@@ -67,25 +59,16 @@ public:
         hovered_ = opyn::get_absolute_path_or_empty(c);
     }
 
-    float get_fixup_scale_factor() const
-    {
-        return simulation_->get_fixup_scale_factor();
-    }
+    float get_fixup_scale_factor() const { return simulation_->get_fixup_scale_factor(); }
 
-    void set_fixup_scale_factor(float v)
-    {
-        simulation_->set_fixup_scale_factor(v);
-    }
+    void set_fixup_scale_factor(float v) { simulation_->set_fixup_scale_factor(v); }
 
     std::shared_ptr<Environment> impl_upd_associated_environment() const
     {
         return simulation_->try_upd_environment();
     }
 
-    std::shared_ptr<Simulation> upd_simulation()
-    {
-        return simulation_;
-    }
+    std::shared_ptr<Simulation> upd_simulation() { return simulation_; }
 
     void set_simulation(std::shared_ptr<Simulation> s)
     {
@@ -95,10 +78,7 @@ public:
         }
     }
 
-    SimulationReport get_simulation_report() const
-    {
-        return simulation_report_;
-    }
+    SimulationReport get_simulation_report() const { return simulation_report_; }
 
     void set_simulation_report(SimulationReport r)
     {
@@ -119,16 +99,18 @@ private:
 
 osc::SimulationModelStatePair::SimulationModelStatePair() :
     impl_{std::make_unique<Impl>()}
-{
-}
+{}
 
-osc::SimulationModelStatePair::SimulationModelStatePair(std::shared_ptr<Simulation> simulation, SimulationReport report) :
+osc::SimulationModelStatePair::SimulationModelStatePair(
+    std::shared_ptr<Simulation> simulation, SimulationReport report) :
+
     impl_{std::make_unique<Impl>(std::move(simulation), std::move(report))}
-{
-}
+{}
 
-osc::SimulationModelStatePair::SimulationModelStatePair(SimulationModelStatePair&&) noexcept = default;
-osc::SimulationModelStatePair& osc::SimulationModelStatePair::operator=(SimulationModelStatePair&&) noexcept = default;
+osc::SimulationModelStatePair::SimulationModelStatePair(SimulationModelStatePair&&) noexcept =
+    default;
+osc::SimulationModelStatePair& osc::SimulationModelStatePair::operator=(
+    SimulationModelStatePair&&) noexcept = default;
 osc::SimulationModelStatePair::~SimulationModelStatePair() noexcept = default;
 
 std::shared_ptr<Simulation> osc::SimulationModelStatePair::upd_simulation()

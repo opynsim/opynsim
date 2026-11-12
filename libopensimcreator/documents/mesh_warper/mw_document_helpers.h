@@ -21,51 +21,80 @@
 // TPS document helper functions
 namespace osc
 {
-    // if it exists in the document, returns the position of the given landmark in its mesh coordinate system.
-    std::optional<Vector3> find_landmark_location(const MwDocument&, UID, MiDocumentInputIdentifier, MwDocumentElementType);
+    // if it exists in the document, returns the position of the given landmark in its mesh
+    // coordinate system.
+    std::optional<Vector3> find_landmark_location(
+        const MwDocument&, UID, MiDocumentInputIdentifier, MwDocumentElementType);
 
-    // if it exists in the document, translates the given landmark by the given translation vector in the mesh's coordinate system.
-    bool translate_landmark_by_id(MwDocument&, UID, MiDocumentInputIdentifier, MwDocumentElementType, const Vector3& translation);
+    // if it exists in the document, translates the given landmark by the given translation vector
+    // in the mesh's coordinate system.
+    bool translate_landmark_by_id(
+        MwDocument&,
+        UID,
+        MiDocumentInputIdentifier,
+        MwDocumentElementType,
+        const Vector3& translation);
 
-    // if it exists in the document, sets the location of the given landmark to `location` in the mesh's coordinate system.
-    bool set_landmark_location_by_id(MwDocument&, UID, MiDocumentInputIdentifier, MwDocumentElementType, const Vector3& location);
+    // if it exists in the document, sets the location of the given landmark to `location` in the
+    // mesh's coordinate system.
+    bool set_landmark_location_by_id(
+        MwDocument&,
+        UID,
+        MiDocumentInputIdentifier,
+        MwDocumentElementType,
+        const Vector3& location);
 
-    // if it exists in the document, returns a pointer to the identified landmark pair; otherwise, returns `nullptr`
+    // if it exists in the document, returns a pointer to the identified landmark pair; otherwise,
+    // returns `nullptr`
     const MwDocumentLandmarkPair* find_landmark_pair(const MwDocument&, UID);
     MwDocumentLandmarkPair* find_landmark_pair(MwDocument&, UID);
 
-    // if it exists in the document, returns a pointer to the identified non-participating landmark; otherwise, returns `nullptr`
-    const MwDocumentNonParticipatingLandmark* find_non_participating_landmark(const MwDocument&, UID);
+    // if it exists in the document, returns a pointer to the identified non-participating landmark;
+    // otherwise, returns `nullptr`
+    const MwDocumentNonParticipatingLandmark* find_non_participating_landmark(
+        const MwDocument&, UID);
     MwDocumentNonParticipatingLandmark* find_non_participating_landmark(MwDocument&, UID);
 
-    // if it exists in the document, returns a pointer to the identified element; otherwise, returns `nullptr`
+    // if it exists in the document, returns a pointer to the identified element; otherwise, returns
+    // `nullptr`
     const MwDocumentElement* find_element(const MwDocument& doc, const MwDocumentElementID&);
 
-    // if it exists in the document, returns a pointer to the landmark that has the given name; otherwise, returns `nullptr`
+    // if it exists in the document, returns a pointer to the landmark that has the given name;
+    // otherwise, returns `nullptr`
     const MwDocumentLandmarkPair* find_landmark_pair_by_name(const MwDocument&, const StringName&);
     MwDocumentLandmarkPair* find_landmark_pair_by_name(MwDocument&, const StringName&);
-    const MwDocumentNonParticipatingLandmark* find_non_participating_landmark_by_name(const MwDocument&, const StringName&);
-    MwDocumentNonParticipatingLandmark* find_non_participating_landmark_by_name(MwDocument&, const StringName&);
+    const MwDocumentNonParticipatingLandmark* find_non_participating_landmark_by_name(
+        const MwDocument&, const StringName&);
+    MwDocumentNonParticipatingLandmark* find_non_participating_landmark_by_name(
+        MwDocument&, const StringName&);
 
-    // returns `true` if the document contains an element (landmark, non-participating landmark, etc.) with the given name
+    // returns `true` if the document contains an element (landmark, non-participating landmark,
+    // etc.) with the given name
     bool contains_element_with_name(const MwDocument& doc, const StringName&);
 
     // returns the (mutable) source/destination of the given landmark pair, if available
-    inline std::optional<Vector3>& upd_location(MwDocumentLandmarkPair& landmark_pair, MiDocumentInputIdentifier which)
+    inline std::optional<Vector3>& upd_location(
+        MwDocumentLandmarkPair& landmark_pair, MiDocumentInputIdentifier which)
     {
         static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
-        return which == MiDocumentInputIdentifier::Source ? landmark_pair.maybe_source_location : landmark_pair.maybe_destination_location;
+        return which == MiDocumentInputIdentifier::Source
+                   ? landmark_pair.maybe_source_location
+                   : landmark_pair.maybe_destination_location;
     }
 
     // returns the source/destination of the given landmark pair, if available
-    inline std::optional<Vector3> const& get_location(const MwDocumentLandmarkPair& landmark_pair, MiDocumentInputIdentifier which)
+    inline std::optional<Vector3> const& get_location(
+        const MwDocumentLandmarkPair& landmark_pair, MiDocumentInputIdentifier which)
     {
         static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
-        return which == MiDocumentInputIdentifier::Source ? landmark_pair.maybe_source_location : landmark_pair.maybe_destination_location;
+        return which == MiDocumentInputIdentifier::Source
+                   ? landmark_pair.maybe_source_location
+                   : landmark_pair.maybe_destination_location;
     }
 
     // returns `true` if the given landmark pair has a location assigned for `which`
-    inline bool has_location(const MwDocumentLandmarkPair& landmark_pair, MiDocumentInputIdentifier which)
+    inline bool has_location(
+        const MwDocumentLandmarkPair& landmark_pair, MiDocumentInputIdentifier which)
     {
         return get_location(landmark_pair, which).has_value();
     }
@@ -96,7 +125,8 @@ namespace osc
         return p.maybe_source_location || p.maybe_destination_location;
     }
 
-    // returns `true` if the document contains at least one "morphing" landmarks (i.e. ignores non-participating landmarks)
+    // returns `true` if the document contains at least one "morphing" landmarks (i.e. ignores
+    // non-participating landmarks)
     inline bool contains_landmarks(const MwDocument& doc)
     {
         return !doc.landmark_pairs.empty();
@@ -108,8 +138,10 @@ namespace osc
         return !doc.non_participating_landmarks.empty();
     }
 
-    // returns source + destination landmark pair, if both are fully defined; otherwise, returns std::nullopt
-    std::optional<opyn::LandmarkPair3D<float>> try_extract_landmark_pair(const MwDocumentLandmarkPair&);
+    // returns source + destination landmark pair, if both are fully defined; otherwise, returns
+    // std::nullopt
+    std::optional<opyn::LandmarkPair3D<float>> try_extract_landmark_pair(
+        const MwDocumentLandmarkPair&);
 
     // returns all fully paired landmarks in `doc`
     std::vector<opyn::LandmarkPair3D<float>> get_landmark_pairs(const MwDocument&);
@@ -135,16 +167,15 @@ namespace osc
 
     // adds a non-participating landmark to the document
     void add_non_participating_landmark(
-        MwDocument&,
-        const Vector3&,
-        std::optional<std::string_view> suggested_name = std::nullopt);
+        MwDocument&, const Vector3&, std::optional<std::string_view> suggested_name = std::nullopt);
 
     // returns `true` if the given element was deleted from the document
     bool delete_element_by_id(MwDocument&, const MwDocumentElementID&);
     bool delete_element_by_id(MwDocument&, UID);
 
     // returns the name of the element, or an alternative if the element cannot be found
-    CStringView find_element_name_or(const MwDocument&, const MwDocumentElementID&, CStringView alternative = "unknown");
+    CStringView find_element_name_or(
+        const MwDocument&, const MwDocumentElementID&, CStringView alternative = "unknown");
 
     // returns all element IDs for all elements in the document
     std::vector<MwDocumentElementID> get_all_element_ids(const MwDocument&);

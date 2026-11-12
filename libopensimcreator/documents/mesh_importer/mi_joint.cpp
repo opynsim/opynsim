@@ -55,12 +55,12 @@ std::vector<MiCrossrefDescriptor> osc::MiJoint::impl_get_cross_references() cons
 
 std::ostream& osc::MiJoint::impl_write_to_stream(std::ostream& o) const
 {
-    return o << "MiJoint(ID = " << id_
-             << ", JointTypeName = " << joint_type_name_
-             << ", UserAssignedName = " << user_assigned_name_
-             << ", Parent = " << parent_
-             << ", Child = " << child_
-             << ", Transform = " << xform_
+    return o << "MiJoint(ID = " << id_                          //
+             << ", JointTypeName = " << joint_type_name_        //
+             << ", UserAssignedName = " << user_assigned_name_  //
+             << ", Parent = " << parent_                        //
+             << ", Child = " << child_                          //
+             << ", Transform = " << xform_                      //
              << ')';
 }
 

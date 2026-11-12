@@ -30,91 +30,62 @@ namespace osc
             UID child,
             const Transform& xform);
 
-        CStringView get_specific_type_name() const
-        {
-            return joint_type_name_;
-        }
+        CStringView get_specific_type_name() const { return joint_type_name_; }
 
-        void set_specific_type_name(std::string_view new_name)
-        {
-            joint_type_name_ = new_name;
-        }
+        void set_specific_type_name(std::string_view new_name) { joint_type_name_ = new_name; }
 
-        UID get_parent_id() const
-        {
-            return parent_;
-        }
+        UID get_parent_id() const { return parent_; }
 
-        UID get_child_id() const
-        {
-            return child_;
-        }
+        UID get_child_id() const { return child_; }
 
-        CStringView get_user_assigned_name() const
-        {
-            return user_assigned_name_;
-        }
+        CStringView get_user_assigned_name() const { return user_assigned_name_; }
 
-        Transform get_x_form() const
-        {
-            return xform_;
-        }
+        Transform get_x_form() const { return xform_; }
 
     private:
         friend class MiObjectCRTP<MiJoint>;
         static MiClass create_class();
 
-        std::vector<MiCrossrefDescriptor> impl_get_cross_references() const final;
+        std::vector<MiCrossrefDescriptor> impl_get_cross_references() const override;
 
-        void impl_set_cross_reference_connectee_id(int i, UID id) final
+        void impl_set_cross_reference_connectee_id(int i, UID id) override
         {
             switch (i) {
-            case 0:
-                parent_ = id;
-                break;
-            case 1:
-                child_ = id;
-                break;
-            default:
-                throw std::runtime_error{"invalid index accessed for cross reference"};
+            case 0: parent_ = id; break;
+            case 1: child_ = id; break;
+            default: throw std::runtime_error{"invalid index accessed for cross reference"};
             }
         }
 
-        MiObjectFlags impl_get_flags() const final
+        MiObjectFlags impl_get_flags() const override
         {
-            return MiObjectFlags::CanChangeLabel |
-                   MiObjectFlags::CanChangePosition |
-                   MiObjectFlags::CanChangeRotation |
-                   MiObjectFlags::CanDelete |
+            return MiObjectFlags::CanChangeLabel |     //
+                   MiObjectFlags::CanChangePosition |  //
+                   MiObjectFlags::CanChangeRotation |  //
+                   MiObjectFlags::CanDelete |          //
                    MiObjectFlags::CanSelect;
         }
 
-        UID impl_get_id() const final
-        {
-            return id_;
-        }
+        UID impl_get_id() const override { return id_; }
 
-        std::ostream& impl_write_to_stream(std::ostream&) const final;
+        std::ostream& impl_write_to_stream(std::ostream&) const override;
 
-        CStringView impl_get_label() const final
+        CStringView impl_get_label() const override
         {
             return user_assigned_name_.empty() ? get_specific_type_name() : user_assigned_name_;
         }
 
-        void impl_set_label(std::string_view) final;
+        void impl_set_label(std::string_view) override;
 
-        Transform impl_get_xform(const MiObjectFinder&) const final
-        {
-            return get_x_form();
-        }
+        Transform impl_get_xform(const MiObjectFinder&) const override { return get_x_form(); }
 
-        void impl_set_xform(const MiObjectFinder&, const Transform& t) final
+        void impl_set_xform(const MiObjectFinder&, const Transform& t) override
         {
             xform_ = t;
             xform_.scale = {1.0f, 1.0f, 1.0f};
         }
 
-        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const final
+        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const override
         {
             return bounding_aabb_of(xform_.translation);
         }

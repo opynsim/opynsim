@@ -47,15 +47,9 @@ namespace osc
         //
         // this can lead to mayhem if (e.g.) the model is actually being mutated by
         // multiple threads concurrently
-        SynchronizedValueGuard<const OpenSim::Model> get_model() const
-        {
-            return impl_get_model();
-        }
+        SynchronizedValueGuard<const OpenSim::Model> get_model() const { return impl_get_model(); }
 
-        size_t get_num_reports() const
-        {
-            return impl_get_num_reports();
-        }
+        size_t get_num_reports() const { return impl_get_num_reports(); }
 
         SimulationReport get_simulation_report(ptrdiff_t report_index) const
         {
@@ -67,25 +61,13 @@ namespace osc
             return impl_get_all_simulation_reports();
         }
 
-        SimulationStatus get_status() const
-        {
-            return impl_get_status();
-        }
+        SimulationStatus get_status() const { return impl_get_status(); }
 
-        SimulationClock::time_point get_cur_time() const
-        {
-            return impl_get_clocks().current();
-        }
+        SimulationClock::time_point get_cur_time() const { return impl_get_clocks().current(); }
 
-        SimulationClock::time_point get_start_time() const
-        {
-            return impl_get_clocks().start();
-        }
+        SimulationClock::time_point get_start_time() const { return impl_get_clocks().start(); }
 
-        SimulationClock::time_point get_end_time() const
-        {
-            return impl_get_clocks().end();
-        }
+        SimulationClock::time_point get_end_time() const { return impl_get_clocks().end(); }
 
         SimulationClock::duration get_duration() const
         {
@@ -93,52 +75,34 @@ namespace osc
             return clocks.end() - clocks.start();
         }
 
-        bool can_change_end_time() const
-        {
-            return impl_can_change_end_time();
-        }
+        bool can_change_end_time() const { return impl_can_change_end_time(); }
 
-        void request_new_end_time(SimulationClock::time_point t)
-        {
-            impl_request_new_end_time(t);
-        }
+        void request_new_end_time(SimulationClock::time_point t) { impl_request_new_end_time(t); }
 
-        float get_progress() const
-        {
-            return impl_get_clocks().progress();
-        }
+        float get_progress() const { return impl_get_clocks().progress(); }
 
-        const ParamBlock& get_params() const
-        {
-            return impl_get_params();
-        }
+        const ParamBlock& get_params() const { return impl_get_params(); }
 
         std::span<const opyn::SharedOutputExtractor> get_output_extractors() const
         {
             return impl_get_output_extractors();
         }
 
-        void request_stop()
-        {
-            impl_request_stop();
-        }
+        void request_stop() { impl_request_stop(); }
 
-        void stop()
-        {
-            impl_stop();
-        }
+        void stop() { impl_stop(); }
 
-        float get_fixup_scale_factor() const
-        {
-            return impl_get_fixup_scale_factor();
-        }
+        float get_fixup_scale_factor() const { return impl_get_fixup_scale_factor(); }
 
         void set_fixup_scale_factor(float new_scale_factor)
         {
             impl_set_fixup_scale_factor(new_scale_factor);
         }
 
-        std::shared_ptr<Environment> try_upd_environment() { return impl_upd_associated_environment(); }
+        std::shared_ptr<Environment> try_upd_environment()
+        {
+            return impl_upd_associated_environment();
+        }
 
     private:
         // TODO: this shouldn't be mutex-xed: it can cause runtime issues

@@ -39,7 +39,7 @@ TEST(CopyOnUpdSharedValue, can_construct)
 TEST(CopyOnUpdSharedValue, can_copy_construct)
 {
     auto cow1 = make_cowv<TestStruct>(100);
-    CopyOnUpdSharedValue<TestStruct> cow2(cow1);  // NOLINT(performance-unnecessary-copy-initialization)
+    CopyOnUpdSharedValue<TestStruct> cow2(cow1);
 
     // Both should point to the same data
     ASSERT_EQ(cow1.get(), cow2.get());
@@ -86,7 +86,7 @@ TEST(CopyOnUpdSharedValue, swap_works)
 TEST(CopyOnUpdSharedValue, IdentityComparison)
 {
     auto cow1 = make_cowv<TestStruct>(7);
-    auto cow2{cow1};  // NOLINT(performance-unnecessary-copy-initialization)
+    auto cow2{cow1};
     auto cow3 = make_cowv<TestStruct>(7);
 
     ASSERT_EQ(cow1, cow2);
@@ -107,7 +107,7 @@ TEST(CopyOnUpdSharedValue, can_construct_overaligned)
 TEST(CopyOnUpdSharedValue, can_copy_construct_overaligned)
 {
     auto cow1 = make_cowv<OveralignedStruct>(88);
-    CopyOnUpdSharedValue<OveralignedStruct> cow2(cow1);  // NOLINT(performance-unnecessary-copy-initialization)
+    CopyOnUpdSharedValue<OveralignedStruct> cow2(cow1);
 
     ASSERT_EQ(cow1.get(), cow2.get());
     ASSERT_TRUE(cow1 == cow2);
@@ -159,7 +159,7 @@ TEST(CopyOnUpdSharedValue, swap_works_with_overaligned_data)
 TEST(CopyOnUpdSharedValue, equality_compares_pointer_equivalence)
 {
     auto cow1 = make_cowv<OveralignedStruct>(7);
-    auto cow2{cow1};  // NOLINT(performance-unnecessary-copy-initialization)
+    auto cow2{cow1};
     auto cow3 = make_cowv<OveralignedStruct>(7);
 
     ASSERT_EQ(cow1, cow2);
@@ -175,14 +175,14 @@ TEST(CopyOnUpdSharedValue, use_count_behaves_as_expected)
     const auto cow1 = make_cowv<TestStruct>(1);
     ASSERT_EQ(cow1.use_count(), 1);
     {
-        const auto cow2{cow1};  // NOLINT(performance-unnecessary-copy-initialization)
+        const auto cow2{cow1};
         ASSERT_EQ(cow1.use_count(), 2);
         ASSERT_EQ(cow2.use_count(), 2);
     }
     ASSERT_EQ(cow1.use_count(), 1);
-    const auto cow2{cow1};  // NOLINT(performance-unnecessary-copy-initialization)
+    const auto cow2{cow1};
     {
-        const auto cow3{cow2};  // NOLINT(performance-unnecessary-copy-initialization)
+        const auto cow3{cow2};
         ASSERT_EQ(cow1.use_count(), 3);
         ASSERT_EQ(cow2.use_count(), 3);
         ASSERT_EQ(cow3.use_count(), 3);

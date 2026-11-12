@@ -35,27 +35,20 @@
 using osc::Vector3;
 
 void osc::action_add_landmark(
-    MwUndoableDocument& doc,
-    MiDocumentInputIdentifier which,
-    const Vector3& position)
+    MwUndoableDocument& doc, MiDocumentInputIdentifier which, const Vector3& position)
 {
     add_landmark_to_input(doc.upd_scratch(), which, position);
     doc.commit_scratch("added landmark");
 }
 
-void osc::action_add_non_participating_landmark(
-    MwUndoableDocument& doc,
-    const Vector3& position)
+void osc::action_add_non_participating_landmark(MwUndoableDocument& doc, const Vector3& position)
 {
     add_non_participating_landmark(doc.upd_scratch(), position);
     doc.commit_scratch("added non-participating landmark");
 }
 
 void osc::action_set_landmark_position(
-    MwUndoableDocument& doc,
-    UID id,
-    MiDocumentInputIdentifier side,
-    const Vector3& new_position)
+    MwUndoableDocument& doc, UID id, MiDocumentInputIdentifier side, const Vector3& new_position)
 {
     MwDocumentLandmarkPair* p = find_landmark_pair(doc.upd_scratch(), id);
     if (!p) {
@@ -66,10 +59,7 @@ void osc::action_set_landmark_position(
     doc.commit_scratch("set landmark position");
 }
 
-void osc::action_rename_landmark(
-    MwUndoableDocument& doc,
-    UID id,
-    std::string_view new_name)
+void osc::action_rename_landmark(MwUndoableDocument& doc, UID id, std::string_view new_name)
 {
     MwDocumentLandmarkPair* p = find_landmark_pair(doc.upd_scratch(), id);
     if (!p) {
@@ -86,9 +76,7 @@ void osc::action_rename_landmark(
 }
 
 void osc::action_set_non_participating_landmark_position(
-    MwUndoableDocument& doc,
-    UID id,
-    const Vector3& new_position)
+    MwUndoableDocument& doc, UID id, const Vector3& new_position)
 {
     auto* lm = find_non_participating_landmark(doc.upd_scratch(), id);
     if (!lm) {
@@ -100,9 +88,7 @@ void osc::action_set_non_participating_landmark_position(
 }
 
 void osc::action_rename_non_participating_landmark(
-    MwUndoableDocument& doc,
-    UID id,
-    std::string_view new_name)
+    MwUndoableDocument& doc, UID id, std::string_view new_name)
 {
     auto* lm = find_non_participating_landmark(doc.upd_scratch(), id);
     if (!lm) {
@@ -132,7 +118,8 @@ void osc::action_set_blend_factor(MwUndoableDocument& doc, float factor)
 void osc::action_set_recalculating_normals(MwUndoableDocument& doc, bool new_state)
 {
     doc.upd_scratch().recalculate_normals = new_state;
-    const std::string_view msg = new_state ? "enabled recalculating normals" : "disabled recalculating normals";
+    const std::string_view msg =
+        new_state ? "enabled recalculating normals" : "disabled recalculating normals";
     doc.commit_scratch(msg);
 }
 
@@ -142,13 +129,15 @@ void osc::action_set_warping_penalty(MwUndoableDocument& doc, float new_warping_
     doc.commit_scratch(std::format("Set warping penalty to {}", new_warping_penalty));
 }
 
-void osc::action_set_source_landmarks_prescale(MwUndoableDocument& doc, float new_source_landmarks_prescale)
+void osc::action_set_source_landmarks_prescale(
+    MwUndoableDocument& doc, float new_source_landmarks_prescale)
 {
     doc.upd_scratch().source_landmarks_prescale = new_source_landmarks_prescale;
     doc.commit_scratch("changed source prescale factor");
 }
 
-void osc::action_set_destination_landmarks_prescale(MwUndoableDocument& doc, float new_destination_landmarks_prescale)
+void osc::action_set_destination_landmarks_prescale(
+    MwUndoableDocument& doc, float new_destination_landmarks_prescale)
 {
     doc.upd_scratch().destination_landmarks_prescale = new_destination_landmarks_prescale;
     doc.commit_scratch("changed destination prescale factor");
@@ -173,8 +162,7 @@ void osc::action_clear_all_non_participating_landmarks(MwUndoableDocument& doc)
 }
 
 void osc::action_delete_scene_elements_by_id(
-    MwUndoableDocument& doc,
-    const std::unordered_set<MwDocumentElementID>& element_ids)
+    MwUndoableDocument& doc, const std::unordered_set<MwDocumentElementID>& element_ids)
 {
     MwDocument& scratch = doc.upd_scratch();
     bool something_deleted = false;
@@ -195,17 +183,14 @@ void osc::action_delete_element_by_id(MwUndoableDocument& doc, UID id)
 }
 
 void osc::action_load_mesh(
-    MwUndoableDocument& doc,
-    const Mesh& mesh,
-    MiDocumentInputIdentifier which)
+    MwUndoableDocument& doc, const Mesh& mesh, MiDocumentInputIdentifier which)
 {
     upd_mesh(doc.upd_scratch(), which) = mesh;
     doc.commit_scratch("changed mesh");
 }
 
 void osc::action_prompt_user_to_load_mesh_file(
-    const std::shared_ptr<MwUndoableDocument>& doc,
-    MiDocumentInputIdentifier which)
+    const std::shared_ptr<MwUndoableDocument>& doc, MiDocumentInputIdentifier which)
 {
     App::upd().prompt_user_to_select_file_async(
         [doc, which](const FileDialogResponse& response) {
@@ -223,8 +208,7 @@ void osc::action_prompt_user_to_load_mesh_file(
 }
 
 void osc::action_prompt_user_to_load_landmarks_from_csv(
-    const std::shared_ptr<MwUndoableDocument>& doc,
-    MiDocumentInputIdentifier which)
+    const std::shared_ptr<MwUndoableDocument>& doc, MiDocumentInputIdentifier which)
 {
     App::upd().prompt_user_to_select_file_async(
         [doc, which](const FileDialogResponse& response) {
@@ -238,7 +222,8 @@ void osc::action_prompt_user_to_load_landmarks_from_csv(
             }
 
             opyn::read_landmarks_from_csv(fin, [&doc, which](auto&& landmark) {
-                add_landmark_to_input(doc->upd_scratch(), which, landmark.position, std::move(landmark.maybe_name));
+                add_landmark_to_input(
+                    doc->upd_scratch(), which, landmark.position, std::move(landmark.maybe_name));
             });
 
             doc->commit_scratch("loaded landmarks");
@@ -249,7 +234,8 @@ void osc::action_prompt_user_to_load_landmarks_from_csv(
         });
 }
 
-void osc::action_prompt_user_to_load_non_participating_landmarks_from_csv(const std::shared_ptr<MwUndoableDocument>& doc)
+void osc::action_prompt_user_to_load_non_participating_landmarks_from_csv(
+    const std::shared_ptr<MwUndoableDocument>& doc)
 {
     App::upd().prompt_user_to_select_file_async(
         [doc](const FileDialogResponse& response) {
@@ -263,7 +249,8 @@ void osc::action_prompt_user_to_load_non_participating_landmarks_from_csv(const 
             }
 
             opyn::read_landmarks_from_csv(fin, [&doc](auto&& landmark) {
-                add_non_participating_landmark(doc->upd_scratch(), landmark.position, std::move(landmark.maybe_name));
+                add_non_participating_landmark(
+                    doc->upd_scratch(), landmark.position, std::move(landmark.maybe_name));
             });
 
             doc->commit_scratch("added non-participating landmarks");
@@ -275,9 +262,7 @@ void osc::action_prompt_user_to_load_non_participating_landmarks_from_csv(const 
 }
 
 void osc::action_prompt_user_to_save_landmarks_to_csv(
-    const MwDocument& doc,
-    MiDocumentInputIdentifier which,
-    opyn::LandmarkCSVFlags flags)
+    const MwDocument& doc, MiDocumentInputIdentifier which, opyn::LandmarkCSVFlags flags)
 {
     App::upd().prompt_user_to_save_file_with_extension_async(
         [pairs = doc.landmark_pairs, which, flags](std::optional<std::filesystem::path> p) mutable {
@@ -316,8 +301,7 @@ void osc::action_write_landmarks_as_csv(
 }
 
 void osc::action_prompt_user_to_save_non_participating_landmarks_to_csv(
-    const MwDocument& doc,
-    opyn::LandmarkCSVFlags flags)
+    const MwDocument& doc, opyn::LandmarkCSVFlags flags)
 {
     App::upd().prompt_user_to_save_file_with_extension_async(
         [nplms = doc.non_participating_landmarks, flags](std::optional<std::filesystem::path> p) {
@@ -345,14 +329,15 @@ void osc::action_prompt_user_to_save_non_participating_landmarks_to_csv(
         "csv");
 }
 
-void osc::action_prompt_user_to_save_paired_landmarks_to_csv(const MwDocument& doc, opyn::LandmarkCSVFlags flags)
+void osc::action_prompt_user_to_save_paired_landmarks_to_csv(
+    const MwDocument& doc, opyn::LandmarkCSVFlags flags)
 {
     App::upd().prompt_user_to_save_file_with_extension_async(
-        [pairs = get_named_landmark_pairs(doc), flags](std::optional<std::filesystem::path> maybe_path) {
-            if (not maybe_path) {
+        [pairs = get_named_landmark_pairs(doc), flags](std::optional<std::filesystem::path> path) {
+            if (not path) {
                 return;  // user cancelled out of the prompt
             }
-            std::ofstream fout{*maybe_path};
+            std::ofstream fout{*path};
             if (not fout) {
                 return;  // couldn't open file for writing
             }
@@ -360,9 +345,18 @@ void osc::action_prompt_user_to_save_paired_landmarks_to_csv(const MwDocument& d
             // if applicable, write header row
             if (not(flags & opyn::LandmarkCSVFlags::NoHeader)) {
                 if (flags & opyn::LandmarkCSVFlags::NoNames) {
-                    CSV::write_row(fout, {{"source.x", "source.y", "source.z", "dest.x", "dest.y", "dest.z"}});
+                    CSV::write_row(
+                        fout, {{"source.x", "source.y", "source.z", "dest.x", "dest.y", "dest.z"}});
                 } else {
-                    CSV::write_row(fout, {{"name", "source.x", "source.y", "source.z", "dest.x", "dest.y", "dest.z"}});
+                    CSV::write_row(
+                        fout,
+                        {{"name",
+                          "source.x",
+                          "source.y",
+                          "source.z",
+                          "dest.x",
+                          "dest.y",
+                          "dest.z"}});
                 }
             }
 
@@ -395,9 +389,10 @@ void osc::action_prompt_user_to_save_mesh_to_obj_file(const Mesh& mesh, OBJWrite
     App::upd().prompt_user_to_save_file_with_extension_async(
         [mesh, flags](std::optional<std::filesystem::path> p) {
             if (not p) {
-                return;  // user cancelled out of the prompt
+                return;  // user canceled out of the prompt
             }
-            std::ofstream ofs{*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary};
+            std::ofstream ofs{
+                *p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary};
             if (not ofs) {
                 return;  // couldn't open for writing
             }
@@ -419,7 +414,8 @@ void osc::action_prompt_user_to_mesh_to_stl_file(const Mesh& mesh)
                 return;  // user cancelled out of the prompt
             }
 
-            std::ofstream ofs{*p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary};
+            std::ofstream ofs{
+                *p, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary};
             if (not ofs) {
                 return;  // couldn't open for writing
             }
@@ -432,9 +428,7 @@ void osc::action_prompt_user_to_mesh_to_stl_file(const Mesh& mesh)
 }
 
 void osc::action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
-    const MwDocument& doc,
-    MwResultCache& cache,
-    opyn::LandmarkCSVFlags flags)
+    const MwDocument& doc, MwResultCache& cache, opyn::LandmarkCSVFlags flags)
 {
     const auto span = cache.get_warped_non_participating_landmark_locations(doc);
 
@@ -490,7 +484,8 @@ void osc::action_translate_landmarks_dont_save(
     }
 }
 
-void osc::action_save_landmark_translation(MwUndoableDocument& doc, const std::unordered_set<MwDocumentElementID>& landmark_ids)
+void osc::action_save_landmark_translation(
+    MwUndoableDocument& doc, const std::unordered_set<MwDocumentElementID>& landmark_ids)
 {
     std::stringstream ss;
     ss << "Translated " << landmark_ids.size() << " landmarks";

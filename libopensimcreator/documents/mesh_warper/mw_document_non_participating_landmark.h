@@ -17,10 +17,7 @@ namespace osc
     /// coefficients of the warping equation.
     struct MwDocumentNonParticipatingLandmark final : public MwDocumentElement {
     public:
-        MwDocumentNonParticipatingLandmark(
-            const StringName& name,
-            const Vector3& location) :
-
+        MwDocumentNonParticipatingLandmark(const StringName& name, const Vector3& location) :
             name{name},
             location{location}
         {}
@@ -35,9 +32,6 @@ namespace osc
         Vector3 location;
 
     private:
-        CStringView impl_get_name() const final
-        {
-            return name;
-        }
+        CStringView impl_get_name() const override { return name; }
     };
 }

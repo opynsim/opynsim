@@ -138,13 +138,13 @@ TEST(Camera, constructing_from_position_direction_up_falls_back_when_direction_a
 TEST(Camera, can_copy_construct)
 {
     const Camera camera;
-    const Camera copy = camera;  // NOLINT(performance-unnecessary-copy-initialization)
+    const Camera copy = camera;
 }
 
 TEST(Camera, copied_instance_compares_equal_to_original)
 {
     const Camera camera;
-    const Camera copy = camera;  // NOLINT(performance-unnecessary-copy-initialization)
+    const Camera copy = camera;
 
     ASSERT_EQ(camera, copy);
 }

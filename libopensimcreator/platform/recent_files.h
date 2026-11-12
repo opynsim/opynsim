@@ -20,20 +20,11 @@ namespace osc
 
         void push_back(const std::filesystem::path&);
 
-        [[nodiscard]] bool empty() const
-        {
-            return files_.empty();
-        }
+        [[nodiscard]] bool empty() const { return files_.empty(); }
 
-        std::vector<RecentFile>::const_iterator begin() const
-        {
-            return files_.begin();
-        }
+        std::vector<RecentFile>::const_iterator begin() const { return files_.begin(); }
 
-        std::vector<RecentFile>::const_iterator end() const
-        {
-            return files_.end();
-        }
+        std::vector<RecentFile>::const_iterator end() const { return files_.end(); }
 
         void sync();
 

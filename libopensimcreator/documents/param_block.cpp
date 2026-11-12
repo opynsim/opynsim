@@ -31,30 +31,15 @@ namespace
 
 class osc::ParamBlock::Impl final {
 public:
-    std::unique_ptr<Impl> clone() const
-    {
-        return std::make_unique<Impl>(*this);
-    }
+    std::unique_ptr<Impl> clone() const { return std::make_unique<Impl>(*this); }
 
-    int size() const
-    {
-        return static_cast<int>(params_.size());
-    }
+    int size() const { return static_cast<int>(params_.size()); }
 
-    const std::string& get_name(int idx) const
-    {
-        return get(idx).name;
-    }
+    const std::string& get_name(int idx) const { return get(idx).name; }
 
-    const std::string& get_description(int idx) const
-    {
-        return get(idx).description;
-    }
+    const std::string& get_description(int idx) const { return get(idx).description; }
 
-    const ParamValue& get_value(int idx) const
-    {
-        return get(idx).value;
-    }
+    const ParamValue& get_value(int idx) const { return get(idx).value; }
 
     std::optional<ParamValue> find_value(std::string_view name) const
     {
@@ -71,10 +56,7 @@ public:
         }
     }
 
-    void set_value(int idx, ParamValue v)
-    {
-        get(idx).value = v;
-    }
+    void set_value(int idx, ParamValue v) { get(idx).value = v; }
 
     void set_value(const std::string& name, ParamValue value)
     {
@@ -83,7 +65,8 @@ public:
         if (p) {
             p->value = value;
         } else {
-            throw std::runtime_error{"ParamBlock::setValue(const std::string&, ParamValue): failed: cannot find a param with that name"};
+            throw std::runtime_error{
+                "ParamBlock::setValue(const std::string&, ParamValue): failed: cannot find a param with that name"};
         }
     }
 
@@ -94,15 +77,9 @@ private:
         return p ? std::optional<ParamValue>{p->value} : std::nullopt;
     }
 
-    Param& get(int idx)
-    {
-        return params_.at(static_cast<size_t>(idx));
-    }
+    Param& get(int idx) { return params_.at(static_cast<size_t>(idx)); }
 
-    const Param& get(int idx) const
-    {
-        return params_.at(static_cast<size_t>(idx));
-    }
+    const Param& get(int idx) const { return params_.at(static_cast<size_t>(idx)); }
 
     // helper, to prevent writing a const-/non-const-version of a member method
     template<rgs::range Range>
@@ -111,21 +88,16 @@ private:
         return find_or_nullptr(range, name, [](const auto& el) { return el.name; });
     }
 
-    Param* find(const std::string& name)
-    {
-        return Impl::find(params_, name);
-    }
+    Param* find(const std::string& name) { return Impl::find(params_, name); }
 
-    const Param* find(const std::string& name) const
-    {
-        return Impl::find(params_, name);
-    }
+    const Param* find(const std::string& name) const { return Impl::find(params_, name); }
 
     std::vector<Param> params_;
 };
 
 osc::ParamBlock::ParamBlock() :
-    impl_{std::make_unique<Impl>()} {}
+    impl_{std::make_unique<Impl>()}
+{}
 osc::ParamBlock::ParamBlock(const ParamBlock&) = default;
 osc::ParamBlock::ParamBlock(ParamBlock&&) noexcept = default;
 osc::ParamBlock& osc::ParamBlock::operator=(const ParamBlock&) = default;
@@ -157,7 +129,8 @@ std::optional<ParamValue> osc::ParamBlock::find_value(std::string_view name) con
     return impl_->find_value(name);
 }
 
-void osc::ParamBlock::push_param(std::string_view name, std::string_view description, ParamValue value)
+void osc::ParamBlock::push_param(
+    std::string_view name, std::string_view description, ParamValue value)
 {
     impl_->push_param(name, description, value);
 }

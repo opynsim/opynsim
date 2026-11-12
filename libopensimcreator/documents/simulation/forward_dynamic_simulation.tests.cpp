@@ -118,7 +118,8 @@ TEST(ForwardDynamicSimulation, DecreasingEndTimeWorksAsExpected)
 
     // then decrease the end time, which shouldn't require waiting
     sim.request_new_end_time(SimulationClock::start() + 1s);
-    ASSERT_EQ(sim.get_status(), SimulationStatus::Completed);  // should be immediately true: in-memory truncation
+    ASSERT_EQ(sim.get_status(), SimulationStatus::Completed)
+        << "this should be immediately true: in-memory truncation";
     ASSERT_EQ(sim.get_end_time(), SimulationClock::start() + 1s);
 
     // ensure the shrunk simulation is as-expected

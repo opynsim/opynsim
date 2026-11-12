@@ -14,16 +14,12 @@
 
 using osc::MiClass;
 
-osc::MiBody::MiBody(
-    UID id,
-    const std::string& name,
-    const Transform& xform) :
+osc::MiBody::MiBody(UID id, const std::string& name, const Transform& xform) :
 
     id_{id},
     name_{opyn::sanitize_to_open_sim_component_name(name)},
     xform_{xform}
-{
-}
+{}
 
 void osc::MiBody::impl_set_label(std::string_view sv)
 {
@@ -43,9 +39,9 @@ MiClass osc::MiBody::create_class()
 
 std::ostream& osc::MiBody::impl_write_to_stream(std::ostream& o) const
 {
-    return o << "MiBody(ID = " << id_
-             << ", Name = " << name_
-             << ", m_Transform = " << xform_
-             << ", Mass = " << mass_
+    return o << "MiBody(ID = " << id_         //
+             << ", Name = " << name_          //
+             << ", m_Transform = " << xform_  //
+             << ", Mass = " << mass_          //
              << ')';
 }

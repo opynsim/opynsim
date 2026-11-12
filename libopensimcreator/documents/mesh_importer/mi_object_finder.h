@@ -5,10 +5,7 @@
 namespace osc
 {
     class MiObject;
-}
 
-namespace osc
-{
     // virtual interface to something that can be used to lookup objects in some larger document
     class MiObjectFinder {
     protected:
@@ -21,10 +18,7 @@ namespace osc
     public:
         virtual ~MiObjectFinder() noexcept = default;
 
-        const MiObject* find(UID id) const
-        {
-            return impl_find(id);
-        }
+        const MiObject* find(UID id) const { return impl_find(id); }
 
     private:
         virtual const MiObject* impl_find(UID) const = 0;

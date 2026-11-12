@@ -44,7 +44,7 @@ TEST(Mesh, can_be_default_constructed)
 TEST(Mesh, can_be_copy_constructed)
 {
     const Mesh mesh;
-    [[maybe_unused]] const Mesh copy{mesh};  // NOLINT(performance-unnecessary-copy-initialization)
+    [[maybe_unused]] const Mesh copy{mesh};
 }
 
 TEST(Mesh, can_be_move_constructed)
@@ -1109,7 +1109,7 @@ TEST(Mesh, can_be_compared_for_equality)
 TEST(Mesh, unmodified_copies_are_equivalent)
 {
     const Mesh m;
-    const Mesh copy{m};  // NOLINT(performance-unnecessary-copy-initialization)
+    const Mesh copy{m};
 
     ASSERT_EQ(m, copy);
 }

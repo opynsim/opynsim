@@ -18,23 +18,20 @@ namespace osc
         friend class MiObjectCRTP<MiGround>;
         static MiClass create_class();
 
-        MiObjectFlags impl_get_flags() const final
-        {
-            return MiObjectFlags::None;
-        }
+        MiObjectFlags impl_get_flags() const override { return MiObjectFlags::None; }
 
-        UID impl_get_id() const final;
+        UID impl_get_id() const override;
 
-        std::ostream& impl_write_to_stream(std::ostream&) const final;
+        std::ostream& impl_write_to_stream(std::ostream&) const override;
 
-        CStringView impl_get_label() const final;
+        CStringView impl_get_label() const override;
 
-        Transform impl_get_xform(const MiObjectFinder&) const final
+        Transform impl_get_xform(const MiObjectFinder&) const override
         {
             return identity<Transform>();
         }
 
-        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const final
+        std::optional<AABB> impl_calc_bounds(const MiObjectFinder&) const override
         {
             return std::nullopt;
         }

@@ -27,10 +27,12 @@ using namespace osc;
 
 namespace
 {
-    // maximum distance between the current commit and the "root" commit (i.e. a commit with no parent)
+    // maximum distance between the current commit and the "root" commit (i.e. a commit with no
+    // parent)
     inline constexpr int c_max_undo = 32;
 
-    // maximum distance between the branch head and the current commit (i.e. how big the redo buffer can be)
+    // maximum distance between the branch head and the current commit (i.e. how big the redo buffer
+    // can be)
     inline constexpr int c_max_redo = 32;
 
     std::unique_ptr<OpenSim::Model> make_new_model()
@@ -73,10 +75,7 @@ namespace
         UiModelStatePair& operator=(UiModelStatePair&&) noexcept = default;
         ~UiModelStatePair() noexcept override = default;
 
-        const OpenSim::Model& impl_get_model() const final
-        {
-            return *model_;
-        }
+        const OpenSim::Model& impl_get_model() const override { return *model_; }
 
         OpenSim::Model& upd_model()
         {
@@ -84,72 +83,42 @@ namespace
             return *model_;
         }
 
-        UID impl_get_model_version() const final
-        {
-            return model_version_;
-        }
+        UID impl_get_model_version() const override { return model_version_; }
 
-        void set_model_version(UID version)
-        {
-            model_version_ = version;
-        }
+        void set_model_version(UID version) { model_version_ = version; }
 
-        const SimTK::State& impl_get_state() const final
-        {
-            return model_->getWorkingState();
-        }
+        const SimTK::State& impl_get_state() const override { return model_->getWorkingState(); }
 
-        UID impl_get_state_version() const final
-        {
-            return model_version_;
-        }
+        UID impl_get_state_version() const override { return model_version_; }
 
-        float impl_get_fixup_scale_factor() const final
-        {
-            return fixup_scale_factor_;
-        }
+        float impl_get_fixup_scale_factor() const override { return fixup_scale_factor_; }
 
-        void impl_set_fixup_scale_factor(float sf) final
-        {
-            fixup_scale_factor_ = sf;
-        }
+        void impl_set_fixup_scale_factor(float sf) override { fixup_scale_factor_ = sf; }
 
-        const OpenSim::ComponentPath& get_selected_path() const
-        {
-            return maybe_selected_;
-        }
+        const OpenSim::ComponentPath& get_selected_path() const { return maybe_selected_; }
 
-        void set_selected_path(const OpenSim::ComponentPath& p)
-        {
-            maybe_selected_ = p;
-        }
+        void set_selected_path(const OpenSim::ComponentPath& p) { maybe_selected_ = p; }
 
-        const OpenSim::Component* impl_get_selected() const final
+        const OpenSim::Component* impl_get_selected() const override
         {
             return opyn::find_component(*model_, maybe_selected_);
         }
 
-        void impl_set_selected(const OpenSim::Component* c) final
+        void impl_set_selected(const OpenSim::Component* c) override
         {
             maybe_selected_ = opyn::get_absolute_path_or_empty(c);
         }
 
-        const OpenSim::ComponentPath& get_hovered_path() const
-        {
-            return maybe_hovered_;
-        }
+        const OpenSim::ComponentPath& get_hovered_path() const { return maybe_hovered_; }
 
-        void set_hovered_path(const OpenSim::ComponentPath& p)
-        {
-            maybe_hovered_ = p;
-        }
+        void set_hovered_path(const OpenSim::ComponentPath& p) { maybe_hovered_ = p; }
 
-        const OpenSim::Component* impl_get_hovered() const final
+        const OpenSim::Component* impl_get_hovered() const override
         {
             return opyn::find_component(*model_, maybe_hovered_);
         }
 
-        void impl_set_hovered(const OpenSim::Component* c) final
+        void impl_set_hovered(const OpenSim::Component* c) override
         {
             maybe_hovered_ = opyn::get_absolute_path_or_empty(c);
         }
@@ -225,10 +194,7 @@ public:
         return maybe_filesystem_timestamp_;
     }
 
-    ModelStateCommit get_latest_commit() const
-    {
-        return get_head_commit();
-    }
+    ModelStateCommit get_latest_commit() const { return get_head_commit(); }
 
     bool can_undo() const
     {
@@ -243,10 +209,7 @@ public:
         }
     }
 
-    bool can_redo() const
-    {
-        return distance(branch_head_, current_head_) > 0;
-    }
+    bool can_redo() const { return distance(branch_head_, current_head_) > 0; }
 
     void do_redo()
     {
@@ -277,15 +240,9 @@ public:
         return true;
     }
 
-    const OpenSim::Model& get_model() const
-    {
-        return scratch_.get_model();
-    }
+    const OpenSim::Model& get_model() const { return scratch_.get_model(); }
 
-    OpenSim::Model& upd_model()
-    {
-        return scratch_.upd_model();
-    }
+    OpenSim::Model& upd_model() { return scratch_.upd_model(); }
 
     void set_model(std::unique_ptr<OpenSim::Model> new_model)
     {
@@ -309,60 +266,27 @@ public:
         set_up_to_date_with_filesystem(std::filesystem::last_write_time(path));
     }
 
-    UID get_model_version() const
-    {
-        return scratch_.get_model_version();
-    }
+    UID get_model_version() const { return scratch_.get_model_version(); }
 
-    void set_model_version(UID version)
-    {
-        scratch_.set_model_version(version);
-    }
+    void set_model_version(UID version) { scratch_.set_model_version(version); }
 
-    const SimTK::State& get_state() const
-    {
-        return scratch_.get_state();
-    }
+    const SimTK::State& get_state() const { return scratch_.get_state(); }
 
-    UID get_state_version() const
-    {
-        return scratch_.get_state_version();
-    }
+    UID get_state_version() const { return scratch_.get_state_version(); }
 
-    float get_fixup_scale_factor() const
-    {
-        return scratch_.get_fixup_scale_factor();
-    }
+    float get_fixup_scale_factor() const { return scratch_.get_fixup_scale_factor(); }
 
-    void set_fixup_scale_factor(float v)
-    {
-        scratch_.set_fixup_scale_factor(v);
-    }
+    void set_fixup_scale_factor(float v) { scratch_.set_fixup_scale_factor(v); }
 
-    const OpenSim::Component* get_selected() const
-    {
-        return scratch_.get_selected();
-    }
+    const OpenSim::Component* get_selected() const { return scratch_.get_selected(); }
 
-    void set_selected(const OpenSim::Component* c)
-    {
-        scratch_.set_selected(c);
-    }
+    void set_selected(const OpenSim::Component* c) { scratch_.set_selected(c); }
 
-    const OpenSim::Component* get_hovered() const
-    {
-        return scratch_.get_hovered();
-    }
+    const OpenSim::Component* get_hovered() const { return scratch_.get_hovered(); }
 
-    void set_hovered(const OpenSim::Component* c)
-    {
-        scratch_.set_hovered(c);
-    }
+    void set_hovered(const OpenSim::Component* c) { scratch_.set_hovered(c); }
 
-    std::shared_ptr<Environment> impl_upd_associated_environment()
-    {
-        return environment_;
-    }
+    std::shared_ptr<Environment> impl_upd_associated_environment() { return environment_; }
 
 private:
     UID do_commit(std::string_view message)
@@ -401,10 +325,7 @@ private:
     }
 
     // returns `true` if a commit with the given ID has been stored
-    bool has_commit(UID id) const
-    {
-        return try_get_commit_by_id(id) != nullptr;
-    }
+    bool has_commit(UID id) const { return try_get_commit_by_id(id) != nullptr; }
 
     // returns the number of hops between commit `a` and commit `b`
     //
@@ -454,7 +375,8 @@ private:
         return c;
     }
 
-    // returns the UID that is the nth ancestor from `a`, or empty if there are insufficient ancestors
+    // returns the UID that is the nth ancestor from `a`, or empty if there are insufficient
+    // ancestors
     UID nth_ancestor_id(UID a, int n) const
     {
         const ModelStateCommit* c = nth_ancestor(a, n);
@@ -528,10 +450,7 @@ private:
     }
 
     // returns commit ID of the currently active checkout
-    UID get_checkout_id() const
-    {
-        return current_head_;
-    }
+    UID get_checkout_id() const { return current_head_; }
 
     // checks out the current checkout to be active (scratch)
     //
@@ -618,10 +537,7 @@ private:
         upd_model().setInputFileName(p.string());
     }
 
-    UID get_filesystem_version() const
-    {
-        return maybe_commit_saved_to_disk_;
-    }
+    UID get_filesystem_version() const { return maybe_commit_saved_to_disk_; }
 
     // mutable staging area that calling code can mutate
     UiModelStatePair scratch_;
@@ -677,7 +593,8 @@ UndoableModelStatePair& osc::UndoableModelStatePair::operator=(const UndoableMod
     return *this;
 }
 
-UndoableModelStatePair& osc::UndoableModelStatePair::operator=(UndoableModelStatePair&&) noexcept = default;
+UndoableModelStatePair& osc::UndoableModelStatePair::operator=(UndoableModelStatePair&&) noexcept =
+    default;
 osc::UndoableModelStatePair::~UndoableModelStatePair() noexcept = default;
 
 bool osc::UndoableModelStatePair::is_up_to_date_with_filesystem() const
@@ -810,7 +727,8 @@ std::shared_ptr<Environment> osc::UndoableModelStatePair::impl_upd_associated_en
     return impl_->impl_upd_associated_environment();
 }
 
-void osc::UndoableModelStatePair::impl_set_up_to_date_with_filesystem(std::filesystem::file_time_type t)
+void osc::UndoableModelStatePair::impl_set_up_to_date_with_filesystem(
+    std::filesystem::file_time_type t)
 {
     impl_->set_up_to_date_with_filesystem(t);
 }

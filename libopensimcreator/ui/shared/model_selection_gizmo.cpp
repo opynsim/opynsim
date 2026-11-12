@@ -81,7 +81,7 @@ namespace
 
         // Implementors may override this to draw extra overlays in the 2D UI during manipulation
         virtual void impl_draw_extra_on_using_overlays(
-            ui::DrawListView,  // NOLINT(performance-unnecessary-value-param)
+            ui::DrawListView,
             const Matrix4x4&,
             const Matrix4x4&,
             const Rect&) const

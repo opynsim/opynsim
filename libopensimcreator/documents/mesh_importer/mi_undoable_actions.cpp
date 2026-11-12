@@ -24,11 +24,7 @@
 
 using osc::UID;
 
-bool osc::point_axis_towards(
-    MiUndoableDocument& udoc,
-    UID id,
-    int axis,
-    UID other)
+bool osc::point_axis_towards(MiUndoableDocument& udoc, UID id, int axis, UID other)
 {
     point_axis_towards(udoc.upd_scratch(), id, axis, other);
     udoc.commit_scratch("reoriented " + udoc.scratch().get_label_by_id(id));
@@ -36,9 +32,7 @@ bool osc::point_axis_towards(
 }
 
 bool osc::try_assign_mesh_attachments(
-    MiUndoableDocument& udoc,
-    const std::unordered_set<UID>& mesh_ids,
-    UID new_attachment)
+    MiUndoableDocument& udoc, const std::unordered_set<UID>& mesh_ids, UID new_attachment)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -67,10 +61,7 @@ bool osc::try_assign_mesh_attachments(
     return true;
 }
 
-bool osc::try_create_joint(
-    MiUndoableDocument& udoc,
-    UID child_id,
-    UID parent_id)
+bool osc::try_create_joint(MiUndoableDocument& udoc, UID child_id, UID parent_id)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -93,11 +84,7 @@ bool osc::try_create_joint(
 }
 
 bool osc::try_orient_object_axis_along_two_points(
-    MiUndoableDocument& udoc,
-    UID id,
-    int axis,
-    Vector3 p1,
-    Vector3 p2)
+    MiUndoableDocument& udoc, UID id, int axis, Vector3 p1, Vector3 p2)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -116,25 +103,14 @@ bool osc::try_orient_object_axis_along_two_points(
 }
 
 bool osc::try_orient_object_axis_along_two_objects(
-    MiUndoableDocument& udoc,
-    UID id,
-    int axis,
-    UID obj1,
-    UID obj2)
+    MiUndoableDocument& udoc, UID id, int axis, UID obj1, UID obj2)
 {
     return try_orient_object_axis_along_two_points(
-        udoc,
-        id,
-        axis,
-        udoc.scratch().get_pos_by_id(obj1),
-        udoc.scratch().get_pos_by_id(obj2));
+        udoc, id, axis, udoc.scratch().get_pos_by_id(obj1), udoc.scratch().get_pos_by_id(obj2));
 }
 
 bool osc::try_translate_object_between_two_points(
-    MiUndoableDocument& udoc,
-    UID id,
-    const Vector3& a,
-    const Vector3& b)
+    MiUndoableDocument& udoc, UID id, const Vector3& a, const Vector3& b)
 {
     MiDocument& doc = udoc.upd_scratch();
     MiObject* const obj = doc.try_upd_by_id(id);
@@ -148,11 +124,7 @@ bool osc::try_translate_object_between_two_points(
     return true;
 }
 
-bool osc::try_translate_between_two_objects(
-    MiUndoableDocument& udoc,
-    UID id,
-    UID a,
-    UID b)
+bool osc::try_translate_between_two_objects(MiUndoableDocument& udoc, UID id, UID a, UID b)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -177,10 +149,7 @@ bool osc::try_translate_between_two_objects(
     return true;
 }
 
-bool osc::try_translate_object_to_another_object(
-    MiUndoableDocument& udoc,
-    UID id,
-    UID other)
+bool osc::try_translate_object_to_another_object(MiUndoableDocument& udoc, UID id, UID other)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -200,10 +169,7 @@ bool osc::try_translate_object_to_another_object(
     return true;
 }
 
-bool osc::try_translate_to_mesh_average_center(
-    MiUndoableDocument& udoc,
-    UID id,
-    UID mesh_id)
+bool osc::try_translate_to_mesh_average_center(MiUndoableDocument& udoc, UID id, UID mesh_id)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -223,10 +189,7 @@ bool osc::try_translate_to_mesh_average_center(
     return true;
 }
 
-bool osc::try_translate_to_mesh_bounds_center(
-    MiUndoableDocument& udoc,
-    UID id,
-    UID mesh_id)
+bool osc::try_translate_to_mesh_bounds_center(MiUndoableDocument& udoc, UID id, UID mesh_id)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -253,10 +216,7 @@ bool osc::try_translate_to_mesh_bounds_center(
     return true;
 }
 
-bool osc::try_translate_to_mesh_mass_center(
-    MiUndoableDocument& udoc,
-    UID id,
-    UID mesh_id)
+bool osc::try_translate_to_mesh_mass_center(MiUndoableDocument& udoc, UID id, UID mesh_id)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -276,11 +236,7 @@ bool osc::try_translate_to_mesh_mass_center(
     return true;
 }
 
-bool osc::try_reassign_crossref(
-    MiUndoableDocument& udoc,
-    UID id,
-    int crossref,
-    UID other)
+bool osc::try_reassign_crossref(MiUndoableDocument& udoc, UID id, int crossref, UID other)
 {
     if (other == id) {
         return false;
@@ -298,7 +254,8 @@ bool osc::try_reassign_crossref(
     }
 
     obj->set_cross_reference_connectee_id(crossref, other);
-    udoc.commit_scratch("reassigned " + obj->get_label() + " " + obj->get_cross_reference_label(crossref));
+    udoc.commit_scratch(
+        "reassigned " + obj->get_label() + " " + obj->get_cross_reference_label(crossref));
 
     return true;
 }
@@ -333,21 +290,14 @@ bool osc::delete_object(MiUndoableDocument& udoc, UID id)
     return true;
 }
 
-void osc::rotate_axis(
-    MiUndoableDocument& udoc,
-    MiObject& el,
-    int axis,
-    Radians radians)
+void osc::rotate_axis(MiUndoableDocument& udoc, MiObject& el, int axis, Radians radians)
 {
     const MiDocument& doc = udoc.upd_scratch();
     el.set_xform(doc, rotate_axis(el.get_x_form(doc), axis, radians));
     udoc.commit_scratch("reoriented " + el.get_label());
 }
 
-bool osc::try_copy_orientation(
-    MiUndoableDocument& udoc,
-    UID id,
-    UID other)
+bool osc::try_copy_orientation(MiUndoableDocument& udoc, UID id, UID other)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -367,14 +317,12 @@ bool osc::try_copy_orientation(
     return true;
 }
 
-UID osc::add_body(
-    MiUndoableDocument& udoc,
-    const Vector3& position,
-    UID and_try_attach)
+UID osc::add_body(MiUndoableDocument& udoc, const Vector3& position, UID and_try_attach)
 {
     MiDocument& doc = udoc.upd_scratch();
 
-    const auto& b = doc.emplace<MiBody>(UID{}, MiBody::get_class().generate_name(), Transform{.translation = position});
+    const auto& b = doc.emplace<MiBody>(
+        UID{}, MiBody::get_class().generate_name(), Transform{.translation = position});
     doc.de_select_all();
     doc.select(b.get_id());
 
@@ -396,10 +344,7 @@ UID osc::add_body(MiUndoableDocument& udoc)
     return add_body(udoc, {}, MiIDs::empty());
 }
 
-bool osc::add_station_at_location(
-    MiUndoableDocument& udoc,
-    const MiObject& obj,
-    const Vector3& loc)
+bool osc::add_station_at_location(MiUndoableDocument& udoc, const MiObject& obj, const Vector3& loc)
 {
     MiDocument& doc = udoc.upd_scratch();
 
@@ -417,10 +362,7 @@ bool osc::add_station_at_location(
     return true;
 }
 
-bool osc::add_station_at_location(
-    MiUndoableDocument& udoc,
-    UID attachment,
-    const Vector3& loc)
+bool osc::add_station_at_location(MiUndoableDocument& udoc, UID attachment, const Vector3& loc)
 {
     const MiDocument& doc = udoc.upd_scratch();
 
@@ -439,11 +381,7 @@ void osc::action_import_landmarks(
 {
     MiDocument& doc = udoc.upd_scratch();
     for (const auto& lm : landmarks) {
-        doc.emplace<MiStation>(
-            UID{},
-            MiIDs::ground(),
-            lm.position,
-            lm.name);
+        doc.emplace<MiStation>(UID{}, MiIDs::ground(), lm.position, lm.name);
     }
 
     std::stringstream ss;

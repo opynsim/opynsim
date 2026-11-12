@@ -34,7 +34,7 @@ TEST(RenderTargetColorAttachment, compares_equal_to_its_copy)
         RenderBufferStoreAction::Resolve,
         Color::red(),
     };
-    const RenderTargetColorAttachment attachment_copy = attachment;  // NOLINT(performance-unnecessary-copy-initialization)
+    const RenderTargetColorAttachment attachment_copy = attachment;
 
     ASSERT_EQ(attachment_copy, attachment);
 }

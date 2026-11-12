@@ -19,10 +19,7 @@ using osc::MiClass;
 using osc::MiCrossrefDescriptor;
 
 osc::MiStation::MiStation(
-    UID id,
-    UID attachment,
-    const Vector3& position,
-    const std::string& name) :
+    UID id, UID attachment, const Vector3& position, const std::string& name) :
 
     id_{id},
     attachment_{attachment},
@@ -30,10 +27,7 @@ osc::MiStation::MiStation(
     name_{opyn::sanitize_to_open_sim_component_name(name)}
 {}
 
-osc::MiStation::MiStation(
-    UID attachment,
-    const Vector3& position,
-    const std::string& name) :
+osc::MiStation::MiStation(UID attachment, const Vector3& position, const std::string& name) :
 
     attachment_{attachment},
     position_{position},
@@ -60,11 +54,11 @@ std::vector<MiCrossrefDescriptor> osc::MiStation::impl_get_cross_references() co
 
 std::ostream& osc::MiStation::impl_write_to_stream(std::ostream& o) const
 {
-    return o << "MiStation("
-             << "ID = " << id_
-             << ", Attachment = " << attachment_
-             << ", Position = " << position_
-             << ", Name = " << name_
+    return o << "MiStation("                      //
+             << "ID = " << id_                    //
+             << ", Attachment = " << attachment_  //
+             << ", Position = " << position_      //
+             << ", Name = " << name_              //
              << ')';
 }
 

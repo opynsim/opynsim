@@ -26,7 +26,8 @@ using namespace osc;
 TEST(DocumentationModels, CanAllBeLoadedAndInitializedWithoutThrowingAnException)
 {
     globally_init_open_sim();
-    globally_add_directory_to_open_sim_geometry_search_path(std::filesystem::path{OSC_RESOURCES_DIR} / "geometry");
+    globally_add_directory_to_open_sim_geometry_search_path(
+        std::filesystem::path{OSC_RESOURCES_DIR} / "geometry");
 
     SceneCache cache;
     opyn::OpenSimDecorationOptions options;
@@ -41,9 +42,15 @@ TEST(DocumentationModels, CanAllBeLoadedAndInitializedWithoutThrowingAnException
             // try to generate 3D decorations from the model, which forces the backend
             // to (e.g.) try and load mesh files, etc.
             std::vector<SceneDecoration> decorations;
-            generate_model_decorations(cache, model.get_model(), model.get_state(), options, 1.0f, [&decorations](const OpenSim::Component&, const SceneDecoration& decoration) {
-                decorations.push_back(decoration);
-            });
+            generate_model_decorations(
+                cache,
+                model.get_model(),
+                model.get_state(),
+                options,
+                1.0f,
+                [&decorations](const OpenSim::Component&, const SceneDecoration& decoration) {
+                    decorations.push_back(decoration);
+                });
 
             ASSERT_FALSE(decorations.empty());
         },

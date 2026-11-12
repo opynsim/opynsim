@@ -30,7 +30,7 @@ namespace
 
         static DataSeriesPattern for_datatype(ColumnHeaderStrings&&... header_suffixes)
         {
-            return DataSeriesPattern{DataType, std::initializer_list<osc::CStringView>{osc::CStringView{std::forward<ColumnHeaderStrings>(header_suffixes)}...}};  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+            return DataSeriesPattern{DataType, std::initializer_list<osc::CStringView>{osc::CStringView{std::forward<ColumnHeaderStrings>(header_suffixes)}...}};
         }
 
         // Returns the `DataPointType` matched by this pattern.

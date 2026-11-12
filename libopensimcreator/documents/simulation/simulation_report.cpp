@@ -24,25 +24,16 @@ public:
         auxiliary_values_{std::move(auxiliary_values)}
     {}
 
-    std::unique_ptr<Impl> clone() const
-    {
-        return std::make_unique<Impl>(*this);
-    }
+    std::unique_ptr<Impl> clone() const { return std::make_unique<Impl>(*this); }
 
     SimulationClock::time_point get_time() const
     {
         return SimulationClock::start() + SimulationClock::duration{get_state().getTime()};
     }
 
-    const SimTK::State& get_state() const
-    {
-        return state_;
-    }
+    const SimTK::State& get_state() const { return state_; }
 
-    SimTK::State& upd_state_hack()
-    {
-        return state_;
-    }
+    SimTK::State& upd_state_hack() { return state_; }
 
     std::optional<float> get_auxiliary_value(UID id) const
     {
@@ -60,7 +51,9 @@ osc::SimulationReport::SimulationReport() :
 osc::SimulationReport::SimulationReport(SimTK::State&& st) :
     impl_{std::make_shared<Impl>(std::move(st))}
 {}
-osc::SimulationReport::SimulationReport(SimTK::State&& st, std::unordered_map<UID, float> auxiliary_values) :
+osc::SimulationReport::SimulationReport(
+    SimTK::State&& st, std::unordered_map<UID, float> auxiliary_values) :
+
     impl_{std::make_shared<Impl>(std::move(st), std::move(auxiliary_values))}
 {}
 osc::SimulationReport::SimulationReport(const SimulationReport&) = default;

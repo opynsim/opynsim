@@ -32,12 +32,14 @@ namespace osc
         return (std::to_underlying(lhs) & std::to_underlying(rhs)) != 0;
     }
 
-    constexpr ModelCreationFlags operator+(const ModelCreationFlags& lhs, const ModelCreationFlags& rhs)
+    constexpr ModelCreationFlags operator+(
+        const ModelCreationFlags& lhs, const ModelCreationFlags& rhs)
     {
         return static_cast<ModelCreationFlags>(std::to_underlying(lhs) | std::to_underlying(rhs));
     }
 
-    constexpr ModelCreationFlags operator-(const ModelCreationFlags& lhs, const ModelCreationFlags& rhs)
+    constexpr ModelCreationFlags operator-(
+        const ModelCreationFlags& lhs, const ModelCreationFlags& rhs)
     {
         return static_cast<ModelCreationFlags>(std::to_underlying(lhs) & ~std::to_underlying(rhs));
     }
@@ -48,9 +50,7 @@ namespace osc
     //
     // otherwise, returns nullptr and issuesOut will be populated with issue messages
     std::unique_ptr<OpenSim::Model> create_open_sim_model_from_mesh_importer_document(
-        const MiDocument&,
-        ModelCreationFlags,
-        std::vector<std::string>& issues_out);
+        const MiDocument&, ModelCreationFlags, std::vector<std::string>& issues_out);
 
     Vector3 get_joint_axis_lengths(const MiJoint&);
 }

@@ -1285,9 +1285,9 @@ namespace osc::ui
         inline void draw_annotation(Vector2 position_dataspace, const Color& color, Vector2 pixel_offset, bool clamp, CStringView fmt, ...)  // NOLINT(cert-dcl50-cpp)
         {
             va_list args;
-            va_start(args, fmt);                                                                   // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
-            detail::draw_annotation_v(position_dataspace, color, pixel_offset, clamp, fmt, args);  // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
-            va_end(args);                                                                          // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+            va_start(args, fmt);
+            detail::draw_annotation_v(position_dataspace, color, pixel_offset, clamp, fmt, args);
+            va_end(args);
         }
 
         // draws a draggable point at `plot_point`, expressed in plot space, in

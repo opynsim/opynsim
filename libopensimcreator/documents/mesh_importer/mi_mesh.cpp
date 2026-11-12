@@ -21,11 +21,7 @@ using osc::AABB;
 using osc::MiClass;
 using osc::MiCrossrefDescriptor;
 
-osc::MiMesh::MiMesh(
-    UID id,
-    UID attachment,
-    Mesh mesh_data,
-    std::filesystem::path path) :
+osc::MiMesh::MiMesh(UID id, UID attachment, Mesh mesh_data, std::filesystem::path path) :
 
     id_{id},
     attachment_{attachment},
@@ -36,9 +32,8 @@ osc::MiMesh::MiMesh(
 
 std::optional<AABB> osc::MiMesh::calc_bounds() const
 {
-    return mesh_data_.bounds().transform([this](const AABB& local_bounds) {
-        return transform_aabb(transform_, local_bounds);
-    });
+    return mesh_data_.bounds().transform(
+        [this](const AABB& local_bounds) { return transform_aabb(transform_, local_bounds); });
 }
 
 void osc::MiMesh::reload_mesh_data_from_disk()
@@ -66,13 +61,13 @@ std::vector<MiCrossrefDescriptor> osc::MiMesh::impl_get_cross_references() const
 
 std::ostream& osc::MiMesh::impl_write_to_stream(std::ostream& o) const
 {
-    return o << "Mesh("
-             << "ID = " << id_
-             << ", Attachment = " << attachment_
-             << ", m_Transform = " << transform_
-             << ", MeshData = " << &mesh_data_
-             << ", Path = " << path_
-             << ", Name = " << name_
+    return o << "Mesh("                           //
+             << "ID = " << id_                    //
+             << ", Attachment = " << attachment_  //
+             << ", m_Transform = " << transform_  //
+             << ", MeshData = " << &mesh_data_    //
+             << ", Path = " << path_              //
+             << ", Name = " << name_              //
              << ')';
 }
 
