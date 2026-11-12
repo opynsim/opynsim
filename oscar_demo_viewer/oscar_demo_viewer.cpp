@@ -62,7 +62,7 @@ namespace
         }
 
     private:
-        bool impl_on_key_event(KeyEvent& e) final
+        bool impl_on_key_event(KeyEvent& e) override
         {
             if (e.type() != EventType::KeyUp) {
                 return false;
@@ -81,7 +81,7 @@ namespace
             return false;
         }
 
-        bool impl_on_event(Event& e) final
+        bool impl_on_event(Event& e) override
         {
             if (Widget::impl_on_event(e)) {
                 return true;
@@ -92,10 +92,10 @@ namespace
             return active_demo_->on_event(e);
         }
 
-        void impl_on_mount() final { active_demo_->on_mount(); }
-        void impl_on_unmount() final { active_demo_->on_unmount(); }
-        void impl_on_tick() final { active_demo_->on_tick(); }
-        void impl_on_draw() final
+        void impl_on_mount() override { active_demo_->on_mount(); }
+        void impl_on_unmount() override { active_demo_->on_unmount(); }
+        void impl_on_tick() override { active_demo_->on_tick(); }
+        void impl_on_draw() override
         {
             App::upd().main_window_clear();
             ui_context_.on_start_new_frame();
