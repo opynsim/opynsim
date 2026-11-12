@@ -81,8 +81,7 @@ private:
             action_create_new_document(state_->upd_undoable());
         }
         ui::draw_tooltip_if_item_hovered(
-            "Create New Document",
-            "Creates the default scene (undoable)");
+            "Create New Document", "Creates the default scene (undoable)");
     }
 
     void draw_open_document_button()
@@ -90,22 +89,23 @@ private:
         ui::draw_button(MSMICONS_FOLDER_OPEN);
         if (ui::begin_popup_context_menu("##OpenFolder", ui::PopupFlag::MouseButtonLeft)) {
             if (ui::draw_menu_item("Load Source Mesh")) {
-                action_prompt_user_to_load_mesh_file(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
+                action_prompt_user_to_load_mesh_file(
+                    state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Source);
             }
             if (ui::draw_menu_item("Load Destination Mesh")) {
-                action_prompt_user_to_load_mesh_file(state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
+                action_prompt_user_to_load_mesh_file(
+                    state_->get_undoable_shared_ptr(), MiDocumentInputIdentifier::Destination);
             }
             ui::end_popup();
         }
-        ui::draw_tooltip_if_item_hovered(
-            "Open File",
-            "Open Source/Destination data");
+        ui::draw_tooltip_if_item_hovered("Open File", "Open Source/Destination data");
     }
 
     void draw_save_landmarks_button()
     {
         if (ui::draw_button(MSMICONS_SAVE)) {
-            action_prompt_user_to_save_paired_landmarks_to_csv(state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
+            action_prompt_user_to_save_paired_landmarks_to_csv(
+                state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
         }
         ui::draw_tooltip_if_item_hovered(
             "Save Landmarks to CSV (no names)",
@@ -141,7 +141,12 @@ private:
         if (ui::draw_button("visualization options " MSMICONS_COG)) {
             ui::open_popup("visualization_options_popup");
         }
-        if (ui::begin_popup("visualization_options_popup", {ui::PanelFlag::AlwaysAutoResize, ui::PanelFlag::NoTitleBar, ui::PanelFlag::NoSavedSettings})) {
+        if (ui::begin_popup(
+                "visualization_options_popup",
+                {ui::PanelFlag::AlwaysAutoResize,
+                 ui::PanelFlag::NoTitleBar,
+                 ui::PanelFlag::NoSavedSettings})) {
+
             draw_rendering_options_editor(state_->upd_custom_rendering_options());
             draw_overlay_options_editor(state_->upd_overlay_decoration_options());
             {
@@ -159,7 +164,9 @@ private:
         if (ui::draw_button("swap source <-> destination")) {
             action_swap_source_destination(state_->upd_undoable());
         }
-        ui::draw_tooltip_if_item_hovered("Swap Source <-> Destination", "Swaps the source mesh with the destination mesh.\n\nNote: non-participating landmarks will be left in the source mesh, because they must always be there.");
+        ui::draw_tooltip_if_item_hovered(
+            "Swap Source <-> Destination",
+            "Swaps the source mesh with the destination mesh.\n\nNote: non-participating landmarks will be left in the source mesh, because they must always be there.");
     }
 
     std::shared_ptr<MwUiSharedState> state_;
@@ -168,9 +175,10 @@ private:
 };
 
 osc::MwUiToolbar::MwUiToolbar(
-    Widget* parent,
-    std::string_view label,
-    std::shared_ptr<MwUiSharedState> shared_state) :
+    Widget* parent, std::string_view label, std::shared_ptr<MwUiSharedState> shared_state) :
     Widget{std::make_unique<Impl>(*this, parent, label, std::move(shared_state))}
 {}
-void osc::MwUiToolbar::impl_on_draw() { private_data().on_draw(); }
+void osc::MwUiToolbar::impl_on_draw()
+{
+    private_data().on_draw();
+}

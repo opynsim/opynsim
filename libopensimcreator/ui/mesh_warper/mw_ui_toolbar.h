@@ -13,9 +13,7 @@ namespace osc
     class MwUiToolbar final : public Widget {
     public:
         explicit MwUiToolbar(
-            Widget* parent,
-            std::string_view label,
-            std::shared_ptr<MwUiSharedState>);
+            Widget* parent, std::string_view label, std::shared_ptr<MwUiSharedState>);
 
     private:
         void impl_on_draw() final;

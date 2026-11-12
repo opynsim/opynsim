@@ -21,9 +21,7 @@ namespace osc
     class MwUiLandmarkNavigatorPanel final : public Panel {
     public:
         MwUiLandmarkNavigatorPanel(
-            Widget* parent,
-            std::string_view label,
-            std::shared_ptr<MwUiSharedState> shared) :
+            Widget* parent, std::string_view label, std::shared_ptr<MwUiSharedState> shared) :
 
             Panel{parent, label},
             state_{std::move(shared)}
@@ -64,7 +62,8 @@ namespace osc
 
             ui::table_setup_column("Name", {}, 0.70f * ui::get_content_region_available().x());
             ui::table_setup_column("Source", {}, 0.15f * ui::get_content_region_available().x());
-            ui::table_setup_column("Destination", {}, 0.15f * ui::get_content_region_available().x());
+            ui::table_setup_column(
+                "Destination", {}, 0.15f * ui::get_content_region_available().x());
 
             int id = 0;
             for (const auto& lm : state_->get_scratch().landmark_pairs) {
@@ -106,12 +105,10 @@ namespace osc
         }
 
         Circle draw_landmark_circle(
-            bool is_selected,
-            bool is_hovered,
-            bool is_paired,
-            bool has_location)
+            bool is_selected, bool is_hovered, bool is_paired, bool has_location)
         {
-            const Circle circle{.origin = calc_column_midpoint_screen_pos(), .radius = calc_circle_radius()};
+            const Circle circle{
+                .origin = calc_column_midpoint_screen_pos(), .radius = calc_circle_radius()};
             const Color color = landmark_dot_color(has_location, is_paired);
 
             ui::DrawListView dl = ui::get_panel_draw_list();
@@ -177,7 +174,8 @@ namespace osc
             ui::end_table();
         }
 
-        void draw_non_participating_landmarks_table_row(const MwDocumentNonParticipatingLandmark& npl)
+        void draw_non_participating_landmarks_table_row(
+            const MwDocumentNonParticipatingLandmark& npl)
         {
             // name column
             ui::table_next_row();
@@ -188,19 +186,16 @@ namespace osc
             // source column
             ui::table_set_column_index(1);
             draw_non_participating_landmark_circle(
-                state_->is_selected(npl.get_id()),
-                state_->is_hovered(npl.get_id()));
+                state_->is_selected(npl.get_id()), state_->is_hovered(npl.get_id()));
         }
 
-        void draw_non_participating_landmark_circle(
-            bool is_selected,
-            bool is_hovered)
+        void draw_non_participating_landmark_circle(bool is_selected, bool is_hovered)
         {
-            const Circle circle{.origin = calc_column_midpoint_screen_pos(), .radius = calc_circle_radius()};
+            const Circle circle{
+                .origin = calc_column_midpoint_screen_pos(), .radius = calc_circle_radius()};
 
             ui::get_panel_draw_list().add_circle_filled(
-                circle,
-                state_->get_non_participating_landmark_color());
+                circle, state_->get_non_participating_landmark_color());
 
             try_draw_circle_highlight(circle, is_selected, is_hovered);
         }
@@ -229,7 +224,9 @@ namespace osc
 
         Vector2 calc_column_midpoint_screen_pos() const
         {
-            return ui::get_cursor_ui_position() + 0.5f * Vector2{ui::get_column_width(), ui::get_text_line_height_in_current_panel()};
+            const float column_width = ui::get_column_width();
+            const float line_height = ui::get_text_line_height_in_current_panel();
+            return ui::get_cursor_ui_position() + (0.5f * Vector2{column_width, line_height});
         }
 
         std::shared_ptr<MwUiSharedState> state_;

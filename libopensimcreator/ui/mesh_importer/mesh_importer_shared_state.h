@@ -484,14 +484,16 @@ namespace osc
             auto props = MeshBasicMaterial::PropertyBlock{};
             props.set_color(colors_.grid_lines);
 
+            const auto& sf = scene_scale_factor_;
             return DrawableThing{
                 .id = MiIDs::empty(),
                 .group_id = MiIDs::empty(),
                 .mesh = App::singleton<SceneCache>(App::resource_loader())->grid_mesh(),
-                .transform = {
-                    .scale = 0.5f * Vector3{scene_scale_factor_ * 100.0f, scene_scale_factor_ * 100.0f, 1.0f},
-                    .rotation = angle_axis(Degrees{90}, Vector3{-1.0f, 0.0f, 0.0f}),
-                },
+                .transform =
+                    {
+                        .scale = 0.5f * Vector3{sf * 100.0f, sf * 100.0f, 1.0f},
+                        .rotation = angle_axis(Degrees{90}, Vector3{-1.0f, 0.0f, 0.0f}),
+                    },
                 .shading = std::pair<Material, MaterialPropertyBlock>{floor_material_, props},
                 .flags = SceneDecorationFlag::AnnotationElement,
             };
@@ -1021,18 +1023,20 @@ namespace osc
                 core_radius * sin((Degrees{180} * leg_thickness) / core_radius);
 
             // emit origin sphere
-            append_out.push_back(DrawableThing{
-                .id = logical_id,
-                .group_id = group_id,
-                .mesh = sphere_mesh_,
-                .transform = {
-                    .scale = Vector3{core_radius},
-                    .rotation = xform.rotation,
-                    .translation = xform.translation,
-                },
-                .shading = core_color.with_alpha(core_color.a * alpha),
-                .flags = flags,
-            });
+            append_out.push_back(
+                DrawableThing{
+                    .id = logical_id,
+                    .group_id = group_id,
+                    .mesh = sphere_mesh_,
+                    .transform =
+                        {
+                            .scale = Vector3{core_radius},
+                            .rotation = xform.rotation,
+                            .translation = xform.translation,
+                        },
+                    .shading = core_color.with_alpha(core_color.a * alpha),
+                    .flags = flags,
+                });
 
             // emit "legs"
             for (int i = 0; i < 3; ++i) {
@@ -1048,19 +1052,27 @@ namespace osc
 
                 const float actual_leg_len = 4.0f * leg_len[i] * core_radius;
 
-                const Quaternion rot = normalize(xform.rotation * rotation(mesh_direction, cylinder_direction));
-                append_out.push_back(DrawableThing{
-                    .id = logical_id,
-                    .group_id = group_id,
-                    .mesh = cylinder_mesh_,
-                    .transform = {
-                        .scale = {leg_thickness, 0.5f * actual_leg_len, leg_thickness},  // note: cylinder is 2 units high
-                        .rotation = rot,
-                        .translation = xform.translation + (rot * (((get_sphere_radius() + (0.5f * actual_leg_len)) - cylinder_pullback) * mesh_direction)),
-                    },
-                    .shading = Color{0.0f, alpha}.with_element(i, 1.0f),
-                    .flags = flags,
-                });
+                const Quaternion rot =
+                    normalize(xform.rotation * rotation(mesh_direction, cylinder_direction));
+                const Vector3 translation =
+                    xform.translation +
+                    (rot * (((get_sphere_radius() + (0.5f * actual_leg_len)) - cylinder_pullback) *
+                            mesh_direction));
+                append_out.push_back(
+                    DrawableThing{
+                        .id = logical_id,
+                        .group_id = group_id,
+                        .mesh = cylinder_mesh_,
+                        .transform =
+                            {
+                                // note: cylinder is 2 units high
+                                .scale = {leg_thickness, 0.5f * actual_leg_len, leg_thickness},
+                                .rotation = rot,
+                                .translation = translation,
+                            },
+                        .shading = Color{0.0f, alpha}.with_element(i, 1.0f),
+                        .flags = flags,
+                    });
             }
         }
 
@@ -1096,18 +1108,22 @@ namespace osc
                 const Vector3 cone_direction = Vector3{}.with_element(i, 1.0f);
 
                 const Quaternion rot = xform.rotation * rotation(mesh_direction, cone_direction);
-
-                append_out.push_back(DrawableThing{
-                    .id = logical_id,
-                    .group_id = group_id,
-                    .mesh = App::singleton<SceneCache>(App::resource_loader())->cone_mesh(),
-                    .transform = {
-                        .scale = 0.5f * Vector3{half_width, cone_height, half_width},
-                        .rotation = rot,
-                        .translation = xform.translation + (rot * ((half_width + (0.5f * cone_height)) * mesh_direction)),
-                    },
-                    .shading = Color::black().with_element(i, 1.0f),
-                });
+                const Vector3 translation =
+                    xform.translation +
+                    (rot * ((half_width + (0.5f * cone_height)) * mesh_direction));
+                append_out.push_back(
+                    DrawableThing{
+                        .id = logical_id,
+                        .group_id = group_id,
+                        .mesh = App::singleton<SceneCache>(App::resource_loader())->cone_mesh(),
+                        .transform =
+                            {
+                                .scale = 0.5f * Vector3{half_width, cone_height, half_width},
+                                .rotation = rot,
+                                .translation = translation,
+                            },
+                        .shading = Color::black().with_element(i, 1.0f),
+                    });
             }
         }
 

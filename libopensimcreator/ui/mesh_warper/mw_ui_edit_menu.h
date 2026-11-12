@@ -12,8 +12,7 @@ namespace osc
     // widget: the 'edit' menu (a sub menu of the main menu)
     class MwUiEditMenu final {
     public:
-        explicit MwUiEditMenu(
-            std::shared_ptr<MwUiSharedState> tab_state) :
+        explicit MwUiEditMenu(std::shared_ptr<MwUiSharedState> tab_state) :
             state_{std::move(tab_state)}
         {}
 
@@ -28,10 +27,15 @@ namespace osc
     private:
         void draw_content()
         {
-            if (ui::draw_menu_item("Undo", ModifierKey::Ctrl | Key::Z, nullptr, state_->can_undo())) {
+            if (ui::draw_menu_item(
+                    "Undo", ModifierKey::Ctrl | Key::Z, nullptr, state_->can_undo())) {
                 state_->undo();
             }
-            if (ui::draw_menu_item("Redo", ModifierKey::Ctrl | ModifierKey::Shift | Key::Z, nullptr, state_->can_redo())) {
+            if (ui::draw_menu_item(
+                    "Redo",
+                    ModifierKey::Ctrl | ModifierKey::Shift | Key::Z,
+                    nullptr,
+                    state_->can_redo())) {
                 state_->redo();
             }
             ui::draw_separator();

@@ -29,30 +29,31 @@ class osc::MwUiTab::Impl final : public TabPrivate {
 public:
     explicit Impl(MwUiTab& owner, Widget* parent) :
         TabPrivate{owner, parent, MSMICONS_BEZIER_CURVE " Mesh Warping"},
-        shared_{std::make_shared<MwUiSharedState>(id(), &owner, App::singleton<SceneCache>(App::resource_loader()))}
+        shared_{std::make_shared<MwUiSharedState>(
+            id(), &owner, App::singleton<SceneCache>(App::resource_loader()))}
     {
         panel_manager_->register_toggleable_panel(
-            "Source Mesh",
-            [state = shared_](Widget* parent, std::string_view panel_name) {
-                return std::make_shared<MwUiSourceMeshPanel>(parent, panel_name, state, MiDocumentInputIdentifier::Source);
+            "Source Mesh", [state = shared_](Widget* parent, std::string_view panel_name) {
+                return std::make_shared<MwUiSourceMeshPanel>(
+                    parent, panel_name, state, MiDocumentInputIdentifier::Source);
             });
 
         panel_manager_->register_toggleable_panel(
-            "Destination Mesh",
-            [state = shared_](Widget* parent, std::string_view panel_name) {
-                return std::make_shared<MwUiSourceMeshPanel>(parent, panel_name, state, MiDocumentInputIdentifier::Destination);
+            "Destination Mesh", [state = shared_](Widget* parent, std::string_view panel_name) {
+                return std::make_shared<MwUiSourceMeshPanel>(
+                    parent, panel_name, state, MiDocumentInputIdentifier::Destination);
             });
 
         panel_manager_->register_toggleable_panel(
-            "Result",
-            [state = shared_](Widget* parent, std::string_view panel_name) {
+            "Result", [state = shared_](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<MwUiResultPanel>(parent, panel_name, state);
             });
 
         panel_manager_->register_toggleable_panel(
             "History",
             [state = shared_](Widget* parent, std::string_view panel_name) {
-                return std::make_shared<UndoRedoPanel>(parent, panel_name, state->get_undoable_shared_ptr());
+                return std::make_shared<UndoRedoPanel>(
+                    parent, panel_name, state->get_undoable_shared_ptr());
             },
             ToggleablePanelFlags::Default - ToggleablePanelFlags::IsEnabledByDefault);
 
@@ -110,10 +111,7 @@ public:
         panel_manager_->on_tick();
     }
 
-    void on_draw_main_menu()
-    {
-        main_menu_.on_draw();
-    }
+    void on_draw_main_menu() { main_menu_.on_draw(); }
 
     void on_draw()
     {
@@ -163,14 +161,35 @@ private:
     MwUiStatusBar status_bar_{"##MeshWarpingTabStatusBar", shared_};
 };
 
-CStringView osc::MwUiTab::id() { return "OpenSim/Warping"; }
+CStringView osc::MwUiTab::id()
+{
+    return "OpenSim/Warping";
+}
 
 osc::MwUiTab::MwUiTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::MwUiTab::impl_on_mount() { private_data().on_mount(); }
-void osc::MwUiTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::MwUiTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::MwUiTab::impl_on_tick() { private_data().on_tick(); }
-void osc::MwUiTab::impl_on_draw_main_menu() { private_data().on_draw_main_menu(); }
-void osc::MwUiTab::impl_on_draw() { private_data().on_draw(); }
+void osc::MwUiTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::MwUiTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::MwUiTab::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::MwUiTab::impl_on_tick()
+{
+    private_data().on_tick();
+}
+void osc::MwUiTab::impl_on_draw_main_menu()
+{
+    private_data().on_draw_main_menu();
+}
+void osc::MwUiTab::impl_on_draw()
+{
+    private_data().on_draw();
+}

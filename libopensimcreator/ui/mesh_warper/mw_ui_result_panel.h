@@ -31,17 +31,14 @@ namespace osc
     class MwUiResultPanel final : public MwUiPanel {
     public:
         explicit MwUiResultPanel(
-            Widget* parent,
-            std::string_view panel_name,
-            std::shared_ptr<MwUiSharedState> state) :
+            Widget* parent, std::string_view panel_name, std::shared_ptr<MwUiSharedState> state) :
 
             MwUiPanel{parent, panel_name},
             state_{std::move(state)}
         {
             camera_.set_vertical_field_of_view(Degrees{35.0f});
             camera_controller_.focus_on(
-                state_->get_result_mesh().bounds().value_or(AABB{}),
-                camera_);
+                state_->get_result_mesh().bounds().value_or(AABB{}), camera_);
             camera_controller_.update_camera(camera_);
         }
 
@@ -70,9 +67,14 @@ namespace osc
 
             // update camera if user drags it around etc.
             if (last_texture_hittest_result_.is_hovered) {
-                if (ui::update_orbit_controller_from_mouse_inputs(camera_controller_, camera_, last_texture_hittest_result_.item_ui_rect.dimensions())) {
+                if (ui::update_orbit_controller_from_mouse_inputs(
+                        camera_controller_,
+                        camera_,
+                        last_texture_hittest_result_.item_ui_rect.dimensions())) {
+
                     camera_controller_.update_camera(camera_);
-                    state_->set_linked_camera_controller(camera_controller_);  // reflects latest modification
+                    state_->set_linked_camera_controller(
+                        camera_controller_);  // reflects latest modification
                 }
             }
         }
@@ -93,7 +95,8 @@ namespace osc
             draw_blending_factor_slider();
             draw_prescale_inputs();
 
-            ui::set_cursor_panel_x(cursor_x_at_export_button_);  // align with "export" button in row above
+            // align with "export" button in row above
+            ui::set_cursor_panel_x(cursor_x_at_export_button_);
             ui::draw_checkbox("overlay destination mesh", &show_destination_mesh_);
             ui::same_line();
             {
@@ -144,20 +147,26 @@ namespace osc
         // draws an export button that enables the user to export things from this input
         void draw_export_button()
         {
-            cursor_x_at_export_button_ = ui::get_cursor_panel_x();  // needed to align the blending factor slider
+            // needed to align the blending factor slider
+            cursor_x_at_export_button_ = ui::get_cursor_panel_x();
             ui::draw_button(MSMICONS_FILE_EXPORT " export" MSMICONS_CARET_DOWN);
-            if (ui::begin_popup_context_menu("##exportcontextmenu", ui::PopupFlag::MouseButtonLeft)) {
+            if (ui::begin_popup_context_menu(
+                    "##exportcontextmenu", ui::PopupFlag::MouseButtonLeft)) {
+
                 if (ui::draw_menu_item("Mesh to OBJ")) {
-                    action_prompt_user_to_save_mesh_to_obj_file(state_->get_result_mesh(), OBJWriterFlag::Default);
+                    action_prompt_user_to_save_mesh_to_obj_file(
+                        state_->get_result_mesh(), OBJWriterFlag::Default);
                 }
                 if (ui::draw_menu_item("Mesh to OBJ (no normals)")) {
-                    action_prompt_user_to_save_mesh_to_obj_file(state_->get_result_mesh(), OBJWriterFlag::NoWriteNormals);
+                    action_prompt_user_to_save_mesh_to_obj_file(
+                        state_->get_result_mesh(), OBJWriterFlag::NoWriteNormals);
                 }
                 if (ui::draw_menu_item("Mesh to STL")) {
                     action_prompt_user_to_mesh_to_stl_file(state_->get_result_mesh());
                 }
                 if (ui::draw_menu_item("Warped Non-Participating Landmarks to CSV")) {
-                    action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(state_->get_scratch(), state_->upd_result_cache());
+                    action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
+                        state_->get_scratch(), state_->upd_result_cache());
                 }
                 if (ui::draw_menu_item("Warped Non-Participating Landmark Positions to CSV")) {
                     action_prompt_user_to_save_warped_non_participating_landmarks_to_csv(
@@ -169,7 +178,8 @@ namespace osc
                     action_prompt_user_to_save_paired_landmarks_to_csv(state_->get_scratch());
                 }
                 if (ui::draw_menu_item("Landmark Pairs to CSV (no names)")) {
-                    action_prompt_user_to_save_paired_landmarks_to_csv(state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
+                    action_prompt_user_to_save_paired_landmarks_to_csv(
+                        state_->get_scratch(), opyn::LandmarkCSVFlags::NoNames);
                 }
                 ui::end_popup();
             }
@@ -199,16 +209,22 @@ namespace osc
             const ui::SliderFlags flags = ui::SliderFlag::Logarithmic;
 
             const CStringView label = "landmark radius";
-            ui::set_next_item_width(ui::get_content_region_available().x() - ui::calc_text_size(label).x() - ui::get_style_item_inner_spacing().x() - state_->get_overlay_padding().x());
+            ui::set_next_item_width(
+                ui::get_content_region_available().x() - ui::calc_text_size(label).x() -
+                ui::get_style_item_inner_spacing().x() - state_->get_overlay_padding().x());
             ui::draw_float_slider(label, &landmark_radius_, 0.0001f, 100.0f, "%.4f", flags);
         }
 
         void draw_blending_factor_slider()
         {
-            ui::set_cursor_panel_x(cursor_x_at_export_button_);  // align with "export" button in row above
+            // align with "export" button in row above
+            ui::set_cursor_panel_x(cursor_x_at_export_button_);
 
-            const CStringView label = "blending factor  ";  // deliberate trailing spaces (for alignment with "landmark radius")
-            ui::set_next_item_width(ui::get_content_region_available().x() - ui::calc_text_size(label).x() - ui::get_style_item_inner_spacing().x() - overlay_padding_.x());
+            // deliberate trailing spaces (for alignment with "landmark radius").
+            const CStringView label = "blending factor  ";
+            ui::set_next_item_width(
+                ui::get_content_region_available().x() - ui::calc_text_size(label).x() -
+                ui::get_style_item_inner_spacing().x() - overlay_padding_.x());
 
             float factor = state_->get_scratch().blending_factor;
             if (ui::draw_float_slider(label, &factor, 0.0f, 1.0f)) {
@@ -238,32 +254,37 @@ namespace osc
             ui::set_cursor_panel_x(cursor_x_at_export_button_);
             ui::draw_float_input("destination prescale", &destination_prescale);
             if (ui::is_item_deactivated_after_edit()) {
-                action_set_destination_landmarks_prescale(state_->upd_undoable(), destination_prescale);
+                action_set_destination_landmarks_prescale(
+                    state_->upd_undoable(), destination_prescale);
             }
 
             ui::set_cursor_panel_x(cursor_x_at_export_button_);
             bool affine_scale = state_->get_scratch().apply_affine_scale;
             ui::draw_checkbox("scale", &affine_scale);
             if (ui::is_item_deactivated_after_edit()) {
-                state_->upd_undoable().upd_scratch().apply_affine_scale = affine_scale;  // TODO: undo/redo
+                // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().apply_affine_scale = affine_scale;
             }
             ui::same_line();
             bool affine_rotation = state_->get_scratch().apply_affine_rotation;
             ui::draw_checkbox("rotate", &affine_rotation);
             if (ui::is_item_deactivated_after_edit()) {
-                state_->upd_undoable().upd_scratch().apply_affine_rotation = affine_rotation;  // TODO: undo/redo
+                // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().apply_affine_rotation = affine_rotation;
             }
             ui::same_line();
             bool affine_translation = state_->get_scratch().apply_affine_translation;
             ui::draw_checkbox("translate", &affine_translation);
             if (ui::is_item_deactivated_after_edit()) {
-                state_->upd_undoable().upd_scratch().apply_affine_translation = affine_translation;  // TODO: undo/redo
+                // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().apply_affine_translation = affine_translation;
             }
             ui::same_line();
             bool non_affine_warp = state_->get_scratch().apply_non_affine_warp;
             ui::draw_checkbox("warp", &non_affine_warp);
             if (ui::is_item_deactivated_after_edit()) {
-                state_->upd_undoable().upd_scratch().apply_non_affine_warp = non_affine_warp;  // TODO: undo/redo
+                // TODO: undo/redo
+                state_->upd_undoable().upd_scratch().apply_non_affine_warp = non_affine_warp;
             }
         }
 
@@ -283,28 +304,35 @@ namespace osc
                 decoration_consumer);
 
             if (show_destination_mesh_) {
-                decoration_consumer(SceneDecoration{
-                    .mesh = state_->get_scratch().destination_mesh,
-                    .shading = Color::red().with_alpha(0.5f),
-                });
+                decoration_consumer(
+                    SceneDecoration{
+                        .mesh = state_->get_scratch().destination_mesh,
+                        .shading = Color::red().with_alpha(0.5f),
+                    });
             }
 
             // draw non-participating landmarks
-            for (const Vector3& non_participating_landmark_pos : state_->get_result_non_participating_landmark_locations()) {
-                decoration_consumer(SceneDecoration{
-                    .mesh = state_->get_landmark_sphere_mesh(),
-                    .transform = {
-                        .scale = Vector3{get_non_participating_landmark_scale_factor() * landmark_radius_},
-                        .translation = non_participating_landmark_pos,
-                    },
-                    .shading = state_->get_non_participating_landmark_color(),
-                });
+            for (const Vector3& non_participating_landmark_pos :
+                 state_->get_result_non_participating_landmark_locations()) {
+
+                const auto sf = get_non_participating_landmark_scale_factor();
+                decoration_consumer(
+                    SceneDecoration{
+                        .mesh = state_->get_landmark_sphere_mesh(),
+                        .transform =
+                            {
+                                .scale = Vector3{sf * landmark_radius_},
+                                .translation = non_participating_landmark_pos,
+                            },
+                        .shading = state_->get_non_participating_landmark_color(),
+                    });
             }
 
             return decorations;
         }
 
-        // renders a panel to a texture via its renderer and returns a reference to the rendered texture
+        // renders a panel to a texture via its renderer and returns a reference to the rendered
+        // texture
         RenderTexture& render_scene(Vector2 dims)
         {
             const std::vector<SceneDecoration> decorations = generate_decorations();
@@ -312,7 +340,8 @@ namespace osc
                 camera_,
                 App::get().anti_aliasing_level(),
                 dims,
-                App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio());
+                App::settings().get_value<float>("graphics/render_scale", 1.0f) *
+                    App::get().main_window_device_pixel_ratio());
             state_->get_custom_rendering_options().apply_to(params);
             return cached_renderer_.render(decorations, params);
         }

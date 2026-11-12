@@ -43,9 +43,13 @@ namespace osc
             const MwDocumentElement* el = find_element(state_->get_scratch(), element_id_);
             if (not el) {
                 request_close();  // element cannot be found in document (deleted? renamed?)
-            } else if (const auto* landmark_pair = dynamic_cast<const MwDocumentLandmarkPair*>(el)) {
+            } else if (
+                const auto* landmark_pair = dynamic_cast<const MwDocumentLandmarkPair*>(el)) {
+
                 draw_context_menu(*landmark_pair);
-            } else if (const auto* npl = dynamic_cast<const MwDocumentNonParticipatingLandmark*>(el)) {
+            } else if (
+                const auto* npl = dynamic_cast<const MwDocumentNonParticipatingLandmark*>(el)) {
+
                 draw_context_menu(*npl);
             } else {
                 request_close();  // (defensive programming)
@@ -72,14 +76,24 @@ namespace osc
                 if (not active_position_edit_) {
                     active_position_edit_ = lm.maybe_source_location;
                 }
-                ui::draw_float3_meters_input("source           ", *active_position_edit_);  // (padded to align with `destination`)
+                ui::draw_float3_meters_input(
+                    "source           ",
+                    *active_position_edit_);  // (padded to align with `destination`)
                 if (ui::should_save_last_drawn_item_value()) {
-                    action_set_landmark_position(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Source, *active_position_edit_);
+                    action_set_landmark_position(
+                        state_->upd_undoable(),
+                        lm.uid,
+                        MiDocumentInputIdentifier::Source,
+                        *active_position_edit_);
                     active_position_edit_.reset();
                 }
             } else {
                 if (ui::draw_button("add source")) {
-                    action_set_landmark_position(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Source, Vector3{});
+                    action_set_landmark_position(
+                        state_->upd_undoable(),
+                        lm.uid,
+                        MiDocumentInputIdentifier::Source,
+                        Vector3{});
                 }
             }
 
@@ -89,12 +103,20 @@ namespace osc
                 }
                 ui::draw_float3_meters_input("destination", *active_destination_position_edit_);
                 if (ui::should_save_last_drawn_item_value()) {
-                    action_set_landmark_position(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Destination, *active_destination_position_edit_);
+                    action_set_landmark_position(
+                        state_->upd_undoable(),
+                        lm.uid,
+                        MiDocumentInputIdentifier::Destination,
+                        *active_destination_position_edit_);
                     active_position_edit_.reset();
                 }
             } else {
                 if (ui::draw_button_centered("add destination")) {
-                    action_set_landmark_position(state_->upd_undoable(), lm.uid, MiDocumentInputIdentifier::Destination, Vector3{});
+                    action_set_landmark_position(
+                        state_->upd_undoable(),
+                        lm.uid,
+                        MiDocumentInputIdentifier::Destination,
+                        Vector3{});
                 }
             }
 
@@ -109,7 +131,8 @@ namespace osc
         void draw_context_menu(const MwDocumentNonParticipatingLandmark& npl)
         {
             // header
-            draw_context_menu_header(truncate_with_ellipsis(npl.name, 15), "Non-Participating Landmark");
+            draw_context_menu_header(
+                truncate_with_ellipsis(npl.name, 15), "Non-Participating Landmark");
             draw_context_menu_separator();
 
             // name editor
@@ -118,7 +141,8 @@ namespace osc
             }
             ui::draw_string_input("name", *active_name_edit_);
             if (ui::should_save_last_drawn_item_value()) {
-                action_rename_non_participating_landmark(state_->upd_undoable(), npl.uid, *active_name_edit_);
+                action_rename_non_participating_landmark(
+                    state_->upd_undoable(), npl.uid, *active_name_edit_);
                 active_name_edit_.reset();
             }
 
@@ -127,7 +151,8 @@ namespace osc
             }
             ui::draw_float3_meters_input("location", *active_position_edit_);
             if (ui::should_save_last_drawn_item_value()) {
-                action_set_non_participating_landmark_position(state_->upd_undoable(), npl.uid, *active_position_edit_);
+                action_set_non_participating_landmark_position(
+                    state_->upd_undoable(), npl.uid, *active_position_edit_);
                 active_position_edit_.reset();
             }
 

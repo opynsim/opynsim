@@ -15,8 +15,7 @@ namespace osc
     // widget: the 'edit' menu (a sub menu of the main menu)
     class MwUiActionsMenu final {
     public:
-        explicit MwUiActionsMenu(
-            std::shared_ptr<MwUiSharedState> tab_state) :
+        explicit MwUiActionsMenu(std::shared_ptr<MwUiSharedState> tab_state) :
             state_{std::move(tab_state)}
         {}
 

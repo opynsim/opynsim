@@ -24,7 +24,10 @@ namespace osc
         out(SceneDecoration{
             .mesh = tps_source_or_destination_mesh,
             .shading = mesh_color,
-            .flags = wireframe_mode ? SceneDecorationFlags{SceneDecorationFlag::Default, SceneDecorationFlag::DrawWireframeOverlay} : SceneDecorationFlag::Default,
+            .flags =
+                wireframe_mode
+                    ? SceneDecorationFlags{SceneDecorationFlag::Default, SceneDecorationFlag::DrawWireframeOverlay}
+                    : SceneDecorationFlag::Default,
         });
 
         // add overlay decorations
@@ -36,7 +39,8 @@ namespace osc
             out);
     }
 
-    // returns the amount by which non-participating landmarks should be scaled w.r.t. pariticpating ones
+    // returns the amount by which non-participating landmarks should be scaled w.r.t. pariticpating
+    // ones
     constexpr float get_non_participating_landmark_scale_factor()
     {
         return 0.75f;

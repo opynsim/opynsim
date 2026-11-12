@@ -38,9 +38,7 @@ namespace osc
     class MwUiSharedState final {
     public:
         explicit MwUiSharedState(
-            UID tab_id,
-            Widget* parent,
-            std::shared_ptr<SceneCache> scene_cache) :
+            UID tab_id, Widget* parent, std::shared_ptr<SceneCache> scene_cache) :
 
             tab_id_{tab_id},
             parent_{parent},
@@ -52,13 +50,9 @@ namespace osc
             custom_rendering_options_.set_draw_floor(false);
         }
 
-        void on_mount()
-        {
-            popup_manager_.on_mount();
-        }
+        void on_mount() { popup_manager_.on_mount(); }
 
-        void on_unmount()
-        {}
+        void on_unmount() {}
 
         void on_draw()
         {
@@ -66,20 +60,11 @@ namespace osc
             popup_manager_.on_draw();
         }
 
-        const MwDocument& get_scratch() const
-        {
-            return undoable_tps_document_->scratch();
-        }
+        const MwDocument& get_scratch() const { return undoable_tps_document_->scratch(); }
 
-        const MwUndoableDocument& get_undoable() const
-        {
-            return *undoable_tps_document_;
-        }
+        const MwUndoableDocument& get_undoable() const { return *undoable_tps_document_; }
 
-        MwUndoableDocument& upd_undoable()
-        {
-            return *undoable_tps_document_;
-        }
+        MwUndoableDocument& upd_undoable() { return *undoable_tps_document_; }
 
         std::shared_ptr<MwUndoableDocument> get_undoable_shared_ptr()
         {
@@ -97,10 +82,7 @@ namespace osc
             return upd_scene_cache().get_bvh(mesh);
         }
 
-        MwResultCache& upd_result_cache()
-        {
-            return warping_cache_;
-        }
+        MwResultCache& upd_result_cache() { return warping_cache_; }
 
         // returns a (potentially cached) post-TPS-warp mesh
         const Mesh& get_result_mesh()
@@ -110,18 +92,13 @@ namespace osc
 
         std::span<const Vector3> get_result_non_participating_landmark_locations()
         {
-            return warping_cache_.get_warped_non_participating_landmark_locations(undoable_tps_document_->scratch());
+            return warping_cache_.get_warped_non_participating_landmark_locations(
+                undoable_tps_document_->scratch());
         }
 
-        bool is_hovering_something() const
-        {
-            return current_hover_.has_value();
-        }
+        bool is_hovering_something() const { return current_hover_.has_value(); }
 
-        const MwUiHovertestResult& get_current_hover() const
-        {
-            return *current_hover_;
-        }
+        const MwUiHovertestResult& get_current_hover() const { return *current_hover_; }
 
         bool is_hovered(const MwDocumentElementID& id) const
         {
@@ -138,10 +115,7 @@ namespace osc
             current_hover_.emplace(id, position);
         }
 
-        void set_hover(std::nullopt_t)
-        {
-            current_hover_.reset();
-        }
+        void set_hover(std::nullopt_t) { current_hover_.reset(); }
 
         bool has_selection() const
         {
@@ -154,9 +128,10 @@ namespace osc
         bool has_selection(MiDocumentInputIdentifier input) const
         {
             // TODO: should probably gc the selection
-            return std::ranges::any_of(user_selection_, [this, input](const MwDocumentElementID& el) {
-                return el.input == input and (find_element(get_scratch(), el) != nullptr);
-            });
+            return std::ranges::any_of(
+                user_selection_, [this, input](const MwDocumentElementID& el) {
+                    return el.input == input and (find_element(get_scratch(), el) != nullptr);
+                });
         }
 
         std::vector<Vector3> get_selection_landmark_locations(MiDocumentInputIdentifier input) const
@@ -164,7 +139,9 @@ namespace osc
             std::vector<Vector3> rv;
             for (const auto& el : user_selection_) {
                 if (el.input == input) {
-                    if (auto loc = find_landmark_location(get_scratch(), el.uid, el.input, el.type)) {
+                    if (auto loc =
+                            find_landmark_location(get_scratch(), el.uid, el.input, el.type)) {
+
                         rv.push_back(*loc);
                     }
                 }
@@ -188,15 +165,9 @@ namespace osc
             return user_selection_.contains(id);
         }
 
-        void select(const MwDocumentElementID& id)
-        {
-            user_selection_.select(id);
-        }
+        void select(const MwDocumentElementID& id) { user_selection_.select(id); }
 
-        void clear_selection()
-        {
-            user_selection_.clear();
-        }
+        void clear_selection() { user_selection_.clear(); }
 
         void select_all()
         {
@@ -217,25 +188,13 @@ namespace osc
             }
         }
 
-        bool can_undo() const
-        {
-            return undoable_tps_document_->can_undo();
-        }
+        bool can_undo() const { return undoable_tps_document_->can_undo(); }
 
-        void undo()
-        {
-            undoable_tps_document_->undo();
-        }
+        void undo() { undoable_tps_document_->undo(); }
 
-        bool can_redo() const
-        {
-            return undoable_tps_document_->can_redo();
-        }
+        bool can_redo() const { return undoable_tps_document_->can_redo(); }
 
-        void redo()
-        {
-            undoable_tps_document_->redo();
-        }
+        void redo() { undoable_tps_document_->redo(); }
 
         template<std::derived_from<Popup> TPopup, class... Args>
         requires std::constructible_from<TPopup, Args&&...>
@@ -253,8 +212,14 @@ namespace osc
         Color get_unpaired_landmark_color() const { return Color::red(); }
         Color get_non_participating_landmark_color() const { return Color::purple(); }
 
-        const OrbitCameraController& get_linked_camera_controller() const { return linked_camera_controller_; }
-        void set_linked_camera_controller(const OrbitCameraController& new_controller) { linked_camera_controller_ = new_controller; }
+        const OrbitCameraController& get_linked_camera_controller() const
+        {
+            return linked_camera_controller_;
+        }
+        void set_linked_camera_controller(const OrbitCameraController& new_controller)
+        {
+            linked_camera_controller_ = new_controller;
+        }
         bool is_cameras_linked() const { return link_cameras_; }
         void set_cameras_linked(bool v) { link_cameras_ = v; }
         bool is_only_camera_rotation_linked() const { return only_link_rotation_; }
@@ -275,10 +240,22 @@ namespace osc
             return false;
         }
 
-        const opyn::CustomRenderingOptions& get_custom_rendering_options() const { return custom_rendering_options_; }
-        opyn::CustomRenderingOptions& upd_custom_rendering_options() { return custom_rendering_options_; }
-        const opyn::OverlayDecorationOptions& get_overlay_decoration_options() const { return overlay_decoration_options_; }
-        opyn::OverlayDecorationOptions& upd_overlay_decoration_options() { return overlay_decoration_options_; }
+        const opyn::CustomRenderingOptions& get_custom_rendering_options() const
+        {
+            return custom_rendering_options_;
+        }
+        opyn::CustomRenderingOptions& upd_custom_rendering_options()
+        {
+            return custom_rendering_options_;
+        }
+        const opyn::OverlayDecorationOptions& get_overlay_decoration_options() const
+        {
+            return overlay_decoration_options_;
+        }
+        opyn::OverlayDecorationOptions& upd_overlay_decoration_options()
+        {
+            return overlay_decoration_options_;
+        }
         bool is_wireframe_mode_enabled() const { return wireframe_mode_; }
         void set_wireframe_mode_enabled(bool v) { wireframe_mode_ = v; }
 
@@ -293,7 +270,8 @@ namespace osc
         MwResultCache warping_cache_;
 
         // the document that the user is editing
-        std::shared_ptr<MwUndoableDocument> undoable_tps_document_ = std::make_shared<MwUndoableDocument>();
+        std::shared_ptr<MwUndoableDocument> undoable_tps_document_ =
+            std::make_shared<MwUndoableDocument>();
 
         // `true` if the user wants the cameras to be linked
         bool link_cameras_ = true;
@@ -305,7 +283,8 @@ namespace osc
         OrbitCameraController linked_camera_controller_ = [this] {
             Camera camera;
             camera.set_vertical_field_of_view(Degrees{35.0f});
-            return OrbitCameraController::focused_on(undoable_tps_document_->scratch().source_mesh.bounds().value_or(AABB{}), camera);
+            return OrbitCameraController::focused_on(
+                undoable_tps_document_->scratch().source_mesh.bounds().value_or(AABB{}), camera);
         }();
 
         // shared scene cache, to minimize rendering effort when redrawing

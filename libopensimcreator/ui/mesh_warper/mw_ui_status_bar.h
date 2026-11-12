@@ -16,9 +16,7 @@ namespace osc
     // widget: bottom status bar (shows status messages, hover information, etc.)
     class MwUiStatusBar final {
     public:
-        MwUiStatusBar(
-            std::string_view label,
-            std::shared_ptr<const MwUiSharedState> tab_state) :
+        MwUiStatusBar(std::string_view label, std::shared_ptr<const MwUiSharedState> tab_state) :
 
             label_{label},
             state_{std::move(tab_state)}
@@ -47,9 +45,13 @@ namespace osc
             draw_color_coded_xyz(hover.get_world_space_location());
             ui::same_line();
             if (hover.is_hovering_a_scene_element()) {
-                ui::draw_text_disabled("(Click: select {})", find_element_name_or(state_->get_scratch(), hover.get_scene_element_id().value()));
+                ui::draw_text_disabled(
+                    "(Click: select {})",
+                    find_element_name_or(
+                        state_->get_scratch(), hover.get_scene_element_id().value()));
             } else if (hover.get_input() == MiDocumentInputIdentifier::Source) {
-                ui::draw_text_disabled("(Click: add a landmark, Ctrl+Click: add non-participating landmark)");
+                ui::draw_text_disabled(
+                    "(Click: add a landmark, Ctrl+Click: add non-participating landmark)");
             } else {
                 static_assert(num_options_v<MiDocumentInputIdentifier> == 2);
                 ui::draw_text_disabled("(Click: add a landmark)");

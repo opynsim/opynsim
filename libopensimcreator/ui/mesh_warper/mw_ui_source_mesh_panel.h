@@ -59,7 +59,8 @@ namespace osc
             document_identifier_{document_identifier}
         {
             camera_.set_vertical_field_of_view(Degrees{35.0f});
-            camera_controller_.focus_on(state_->get_scratch_mesh(document_identifier_).bounds().value_or(AABB{}), camera_);
+            camera_controller_.focus_on(
+                state_->get_scratch_mesh(document_identifier_).bounds().value_or(AABB{}), camera_);
             camera_controller_.update_camera(camera_);
         }
 
@@ -76,14 +77,16 @@ namespace osc
             // mesh hittest: compute whether the user is hovering over the mesh (affects rendering)
             const Mesh& input_mesh = state_->get_scratch_mesh(document_identifier_);
             const BVH& input_mesh_bvh = state_->get_scratch_mesh_bvh(document_identifier_);
-            std::optional<RayCollision> mesh_collision = last_texture_hittest_result_.is_hovered ?
-                get_closest_world_space_ray_triangle_collision(input_mesh, input_mesh_bvh, Transform{}, camera_ray) :
-                std::nullopt;
+            std::optional<RayCollision> mesh_collision =
+                last_texture_hittest_result_.is_hovered
+                    ? get_closest_world_space_ray_triangle_collision(
+                          input_mesh, input_mesh_bvh, Transform{}, camera_ray)
+                    : std::nullopt;
 
             // landmark hittest: compute whether the user is hovering over a landmark
-            std::optional<MwUiHovertestResult> landmark_collision = last_texture_hittest_result_.is_hovered ?
-                get_mouse_landmark_collisions(camera_ray) :
-                std::nullopt;
+            std::optional<MwUiHovertestResult> landmark_collision =
+                last_texture_hittest_result_.is_hovered ? get_mouse_landmark_collisions(camera_ray)
+                                                        : std::nullopt;
 
             if (manipulator_gizmo_.is_over() or manipulator_gizmo_.is_using()) {
                 landmark_collision.reset();
@@ -97,18 +100,21 @@ namespace osc
                 state_->set_hover(document_identifier_, mesh_collision->position);
             }
 
-            // update camera: NOTE: make sure it's updated *before* rendering; otherwise, it'll be one frame late
+            // update camera: NOTE: make sure it's updated *before* rendering; otherwise, it'll be
+            // one frame late
             if (not manipulator_gizmo_.is_using()) {
                 update_camera();
             }
 
             // render 3D: draw the scene into the content rect and 2D-hittest it
-            RenderTexture& render_texture = render_scene(content_rect.dimensions(), mesh_collision, landmark_collision);
+            RenderTexture& render_texture =
+                render_scene(content_rect.dimensions(), mesh_collision, landmark_collision);
             ui::draw_image(render_texture);
             last_texture_hittest_result_ = ui::hittest_last_drawn_item();
 
             // handle any events due to hovering over, clicking, etc.
-            handle_input_and_hover_events(last_texture_hittest_result_, mesh_collision, landmark_collision);
+            handle_input_and_hover_events(
+                last_texture_hittest_result_, mesh_collision, landmark_collision);
 
             // render 2D: draw any 2D overlays over the 3D render
             draw_2d_overlay_ui(last_texture_hittest_result_.item_ui_rect);
@@ -117,14 +123,18 @@ namespace osc
         // update the 3D camera from user inputs/external data
         void update_camera()
         {
-            // if the cameras are linked together, ensure this camera is updated from the linked camera
+            // if the cameras are linked together, ensure this camera is updated from the linked
+            // camera
             if (state_->update_local_camera_controller_from_linked_base(camera_controller_)) {
                 camera_controller_.update_camera(camera_);
             }
 
             // if the user interacts with the render, update the camera as necessary
             if (last_texture_hittest_result_.is_hovered and
-                ui::update_orbit_controller_from_mouse_inputs(camera_controller_, camera_, last_texture_hittest_result_.item_ui_rect.dimensions())) {
+                ui::update_orbit_controller_from_mouse_inputs(
+                    camera_controller_,
+                    camera_,
+                    last_texture_hittest_result_.item_ui_rect.dimensions())) {
 
                 camera_controller_.update_camera(camera_);
                 state_->set_linked_camera_controller(camera_controller_);
@@ -132,7 +142,8 @@ namespace osc
         }
 
         // returns the closest collision, if any, between the provided camera ray and a landmark
-        std::optional<MwUiHovertestResult> get_mouse_landmark_collisions(const Ray& camera_ray) const
+        std::optional<MwUiHovertestResult> get_mouse_landmark_collisions(
+            const Ray& camera_ray) const
         {
             std::optional<MwUiHovertestResult> rv;
             hittest_landmarks(camera_ray, rv);
@@ -142,8 +153,7 @@ namespace osc
 
         // 3D hittests landmarks and updates `closest` if a closer collision is found
         void hittest_landmarks(
-            const Ray& camera_ray,
-            std::optional<MwUiHovertestResult>& closest) const
+            const Ray& camera_ray, std::optional<MwUiHovertestResult>& closest) const
         {
             for (const MwDocumentLandmarkPair& landmark : state_->get_scratch().landmark_pairs) {
                 hittest_landmark(camera_ray, closest, landmark);
@@ -164,24 +174,30 @@ namespace osc
             // hittest the landmark as an analytic sphere
             const Sphere landmark_sphere = {.origin = *maybe_pos, .radius = landmark_radius_};
             if (const auto collision = find_collision(camera_ray, landmark_sphere)) {
-                if (not closest or length(closest->get_world_space_location() - camera_ray.origin) > collision->distance) {
-                    MwDocumentElementID full_id{landmark.uid, MwDocumentElementType::Landmark, document_identifier_};
+                if (not closest or length(closest->get_world_space_location() - camera_ray.origin) >
+                                       collision->distance) {
+
+                    MwDocumentElementID full_id{
+                        landmark.uid, MwDocumentElementType::Landmark, document_identifier_};
                     closest.emplace(full_id, *maybe_pos);
                 }
             }
         }
 
-        // 3D hittests non-participating landmarks and updates `closest` if a closer collision is found
+        // 3D hittests non-participating landmarks and updates `closest` if a closer collision is
+        // found
         void hittest_non_participating_landmarks(
-            const Ray& camera_ray,
-            std::optional<MwUiHovertestResult>& closest) const
+            const Ray& camera_ray, std::optional<MwUiHovertestResult>& closest) const
         {
-            for (const auto& non_pariticpating_landmark : state_->get_scratch().non_participating_landmarks) {
+            for (const auto& non_pariticpating_landmark :
+                 state_->get_scratch().non_participating_landmarks) {
+
                 hittest_non_participating_landmark(camera_ray, closest, non_pariticpating_landmark);
             }
         }
 
-        // 3D hittests one non-participating landmark and updates `closest` if a closer collision is found
+        // 3D hittests one non-participating landmark and updates `closest` if a closer collision is
+        // found
         void hittest_non_participating_landmark(
             const Ray& camera_ray,
             std::optional<MwUiHovertestResult>& closest,
@@ -195,8 +211,12 @@ namespace osc
             };
 
             if (const auto collision = find_collision(camera_ray, decoration_sphere)) {
-                if (not closest or length(closest->get_world_space_location() - camera_ray.origin) > collision->distance) {
-                    MwDocumentElementID full_id{non_pariticpating_landmark.uid, MwDocumentElementType::NonParticipatingLandmark, document_identifier_};
+                if (not closest or length(closest->get_world_space_location() - camera_ray.origin) >
+                                       collision->distance) {
+                    MwDocumentElementID full_id{
+                        non_pariticpating_landmark.uid,
+                        MwDocumentElementType::NonParticipatingLandmark,
+                        document_identifier_};
                     closest.emplace(full_id, non_pariticpating_landmark.location);
                 }
             }
@@ -212,9 +232,11 @@ namespace osc
                 camera_,
                 App::get().anti_aliasing_level(),
                 dims,
-                App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio());
+                App::settings().get_value<float>("graphics/render_scale", 1.0f) *
+                    App::get().main_window_device_pixel_ratio());
             state_->get_custom_rendering_options().apply_to(params);
-            const std::vector<SceneDecoration> decorations = generate_decorations(maybe_mesh_collision, maybe_landmark_collision);
+            const std::vector<SceneDecoration> decorations =
+                generate_decorations(maybe_mesh_collision, maybe_landmark_collision);
             return cached_renderer_.render(decorations, params);
         }
 
@@ -225,8 +247,7 @@ namespace osc
         {
             std::vector<SceneDecoration> decorations;
             decorations.reserve(
-                6 +
-                count_num_landmarks_for_input(state_->get_scratch(), document_identifier_) +
+                6 + count_num_landmarks_for_input(state_->get_scratch(), document_identifier_) +
                 state_->get_scratch().non_participating_landmarks.size());
 
             const std::function<void(SceneDecoration&&)> decoration_consumer =
@@ -247,9 +268,11 @@ namespace osc
             // if applicable, generate decorations for the non-participating landmarks
             generate_decorations_for_non_participating_landmarks(decoration_consumer);
 
-            // if applicable, show a mouse-to-mesh collision as faded landmark as a placement hint for user
+            // if applicable, show a mouse-to-mesh collision as faded landmark as a placement hint
+            // for user
             if (maybe_mesh_collision and not maybe_landmark_collision) {
-                generate_decorations_for_mouse_over_mesh_hover(maybe_mesh_collision->position, decoration_consumer);
+                generate_decorations_for_mouse_over_mesh_hover(
+                    maybe_mesh_collision->position, decoration_consumer);
             }
 
             return decorations;
@@ -258,7 +281,9 @@ namespace osc
         void generate_decorations_for_landmarks(
             const std::function<void(SceneDecoration&&)>& decoration_consumer) const
         {
-            for (const MwDocumentLandmarkPair& landmark_pair : state_->get_scratch().landmark_pairs) {
+            for (const MwDocumentLandmarkPair& landmark_pair :
+                 state_->get_scratch().landmark_pairs) {
+
                 generate_decorations_for_landmark(landmark_pair, decoration_consumer);
             }
         }
@@ -267,24 +292,29 @@ namespace osc
             const MwDocumentLandmarkPair& landmark_pair,
             const std::function<void(SceneDecoration&&)>& decoration_consumer) const
         {
-            const std::optional<Vector3> location = get_location(landmark_pair, document_identifier_);
+            const std::optional<Vector3> location =
+                get_location(landmark_pair, document_identifier_);
             if (not location) {
                 return;  // no source/destination location for the landmark
             }
 
-            const Color color = is_fully_paired(landmark_pair) ? state_->get_paired_landmark_color() : state_->get_unpaired_landmark_color();
+            const Color color = is_fully_paired(landmark_pair)
+                                    ? state_->get_paired_landmark_color()
+                                    : state_->get_unpaired_landmark_color();
             SceneDecoration decoration{
                 .mesh = state_->get_landmark_sphere_mesh(),
                 .transform = {.scale = Vector3{landmark_radius_}, .translation = *location},
                 .shading = color,
             };
 
-            const MwDocumentElementID landmark_id{landmark_pair.uid, MwDocumentElementType::Landmark, document_identifier_};
+            const MwDocumentElementID landmark_id{
+                landmark_pair.uid, MwDocumentElementType::Landmark, document_identifier_};
             if (state_->is_selected(landmark_id)) {
                 decoration.flags |= SceneDecorationFlag::RimHighlight0;
             }
             if (state_->is_hovered(landmark_id)) {
-                decoration.shading = to_srgb_colorspace(saturate(multiply_luminance(to_linear_colorspace(color), 1.2f)));
+                decoration.shading = to_srgb_colorspace(
+                    saturate(multiply_luminance(to_linear_colorspace(color), 1.2f)));
                 decoration.flags |= SceneDecorationFlag::RimHighlight1;
             }
 
@@ -298,8 +328,11 @@ namespace osc
                 return;  // only show them on the source (to-be-warped) mesh
             }
 
-            for (const auto& non_participating_landmark : state_->get_scratch().non_participating_landmarks) {
-                generate_decorations_for_non_participating_landmark(non_participating_landmark, decoration_consumer);
+            for (const auto& non_participating_landmark :
+                 state_->get_scratch().non_participating_landmarks) {
+
+                generate_decorations_for_non_participating_landmark(
+                    non_participating_landmark, decoration_consumer);
             }
         }
 
@@ -308,20 +341,24 @@ namespace osc
             const std::function<void(SceneDecoration&&)>& decoration_consumer) const
         {
             const Color color = state_->get_non_participating_landmark_color();
+            const auto sf = get_non_participating_landmark_scale_factor();
             SceneDecoration decoration{
                 .mesh = state_->get_landmark_sphere_mesh(),
-                .transform = {
-                    .scale = Vector3{get_non_participating_landmark_scale_factor() * landmark_radius_},
-                    .translation = npl.location,
-                },
+                .transform =
+                    {
+                        .scale = Vector3{sf * landmark_radius_},
+                        .translation = npl.location,
+                    },
                 .shading = color,
             };
-            const MwDocumentElementID id{npl.uid, MwDocumentElementType::NonParticipatingLandmark, document_identifier_};
+            const MwDocumentElementID id{
+                npl.uid, MwDocumentElementType::NonParticipatingLandmark, document_identifier_};
             if (state_->is_selected(id)) {
                 decoration.flags |= SceneDecorationFlag::RimHighlight0;
             }
             if (state_->is_hovered(id)) {
-                decoration.shading = to_srgb_colorspace(saturate(multiply_luminance(to_linear_colorspace(color), 1.2f)));
+                decoration.shading = to_srgb_colorspace(
+                    saturate(multiply_luminance(to_linear_colorspace(color), 1.2f)));
                 decoration.flags |= SceneDecorationFlag::RimHighlight1;
             }
 
@@ -334,19 +371,19 @@ namespace osc
         {
             const bool non_participating = is_user_placing_non_participating_landmark();
 
-            const Color color = non_participating ?
-                state_->get_non_participating_landmark_color() :
-                state_->get_unpaired_landmark_color();
+            const Color color = non_participating ? state_->get_non_participating_landmark_color()
+                                                  : state_->get_unpaired_landmark_color();
 
-            const float radius = non_participating ?
-                get_non_participating_landmark_scale_factor() * landmark_radius_ :
-                landmark_radius_;
+            const float radius =
+                non_participating ? get_non_participating_landmark_scale_factor() * landmark_radius_
+                                  : landmark_radius_;
 
-            decoration_consumer(SceneDecoration{
-                .mesh = state_->get_landmark_sphere_mesh(),
-                .transform = {.scale = Vector3{radius}, .translation = mesh_collision_position},
-                .shading = color.with_alpha(0.8f),  // faded
-            });
+            decoration_consumer(
+                SceneDecoration{
+                    .mesh = state_->get_landmark_sphere_mesh(),
+                    .transform = {.scale = Vector3{radius}, .translation = mesh_collision_position},
+                    .shading = color.with_alpha(0.8f),  // faded
+                });
         }
 
         // handle any input-related side-effects
@@ -355,7 +392,8 @@ namespace osc
             const std::optional<RayCollision>& mesh_collision,
             const std::optional<MwUiHovertestResult>& landmark_collision)
         {
-            // event: if the user left-clicks and something is hovered, select it; otherwise, add a landmark
+            // event: if the user left-clicks and something is hovered, select it; otherwise, add a
+            // landmark
             if (ht_result.is_left_click_released_without_dragging) {
                 if (landmark_collision and landmark_collision->is_hovering_a_scene_element()) {
                     if (not ui::is_shift_down()) {
@@ -372,7 +410,8 @@ namespace osc
                 }
             }
 
-            // event: if the user right-clicks on a landmark then open the context menu for that landmark
+            // event: if the user right-clicks on a landmark then open the context menu for that
+            // landmark
             if (ht_result.is_right_click_released_without_dragging) {
                 if (landmark_collision && landmark_collision->is_hovering_a_scene_element()) {
                     state_->emplace_popup<MwUiLandmarkContextMenu>(
@@ -394,8 +433,7 @@ namespace osc
             // presses delete then the landmarks should be deleted
             if (ht_result.is_hovered && ui::any_of_keys_pressed({Key::Delete, Key::Backspace})) {
                 action_delete_scene_elements_by_id(
-                    state_->upd_undoable(),
-                    state_->get_underlying_selection_set());
+                    state_->upd_undoable(), state_->get_underlying_selection_set());
                 state_->clear_selection();
             }
 
@@ -458,10 +496,14 @@ namespace osc
                 camera_.projection_matrix(aspect_ratio_of(render_rect)),
                 render_rect);
             if (user_transform) {
-                action_translate_landmarks_dont_save(state_->upd_undoable(), state_->get_selected(document_identifier_), user_transform->translation);
+                action_translate_landmarks_dont_save(
+                    state_->upd_undoable(),
+                    state_->get_selected(document_identifier_),
+                    user_transform->translation);
             }
             if (manipulator_gizmo_.was_using() and not manipulator_gizmo_.is_using()) {
-                action_save_landmark_translation(state_->upd_undoable(), state_->get_selected(document_identifier_));
+                action_save_landmark_translation(
+                    state_->upd_undoable(), state_->get_selected(document_identifier_));
             }
         }
 
@@ -490,7 +532,9 @@ namespace osc
                 ui::table_set_column_index(0);
                 ui::draw_text("# landmarks");
                 ui::table_set_column_index(1);
-                ui::draw_text("{}", count_num_landmarks_for_input(state_->get_scratch(), document_identifier_));
+                ui::draw_text(
+                    "{}",
+                    count_num_landmarks_for_input(state_->get_scratch(), document_identifier_));
 
                 ui::table_next_row();
                 ui::table_set_column_index(0);
@@ -502,7 +546,8 @@ namespace osc
                 ui::table_set_column_index(0);
                 ui::draw_text("# triangles");
                 ui::table_set_column_index(1);
-                ui::draw_text("{}", state_->get_scratch_mesh(document_identifier_).num_indices() / 3);
+                ui::draw_text(
+                    "{}", state_->get_scratch_mesh(document_identifier_).num_indices() / 3);
 
                 ui::end_table();
             }
@@ -512,20 +557,25 @@ namespace osc
         void draw_import_button()
         {
             ui::draw_button(MSMICONS_FILE_IMPORT " import" MSMICONS_CARET_DOWN);
-            if (ui::begin_popup_context_menu("##importcontextmenu", ui::PopupFlag::MouseButtonLeft)) {
+            if (ui::begin_popup_context_menu(
+                    "##importcontextmenu", ui::PopupFlag::MouseButtonLeft)) {
+
                 if (ui::draw_menu_item("Mesh File")) {
-                    action_prompt_user_to_load_mesh_file(state_->get_undoable_shared_ptr(), document_identifier_);
+                    action_prompt_user_to_load_mesh_file(
+                        state_->get_undoable_shared_ptr(), document_identifier_);
                 }
                 if (ui::begin_menu("Generated Mesh")) {
                     draw_generated_mesh_options(SolidGeometries{});
                     ui::end_menu();
                 }
                 if (ui::draw_menu_item("Landmarks from CSV")) {
-                    action_prompt_user_to_load_landmarks_from_csv(state_->get_undoable_shared_ptr(), document_identifier_);
+                    action_prompt_user_to_load_landmarks_from_csv(
+                        state_->get_undoable_shared_ptr(), document_identifier_);
                 }
                 if (document_identifier_ == MiDocumentInputIdentifier::Source &&
                     ui::draw_menu_item("Non-Participating Landmarks from CSV")) {
-                    action_prompt_user_to_load_non_participating_landmarks_from_csv(state_->get_undoable_shared_ptr());
+                    action_prompt_user_to_load_non_participating_landmarks_from_csv(
+                        state_->get_undoable_shared_ptr());
                 }
                 ui::end_popup();
             }
@@ -549,28 +599,41 @@ namespace osc
         void draw_export_button()
         {
             ui::draw_button(MSMICONS_FILE_EXPORT " export" MSMICONS_CARET_DOWN);
-            if (ui::begin_popup_context_menu("##exportcontextmenu", ui::PopupFlag::MouseButtonLeft)) {
+            if (ui::begin_popup_context_menu(
+                    "##exportcontextmenu", ui::PopupFlag::MouseButtonLeft)) {
+
                 if (ui::draw_menu_item("Mesh to OBJ")) {
-                    action_prompt_user_to_save_mesh_to_obj_file(state_->get_scratch_mesh(document_identifier_), OBJWriterFlag::Default);
+                    action_prompt_user_to_save_mesh_to_obj_file(
+                        state_->get_scratch_mesh(document_identifier_), OBJWriterFlag::Default);
                 }
                 if (ui::draw_menu_item("Mesh to OBJ (no normals)")) {
-                    action_prompt_user_to_save_mesh_to_obj_file(state_->get_scratch_mesh(document_identifier_), OBJWriterFlag::NoWriteNormals);
+                    action_prompt_user_to_save_mesh_to_obj_file(
+                        state_->get_scratch_mesh(document_identifier_),
+                        OBJWriterFlag::NoWriteNormals);
                 }
                 if (ui::draw_menu_item("Mesh to STL")) {
-                    action_prompt_user_to_mesh_to_stl_file(state_->get_scratch_mesh(document_identifier_));
+                    action_prompt_user_to_mesh_to_stl_file(
+                        state_->get_scratch_mesh(document_identifier_));
                 }
                 if (ui::draw_menu_item("Landmarks to CSV")) {
-                    action_prompt_user_to_save_landmarks_to_csv(state_->get_scratch(), document_identifier_);
+                    action_prompt_user_to_save_landmarks_to_csv(
+                        state_->get_scratch(), document_identifier_);
                 }
                 if (ui::draw_menu_item("Landmark Positions to CSV")) {
-                    action_prompt_user_to_save_landmarks_to_csv(state_->get_scratch(), document_identifier_, opyn::LandmarkCSVFlags::NoHeader | opyn::LandmarkCSVFlags::NoNames);
+                    action_prompt_user_to_save_landmarks_to_csv(
+                        state_->get_scratch(),
+                        document_identifier_,
+                        opyn::LandmarkCSVFlags::NoHeader | opyn::LandmarkCSVFlags::NoNames);
                 }
                 if (document_identifier_ == MiDocumentInputIdentifier::Source) {
                     if (ui::draw_menu_item("Non-Participating Landmarks to CSV")) {
-                        action_prompt_user_to_save_non_participating_landmarks_to_csv(state_->get_scratch());
+                        action_prompt_user_to_save_non_participating_landmarks_to_csv(
+                            state_->get_scratch());
                     }
                     if (ui::draw_menu_item("Non-Participating Landmark Positions to CSV")) {
-                        action_prompt_user_to_save_non_participating_landmarks_to_csv(state_->get_scratch(), opyn::LandmarkCSVFlags::NoHeader | opyn::LandmarkCSVFlags::NoNames);
+                        action_prompt_user_to_save_non_participating_landmarks_to_csv(
+                            state_->get_scratch(),
+                            opyn::LandmarkCSVFlags::NoHeader | opyn::LandmarkCSVFlags::NoNames);
                     }
                 }
                 ui::end_popup();
@@ -582,12 +645,17 @@ namespace osc
         {
             if (ui::draw_button(MSMICONS_EXPAND_ARROWS_ALT)) {
                 if (const auto bounds = state_->get_scratch_mesh(document_identifier_).bounds()) {
-                    camera_controller_.focus_on(*bounds, camera_, aspect_ratio_of(last_texture_hittest_result_.item_ui_rect));
+                    camera_controller_.focus_on(
+                        *bounds,
+                        camera_,
+                        aspect_ratio_of(last_texture_hittest_result_.item_ui_rect));
                     camera_controller_.update_camera(camera_);
                     state_->set_linked_camera_controller(camera_controller_);
                 }
             }
-            ui::draw_tooltip_if_item_hovered("Autoscale Scene", "Zooms camera to try and fit everything in the scene into the viewer");
+            ui::draw_tooltip_if_item_hovered(
+                "Autoscale Scene",
+                "Zooms camera to try and fit everything in the scene into the viewer");
         }
 
         // draws a slider that lets the user edit how large the landmarks are
@@ -598,7 +666,9 @@ namespace osc
             const ui::SliderFlags flags = ui::SliderFlag::Logarithmic;
 
             const CStringView label = "landmark radius";
-            ui::set_next_item_width(ui::get_content_region_available().x() - ui::calc_text_size(label).x() - ui::get_style_item_inner_spacing().x() - state_->get_overlay_padding().x());
+            ui::set_next_item_width(
+                ui::get_content_region_available().x() - ui::calc_text_size(label).x() -
+                ui::get_style_item_inner_spacing().x() - state_->get_overlay_padding().x());
             ui::draw_float_slider(label, &landmark_radius_, 0.0001f, 100.0f, "%.4f", flags);
         }
 
