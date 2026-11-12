@@ -32,7 +32,7 @@ namespace opyn
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache&,
             const ScalingParameters& parameters,
-            const OpenSim::Model& model) const final
+            const OpenSim::Model& model) const override
         {
             std::vector<ScalingStepValidationMessage> messages;
 
@@ -51,7 +51,7 @@ namespace opyn
             return messages;
         }
 
-        void impl_for_each_scaling_parameter_declaration(const std::function<void(const ScalingParameterDeclaration&)>& callback) const final
+        void impl_for_each_scaling_parameter_declaration(const std::function<void(const ScalingParameterDeclaration&)>& callback) const override
         {
             callback(ScalingParameterDeclaration{"blending_factor", 1.0});
             callback(ScalingParameterDeclaration{"subject_mass", 75.0});
@@ -61,7 +61,7 @@ namespace opyn
             ScalingCache&,
             const ScalingParameters& parameters,
             const OpenSim::Model&,
-            OpenSim::Model& result_model) const final
+            OpenSim::Model& result_model) const override
         {
             const auto subject_mass = parameters.lookup<double>("subject_mass").value_or(0.0);
             OSC_ASSERT_ALWAYS(subject_mass > 0.0 && "Subject mass must be greater than zero");

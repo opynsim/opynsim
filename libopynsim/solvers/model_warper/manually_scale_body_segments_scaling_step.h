@@ -43,7 +43,7 @@ namespace opyn
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache&,
             const ScalingParameters& parameters,
-            const OpenSim::Model& source_model) const final
+            const OpenSim::Model& source_model) const override
         {
             std::vector<ScalingStepValidationMessage> messages;
 
@@ -63,7 +63,7 @@ namespace opyn
             return messages;
         }
 
-        void impl_for_each_scaling_parameter_declaration(const std::function<void(const ScalingParameterDeclaration&)>& callback) const final
+        void impl_for_each_scaling_parameter_declaration(const std::function<void(const ScalingParameterDeclaration&)>& callback) const override
         {
             callback(ScalingParameterDeclaration{"blending_factor", 1.0});
         }
@@ -72,7 +72,7 @@ namespace opyn
             ScalingCache&,
             const ScalingParameters& parameters,
             const OpenSim::Model&,
-            OpenSim::Model& model) const final
+            OpenSim::Model& model) const override
         {
             const std::optional<double> blending_factor = parameters.lookup<double>("blending_factor");
             OSC_ASSERT_ALWAYS(blending_factor && "blending_factor was not set by the warping engine");

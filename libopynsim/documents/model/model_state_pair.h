@@ -98,11 +98,11 @@ namespace opyn
 
     private:
         // overrides + specializes `ComponentAccessor` API
-        const OpenSim::Component& impl_get_component() const final;
+        const OpenSim::Component& impl_get_component() const override;
         bool impl_can_upd_component() const override { return impl_can_upd_model(); }
-        OpenSim::Component& impl_upd_component() final;
-        osc::UID impl_get_component_version() const final { return impl_get_model_version(); }
-        void impl_set_component_version(osc::UID new_version) final { impl_set_model_version(new_version); }
+        OpenSim::Component& impl_upd_component() override;
+        osc::UID impl_get_component_version() const override { return impl_get_model_version(); }
+        void impl_set_component_version(osc::UID new_version) override { impl_set_model_version(new_version); }
 
         // Implementors should return a const reference to an initialized (finalized properties, etc.) model.
         virtual const OpenSim::Model& impl_get_model() const = 0;

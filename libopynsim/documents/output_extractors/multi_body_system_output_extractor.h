@@ -45,12 +45,12 @@ namespace opyn
         ExtractorFn extractor_function() const { return extractor_; }
 
     private:
-        osc::CStringView impl_name() const final { return name_; }
-        osc::CStringView impl_description() const final { return description_; }
-        OutputExtractorDataType impl_output_type() const final { return opyn::OutputExtractorDataType::Float; }
-        OutputValueExtractor impl_output_value_extractor(const OpenSim::Component&) const final;
-        size_t impl_hash() const final;
-        bool impl_equals(const OutputExtractor&) const final;
+        osc::CStringView impl_name() const override { return name_; }
+        osc::CStringView impl_description() const override { return description_; }
+        OutputExtractorDataType impl_output_type() const override { return opyn::OutputExtractorDataType::Float; }
+        OutputValueExtractor impl_output_value_extractor(const OpenSim::Component&) const override;
+        size_t impl_hash() const override;
+        bool impl_equals(const OutputExtractor&) const override;
 
         osc::UID auxiliary_data_id_;
         std::string name_;

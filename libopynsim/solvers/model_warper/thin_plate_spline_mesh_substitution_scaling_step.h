@@ -43,7 +43,7 @@ namespace opyn
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache& scaling_cache,
             const ScalingParameters& parameters,
-            const OpenSim::Model& source_model) const final
+            const OpenSim::Model& source_model) const override
         {
             auto messages = ThinPlateSplineScalingStep::impl_validate(scaling_cache, parameters, source_model);
 
@@ -80,7 +80,7 @@ namespace opyn
             ScalingCache& cache,
             const ScalingParameters& parameters,
             const OpenSim::Model& source_model,
-            OpenSim::Model& result_model) const final
+            OpenSim::Model& result_model) const override
         {
             // Lookup/validate warping inputs.
             const auto common_params = calc_tps_scaling_step_common_params(parameters, source_model, result_model);

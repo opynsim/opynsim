@@ -71,7 +71,7 @@ namespace
             callbacks_.on_tick_begin();
         }
 
-        void impl_on_draw() final
+        void impl_on_draw() override
         {
             osc::App::upd().main_window_clear();
             ui_context_.on_start_new_frame();

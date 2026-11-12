@@ -44,7 +44,7 @@ namespace opyn
         std::vector<ScalingStepValidationMessage> impl_validate(
             ScalingCache&,
             const ScalingParameters&,
-            const OpenSim::Model& model) const final
+            const OpenSim::Model& model) const override
         {
             std::vector<ScalingStepValidationMessage> messages;
 
@@ -71,7 +71,7 @@ namespace opyn
             ScalingCache&,
             const ScalingParameters&,
             const OpenSim::Model&,
-            OpenSim::Model& result_model) const final
+            OpenSim::Model& result_model) const override
         {
             const auto* station = find_component<OpenSim::Station>(result_model, get_station_path());
             OSC_ASSERT_ALWAYS(station && "could not find a station in the model");

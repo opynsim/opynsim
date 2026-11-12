@@ -164,7 +164,7 @@ namespace
             return to_osc_transform_without_scaling(d).with_scale(get_scale_factors(d));
         }
 
-        void implementPointGeometry(const SimTK::DecorativePoint&) final
+        void implementPointGeometry(const SimTK::DecorativePoint&) override
         {
             [[maybe_unused]] static const bool s_shown_warning_once = [] {
                 osc::log_warn("this model uses implementPointGeometry, which is not yet implemented in OSC");
@@ -172,7 +172,7 @@ namespace
             }();
         }
 
-        void implementLineGeometry(const SimTK::DecorativeLine& d) final
+        void implementLineGeometry(const SimTK::DecorativeLine& d) override
         {
             const osc::Transform t = to_osc_transform(d);
             const osc::Vector3 p1 = t * osc::to<osc::Vector3>(d.getPoint1());
@@ -191,7 +191,7 @@ namespace
             });
         }
 
-        void implementBrickGeometry(const SimTK::DecorativeBrick& d) final
+        void implementBrickGeometry(const SimTK::DecorativeBrick& d) override
         {
             osc::Transform t = to_osc_transform(d);
             t.scale *= osc::to<osc::Vector3>(d.getHalfLengths());
@@ -204,7 +204,7 @@ namespace
             });
         }
 
-        void implementCylinderGeometry(const SimTK::DecorativeCylinder& d) final
+        void implementCylinderGeometry(const SimTK::DecorativeCylinder& d) override
         {
             const auto radius = static_cast<float>(d.getRadius());
             const auto half_height = static_cast<float>(d.getHalfHeight());
@@ -220,7 +220,7 @@ namespace
             });
         }
 
-        void implementCircleGeometry(const SimTK::DecorativeCircle& d) final
+        void implementCircleGeometry(const SimTK::DecorativeCircle& d) override
         {
             const auto radius = static_cast<float>(d.getRadius());
 
@@ -235,7 +235,7 @@ namespace
             });
         }
 
-        void implementSphereGeometry(const SimTK::DecorativeSphere& d) final
+        void implementSphereGeometry(const SimTK::DecorativeSphere& d) override
         {
             osc::Transform t = to_osc_transform(d);
             t.scale *= fixup_scale_factor_ * static_cast<float>(d.getRadius());
@@ -248,7 +248,7 @@ namespace
             });
         }
 
-        void implementEllipsoidGeometry(const SimTK::DecorativeEllipsoid& d) final
+        void implementEllipsoidGeometry(const SimTK::DecorativeEllipsoid& d) override
         {
             osc::Transform t = to_osc_transform(d);
             t.scale *= osc::to<osc::Vector3>(d.getRadii());
@@ -261,7 +261,7 @@ namespace
             });
         }
 
-        void implementFrameGeometry(const SimTK::DecorativeFrame& d) final
+        void implementFrameGeometry(const SimTK::DecorativeFrame& d) override
         {
             const osc::Transform t = to_osc_transform(d);
 
@@ -310,7 +310,7 @@ namespace
             }
         }
 
-        void implementTextGeometry(const SimTK::DecorativeText&) final
+        void implementTextGeometry(const SimTK::DecorativeText&) override
         {
             [[maybe_unused]] static const bool s_shown_warning_once = [] {
                 osc::log_warn("this model uses implementTextGeometry, which is not yet implemented in OSC");
@@ -318,7 +318,7 @@ namespace
             }();
         }
 
-        void implementMeshGeometry(const SimTK::DecorativeMesh& d) final
+        void implementMeshGeometry(const SimTK::DecorativeMesh& d) override
         {
             // the ID of an in-memory mesh is derived from the hash of its data
             //
@@ -341,7 +341,7 @@ namespace
             });
         }
 
-        void implementMeshFileGeometry(const SimTK::DecorativeMeshFile& d) final
+        void implementMeshFileGeometry(const SimTK::DecorativeMeshFile& d) override
         {
             const std::string& path = d.getMeshFile();
             const auto mesh_loader = [&d] {
@@ -356,7 +356,7 @@ namespace
             });
         }
 
-        void implementArrowGeometry(const SimTK::DecorativeArrow& d) final
+        void implementArrowGeometry(const SimTK::DecorativeArrow& d) override
         {
             const osc::Transform t = to_osc_transform_without_scaling(d);
             const osc::ArrowProperties p = {
@@ -371,7 +371,7 @@ namespace
             draw_arrow(mesh_cache_, p, consumer_);
         }
 
-        void implementTorusGeometry(const SimTK::DecorativeTorus& d) final
+        void implementTorusGeometry(const SimTK::DecorativeTorus& d) override
         {
             const auto tube_center_radius = static_cast<float>(d.getTorusRadius());
             const auto tube_radius = static_cast<float>(d.getTubeRadius());
@@ -384,7 +384,7 @@ namespace
             });
         }
 
-        void implementConeGeometry(const SimTK::DecorativeCone& d) final
+        void implementConeGeometry(const SimTK::DecorativeCone& d) override
         {
             const osc::Transform t = to_osc_transform(d);
 
