@@ -40,7 +40,7 @@ namespace
         return s_tab_names;
     }
 
-    // NOLINTNEXT(cppcoreguidelines-avoid-non-const-global-variables)
+    // NOLINTNEXTLINE
     std::unique_ptr<OpenSimCreatorApp> g_app;
     class RegisteredOpenSimCreatorTabsFixture : public testing::TestWithParam<std::string> {
     protected:
