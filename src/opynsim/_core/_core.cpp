@@ -1270,6 +1270,9 @@ void opyn::destroy_lazy_loaded_opynsim_app()
 
 NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables,misc-use-anonymous-namespace)
 {
+    // Disable type/instance leak checks (for now ;)).
+    nb::set_leak_warnings(false);
+
     // Install an exit handler that cleans up any lazy-loaded application state
     // when the Python interpreter shuts down
     nb::module_::import_("atexit").attr("register")(nb::cpp_function(&destroy_lazy_loaded_opynsim_app));
