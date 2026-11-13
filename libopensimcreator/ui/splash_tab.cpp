@@ -74,9 +74,7 @@ namespace
 
     // helper: draws an ui::draw_menu_item for a given recent- or example-file-path
     void draw_recent_or_example_file_menu_item(
-        const std::filesystem::path& path,
-        Widget& parent,
-        int& imgui_id)
+        const std::filesystem::path& path, Widget& parent, int& imgui_id)
     {
         const std::string label = std::string{MSMICONS_FILE} + " " + path.filename().string();
 
@@ -117,10 +115,7 @@ public:
         App::upd().make_main_loop_waiting();
     }
 
-    void on_unmount()
-    {
-        App::upd().make_main_loop_polling();
-    }
+    void on_unmount() { App::upd().make_main_loop_polling(); }
 
     bool on_event(Event& e)
     {
@@ -161,12 +156,26 @@ private:
         const auto tab_ui_rect_corners = ui::get_main_window_workspace_ui_rect().corners();
         const Rect tab_ui_rect_without_bar = Rect::from_corners(
             tab_ui_rect_corners.min,
-            tab_ui_rect_corners.max - Vector2{0.0f, max(tud_logo_.dimensions().y(), czi_logo_.dimensions().y()) - 2.0f * ui::get_style_panel_padding().y()});
+            tab_ui_rect_corners.max -
+                Vector2{
+                    0.0f,
+                    max(tud_logo_.dimensions().y(), czi_logo_.dimensions().y()) -
+                        2.0f * ui::get_style_panel_padding().y()});
 
-        const Vector2 menu_and_top_logo_dims = elementwise_min(tab_ui_rect_without_bar.dimensions(), Vector2{splash_menu_max_dims_.x(), splash_menu_max_dims_.y() + main_app_logo_dims_.y() + top_logo_padding_.y()});
-        const Vector2 menu_and_top_logo_top_left = tab_ui_rect_without_bar.ypd_top_left() + 0.5f * (tab_ui_rect_without_bar.dimensions() - menu_and_top_logo_dims);
-        const Vector2 menu_dims = {menu_and_top_logo_dims.x(), menu_and_top_logo_dims.y() - main_app_logo_dims_.y() - top_logo_padding_.y()};
-        const Vector2 menu_top_left = Vector2{menu_and_top_logo_top_left.x(), menu_and_top_logo_top_left.y() + main_app_logo_dims_.y() + top_logo_padding_.y()};
+        const Vector2 menu_and_top_logo_dims = elementwise_min(
+            tab_ui_rect_without_bar.dimensions(),
+            Vector2{
+                splash_menu_max_dims_.x(),
+                splash_menu_max_dims_.y() + main_app_logo_dims_.y() + top_logo_padding_.y()});
+        const Vector2 menu_and_top_logo_top_left =
+            tab_ui_rect_without_bar.ypd_top_left() +
+            0.5f * (tab_ui_rect_without_bar.dimensions() - menu_and_top_logo_dims);
+        const Vector2 menu_dims = {
+            menu_and_top_logo_dims.x(),
+            menu_and_top_logo_dims.y() - main_app_logo_dims_.y() - top_logo_padding_.y()};
+        const Vector2 menu_top_left = Vector2{
+            menu_and_top_logo_top_left.x(),
+            menu_and_top_logo_top_left.y() + main_app_logo_dims_.y() + top_logo_padding_.y()};
 
         return Rect::from_corners(menu_top_left, menu_top_left + menu_dims);
     }
@@ -195,7 +204,9 @@ private:
 
         SceneRendererParams params{last_scene_renderer_params_};
         params.dimensions = workspace_ui_rect.dimensions();
-        params.device_pixel_ratio = App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio(),
+        params.device_pixel_ratio =
+            App::settings().get_value<float>("graphics/render_scale", 1.0f) *
+            App::get().main_window_device_pixel_ratio(),
         params.anti_aliasing_level = App::get().anti_aliasing_level();
         params.projection_matrix = camera_.projection_matrix(aspect_ratio_of(workspace_ui_rect));
 
@@ -271,7 +282,9 @@ private:
             open_url_in_os_default_web_browser(joss_url);
             set_clipboard_text(joss_url);
         }
-        ui::draw_tooltip_if_item_hovered(joss_url, "Click to open in your default browser and, additionally, copy the link to the clipboard (in case the browser doesn't open)");
+        ui::draw_tooltip_if_item_hovered(
+            joss_url,
+            "Click to open in your default browser and, additionally, copy the link to the clipboard (in case the browser doesn't open)");
     }
 
     void draw_workflows_menu_section_content()
@@ -303,10 +316,7 @@ private:
         const auto recent_files = App::singleton<RecentFiles>();
         if (not recent_files->empty()) {
             for (const RecentFile& rf : *recent_files) {
-                draw_recent_or_example_file_menu_item(
-                    rf.path,
-                    *parent(),
-                    imgui_id);
+                draw_recent_or_example_file_menu_item(rf.path, *parent(), imgui_id);
             }
         } else {
             ui::push_style_color(ui::ColorVar::Text, Color::dark_grey());
@@ -345,11 +355,10 @@ private:
             ui::draw_text_disabled("Example Models");
             ui::draw_vertical_spacer(2.0f / 15.0f);
 
-            for (const std::filesystem::path& example_path : main_menu_file_tab_->example_osim_files) {
-                draw_recent_or_example_file_menu_item(
-                    example_path,
-                    *parent(),
-                    imgui_id);
+            for (const std::filesystem::path& example_path :
+                 main_menu_file_tab_->example_osim_files) {
+
+                draw_recent_or_example_file_menu_item(example_path, *parent(), imgui_id);
             }
         }
     }
@@ -358,8 +367,10 @@ private:
     {
         const Rect workspace_ui_rect = ui::get_main_window_workspace_ui_rect();
         Vector2 loc = workspace_ui_rect.ypd_bottom_right();
-        loc.x() = loc.x() - 2.0f * ui::get_style_panel_padding().x() - czi_logo_.dimensions().x() - 2.0f * ui::get_style_item_spacing().x() - tud_logo_.dimensions().x();
-        loc.y() = loc.y() - 2.0f * ui::get_style_panel_padding().y() - max(czi_logo_.dimensions().y(), tud_logo_.dimensions().y());
+        loc.x() = loc.x() - 2.0f * ui::get_style_panel_padding().x() - czi_logo_.dimensions().x() -
+                  2.0f * ui::get_style_item_spacing().x() - tud_logo_.dimensions().x();
+        loc.y() = loc.y() - 2.0f * ui::get_style_panel_padding().y() -
+                  max(czi_logo_.dimensions().y(), tud_logo_.dimensions().y());
 
         ui::set_next_panel_ui_position(loc);
         ui::begin_panel("##czlogo", nullptr, ui::get_minimal_panel_flags());
@@ -379,7 +390,8 @@ private:
         const float h = ui::get_font_base_size_with_spacing();
         const float padding = 5.0f;
 
-        const Vector2 position{tab_ui_rect.left() + padding, tab_ui_rect.ypd_bottom() - h - padding};
+        const Vector2 position{
+            tab_ui_rect.left() + padding, tab_ui_rect.ypd_bottom() - h - padding};
 
         ui::DrawListView dl = ui::get_foreground_draw_list();
         const std::string text = App::get().application_name_with_version_and_buildid();
@@ -391,11 +403,21 @@ private:
     SceneRenderer scene_renderer_{
         *App::singleton<SceneCache>(App::resource_loader()),
     };
-    SceneRendererParams last_scene_renderer_params_ = get_splash_screen_default_render_params(camera_);
+    SceneRendererParams last_scene_renderer_params_ =
+        get_splash_screen_default_render_params(camera_);
 
-    Texture2D main_app_logo_ = SVG::read_into_texture(App::open_resource("OpenSimCreator/textures/banner.svg"), 1.0f, App::get().highest_device_pixel_ratio());
-    Texture2D czi_logo_ = SVG::read_into_texture(App::open_resource("OpenSimCreator/textures/chanzuckerberg_logo.svg"), 0.5f, App::get().highest_device_pixel_ratio());
-    Texture2D tud_logo_ = SVG::read_into_texture(App::open_resource("OpenSimCreator/textures/tudelft_logo.svg"), 0.5f, App::get().highest_device_pixel_ratio());
+    Texture2D main_app_logo_ = SVG::read_into_texture(
+        App::open_resource("OpenSimCreator/textures/banner.svg"),
+        1.0f,
+        App::get().highest_device_pixel_ratio());
+    Texture2D czi_logo_ = SVG::read_into_texture(
+        App::open_resource("OpenSimCreator/textures/chanzuckerberg_logo.svg"),
+        0.5f,
+        App::get().highest_device_pixel_ratio());
+    Texture2D tud_logo_ = SVG::read_into_texture(
+        App::open_resource("OpenSimCreator/textures/tudelft_logo.svg"),
+        0.5f,
+        App::get().highest_device_pixel_ratio());
 
     // dimensions of stuff
     Vector2 splash_menu_max_dims_ = {640.0f, 512.0f};
@@ -410,8 +432,23 @@ private:
 osc::SplashTab::SplashTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::SplashTab::impl_on_mount() { private_data().on_mount(); }
-void osc::SplashTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::SplashTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::SplashTab::impl_on_draw_main_menu() { private_data().draw_main_menu(); }
-void osc::SplashTab::impl_on_draw() { private_data().on_draw(); }
+void osc::SplashTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::SplashTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::SplashTab::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::SplashTab::impl_on_draw_main_menu()
+{
+    private_data().draw_main_menu();
+}
+void osc::SplashTab::impl_on_draw()
+{
+    private_data().on_draw();
+}

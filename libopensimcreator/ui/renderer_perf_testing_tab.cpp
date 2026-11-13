@@ -66,16 +66,14 @@ public:
         App::upd().set_vsync_enabled(false);
     }
 
-    void on_unmount() const
-    {
-        App::upd().set_vsync_enabled(was_v_sync_enabled_);
-    }
+    void on_unmount() const { App::upd().set_vsync_enabled(was_v_sync_enabled_); }
 
     void on_tick()
     {
         const auto dt = App::get().frame_delta_since_last_frame();
         if (not paused_) {
-            orbit_camera_controller_.theta = mod(orbit_camera_controller_.theta + (90_deg * dt.count()), 360_deg);
+            orbit_camera_controller_.theta =
+                mod(orbit_camera_controller_.theta + (90_deg * dt.count()), 360_deg);
             orbit_camera_controller_.update_camera(model_renderer_params_.camera);
             frame_time_accumulator_.accumulate(dt);
         }
@@ -89,8 +87,12 @@ public:
             generate_decorations();
         }
         if (std::exchange(first_frame_, false)) {
-            if (const std::optional<AABB> scene_aabb = bounding_aabb_of(decorations_, &SceneDecoration::world_space_bounds)) {
-                orbit_camera_controller_.focus_on(*scene_aabb, model_renderer_params_.camera, aspect_ratio_of(workspace_screen_rect));
+            if (const std::optional<AABB> scene_aabb =
+                    bounding_aabb_of(decorations_, &SceneDecoration::world_space_bounds)) {
+                orbit_camera_controller_.focus_on(
+                    *scene_aabb,
+                    model_renderer_params_.camera,
+                    aspect_ratio_of(workspace_screen_rect));
                 orbit_camera_controller_.update_camera(model_renderer_params_.camera);
             }
         }
@@ -120,7 +122,8 @@ private:
         return opyn::calc_scene_renderer_params(
             model_renderer_params_,
             workspace_screen_rect.dimensions(),
-            App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio(),
+            App::settings().get_value<float>("graphics/render_scale", 1.0f) *
+                App::get().main_window_device_pixel_ratio(),
             App::get().anti_aliasing_level(),
             1.0f);
     }
@@ -128,9 +131,7 @@ private:
     void generate_decorations()
     {
         decorations_ = generate_model_decorations(
-            scene_cache_,
-            model_,
-            model_renderer_params_.decoration_options);
+            scene_cache_, model_, model_renderer_params_.decoration_options);
     }
 
     bool first_frame_ = true;
@@ -147,11 +148,14 @@ private:
 
     UndoableModelStatePair model_ = [] {
         UndoableModelStatePair msp;
-        const ResourcePath rajagopal_path{"OpenSimCreator/models/RajagopalModel/Rajagopal2016.osim"};
+        const ResourcePath rajagopal_path{
+            "OpenSimCreator/models/RajagopalModel/Rajagopal2016.osim"};
         if (const auto rajagopal = App::resource_filepath(rajagopal_path)) {
             msp = UndoableModelStatePair{*rajagopal};
         } else {
-            log_error("{}: no such resource found: falling back to a blank model", rajagopal_path.string());
+            log_error(
+                "{}: no such resource found: falling back to a blank model",
+                rajagopal_path.string());
         }
         action_enable_all_wrapping_surfaces(msp);
         return msp;
@@ -163,12 +167,27 @@ private:
         App::get().highest_device_pixel_ratio());
 };
 
-CStringView osc::RendererPerfTestingTab::id() { return "OpenSimCreator/RendererPerfTesting"; }
+CStringView osc::RendererPerfTestingTab::id()
+{
+    return "OpenSimCreator/RendererPerfTesting";
+}
 
 osc::RendererPerfTestingTab::RendererPerfTestingTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::RendererPerfTestingTab::impl_on_mount() { private_data().on_mount(); }
-void osc::RendererPerfTestingTab::impl_on_unmount() { private_data().on_unmount(); }
-void osc::RendererPerfTestingTab::impl_on_tick() { private_data().on_tick(); }
-void osc::RendererPerfTestingTab::impl_on_draw() { private_data().on_draw(); }
+void osc::RendererPerfTestingTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::RendererPerfTestingTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+void osc::RendererPerfTestingTab::impl_on_tick()
+{
+    private_data().on_tick();
+}
+void osc::RendererPerfTestingTab::impl_on_draw()
+{
+    private_data().on_draw();
+}

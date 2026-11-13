@@ -416,7 +416,6 @@ namespace
             App::upd().prompt_user_to_save_file_with_extension_async(
                 [doc = scaling_state_->upd_scratch().get_scaling_document_ptr()](
                     std::optional<std::filesystem::path> p) {
-
                     if (not p) {
                         return;  // user cancelled out of the prompt
                     }

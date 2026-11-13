@@ -54,16 +54,17 @@ namespace rgs = std::ranges;
 namespace
 {
     std::unique_ptr<Tab> load_configuration_defined_tab_if_necessary(
-        const AppSettings& settings,
-        const TabRegistry& tab_registry,
-        Widget& parent)
+        const AppSettings& settings, const TabRegistry& tab_registry, Widget& parent)
     {
         if (auto maybe_requested_tab = settings.find_value("initial_tab")) {
-            if (std::optional<TabRegistryEntry> maybe_entry = tab_registry.find_by_name(to<std::string>(*maybe_requested_tab))) {
+            if (std::optional<TabRegistryEntry> maybe_entry =
+                    tab_registry.find_by_name(to<std::string>(*maybe_requested_tab))) {
                 return maybe_entry->construct_tab(&parent);
             }
 
-            log_warn("{}: cannot find a tab with this name in the tab registry: ignoring", to<std::string>(*maybe_requested_tab));
+            log_warn(
+                "{}: cannot find a tab with this name in the tab registry: ignoring",
+                to<std::string>(*maybe_requested_tab));
             log_warn("available tabsWithUnsavedChanges are:");
             for (auto&& tab_registry_entry : tab_registry) {
                 log_warn("    {}", tab_registry_entry.name());
@@ -77,7 +78,8 @@ namespace
     {
         std::stringstream ss;
         if (tabs_with_unsaved_changes.size() > 1) {
-            ss << tabs_with_unsaved_changes.size() << " tabsWithUnsavedChanges have unsaved changes:\n";
+            ss << tabs_with_unsaved_changes.size()
+               << " tabsWithUnsavedChanges have unsaved changes:\n";
         } else {
             ss << "A tab has unsaved changes:\n";
         }
@@ -127,7 +129,8 @@ public:
     {
         if (e.combination() == (ModifierKey::Ctrl | Key::PageUp) or
             e.combination() == (ModifierKey::Ctrl | ModifierKey::Alt | Key::LeftArrow)) {
-            // `Ctrl+PageUp` or `Ctrl+Alt+Left`: focus the tab to the left of the currently-active tab
+            // `Ctrl+PageUp` or `Ctrl+Alt+Left`: focus the tab to the left of the currently-active
+            // tab
             auto it = find_tab_by_id(active_tab_id_);
             if (it != tabs_.begin() and it != tabs_.end()) {
                 --it;  // previous
@@ -137,7 +140,8 @@ public:
         }
         if (e.combination() == (ModifierKey::Ctrl | Key::PageDown) or
             e.combination() == (ModifierKey::Ctrl | ModifierKey::Alt | Key::RightArrow)) {
-            // `Ctrl+PageDown` or `Ctrl+Alt+Right`: focus the tab to the right of the currently-active tab
+            // `Ctrl+PageDown` or `Ctrl+Alt+Right`: focus the tab to the right of the
+            // currently-active tab
             auto it = find_tab_by_id(active_tab_id_);
             if (it != tabs_.end() - 1) {
                 ++it;  // next
@@ -145,7 +149,8 @@ public:
             }
             return true;
         }
-        if (e.combination() == (ModifierKey::Ctrl | Key::W) and tabs_.size() > 1 and active_tab_id_ != tabs_.front()->id()) {
+        if (e.combination() == (ModifierKey::Ctrl | Key::W) and tabs_.size() > 1 and
+            active_tab_id_ != tabs_.front()->id()) {
             // `Ctrl+W`: close the current tab - unless it's the splash tab
             impl_close_tab(active_tab_id_);
             return true;
@@ -163,10 +168,7 @@ public:
         return false;
     }
 
-    UID add_tab(std::unique_ptr<Tab> tab)
-    {
-        return impl_add_tab(std::move(tab));
-    }
+    UID add_tab(std::unique_ptr<Tab> tab) { return impl_add_tab(std::move(tab)); }
 
     void open(const std::filesystem::path& p)
     {
@@ -185,7 +187,8 @@ public:
 
             // if the application configuration has requested that a specific tab should be opened,
             // then try looking it up and open it
-            if (auto tab = load_configuration_defined_tab_if_necessary(App::settings(), *App::singleton<TabRegistry>(), owner())) {
+            if (auto tab = load_configuration_defined_tab_if_necessary(
+                    App::settings(), *App::singleton<TabRegistry>(), owner())) {
                 add_tab(std::move(tab));
             }
 
@@ -207,7 +210,9 @@ public:
                 // - soak up the exception to prevent the whole application from terminating
                 // - and emit the error to the log, because we have to assume that this
                 //   screen is about to die (it's being unmounted)
-                log_error("MainUIScreen::on_unmount: unmounting active tab threw an exception: {}", ex.what());
+                log_error(
+                    "MainUIScreen::on_unmount: unmounting active tab threw an exception: {}",
+                    ex.what());
             }
 
             active_tab_id_ = UID::empty();
@@ -216,10 +221,8 @@ public:
 
     bool on_event(Event& e)
     {
-        if (e.type() == EventType::KeyDown or
-            e.type() == EventType::KeyUp or
-            e.type() == EventType::MouseButtonUp or
-            e.type() == EventType::MouseMove or
+        if (e.type() == EventType::KeyDown or e.type() == EventType::KeyUp or
+            e.type() == EventType::MouseButtonUp or e.type() == EventType::MouseMove or
             e.type() == EventType::MouseWheel) {
 
             // if the user just potentially changed something via a mouse/keyboard
@@ -231,7 +234,8 @@ public:
 
         bool handled = false;
 
-        if (e.type() == EventType::KeyUp and dynamic_cast<const KeyEvent&>(e).combination() == (ModifierKey::Ctrl | Key::P)) {
+        if (e.type() == EventType::KeyUp and
+            dynamic_cast<const KeyEvent&>(e).combination() == (ModifierKey::Ctrl | Key::P)) {
             // `Ctrl+P`: "take a screenshot"
             maybe_screenshot_request_ = App::upd().main_window_request_screenshot();
             handled = true;
@@ -248,13 +252,15 @@ public:
             bool at_least_one_tab_handled_quit = false;
             for (int i = 0; i < static_cast<int>(tabs_.size()); ++i) {
                 try {
-                    at_least_one_tab_handled_quit = tabs_[i]->on_event(e) || at_least_one_tab_handled_quit;
+                    at_least_one_tab_handled_quit =
+                        tabs_[i]->on_event(e) || at_least_one_tab_handled_quit;
                 } catch (const std::exception& ex) {
                     log_error("MainUIScreen::on_event: exception thrown by tab: {}", ex.what());
 
                     // - the tab is faulty in some way
                     // - soak up the exception to prevent the whole application from terminating
-                    // - then create a new tab containing the error message, so the user can see the error
+                    // - then create a new tab containing the error message, so the user can see the
+                    // error
                     const UID id = add_tab(std::make_unique<ErrorTab>(owner(), ex));
                     impl_select_tab(id);
                     impl_close_tab(tabs_[i]->id());
@@ -291,7 +297,8 @@ public:
             impl_close_tab(close_tab_ev->tabid_to_close());
             handled = true;
         } else if (auto* open_file_ev = dynamic_cast<OpenFileEvent*>(&e)) {
-            impl_select_tab(impl_add_tab(std::make_unique<LoadingTab>(&owner(), open_file_ev->path())));
+            impl_select_tab(
+                impl_add_tab(std::make_unique<LoadingTab>(&owner(), open_file_ev->path())));
             handled = true;
         } else if (dynamic_cast<ResetUIContextEvent*>(&e)) {
             impl_reset_imgui();
@@ -307,7 +314,8 @@ public:
 
                 // - the tab is faulty in some way
                 // - soak up the exception to prevent the whole application from terminating
-                // - then create a new tab containing the error message, so the user can see the error
+                // - then create a new tab containing the error message, so the user can see the
+                // error
                 UID id = add_tab(std::make_unique<ErrorTab>(owner(), ex));
                 impl_select_tab(id);
                 impl_close_tab(active_tab_id_);
@@ -353,7 +361,8 @@ public:
 
                 // - the tab is faulty in some way
                 // - soak up the exception to prevent the whole application from terminating
-                // - then create a new tab containing the error message, so the user can see the error
+                // - then create a new tab containing the error message, so the user can see the
+                // error
                 const UID id = add_tab(std::make_unique<ErrorTab>(owner(), ex));
                 impl_select_tab(id);
                 impl_close_tab(tabs_[i]->id());
@@ -412,18 +421,22 @@ public:
                     try {
                         active->on_draw_main_menu();
                     } catch (const std::exception& ex) {
-                        log_error("MainUIScreen::drawTabSpecificMenu: tab thrown an exception: {}", ex.what());
+                        log_error(
+                            "MainUIScreen::drawTabSpecificMenu: tab thrown an exception: {}",
+                            ex.what());
 
                         // - the tab is faulty in some way
                         // - soak up the exception to prevent the whole application from terminating
-                        // - then create a new tab containing the error message, so the user can see the error
+                        // - then create a new tab containing the error message, so the user can see
+                        // the error
                         const UID id = add_tab(std::make_unique<ErrorTab>(owner(), ex));
                         impl_select_tab(id);
                         impl_close_tab(active_tab_id_);
                     }
 
                     if (ui_was_aggressively_reset_) {
-                        return;  // must return here to prevent the ImGui end_panel calls from erroring
+                        // must return here to prevent the ImGui end_panel calls from erroring
+                        return;
                     }
                 }
                 ui::end_menu_bar();
@@ -459,7 +472,9 @@ public:
                             flags |= ui::TabItemFlag::SetSelected;
                         }
 
-                        if (tabs_[i]->id() == active_tab_id_ and tabs_[i]->name() != active_tab_name_last_frame_) {
+                        if (tabs_[i]->id() == active_tab_id_ and
+                            tabs_[i]->name() != active_tab_name_last_frame_) {
+
                             flags |= ui::TabItemFlag::SetSelected;
                             active_tab_name_last_frame_ = tabs_[i]->name();
                         }
@@ -538,9 +553,10 @@ public:
 
                 // - the tab is faulty in some way
                 // - soak up the exception to prevent the whole application from terminating
-                // - then create a new tab containing the error message, so the user can see the error
-                // - and indicate that the UI was aggressively reset, because the drawcall may have thrown midway
-                //   through rendering the 2D UI
+                // - then create a new tab containing the error message, so the user can see the
+                //   error
+                // - and indicate that the UI was aggressively reset, because the drawcall may have
+                //   thrown midway through rendering the 2D UI
                 const UID id = add_tab(std::make_unique<ErrorTab>(owner(), ex));
                 impl_select_tab(id);
                 impl_close_tab(active_tab_id_);
@@ -596,15 +612,9 @@ public:
         return it != tabs_.end() ? it->get() : nullptr;
     }
 
-    Tab* get_active_tab()
-    {
-        return get_tab_by_id(active_tab_id_);
-    }
+    Tab* get_active_tab() { return get_tab_by_id(active_tab_id_); }
 
-    Tab* get_requested_tab()
-    {
-        return get_tab_by_id(requested_tab_);
-    }
+    Tab* get_requested_tab() { return get_tab_by_id(requested_tab_); }
 
     UID impl_add_tab(std::unique_ptr<Tab> tab)
     {
@@ -612,15 +622,9 @@ public:
         return tabs_.emplace_back(std::move(tab))->id();
     }
 
-    void impl_select_tab(UID id)
-    {
-        requested_tab_ = id;
-    }
+    void impl_select_tab(UID id) { requested_tab_ = id; }
 
-    void impl_close_tab(UID id)
-    {
-        deleted_tabs_.insert(id);
-    }
+    void impl_close_tab(UID id) { deleted_tabs_.insert(id); }
 
     void nuke_deleted_tabs()
     {
@@ -631,7 +635,8 @@ public:
                 if (id == active_tab_id_) {
                     (*it)->on_unmount();
                     active_tab_id_ = UID::empty();
-                    lowest_deleted_tab = min(lowest_deleted_tab, static_cast<int>(std::distance(tabs_.begin(), it)));
+                    lowest_deleted_tab =
+                        min(lowest_deleted_tab, static_cast<int>(std::distance(tabs_.begin(), it)));
                 }
                 tabs_.erase(it);
             }
@@ -683,10 +688,7 @@ public:
         }
     }
 
-    void impl_reset_imgui()
-    {
-        ui_was_aggressively_reset_ = true;
-    }
+    void impl_reset_imgui() { ui_was_aggressively_reset_ = true; }
 
     void try_handle_screenshot_request()
     {
@@ -694,8 +696,11 @@ public:
             return;  // probably empty/errored
         }
 
-        if (maybe_screenshot_request_.valid() and maybe_screenshot_request_.wait_for(0s) == std::future_status::ready) {
-            const UID tab_id = add_tab(std::make_unique<ScreenshotTab>(&owner(), maybe_screenshot_request_.get()));
+        if (maybe_screenshot_request_.valid() and
+            maybe_screenshot_request_.wait_for(0s) == std::future_status::ready) {
+
+            const UID tab_id =
+                add_tab(std::make_unique<ScreenshotTab>(&owner(), maybe_screenshot_request_.get()));
             impl_select_tab(tab_id);
         }
     }
@@ -756,9 +761,7 @@ private:
                 if (maybe_active_async_save_) {
                     if (const auto result = maybe_active_async_save_->try_pop_result()) {
                         switch (*result) {
-                        case TabSaveResult::Done:
-                            async_prompt_queue_.pop_back();
-                            break;
+                        case TabSaveResult::Done: async_prompt_queue_.pop_back(); break;
                         case TabSaveResult::Cancelled:
                             user_wants_to_start_saving_files_ = false;
                             break;
@@ -767,8 +770,11 @@ private:
                     }
                 }
 
-                // 2) launch next request, if we're not currently handling one and there's one waiting
-                if (user_wants_to_start_saving_files_ and not maybe_active_async_save_ and not async_prompt_queue_.empty()) {
+                // 2) launch next request, if we're not currently handling one and there's one
+                // waiting
+                if (user_wants_to_start_saving_files_ and not maybe_active_async_save_ and
+                    not async_prompt_queue_.empty()) {
+
                     if (Tab* next_tab = parent_->get_tab_by_id(async_prompt_queue_.back())) {
                         maybe_active_async_save_.emplace(*next_tab);
                     } else {
@@ -787,10 +793,7 @@ private:
             }
         }
 
-        bool is_closed()
-        {
-            return not popup_.is_open();
-        }
+        bool is_closed() { return not popup_.is_open(); }
 
     private:
         // called by the "save changes?" popup when user opts to save changes
@@ -869,7 +872,8 @@ private:
     // `true` if the this is midway through trying to quit
     bool quit_requested_ = false;
 
-    // true if the UI context was aggressively reset by a tab (and, therefore, this screen should reset the UI)
+    // true if the UI context was aggressively reset by a tab (and, therefore, this screen should
+    // reset the UI)
     bool ui_was_aggressively_reset_ = false;
 
     // `valid` if the user has requested a screenshot (that hasn't yet been handled)
@@ -880,9 +884,27 @@ osc::MainUIScreen::MainUIScreen() :
     Widget{std::make_unique<Impl>(*this)}
 {}
 osc::MainUIScreen::~MainUIScreen() noexcept = default;
-void osc::MainUIScreen::open(const std::filesystem::path& path) { private_data().open(path); }
-void osc::MainUIScreen::impl_on_mount() { private_data().on_mount(); }
-void osc::MainUIScreen::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::MainUIScreen::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::MainUIScreen::impl_on_tick() { private_data().on_tick(); }
-void osc::MainUIScreen::impl_on_draw() { private_data().on_draw(); }
+void osc::MainUIScreen::open(const std::filesystem::path& path)
+{
+    private_data().open(path);
+}
+void osc::MainUIScreen::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::MainUIScreen::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::MainUIScreen::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::MainUIScreen::impl_on_tick()
+{
+    private_data().on_tick();
+}
+void osc::MainUIScreen::impl_on_draw()
+{
+    private_data().on_draw();
+}

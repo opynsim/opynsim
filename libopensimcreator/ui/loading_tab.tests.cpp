@@ -24,20 +24,11 @@ namespace
             return loading_tab_.on_event(e);
         }
 
-        void impl_on_mount() override
-        {
-            loading_tab_.on_mount();
-        }
+        void impl_on_mount() override { loading_tab_.on_mount(); }
 
-        void impl_on_unmount() override
-        {
-            loading_tab_.on_unmount();
-        }
+        void impl_on_unmount() override { loading_tab_.on_unmount(); }
 
-        void impl_on_tick() override
-        {
-            loading_tab_.on_tick();
-        }
+        void impl_on_tick() override { loading_tab_.on_tick(); }
 
         void impl_on_draw() override
         {
@@ -52,7 +43,11 @@ namespace
 
         ui::Context ui_context_{App::upd()};
         size_t num_frames_after_loading_ = 2;
-        LoadingTab loading_tab_{this, std::filesystem::weakly_canonical(std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "models" / "Blank" / "blank.osim")};
+        LoadingTab loading_tab_{
+            this,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{OSC_TESTING_RESOURCES_DIR} / "models" / "Blank" /
+                "blank.osim")};
     };
 }
 

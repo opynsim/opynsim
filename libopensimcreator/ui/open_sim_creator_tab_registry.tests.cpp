@@ -40,18 +40,13 @@ namespace
         return s_tab_names;
     }
 
-    std::unique_ptr<OpenSimCreatorApp> g_app;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+    // NOLINTNEXT(cppcoreguidelines-avoid-non-const-global-variables)
+    std::unique_ptr<OpenSimCreatorApp> g_app;
     class RegisteredOpenSimCreatorTabsFixture : public testing::TestWithParam<std::string> {
     protected:
-        static void SetUpTestSuite()
-        {
-            g_app = std::make_unique<OpenSimCreatorApp>();
-        }
+        static void SetUpTestSuite() { g_app = std::make_unique<OpenSimCreatorApp>(); }
 
-        static void TearDownTestSuite()
-        {
-            g_app.reset();
-        }
+        static void TearDownTestSuite() { g_app.reset(); }
     };
 }
 

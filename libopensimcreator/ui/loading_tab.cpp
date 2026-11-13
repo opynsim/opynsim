@@ -28,7 +28,8 @@ using namespace osc;
 
 namespace
 {
-    std::unique_ptr<UndoableModelStatePair> load_osim_into_undoable_model(const std::filesystem::path& p)
+    std::unique_ptr<UndoableModelStatePair> load_osim_into_undoable_model(
+        const std::filesystem::path& p)
     {
         return std::make_unique<UndoableModelStatePair>(p);
     }
@@ -36,10 +37,7 @@ namespace
 
 class osc::LoadingTab::Impl final : public TabPrivate {
 public:
-    explicit Impl(
-        LoadingTab& owner,
-        Widget* parent,
-        std::filesystem::path path) :
+    explicit Impl(LoadingTab& owner, Widget* parent, std::filesystem::path path) :
 
         TabPrivate{owner, parent, "LoadingTab"},
         osim_path_{std::move(path)},
@@ -66,7 +64,8 @@ public:
         // has already sucessfully taken the result away (below), but `on_tick` was
         // called again
         if (not loading_result_.valid()) {
-            loading_error_msg_ = "attempted to call `on_tick` on the loading screen after loading has finished";
+            loading_error_msg_ =
+                "attempted to call `on_tick` on the loading screen after loading has finished";
             return;
         }
 
@@ -78,7 +77,8 @@ public:
                 result = loading_result_.get();
             }
         } catch (const std::exception& ex) {
-            log_error("LoadingScreen::on_tick: exception thrown while loading model: {}", ex.what());
+            log_error(
+                "LoadingScreen::on_tick: exception thrown while loading model: {}", ex.what());
             loading_error_msg_ = ex.what();
             is_finished_loading_ = true;
             return;
@@ -91,7 +91,8 @@ public:
 
             // Post relevant "loaded" events to this widget, which should
             // propagate up to something that can handle them.
-            App::post_event<OpenTabEvent>(owner(), std::make_unique<ModelEditorTab>(&owner(), std::move(result)));
+            App::post_event<OpenTabEvent>(
+                owner(), std::make_unique<ModelEditorTab>(&owner(), std::move(result)));
             App::post_event<CloseTabEvent>(owner(), id());
             is_finished_loading_ = true;
         }
@@ -101,7 +102,8 @@ public:
     {
         const Rect workspace_ui_rect = ui::get_main_window_workspace_ui_rect();
         const Vector2 workspace_dims = workspace_ui_rect.dimensions();
-        const Vector2 menu_dims_guess = {0.3f * workspace_dims.x(), 6.0f * ui::get_font_base_size()};
+        const Vector2 menu_dims_guess = {
+            0.3f * workspace_dims.x(), 6.0f * ui::get_font_base_size()};
 
         // center the menu
         {
@@ -124,7 +126,8 @@ public:
                 ui::draw_vertical_spacer(5.0f / 15.0f);
 
                 if (ui::draw_button("try again")) {
-                    App::post_event<OpenTabEvent>(*parent(), std::make_unique<LoadingTab>(parent(), osim_path_));
+                    App::post_event<OpenTabEvent>(
+                        *parent(), std::make_unique<LoadingTab>(parent(), osim_path_));
                     App::post_event<CloseTabEvent>(*parent(), id());
                 }
             }
@@ -155,12 +158,19 @@ private:
     bool is_finished_loading_ = false;
 };
 
-osc::LoadingTab::LoadingTab(
-    Widget* parent,
-    std::filesystem::path path) :
+osc::LoadingTab::LoadingTab(Widget* parent, std::filesystem::path path) :
 
     Tab{std::make_unique<Impl>(*this, parent, std::move(path))}
 {}
-bool osc::LoadingTab::is_finished_loading() const { return private_data().is_finished_loading(); }
-void osc::LoadingTab::impl_on_tick() { private_data().on_tick(); }
-void osc::LoadingTab::impl_on_draw() { private_data().on_draw(); }
+bool osc::LoadingTab::is_finished_loading() const
+{
+    return private_data().is_finished_loading();
+}
+void osc::LoadingTab::impl_on_tick()
+{
+    private_data().on_tick();
+}
+void osc::LoadingTab::impl_on_draw()
+{
+    private_data().on_draw();
+}

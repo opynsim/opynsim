@@ -10,9 +10,7 @@ namespace osc
 
     class LoadingTab final : public Tab {
     public:
-        explicit LoadingTab(
-            Widget* parent,
-            std::filesystem::path);
+        explicit LoadingTab(Widget* parent, std::filesystem::path);
 
         bool is_finished_loading() const;
 
