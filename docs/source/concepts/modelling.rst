@@ -28,4 +28,4 @@ Typical modelling workflows follow some combination of these steps:
 5. If required, modify the :class:`opynsim.ModelState`.
 6. Use, or extract data from, the resulting :class:`opynsim.Model` + :class:`opynsim.ModelState` pair.
 
-See :doc:`../examples/plot-model-output-vs-property` for an example of this pattern.
+See :doc:`../examples/overlay-model-over-plot` for an example of this pattern.

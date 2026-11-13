@@ -39,14 +39,12 @@ Table of Contents
     concepts/configuration
     concepts/modelling
     concepts/tps3d
-    concepts/ui
 
 .. toctree::
     :maxdepth: 1
     :caption: Examples
 
     examples/overlay-model-over-plot
-    examples/plot-model-output-vs-property
     examples/render-model-to-png
     examples/render-motion-to-video-file
     examples/show-model-in-state

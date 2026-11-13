@@ -116,7 +116,7 @@ A shorthand version of the above would be:
 Visualize the Model in a State
 ------------------------------
 
-OPynSim supports :doc:`../concepts/ui`, which can be useful for
+OPynSim has UI support in its :mod:`opynsim.ui` module, which can be useful for
 visualizing and interacting with its datastructures.
 
 The :mod:`opynsim.ui` module provides high-level functions, such as
