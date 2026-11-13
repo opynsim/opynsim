@@ -139,11 +139,10 @@ private:
         }
 
         const Vector2 dimensions = Vector2{ui::get_content_region_available().x()};
-        const plot::PlotFlags flags =
-            plot::PlotFlags::NoMenus |      //
-            plot::PlotFlags::NoBoxSelect |  //
-            plot::PlotFlags::NoFrame |      //
-            plot::PlotFlags::NoTitle;
+        const plot::PlotFlags flags = plot::PlotFlags::NoMenus |      //
+                                      plot::PlotFlags::NoBoxSelect |  //
+                                      plot::PlotFlags::NoFrame |      //
+                                      plot::PlotFlags::NoTitle;
         if (plot::begin(name(), dimensions, flags)) {
 
             plot::setup_axes("x", "y");

@@ -220,8 +220,7 @@ public:
         }
 
         // show header
-        ui::set_cursor_ui_position(
-            panel_state.viewport_ui_rect.ypd_top_left() + Vector2{10.0f});
+        ui::set_cursor_ui_position(panel_state.viewport_ui_rect.ypd_top_left() + Vector2{10.0f});
         ui::draw_text("{} (ESC to cancel)", state_.popupParams.popup_header_text);
 
         // handle completion state (i.e. user selected enough components)

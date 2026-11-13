@@ -12,9 +12,7 @@ namespace osc
 
     class SimulationTab final : public Tab {
     public:
-        explicit SimulationTab(
-            Widget*,
-            std::shared_ptr<Simulation>);
+        explicit SimulationTab(Widget*, std::shared_ptr<Simulation>);
 
     private:
         void impl_on_mount() override;

@@ -11,9 +11,7 @@ namespace osc
     class SimulationToolbar final {
     public:
         explicit SimulationToolbar(
-            std::string_view label,
-            SimulatorUIAPI*,
-            std::shared_ptr<Simulation>);
+            std::string_view label, SimulatorUIAPI*, std::shared_ptr<Simulation>);
         SimulationToolbar(const SimulationToolbar&) = delete;
         SimulationToolbar(SimulationToolbar&&) noexcept;
         SimulationToolbar& operator=(const SimulationToolbar&) = delete;

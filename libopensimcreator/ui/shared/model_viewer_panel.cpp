@@ -354,7 +354,6 @@ namespace
                     const auto draw_caps = [](ui::DrawListView& dl,
                                               const ProjectedPoints& a,
                                               const ProjectedPoints& b) {
-
                         const auto draw_cap = [](ui::DrawListView& dl,
                                                  const Vector2& p1,
                                                  const Vector2& p2,
@@ -363,7 +362,8 @@ namespace
                             const Vector2 delta = p2 - p1;
                             const float delta_length = length(delta);
                             if (delta_length < 0.0001f) {
-                                // Don't draw a cap if the last two points are basically on top of each other
+                                // Don't draw a cap if the last two points are basically on top of
+                                // each other
                                 return;
                             }
                             const Vector2 line_direction = delta / delta_length;

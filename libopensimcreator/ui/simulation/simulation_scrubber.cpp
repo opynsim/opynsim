@@ -72,7 +72,8 @@ private:
     void draw_loop_button()
     {
         static_assert(num_options_v<SimulationUILoopingState> == 2);
-        bool looping = simulator_api_->get_simulation_looping_state() == SimulationUILoopingState::Looping;
+        bool looping =
+            simulator_api_->get_simulation_looping_state() == SimulationUILoopingState::Looping;
         if (ui::draw_checkbox("loop", &looping)) {
             if (looping) {
                 simulator_api_->set_simulation_looping_state(SimulationUILoopingState::Looping);
@@ -104,12 +105,14 @@ private:
             if (t_cur >= t_end) {
                 if (ui::draw_button(MSMICONS_REDO)) {
                     simulator_api_->set_simulation_scrub_time(t_start);
-                    simulator_api_->set_simulation_playback_state(SimulationUIPlaybackState::Playing);
+                    simulator_api_->set_simulation_playback_state(
+                        SimulationUIPlaybackState::Playing);
                 }
                 ui::draw_tooltip_if_item_hovered("Replay (Space)");
             } else {
                 if (ui::draw_button(MSMICONS_PLAY)) {
-                    simulator_api_->set_simulation_playback_state(SimulationUIPlaybackState::Playing);  // i.e. unpause
+                    simulator_api_->set_simulation_playback_state(
+                        SimulationUIPlaybackState::Playing);  // i.e. unpause
                 }
                 ui::draw_tooltip_if_item_hovered("Play (Space)");
             }
@@ -139,7 +142,8 @@ private:
 
     void draw_playback_speed_selector()
     {
-        ui::set_next_item_width(ui::calc_text_size("0.000x").x() + 2.0f * ui::get_style_frame_padding().x());
+        ui::set_next_item_width(
+            ui::calc_text_size("0.000x").x() + 2.0f * ui::get_style_frame_padding().x());
         float speed = simulator_api_->get_simulation_playback_speed();
         ui::draw_float_input("speed", &speed, 0.0f, 0.0f, "%.3f");
         if (ui::is_item_deactivated_after_edit()) {
@@ -165,7 +169,8 @@ private:
         ui::same_line();
 
         if (user_scrubbed) {
-            simulator_api_->set_simulation_scrub_time(SimulationClock::start() + SimulationClock::duration{static_cast<double>(v)});
+            simulator_api_->set_simulation_scrub_time(
+                SimulationClock::start() + SimulationClock::duration{static_cast<double>(v)});
         }
 
         if (ui::is_item_hovered()) {
@@ -195,6 +200,10 @@ osc::SimulationScrubber::SimulationScrubber(
     impl_{std::make_unique<Impl>(label, simulator_api, std::move(simulation))}
 {}
 osc::SimulationScrubber::SimulationScrubber(SimulationScrubber&&) noexcept = default;
-osc::SimulationScrubber& osc::SimulationScrubber::operator=(SimulationScrubber&&) noexcept = default;
+osc::SimulationScrubber& osc::SimulationScrubber::operator=(SimulationScrubber&&) noexcept =
+    default;
 osc::SimulationScrubber::~SimulationScrubber() noexcept = default;
-void osc::SimulationScrubber::on_draw() { impl_->on_draw(); }
+void osc::SimulationScrubber::on_draw()
+{
+    impl_->on_draw();
+}

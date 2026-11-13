@@ -130,4 +130,7 @@ osc::SimulationDetailsPanel::SimulationDetailsPanel(
 
     Panel{std::make_unique<Impl>(*this, parent, panel_name, simulator_uiapi, std::move(simulation))}
 {}
-void osc::SimulationDetailsPanel::impl_draw_content() { private_data().draw_content(); }
+void osc::SimulationDetailsPanel::impl_draw_content()
+{
+    private_data().draw_content();
+}

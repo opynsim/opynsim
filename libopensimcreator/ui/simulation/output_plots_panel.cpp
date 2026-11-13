@@ -56,11 +56,13 @@ public:
             ui::draw_button(MSMICONS_SAVE " Save All " MSMICONS_CARET_DOWN);
             if (ui::begin_popup_context_menu("##exportoptions", ui::PopupFlag::MouseButtonLeft)) {
                 if (ui::draw_menu_item("as CSV")) {
-                    simulator_uiapi_->try_prompt_to_save_all_outputs_as_csv(environment_->get_all_user_output_extractors());
+                    simulator_uiapi_->try_prompt_to_save_all_outputs_as_csv(
+                        environment_->get_all_user_output_extractors());
                 }
 
                 if (ui::draw_menu_item("as CSV (and open)")) {
-                    simulator_uiapi_->try_prompt_to_save_all_outputs_as_csv(environment_->get_all_user_output_extractors(), true);
+                    simulator_uiapi_->try_prompt_to_save_all_outputs_as_csv(
+                        environment_->get_all_user_output_extractors(), true);
                 }
 
                 ui::end_popup();
@@ -77,7 +79,8 @@ public:
             SimulationOutputPlot plot{simulator_uiapi_, output, 128.0f};
             plot.on_draw();
 
-            draw_output_name_column(output, true, simulator_uiapi_->try_get_current_simulation_state());
+            draw_output_name_column(
+                output, true, simulator_uiapi_->try_get_current_simulation_state());
             ui::same_line();
             if (ui::draw_button(MSMICONS_TRASH)) {
                 environment_->remove_user_output_extractor(output);
@@ -100,4 +103,7 @@ osc::OutputPlotsPanel::OutputPlotsPanel(
 
     Panel{std::make_unique<Impl>(*this, parent, panel_name, std::move(environment), api)}
 {}
-void osc::OutputPlotsPanel::impl_draw_content() { private_data().draw_content(); }
+void osc::OutputPlotsPanel::impl_draw_content()
+{
+    private_data().draw_content();
+}

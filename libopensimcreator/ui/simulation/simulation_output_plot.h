@@ -10,10 +10,7 @@ namespace osc
 
     class SimulationOutputPlot final {
     public:
-        explicit SimulationOutputPlot(
-            SimulatorUIAPI*,
-            opyn::SharedOutputExtractor,
-            float height);
+        explicit SimulationOutputPlot(SimulatorUIAPI*, opyn::SharedOutputExtractor, float height);
         SimulationOutputPlot(const SimulationOutputPlot&) = delete;
         SimulationOutputPlot(SimulationOutputPlot&&) noexcept;
         SimulationOutputPlot& operator=(const SimulationOutputPlot&) = delete;

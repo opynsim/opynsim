@@ -548,13 +548,19 @@ namespace
             // the easiest way to tackle this is to carefully track+name each frame definition
             // and trust in god by using linear algebra to figure out the rest. So, given:
             //
-            // - M_cpof1                    joint child offset frame to its parent transform (1: BEFORE)
+            // - M_cpof1                    joint child offset frame to its parent transform
+            //                              (1: BEFORE)
             // - M_j                        joint child-to-parent transform
-            // - M_ppof1                    joint parent offset frame to its parent transform (1: BEFORE)
-            // - M_ppof2                    joint parent offset frame to its parent transform (2: AFTER)
-            // - M_cpof2  **WE WANT THIS**  joint child offset frame to its parent transform (2: AFTER)
-            // - vcp                        an example quantity, expressed in the child's parent frame (e.g. a body)
-            // - vjp                        the same example quantity, but expressed in the joint's parent frame
+            // - M_ppof1                    joint parent offset frame to its parent transform
+            //                              (1: BEFORE)
+            // - M_ppof2                    joint parent offset frame to its parent transform
+            //                              (2: AFTER)
+            // - M_cpof2  **WE WANT THIS**  joint child offset frame to its parent transform
+            //                              (2: AFTER)
+            // - vcp                        an example quantity, expressed in the child's parent
+            //                              frame (e.g. a body)
+            // - vjp                        the same example quantity, but expressed in the joint's
+            //                              parent frame
             //
             // computing `vjp` from `vcp` involves going up the kinematic chain:
             //

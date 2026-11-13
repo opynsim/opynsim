@@ -37,7 +37,8 @@ namespace
         // Asynchronously prompt the user to select a save location and write the CSV
         // to it. If requested, open it in the user's default application.
         App::upd().prompt_user_to_save_file_with_extension_async(
-            [open_in_default_app, csv = std::move(ss).str()](std::optional<std::filesystem::path> p) {
+            [open_in_default_app,
+             csv = std::move(ss).str()](std::optional<std::filesystem::path> p) {
                 if (not p) {
                     return;  // user cancelled out of the prompt
                 }
@@ -61,12 +62,14 @@ namespace
     }
 }
 
-void osc::SimulatorUIAPI::try_prompt_to_save_outputs_as_csv(std::span<const opyn::SharedOutputExtractor> outputs, bool open_in_default_app) const
+void osc::SimulatorUIAPI::try_prompt_to_save_outputs_as_csv(
+    std::span<const opyn::SharedOutputExtractor> outputs, bool open_in_default_app) const
 {
     try_export_outputs_to_csv(get_simulation(), outputs, open_in_default_app);
 }
 
-void osc::SimulatorUIAPI::try_prompt_to_save_all_outputs_as_csv(std::span<const opyn::SharedOutputExtractor> outputs, bool open_in_default_app) const
+void osc::SimulatorUIAPI::try_prompt_to_save_all_outputs_as_csv(
+    std::span<const opyn::SharedOutputExtractor> outputs, bool open_in_default_app) const
 {
     try_export_outputs_to_csv(get_simulation(), outputs, open_in_default_app);
 }

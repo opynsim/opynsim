@@ -35,7 +35,7 @@ namespace osc
         ui::GizmoMode get_mode() { return gizmo_.mode(); }
         void set_mode(ui::GizmoMode mode) { gizmo_.set_mode(mode); }
 
-        operator ui::Gizmo&() { return gizmo_; }  // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
+        operator ui::Gizmo&() { return gizmo_; }
 
     private:
         std::shared_ptr<opyn::ModelStatePair> model_;

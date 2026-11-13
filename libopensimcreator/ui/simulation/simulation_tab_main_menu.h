@@ -12,9 +12,7 @@ namespace osc
     class SimulationTabMainMenu final : public Widget {
     public:
         explicit SimulationTabMainMenu(
-            Widget* parent,
-            std::shared_ptr<Simulation>,
-            std::shared_ptr<PanelManager>);
+            Widget* parent, std::shared_ptr<Simulation>, std::shared_ptr<PanelManager>);
 
     private:
         void impl_on_draw() override;

@@ -74,7 +74,9 @@ private:
     {
         ui::push_style_var(ui::StyleVar::ItemSpacing, {0.0f, 0.0f});
         ui::draw_text(MSMICONS_EXPAND_ALT);
-        ui::draw_tooltip_if_item_hovered("Scene Scale Factor", "Rescales decorations in the model by this amount. Changing this can be handy when working on extremely small/large models.");
+        ui::draw_tooltip_if_item_hovered(
+            "Scene Scale Factor",
+            "Rescales decorations in the model by this amount. Changing this can be handy when working on extremely small/large models.");
         ui::same_line();
 
         {
@@ -105,13 +107,14 @@ private:
 };
 
 osc::SimulationToolbar::SimulationToolbar(
-    std::string_view label,
-    SimulatorUIAPI* simulator_api,
-    std::shared_ptr<Simulation> simulation) :
+    std::string_view label, SimulatorUIAPI* simulator_api, std::shared_ptr<Simulation> simulation) :
 
     impl_{std::make_unique<Impl>(label, simulator_api, std::move(simulation))}
 {}
 osc::SimulationToolbar::SimulationToolbar(SimulationToolbar&&) noexcept = default;
 osc::SimulationToolbar& osc::SimulationToolbar::operator=(SimulationToolbar&&) noexcept = default;
 osc::SimulationToolbar::~SimulationToolbar() noexcept = default;
-void osc::SimulationToolbar::on_draw() { impl_->on_draw(); }
+void osc::SimulationToolbar::on_draw()
+{
+    impl_->on_draw();
+}
