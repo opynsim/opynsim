@@ -116,9 +116,6 @@ A shorthand version of the above would be:
 Visualize the Model in a State
 ------------------------------
 
-OPynSim has UI support in its :mod:`opynsim.ui` module, which can be useful for
-visualizing and interacting with its datastructures.
-
 The :mod:`opynsim.ui` module provides high-level functions, such as
 :func:`ui.show_model_in_state`, which visualizes a :class:`Model` in a
 single :class:`ModelState`. The state should be realized to
