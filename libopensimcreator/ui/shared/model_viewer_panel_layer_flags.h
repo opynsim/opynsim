@@ -17,12 +17,15 @@ namespace osc
         return (std::to_underlying(lhs) & std::to_underlying(rhs)) != 0u;
     }
 
-    constexpr ModelViewerPanelLayerFlags operator|(ModelViewerPanelLayerFlags lhs, ModelViewerPanelLayerFlags rhs)
+    constexpr ModelViewerPanelLayerFlags operator|(
+        ModelViewerPanelLayerFlags lhs, ModelViewerPanelLayerFlags rhs)
     {
-        return static_cast<ModelViewerPanelLayerFlags>(std::to_underlying(lhs) | std::to_underlying(rhs));
+        return static_cast<ModelViewerPanelLayerFlags>(
+            std::to_underlying(lhs) | std::to_underlying(rhs));
     }
 
-    constexpr ModelViewerPanelLayerFlags& operator|=(ModelViewerPanelLayerFlags& lhs, ModelViewerPanelLayerFlags rhs)
+    constexpr ModelViewerPanelLayerFlags& operator|=(
+        ModelViewerPanelLayerFlags& lhs, ModelViewerPanelLayerFlags rhs)
     {
         return lhs = lhs | rhs;
     }

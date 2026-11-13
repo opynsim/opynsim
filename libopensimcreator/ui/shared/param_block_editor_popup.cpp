@@ -123,10 +123,11 @@ private:
 };
 
 osc::ParamBlockEditorPopup::ParamBlockEditorPopup(
-    Widget* parent,
-    std::string_view popup_name,
-    ParamBlock* param_block) :
+    Widget* parent, std::string_view popup_name, ParamBlock* param_block) :
 
     Popup{std::make_unique<Impl>(*this, parent, popup_name, param_block)}
 {}
-void osc::ParamBlockEditorPopup::impl_draw_content() { private_data().draw_content(); }
+void osc::ParamBlockEditorPopup::impl_draw_content()
+{
+    private_data().draw_content();
+}

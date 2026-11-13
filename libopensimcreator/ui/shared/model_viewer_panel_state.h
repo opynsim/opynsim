@@ -27,19 +27,17 @@ namespace osc
 {
     class ModelViewerPanelState final {
     public:
-        explicit ModelViewerPanelState(
-            std::string_view panel_name,
-            ModelViewerPanelFlags);
+        explicit ModelViewerPanelState(std::string_view panel_name, ModelViewerPanelFlags);
 
         CStringView get_panel_name() const { return panel_name_; }
         ModelViewerPanelFlags flags() const { return flags_; }
 
-        Rect viewport_ui_rect;                                    // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-        bool is_left_click_released_without_dragging = false;     // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-        bool is_right_click_released_without_dragging = false;    // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-        std::optional<AABB> maybe_scene_visible_aabb;             // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-        std::optional<SceneCollision> maybe_base_layer_hittest;   // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
-        OpenSim::ComponentPath maybe_hovered_component_abs_path;  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes)
+        Rect viewport_ui_rect;
+        bool is_left_click_released_without_dragging = false;
+        bool is_right_click_released_without_dragging = false;
+        std::optional<AABB> maybe_scene_visible_aabb;
+        std::optional<SceneCollision> maybe_base_layer_hittest;
+        OpenSim::ComponentPath maybe_hovered_component_abs_path;
 
         std::span<const SceneDecoration> get_drawlist() const
         {
@@ -51,15 +49,9 @@ namespace osc
             return *layer_queue_.emplace_back(std::move(layer));
         }
 
-        const opyn::CachedModelRenderer& get_renderer() const
-        {
-            return cached_model_renderer_;
-        }
+        const opyn::CachedModelRenderer& get_renderer() const { return cached_model_renderer_; }
 
-        opyn::CachedModelRenderer& upd_renderer()
-        {
-            return cached_model_renderer_;
-        }
+        opyn::CachedModelRenderer& upd_renderer() { return cached_model_renderer_; }
 
         void flush_layer_queue_to(std::vector<std::unique_ptr<ModelViewerPanelLayer>>& target)
         {

@@ -23,10 +23,12 @@ using namespace osc;
 
 namespace
 {
-    constexpr auto c_location_input_i_ds = std::to_array<CStringView>({"##xinput", "##yinput", "##zinput"});
+    constexpr auto c_location_input_i_ds =
+        std::to_array<CStringView>({"##xinput", "##yinput", "##zinput"});
     static_assert(c_location_input_i_ds.size() == 3);
 
-    OpenSim::GeometryPath copy_or_default_geometry_path(const std::function<const OpenSim::GeometryPath*()>& accessor)
+    OpenSim::GeometryPath copy_or_default_geometry_path(
+        const std::function<const OpenSim::GeometryPath*()>& accessor)
     {
         const OpenSim::GeometryPath* maybe_geom_path = accessor();
         if (maybe_geom_path) {
@@ -46,9 +48,7 @@ namespace
 
         RequestedAction() = default;
 
-        RequestedAction(
-            Type type,
-            ptrdiff_t path_point_index) :
+        RequestedAction(Type type, ptrdiff_t path_point_index) :
 
             type{type},
             pathPointIndex{path_point_index}
@@ -86,16 +86,17 @@ namespace
     }
 
     void action_set_path_point_frame_path(
-        OpenSim::PathPointSet& pps,
-        ptrdiff_t i,
-        const std::string& frame_abs_path)
+        OpenSim::PathPointSet& pps, ptrdiff_t i, const std::string& frame_abs_path)
     {
         opyn::at(pps, i).updSocket("parent_frame").setConnecteePath(frame_abs_path);
     }
 
     void action_add_new_path_point(OpenSim::PathPointSet& pps)
     {
-        const std::string frame = opyn::empty(pps) ? "/ground" : opyn::at(pps, opyn::size(pps) - 1).getSocket("parent_frame").getConnecteePath();
+        const std::string frame =
+            opyn::empty(pps)
+                ? "/ground"
+                : opyn::at(pps, opyn::size(pps) - 1).getSocket("parent_frame").getConnecteePath();
 
         auto pp = std::make_unique<OpenSim::PathPoint>();
         pp->updSocket("parent_frame").setConnecteePath(frame);
@@ -244,7 +245,8 @@ private:
     // try, because the path point type might not actually have a set location
     //
     // (e.g. `MovingPathPoint`s)
-    void try_draw_ith_path_point_location_editor_cells(OpenSim::PathPointSet& pps, ptrdiff_t i, int& column)
+    void try_draw_ith_path_point_location_editor_cells(
+        OpenSim::PathPointSet& pps, ptrdiff_t i, int& column)
     {
         OpenSim::AbstractPathPoint& app = opyn::at(pps, i);
 
@@ -279,7 +281,9 @@ private:
 
         ui::set_next_item_width(width);
         if (ui::begin_combobox("##framesel", label)) {
-            for (const OpenSim::Frame& frame : target_component_->get_component().getComponentList<OpenSim::Frame>()) {
+            for (const OpenSim::Frame& frame :
+                 target_component_->get_component().getComponentList<OpenSim::Frame>()) {
+
                 const std::string abs_path = frame.getAbsolutePathString();
                 if (ui::draw_selectable(abs_path)) {
                     action_set_path_point_frame_path(pps, i, abs_path);
@@ -305,7 +309,9 @@ private:
 
     void try_execute_requested_action(OpenSim::PathPointSet& pps)
     {
-        if (!(0 <= requested_action_.pathPointIndex && requested_action_.pathPointIndex < opyn::ssize(pps))) {
+        if (not(0 <= requested_action_.pathPointIndex and
+                requested_action_.pathPointIndex < opyn::ssize(pps))) {
+
             // edge-case: if the index is out of range, ignore the action
             requested_action_.reset();
             return;
@@ -321,8 +327,7 @@ private:
         case RequestedAction::Type::Delete:
             action_delete_path_point(pps, requested_action_.pathPointIndex);
             break;
-        default:
-            break;  // (unhandled/do nothing)
+        default: break;  // (unhandled/do nothing)
         }
 
         requested_action_.reset();  // action handled: resets
@@ -343,6 +348,15 @@ osc::GeometryPathEditorPopup::GeometryPathEditorPopup(
     std::function<const OpenSim::GeometryPath*()> geometry_path_getter,
     std::function<void(const OpenSim::GeometryPath&)> on_local_copy_edited) :
 
-    Popup{std::make_unique<Impl>(*this, parent, popup_name, std::move(target_component), std::move(geometry_path_getter), std::move(on_local_copy_edited))}
+    Popup{std::make_unique<Impl>(
+        *this,
+        parent,
+        popup_name,
+        std::move(target_component),
+        std::move(geometry_path_getter),
+        std::move(on_local_copy_edited))}
 {}
-void osc::GeometryPathEditorPopup::impl_draw_content() { private_data().draw_content(); }
+void osc::GeometryPathEditorPopup::impl_draw_content()
+{
+    private_data().draw_content();
+}

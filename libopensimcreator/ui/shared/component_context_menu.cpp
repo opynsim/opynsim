@@ -46,8 +46,7 @@ namespace
 {
     // draw UI element that lets user change a model joint's type
     void draw_selection_joint_type_switcher(
-        opyn::ModelStatePair& model,
-        const OpenSim::ComponentPath& joint_path)
+        opyn::ModelStatePair& model, const OpenSim::ComponentPath& joint_path)
     {
         const auto* joint = opyn::find_component<OpenSim::Joint>(model.get_model(), joint_path);
         if (not joint) {
@@ -58,7 +57,8 @@ namespace
 
         std::optional<ptrdiff_t> selected_idx;
         if (ui::begin_menu("Change Joint Type", model.can_upd_model())) {
-            // look the Joint up in the type registry so we know where it should be in the ui::draw_combobox
+            // look the Joint up in the type registry so we know where it should be in the
+            // ui::draw_combobox
             std::optional<size_t> maybe_type_index = index_of(registry, *joint);
 
             for (ptrdiff_t i = 0; i < std::ssize(registry); ++i) {
@@ -76,10 +76,7 @@ namespace
 
         if (selected_idx and *selected_idx < std::ssize(registry)) {
             // copy + fixup  a prototype of the user's selection
-            action_change_joint_type_to(
-                model,
-                joint_path,
-                registry[*selected_idx].instantiate());
+            action_change_joint_type_to(model, joint_path, registry[*selected_idx].instantiate());
         }
     }
 
@@ -89,7 +86,8 @@ namespace
         const std::shared_ptr<opyn::ModelStatePair>& model_state,
         const OpenSim::ComponentPath& pf_path)
     {
-        if (const auto* pf = opyn::find_component<OpenSim::PhysicalFrame>(model_state->get_model(), pf_path)) {
+        if (const auto* pf =
+                opyn::find_component<OpenSim::PhysicalFrame>(model_state->get_model(), pf_path)) {
             draw_calculate_menu(
                 model_state->get_model(),
                 model_state->get_state(),
@@ -100,20 +98,21 @@ namespace
 
     // draw contextual actions (buttons, sliders) for a selected joint
     void draw_joint_contextual_actions(
-        opyn::ModelStatePair& model_state,
-        const OpenSim::ComponentPath& joint_path)
+        opyn::ModelStatePair& model_state, const OpenSim::ComponentPath& joint_path)
     {
         draw_selection_joint_type_switcher(model_state, joint_path);
 
-        if (ui::draw_menu_item("Rezero Joint", {}, nullptr, can_rezero_joint(model_state, joint_path))) {
+        if (ui::draw_menu_item(
+                "Rezero Joint", {}, nullptr, can_rezero_joint(model_state, joint_path))) {
             action_rezero_joint(model_state, joint_path);
         }
-        ui::draw_tooltip_if_item_hovered("Re-zero the joint", "Given the joint's current geometry due to joint defaults, coordinate defaults, and any coordinate edits made in the coordinates panel, this will reorient the joint's parent (if it's an offset frame) to match the child's transformation. Afterwards, it will then resets all of the joints coordinates to zero. This effectively sets the 'zero point' of the joint (i.e. the geometry when all coordinates are zero) to match whatever the current geometry is.");
+        ui::draw_tooltip_if_item_hovered(
+            "Re-zero the joint",
+            "Given the joint's current geometry due to joint defaults, coordinate defaults, and any coordinate edits made in the coordinates panel, this will reorient the joint's parent (if it's an offset frame) to match the child's transformation. Afterwards, it will then resets all of the joints coordinates to zero. This effectively sets the 'zero point' of the joint (i.e. the geometry when all coordinates are zero) to match whatever the current geometry is.");
     }
 
     void draw_station_contextual_actions(
-        const opyn::ModelStatePair& model_state,
-        const OpenSim::Station& station)
+        const opyn::ModelStatePair& model_state, const OpenSim::Station& station)
     {
         draw_calculate_menu(
             model_state.get_model(),
@@ -123,8 +122,7 @@ namespace
     }
 
     void draw_marker_contextual_actions(
-        opyn::ModelStatePair& model_state,
-        const OpenSim::Marker& marker)
+        opyn::ModelStatePair& model_state, const OpenSim::Marker& marker)
     {
         draw_calculate_menu(
             model_state.get_model(),
@@ -140,7 +138,8 @@ namespace
             // Only enable this option if the marker isn't already part of the model's `MarkerSet`
             // (otherwise, we assume it's remove-able from its current owner).
             const OpenSim::Component* owner = opyn::get_owner<OpenSim::MarkerSet>(marker);
-            bool disabled = (owner != nullptr) and opyn::get_owner<OpenSim::Model>(*owner) == &model_state.get_model();
+            bool disabled = (owner != nullptr) and
+                            opyn::get_owner<OpenSim::Model>(*owner) == &model_state.get_model();
 
             if (ui::draw_menu_item("/markerset", std::nullopt, nullptr, not disabled)) {
                 action_move_marker_to_model_marker_set(model_state, marker);
@@ -154,8 +153,7 @@ namespace
     }
 
     void draw_point_contextual_actions(
-        const opyn::ModelStatePair& model_state,
-        const OpenSim::Point& point)
+        const opyn::ModelStatePair& model_state, const OpenSim::Point& point)
     {
         draw_calculate_menu(
             model_state.get_model(),
@@ -165,8 +163,7 @@ namespace
     }
 
     void draw_ellipsoid_contextual_actions(
-        const opyn::ModelStatePair& model_state,
-        const OpenSim::Ellipsoid& ellipsoid)
+        const opyn::ModelStatePair& model_state, const OpenSim::Ellipsoid& ellipsoid)
     {
         draw_calculate_menu(
             model_state.get_model(),
@@ -175,12 +172,11 @@ namespace
             CalculateMenuFlags::NoCalculatorIcon);
     }
 
-    void draw_mesh_contextual_actions(
-        opyn::ModelStatePair& model_state,
-        const OpenSim::Mesh& mesh)
+    void draw_mesh_contextual_actions(opyn::ModelStatePair& model_state, const OpenSim::Mesh& mesh)
     {
         if (ui::begin_menu("Fit Analytic Geometry", model_state.can_upd_model())) {
-            ui::draw_help_marker("Uses shape-fitting algorithms to fit analytic geometry to the points in the given mesh.\n\nThe 'htbad'-suffixed algorithms were adapted (potentially, with bugs - report them) from the MATLAB code in:\n\n        Bishop P., How to build a dinosaur..., doi:10.1017/pab.2020.46");
+            ui::draw_help_marker(
+                "Uses shape-fitting algorithms to fit analytic geometry to the points in the given mesh.\n\nThe 'htbad'-suffixed algorithms were adapted (potentially, with bugs - report them) from the MATLAB code in:\n\n        Bishop P., How to build a dinosaur..., doi:10.1017/pab.2020.46");
 
             if (ui::draw_menu_item("Sphere (htbad)", {}, nullptr, model_state.can_upd_model())) {
                 action_fit_sphere_to_mesh(model_state, mesh);
@@ -204,8 +200,7 @@ namespace
     }
 
     void draw_geometry_contextual_actions(
-        const opyn::ModelStatePair& model_state,
-        const OpenSim::Geometry& geometry)
+        const opyn::ModelStatePair& model_state, const OpenSim::Geometry& geometry)
     {
         draw_calculate_menu(
             model_state.get_model(),
@@ -217,8 +212,9 @@ namespace
     bool any_descendent_inclusive_has_appearance_property(const OpenSim::Component& component)
     {
         const OpenSim::Component* const c = opyn::find_first_descendent_inclusive(
-            component,
-            [](const OpenSim::Component& desc) -> bool { return opyn::try_get_appearance(desc) != nullptr; });
+            component, [](const OpenSim::Component& desc) -> bool {
+                return opyn::try_get_appearance(desc) != nullptr;
+            });
         return c != nullptr;
     }
 }
@@ -250,7 +246,8 @@ public:
             draw_nothing_right_clicked_context_menu_header();
             draw_context_menu_separator();
             if (ui::begin_menu("Add", model_->can_upd_model())) {
-                model_add_menu_items_.set_target_parent_component({});  // i.e. the target parent component should default to the model
+                // i.e. the target parent component should default to the model
+                model_add_menu_items_.set_target_parent_component({});
                 model_add_menu_items_.on_draw();
                 ui::end_menu();
             }
@@ -263,9 +260,12 @@ public:
             // in the model (#422)
             if (ui::begin_menu("Display", model_->can_upd_model())) {
                 if (ui::draw_menu_item("Show All")) {
-                    action_set_component_and_all_childrens_is_visible_to(*model_, opyn::get_root_component_path(), true);
+                    action_set_component_and_all_childrens_is_visible_to(
+                        *model_, opyn::get_root_component_path(), true);
                 }
-                ui::draw_tooltip_if_item_hovered("Show All", "Sets the visiblity of all components within the model to 'visible', handy for undoing selective hiding etc.");
+                ui::draw_tooltip_if_item_hovered(
+                    "Show All",
+                    "Sets the visiblity of all components within the model to 'visible', handy for undoing selective hiding etc.");
                 ui::draw_vertical_spacer(0.5f);
                 ui::draw_text_disabled("Model Visual Preferences");
                 ui::draw_separator();
@@ -298,14 +298,18 @@ public:
             ui::end_menu();
         }
 
-        if (auto* model_with_env = dynamic_cast<ModelStatePairWithSharedEnvironment*>(model_.get())) {
-            draw_watch_output_menu(*c, [this, model_with_env](const opyn::SharedOutputExtractor& output_extractor) {
-                model_with_env->try_upd_environment()->add_user_output_extractor(output_extractor);
+        if (auto* model_with_env =
+                dynamic_cast<ModelStatePairWithSharedEnvironment*>(model_.get())) {
+            draw_watch_output_menu(
+                *c, [this, model_with_env](const opyn::SharedOutputExtractor& output_extractor) {
+                    model_with_env->try_upd_environment()->add_user_output_extractor(
+                        output_extractor);
 
-                // when the user asks to watch an output, make sure the "Output Watches" panel is
-                // open, so that they can immediately see the side-effect of watching an output (#567)
-                App::post_event<OpenNamedPanelEvent>(owner(), "Output Watches");
-            });
+                    // when the user asks to watch an output, make sure the "Output Watches" panel
+                    // is open, so that they can immediately see the side-effect of watching an
+                    // output (#567)
+                    App::post_event<OpenNamedPanelEvent>(owner(), "Output Watches");
+                });
         }
 
         draw_socket_menu(*c);
@@ -317,7 +321,9 @@ public:
             if (ui::draw_menu_item("Absolute Path to Clipboard")) {
                 set_clipboard_text(opyn::get_absolute_path_string(*c));
             }
-            ui::draw_tooltip_if_item_hovered("Copy Component Absolute Path", "Copy the absolute path to this component to your clipboard.\n\n(This is handy if you are separately using absolute component paths to (e.g.) manipulate the model in a script or something)");
+            ui::draw_tooltip_if_item_hovered(
+                "Copy Component Absolute Path",
+                "Copy the absolute path to this component to your clipboard.\n\n(This is handy if you are separately using absolute component paths to (e.g.) manipulate the model in a script or something)");
             if (ui::draw_menu_item("Concrete Class Name to Clipboard")) {
                 set_clipboard_text(c->getConcreteClassName());
             }
@@ -360,12 +366,14 @@ public:
 private:
     void draw_display_menu_content(const OpenSim::Component& c)
     {
-        const bool is_enabled = model_->can_upd_model() and any_descendent_inclusive_has_appearance_property(c);
+        const bool is_enabled =
+            model_->can_upd_model() and any_descendent_inclusive_has_appearance_property(c);
 
         // togges that are specific to this components (+ its descendants)
 
         if (ui::draw_menu_item("Show", {}, nullptr, is_enabled)) {
-            action_set_component_and_all_childrens_is_visible_to(*model_, opyn::get_absolute_path(c), true);
+            action_set_component_and_all_childrens_is_visible_to(
+                *model_, opyn::get_absolute_path(c), true);
         }
 
         if (ui::draw_menu_item("Show Only This", {}, nullptr, is_enabled)) {
@@ -373,7 +381,8 @@ private:
         }
 
         if (ui::draw_menu_item("Hide", {}, nullptr, is_enabled)) {
-            action_set_component_and_all_childrens_is_visible_to(*model_, opyn::get_absolute_path(c), false);
+            action_set_component_and_all_childrens_is_visible_to(
+                *model_, opyn::get_absolute_path(c), false);
         }
 
         // add a seperator between probably commonly-used, simple, diplay toggles and the more
@@ -384,7 +393,8 @@ private:
         // to "know" that they need to right-click in the middle of nowhere or on the
         // model
         if (ui::draw_menu_item("Show All", {}, nullptr, is_enabled)) {
-            action_set_component_and_all_childrens_is_visible_to(*model_, opyn::get_root_component_path(), true);
+            action_set_component_and_all_childrens_is_visible_to(
+                *model_, opyn::get_root_component_path(), true);
         }
 
         {
@@ -450,9 +460,15 @@ private:
     void draw_outbound_sockets_table(const OpenSim::Component& c)
     {
         const std::vector<std::string> socket_names = opyn::get_socket_names(c);
-        ui::push_style_var(ui::StyleVar::CellPadding, ui::get_text_line_height_in_current_panel() * Vector2{0.5f});
+        ui::push_style_var(
+            ui::StyleVar::CellPadding, ui::get_text_line_height_in_current_panel() * Vector2{0.5f});
 
-        if (ui::begin_table("outbound sockets table", 4, {ui::TableFlag::SizingStretchProp, ui::TableFlag::BordersInner, ui::TableFlag::PadOuterX})) {
+        if (ui::begin_table(
+                "outbound sockets table",
+                4,
+                {ui::TableFlag::SizingStretchProp,
+                 ui::TableFlag::BordersInner,
+                 ui::TableFlag::PadOuterX})) {
             ui::table_setup_column("Socket Name");
             ui::table_setup_column("Connectee Type");
             ui::table_setup_column("Connectee");
@@ -476,10 +492,12 @@ private:
 
                 ui::table_set_column_index(column++);
                 if (ui::draw_small_button(socket.getConnecteeAsObject().getName())) {
-                    model_->set_selected(dynamic_cast<const OpenSim::Component*>(&socket.getConnecteeAsObject()));
+                    model_->set_selected(
+                        dynamic_cast<const OpenSim::Component*>(&socket.getConnecteeAsObject()));
                     request_close();
                 }
-                if (const auto* connectee = dynamic_cast<const OpenSim::Component*>(&socket.getConnecteeAsObject());
+                if (const auto* connectee =
+                        dynamic_cast<const OpenSim::Component*>(&socket.getConnecteeAsObject());
                     connectee && ui::is_item_hovered()) {
 
                     draw_component_hover_tooltip(*connectee);
@@ -528,13 +546,15 @@ private:
 
     void draw_inbound_connections_table(auto& it, std::default_sentinel_t end)
     {
-        ui::push_style_var(ui::StyleVar::CellPadding, ui::get_text_line_height_in_current_panel() * Vector2{0.5f});
+        ui::push_style_var(
+            ui::StyleVar::CellPadding, ui::get_text_line_height_in_current_panel() * Vector2{0.5f});
         const ui::TableFlags flags = {
             ui::TableFlag::SizingStretchProp,
             ui::TableFlag::BordersInner,
             ui::TableFlag::PadOuterX,
             ui::TableFlag::ScrollY};
-        const Vector2 dimensions = Vector2{0.0f, 10.0f * ui::get_text_line_height_with_spacing_in_current_panel()};
+        const Vector2 dimensions =
+            Vector2{0.0f, 10.0f * ui::get_text_line_height_with_spacing_in_current_panel()};
         if (ui::begin_table("inbound connections table", 3, flags, dimensions)) {
             ui::table_setup_column("Source Component");
             ui::table_setup_column("Socket Name");
@@ -591,7 +611,9 @@ private:
             return;
         }
         if (ui::begin_menu("Plot vs. Coordinate")) {
-            for (const OpenSim::Coordinate& c : model_->get_model().getComponentList<OpenSim::Coordinate>()) {
+            for (const OpenSim::Coordinate& c :
+                 model_->get_model().getComponentList<OpenSim::Coordinate>()) {
+
                 if (ui::draw_menu_item(c.getName())) {
                     App::post_event<AddMusclePlotEvent>(owner(), c, m);
                 }
@@ -621,4 +643,7 @@ osc::ComponentContextMenu::ComponentContextMenu(
 
     Popup{std::make_unique<Impl>(*this, parent, popup_name, std::move(model), path, flags)}
 {}
-void osc::ComponentContextMenu::impl_draw_content() { private_data().draw_content(); }
+void osc::ComponentContextMenu::impl_draw_content()
+{
+    private_data().draw_content();
+}

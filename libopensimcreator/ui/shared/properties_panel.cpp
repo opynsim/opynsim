@@ -36,11 +36,13 @@ namespace
         ui::align_text_to_frame_padding();  // ensure it aligns with the button in the next column
         ui::draw_text("actions");
         ui::same_line();
-        ui::draw_help_marker("Shows a menu containing extra actions that can be performed on this component.\n\nYou can also access the same menu by right-clicking the component in the 3D viewer, bottom status bar, or navigator panel.");
+        ui::draw_help_marker(
+            "Shows a menu containing extra actions that can be performed on this component.\n\nYou can also access the same menu by right-clicking the component in the 3D viewer, bottom status bar, or navigator panel.");
         ui::next_column();
         ui::push_style_color(ui::ColorVar::Text, Color::yellow());
         if (ui::draw_button(MSMICONS_BOLT) or ui::is_item_clicked(MouseButton::Right)) {
-            App::post_event<OpenComponentContextMenuEvent>(parent, opyn::get_absolute_path(*selection));
+            App::post_event<OpenComponentContextMenuEvent>(
+                parent, opyn::get_absolute_path(*selection));
         }
         ui::pop_style_color();
         ui::next_column();
@@ -78,14 +80,17 @@ namespace
             ui::align_text_to_frame_padding();  // ensure it aligns with the next column
             ui::draw_text("name");
             ui::same_line();
-            ui::draw_help_marker("The name of the component", "The component's name can be important. It can be used when components want to refer to eachover. E.g. a joint will name the two frames it attaches to.");
+            ui::draw_help_marker(
+                "The name of the component",
+                "The component's name can be important. It can be used when components want to refer to eachover. E.g. a joint will name the two frames it attaches to.");
 
             ui::next_column();
 
             ui::set_next_item_width(ui::get_content_region_available().x());
             ui::draw_string_input("##nameeditor", edited_name_);
             if (ui::should_save_last_drawn_item_value()) {
-                action_set_component_name(*model_, opyn::get_absolute_path(*selected), edited_name_);
+                action_set_component_name(
+                    *model_, opyn::get_absolute_path(*selected), edited_name_);
             }
             ui::add_screenshot_annotation_to_last_drawn_item("PropertiesPanel/name");
 
@@ -116,12 +121,9 @@ public:
 
         PanelPrivate{owner, parent, panel_name},
         model_{std::move(model)},
-        selection_properties_editor_{
-            &owner,
-            model_,
-            [model = model_] {
-                return model->get_selected();
-            }}
+        selection_properties_editor_{&owner, model_, [model = model_] {
+                                         return model->get_selected();
+                                     }}
     {}
 
     void draw_content()
@@ -163,9 +165,10 @@ private:
 };
 
 osc::PropertiesPanel::PropertiesPanel(
-    Widget* parent,
-    std::string_view panel_name,
-    std::shared_ptr<opyn::ModelStatePair> model) :
+    Widget* parent, std::string_view panel_name, std::shared_ptr<opyn::ModelStatePair> model) :
     Panel{std::make_unique<Impl>(*this, parent, panel_name, std::move(model))}
 {}
-void osc::PropertiesPanel::impl_draw_content() { private_data().draw_content(); }
+void osc::PropertiesPanel::impl_draw_content()
+{
+    private_data().draw_content();
+}

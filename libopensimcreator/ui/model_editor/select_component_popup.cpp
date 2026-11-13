@@ -35,7 +35,11 @@ public:
 
         // iterate through each T in `root` and give the user the option to click it
         {
-            ui::begin_child_panel("first", Vector2{256.0f, 256.0f}, ui::ChildPanelFlag::Border, ui::PanelFlag::HorizontalScrollbar);
+            ui::begin_child_panel(
+                "first",
+                Vector2{256.0f, 256.0f},
+                ui::ChildPanelFlag::Border,
+                ui::PanelFlag::HorizontalScrollbar);
             for (const OpenSim::Component& c : model_->get_model().getComponentList()) {
                 if (not filter_(c)) {
                     continue;  // filtered out
@@ -66,6 +70,10 @@ osc::SelectComponentPopup::SelectComponentPopup(
     std::function<void(const OpenSim::ComponentPath&)> on_selection,
     std::function<bool(const OpenSim::Component&)> filter) :
 
-    Popup{std::make_unique<Impl>(*this, parent, popup_name, std::move(model), std::move(on_selection), std::move(filter))}
+    Popup{std::make_unique<Impl>(
+        *this, parent, popup_name, std::move(model), std::move(on_selection), std::move(filter))}
 {}
-void osc::SelectComponentPopup::impl_draw_content() { private_data().draw_content(); }
+void osc::SelectComponentPopup::impl_draw_content()
+{
+    private_data().draw_content();
+}

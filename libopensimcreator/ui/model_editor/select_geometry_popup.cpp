@@ -86,7 +86,9 @@ public:
 
         PopupPrivate{owner, parent, popup_name},
         on_selection_{std::move(on_selection)},
-        geometry_files_{geometry_dir ? find_files_recursive(*geometry_dir) : std::vector<std::filesystem::path>{}}
+        geometry_files_{
+            geometry_dir ? find_files_recursive(*geometry_dir)
+                         : std::vector<std::filesystem::path>{}}
     {}
 
     void draw_content()
@@ -98,7 +100,8 @@ public:
         {
             ui::draw_text("Generated geometry");
             ui::same_line();
-            ui::draw_help_marker("This is geometry that OpenSim can generate without needing an external mesh file. Useful for basic geometry.");
+            ui::draw_help_marker(
+                "This is geometry that OpenSim can generate without needing an external mesh file. Useful for basic geometry.");
             ui::draw_separator();
             ui::draw_vertical_spacer(2.0f / 15.0f);
 
@@ -115,7 +118,8 @@ public:
         ui::draw_vertical_spacer(3.0f / 15.0f);
         ui::draw_text("mesh file");
         ui::same_line();
-        ui::draw_help_marker("This is geometry that OpenSim loads from external mesh files. Useful for custom geometry (usually, created in some other application, such as ParaView or Blender)");
+        ui::draw_help_marker(
+            "This is geometry that OpenSim loads from external mesh files. Useful for custom geometry (usually, created in some other application, such as ParaView or Blender)");
         ui::draw_separator();
         ui::draw_vertical_spacer(2.0f / 15.0f);
 
@@ -236,6 +240,10 @@ osc::SelectGeometryPopup::SelectGeometryPopup(
     std::optional<std::filesystem::path> geometry_dir,
     std::function<void(std::unique_ptr<OpenSim::Geometry>)> on_selection) :
 
-    Popup{std::make_unique<Impl>(*this, parent, popup_name, std::move(geometry_dir), std::move(on_selection))}
+    Popup{std::make_unique<Impl>(
+        *this, parent, popup_name, std::move(geometry_dir), std::move(on_selection))}
 {}
-void osc::SelectGeometryPopup::impl_draw_content() { private_data().draw_content(); }
+void osc::SelectGeometryPopup::impl_draw_content()
+{
+    private_data().draw_content();
+}

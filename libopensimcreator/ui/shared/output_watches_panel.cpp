@@ -26,7 +26,8 @@ namespace
         SimulationReport simulationReport;
     };
 
-    void update_cached_simulation_report_if_necessary(const opyn::ModelStatePair& src, CachedSimulationReport& cache)
+    void update_cached_simulation_report_if_necessary(
+        const opyn::ModelStatePair& src, CachedSimulationReport& cache)
     {
         const UID model_version = src.get_model_version();
         const UID state_version = src.get_state_version();
@@ -62,13 +63,17 @@ public:
         update_cached_simulation_report_if_necessary(*model_, cached_report_);
 
         std::shared_ptr<Environment> env = model_->try_upd_environment();
-        if (env->get_num_user_output_extractors() > 0 and ui::begin_table("##OutputWatchesTable", 3, ui::TableFlag::SizingStretchProp)) {
+        if (env->get_num_user_output_extractors() > 0 and
+            ui::begin_table("##OutputWatchesTable", 3, ui::TableFlag::SizingStretchProp)) {
+
             ui::table_setup_column("##Actions");
             ui::table_setup_column("Output", ui::ColumnFlag::WidthStretch);
             ui::table_setup_column("Value");
             ui::table_headers_row();
 
-            for (int output_idx = 0; output_idx < env->get_num_user_output_extractors(); ++output_idx) {
+            for (int output_idx = 0; output_idx < env->get_num_user_output_extractors();
+                 ++output_idx) {
+
                 opyn::SharedOutputExtractor o = env->get_user_output_extractor(output_idx);
 
                 ui::push_id(output_idx);
@@ -94,7 +99,8 @@ public:
 
                 // Column: output value
                 ui::table_set_column_index(column++);
-                const auto value_text = o.value<std::string>(model_->get_model(), cached_report_.simulationReport);
+                const auto value_text =
+                    o.value<std::string>(model_->get_model(), cached_report_.simulationReport);
                 ui::draw_text(value_text);
                 ui::same_line();
                 if (ui::draw_button(MSMICONS_COPY)) {
@@ -124,4 +130,7 @@ osc::OutputWatchesPanel::OutputWatchesPanel(
 
     Panel{std::make_unique<Impl>(*this, parent, panel_name, std::move(model))}
 {}
-void osc::OutputWatchesPanel::impl_draw_content() { private_data().draw_content(); }
+void osc::OutputWatchesPanel::impl_draw_content()
+{
+    private_data().draw_content();
+}

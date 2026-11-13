@@ -51,9 +51,18 @@ namespace
     public:
         virtual ~ISelectionManipulator() noexcept = default;
 
-        ui::GizmoOperations get_supported_manipulation_ops() const { return impl_get_supported_manipulation_ops(); }
-        Matrix4x4 get_current_transform_in_ground() const { return impl_get_current_transform_in_ground(); }
-        void on_apply_transform(const SimTK::Transform& transform_in_ground) { impl_on_apply_transform(transform_in_ground); }
+        ui::GizmoOperations get_supported_manipulation_ops() const
+        {
+            return impl_get_supported_manipulation_ops();
+        }
+        Matrix4x4 get_current_transform_in_ground() const
+        {
+            return impl_get_current_transform_in_ground();
+        }
+        void on_apply_transform(const SimTK::Transform& transform_in_ground)
+        {
+            impl_on_apply_transform(transform_in_ground);
+        }
         void on_save() { impl_on_save(); }
 
         void draw_extra_on_using_overlays(
@@ -62,18 +71,20 @@ namespace
             const Matrix4x4& projection_matrix,
             const Rect& screen_rect) const
         {
-            impl_draw_extra_on_using_overlays(std::move(draw_list), view_matrix, projection_matrix, screen_rect);
+            impl_draw_extra_on_using_overlays(
+                std::move(draw_list), view_matrix, projection_matrix, screen_rect);
         }
 
     private:
         // Implementors must return which operations are supported by this `ISelectionManipulator`.
         virtual ui::GizmoOperations impl_get_supported_manipulation_ops() const = 0;
 
-        // Implementors must return a transform matrix that describes the edited transform with respect to ground.
+        // Implementors must return a transform matrix that describes the edited transform with
+        // respect to ground.
         virtual Matrix4x4 impl_get_current_transform_in_ground() const = 0;
 
-        // Implementors must apply the provided delta transform (i.e. the _change_ made by the user) to
-        // the appropriate component.
+        // Implementors must apply the provided delta transform (i.e. the _change_ made by the user)
+        // to the appropriate component.
         virtual void impl_on_apply_transform(const SimTK::Transform& delta_transform) = 0;
 
         // Implementors must commit/finalize any edits to the model.
@@ -81,10 +92,7 @@ namespace
 
         // Implementors may override this to draw extra overlays in the 2D UI during manipulation
         virtual void impl_draw_extra_on_using_overlays(
-            ui::DrawListView,
-            const Matrix4x4&,
-            const Matrix4x4&,
-            const Rect&) const
+            ui::DrawListView, const Matrix4x4&, const Matrix4x4&, const Rect&) const
         {}
     };
 
@@ -102,35 +110,28 @@ namespace
 
     protected:
         SelectionManipulator(
-            std::shared_ptr<opyn::ModelStatePair> model,
-            const AssociatedComponent& component) :
+            std::shared_ptr<opyn::ModelStatePair> model, const AssociatedComponent& component) :
 
             model_{std::move(model)},
             component_abs_path_{component.getAbsolutePath()}
         {
             OSC_ASSERT(model_ != nullptr);
-            OSC_ASSERT(opyn::find_component<AssociatedComponent>(model_->get_model(), component_abs_path_));
+            OSC_ASSERT(
+                opyn::find_component<AssociatedComponent>(
+                    model_->get_model(), component_abs_path_));
         }
 
         const AssociatedComponent* find_selection() const
         {
-            return opyn::find_component<AssociatedComponent>(model_->get_model(), component_abs_path_);
+            return opyn::find_component<AssociatedComponent>(
+                model_->get_model(), component_abs_path_);
         }
 
-        const OpenSim::Model& get_model() const
-        {
-            return model_->get_model();
-        }
+        const OpenSim::Model& get_model() const { return model_->get_model(); }
 
-        const SimTK::State& get_state() const
-        {
-            return model_->get_state();
-        }
+        const SimTK::State& get_state() const { return model_->get_state(); }
 
-        opyn::ModelStatePair& get_undoable_model()
-        {
-            return *model_;
-        }
+        opyn::ModelStatePair& get_undoable_model() { return *model_; }
 
     private:
         // perform runtime lookup for `AssociatedComponent` and forward into concrete implementation
@@ -170,8 +171,10 @@ namespace
         }
 
         // inheritors must implement concrete manipulation methods
-        virtual Matrix4x4 impl_get_current_transform_in_ground(const AssociatedComponent&) const = 0;
-        virtual void impl_on_apply_transform(const AssociatedComponent&, const SimTK::Transform& transform_in_ground) = 0;
+        virtual Matrix4x4 impl_get_current_transform_in_ground(
+            const AssociatedComponent&) const = 0;
+        virtual void impl_on_apply_transform(
+            const AssociatedComponent&, const SimTK::Transform& transform_in_ground) = 0;
 
         std::shared_ptr<opyn::ModelStatePair> model_;
         OpenSim::ComponentPath component_abs_path_;
@@ -185,8 +188,8 @@ namespace
     class StationManipulator final : public SelectionManipulator<OpenSim::Station> {
     public:
         StationManipulator(
-            std::shared_ptr<opyn::ModelStatePair> model,
-            const OpenSim::Station& station) :
+            std::shared_ptr<opyn::ModelStatePair> model, const OpenSim::Station& station) :
+
             SelectionManipulator{std::move(model), station}
         {}
 
@@ -200,21 +203,24 @@ namespace
             const OpenSim::Station& station) const override
         {
             const SimTK::State& state = get_state();
-            auto transform_in_ground = to<Matrix4x4>(station.getParentFrame().getRotationInGround(state));
+            auto transform_in_ground =
+                to<Matrix4x4>(station.getParentFrame().getRotationInGround(state));
             transform_in_ground[3] = Vector4{to<Vector3>(station.getLocationInGround(state)), 1.0f};
 
             return transform_in_ground;
         }
 
         void impl_on_apply_transform(
-            const OpenSim::Station& station,
-            const SimTK::Transform& transform_in_ground) override
+            const OpenSim::Station& station, const SimTK::Transform& transform_in_ground) override
         {
             // ignores `rotation`
 
-            const SimTK::Rotation parent_to_ground_rotation = station.getParentFrame().getRotationInGround(get_state());
-            const SimTK::InverseRotation& ground_to_parent_rotation = parent_to_ground_rotation.invert();
-            const auto translation_in_parent = to<Vector3>(ground_to_parent_rotation * transform_in_ground.p());
+            const SimTK::Rotation parent_to_ground_rotation =
+                station.getParentFrame().getRotationInGround(get_state());
+            const SimTK::InverseRotation& ground_to_parent_rotation =
+                parent_to_ground_rotation.invert();
+            const auto translation_in_parent =
+                to<Vector3>(ground_to_parent_rotation * transform_in_ground.p());
 
             action_translate_station(get_undoable_model(), station, translation_in_parent);
         }
@@ -229,8 +235,8 @@ namespace
     class PathPointManipulator : public SelectionManipulator<OpenSim::PathPoint> {
     public:
         PathPointManipulator(
-            std::shared_ptr<opyn::ModelStatePair> model,
-            const OpenSim::PathPoint& path_point) :
+            std::shared_ptr<opyn::ModelStatePair> model, const OpenSim::PathPoint& path_point) :
+
             SelectionManipulator{std::move(model), path_point}
         {}
 
@@ -244,8 +250,10 @@ namespace
             const OpenSim::PathPoint& path_point) const override
         {
             const SimTK::State& state = get_state();
-            auto transform_in_ground = to<Matrix4x4>(path_point.getParentFrame().getRotationInGround(state));
-            transform_in_ground[3] = Vector4{to<Vector3>(path_point.getLocationInGround(state)), 1.0f};
+            auto transform_in_ground =
+                to<Matrix4x4>(path_point.getParentFrame().getRotationInGround(state));
+            transform_in_ground[3] =
+                Vector4{to<Vector3>(path_point.getLocationInGround(state)), 1.0f};
 
             return transform_in_ground;
         }
@@ -256,9 +264,12 @@ namespace
         {
             // ignores `rotation`
 
-            const SimTK::Rotation parent_to_ground_rotation = path_point.getParentFrame().getRotationInGround(get_state());
-            const SimTK::InverseRotation& ground_to_parent_rotation = parent_to_ground_rotation.invert();
-            const auto translation_in_parent = to<Vector3>(ground_to_parent_rotation * transform_in_ground.p());
+            const SimTK::Rotation parent_to_ground_rotation =
+                path_point.getParentFrame().getRotationInGround(get_state());
+            const SimTK::InverseRotation& ground_to_parent_rotation =
+                parent_to_ground_rotation.invert();
+            const auto translation_in_parent =
+                to<Vector3>(ground_to_parent_rotation * transform_in_ground.p());
 
             action_translate_path_point(get_undoable_model(), path_point, translation_in_parent);
         }
@@ -280,11 +291,12 @@ namespace
     }
 
     // an `ISelectionManipulator` that manipulates an `OpenSim::PhysicalOffsetFrame`
-    class PhysicalOffsetFrameManipulator final : public SelectionManipulator<OpenSim::PhysicalOffsetFrame> {
+    class PhysicalOffsetFrameManipulator final
+        : public SelectionManipulator<OpenSim::PhysicalOffsetFrame> {
     public:
         PhysicalOffsetFrameManipulator(
-            std::shared_ptr<opyn::ModelStatePair> model,
-            const OpenSim::PhysicalOffsetFrame& pof) :
+            std::shared_ptr<opyn::ModelStatePair> model, const OpenSim::PhysicalOffsetFrame& pof) :
+
             SelectionManipulator{std::move(model), pof},
             is_child_frame_of_joint_{is_direct_child_of_any_joint(get_model(), pof)}
         {}
@@ -309,8 +321,7 @@ namespace
         }
 
         void impl_on_apply_transform(
-            const OpenSim::PhysicalOffsetFrame& pof,
-            const SimTK::Transform& m_n) override
+            const OpenSim::PhysicalOffsetFrame& pof, const SimTK::Transform& m_n) override
         {
             if (is_child_frame_of_joint_) {
                 // the difference here is that the child frame's translation/rotation in ground
@@ -325,13 +336,11 @@ namespace
                 // - v_parent   a point, expressed in the pof's parent
 
                 const SimTK::Transform& m_pofg = pof.getTransformInGround(get_state());
-                const SimTK::Transform m_p = pof.findTransformBetween(get_state(), pof.getParentFrame());
+                const SimTK::Transform m_p =
+                    pof.findTransformBetween(get_state(), pof.getParentFrame());
                 const SimTK::Transform x = (m_pofg.invert() * m_n * m_pofg * m_p.invert()).invert();
                 action_transform_pof_v2(
-                    get_undoable_model(),
-                    pof,
-                    to<Vector3>(x.p()),
-                    to<EulerAngles>(x.R()));
+                    get_undoable_model(), pof, to<Vector3>(x.p()), to<EulerAngles>(x.R()));
             } else {
                 // this might disgust you to hear, but the easiest way to figure this out is by
                 // getting out a pen and paper and solving the following for X:
@@ -346,13 +355,11 @@ namespace
                 // - v_pof      a point, expressed in the pof
 
                 const SimTK::Transform m_g = pof.getParentFrame().getTransformInGround(get_state());
-                const SimTK::Transform m_p = pof.findTransformBetween(get_state(), pof.getParentFrame());
+                const SimTK::Transform m_p =
+                    pof.findTransformBetween(get_state(), pof.getParentFrame());
                 const SimTK::Transform x = m_g.invert() * m_n * m_g * m_p;
                 action_transform_pof_v2(
-                    get_undoable_model(),
-                    pof,
-                    to<Vector3>(x.p()),
-                    to<EulerAngles>(x.R()));
+                    get_undoable_model(), pof, to<Vector3>(x.p()), to<EulerAngles>(x.R()));
             }
         }
 
@@ -375,11 +382,14 @@ namespace
             // child frame, but its parent, to try and reduce user confusion (#955).
 
             std::stringstream ss;
-            ss << "Note: this is effectively moving " << pof->getParentFrame().getName() << ", because " << pof->getName() << " is\nconstrained by a joint.";
+            ss << "Note: this is effectively moving " << pof->getParentFrame().getName()
+               << ", because " << pof->getName() << " is\nconstrained by a joint.";
             const std::string label = std::move(ss).str();
             const Vector3 world_pos{get_current_transform_in_ground()[3]};
-            const Vector2 screen_pos = project_onto_viewport_rect(world_pos, view_matrix, projection_matrix, screen_rect);
-            const Vector2 offset = ui::gizmo_annotation_offset() + Vector2{0.0f, ui::get_text_line_height_in_current_panel()};
+            const Vector2 screen_pos =
+                project_onto_viewport_rect(world_pos, view_matrix, projection_matrix, screen_rect);
+            const Vector2 offset = ui::gizmo_annotation_offset() +
+                                   Vector2{0.0f, ui::get_text_line_height_in_current_panel()};
 
             draw_list.add_text(screen_pos + offset + 1.0f, Color::black(), label);
             draw_list.add_text(screen_pos + offset, Color::white(), label);
@@ -392,8 +402,8 @@ namespace
     class WrapObjectManipulator final : public SelectionManipulator<OpenSim::WrapObject> {
     public:
         WrapObjectManipulator(
-            std::shared_ptr<opyn::ModelStatePair> model,
-            const OpenSim::WrapObject& wo) :
+            std::shared_ptr<opyn::ModelStatePair> model, const OpenSim::WrapObject& wo) :
+
             SelectionManipulator{std::move(model), wo}
         {}
 
@@ -407,15 +417,15 @@ namespace
             const OpenSim::WrapObject& wrap_obj) const override
         {
             const SimTK::Transform& wrap_to_frame = wrap_obj.getTransform();
-            const SimTK::Transform frame_to_ground = wrap_obj.getFrame().getTransformInGround(get_state());
+            const SimTK::Transform frame_to_ground =
+                wrap_obj.getFrame().getTransformInGround(get_state());
             const SimTK::Transform wrap_to_ground = frame_to_ground * wrap_to_frame;
 
             return to<Matrix4x4>(wrap_to_ground);
         }
 
         void impl_on_apply_transform(
-            const OpenSim::WrapObject& wrap_obj,
-            const SimTK::Transform& m_n) override
+            const OpenSim::WrapObject& wrap_obj, const SimTK::Transform& m_n) override
         {
             // solve for X:
             //
@@ -457,15 +467,15 @@ namespace
             const OpenSim::ContactGeometry& contact_geom) const override
         {
             const SimTK::Transform wrap_to_frame = contact_geom.getTransform();
-            const SimTK::Transform frame_to_ground = contact_geom.getFrame().getTransformInGround(get_state());
+            const SimTK::Transform frame_to_ground =
+                contact_geom.getFrame().getTransformInGround(get_state());
             const SimTK::Transform wrap_to_ground = frame_to_ground * wrap_to_frame;
 
             return to<Matrix4x4>(wrap_to_ground);
         }
 
         void impl_on_apply_transform(
-            const OpenSim::ContactGeometry& contact_geom,
-            const SimTK::Transform& m_n) override
+            const OpenSim::ContactGeometry& contact_geom, const SimTK::Transform& m_n) override
         {
             // solve for X:
             //
@@ -510,9 +520,7 @@ namespace
             return true;
         }
 
-        JointManipulator(
-            std::shared_ptr<opyn::ModelStatePair> model,
-            const OpenSim::Joint& joint) :
+        JointManipulator(std::shared_ptr<opyn::ModelStatePair> model, const OpenSim::Joint& joint) :
             SelectionManipulator{std::move(model), joint}
         {}
 
@@ -528,7 +536,8 @@ namespace
             return to<Matrix4x4>(joint.getParentFrame().getTransformInGround(get_state()));
         }
 
-        void impl_on_apply_transform(const OpenSim::Joint& joint, const SimTK::Transform& m_n) override
+        void impl_on_apply_transform(
+            const OpenSim::Joint& joint, const SimTK::Transform& m_n) override
         {
             // in order to move a joint center without every child also moving around, we need to:
             //
@@ -551,12 +560,14 @@ namespace
             //
             //     vjp = M_ppof1 * M_j * M_cpof1^-1 * vcp
             //
-            // now, our goal is to apply STEP 1 (M_ppof1 --> M_ppof2) and calculate a new `M_cpof2` such that
-            // quantities expressed in a child body (e.g. `vcp`) do not move in the scene. I.e.:
+            // now, our goal is to apply STEP 1 (M_ppof1 --> M_ppof2) and calculate a new `M_cpof2`
+            // such that quantities expressed in a child body (e.g. `vcp`) do not move in the scene.
+            // I.e.:
             //
             //     vjp = M_ppof1 * M_j * M_cpof1^-1 * vcp = M_ppof2 * M_j * M_cpof2^-1 * vcp
             //
-            // simplifying, and dropping the pretext of using the transforms to transform a particular point:
+            // simplifying, and dropping the pretext of using the transforms to transform a
+            // particular point:
             //
             //     M_ppof1 * M_j * M_cpof1^-1 = M_ppof2 * M_j * M_cpof2^-1
             //     M_ppof2^-1 * M_ppof1 * M_j * M_cpof1^-1 = M_j * M_cpof2^-1
@@ -564,37 +575,41 @@ namespace
             //     M_cpof2^-1 = M_j^-1 * M_ppof2^-1 * M_ppof1 * M_j * M_cpof1^-1
             //     M_cpof2 = (M_j^-1 * M_ppof2^-1 * M_ppof1 * M_j * M_cpof1^-1)^-1;
             //
-            // the code below essentially collects all of this information up to figure out `M_cpof2` and stuff
-            // it into the child `OpenSim::PhysicalOffsetFrame`
+            // the code below essentially collects all of this information up to figure out
+            // `M_cpof2` and stuff it into the child `OpenSim::PhysicalOffsetFrame`
 
-            const auto& parent_pof = dynamic_cast<const OpenSim::PhysicalOffsetFrame&>(joint.getParentFrame());
-            const auto& child_pof = dynamic_cast<const OpenSim::PhysicalOffsetFrame&>(joint.getChildFrame());
+            const auto& parent_pof =
+                dynamic_cast<const OpenSim::PhysicalOffsetFrame&>(joint.getParentFrame());
+            const auto& child_pof =
+                dynamic_cast<const OpenSim::PhysicalOffsetFrame&>(joint.getChildFrame());
 
             // get BEFORE transforms
             const SimTK::Transform m_j = child_pof.findTransformBetween(get_state(), parent_pof);
-            const SimTK::Transform m_ppof1 = parent_pof.findTransformBetween(get_state(), parent_pof.getParentFrame());
-            const SimTK::Transform m_cpof1 = child_pof.findTransformBetween(get_state(), child_pof.getParentFrame());
+            const SimTK::Transform m_ppof1 =
+                parent_pof.findTransformBetween(get_state(), parent_pof.getParentFrame());
+            const SimTK::Transform m_cpof1 =
+                child_pof.findTransformBetween(get_state(), child_pof.getParentFrame());
 
             // STEP 1) move the parent offset frame (as normal)
             {
                 // M_n * M_g * M_ppof1 * v = M_g * X * v
-                const SimTK::Transform m_g = parent_pof.getParentFrame().getTransformInGround(get_state());
+                const SimTK::Transform m_g =
+                    parent_pof.getParentFrame().getTransformInGround(get_state());
                 const SimTK::Transform x = m_g.invert() * m_n * m_g * m_ppof1;
                 action_transform_pof_v2(
-                    get_undoable_model(),
-                    parent_pof,
-                    to<Vector3>(x.p()),
-                    to<EulerAngles>(x.R()));
+                    get_undoable_model(), parent_pof, to<Vector3>(x.p()), to<EulerAngles>(x.R()));
             }
 
             // STEP 2) figure out what transform the child offset frame would need to have in
             //         order for its parent (confusing, eh) to not move
 
             // get AFTER transforms
-            const SimTK::Transform m_ppof2 = parent_pof.findTransformBetween(get_state(), parent_pof.getParentFrame());
+            const SimTK::Transform m_ppof2 =
+                parent_pof.findTransformBetween(get_state(), parent_pof.getParentFrame());
 
             // caclulate `M_cpof2` (i.e. the desired new child transform)
-            const SimTK::Transform m_cpof2 = (m_j.invert() * m_ppof2.invert() * m_ppof1 * m_j * m_cpof1.invert()).invert();
+            const SimTK::Transform m_cpof2 =
+                (m_j.invert() * m_ppof2.invert() * m_ppof1 * m_j * m_cpof1.invert()).invert();
 
             // decompse `M_cpof2` into the child `OpenSim::PhysicalOffsetFrame`'s properties
             action_transform_pof_v2(
@@ -620,11 +635,15 @@ namespace
             // manipulates both the parent and child frames of the joint
 
             std::stringstream ss;
-            ss << "Note: manipulating the joint center moves both the parent (" << joint->getParentFrame().getName() << ") and\nchild (" << joint->getParentFrame().getName() << ") frames.";
+            ss << "Note: manipulating the joint center moves both the parent ("
+               << joint->getParentFrame().getName() << ") and\nchild ("
+               << joint->getParentFrame().getName() << ") frames.";
             const std::string label = std::move(ss).str();
             const Vector3 world_pos{get_current_transform_in_ground()[3]};
-            const Vector2 screen_pos = project_onto_viewport_rect(world_pos, view_matrix, projection_matrix, screen_rect);
-            const Vector2 offset = ui::gizmo_annotation_offset() + Vector2{0.0f, ui::get_text_line_height_in_current_panel()};
+            const Vector2 screen_pos =
+                project_onto_viewport_rect(world_pos, view_matrix, projection_matrix, screen_rect);
+            const Vector2 offset = ui::gizmo_annotation_offset() +
+                                   Vector2{0.0f, ui::get_text_line_height_in_current_panel()};
 
             draw_list.add_text(screen_pos + offset + 1.0f, Color::black(), label);
             draw_list.add_text(screen_pos + offset, Color::white(), label);
@@ -632,7 +651,8 @@ namespace
     };
 
     // an `ISelectionManipulator` that manipulates an `OpenSim::Scholz2015GeometryPathObstacle`
-    class Scholz2015GeometryPathObstacleManipulator final : public SelectionManipulator<OpenSim::Scholz2015GeometryPathObstacle> {
+    class Scholz2015GeometryPathObstacleManipulator final
+        : public SelectionManipulator<OpenSim::Scholz2015GeometryPathObstacle> {
     public:
         Scholz2015GeometryPathObstacleManipulator(
             std::shared_ptr<opyn::ModelStatePair> model,
@@ -650,9 +670,14 @@ namespace
             const OpenSim::Scholz2015GeometryPathObstacle& obstacle) const override
         {
             const OpenSim::ContactGeometry& geom = obstacle.getContactGeometry();
-            const SimTK::Rotation rotation_in_ground = geom.getFrame().getTransformInGround(get_state()).R() * geom.getTransform().R();
-            const SimTK::Vec3 translation_in_ground = geom.getFrame().getTransformInGround(get_state()) * geom.getTransform() * obstacle.getContactHint();
-            return matrix4x4_cast({.rotation = to<Quaternion>(rotation_in_ground), .translation = to<Vector3>(translation_in_ground)});
+            const SimTK::Rotation rotation_in_ground =
+                geom.getFrame().getTransformInGround(get_state()).R() * geom.getTransform().R();
+            const SimTK::Vec3 translation_in_ground =
+                geom.getFrame().getTransformInGround(get_state()) * geom.getTransform() *
+                obstacle.getContactHint();
+            return matrix4x4_cast(
+                {.rotation = to<Quaternion>(rotation_in_ground),
+                 .translation = to<Vector3>(translation_in_ground)});
         }
 
         void impl_on_apply_transform(
@@ -661,11 +686,17 @@ namespace
         {
             // ignores `rotation`
             const OpenSim::ContactGeometry& geom = obstacle.getContactGeometry();
-            const SimTK::Vec3 translation_in_contact_geom = (geom.getFrame().getTransformInGround(get_state()) * geom.getTransform()).R().invert() * transform_in_ground.p();
-            action_translate_contact_hint(get_undoable_model(), obstacle, to<Vector3>(translation_in_contact_geom));
+            const SimTK::Vec3 translation_in_contact_geom =
+                (geom.getFrame().getTransformInGround(get_state()) * geom.getTransform())
+                    .R()
+                    .invert() *
+                transform_in_ground.p();
+            action_translate_contact_hint(
+                get_undoable_model(), obstacle, to<Vector3>(translation_in_contact_geom));
         }
 
-        void impl_on_save([[maybe_unused]] const OpenSim::Scholz2015GeometryPathObstacle& obstacle) override
+        void impl_on_save(
+            [[maybe_unused]] const OpenSim::Scholz2015GeometryPathObstacle& obstacle) override
         {
             action_translate_contact_hint_and_save(get_undoable_model(), obstacle, {});
         }
@@ -702,7 +733,8 @@ namespace
         // user is manipulating something that's rotate-able but then select something that's
         // only translate-able (#705)
         {
-            const ui::GizmoOperations supported_operations = manipulator.get_supported_manipulation_ops();
+            const ui::GizmoOperations supported_operations =
+                manipulator.get_supported_manipulation_ops();
             const ui::GizmoOperation current_operation = gizmo.operation();
 
             if (not supported_operations) {
@@ -721,16 +753,21 @@ namespace
         const Matrix4x4 view_matrix = camera.view_matrix();
         const Matrix4x4 projection_matrix = camera.projection_matrix(aspect_ratio_of(screen_rect));
 
-        const auto user_edit_in_ground = gizmo.draw(model_matrix, view_matrix, projection_matrix, screen_rect);
+        const auto user_edit_in_ground =
+            gizmo.draw(model_matrix, view_matrix, projection_matrix, screen_rect);
 
         if (gizmo.is_using()) {  // note: using != manipulating
             // draw any additional annotations over the top
-            manipulator.draw_extra_on_using_overlays(ui::get_panel_draw_list(), view_matrix, projection_matrix, screen_rect);
+            manipulator.draw_extra_on_using_overlays(
+                ui::get_panel_draw_list(), view_matrix, projection_matrix, screen_rect);
         }
 
         if (user_edit_in_ground) {
             // propagate user edit to the model via the `ISelectionManipulator` interface
-            manipulator.on_apply_transform(SimTK::Transform{to<SimTK::Rotation>(user_edit_in_ground->rotation), to<SimTK::Vec3>(user_edit_in_ground->translation)});
+            manipulator.on_apply_transform(
+                SimTK::Transform{
+                    to<SimTK::Rotation>(user_edit_in_ground->rotation),
+                    to<SimTK::Vec3>(user_edit_in_ground->translation)});
         }
 
         // once the user stops using the manipulator, save the changes
@@ -751,7 +788,8 @@ namespace
             return false;
         }
 
-        const auto* downcasted = dynamic_cast<const typename ConcreteManipulator::AssociatedComponent*>(&selected);
+        const auto* downcasted =
+            dynamic_cast<const typename ConcreteManipulator::AssociatedComponent*>(&selected);
         if (not downcasted) {
             return false;
         }
@@ -770,7 +808,9 @@ namespace
         const OpenSim::Component& selected,
         Typelist<ConcreteManipulator...>)
     {
-        (try_manipulate_component_with_manipulator<ConcreteManipulator>(gizmo, screen_rect, camera, model, selected) || ...);
+        (try_manipulate_component_with_manipulator<ConcreteManipulator>(
+             gizmo, screen_rect, camera, model, selected) ||
+         ...);
     }
 }
 
@@ -786,12 +826,11 @@ osc::ModelSelectionGizmo::ModelSelectionGizmo(std::shared_ptr<opyn::ModelStatePa
 osc::ModelSelectionGizmo::ModelSelectionGizmo(const ModelSelectionGizmo&) = default;
 osc::ModelSelectionGizmo::ModelSelectionGizmo(ModelSelectionGizmo&&) noexcept = default;
 osc::ModelSelectionGizmo& osc::ModelSelectionGizmo::operator=(const ModelSelectionGizmo&) = default;
-osc::ModelSelectionGizmo& osc::ModelSelectionGizmo::operator=(ModelSelectionGizmo&&) noexcept = default;
+osc::ModelSelectionGizmo& osc::ModelSelectionGizmo::operator=(ModelSelectionGizmo&&) noexcept =
+    default;
 osc::ModelSelectionGizmo::~ModelSelectionGizmo() noexcept = default;
 
-void osc::ModelSelectionGizmo::on_draw(
-    const Rect& screen_rect,
-    const Camera& camera)
+void osc::ModelSelectionGizmo::on_draw(const Rect& screen_rect, const Camera& camera)
 {
     if (model_->is_readonly()) {
         return;  // cannot manipulate a readonly model (#936)
@@ -803,10 +842,5 @@ void osc::ModelSelectionGizmo::on_draw(
     }
 
     try_manipulate_component_with_matching_manipulator(
-        gizmo_,
-        screen_rect,
-        camera,
-        model_,
-        *selected,
-        ManipulatorList{});
+        gizmo_, screen_rect, camera, model_, *selected, ManipulatorList{});
 }

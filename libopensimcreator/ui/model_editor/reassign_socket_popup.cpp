@@ -32,10 +32,7 @@ namespace
     // parameters that affect which sockets are displayed
     struct PopupParams final {
 
-        PopupParams(
-            UID model_version,
-            OpenSim::ComponentPath path,
-            std::string socket_name) :
+        PopupParams(UID model_version, OpenSim::ComponentPath path, std::string socket_name) :
 
             modelVersion{model_version},
             componentPath{std::move(path)},
@@ -60,12 +57,15 @@ namespace
 
         friend auto operator<=>(const ConnecteeOption& lhs, const ConnecteeOption& rhs)
         {
-            return std::tie(lhs.name, lhs.absPath.toString()) <=> std::tie(rhs.name, rhs.absPath.toString());
+            return std::tie(lhs.name, lhs.absPath.toString()) <=>
+                   std::tie(rhs.name, rhs.absPath.toString());
         }
 
-        [[maybe_unused]] friend bool operator==(const ConnecteeOption& lhs, const ConnecteeOption& rhs)
+        [[maybe_unused]] friend bool operator==(
+            const ConnecteeOption& lhs, const ConnecteeOption& rhs)
         {
-            return std::tie(lhs.name, lhs.absPath.toString()) == std::tie(rhs.name, rhs.absPath.toString());
+            return std::tie(lhs.name, lhs.absPath.toString()) ==
+                   std::tie(rhs.name, rhs.absPath.toString());
         }
 
         OpenSim::ComponentPath absPath;
@@ -74,8 +74,7 @@ namespace
 
     // generate a list of possible connectee options, given a set of popup parameters
     std::vector<ConnecteeOption> generate_selection_options(
-        const OpenSim::Model& model,
-        const PopupParams& params)
+        const OpenSim::Model& model, const PopupParams& params)
     {
         std::vector<ConnecteeOption> rv;
 
@@ -123,7 +122,8 @@ public:
 
         PopupPrivate{owner, parent, popup_name},
         model_{std::move(model)},
-        params_{model_->get_model_version(), std::string{component_abs_path}, std::string{socket_name}}
+        params_{
+            model_->get_model_version(), std::string{component_abs_path}, std::string{socket_name}}
     {}
 
     void draw_content()
@@ -139,7 +139,8 @@ public:
         }
 
         // check: ensure the "from" side of the socket still exists
-        const OpenSim::Component* component = opyn::find_component(model_->get_model(), params_.componentPath);
+        const OpenSim::Component* component =
+            opyn::find_component(model_->get_model(), params_.componentPath);
         if (not component) {
             request_close();
             return;
@@ -186,13 +187,17 @@ public:
             ui::begin_disabled();
         }
         if (ui::draw_button("Ok") and user_selection_abs_path_) {
-            const SocketReassignmentFlags flags = try_reexpress_in_different_frame_ ?
-                SocketReassignmentFlags::TryReexpressComponentInNewConnectee :
-                SocketReassignmentFlags::None;
+            const SocketReassignmentFlags flags =
+                try_reexpress_in_different_frame_
+                    ? SocketReassignmentFlags::TryReexpressComponentInNewConnectee
+                    : SocketReassignmentFlags::None;
 
-            const OpenSim::Component* selected = opyn::find_component(model_->get_model(), *user_selection_abs_path_);
+            const OpenSim::Component* selected =
+                opyn::find_component(model_->get_model(), *user_selection_abs_path_);
 
-            if (selected and action_reassign_component_socket(*model_, params_.componentPath, params_.socketName, *selected, flags, error_)) {
+            if (selected and
+                action_reassign_component_socket(
+                    *model_, params_.componentPath, params_.socketName, *selected, flags, error_)) {
                 request_close();
                 return;
             }
@@ -226,8 +231,7 @@ public:
 
 private:
     void try_draw_reexpress_property_in_frame_checkbox(
-        const OpenSim::Component& component,
-        const OpenSim::AbstractSocket& abstract_socket)
+        const OpenSim::Component& component, const OpenSim::AbstractSocket& abstract_socket)
     {
         const std::string label = [&component] {
             std::stringstream ss;
@@ -241,7 +245,8 @@ private:
             bool v = false;  // always `false`
             ui::begin_disabled();
             ui::draw_checkbox(label, &v);
-            ui::draw_tooltip_body_only_if_item_hovered("Disabled: the socket doesn't connect to a physical frame");
+            ui::draw_tooltip_body_only_if_item_hovered(
+                "Disabled: the socket doesn't connect to a physical frame");
             ui::end_disabled();
             return;
         }
@@ -252,20 +257,24 @@ private:
             bool v = false;  // always `false`
             ui::begin_disabled();
             ui::draw_checkbox(label, &v);
-            ui::draw_tooltip_body_only_if_item_hovered("Disabled: the component doesn't have a spatial representation that OSC knows how to re-express");
+            ui::draw_tooltip_body_only_if_item_hovered(
+                "Disabled: the component doesn't have a spatial representation that OSC knows how to re-express");
             ui::end_disabled();
             return;
         }
 
         ui::draw_checkbox(label, &try_reexpress_in_different_frame_);
         ui::same_line();
-        ui::draw_help_marker("Component Re-Expression", "This will recalculate the socket owner's appropriate spatial property such that it remains in the same location in ground after changing this socket.");
+        ui::draw_help_marker(
+            "Component Re-Expression",
+            "This will recalculate the socket owner's appropriate spatial property such that it remains in the same location in ground after changing this socket.");
     }
 
     std::shared_ptr<opyn::ModelStatePair> model_;
     PopupParams params_;
     PopupParams edited_params_ = params_;
-    std::vector<ConnecteeOption> options_ = generate_selection_options(model_->get_model(), edited_params_);
+    std::vector<ConnecteeOption> options_ =
+        generate_selection_options(model_->get_model(), edited_params_);
     std::optional<OpenSim::ComponentPath> user_selection_abs_path_;
     std::string error_;
     bool try_reexpress_in_different_frame_ = false;
@@ -278,7 +287,14 @@ osc::ReassignSocketPopup::ReassignSocketPopup(
     std::string_view component_abs_path,
     std::string_view socket_name) :
 
-    Popup{std::make_unique<Impl>(*this, parent, popup_name, std::move(model), component_abs_path, socket_name)}
+    Popup{std::make_unique<Impl>(
+        *this, parent, popup_name, std::move(model), component_abs_path, socket_name)}
 {}
-void osc::ReassignSocketPopup::impl_draw_content() { private_data().draw_content(); }
-void osc::ReassignSocketPopup::impl_on_close() { private_data().on_close(); }
+void osc::ReassignSocketPopup::impl_draw_content()
+{
+    private_data().draw_content();
+}
+void osc::ReassignSocketPopup::impl_on_close()
+{
+    private_data().on_close();
+}

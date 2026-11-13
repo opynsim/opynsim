@@ -4,8 +4,7 @@
 #include <liboscar/platform/app.h>
 
 osc::ModelViewerPanelState::ModelViewerPanelState(
-    std::string_view panel_name,
-    ModelViewerPanelFlags flags) :
+    std::string_view panel_name, ModelViewerPanelFlags flags) :
 
     panel_name_{panel_name},
     flags_{flags},

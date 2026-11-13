@@ -20,9 +20,7 @@ namespace osc
 
     class ModelAddMenuItems final : public Widget {
     public:
-        explicit ModelAddMenuItems(
-            Widget* parent,
-            std::shared_ptr<opyn::ModelStatePair> model);
+        explicit ModelAddMenuItems(Widget* parent, std::shared_ptr<opyn::ModelStatePair> model);
 
         void set_target_parent_component(const OpenSim::ComponentPath&);
 

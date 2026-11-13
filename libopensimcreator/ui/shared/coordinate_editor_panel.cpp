@@ -43,7 +43,8 @@ public:
     void draw_content()
     {
         // load coords
-        std::vector<const OpenSim::Coordinate*> coord_ptrs = opyn::get_coordinates_in_model(model_->get_model());
+        std::vector<const OpenSim::Coordinate*> coord_ptrs =
+            opyn::get_coordinates_in_model(model_->get_model());
 
         // if there's no coordinates in the model, show a warning message and stop drawing
         if (coord_ptrs.empty()) {
@@ -75,17 +76,22 @@ public:
 
                 // we know the user can only sort one column (name) so we don't need to permute
                 // through the entire specs structure
-                if (specs.size() == 1 && specs.front().column_index == 0 && specs.front().sort_order == 0) {
+                if (specs.size() == 1 and specs.front().column_index == 0 and
+                    specs.front().sort_order == 0) {
+
                     switch (specs.front().sort_direction) {
                     case ui::SortDirection::Ascending:
-                        rgs::sort(coord_ptrs, rgs::less{}, [](const auto& ptr) { return ptr->getName(); });
+                        rgs::sort(coord_ptrs, rgs::less{}, [](const auto& ptr) {
+                            return ptr->getName();
+                        });
                         break;
                     case ui::SortDirection::Descending:
-                        rgs::sort(coord_ptrs, rgs::greater{}, [](const auto& ptr) { return ptr->getName(); });
+                        rgs::sort(coord_ptrs, rgs::greater{}, [](const auto& ptr) {
+                            return ptr->getName();
+                        });
                         break;
                     case ui::SortDirection::None:
-                    default:
-                        break;  // just use them as-is
+                    default: break;  // just use them as-is
                     }
                 }
             }
@@ -131,11 +137,15 @@ private:
 
         ui::table_set_column_index(column++);
         draw_data_cell(c);
-        OSC_ASSERT_ALWAYS(c.hasOwner() && "An `OpenSim::Coordinate` must always have an owner. This bug can occur when using is_free_to_satisfy_coordinates (see issue #888)");
+        OSC_ASSERT_ALWAYS(
+            c.hasOwner() &&
+            "An `OpenSim::Coordinate` must always have an owner. This bug can occur when using is_free_to_satisfy_coordinates (see issue #888)");
 
         ui::table_set_column_index(column++);
         draw_speed_cell(c);
-        OSC_ASSERT_ALWAYS(c.hasOwner() && "An `OpenSim::Coordinate` must always have an owner. This bug can occur when using is_free_to_satisfy_coordinates (see issue #888)");
+        OSC_ASSERT_ALWAYS(
+            c.hasOwner() &&
+            "An `OpenSim::Coordinate` must always have an owner. This bug can occur when using is_free_to_satisfy_coordinates (see issue #888)");
     }
 
     void draw_name_cell(const OpenSim::Coordinate& c)
@@ -167,10 +177,7 @@ private:
             model_->set_selected(&c);
         } else if (ui::is_item_clicked(MouseButton::Right)) {
             auto popup = std::make_unique<ComponentContextMenu>(
-                parent(),
-                "##componentcontextmenu",
-                model_,
-                opyn::get_absolute_path(c));
+                parent(), "##componentcontextmenu", model_, opyn::get_absolute_path(c));
             App::post_event<OpenPopupEvent>(*parent(), std::move(popup));
         }
     }
@@ -203,7 +210,9 @@ private:
         ui::pop_style_color();
         ui::pop_style_color();
         ui::pop_style_color();
-        ui::draw_tooltip_if_item_hovered("Toggle Coordinate Lock", "Lock/unlock the coordinate's value.\n\nLocking a coordinate indicates whether the coordinate's value should be constrained to this value during the simulation.");
+        ui::draw_tooltip_if_item_hovered(
+            "Toggle Coordinate Lock",
+            "Lock/unlock the coordinate's value.\n\nLocking a coordinate indicates whether the coordinate's value should be constrained to this value during the simulation.");
     }
 
     void draw_data_cell_coordinate_slider(const OpenSim::Coordinate& c)
@@ -214,14 +223,17 @@ private:
 
         const float min_value = opyn::convert_coord_value_to_display_value(c, c.getRangeMin());
         const float max_value = opyn::convert_coord_value_to_display_value(c, c.getRangeMax());
-        float displayed_value = opyn::convert_coord_value_to_display_value(c, c.getValue(model_->get_state()));
+        float displayed_value =
+            opyn::convert_coord_value_to_display_value(c, c.getValue(model_->get_state()));
 
         if (coordinate_locked) {
             ui::push_style_var(ui::StyleVar::DisabledAlpha, 0.2f);
             ui::begin_disabled();
         }
-        if (ui::draw_float_circular_slider("##coordinatevalueeditor", &displayed_value, min_value, max_value)) {
-            const double stored_value = opyn::convert_coord_display_value_to_storage_value(c, displayed_value);
+        if (ui::draw_float_circular_slider(
+                "##coordinatevalueeditor", &displayed_value, min_value, max_value)) {
+            const double stored_value =
+                opyn::convert_coord_display_value_to_storage_value(c, displayed_value);
             action_set_coordinate_value(*model_, c, stored_value);
         }
         if (coordinate_locked) {
@@ -229,7 +241,8 @@ private:
             ui::pop_style_var();
         }
         if (ui::is_item_deactivated_after_edit()) {
-            const double stored_value = opyn::convert_coord_display_value_to_storage_value(c, displayed_value);
+            const double stored_value =
+                opyn::convert_coord_display_value_to_storage_value(c, displayed_value);
             action_set_coordinate_value_and_save(*model_, c, stored_value);
         }
         ui::draw_tooltip_body_only_if_item_hovered("Ctrl-click the slider to edit");
@@ -237,16 +250,19 @@ private:
 
     void draw_speed_cell(const OpenSim::Coordinate& c)
     {
-        float displayed_speed = opyn::convert_coord_value_to_display_value(c, c.getSpeedValue(model_->get_state()));
+        float displayed_speed =
+            opyn::convert_coord_value_to_display_value(c, c.getSpeedValue(model_->get_state()));
 
         ui::set_next_item_width(ui::get_content_region_available().x());
         if (ui::draw_float_meters_input("##coordinatespeededitor", displayed_speed)) {
-            const double stored_speed = opyn::convert_coord_display_value_to_storage_value(c, displayed_speed);
+            const double stored_speed =
+                opyn::convert_coord_display_value_to_storage_value(c, displayed_speed);
             action_set_coordinate_speed(*model_, c, stored_speed);
         }
 
         if (ui::is_item_deactivated_after_edit()) {
-            const double stored_speed = opyn::convert_coord_display_value_to_storage_value(c, displayed_speed);
+            const double stored_speed =
+                opyn::convert_coord_display_value_to_storage_value(c, displayed_speed);
             action_set_coordinate_speed_and_save(*model_, c, stored_speed);
         }
     }
@@ -255,10 +271,11 @@ private:
 };
 
 osc::CoordinateEditorPanel::CoordinateEditorPanel(
-    Widget* parent,
-    std::string_view panel_name,
-    std::shared_ptr<opyn::ModelStatePair> model) :
+    Widget* parent, std::string_view panel_name, std::shared_ptr<opyn::ModelStatePair> model) :
 
     Panel{std::make_unique<Impl>(*this, parent, panel_name, std::move(model))}
 {}
-void osc::CoordinateEditorPanel::impl_draw_content() { private_data().draw_content(); }
+void osc::CoordinateEditorPanel::impl_draw_content()
+{
+    private_data().draw_content();
+}

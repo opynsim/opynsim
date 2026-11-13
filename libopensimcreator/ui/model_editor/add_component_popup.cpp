@@ -161,7 +161,8 @@ private:
                     return nullptr;  // invalid path slipped through
                 }
 
-                const auto* pof = opyn::find_component<OpenSim::PhysicalFrame>(model, pp.actualFrame);
+                const auto* pof =
+                    opyn::find_component<OpenSim::PhysicalFrame>(model, pp.actualFrame);
                 if (not pof) {
                     return nullptr;  // invalid path slipped through
                 }
@@ -181,7 +182,8 @@ private:
         const OpenSim::Model& model = model_->get_model();
 
         const bool has_name = !name_.empty();
-        const bool all_sockets_assigned = rgs::all_of(socket_connectee_paths_, std::bind_front(opyn::contains_component, std::cref(model)));
+        const bool all_sockets_assigned = rgs::all_of(
+            socket_connectee_paths_, std::bind_front(opyn::contains_component, std::cref(model)));
         const bool has_enough_path_points =
             dynamic_cast<const OpenSim::PathActuator*>(proto_.get()) == nullptr or
             path_points_.size() >= 2;
@@ -195,7 +197,8 @@ private:
 
         ui::draw_text("name");
         ui::same_line();
-        ui::draw_help_marker("Name the newly-added component will have after being added into the model. Note: this is used to derive the name of subcomponents (e.g. path points)");
+        ui::draw_help_marker(
+            "Name the newly-added component will have after being added into the model. Note: this is used to derive the name of subcomponents (e.g. path points)");
         ui::next_column();
 
         ui::draw_string_input("##componentname", name_);
@@ -210,7 +213,8 @@ private:
     {
         auto maybe_updater = prototype_properties_editor_.on_draw();
         if (maybe_updater) {
-            OpenSim::AbstractProperty* prop = opyn::find_property_mut(*proto_, maybe_updater->get_property_name());
+            OpenSim::AbstractProperty* prop =
+                opyn::find_property_mut(*proto_, maybe_updater->get_property_name());
             if (prop) {
                 maybe_updater->apply(*prop);
             }
@@ -225,7 +229,8 @@ private:
 
         ui::draw_text("Socket assignments (required)");
         ui::same_line();
-        ui::draw_help_marker("The OpenSim::Component being added has `socket`s that connect to other components in the model. You must specify what these sockets should be connected to; otherwise, the component cannot be added to the model.\n\nIn OpenSim, a Socket formalizes the dependency between a Component and another object (typically another Component) without owning that object. While Components can be composites (of multiple components) they often depend on unrelated objects/components that are defined and owned elsewhere. The object that satisfies the requirements of the Socket we term the 'connectee'. When a Socket is satisfied by a connectee we have a successful 'connection' or is said to be connected.");
+        ui::draw_help_marker(
+            "The OpenSim::Component being added has `socket`s that connect to other components in the model. You must specify what these sockets should be connected to; otherwise, the component cannot be added to the model.\n\nIn OpenSim, a Socket formalizes the dependency between a Component and another object (typically another Component) without owning that object. While Components can be composites (of multiple components) they often depend on unrelated objects/components that are defined and owned elsewhere. The object that satisfies the requirements of the Socket we term the 'connectee'. When a Socket is satisfied by a connectee we have a successful 'connection' or is said to be connected.");
         ui::draw_separator();
 
         ui::draw_vertical_spacer(1.0f / 15.0f);
@@ -255,7 +260,10 @@ private:
         ui::push_id(static_cast<int>(i));
         ui::set_next_item_width(ui::get_content_region_available().x());
         draw_search_bar(socket_search_strings_[i]);
-        ui::begin_child_panel("##pfselector", {ui::get_content_region_available().x(), 5.0f * ui::get_text_line_height_in_current_panel()});
+        ui::begin_child_panel(
+            "##pfselector",
+            {ui::get_content_region_available().x(),
+             5.0f * ui::get_text_line_height_in_current_panel()});
 
         // iterate through potential connectees in model and print connect-able options
         int inner_id = 0;
@@ -264,7 +272,9 @@ private:
                 continue;  // can't connect to it
             }
 
-            if (dynamic_cast<const OpenSim::Station*>(&c) and opyn::is_child_of_a<OpenSim::Muscle>(c)) {
+            if (dynamic_cast<const OpenSim::Station*>(&c) and
+                opyn::is_child_of_a<OpenSim::Muscle>(c)) {
+
                 continue;  // it's a muscle point: don't present it (noisy)
             }
 
@@ -305,7 +315,10 @@ private:
 
         // choices
         for (const OpenSim::Component& c : model.getComponentList()) {
-            if (cpp23::contains(path_points_, opyn::get_absolute_path(c), [](const auto& pp) { return pp.userChoice; })) {
+            if (cpp23::contains(path_points_, opyn::get_absolute_path(c), [](const auto& pp) {
+                    return pp.userChoice;
+                })) {
+
                 continue;  // already selected
             }
 
@@ -352,7 +365,8 @@ private:
                     opyn::get_absolute_path(*actual_frame),
                     location_in_frame);
             }
-            ui::draw_tooltip_if_item_hovered(c.getName(), (opyn::get_absolute_path_string(c) + " " + c.getConcreteClassName()));
+            ui::draw_tooltip_if_item_hovered(
+                c.getName(), (opyn::get_absolute_path_string(c) + " " + c.getConcreteClassName()));
         }
 
         ui::end_child_panel();
@@ -403,7 +417,8 @@ private:
 
             ui::draw_text(path_points_[i].userChoice.getComponentName());
             if (ui::is_item_hovered()) {
-                if (const OpenSim::Component* c = opyn::find_component(model, path_points_[i].userChoice)) {
+                if (const OpenSim::Component* c =
+                        opyn::find_component(model, path_points_[i].userChoice)) {
                     ui::draw_tooltip(c->getName(), opyn::get_absolute_path_string(*c));
                 }
             }
@@ -428,7 +443,8 @@ private:
         // header
         ui::draw_text("Path Points (at least 2 required)");
         ui::same_line();
-        ui::draw_help_marker("The Component being added is (effectively) a line that connects physical frames (e.g. bodies) in the model. For example, an OpenSim::Muscle can be described as an actuator that connects bodies in the model together. You **must** specify at least two physical frames on the line in order to add a PathActuator component.\n\nDetails: in OpenSim, some `Components` are `PathActuator`s. All `Muscle`s are defined as `PathActuator`s. A `PathActuator` is an `Actuator` that actuates along a path. Therefore, a `Model` containing a `PathActuator` with zero or one points would be invalid. This is why it is required that you specify at least two points");
+        ui::draw_help_marker(
+            "The Component being added is (effectively) a line that connects physical frames (e.g. bodies) in the model. For example, an OpenSim::Muscle can be described as an actuator that connects bodies in the model together. You **must** specify at least two physical frames on the line in order to add a PathActuator component.\n\nDetails: in OpenSim, some `Components` are `PathActuator`s. All `Muscle`s are defined as `PathActuator`s. A `PathActuator` is an `Actuator` that actuates along a path. Therefore, a `Model` containing a `PathActuator` with zero or one points would be invalid. This is why it is required that you specify at least two points");
         ui::draw_separator();
 
         ui::set_num_columns(2);
@@ -467,7 +483,8 @@ private:
             std::unique_ptr<OpenSim::Component> rv = try_create_component_from_state();
             if (rv) {
                 try {
-                    if (action_add_component_to_model(*model_, std::move(rv), maybe_target_component_)) {
+                    if (action_add_component_to_model(
+                            *model_, std::move(rv), maybe_target_component_)) {
                         request_close();
                     }
                 } catch (const std::exception& ex) {
@@ -532,7 +549,13 @@ osc::AddComponentPopup::AddComponentPopup(
     std::unique_ptr<OpenSim::Component> prototype,
     OpenSim::ComponentPath target_component) :
 
-    Popup{std::make_unique<Impl>(*this, parent, popup_name, std::move(model), std::move(prototype), std::move(target_component))}
+    Popup{std::make_unique<Impl>(
+        *this,
+        parent,
+        popup_name,
+        std::move(model),
+        std::move(prototype),
+        std::move(target_component))}
 {}
 
 void osc::AddComponentPopup::impl_draw_content()

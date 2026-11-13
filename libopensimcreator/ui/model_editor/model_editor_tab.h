@@ -20,18 +20,11 @@ namespace osc
     public:
         static CStringView id() { return "OpenSim/ModelEditor"; }
 
+        explicit ModelEditorTab(Widget*);
+        explicit ModelEditorTab(Widget*, const OpenSim::Model&);
         explicit ModelEditorTab(
-            Widget*);
-        explicit ModelEditorTab(
-            Widget*,
-            const OpenSim::Model&);
-        explicit ModelEditorTab(
-            Widget*,
-            std::unique_ptr<OpenSim::Model>,
-            float fixup_scale_factor = 1.0f);
-        explicit ModelEditorTab(
-            Widget*,
-            std::unique_ptr<UndoableModelStatePair>);
+            Widget*, std::unique_ptr<OpenSim::Model>, float fixup_scale_factor = 1.0f);
+        explicit ModelEditorTab(Widget*, std::unique_ptr<UndoableModelStatePair>);
 
     private:
         bool impl_is_unsaved() const override;

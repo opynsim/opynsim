@@ -31,7 +31,8 @@ namespace osc
 
         void insert_in_blacklist(std::string_view property_name);
 
-        // does not actually apply any property changes - the caller should check+apply the return value
+        // does not actually apply any property changes - the caller should check+apply the return
+        // value
         std::optional<ObjectPropertyEdit> on_draw();
 
     private:

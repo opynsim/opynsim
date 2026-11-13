@@ -31,7 +31,11 @@ public:
     {
         const OpenSim::PhysicalFrame* selected = nullptr;
 
-        ui::begin_child_panel("pflist", Vector2{256.0f, 256.0f}, ui::ChildPanelFlag::Border, ui::PanelFlag::HorizontalScrollbar);
+        ui::begin_child_panel(
+            "pflist",
+            Vector2{256.0f, 256.0f},
+            ui::ChildPanelFlag::Border,
+            ui::PanelFlag::HorizontalScrollbar);
         for (const auto& pf : model_->get_model().getComponentList<OpenSim::PhysicalFrame>()) {
             if (ui::draw_selectable(pf.getName())) {
                 selected = &pf;
@@ -56,6 +60,10 @@ osc::Select1PFPopup::Select1PFPopup(
     std::shared_ptr<const opyn::ModelStatePair> model,
     std::function<void(const OpenSim::ComponentPath&)> on_selection) :
 
-    Popup{std::make_unique<Impl>(*this, parent, popup_name, std::move(model), std::move(on_selection))}
+    Popup{std::make_unique<Impl>(
+        *this, parent, popup_name, std::move(model), std::move(on_selection))}
 {}
-void osc::Select1PFPopup::impl_draw_content() { private_data().draw_content(); }
+void osc::Select1PFPopup::impl_draw_content()
+{
+    private_data().draw_content();
+}

@@ -73,31 +73,31 @@ namespace
 
     // generates scene decorations for the "choose components" layer
     void generate_choose_components_decorations(
-        const ChooseComponentsEditorLayerSharedState& state,
-        BVHedDecorations& out)
+        const ChooseComponentsEditorLayerSharedState& state, BVHedDecorations& out)
     {
         out.clear();
 
-        const auto on_model_decoration = [&state, &out](const OpenSim::Component& component, SceneDecoration&& decoration) {
-            // update flags based on path
-            const StringName abs_path = opyn::get_absolute_path_string_name(component);
-            if (state.popupParams.components_being_assigned_to.contains(abs_path) or
-                state.alreadyChosenComponents.contains(abs_path)) {
+        const auto on_model_decoration =
+            [&state, &out](const OpenSim::Component& component, SceneDecoration&& decoration) {
+                // update flags based on path
+                const StringName abs_path = opyn::get_absolute_path_string_name(component);
+                if (state.popupParams.components_being_assigned_to.contains(abs_path) or
+                    state.alreadyChosenComponents.contains(abs_path)) {
 
-                decoration.flags |= SceneDecorationFlag::RimHighlight0;
-            }
-            if (abs_path == state.hoveredComponent) {
-                decoration.flags |= SceneDecorationFlag::RimHighlight1;
-            }
+                    decoration.flags |= SceneDecorationFlag::RimHighlight0;
+                }
+                if (abs_path == state.hoveredComponent) {
+                    decoration.flags |= SceneDecorationFlag::RimHighlight1;
+                }
 
-            if (state.popupParams.can_choose_item(component)) {
-                decoration.id = abs_path;
-            } else if (std::holds_alternative<Color>(decoration.shading)) {
-                std::get<Color>(decoration.shading).a *= 0.2f;  // fade non-selectable objects
-            }
+                if (state.popupParams.can_choose_item(component)) {
+                    decoration.id = abs_path;
+                } else if (std::holds_alternative<Color>(decoration.shading)) {
+                    std::get<Color>(decoration.shading).a *= 0.2f;  // fade non-selectable objects
+                }
 
-            out.decorations.push_back(std::move(decoration));
-        };
+                out.decorations.push_back(std::move(decoration));
+            };
 
         generate_model_decorations(
             *state.meshCache,
@@ -133,8 +133,7 @@ public:
     {}
 
     bool handle_keyboard_inputs(
-        ModelViewerPanelParameters& params,
-        ModelViewerPanelState& state) const
+        ModelViewerPanelParameters& params, ModelViewerPanelState& state) const
     {
         const bool controller_updated = ui::update_orbit_controller_from_keyboard_inputs(
             params.upd_orbit_camera_controller(),
@@ -147,9 +146,7 @@ public:
         return controller_updated;
     }
 
-    bool handle_mouse_inputs(
-        ModelViewerPanelParameters& params,
-        ModelViewerPanelState& state)
+    bool handle_mouse_inputs(ModelViewerPanelParameters& params, ModelViewerPanelState& state)
     {
         bool rv = ui::update_orbit_controller_from_mouse_inputs(
             params.upd_orbit_camera_controller(),
@@ -170,16 +167,16 @@ public:
         return rv;
     }
 
-    void on_draw(
-        ModelViewerPanelParameters& panel_params,
-        ModelViewerPanelState& panel_state)
+    void on_draw(ModelViewerPanelParameters& panel_params, ModelViewerPanelState& panel_state)
     {
         const bool layer_is_hovered = ui::is_panel_hovered(ui::HoveredFlag::RootAndChildPanels);
 
         // update this layer's state from provided state
         state_.renderParams = panel_params.get_render_params();
-        is_left_click_released_without_dragging_ = ui::is_mouse_released_without_dragging(MouseButton::Left);
-        is_right_click_released_without_dragging_ = ui::is_mouse_released_without_dragging(MouseButton::Right);
+        is_left_click_released_without_dragging_ =
+            ui::is_mouse_released_without_dragging(MouseButton::Left);
+        is_right_click_released_without_dragging_ =
+            ui::is_mouse_released_without_dragging(MouseButton::Right);
         if (ui::is_key_released(Key::Escape)) {
             state_.shouldClosePopup = true;
         }
@@ -189,7 +186,8 @@ public:
         const SceneRendererParams renderer_parameters = opyn::calc_scene_renderer_params(
             state_.renderParams,
             panel_state.viewport_ui_rect.dimensions(),
-            App::settings().get_value<float>("graphics/render_scale", 1.0f) * App::get().main_window_device_pixel_ratio(),
+            App::settings().get_value<float>("graphics/render_scale", 1.0f) *
+                App::get().main_window_device_pixel_ratio(),
             App::get().anti_aliasing_level(),
             state_.model->get_fixup_scale_factor());
 
@@ -197,9 +195,7 @@ public:
         renderer_.render(decorations_.decorations, renderer_parameters);
 
         // blit texture as ImGui image
-        ui::draw_image(
-            renderer_.upd_render_texture(),
-            panel_state.viewport_ui_rect.dimensions());
+        ui::draw_image(renderer_.upd_render_texture(), panel_state.viewport_ui_rect.dimensions());
 
         // do hovertest
         if (layer_is_hovered) {
@@ -218,16 +214,20 @@ public:
         }
 
         // show tooltip
-        if (const OpenSim::Component* c = opyn::find_component(state_.model->get_model(), state_.hoveredComponent)) {
+        if (const OpenSim::Component* c =
+                opyn::find_component(state_.model->get_model(), state_.hoveredComponent)) {
             draw_component_hover_tooltip(*c);
         }
 
         // show header
-        ui::set_cursor_ui_position(panel_state.viewport_ui_rect.ypd_top_left() + Vector2{10.0f, 10.0f});
+        ui::set_cursor_ui_position(
+            panel_state.viewport_ui_rect.ypd_top_left() + Vector2{10.0f});
         ui::draw_text("{} (ESC to cancel)", state_.popupParams.popup_header_text);
 
         // handle completion state (i.e. user selected enough components)
-        if (state_.alreadyChosenComponents.size() == state_.popupParams.num_components_user_must_choose) {
+        if (state_.alreadyChosenComponents.size() ==
+            state_.popupParams.num_components_user_must_choose) {
+
             state_.popupParams.on_user_finished_choosing(state_.alreadyChosenComponents);
             state_.shouldClosePopup = true;
         }
@@ -239,7 +239,8 @@ public:
             constexpr CStringView cancellation_button_text = MSMICONS_ARROW_LEFT " Cancel (ESC)";
             const Vector2 margin = {25.0f, 25.0f};
             const Vector2 button_dims = ui::calc_button_size(cancellation_button_text);
-            const Vector2 button_top_left = panel_state.viewport_ui_rect.ypd_bottom_right() - (button_dims + margin);
+            const Vector2 button_top_left =
+                panel_state.viewport_ui_rect.ypd_bottom_right() - (button_dims + margin);
             ui::set_cursor_ui_position(button_top_left);
             if (ui::draw_button(cancellation_button_text)) {
                 state_.shouldClosePopup = true;
@@ -249,20 +250,15 @@ public:
         }
     }
 
-    float get_background_alpha() const
-    {
-        return 1.0f;
-    }
+    float get_background_alpha() const { return 1.0f; }
 
-    bool should_close() const
-    {
-        return state_.shouldClosePopup;
-    }
+    bool should_close() const { return state_.shouldClosePopup; }
 
     bool try_toggle_hover()
     {
         const auto& abs_path = state_.hoveredComponent;
-        const OpenSim::Component* component = opyn::find_component(state_.model->get_model(), abs_path);
+        const OpenSim::Component* component =
+            opyn::find_component(state_.model->get_model(), abs_path);
 
         if (not component) {
             return false;  // nothing hovered
@@ -270,12 +266,14 @@ public:
         if (state_.popupParams.components_being_assigned_to.contains(abs_path)) {
             return false;  // cannot be selected
         }
-        if (auto it = state_.alreadyChosenComponents.find(abs_path); it != state_.alreadyChosenComponents.end()) {
+        if (auto it = state_.alreadyChosenComponents.find(abs_path);
+            it != state_.alreadyChosenComponents.end()) {
+
             state_.alreadyChosenComponents.erase(it);
             return true;  // de-selected
         }
-        if (
-            state_.alreadyChosenComponents.size() < state_.popupParams.num_components_user_must_choose &&
+        if (state_.alreadyChosenComponents.size() <
+                state_.popupParams.num_components_user_must_choose and
             state_.popupParams.can_choose_item(*component)) {
 
             state_.alreadyChosenComponents.insert(abs_path);
@@ -293,33 +291,30 @@ public:
 };
 
 osc::ChooseComponentsEditorLayer::ChooseComponentsEditorLayer(
-    std::shared_ptr<opyn::ModelStatePair> model,
-    ChooseComponentsEditorLayerParameters parameters) :
+    std::shared_ptr<opyn::ModelStatePair> model, ChooseComponentsEditorLayerParameters parameters) :
 
     impl_{std::make_unique<Impl>(std::move(model), std::move(parameters))}
-{
-}
-osc::ChooseComponentsEditorLayer::ChooseComponentsEditorLayer(ChooseComponentsEditorLayer&&) noexcept = default;
-osc::ChooseComponentsEditorLayer& osc::ChooseComponentsEditorLayer::operator=(ChooseComponentsEditorLayer&&) noexcept = default;
+{}
+osc::ChooseComponentsEditorLayer::ChooseComponentsEditorLayer(
+    ChooseComponentsEditorLayer&&) noexcept = default;
+osc::ChooseComponentsEditorLayer& osc::ChooseComponentsEditorLayer::operator=(
+    ChooseComponentsEditorLayer&&) noexcept = default;
 osc::ChooseComponentsEditorLayer::~ChooseComponentsEditorLayer() noexcept = default;
 
 bool osc::ChooseComponentsEditorLayer::impl_handle_keyboard_inputs(
-    ModelViewerPanelParameters& params,
-    ModelViewerPanelState& state)
+    ModelViewerPanelParameters& params, ModelViewerPanelState& state)
 {
     return impl_->handle_keyboard_inputs(params, state);
 }
 
 bool osc::ChooseComponentsEditorLayer::impl_handle_mouse_inputs(
-    ModelViewerPanelParameters& params,
-    ModelViewerPanelState& state)
+    ModelViewerPanelParameters& params, ModelViewerPanelState& state)
 {
     return impl_->handle_mouse_inputs(params, state);
 }
 
 void osc::ChooseComponentsEditorLayer::impl_on_draw(
-    ModelViewerPanelParameters& params,
-    ModelViewerPanelState& state)
+    ModelViewerPanelParameters& params, ModelViewerPanelState& state)
 {
     impl_->on_draw(params, state);
 }

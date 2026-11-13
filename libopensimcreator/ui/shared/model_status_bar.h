@@ -13,9 +13,7 @@ namespace osc
 {
     class ModelStatusBar final : public Widget {
     public:
-        explicit ModelStatusBar(
-            Widget* parent,
-            std::shared_ptr<opyn::ModelStatePair>);
+        explicit ModelStatusBar(Widget* parent, std::shared_ptr<opyn::ModelStatePair>);
 
     private:
         void impl_on_draw() override;

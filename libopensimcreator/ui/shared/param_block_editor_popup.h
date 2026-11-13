@@ -12,10 +12,7 @@ namespace osc
     // popup that edits a parameter block in-place
     class ParamBlockEditorPopup final : public Popup {
     public:
-        explicit ParamBlockEditorPopup(
-            Widget* parent,
-            std::string_view popup_name,
-            ParamBlock*);
+        explicit ParamBlockEditorPopup(Widget* parent, std::string_view popup_name, ParamBlock*);
 
     private:
         void impl_draw_content() override;

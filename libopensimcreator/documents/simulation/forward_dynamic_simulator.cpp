@@ -275,9 +275,7 @@ namespace
     // this is the main function that the simulator thread works through (unguarded against
     // exceptions)
     SimulationStatus fd_simulation_main_unguarded(
-        cpp20::stop_token stop_token,
-        SimulatorThreadInput& input,
-        SharedState& shared)
+        cpp20::stop_token stop_token, SimulatorThreadInput& input, SharedState& shared)
     {
         const auto t_sim_start = PerfClock::now();
 

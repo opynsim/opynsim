@@ -18,10 +18,7 @@
 
 class osc::ModelStatusBar::Impl final : public WidgetPrivate {
 public:
-    explicit Impl(
-        Widget& owner,
-        Widget* parent,
-        std::shared_ptr<opyn::ModelStatePair> model) :
+    explicit Impl(Widget& owner, Widget* parent, std::shared_ptr<opyn::ModelStatePair> model) :
 
         WidgetPrivate{owner, parent},
         model_{std::move(model)}
@@ -81,10 +78,7 @@ private:
         if (ui::is_item_clicked(MouseButton::Right)) {
             if (parent()) {
                 auto menu = std::make_unique<ComponentContextMenu>(
-                    parent(),
-                    "##hovermenu",
-                    model_,
-                    opyn::get_absolute_path(c));
+                    parent(), "##hovermenu", model_, opyn::get_absolute_path(c));
                 menu->open();
                 App::post_event<OpenPopupEvent>(*parent(), std::move(menu));
             }
@@ -94,10 +88,11 @@ private:
     std::shared_ptr<opyn::ModelStatePair> model_;
 };
 
-osc::ModelStatusBar::ModelStatusBar(
-    Widget* parent,
-    std::shared_ptr<opyn::ModelStatePair> model) :
+osc::ModelStatusBar::ModelStatusBar(Widget* parent, std::shared_ptr<opyn::ModelStatePair> model) :
 
     Widget{std::make_unique<Impl>(*this, parent, std::move(model))}
 {}
-void osc::ModelStatusBar::impl_on_draw() { private_data().on_draw(); }
+void osc::ModelStatusBar::impl_on_draw()
+{
+    private_data().on_draw();
+}

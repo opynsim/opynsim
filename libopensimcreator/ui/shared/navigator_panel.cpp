@@ -37,8 +37,7 @@ namespace
 
     // populates `out` with the sequence of nodes between (ancestor..child]
     ComponentTreePathPointers compute_component_tree_path(
-        const OpenSim::Component* ancestor,
-        const OpenSim::Component* child)
+        const OpenSim::Component* ancestor, const OpenSim::Component* child)
     {
         ComponentTreePathPointers rv;
 
@@ -157,9 +156,8 @@ private:
 
         OpenSim::ComponentPath selected_path = opyn::get_absolute_path_or_empty(selected);
 
-        const ComponentTreePathPointers selected_path_pointers = selected ?
-            compute_component_tree_path(root, selected) :
-            ComponentTreePathPointers{};
+        const ComponentTreePathPointers selected_path_pointers =
+            selected ? compute_component_tree_path(root, selected) : ComponentTreePathPointers{};
 
         // get underlying component list (+iterator)
         const auto component_list = root->getComponentList();
@@ -183,7 +181,9 @@ private:
             ComponentTreePathPointers current_path = lookahead_path;
 
             OSC_ASSERT(cur && "cur ptr should *definitely* be populated at this point");
-            OSC_ASSERT(!current_path.empty() && "current path cannot be empty (even a root element has a path)");
+            OSC_ASSERT(
+                !current_path.empty() &&
+                "current path cannot be empty (even a root element has a path)");
 
             // update lookahead (+ path) by stepping to the next component in the component tree
             lookahead = nullptr;
@@ -193,7 +193,7 @@ private:
 
                 bool should_render = true;
 
-                if (not show_frames_ and dynamic_cast<const OpenSim::FrameGeometry*>(&c)) {  // NOLINT(bugprone-branch-clone)
+                if (not show_frames_ and dynamic_cast<const OpenSim::FrameGeometry*>(&c)) {
                     should_render = false;
                 } else if (const auto* wos = dynamic_cast<const OpenSim::WrapObjectSet*>(&c)) {
                     should_render = !opyn::empty(*wos);
@@ -226,7 +226,8 @@ private:
             OSC_ASSERT(imgui_tree_depth <= std::ssize(current_path) - 1);
 
             // handle display mode (node vs leaf)
-            const bool is_internal_node = current_path.size() < 2 || lookahead_path.size() > current_path.size();
+            const bool is_internal_node =
+                current_path.size() < 2 || lookahead_path.size() > current_path.size();
             ui::TreeNodeFlags node_flags = ui::TreeNodeFlag::DrawLinesFull;
             node_flags |= is_internal_node ? ui::TreeNodeFlag::OpenOnArrow : ui::TreeNodeFlag::Leaf;
 
@@ -234,7 +235,10 @@ private:
             if (row++ % 2) {
                 const auto offset = ui::get_cursor_ui_position() - ui::get_cursor_panel_position();
                 const auto top_left = Vector2{0.0f, ui::get_cursor_panel_position().y()};
-                const auto bottom_right = top_left + Vector2{ui::get_panel_size().x(), ui::get_text_line_height_with_spacing_in_current_panel()};
+                const auto bottom_right =
+                    top_left + Vector2{
+                                   ui::get_panel_size().x(),
+                                   ui::get_text_line_height_with_spacing_in_current_panel()};
                 const auto rect = Rect::from_corners(offset + top_left, offset + bottom_right);
                 const auto color = multiply_luminance(ui::get_color(ui::ColorVar::PanelBg), 1.2f);
                 ui::get_panel_draw_list().add_rect_filled(rect, color);
@@ -256,7 +260,9 @@ private:
             }
 
             // auto-open in these cases
-            if (search_hit || std::ssize(current_path) == 1 || path_contains(selected_path_pointers, cur)) {
+            if (search_hit or std::ssize(current_path) == 1 or
+                path_contains(selected_path_pointers, cur)) {
+
                 ui::set_next_item_open(true);
             }
 
@@ -289,8 +295,7 @@ private:
             if (user_right_clicked_this_tree_node) {
                 on_right_click_(opyn::get_absolute_path(*cur));
             }
-            if (cur == selected and
-                selected_path != previous_selection_path_ and
+            if (cur == selected and selected_path != previous_selection_path_ and
                 not user_left_clicked_this_tree_node) {
 
                 // if the current tree element being drawn is also the current
@@ -328,6 +333,10 @@ osc::NavigatorPanel::NavigatorPanel(
     std::shared_ptr<opyn::ModelStatePair> model,
     std::function<void(const OpenSim::ComponentPath&)> on_right_click) :
 
-    Panel{std::make_unique<Impl>(*this, parent, panel_name, std::move(model), std::move(on_right_click))}
+    Panel{std::make_unique<Impl>(
+        *this, parent, panel_name, std::move(model), std::move(on_right_click))}
 {}
-void osc::NavigatorPanel::impl_draw_content() { private_data().draw_content(); }
+void osc::NavigatorPanel::impl_draw_content()
+{
+    private_data().draw_content();
+}

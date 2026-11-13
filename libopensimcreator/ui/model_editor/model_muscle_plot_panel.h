@@ -20,9 +20,7 @@ namespace osc
     class ModelMusclePlotPanel final : public Panel {
     public:
         explicit ModelMusclePlotPanel(
-            Widget*,
-            std::shared_ptr<UndoableModelStatePair>,
-            std::string_view panel_name);
+            Widget*, std::shared_ptr<UndoableModelStatePair>, std::string_view panel_name);
         explicit ModelMusclePlotPanel(
             Widget*,
             std::shared_ptr<UndoableModelStatePair>,

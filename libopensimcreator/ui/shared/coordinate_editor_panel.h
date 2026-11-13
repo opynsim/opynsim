@@ -17,9 +17,7 @@ namespace osc
     class CoordinateEditorPanel final : public Panel {
     public:
         explicit CoordinateEditorPanel(
-            Widget* parent,
-            std::string_view panel_name,
-            std::shared_ptr<opyn::ModelStatePair>);
+            Widget* parent, std::string_view panel_name, std::shared_ptr<opyn::ModelStatePair>);
 
     private:
         void impl_draw_content() override;

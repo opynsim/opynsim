@@ -71,22 +71,19 @@ namespace
         PlottableOutput(
             CStringView name,
             CStringView units,
-            double (*getter)(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate& c)) :
+            double (*getter)(
+                const SimTK::State& st,
+                const OpenSim::Muscle& muscle,
+                const OpenSim::Coordinate& c)) :
 
             name_{name},
             units_{units},
             getter_{getter}
         {}
 
-        CStringView get_name() const
-        {
-            return name_;
-        }
+        CStringView get_name() const { return name_; }
 
-        CStringView get_units() const
-        {
-            return units_;
-        }
+        CStringView get_units() const { return units_; }
 
         double operator()(
             const SimTK::State& st,
@@ -109,115 +106,138 @@ namespace
     private:
         CStringView name_;
         CStringView units_;
-        double (*getter_)(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate& c);
+        double (*getter_)(
+            const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate& c);
     };
 
-    double get_moment_arm(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate& c)
+    double get_moment_arm(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate& c)
     {
         return muscle.getPath().computeMomentArm(st, c);
     }
 
-    double get_fiber_length(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_fiber_length(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getFiberLength(st);
     }
 
-    double get_total_length(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_total_length(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getLength(st);
     }
 
-    double get_tendon_length(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_tendon_length(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getTendonLength(st);
     }
 
-    double get_pennation_angle(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_pennation_angle(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return Degreesd{Radiansd{muscle.getPennationAngle(st)}}.count();
     }
 
-    double get_normalized_fiber_length(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_normalized_fiber_length(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getNormalizedFiberLength(st);
     }
 
-    double get_tendon_strain(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_tendon_strain(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getTendonStrain(st);
     }
 
-    double get_fiber_potential_energy(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_fiber_potential_energy(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getFiberPotentialEnergy(st);
     }
 
-    double get_tendon_potential_energy(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_tendon_potential_energy(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getTendonPotentialEnergy(st);
     }
 
-    double get_muscle_potential_energy(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_muscle_potential_energy(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getMusclePotentialEnergy(st);
     }
 
-    double get_tendon_force(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_tendon_force(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getTendonForce(st);
     }
 
-    double get_active_fiber_force(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_active_fiber_force(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getActiveFiberForce(st);
     }
 
-    double get_passive_fiber_force(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_passive_fiber_force(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getPassiveFiberForce(st);
     }
 
-    double get_total_fiber_force(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_total_fiber_force(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getFiberForce(st);
     }
 
-    double get_fiber_stiffness(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_fiber_stiffness(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getFiberStiffness(st);
     }
 
-    double get_fiber_stiffness_along_tendon(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_fiber_stiffness_along_tendon(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getFiberStiffnessAlongTendon(st);
     }
 
-    double get_tendon_stiffness(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_tendon_stiffness(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getTendonStiffness(st);
     }
 
-    double get_muscle_stiffness(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_muscle_stiffness(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getMuscleStiffness(st);
     }
 
-    double get_fiber_active_power(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_fiber_active_power(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getFiberActivePower(st);
     }
 
-    double get_fiber_passive_power(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_fiber_passive_power(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getFiberActivePower(st);
     }
 
-    double get_tendon_power(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_tendon_power(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getTendonPower(st);
     }
 
-    double get_muscle_power(const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
+    double get_muscle_power(
+        const SimTK::State& st, const OpenSim::Muscle& muscle, const OpenSim::Coordinate&)
     {
         return muscle.getTendonPower(st);
     }
@@ -284,55 +304,25 @@ namespace
             requested_num_data_points_{requested_num_data_points}
         {}
 
-        const ModelStateCommit& get_commit() const
-        {
-            return commit_;
-        }
+        const ModelStateCommit& get_commit() const { return commit_; }
 
-        void set_commit(const ModelStateCommit& commit)
-        {
-            commit_ = commit;
-        }
+        void set_commit(const ModelStateCommit& commit) { commit_ = commit; }
 
-        const OpenSim::ComponentPath& get_coordinate_path() const
-        {
-            return coordinate_path_;
-        }
+        const OpenSim::ComponentPath& get_coordinate_path() const { return coordinate_path_; }
 
-        void set_coordinate_path(const OpenSim::ComponentPath& cp)
-        {
-            coordinate_path_ = cp;
-        }
+        void set_coordinate_path(const OpenSim::ComponentPath& cp) { coordinate_path_ = cp; }
 
-        const OpenSim::ComponentPath& get_muscle_path() const
-        {
-            return muscle_path_;
-        }
+        const OpenSim::ComponentPath& get_muscle_path() const { return muscle_path_; }
 
-        void set_muscle_path(const OpenSim::ComponentPath& cp)
-        {
-            muscle_path_ = cp;
-        }
+        void set_muscle_path(const OpenSim::ComponentPath& cp) { muscle_path_ = cp; }
 
-        const PlottableOutput& get_plotted_output() const
-        {
-            return output_;
-        }
+        const PlottableOutput& get_plotted_output() const { return output_; }
 
-        void set_plotted_output(const PlottableOutput& output)
-        {
-            output_ = output;
-        }
+        void set_plotted_output(const PlottableOutput& output) { output_ = output; }
 
-        int get_num_requested_data_points() const
-        {
-            return requested_num_data_points_;
-        }
+        int get_num_requested_data_points() const { return requested_num_data_points_; }
 
-        void set_num_requested_data_points(int v)
-        {
-            requested_num_data_points_ = v;
-        }
+        void set_num_requested_data_points(int v) { requested_num_data_points_ = v; }
 
         friend bool operator==(const PlotParameters&, const PlotParameters&) = default;
 
@@ -390,10 +380,7 @@ namespace
     // plotting task
     class PlottingTaskThreadsafeSharedData final {
     public:
-        PlottingTaskStatus get_status() const
-        {
-            return status_.load();
-        }
+        PlottingTaskStatus get_status() const { return status_.load(); }
 
         std::optional<std::string> get_error_message() const
         {
@@ -407,10 +394,7 @@ namespace
             *lock = std::move(s);
         }
 
-        void set_status(PlottingTaskStatus s)
-        {
-            status_ = s;
-        }
+        void set_status(PlottingTaskStatus s) { status_ = s; }
 
     private:
         std::atomic<PlottingTaskStatus> status_ = PlottingTaskStatus::Running;
@@ -438,7 +422,8 @@ namespace
     // inner (exception unsafe) plot function
     //
     // this is the function that actually does the "work" of computing plot points
-    PlottingTaskStatus compute_plot_points_unguarded(const cpp20::stop_token& stop_token, PlottingTaskInputs& inputs)
+    PlottingTaskStatus compute_plot_points_unguarded(
+        const cpp20::stop_token& stop_token, PlottingTaskInputs& inputs)
     {
         PlottingTaskThreadsafeSharedData& shared = *inputs.shared;
         const PlotParameters& params = inputs.plotParameters;
@@ -449,7 +434,8 @@ namespace
         }
 
         // create a local copy of the model
-        std::unique_ptr<OpenSim::Model> model = std::make_unique<OpenSim::Model>(*params.get_commit().get_model());
+        std::unique_ptr<OpenSim::Model> model =
+            std::make_unique<OpenSim::Model>(*params.get_commit().get_model());
 
         if (stop_token.stop_requested()) {
             return PlottingTaskStatus::Cancelled;
@@ -469,16 +455,21 @@ namespace
             return PlottingTaskStatus::Cancelled;
         }
 
-        const auto* maybe_muscle = opyn::find_component<OpenSim::Muscle>(*model, params.get_muscle_path());
+        const auto* maybe_muscle =
+            opyn::find_component<OpenSim::Muscle>(*model, params.get_muscle_path());
         if (not maybe_muscle) {
-            shared.set_error_message(params.get_muscle_path().toString() + ": cannot find a muscle with this name");
+            shared.set_error_message(
+                params.get_muscle_path().toString() + ": cannot find a muscle with this name");
             return PlottingTaskStatus::Error;
         }
         const OpenSim::Muscle& muscle = *maybe_muscle;
 
-        const OpenSim::Coordinate* maybe_coord = opyn::find_component_mut<OpenSim::Coordinate>(*model, params.get_coordinate_path());
+        const OpenSim::Coordinate* maybe_coord =
+            opyn::find_component_mut<OpenSim::Coordinate>(*model, params.get_coordinate_path());
         if (not maybe_coord) {
-            shared.set_error_message(params.get_coordinate_path().toString() + ": cannot find a coordinate with this name");
+            shared.set_error_message(
+                params.get_coordinate_path().toString() +
+                ": cannot find a coordinate with this name");
             return PlottingTaskStatus::Error;
         }
         const OpenSim::Coordinate& coord = *maybe_coord;
@@ -492,7 +483,9 @@ namespace
             // this invariant is necessary because other algorithms assume X increases over
             // the datapoint collection (e.g. for optimized binary searches, lower_bound etc.)
 
-            shared.set_error_message(params.get_coordinate_path().toString() + ": cannot plot a coordinate with reversed min/max");
+            shared.set_error_message(
+                params.get_coordinate_path().toString() +
+                ": cannot plot a coordinate with reversed min/max");
             return PlottingTaskStatus::Error;
         }
 
@@ -552,7 +545,8 @@ namespace
             inputs.shared->set_status(status);
             return 0;
         } catch (const std::exception& ex) {
-            log_error("ComputePlotPointsMain: exception thrown while computing a plot: {}", ex.what());
+            log_error(
+                "ComputePlotPointsMain: exception thrown while computing a plot: {}", ex.what());
             inputs.shared->set_error_message(ex.what());
             inputs.shared->set_status(PlottingTaskStatus::Error);
             return -1;
@@ -566,24 +560,19 @@ namespace
     class PlottingTask final {
     public:
         PlottingTask(
-            const PlotParameters& params,
-            std::shared_ptr<PlotDataPointConsumer> consumer) :
+            const PlotParameters& params, std::shared_ptr<PlotDataPointConsumer> consumer) :
 
-            worker_thread_{compute_plot_points_main, PlottingTaskInputs{shared_, params, std::move(consumer)}}
+            worker_thread_{
+                compute_plot_points_main, PlottingTaskInputs{shared_, params, std::move(consumer)}}
         {}
 
-        PlottingTaskStatus get_status() const
-        {
-            return shared_->get_status();
-        }
+        PlottingTaskStatus get_status() const { return shared_->get_status(); }
 
-        std::optional<std::string> get_error_string() const
-        {
-            return shared_->get_error_message();
-        }
+        std::optional<std::string> get_error_string() const { return shared_->get_error_message(); }
 
     private:
-        std::shared_ptr<PlottingTaskThreadsafeSharedData> shared_ = std::make_shared<PlottingTaskThreadsafeSharedData>();
+        std::shared_ptr<PlottingTaskThreadsafeSharedData> shared_ =
+            std::make_shared<PlottingTaskThreadsafeSharedData>();
         cpp20::jthread worker_thread_;
     };
 
@@ -606,10 +595,7 @@ namespace
             data_points_{std::move(data)}
         {}
 
-        CStringView get_name() const
-        {
-            return name_;
-        }
+        CStringView get_name() const { return name_; }
 
         const PlotParameters* try_get_parameters() const
         {
@@ -643,15 +629,9 @@ namespace
             App::upd().request_redraw();
         }
 
-        bool get_is_locked() const
-        {
-            return is_locked_;
-        }
+        bool get_is_locked() const { return is_locked_; }
 
-        void set_is_locked(bool v)
-        {
-            is_locked_ = v;
-        }
+        void set_is_locked(bool v) { is_locked_ = v; }
 
         void set_commit(const ModelStateCommit& commit)
         {
@@ -661,15 +641,9 @@ namespace
             }
         }
 
-        bool is_externally_provided() const
-        {
-            return !parameters_.has_value();
-        }
+        bool is_externally_provided() const { return !parameters_.has_value(); }
 
-        bool is_locked() const
-        {
-            return is_locked_;
-        }
+        bool is_locked() const { return is_locked_; }
 
     private:
         std::optional<PlotParameters> parameters_;
@@ -817,7 +791,8 @@ namespace
         return std::move(ss).str();
     }
 
-    std::string compute_plot_x_axis_title(const PlotParameters& params, const OpenSim::Coordinate& coord)
+    std::string compute_plot_x_axis_title(
+        const PlotParameters& params, const OpenSim::Coordinate& coord)
     {
         std::stringstream ss;
         write_x_axis_name(params, ss);
@@ -855,7 +830,8 @@ namespace
             // parse remaining columns as dependent variables
             for (size_t dependent_col = 1; dependent_col < row.size(); ++dependent_col) {
                 const std::string& dependent_var_str = row[dependent_col];
-                const std::optional<float> dependent_var = from_chars_strip_whitespace(dependent_var_str);
+                const std::optional<float> dependent_var =
+                    from_chars_strip_whitespace(dependent_var_str);
                 if (not dependent_var) {
                     continue;  // skip: column cannot be parsed as a number
                 }
@@ -871,8 +847,7 @@ namespace
             return {};
         } else if (columns_as_plots.size() == 1) {
             // 1 series: return one plot with one series named `$filename`
-            return {
-                Plot{input_path.filename().string(), std::move(columns_as_plots.front())}};
+            return {Plot{input_path.filename().string(), std::move(columns_as_plots.front())}};
         } else {
             // >1 series: return each plot named `$filename ($header)` (or a number)
 
@@ -905,18 +880,18 @@ namespace
         // write header
         CSV::write_row(
             out,
-            std::to_array({compute_plot_x_axis_title(params, coord), compute_plot_y_axis_title(params)}));
+            std::to_array(
+                {compute_plot_x_axis_title(params, coord), compute_plot_y_axis_title(params)}));
 
         // write data rows
         auto lock = plot.lock_data_points();
         for (const PlotDataPoint& p : *lock) {
-            CSV::write_row(
-                out,
-                std::to_array({std::to_string(p.x()), std::to_string(p.y())}));
+            CSV::write_row(out, std::to_array({std::to_string(p.x()), std::to_string(p.y())}));
         }
     }
 
-    void action_prompt_user_to_save_plot_to_csv(const OpenSim::Coordinate& coord, const PlotParameters& params, const Plot& plot)
+    void action_prompt_user_to_save_plot_to_csv(
+        const OpenSim::Coordinate& coord, const PlotParameters& params, const Plot& plot)
     {
         // Pre-write the CSV in memory so that the asynchronous user request isn't dependent on
         // any UI state.
@@ -958,53 +933,34 @@ namespace
 
         void clear_unlocked_plots()
         {
-            std::erase_if(previous_plots_, [](const std::shared_ptr<Plot>& p) { return !p->get_is_locked(); });
+            std::erase_if(previous_plots_, [](const std::shared_ptr<Plot>& p) {
+                return not p->get_is_locked();
+            });
         }
 
-        PlottingTaskStatus get_plotting_task_status() const
-        {
-            return plotting_task_.get_status();
-        }
+        PlottingTaskStatus get_plotting_task_status() const { return plotting_task_.get_status(); }
 
         std::optional<std::string> try_get_plotting_task_error_message() const
         {
             return plotting_task_.get_error_string();
         }
 
-        const Plot& get_active_plot() const
-        {
-            return *active_plot_;
-        }
+        const Plot& get_active_plot() const { return *active_plot_; }
 
-        size_t get_num_other_plots() const
-        {
-            return previous_plots_.size();
-        }
+        size_t get_num_other_plots() const { return previous_plots_.size(); }
 
-        const Plot& get_other_plot(size_t i) const
-        {
-            return *previous_plots_.at(i);
-        }
+        const Plot& get_other_plot(size_t i) const { return *previous_plots_.at(i); }
 
         void tag_other_plot_for_deletion(size_t i)
         {
             plot_tagged_for_deletion_ = static_cast<ptrdiff_t>(i);
         }
 
-        void set_other_plot_locked(size_t i, bool v)
-        {
-            previous_plots_.at(i)->set_is_locked(v);
-        }
+        void set_other_plot_locked(size_t i, bool v) { previous_plots_.at(i)->set_is_locked(v); }
 
-        void set_active_plot_locked(bool v)
-        {
-            active_plot_->set_is_locked(v);
-        }
+        void set_active_plot_locked(bool v) { active_plot_->set_is_locked(v); }
 
-        int get_max_history_entries() const
-        {
-            return max_history_entries_;
-        }
+        int get_max_history_entries() const { return max_history_entries_; }
 
         void set_max_history_entries(int i)
         {
@@ -1055,7 +1011,9 @@ namespace
     private:
         void clear_computed_plots()
         {
-            std::erase_if(previous_plots_, [](const auto& ptr) { return ptr->try_get_parameters() != nullptr; });
+            std::erase_if(previous_plots_, [](const auto& ptr) {
+                return ptr->try_get_parameters() != nullptr;
+            });
         }
 
         void check_for_parameter_changes_and_start_plotting(const PlotParameters& desired_params)
@@ -1097,7 +1055,9 @@ namespace
             // deletions
             //
             // handle any user-requested deletions by removing the curve from the collection
-            if (0 <= plot_tagged_for_deletion_ && plot_tagged_for_deletion_ < std::ssize(previous_plots_)) {
+            if (0 <= plot_tagged_for_deletion_ and
+                plot_tagged_for_deletion_ < std::ssize(previous_plots_)) {
+
                 previous_plots_.erase(previous_plots_.begin() + plot_tagged_for_deletion_);
                 plot_tagged_for_deletion_ = -1;
             }
@@ -1117,18 +1077,22 @@ namespace
             // - you now have a list containing 0..`hmax` unlocked elements, plus locked elements,
             //   where the unlocked elements are the most recently used
 
-            auto is_first_deleteable_plot = [nth = 1, max = this->max_history_entries_](const std::shared_ptr<Plot>& p) mutable {
+            auto is_first_deleteable_plot = [nth = 1, max = this->max_history_entries_](
+                                                const std::shared_ptr<Plot>& p) mutable {
                 if (p->get_is_locked()) {
                     return false;
                 }
                 return nth++ > max;
             };
 
-            const auto backward_it = find_if(previous_plots_.rbegin(), previous_plots_.rend(), is_first_deleteable_plot);
+            const auto backward_it =
+                find_if(previous_plots_.rbegin(), previous_plots_.rend(), is_first_deleteable_plot);
             const auto forward_it = backward_it.base();
-            const ptrdiff_t idx_of_deleteable_end = std::distance(previous_plots_.begin(), forward_it);
+            const ptrdiff_t idx_of_deleteable_end =
+                std::distance(previous_plots_.begin(), forward_it);
 
-            auto should_delete = [i = 0z, idx_of_deleteable_end](const std::shared_ptr<Plot>& p) mutable {
+            auto should_delete = [i = 0z,
+                                  idx_of_deleteable_end](const std::shared_ptr<Plot>& p) mutable {
                 return i++ < idx_of_deleteable_end && !p->get_is_locked();
             };
 
@@ -1165,7 +1129,8 @@ namespace
     }
 
     // tries to hittest the mouse's X position in plot-space
-    std::optional<float> try_get_mouse_x_position_in_plot(const PlotLines& lines, bool snap_to_nearest)
+    std::optional<float> try_get_mouse_x_position_in_plot(
+        const PlotLines& lines, bool snap_to_nearest)
     {
         // figure out mouse hover position
         const bool is_hovered = plot::is_plot_hovered();
@@ -1185,9 +1150,7 @@ namespace
 
     // returns a vector of all the headers a CSV file will contain if plotting the given lines
     std::vector<std::string> get_all_csv_headers(
-        const OpenSim::Coordinate& coord,
-        const PlotParameters& params,
-        const PlotLines& lines)
+        const OpenSim::Coordinate& coord, const PlotParameters& params, const PlotLines& lines)
     {
         std::vector<std::string> headers;
         headers.reserve(1 + lines.get_num_other_plots() + 1);
@@ -1229,7 +1192,8 @@ namespace
         std::vector<PlotDataPoint>::const_iterator cursor_ = data_.begin();
     };
 
-    bool less_than_assuming_empty_highest(const std::optional<float>& a, const std::optional<float>& b)
+    bool less_than_assuming_empty_highest(
+        const std::optional<float>& a, const std::optional<float>& b)
     {
         // this is defined differently from the C++ standard, which makes the
         // empty optional the "minimum" value, logically
@@ -1311,7 +1275,8 @@ namespace
                     cols.emplace_back();  // blank cell
                 }
 
-                const std::optional<float> maybe_data_x = data ? std::optional<float>{data->x()} : std::optional<float>{};
+                const std::optional<float> maybe_data_x =
+                    data ? std::optional<float>{data->x()} : std::optional<float>{};
                 if (less_than_assuming_empty_highest(maybe_data_x, maybe_next_x)) {
                     maybe_next_x = maybe_data_x;
                 }
@@ -1331,7 +1296,8 @@ namespace
         App::upd().prompt_user_to_select_file_async(
             [lines](const FileDialogResponse& response) {
                 if (response.size() != 1) {
-                    return;  // Error, cancellation, or the user somehow selected more than one file.
+                    // Error, cancellation, or the user somehow selected more than one file.
+                    return;
                 }
 
                 for (Plot& plot : try_load_svc_file_as_plots(response.front())) {
@@ -1348,7 +1314,8 @@ namespace
     // a UI action in which the user is prompted to save a CSV file to the filesystem and then, if
     // the user selects a filesystem location, writes a sparse CSV file containing all plotlines to
     // that location
-    void action_prompt_user_to_save_plot_lines_to_csv(const OpenSim::Coordinate& coord, const PlotParameters& params, const PlotLines& lines)
+    void action_prompt_user_to_save_plot_lines_to_csv(
+        const OpenSim::Coordinate& coord, const PlotParameters& params, const PlotLines& lines)
     {
         // Pre-write the plotlines in memory so that the asynchronous prompt doesn't depend on a
         // bunch of state.
@@ -1379,9 +1346,7 @@ namespace
     // data that is shared between all states of the widget
     class SharedStateData final {
     public:
-        SharedStateData(
-            Widget& parent,
-            std::shared_ptr<UndoableModelStatePair> uim) :
+        SharedStateData(Widget& parent, std::shared_ptr<UndoableModelStatePair> uim) :
 
             parent_{&parent},
             model_{std::move(uim)}
@@ -1395,7 +1360,12 @@ namespace
 
             parent_{&parent},
             model_{std::move(uim)},
-            plot_params_{model_->get_latest_commit(), coord_path, muscle_path, get_default_muscle_output(), c_default_num_plot_points}
+            plot_params_{
+                model_->get_latest_commit(),
+                coord_path,
+                muscle_path,
+                get_default_muscle_output(),
+                c_default_num_plot_points}
         {}
 
         const PlotParameters& get_plot_params() const { return plot_params_; }
@@ -1406,13 +1376,28 @@ namespace
 
         Widget& get_parent_widget() { return *parent_; }
 
-        std::span<const PlottableOutput> available_outputs() const { return available_muscle_outputs_; }
+        std::span<const PlottableOutput> available_outputs() const
+        {
+            return available_muscle_outputs_;
+        }
 
-        const PlottableOutput& get_plotted_output() const { return get_plot_params().get_plotted_output(); }
-        void set_plotted_output(const PlottableOutput& new_output) { upd_plot_params().set_plotted_output(new_output); }
+        const PlottableOutput& get_plotted_output() const
+        {
+            return get_plot_params().get_plotted_output();
+        }
+        void set_plotted_output(const PlottableOutput& new_output)
+        {
+            upd_plot_params().set_plotted_output(new_output);
+        }
 
-        int get_num_requested_datapoints() const { return get_plot_params().get_num_requested_data_points(); }
-        void set_num_requested_data_points(int v) { upd_plot_params().set_num_requested_data_points(v); }
+        int get_num_requested_datapoints() const
+        {
+            return get_plot_params().get_num_requested_data_points();
+        }
+        void set_num_requested_data_points(int v)
+        {
+            upd_plot_params().set_num_requested_data_points(v);
+        }
 
     private:
         Widget* parent_ = nullptr;
@@ -1430,7 +1415,8 @@ namespace
     class MusclePlotState {
     protected:
         explicit MusclePlotState(SharedStateData& shared) :
-            shared_{&shared} {}
+            shared_{&shared}
+        {}
         MusclePlotState(const MusclePlotState&) = default;
         MusclePlotState(MusclePlotState&&) noexcept = default;
         MusclePlotState& operator=(const MusclePlotState&) = default;
@@ -1439,10 +1425,7 @@ namespace
     public:
         virtual ~MusclePlotState() noexcept = default;
 
-        std::unique_ptr<MusclePlotState> on_draw()
-        {
-            return impl_on_draw();
-        }
+        std::unique_ptr<MusclePlotState> on_draw() { return impl_on_draw(); }
 
     protected:
         bool is_model_locked() const { return shared_->get_model().is_readonly(); }
@@ -1487,9 +1470,12 @@ namespace
             const PlotParameters& latest_params = get_shared().get_plot_params();
             auto model_guard = latest_params.get_commit().get_model();
 
-            const auto* maybe_coord = opyn::find_component<OpenSim::Coordinate>(*model_guard, latest_params.get_coordinate_path());
-            if (!maybe_coord) {
-                ui::draw_text("(no coordinate named {} in model)", latest_params.get_coordinate_path().toString());
+            const auto* maybe_coord = opyn::find_component<OpenSim::Coordinate>(
+                *model_guard, latest_params.get_coordinate_path());
+            if (not maybe_coord) {
+                ui::draw_text(
+                    "(no coordinate named {} in model)",
+                    latest_params.get_coordinate_path().toString());
                 return nullptr;
             }
             const OpenSim::Coordinate& coord = *maybe_coord;
@@ -1512,14 +1498,17 @@ namespace
                 plot::setup_axis_limits(
                     plot::Axis::X1,
                     ClosedInterval{
-                        opyn::convert_coord_value_to_display_value(coord, get_first_x_value(plot_params, coord)),
-                        opyn::convert_coord_value_to_display_value(coord, get_last_x_value(plot_params, coord)),
+                        opyn::convert_coord_value_to_display_value(
+                            coord, get_first_x_value(plot_params, coord)),
+                        opyn::convert_coord_value_to_display_value(
+                            coord, get_last_x_value(plot_params, coord)),
                     },
                     0.025f,
                     plot::Condition::Always);
                 plot::setup_finish();
 
-                const std::optional<float> maybe_mouse_x = try_get_mouse_x_position_in_plot(*lines_, snap_cursor_);
+                const std::optional<float> maybe_mouse_x =
+                    try_get_mouse_x_position_in_plot(*lines_, snap_cursor_);
                 draw_plot_lines(coord);
                 draw_overlays(coord, maybe_mouse_x);
                 handle_mouse_events(coord, maybe_mouse_x);
@@ -1547,41 +1536,44 @@ namespace
             lines_->on_before_drawing(get_shared().get_model(), get_shared().get_plot_params());
         }
 
-        void draw_plot_title(
-            const OpenSim::Coordinate& coord,
-            const std::string& plot_title)
+        void draw_plot_title(const OpenSim::Coordinate& coord, const std::string& plot_title)
         {
             // the plot title should contain combo boxes that users can use to change plot
             // parameters visually (#397)
 
-            const std::string muscle_name = truncate_with_ellipsis(get_shared().get_plot_params().get_muscle_path().getComponentName(), 15);
-            const float muscle_name_width = ui::calc_text_size(muscle_name).x() + 2.0f * ui::get_style_frame_padding().x();
-            const std::string output_name = truncate_with_ellipsis(get_shared().get_plot_params().get_plotted_output().get_name(), 15);
-            const float output_name_width = ui::calc_text_size(output_name).x() + 2.0f * ui::get_style_frame_padding().x();
-            const std::string coord_name = truncate_with_ellipsis(get_shared().get_plot_params().get_coordinate_path().getComponentName(), 15);
-            const float coord_name_width = ui::calc_text_size(coord_name).x() + 2.0f * ui::get_style_frame_padding().x();
+            const std::string muscle_name = truncate_with_ellipsis(
+                get_shared().get_plot_params().get_muscle_path().getComponentName(), 15);
+            const float muscle_name_width =
+                ui::calc_text_size(muscle_name).x() + (2.0f * ui::get_style_frame_padding().x());
+            const std::string output_name = truncate_with_ellipsis(
+                get_shared().get_plot_params().get_plotted_output().get_name(), 15);
+            const float output_name_width =
+                ui::calc_text_size(output_name).x() + (2.0f * ui::get_style_frame_padding().x());
+            const std::string coord_name = truncate_with_ellipsis(
+                get_shared().get_plot_params().get_coordinate_path().getComponentName(), 15);
+            const float coord_name_width =
+                ui::calc_text_size(coord_name).x() + (2.0f * ui::get_style_frame_padding().x());
 
             const float total_width =
-                muscle_name_width +
-                ui::calc_text_size("'s").x() +
-                ui::get_style_item_spacing().x() +
-                output_name_width +
-                ui::get_style_item_spacing().x() +
-                ui::calc_text_size("vs.").x() +
-                ui::get_style_item_spacing().x() +
-                coord_name_width +
-                ui::get_style_item_spacing().x() +
-                ui::get_style_frame_padding().x() +
+                muscle_name_width + ui::calc_text_size("'s").x() +
+                ui::get_style_item_spacing().x() + output_name_width +
+                ui::get_style_item_spacing().x() + ui::calc_text_size("vs.").x() +
+                ui::get_style_item_spacing().x() + coord_name_width +
+                ui::get_style_item_spacing().x() + ui::get_style_frame_padding().x() +
                 ui::calc_text_size(MSMICONS_BARS " Options").x() +
                 ui::get_style_frame_padding().x();
 
-            const float cursor_start = 0.5f * (ui::get_content_region_available().x() - total_width);
+            const float cursor_start =
+                0.5f * (ui::get_content_region_available().x() - total_width);
             ui::set_cursor_panel_x(cursor_start);
 
             ui::set_next_item_width(muscle_name_width);
             if (ui::begin_combobox("##musclename", muscle_name, ui::ComboFlag::NoArrowButton)) {
-                const auto* current = opyn::find_component<OpenSim::Muscle>(get_shared().get_model().get_model(), get_shared().get_plot_params().get_muscle_path());
-                for (const OpenSim::Muscle& musc : get_shared().get_model().get_model().getComponentList<OpenSim::Muscle>()) {
+                const auto* current = opyn::find_component<OpenSim::Muscle>(
+                    get_shared().get_model().get_model(),
+                    get_shared().get_plot_params().get_muscle_path());
+                for (const OpenSim::Muscle& musc :
+                     get_shared().get_model().get_model().getComponentList<OpenSim::Muscle>()) {
                     bool selected = &musc == current;
                     if (ui::draw_selectable(musc.getName(), &selected)) {
                         upd_shared().upd_plot_params().set_muscle_path(musc.getAbsolutePath());
@@ -1610,11 +1602,16 @@ namespace
             ui::same_line();
             ui::set_next_item_width(coord_name_width);
             if (ui::begin_combobox("##coordname", coord_name, ui::ComboFlag::NoArrowButton)) {
-                const auto* current = opyn::find_component<OpenSim::Coordinate>(get_shared().get_model().get_model(), get_shared().get_plot_params().get_coordinate_path());
-                for (const OpenSim::Coordinate& c : get_shared().get_model().get_model().getComponentList<OpenSim::Coordinate>()) {
+                const auto* current = opyn::find_component<OpenSim::Coordinate>(
+                    get_shared().get_model().get_model(),
+                    get_shared().get_plot_params().get_coordinate_path());
+                for (const OpenSim::Coordinate& c :
+                     get_shared().get_model().get_model().getComponentList<OpenSim::Coordinate>()) {
+
                     bool selected = &c == current;
                     if (ui::draw_selectable(c.getName(), &selected)) {
-                        upd_shared().upd_plot_params().set_coordinate_path(opyn::get_absolute_path(c));
+                        upd_shared().upd_plot_params().set_coordinate_path(
+                            opyn::get_absolute_path(c));
                     }
                 }
                 ui::end_combobox();
@@ -1644,11 +1641,13 @@ namespace
                 if (plot.is_externally_provided()) {
                     // externally-provided curves should be tinted
                     color *= loaded_curve_tint_;
-                    color.a *= static_cast<float>(++external_counter) / static_cast<float>(counts.external);
+                    color.a *= static_cast<float>(++external_counter) /
+                               static_cast<float>(counts.external);
                 } else if (plot.is_locked()) {
                     // locked curves should be tinted as such
                     color *= locked_curve_tint_;
-                    color.a *= static_cast<float>(++locked_counter) / static_cast<float>(counts.locked);
+                    color.a *=
+                        static_cast<float>(++locked_counter) / static_cast<float>(counts.locked);
                 } else {
                     // previous curves should fade as they get older
                     color.a *= static_cast<float>(i + 1) / static_cast<float>(counts.total + 1);
@@ -1676,11 +1675,14 @@ namespace
                     if (plot.get_is_locked() and ui::draw_menu_item(MSMICONS_UNLOCK " unlock")) {
                         lines_->set_other_plot_locked(i, false);
                     }
-                    if (plot.try_get_parameters() and ui::draw_menu_item(MSMICONS_UNDO " revert to this")) {
+                    if (plot.try_get_parameters() and
+                        ui::draw_menu_item(MSMICONS_UNDO " revert to this")) {
+
                         lines_->revert_to_previous_plot(upd_shared().upd_model(), i);
                     }
                     if (ui::draw_menu_item(MSMICONS_FILE_EXPORT " export to CSV")) {
-                        action_prompt_user_to_save_plot_to_csv(coord, get_shared().get_plot_params(), plot);
+                        action_prompt_user_to_save_plot_to_csv(
+                            coord, get_shared().get_plot_params(), plot);
                     }
                     plot::end_legend_popup();
                 }
@@ -1689,7 +1691,8 @@ namespace
             // then plot the active plot
             {
                 const Plot& plot = lines_->get_active_plot();
-                const std::string line_name = ith_plot_line_name(plot, lines_->get_num_other_plots() + 1);
+                const std::string line_name =
+                    ith_plot_line_name(plot, lines_->get_num_other_plots() + 1);
 
                 // locked curves should have a blue tint
                 Color color = computed_plot_line_base_color_;
@@ -1720,7 +1723,8 @@ namespace
                         lines_->set_active_plot_locked(false);
                     }
                     if (ui::draw_menu_item(MSMICONS_FILE_EXPORT " export to CSV")) {
-                        action_prompt_user_to_save_plot_to_csv(coord, get_shared().get_plot_params(), plot);
+                        action_prompt_user_to_save_plot_to_csv(
+                            coord, get_shared().get_plot_params(), plot);
                     }
                     plot::end_legend_popup();
                 }
@@ -1728,11 +1732,10 @@ namespace
         }
 
         // draw overlays over the plot lines
-        void draw_overlays(
-            const OpenSim::Coordinate& coord,
-            std::optional<float> maybe_mouse_x)
+        void draw_overlays(const OpenSim::Coordinate& coord, std::optional<float> maybe_mouse_x)
         {
-            const double coordinate_x_in_degrees = opyn::convert_coord_value_to_display_value(coord, coord.getValue(get_shared().get_model().get_state()));
+            const double coordinate_x_in_degrees = opyn::convert_coord_value_to_display_value(
+                coord, coord.getValue(get_shared().get_model().get_state()));
 
             // draw vertical drop line where the coordinate's value currently is
             {
@@ -1741,21 +1744,31 @@ namespace
                 // CARE: this drag line shouldn't cause the plotter to re-fit because it will
                 // make the plotter re-fit the plot as the user's mouse moves/drags over it,
                 // which looks very very glitchy (#490)
-                plot::drag_line_x(10, &v, OSCColors::scrub_current(), 1.0f, {plot::DragToolFlag::NoInputs, plot::DragToolFlag::NoFit});
+                plot::drag_line_x(
+                    10,
+                    &v,
+                    OSCColors::scrub_current(),
+                    1.0f,
+                    {plot::DragToolFlag::NoInputs, plot::DragToolFlag::NoFit});
             }
 
             // also, draw an X tag on the axes where the coordinate's value currently is
             plot::tag_x(coordinate_x_in_degrees, Color::white());
 
-            // if it's possible to edit the coordinate via the plot, draw faded vertial drop line where the
-            // mouse currently is
+            // if it's possible to edit the coordinate via the plot, draw faded vertial drop line
+            // where the mouse currently is
             if (maybe_mouse_x) {
                 double v = *maybe_mouse_x;
 
                 // CARE: this drag line shouldn't cause the plotter to re-fit because it will
                 // make the plotter re-fit the plot as the user's mouse moves/drags over it,
                 // which looks very very glitchy (#490)
-                plot::drag_line_x(11, &v, OSCColors::scrub_hovered(), 1.0f, {plot::DragToolFlag::NoInputs, plot::DragToolFlag::NoFit});
+                plot::drag_line_x(
+                    11,
+                    &v,
+                    OSCColors::scrub_hovered(),
+                    1.0f,
+                    {plot::DragToolFlag::NoInputs, plot::DragToolFlag::NoFit});
 
                 // also, draw a faded X tag on the axes where the mouse currently is (in X)
                 plot::tag_x(*maybe_mouse_x, Color::white().with_alpha(0.6f));
@@ -1771,51 +1784,78 @@ namespace
             {
                 // draw current coordinate value as a solid dropline
                 {
-                    std::optional<float> maybe_coordinate_y = compute_ler_ped_y(lines_->get_active_plot(), static_cast<float>(coordinate_x_in_degrees));
+                    std::optional<float> maybe_coordinate_y = compute_ler_ped_y(
+                        lines_->get_active_plot(), static_cast<float>(coordinate_x_in_degrees));
 
                     if (maybe_coordinate_y) {
                         double v = *maybe_coordinate_y;
 
-                        // CARE: this drag line shouldn't cause the plotter to re-fit because it will
-                        // make the plotter re-fit the plot as the user's mouse moves/drags over it,
-                        // which looks very very glitchy (#490)
-                        plot::drag_line_y(13, &v, OSCColors::scrub_current(), 1.0f, {plot::DragToolFlag::NoInputs, plot::DragToolFlag::NoFit});
-                        plot::draw_annotation({coordinate_x_in_degrees, *maybe_coordinate_y}, Color::white(), {10.0f, 10.0f}, true, "%f", *maybe_coordinate_y);
+                        // CARE: this drag line shouldn't cause the plotter to re-fit because it
+                        // will make the plotter re-fit the plot as the user's mouse moves/drags
+                        // over it, which looks very very glitchy (#490)
+                        plot::drag_line_y(
+                            13,
+                            &v,
+                            OSCColors::scrub_current(),
+                            1.0f,
+                            {plot::DragToolFlag::NoInputs, plot::DragToolFlag::NoFit});
+                        plot::draw_annotation(
+                            {coordinate_x_in_degrees, *maybe_coordinate_y},
+                            Color::white(),
+                            {10.0f, 10.0f},
+                            true,
+                            "%f",
+                            *maybe_coordinate_y);
                     }
                 }
 
                 // (try to) draw the hovered coordinate value as a faded dropline
                 if (maybe_mouse_x) {
-                    const std::optional<float> maybe_hover_y = compute_ler_ped_y(lines_->get_active_plot(), *maybe_mouse_x);
+                    const std::optional<float> maybe_hover_y =
+                        compute_ler_ped_y(lines_->get_active_plot(), *maybe_mouse_x);
                     if (maybe_hover_y) {
                         double v = *maybe_hover_y;
 
-                        // CARE: this drag line shouldn't cause the plotter to re-fit because it will
-                        // make the plotter re-fit the plot as the user's mouse moves/drags over it,
-                        // which looks very very glitchy (#490)
-                        plot::drag_line_y(14, &v, OSCColors::scrub_hovered(), 1.0f, {plot::DragToolFlag::NoInputs, plot::DragToolFlag::NoFit});
-                        plot::draw_annotation({*maybe_mouse_x, *maybe_hover_y}, Color::white().with_alpha(0.6f), {10.0f, 10.0f}, true, "%f", *maybe_hover_y);
+                        // CARE: this drag line shouldn't cause the plotter to re-fit because it
+                        // will make the plotter re-fit the plot as the user's mouse moves/drags
+                        // over it, which looks very very glitchy (#490)
+                        plot::drag_line_y(
+                            14,
+                            &v,
+                            OSCColors::scrub_hovered(),
+                            1.0f,
+                            {plot::DragToolFlag::NoInputs, plot::DragToolFlag::NoFit});
+                        plot::draw_annotation(
+                            {*maybe_mouse_x, *maybe_hover_y},
+                            Color::white().with_alpha(0.6f),
+                            {10.0f, 10.0f},
+                            true,
+                            "%f",
+                            *maybe_hover_y);
                     }
                 }
             }
         }
 
         void handle_mouse_events(
-            const OpenSim::Coordinate& coord,
-            std::optional<float> maybe_mouse_x)
+            const OpenSim::Coordinate& coord, std::optional<float> maybe_mouse_x)
         {
             // if the plot is hovered and the user is holding their left-mouse button down,
             // then "scrub" through the output in the model
             //
-            // this is handy for users to visually see how the independent variable affects the model
+            // this is handy for users to visually see how the independent variable affects the
+            // model
             if (maybe_mouse_x and ui::is_mouse_down(MouseButton::Left)) {
                 if (is_model_locked()) {
                     ui::draw_tooltip("scrubbing disabled", "the model is locked");
                 }
                 if (coord.getDefaultLocked()) {
-                    ui::draw_tooltip("scrubbing disabled", "you cannot scrub this plot because the coordinate is locked");
+                    ui::draw_tooltip(
+                        "scrubbing disabled",
+                        "you cannot scrub this plot because the coordinate is locked");
                 } else {
-                    const double stored_value = opyn::convert_coord_display_value_to_storage_value(coord, *maybe_mouse_x);
+                    const double stored_value =
+                        opyn::convert_coord_display_value_to_storage_value(coord, *maybe_mouse_x);
                     action_set_coordinate_value(upd_shared().upd_model(), coord, stored_value);
                 }
             }
@@ -1827,14 +1867,20 @@ namespace
                     ui::draw_tooltip("scrubbing disabled", "the model is locked");
                 }
                 if (coord.getDefaultLocked()) {
-                    ui::draw_tooltip("scrubbing disabled", "you cannot scrub this plot because the coordinate is locked");
+                    ui::draw_tooltip(
+                        "scrubbing disabled",
+                        "you cannot scrub this plot because the coordinate is locked");
                 } else {
-                    const double stored_value = opyn::convert_coord_display_value_to_storage_value(coord, *maybe_mouse_x);
-                    action_set_coordinate_value_and_save(upd_shared().upd_model(), coord, stored_value);
+                    const double stored_value =
+                        opyn::convert_coord_display_value_to_storage_value(coord, *maybe_mouse_x);
+                    action_set_coordinate_value_and_save(
+                        upd_shared().upd_model(), coord, stored_value);
 
-                    // trick: we "know" that the last edit to the model was a coordinate edit in this plot's
+                    // trick: we "know" that the last edit to the model was a coordinate edit in
+                    // this plot's
                     //        independent variable, so we can skip recomputing it
-                    const ModelStateCommit commit_after = get_shared().get_model().get_latest_commit();
+                    const ModelStateCommit commit_after =
+                        get_shared().get_model().get_latest_commit();
                     lines_->set_active_plot_commit(commit_after);
                 }
             }
@@ -1879,7 +1925,9 @@ namespace
             if (ui::draw_menu_item("import CSV overlay(s)")) {
                 action_prompt_user_for_csv_overlay_file(lines_);
             }
-            ui::draw_tooltip_if_item_hovered("import CSV overlay(s)", "Imports the specified CSV file as an overlay over the current plot. This is handy fitting muscle curves against externally-supplied data.\n\nThe provided CSV file must contain a header row and at least two columns of numeric data on each data row. The values in the columns must match this plot's axes.");
+            ui::draw_tooltip_if_item_hovered(
+                "import CSV overlay(s)",
+                "Imports the specified CSV file as an overlay over the current plot. This is handy fitting muscle curves against externally-supplied data.\n\nThe provided CSV file must contain a header row and at least two columns of numeric data on each data row. The values in the columns must match this plot's axes.");
 
             if (ui::begin_menu("export CSV")) {
                 draw_export_csv_menu_content(coord);
@@ -2003,14 +2051,16 @@ namespace
             for (size_t i = 0; i < lines_->get_num_other_plots(); ++i) {
                 ui::push_id(id++);
                 if (ui::draw_menu_item(lines_->get_other_plot(i).get_name())) {
-                    action_prompt_user_to_save_plot_to_csv(coord, get_shared().get_plot_params(), lines_->get_other_plot(i));
+                    action_prompt_user_to_save_plot_to_csv(
+                        coord, get_shared().get_plot_params(), lines_->get_other_plot(i));
                 }
                 ui::pop_id();
             }
 
             ui::push_id(id++);
             if (ui::draw_menu_item(lines_->get_active_plot().get_name())) {
-                action_prompt_user_to_save_plot_to_csv(coord, get_shared().get_plot_params(), lines_->get_active_plot());
+                action_prompt_user_to_save_plot_to_csv(
+                    coord, get_shared().get_plot_params(), lines_->get_active_plot());
             }
             ui::pop_id();
 
@@ -2018,16 +2068,21 @@ namespace
 
             ui::push_id(id++);
             if (ui::draw_menu_item("Export All Curves")) {
-                action_prompt_user_to_save_plot_lines_to_csv(coord, get_shared().get_plot_params(), *lines_);
+                action_prompt_user_to_save_plot_lines_to_csv(
+                    coord, get_shared().get_plot_params(), *lines_);
             }
-            ui::draw_tooltip_if_item_hovered("Export All Curves to CSV", "Exports all curves in the plot to a CSV file.\n\nThe implementation will try to group things together by X value, but the CSV file *may* contain sparse rows if (e.g.) some curves have a different number of plot points, or some curves were loaded from another CSV, etc.");
+            ui::draw_tooltip_if_item_hovered(
+                "Export All Curves to CSV",
+                "Exports all curves in the plot to a CSV file.\n\nThe implementation will try to group things together by X value, but the CSV file *may* contain sparse rows if (e.g.) some curves have a different number of plot points, or some curves were loaded from another CSV, etc.");
             ui::pop_id();
         }
 
         // tries to duplicate the current plot (settings etc.) into a new plot panel
         void action_duplicate_current_plot_into_new_panel(const OpenSim::Coordinate& coord)
         {
-            const auto* musc = opyn::find_component<OpenSim::Muscle>(get_shared().get_model().get_model(), get_shared().get_plot_params().get_muscle_path());
+            const auto* musc = opyn::find_component<OpenSim::Muscle>(
+                get_shared().get_model().get_model(),
+                get_shared().get_plot_params().get_muscle_path());
             if (musc) {
                 App::post_event<AddMusclePlotEvent>(upd_shared().get_parent_widget(), coord, *musc);
             }
@@ -2042,7 +2097,10 @@ namespace
         bool show_markers_on_active_plot_ = true;
         bool show_markers_on_other_plots_ = false;
         bool snap_cursor_ = false;
-        plot::PlotFlags plot_flags_ = plot::PlotFlags::NoMenus | plot::PlotFlags::NoBoxSelect | plot::PlotFlags::NoFrame | plot::PlotFlags::NoTitle;
+        plot::PlotFlags plot_flags_ = plot::PlotFlags::NoMenus |      //
+                                      plot::PlotFlags::NoBoxSelect |  //
+                                      plot::PlotFlags::NoFrame |      //
+                                      plot::PlotFlags::NoTitle;
         plot::Location legend_location_ = plot::Location::NorthWest;
         plot::LegendFlags legend_flags_ = plot::LegendFlags::Default;
         Color locked_curve_tint_ = {0.5f, 0.5f, 1.0f, 1.1f};
@@ -2069,7 +2127,9 @@ namespace
             std::unique_ptr<MusclePlotState> rv;
 
             std::vector<const OpenSim::Coordinate*> coordinates;
-            for (const OpenSim::Coordinate& coord : get_shared().get_model().get_model().getComponentList<OpenSim::Coordinate>()) {
+            for (const OpenSim::Coordinate& coord :
+                 get_shared().get_model().get_model().getComponentList<OpenSim::Coordinate>()) {
+
                 coordinates.push_back(&coord);
             }
             rgs::sort(coordinates, rgs::less{}, [](const auto* ptr) { return ptr->getName(); });
@@ -2079,7 +2139,8 @@ namespace
             ui::begin_child_panel("MomentArmPlotCoordinateSelection");
             for (const OpenSim::Coordinate* coord : coordinates) {
                 if (ui::draw_selectable(coord->getName())) {
-                    upd_shared().upd_plot_params().set_coordinate_path(opyn::get_absolute_path(*coord));
+                    upd_shared().upd_plot_params().set_coordinate_path(
+                        opyn::get_absolute_path(*coord));
                     rv = std::make_unique<ShowingPlotState>(upd_shared());
                 }
             }
@@ -2105,7 +2166,9 @@ namespace
             std::unique_ptr<MusclePlotState> rv;
 
             std::vector<const OpenSim::Muscle*> muscles;
-            for (const OpenSim::Muscle& musc : get_shared().get_model().get_model().getComponentList<OpenSim::Muscle>()) {
+            for (const OpenSim::Muscle& musc :
+                 get_shared().get_model().get_model().getComponentList<OpenSim::Muscle>()) {
+
                 muscles.push_back(&musc);
             }
             rgs::sort(muscles, rgs::less{}, [](const auto* ptr) { return ptr->getName(); });
@@ -2118,7 +2181,8 @@ namespace
                 ui::begin_child_panel("MomentArmPlotMuscleSelection");
                 for (const OpenSim::Muscle* musc : muscles) {
                     if (ui::draw_selectable(musc->getName())) {
-                        upd_shared().upd_plot_params().set_muscle_path(opyn::get_absolute_path(*musc));
+                        upd_shared().upd_plot_params().set_muscle_path(
+                            opyn::get_absolute_path(*musc));
                         rv = std::make_unique<PickCoordinateState>(upd_shared());
                     }
                 }
@@ -2176,9 +2240,7 @@ private:
 };
 
 osc::ModelMusclePlotPanel::ModelMusclePlotPanel(
-    Widget* parent,
-    std::shared_ptr<UndoableModelStatePair> uim,
-    std::string_view panel_name) :
+    Widget* parent, std::shared_ptr<UndoableModelStatePair> uim, std::string_view panel_name) :
 
     Panel{std::make_unique<Impl>(*this, parent, std::move(uim), panel_name)}
 {}
@@ -2189,6 +2251,10 @@ osc::ModelMusclePlotPanel::ModelMusclePlotPanel(
     const OpenSim::ComponentPath& coord_path,
     const OpenSim::ComponentPath& muscle_path) :
 
-    Panel{std::make_unique<Impl>(*this, parent, std::move(uim), panel_name, coord_path, muscle_path)}
+    Panel{
+        std::make_unique<Impl>(*this, parent, std::move(uim), panel_name, coord_path, muscle_path)}
 {}
-void osc::ModelMusclePlotPanel::impl_draw_content() { private_data().draw_content(); }
+void osc::ModelMusclePlotPanel::impl_draw_content()
+{
+    private_data().draw_content();
+}

@@ -20,8 +20,7 @@ namespace osc
     class ChooseComponentsEditorLayer final : public ModelViewerPanelLayer {
     public:
         ChooseComponentsEditorLayer(
-            std::shared_ptr<opyn::ModelStatePair>,
-            ChooseComponentsEditorLayerParameters);
+            std::shared_ptr<opyn::ModelStatePair>, ChooseComponentsEditorLayerParameters);
         ChooseComponentsEditorLayer(const ChooseComponentsEditorLayer&) = delete;
         ChooseComponentsEditorLayer(ChooseComponentsEditorLayer&&) noexcept;
         ChooseComponentsEditorLayer& operator=(const ChooseComponentsEditorLayer&) = delete;
@@ -30,16 +29,11 @@ namespace osc
 
     private:
         bool impl_handle_keyboard_inputs(
-            ModelViewerPanelParameters&,
-            ModelViewerPanelState&) override;
+            ModelViewerPanelParameters&, ModelViewerPanelState&) override;
 
-        bool impl_handle_mouse_inputs(
-            ModelViewerPanelParameters&,
-            ModelViewerPanelState&) override;
+        bool impl_handle_mouse_inputs(ModelViewerPanelParameters&, ModelViewerPanelState&) override;
 
-        void impl_on_draw(
-            ModelViewerPanelParameters&,
-            ModelViewerPanelState&) override;
+        void impl_on_draw(ModelViewerPanelParameters&, ModelViewerPanelState&) override;
 
         float impl_get_background_alpha() const override;
 

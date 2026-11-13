@@ -17,9 +17,7 @@ namespace osc
     class AddBodyPopup final : public Popup {
     public:
         explicit AddBodyPopup(
-            Widget* parent,
-            std::string_view popup_name,
-            std::shared_ptr<opyn::ModelStatePair>);
+            Widget* parent, std::string_view popup_name, std::shared_ptr<opyn::ModelStatePair>);
 
     private:
         void impl_draw_content() override;

@@ -59,16 +59,11 @@ using namespace osc;
 
 class osc::ModelEditorTab::Impl final : public TabPrivate {
 public:
-    explicit Impl(
-        ModelEditorTab& owner,
-        Widget* parent) :
+    explicit Impl(ModelEditorTab& owner, Widget* parent) :
         Impl{owner, parent, std::make_unique<UndoableModelStatePair>()}
     {}
 
-    explicit Impl(
-        ModelEditorTab& owner,
-        Widget* parent,
-        const OpenSim::Model& model) :
+    explicit Impl(ModelEditorTab& owner, Widget* parent, const OpenSim::Model& model) :
         Impl{owner, parent, std::make_unique<UndoableModelStatePair>(model)}
     {}
 
@@ -83,9 +78,7 @@ public:
     }
 
     explicit Impl(
-        ModelEditorTab& owner,
-        Widget* parent,
-        std::unique_ptr<UndoableModelStatePair> model) :
+        ModelEditorTab& owner, Widget* parent, std::unique_ptr<UndoableModelStatePair> model) :
 
         TabPrivate{owner, parent, "ModelEditorTab"},
         model_{std::move(model)}
@@ -93,54 +86,45 @@ public:
         // register all panels that the editor tab supports
 
         panel_manager_->register_toggleable_panel(
-            "Navigator",
-            [this](Widget* parent, std::string_view panel_name) {
+            "Navigator", [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<NavigatorPanel>(
-                    parent,
-                    panel_name,
-                    model_,
-                    [this](const OpenSim::ComponentPath& p) {
-                        auto popup = std::make_unique<ComponentContextMenu>(&this->owner(), "##componentcontextmenu", model_, p);
+                    parent, panel_name, model_, [this](const OpenSim::ComponentPath& p) {
+                        auto popup = std::make_unique<ComponentContextMenu>(
+                            &this->owner(), "##componentcontextmenu", model_, p);
                         App::post_event<OpenPopupEvent>(this->owner(), std::move(popup));
                     });
             });
         panel_manager_->register_toggleable_panel(
-            "Properties",
-            [this](Widget* parent, std::string_view panel_name) {
+            "Properties", [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<PropertiesPanel>(parent, panel_name, model_);
             });
         panel_manager_->register_toggleable_panel(
-            "Log",
-            [](Widget* parent, std::string_view panel_name) {
+            "Log", [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<LogViewerPanel>(parent, panel_name);
             });
         panel_manager_->register_toggleable_panel(
-            "Coordinates",
-            [this](Widget* parent, std::string_view panel_name) {
+            "Coordinates", [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<CoordinateEditorPanel>(parent, panel_name, model_);
             });
         panel_manager_->register_toggleable_panel(
-            "Performance",
-            [](Widget* parent, std::string_view panel_name) {
+            "Performance", [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<PerfPanel>(parent, panel_name);
             });
         panel_manager_->register_toggleable_panel(
-            "Output Watches",
-            [this](Widget* parent, std::string_view panel_name) {
+            "Output Watches", [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<OutputWatchesPanel>(parent, panel_name, model_);
             });
         panel_manager_->register_spawnable_panel(
             "viewer",
             [this](Widget*, std::string_view panel_name) {
-                auto on_right_click = [this, model = model_, menu_name = std::string{panel_name} + "_contextmenu"](const ModelViewerPanelRightClickEvent& e) {
-                    auto popup = std::make_unique<ComponentContextMenu>(
-                        &this->owner(),
-                        menu_name,
-                        model,
-                        e.component_abs_path_or_empty);
+                auto on_right_click =
+                    [this, model = model_, menu_name = std::string{panel_name} + "_contextmenu"](
+                        const ModelViewerPanelRightClickEvent& e) {
+                        auto popup = std::make_unique<ComponentContextMenu>(
+                            &this->owner(), menu_name, model, e.component_abs_path_or_empty);
 
-                    App::post_event<OpenPopupEvent>(this->owner(), std::move(popup));
-                };
+                        App::post_event<OpenPopupEvent>(this->owner(), std::move(popup));
+                    };
                 const ModelViewerPanelParameters panel_params{model_, on_right_click};
 
                 return std::make_shared<ModelViewerPanel>(&this->owner(), panel_name, panel_params);
@@ -156,10 +140,7 @@ public:
         );
     }
 
-    bool is_unsaved() const
-    {
-        return !model_->is_up_to_date_with_filesystem();
-    }
+    bool is_unsaved() const { return !model_->is_up_to_date_with_filesystem(); }
 
     std::future<TabSaveResult> try_save()
     {
@@ -218,12 +199,11 @@ public:
                 panel_manager_->push_dynamic_panel(name, std::move(panel_ptr));
                 return true;
             }
-        } else if (const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
+        } else if (
+            const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
+
             auto popup = std::make_unique<ComponentContextMenu>(
-                &this->owner(),
-                "##componentcontextmenu",
-                model_,
-                context_menu_event->path());
+                &this->owner(), "##componentcontextmenu", model_, context_menu_event->path());
             App::post_event<OpenPopupEvent>(owner(), std::move(popup));
             return true;
         } else if (const auto* add_muscle_plot_event = dynamic_cast<AddMusclePlotEvent*>(&e)) {
@@ -261,10 +241,7 @@ public:
         panel_manager_->on_tick();
     }
 
-    void on_draw_main_menu()
-    {
-        main_menu_.on_draw();
-    }
+    void on_draw_main_menu() { main_menu_.on_draw(); }
 
     void on_draw()
     {
@@ -293,24 +270,30 @@ public:
 
     void try_recovering_from_exception(const std::exception& ex)
     {
-        log_error("exception: thrown while drawing the model editor\n{}", potentially_nested_exception_to_string(ex, 1));
+        log_error(
+            "exception: thrown while drawing the model editor\n{}",
+            potentially_nested_exception_to_string(ex, 1));
         log_error("Exceptions typically happen when an invalid edit is made to the model");
 
         if (exception_thrown_last_frame_) {
             if (model_->can_undo()) {
-                // exception was thrown last frame, indicating the model in the undo/redo buffer is also
-                // damaged, so try undoing
+                // exception was thrown last frame, indicating the model in the undo/redo buffer is
+                // also damaged, so try undoing
 
-                log_error("an exception was also thrown last frame, indicating model damage: attempting to undo to an earlier version of the model to try and fix the model");
+                log_error(
+                    "an exception was also thrown last frame, indicating model damage: attempting to undo to an earlier version of the model to try and fix the model");
 
                 try {
-                    model_->do_undo();  // TODO: add `doUndoWithNoRedoStorage` so that the user's redo buffer isn't tainted
+                    // TODO: add `doUndoWithNoRedoStorage` so that the user's redo buffer isn't
+                    // tainted
+                    model_->do_undo();
                 } catch (const std::exception& ex2) {
                     log_error("undoing the model also failed with an error");
                     log_error(potentially_nested_exception_to_string(ex2, 1));
                     log_error("because the model isn't recoverable, closing the editor tab");
                     if (parent()) {
-                        App::post_event<OpenTabEvent>(*parent(), std::make_unique<ErrorTab>(owner(), ex));
+                        App::post_event<OpenTabEvent>(
+                            *parent(), std::make_unique<ErrorTab>(owner(), ex));
                         App::post_event<CloseTabEvent>(*parent(), id());
                     }
                 }
@@ -318,23 +301,26 @@ public:
                 log_error("successfully undone model");
                 exception_thrown_last_frame_ = false;  // reset flag
             } else if (not popup_manager_.empty()) {
-                // exception was thrown last frame, but we can't undo the model, so try to assume that a popup was
-                // causing the problem last frame and clear all popups instead of fully exploding the whole tab
-                log_error("trying to close all currently-open popups, in case that prevents crashes");
+                // exception was thrown last frame, but we can't undo the model, so try to assume
+                // that a popup was causing the problem last frame and clear all popups instead of
+                // fully exploding the whole tab
+                log_error(
+                    "trying to close all currently-open popups, in case that prevents crashes");
                 popup_manager_.clear();
             } else {
-                // exception thrown last frame, indicating the model in the undo/redo buffer is also damaged,
-                // but cannot undo, so quit
+                // exception thrown last frame, indicating the model in the undo/redo buffer is also
+                // damaged, but cannot undo, so quit
 
                 log_error("because the model isn't recoverable, closing the editor tab");
                 if (parent()) {
-                    App::post_event<OpenTabEvent>(*parent(), std::make_unique<ErrorTab>(owner(), ex));
+                    App::post_event<OpenTabEvent>(
+                        *parent(), std::make_unique<ErrorTab>(owner(), ex));
                     App::post_event<CloseTabEvent>(*parent(), id());
                 }
             }
         } else {
-            // no exception last frame, indicating the _scratch space_ may be damaged, so try to rollback
-            // to a version in the undo/redo buffer
+            // no exception last frame, indicating the _scratch space_ may be damaged, so try to
+            // rollback to a version in the undo/redo buffer
 
             try {
                 log_error("attempting to rollback the model edit to a clean state");
@@ -418,35 +404,52 @@ private:
     bool exception_thrown_last_frame_ = false;
 };
 
-osc::ModelEditorTab::ModelEditorTab(
-    Widget* parent) :
+osc::ModelEditorTab::ModelEditorTab(Widget* parent) :
 
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-osc::ModelEditorTab::ModelEditorTab(
-    Widget* parent,
-    const OpenSim::Model& model) :
+osc::ModelEditorTab::ModelEditorTab(Widget* parent, const OpenSim::Model& model) :
 
     Tab{std::make_unique<Impl>(*this, parent, model)}
 {}
 osc::ModelEditorTab::ModelEditorTab(
-    Widget* parent,
-    std::unique_ptr<OpenSim::Model> model,
-    float fixup_scale_factor) :
+    Widget* parent, std::unique_ptr<OpenSim::Model> model, float fixup_scale_factor) :
 
     Tab{std::make_unique<Impl>(*this, parent, std::move(model), fixup_scale_factor)}
 {}
-osc::ModelEditorTab::ModelEditorTab(
-    Widget* parent,
-    std::unique_ptr<UndoableModelStatePair> model) :
+osc::ModelEditorTab::ModelEditorTab(Widget* parent, std::unique_ptr<UndoableModelStatePair> model) :
 
     Tab{std::make_unique<Impl>(*this, parent, std::move(model))}
 {}
-bool osc::ModelEditorTab::impl_is_unsaved() const { return private_data().is_unsaved(); }
-std::future<TabSaveResult> osc::ModelEditorTab::impl_try_save() { return private_data().try_save(); }
-void osc::ModelEditorTab::impl_on_mount() { private_data().on_mount(); }
-void osc::ModelEditorTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::ModelEditorTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::ModelEditorTab::impl_on_tick() { private_data().on_tick(); }
-void osc::ModelEditorTab::impl_on_draw_main_menu() { private_data().on_draw_main_menu(); }
-void osc::ModelEditorTab::impl_on_draw() { private_data().on_draw(); }
+bool osc::ModelEditorTab::impl_is_unsaved() const
+{
+    return private_data().is_unsaved();
+}
+std::future<TabSaveResult> osc::ModelEditorTab::impl_try_save()
+{
+    return private_data().try_save();
+}
+void osc::ModelEditorTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::ModelEditorTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::ModelEditorTab::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::ModelEditorTab::impl_on_tick()
+{
+    private_data().on_tick();
+}
+void osc::ModelEditorTab::impl_on_draw_main_menu()
+{
+    private_data().on_draw_main_menu();
+}
+void osc::ModelEditorTab::impl_on_draw()
+{
+    private_data().on_draw();
+}

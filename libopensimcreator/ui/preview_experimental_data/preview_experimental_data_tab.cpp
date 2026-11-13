@@ -66,7 +66,10 @@ namespace
         };
         using ReinitializationFlags = Flags<ReinitializationFlag>;
 
-        std::shared_ptr<ModelStatePairWithSharedEnvironment> upd_shared_model_ptr() const { return model_; }
+        std::shared_ptr<ModelStatePairWithSharedEnvironment> upd_shared_model_ptr() const
+        {
+            return model_;
+        }
         opyn::ModelStatePair& upd_model() { return *model_; }
 
         void on_tick()
@@ -81,15 +84,13 @@ namespace
             }
         }
 
-        bool is_model_loaded() const
-        {
-            return opyn::has_input_file_name(model_->get_model());
-        }
+        bool is_model_loaded() const { return opyn::has_input_file_name(model_->get_model()); }
 
         void load_model_file(const std::filesystem::path& p)
         {
             model_->load_model(p);
-            reinitialize_model_from_backing_data("loaded model", ReinitializationFlag::RecalculateTimeRange);
+            reinitialize_model_from_backing_data(
+                "loaded model", ReinitializationFlag::RecalculateTimeRange);
             tab_name_override_ = p.filename().string();
         }
 
@@ -127,8 +128,11 @@ namespace
                 return;
             }
 
-            associated_motion_files_.insert(associated_motion_files_.end(), paths.begin(), paths.end());
-            reload_all(paths.size() == 1 ? "loaded motion" : "loaded motions", ReinitializationFlag::RecalculateTimeRange);
+            associated_motion_files_.insert(
+                associated_motion_files_.end(), paths.begin(), paths.end());
+            reload_all(
+                paths.size() == 1 ? "loaded motion" : "loaded motions",
+                ReinitializationFlag::RecalculateTimeRange);
             tab_name_override_ = paths.back().filename().string();
         }
 
@@ -138,25 +142,19 @@ namespace
                 return;
             }
 
-            associated_xml_documents_.insert(associated_xml_documents_.end(), paths.begin(), paths.end());
-            reload_all(paths.size() == 1 ? "loaded XML document" : "loaded XML documents", ReinitializationFlag::RecalculateTimeRange);
+            associated_xml_documents_.insert(
+                associated_xml_documents_.end(), paths.begin(), paths.end());
+            reload_all(
+                paths.size() == 1 ? "loaded XML document" : "loaded XML documents",
+                ReinitializationFlag::RecalculateTimeRange);
             tab_name_override_ = paths.back().filename().string();
         }
 
-        ClosedInterval<float> get_time_range() const
-        {
-            return time_range_;
-        }
+        ClosedInterval<float> get_time_range() const { return time_range_; }
 
-        void set_time_range(ClosedInterval<float> new_time_range)
-        {
-            time_range_ = new_time_range;
-        }
+        void set_time_range(ClosedInterval<float> new_time_range) { time_range_ = new_time_range; }
 
-        double get_scrub_time() const
-        {
-            return scrub_time_;
-        }
+        double get_scrub_time() const { return scrub_time_; }
 
         void set_scrub_time(double new_time)
         {
@@ -181,18 +179,13 @@ namespace
             scrub_time_ = static_cast<float>(new_time);
         }
 
-        void rollback_model()
-        {
-            model_->rollback();
-        }
+        void rollback_model() { model_->rollback(); }
 
-        std::optional<std::string_view> get_tab_name_override() const
-        {
-            return tab_name_override_;
-        }
+        std::optional<std::string_view> get_tab_name_override() const { return tab_name_override_; }
 
     private:
-        void reinitialize_model_from_backing_data(std::string_view label, ReinitializationFlags flags)
+        void reinitialize_model_from_backing_data(
+            std::string_view label, ReinitializationFlags flags)
         {
             std::optional<ClosedInterval<float>> data_time_range;
 
@@ -209,20 +202,24 @@ namespace
                 opyn::initialize_model(model_->upd_model());
 
                 associated_trajectory_->reload_from_disk(model_->get_model());
-                data_time_range = osc::bounding_interval_of(data_time_range, associated_trajectory_->time_range());
+                data_time_range = osc::bounding_interval_of(
+                    data_time_range, associated_trajectory_->time_range());
             }
 
             // (re)load motions
             for (const std::filesystem::path& path : associated_motion_files_) {
-                const auto& motion = opyn::add_model_component<opyn::AnnotatedMotion>(model_->upd_model(), path);
+                const auto& motion =
+                    opyn::add_model_component<opyn::AnnotatedMotion>(model_->upd_model(), path);
                 data_time_range = osc::bounding_interval_of(data_time_range, motion.time_range());
             }
 
             // (re)load associated XML files (e.g. `ExternalLoads`)
             for (const std::filesystem::path& path : associated_xml_documents_) {
-                auto ptr = std::unique_ptr<OpenSim::Object>{OpenSim::Object::makeObjectFromFile(path.string())};
+                auto ptr = std::unique_ptr<OpenSim::Object>{
+                    OpenSim::Object::makeObjectFromFile(path.string())};
                 if (dynamic_cast<OpenSim::ModelComponent*>(ptr.get())) {
-                    model_->upd_model().addModelComponent(dynamic_cast<OpenSim::ModelComponent*>(ptr.release()));
+                    model_->upd_model().addModelComponent(
+                        dynamic_cast<OpenSim::ModelComponent*>(ptr.release()));
                 }
             }
 
@@ -233,7 +230,8 @@ namespace
 
             if (data_time_range and (flags & ReinitializationFlag::RecalculateTimeRange)) {
                 time_range_ = *data_time_range;
-                scrub_time_ = clamp(scrub_time_, time_range_);  // Ensure scrub lands within the new time range.
+                // Ensure scrub lands within the new time range.
+                scrub_time_ = clamp(scrub_time_, time_range_);
             }
             set_scrub_time(scrub_time_);
         }
@@ -249,7 +247,9 @@ namespace
 
     class PreviewExperimentalDataTabToolbar final {
     public:
-        explicit PreviewExperimentalDataTabToolbar(std::shared_ptr<PreviewExperimentalDataUiState> ui_state) :
+        explicit PreviewExperimentalDataTabToolbar(
+            std::shared_ptr<PreviewExperimentalDataUiState> ui_state) :
+
             ui_state_{std::move(ui_state)}
         {}
 
@@ -262,7 +262,8 @@ namespace
                         App::upd().prompt_user_to_select_file_async(
                             [state = ui_state_](const FileDialogResponse& response) {
                                 if (response.size() != 1) {
-                                    return;  // Error, cancellation, or more than one file somehow selected.
+                                    // Error, cancellation, or more than one file somehow selected.
+                                    return;
                                 }
 
                                 // Guard against loading errors by emitting a log message rather
@@ -286,7 +287,8 @@ namespace
                         App::upd().prompt_user_to_select_file_async(
                             [state = ui_state_](const FileDialogResponse& response) {
                                 if (response.size() != 1) {
-                                    return;  // Error, cancellation, or more than one file somehow selected.
+                                    // Error, cancellation, or more than one file somehow selected.
+                                    return;
                                 }
 
                                 // Guard against loading errors by emitting a log message rather
@@ -364,8 +366,16 @@ namespace
 
                     ui::same_line();
                     auto t = static_cast<float>(ui_state_->get_scrub_time());
-                    ui::set_next_item_width(ui::calc_text_size("----------------------------------------------------------------").x());
-                    if (ui::draw_float_slider("t", &t, static_cast<float>(tr.lower), static_cast<float>(tr.upper), "%.6f")) {
+                    ui::set_next_item_width(
+                        ui::calc_text_size(
+                            "----------------------------------------------------------------")
+                            .x());
+                    if (ui::draw_float_slider(
+                            "t",
+                            &t,
+                            static_cast<float>(tr.lower),
+                            static_cast<float>(tr.upper),
+                            "%.6f")) {
                         ui_state_->set_scrub_time(t);
                     }
 
@@ -405,61 +415,59 @@ namespace
 
 class osc::PreviewExperimentalDataTab::Impl final : public TabPrivate {
 public:
-    explicit Impl(
-        PreviewExperimentalDataTab& owner,
-        Widget* parent) :
+    explicit Impl(PreviewExperimentalDataTab& owner, Widget* parent) :
         TabPrivate{owner, parent, c_default_tab_name}
     {
         panel_manager_->register_toggleable_panel(
-            "Navigator",
-            [this](Widget* parent, std::string_view panel_name) {
+            "Navigator", [this](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<NavigatorPanel>(
                     parent,
                     panel_name,
                     ui_state_->upd_shared_model_ptr(),
                     [this, parent](const OpenSim::ComponentPath& p) {
-                        auto popup = std::make_unique<ComponentContextMenu>(parent, "##componentcontextmenu", ui_state_->upd_shared_model_ptr(), p);
+                        auto popup = std::make_unique<ComponentContextMenu>(
+                            parent, "##componentcontextmenu", ui_state_->upd_shared_model_ptr(), p);
                         App::post_event<OpenPopupEvent>(*parent, std::move(popup));
                     });
             });
         panel_manager_->register_toggleable_panel(
-            "Properties",
-            [this](Widget* parent, std::string_view panel_name) {
-                return std::make_shared<PropertiesPanel>(parent, panel_name, ui_state_->upd_shared_model_ptr());
+            "Properties", [this](Widget* parent, std::string_view panel_name) {
+                return std::make_shared<PropertiesPanel>(
+                    parent, panel_name, ui_state_->upd_shared_model_ptr());
             });
         panel_manager_->register_toggleable_panel(
-            "Log",
-            [](Widget* parent, std::string_view panel_name) {
+            "Log", [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<LogViewerPanel>(parent, panel_name);
             });
         panel_manager_->register_toggleable_panel(
-            "Coordinates",
-            [this](Widget* parent, std::string_view panel_name) {
-                return std::make_shared<CoordinateEditorPanel>(parent, panel_name, ui_state_->upd_shared_model_ptr());
+            "Coordinates", [this](Widget* parent, std::string_view panel_name) {
+                return std::make_shared<CoordinateEditorPanel>(
+                    parent, panel_name, ui_state_->upd_shared_model_ptr());
             });
         panel_manager_->register_toggleable_panel(
-            "Performance",
-            [](Widget* parent, std::string_view panel_name) {
+            "Performance", [](Widget* parent, std::string_view panel_name) {
                 return std::make_shared<PerfPanel>(parent, panel_name);
             });
         panel_manager_->register_toggleable_panel(
-            "Output Watches",
-            [this](Widget* parent, std::string_view panel_name) {
-                return std::make_shared<OutputWatchesPanel>(parent, panel_name, ui_state_->upd_shared_model_ptr());
+            "Output Watches", [this](Widget* parent, std::string_view panel_name) {
+                return std::make_shared<OutputWatchesPanel>(
+                    parent, panel_name, ui_state_->upd_shared_model_ptr());
             });
         panel_manager_->register_spawnable_panel(
             "viewer",
             [this](Widget* parent, std::string_view panel_name) {
-                auto on_right_click = [model = ui_state_->upd_shared_model_ptr(), parent, menu_name = std::string{panel_name} + "_contextmenu", editor_api = this](const ModelViewerPanelRightClickEvent& e) {
+                auto on_right_click = [model = ui_state_->upd_shared_model_ptr(),
+                                       parent,
+                                       menu_name = std::string{panel_name} + "_contextmenu",
+                                       editor_api =
+                                           this](const ModelViewerPanelRightClickEvent& e) {
                     auto popup = std::make_unique<ComponentContextMenu>(
-                        parent,
-                        menu_name,
-                        model,
-                        e.component_abs_path_or_empty);
+                        parent, menu_name, model, e.component_abs_path_or_empty);
 
                     App::post_event<OpenPopupEvent>(editor_api->owner(), std::move(popup));
                 };
-                ModelViewerPanelParameters panel_params{ui_state_->upd_shared_model_ptr(), on_right_click};
+                ModelViewerPanelParameters panel_params{
+                    ui_state_->upd_shared_model_ptr(), on_right_click};
 
                 return std::make_shared<ModelViewerPanel>(parent, panel_name, panel_params);
             },
@@ -492,7 +500,9 @@ public:
         } else if (const auto* named_panel = dynamic_cast<OpenNamedPanelEvent*>(&e)) {
             panel_manager_->set_toggleable_panel_activated(named_panel->panel_name(), true);
             return true;
-        } else if (const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
+        } else if (
+            const auto* context_menu_event = dynamic_cast<OpenComponentContextMenuEvent*>(&e)) {
+
             auto popup = std::make_unique<ComponentContextMenu>(
                 &owner(),
                 "##componentcontextmenu",
@@ -518,10 +528,7 @@ public:
         }
     }
 
-    void on_draw_main_menu()
-    {
-        window_menu_.on_draw();
-    }
+    void on_draw_main_menu() { window_menu_.on_draw(); }
 
     void on_draw()
     {
@@ -545,9 +552,11 @@ public:
     }
 
 private:
-    static constexpr std::string_view c_default_tab_name = MSMICONS_BEZIER_CURVE " Experimental Data";
+    static constexpr std::string_view c_default_tab_name =
+        MSMICONS_BEZIER_CURVE " Experimental Data";
 
-    std::shared_ptr<PreviewExperimentalDataUiState> ui_state_ = std::make_shared<PreviewExperimentalDataUiState>();
+    std::shared_ptr<PreviewExperimentalDataUiState> ui_state_ =
+        std::make_shared<PreviewExperimentalDataUiState>();
     std::shared_ptr<PanelManager> panel_manager_ = std::make_shared<PanelManager>(&owner());
     PreviewExperimentalDataTabToolbar toolbar_{ui_state_};
     WindowMenu window_menu_{&owner(), panel_manager_};
@@ -556,14 +565,35 @@ private:
     bool threw_exception_last_frame_ = false;
 };
 
-CStringView osc::PreviewExperimentalDataTab::id() { return "OpenSim/Experimental/PreviewExperimentalData"; }
+CStringView osc::PreviewExperimentalDataTab::id()
+{
+    return "OpenSim/Experimental/PreviewExperimentalData";
+}
 
 osc::PreviewExperimentalDataTab::PreviewExperimentalDataTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::PreviewExperimentalDataTab::impl_on_mount() { private_data().on_mount(); }
-void osc::PreviewExperimentalDataTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::PreviewExperimentalDataTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::PreviewExperimentalDataTab::impl_on_tick() { private_data().on_tick(); }
-void osc::PreviewExperimentalDataTab::impl_on_draw_main_menu() { private_data().on_draw_main_menu(); }
-void osc::PreviewExperimentalDataTab::impl_on_draw() { private_data().on_draw(); }
+void osc::PreviewExperimentalDataTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::PreviewExperimentalDataTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::PreviewExperimentalDataTab::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::PreviewExperimentalDataTab::impl_on_tick()
+{
+    private_data().on_tick();
+}
+void osc::PreviewExperimentalDataTab::impl_on_draw_main_menu()
+{
+    private_data().on_draw_main_menu();
+}
+void osc::PreviewExperimentalDataTab::impl_on_draw()
+{
+    private_data().on_draw();
+}

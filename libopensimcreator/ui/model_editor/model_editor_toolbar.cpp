@@ -69,7 +69,8 @@ private:
         }
         ui::pop_style_color();
         ui::add_screenshot_annotation_to_last_drawn_item("Simulate Button");
-        ui::draw_tooltip_if_item_hovered("Simulate Model", "Run a forward-dynamic simulation of the model");
+        ui::draw_tooltip_if_item_hovered(
+            "Simulate Model", "Run a forward-dynamic simulation of the model");
 
         ui::same_line();
 
@@ -80,7 +81,8 @@ private:
                 &model_->try_upd_environment()->upd_simulation_params());
             App::post_event<OpenPopupEvent>(owner(), std::move(popup));
         }
-        ui::draw_tooltip_if_item_hovered("Edit Simulation Settings", "Change the parameters used when simulating the model");
+        ui::draw_tooltip_if_item_hovered(
+            "Edit Simulation Settings", "Change the parameters used when simulating the model");
 
         ui::pop_style_var();
     }
@@ -111,9 +113,7 @@ private:
 };
 
 osc::ModelEditorToolbar::ModelEditorToolbar(
-    Widget* parent,
-    std::string_view label,
-    std::shared_ptr<UndoableModelStatePair> model) :
+    Widget* parent, std::string_view label, std::shared_ptr<UndoableModelStatePair> model) :
 
     Widget{std::make_unique<Impl>(*this, parent, label, std::move(model))}
 {}

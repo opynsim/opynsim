@@ -46,7 +46,7 @@ private:
             component_version_{component.get_component_version()}
         {}
 
-        friend bool operator==(const FunctionParameters& lhs, const FunctionParameters& rhs) = default;
+        friend bool operator==(const FunctionParameters&, const FunctionParameters&) = default;
 
         void set_version_from_component(const opyn::VersionedComponentAccessor& component)
         {
@@ -123,7 +123,9 @@ private:
         ui::draw_float_input("min x", &latest_parameters_.upd_input_range().lower);
         ui::draw_float_input("max x", &latest_parameters_.upd_input_range().upper);
         if (ui::draw_int_input("num points", &latest_parameters_.upd_num_points())) {
-            latest_parameters_.upd_num_points() = clamp(latest_parameters_.upd_num_points(), 0, 10000);  // sanity
+            // sanity
+            latest_parameters_.upd_num_points() =
+                clamp(latest_parameters_.upd_num_points(), 0, 10000);
         }
         if (ui::draw_button("export CSV")) {
             on_user_requested_csv_export();
@@ -137,12 +139,18 @@ private:
         }
 
         const Vector2 dimensions = Vector2{ui::get_content_region_available().x()};
-        const plot::PlotFlags flags = plot::PlotFlags::NoMenus | plot::PlotFlags::NoBoxSelect | plot::PlotFlags::NoFrame | plot::PlotFlags::NoTitle;
+        const plot::PlotFlags flags =
+            plot::PlotFlags::NoMenus |      //
+            plot::PlotFlags::NoBoxSelect |  //
+            plot::PlotFlags::NoFrame |      //
+            plot::PlotFlags::NoTitle;
         if (plot::begin(name(), dimensions, flags)) {
 
             plot::setup_axes("x", "y");
-            plot::setup_axis_limits(plot::Axis::X1, plot_points_.x_range(), 0.05f, plot::Condition::Always);
-            plot::setup_axis_limits(plot::Axis::Y1, plot_points_.y_range(), 0.05f, plot::Condition::Always);
+            plot::setup_axis_limits(
+                plot::Axis::X1, plot_points_.x_range(), 0.05f, plot::Condition::Always);
+            plot::setup_axis_limits(
+                plot::Axis::Y1, plot_points_.y_range(), 0.05f, plot::Condition::Always);
             plot::setup_finish();
 
             plot::set_next_marker_style(plot::MarkerType::Circle, 2.0f);
@@ -160,7 +168,8 @@ private:
 
         const OpenSim::Function* function = function_getter_();
         if (not function) {
-            error_ = "could not get the function from the component (maybe the component was edited, or the function was deleted?)";
+            error_ =
+                "could not get the function from the component (maybe the component was edited, or the function was deleted?)";
             return rv;
         }
 
@@ -222,6 +231,10 @@ osc::FunctionCurveViewerPanel::FunctionCurveViewerPanel(
     std::shared_ptr<const opyn::VersionedComponentAccessor> target_component,
     std::function<const OpenSim::Function*()> function_getter) :
 
-    Panel{std::make_unique<Impl>(*this, parent, panel_name, std::move(target_component), std::move(function_getter))}
+    Panel{std::make_unique<Impl>(
+        *this, parent, panel_name, std::move(target_component), std::move(function_getter))}
 {}
-void osc::FunctionCurveViewerPanel::impl_draw_content() { private_data().draw_content(); }
+void osc::FunctionCurveViewerPanel::impl_draw_content()
+{
+    private_data().draw_content();
+}

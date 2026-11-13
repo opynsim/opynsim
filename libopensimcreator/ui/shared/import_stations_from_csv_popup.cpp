@@ -64,7 +64,9 @@ public:
             ui::draw_separator();
             ui::draw_text("Associate landmarks with a frame in the model");
             if (ui::begin_combobox("Model frame", target_component_abs_path_)) {
-                for (const auto& frame : maybe_associated_model_->get_model().getComponentList<OpenSim::PhysicalFrame>()) {
+                for (const auto& frame : maybe_associated_model_->get_model()
+                                             .getComponentList<OpenSim::PhysicalFrame>()) {
+
                     const std::string abs_path = frame.getAbsolutePathString();
                     if (ui::draw_selectable(abs_path, abs_path == target_component_abs_path_)) {
                         target_component_abs_path_ = abs_path;
@@ -81,13 +83,17 @@ public:
 private:
     void draw_help_text()
     {
-        ui::draw_text_wrapped("Use this tool to import CSV data containing 3D locations as stations into the document. The CSV file should contain:");
+        ui::draw_text_wrapped(
+            "Use this tool to import CSV data containing 3D locations as stations into the document. The CSV file should contain:");
         ui::draw_bullet_point();
-        ui::draw_text_wrapped("(optional) A header row of four columns, ideally labelled 'name', 'x', 'y', and 'z'");
+        ui::draw_text_wrapped(
+            "(optional) A header row of four columns, ideally labelled 'name', 'x', 'y', and 'z'");
         ui::draw_bullet_point();
-        ui::draw_text_wrapped("Data rows containing four columns: name (optional, string), x (number), y (number), and z (number)");
+        ui::draw_text_wrapped(
+            "Data rows containing four columns: name (optional, string), x (number), y (number), and z (number)");
         ui::draw_vertical_spacer(0.5f);
-        constexpr CStringView c_example_input_text = "name,x,y,z\nstationatground,0,0,0\nstation2,1.53,0.2,1.7\nstation3,3.0,2.0,0.0\n";
+        constexpr CStringView c_example_input_text =
+            "name,x,y,z\nstationatground,0,0,0\nstation2,1.53,0.2,1.7\nstation3,3.0,2.0,0.0\n";
         ui::draw_text_wrapped("Example Input: ");
         ui::same_line();
         if (ui::draw_button(MSMICONS_COPY)) {
@@ -113,10 +119,15 @@ private:
         }
 
         ui::draw_text_centered(maybe_import_path_->string());
-        ui::draw_text_centered(std::string{"("} + std::to_string(imported_landmarks_.size()) + " data rows)");
+        ui::draw_text_centered(
+            std::string{"("} + std::to_string(imported_landmarks_.size()) + " data rows)");
 
         ui::draw_vertical_spacer(0.2f);
-        if (ui::begin_table("##importtable", 4, ui::TableFlag::ScrollY, {0.0f, 10.0f * ui::get_text_line_height_in_current_panel()})) {
+        if (ui::begin_table(
+                "##importtable",
+                4,
+                ui::TableFlag::ScrollY,
+                {0.0f, 10.0f * ui::get_text_line_height_in_current_panel()})) {
             ui::table_setup_column("Name");
             ui::table_setup_column("X");
             ui::table_setup_column("Y");
@@ -242,7 +253,9 @@ private:
         opyn::read_landmarks_from_csv(
             ifs,
             [&lms](opyn::Landmark&& lm) { lms.push_back(std::move(lm)); },
-            [this](const opyn::CSVParseWarning& warning) { import_warnings_.push_back(to_string(warning)); });
+            [this](const opyn::CSVParseWarning& warning) {
+                import_warnings_.push_back(to_string(warning));
+            });
         imported_landmarks_ = generate_names(lms);
     }
 
@@ -253,9 +266,12 @@ private:
         }
 
         on_import_callback_({
-            .maybe_label = maybe_import_path_ ? maybe_import_path_->string() : std::optional<std::string>{},
+            .maybe_label =
+                maybe_import_path_ ? maybe_import_path_->string() : std::optional<std::string>{},
             .landmarks = imported_landmarks_,
-            .maybe_target_component_abs_path = target_component_abs_path_ == "/ground" ? std::optional<std::string>{} : target_component_abs_path_,
+            .maybe_target_component_abs_path = target_component_abs_path_ == "/ground"
+                                                   ? std::optional<std::string>{}
+                                                   : target_component_abs_path_,
         });
     }
 
@@ -272,6 +288,10 @@ osc::ImportStationsFromCSVPopup::ImportStationsFromCSVPopup(
     std::string_view popup_name,
     std::function<void(ImportedData)> on_import,
     std::shared_ptr<const opyn::ModelStatePair> maybe_associated_model) :
-    Popup{std::make_unique<Impl>(*this, parent, popup_name, std::move(on_import), std::move(maybe_associated_model))}
+    Popup{std::make_unique<Impl>(
+        *this, parent, popup_name, std::move(on_import), std::move(maybe_associated_model))}
 {}
-void osc::ImportStationsFromCSVPopup::impl_draw_content() { private_data().draw_content(); }
+void osc::ImportStationsFromCSVPopup::impl_draw_content()
+{
+    private_data().draw_content();
+}

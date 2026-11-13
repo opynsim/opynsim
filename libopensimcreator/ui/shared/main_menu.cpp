@@ -43,7 +43,8 @@ using namespace osc;
 
 namespace
 {
-    void load_motion_against_model(const std::shared_ptr<opyn::ModelStatePair>& model, Widget* parent)
+    void load_motion_against_model(
+        const std::shared_ptr<opyn::ModelStatePair>& model, Widget* parent)
     {
         if (not model) {
             return;  // Nothing to load the motion against.
@@ -67,12 +68,14 @@ namespace
                 }
 
                 try {
-                    std::unique_ptr<OpenSim::Model> cpy = std::make_unique<OpenSim::Model>(model->get_model());
+                    std::unique_ptr<OpenSim::Model> cpy =
+                        std::make_unique<OpenSim::Model>(model->get_model());
                     opyn::initialize_model(*cpy);
                     opyn::initialize_state(*cpy);
 
                     std::shared_ptr<Environment> env;
-                    if (auto model_with_env = std::dynamic_pointer_cast<ModelStatePairWithSharedEnvironment>(model)) {
+                    if (auto model_with_env =
+                            std::dynamic_pointer_cast<ModelStatePairWithSharedEnvironment>(model)) {
                         env = model_with_env->try_upd_environment();
                     } else {
                         env = std::make_shared<Environment>();
@@ -86,7 +89,9 @@ namespace
                     auto tab = std::make_unique<SimulationTab>(parent_ref.get(), simulation);
                     App::post_event<OpenTabEvent>(*parent_ref, std::move(tab));
                 } catch (const std::exception& ex) {
-                    log_error("encountered error while trying to load an STO file against the model: {}", ex.what());
+                    log_error(
+                        "encountered error while trying to load an STO file against the model: {}",
+                        ex.what());
                 }
             },
             opyn::get_motion_file_filters());
@@ -97,13 +102,15 @@ namespace
         std::vector<std::filesystem::path> rv;
 
         const ResourcePath example_osims_resource_path{"OpenSimCreator/models"};
-        if (const auto example_osims_directory_path = App::resource_filepath(example_osims_resource_path)) {
+        if (const auto example_osims_directory_path =
+                App::resource_filepath(example_osims_resource_path)) {
 
             rv = find_files_with_extensions_recursive(
-                *example_osims_directory_path,
-                std::to_array({std::string_view{".osim"}}));
+                *example_osims_directory_path, std::to_array({std::string_view{".osim"}}));
         } else {
-            log_warn("{}: no such directory: cannot iterate through example models: falling back to an empty list", example_osims_resource_path.string());
+            log_warn(
+                "{}: no such directory: cannot iterate through example models: falling back to an empty list",
+                example_osims_resource_path.string());
         }
 
         rgs::sort(rv, is_filename_lexicographically_greater_than);
@@ -192,19 +199,25 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybe_m
 
     ui::draw_separator();
 
-    if (ui::draw_menu_item(MSMICONS_FOLDER_OPEN " Load Motion", std::nullopt, false, maybe_model != nullptr)) {
+    if (ui::draw_menu_item(
+            MSMICONS_FOLDER_OPEN " Load Motion", std::nullopt, false, maybe_model != nullptr)) {
         load_motion_against_model(maybe_model, parent());
     }
 
     ui::draw_separator();
 
-    if (ui::draw_menu_item(MSMICONS_SAVE " Save", ModifierKey::Ctrl | Key::S, false, undoable_model != nullptr)) {
+    if (ui::draw_menu_item(
+            MSMICONS_SAVE " Save", ModifierKey::Ctrl | Key::S, false, undoable_model != nullptr)) {
         if (undoable_model) {
             action_save_model_async(undoable_model);
         }
     }
 
-    if (ui::draw_menu_item(MSMICONS_SAVE " Save As", ModifierKey::Ctrl | ModifierKey::Shift | Key::S, false, undoable_model != nullptr)) {
+    if (ui::draw_menu_item(
+            MSMICONS_SAVE " Save As",
+            ModifierKey::Ctrl | ModifierKey::Shift | Key::S,
+            false,
+            undoable_model != nullptr)) {
         if (undoable_model) {
             action_save_current_model_as(undoable_model);
         }
@@ -213,8 +226,10 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybe_m
     {
         Tab* parent_tab = first_ancestor_of_type<Tab>();
         // HACK: `SplashTab` is the only not-closeable tab
-        const bool enabled = (undoable_model != nullptr) and (dynamic_cast<const SplashTab*>(parent_tab) == nullptr);
-        if (ui::draw_menu_item(MSMICONS_TIMES " Close", ModifierKey::Ctrl | Key::W, false, enabled)) {
+        const bool enabled =
+            (undoable_model != nullptr) and (dynamic_cast<const SplashTab*>(parent_tab) == nullptr);
+        if (ui::draw_menu_item(
+                MSMICONS_TIMES " Close", ModifierKey::Ctrl | Key::W, false, enabled)) {
             App::post_event<CloseTabEvent>(*parent_tab, parent_tab->id());
         }
     }
@@ -222,26 +237,58 @@ void osc::MainMenuFileTab::on_draw(std::shared_ptr<opyn::ModelStatePair> maybe_m
     ui::draw_separator();
 
     {
-        const bool model_has_backing_file = maybe_model != nullptr && opyn::has_input_file_name(maybe_model->get_model());
+        const bool model_has_backing_file =
+            maybe_model != nullptr && opyn::has_input_file_name(maybe_model->get_model());
 
-        if (ui::draw_menu_item(MSMICONS_RECYCLE " Reload", Key::F5, false, undoable_model != nullptr and undoable_model->can_upd_model() and model_has_backing_file) and undoable_model != nullptr) {
+        if (ui::draw_menu_item(
+                MSMICONS_RECYCLE " Reload",
+                Key::F5,
+                false,
+                undoable_model != nullptr and undoable_model->can_upd_model() and
+                    model_has_backing_file) and
+            undoable_model != nullptr) {
+
             action_reload_osim_from_disk(*undoable_model, *App::singleton<SceneCache>());
         }
-        ui::draw_tooltip_if_item_hovered("Reload", "Attempts to reload the osim file from scratch. This can be useful if (e.g.) editing third-party files that OpenSim Creator doesn't automatically track.");
+        ui::draw_tooltip_if_item_hovered(
+            "Reload",
+            "Attempts to reload the osim file from scratch. This can be useful if (e.g.) editing third-party files that OpenSim Creator doesn't automatically track.");
 
-        if (ui::draw_menu_item(MSMICONS_CLIPBOARD " Copy .osim path to clipboard", std::nullopt, false, undoable_model != nullptr and model_has_backing_file) and undoable_model != nullptr) {
+        if (ui::draw_menu_item(
+                MSMICONS_CLIPBOARD " Copy .osim path to clipboard",
+                std::nullopt,
+                false,
+                undoable_model != nullptr and model_has_backing_file) and
+            undoable_model != nullptr) {
+
             action_copy_model_path_to_clipboard(*undoable_model);
         }
-        ui::draw_tooltip_if_item_hovered("Copy .osim path to clipboard", "Copies the absolute path to the model's .osim file into your clipboard.\n\nThis is handy if you want to (e.g.) load the osim via a script, open it from the command line in another app, etc.");
+        ui::draw_tooltip_if_item_hovered(
+            "Copy .osim path to clipboard",
+            "Copies the absolute path to the model's .osim file into your clipboard.\n\nThis is handy if you want to (e.g.) load the osim via a script, open it from the command line in another app, etc.");
 
-        if (ui::draw_menu_item(MSMICONS_FOLDER " Open .osim's parent directory", std::nullopt, false, model_has_backing_file) && maybe_model) {
+        if (ui::draw_menu_item(
+                MSMICONS_FOLDER " Open .osim's parent directory",
+                std::nullopt,
+                false,
+                model_has_backing_file) &&
+            maybe_model) {
+
             action_open_osim_parent_directory(*maybe_model);
         }
 
-        if (ui::draw_menu_item(MSMICONS_LINK " Open .osim in external editor", std::nullopt, false, model_has_backing_file) && maybe_model) {
+        if (ui::draw_menu_item(
+                MSMICONS_LINK " Open .osim in external editor",
+                std::nullopt,
+                false,
+                model_has_backing_file) &&
+            maybe_model) {
+
             action_open_osim_in_external_editor(*maybe_model);
         }
-        ui::draw_tooltip_if_item_hovered("Open .osim in external editor", "Open the .osim file currently being edited in an external text editor. The editor that's used depends on your operating system's default for opening .osim files.");
+        ui::draw_tooltip_if_item_hovered(
+            "Open .osim in external editor",
+            "Open the .osim file currently being edited in an external text editor. The editor that's used depends on your operating system's default for opening .osim files.");
     }
 
     // reload
@@ -298,7 +345,8 @@ void osc::MainMenuAboutTab::on_draw()
 
         ui::draw_text("MSXAA");
         ui::same_line();
-        ui::draw_help_marker("the log_level_ of MultiSample Anti-Aliasing to use. This only affects 3D renders *within* the UI, not the whole UI (panels etc. will not be affected)");
+        ui::draw_help_marker(
+            "the log_level_ of MultiSample Anti-Aliasing to use. This only affects 3D renders *within* the UI, not the whole UI (panels etc. will not be affected)");
         ui::next_column();
         {
             const AntiAliasingLevel current = App::get().anti_aliasing_level();
@@ -329,7 +377,8 @@ void osc::MainMenuAboutTab::on_draw()
 
         ui::draw_text("VSYNC");
         ui::same_line();
-        ui::draw_help_marker("whether the backend uses vertical sync (VSYNC), which will cap the rendering FPS to your monitor's refresh rate");
+        ui::draw_help_marker(
+            "whether the backend uses vertical sync (VSYNC), which will cap the rendering FPS to your monitor's refresh rate");
         ui::next_column();
 
         bool enabled = App::get().vsync_enabled();
@@ -400,7 +449,8 @@ void osc::MainMenuAboutTab::on_draw()
         if (const auto executable_directory = App::get().executable_directory()) {
             ui::draw_text("OSC Install Location");
             ui::same_line();
-            ui::draw_help_marker("opens OSC's installation location in your OS's default file browser");
+            ui::draw_help_marker(
+                "opens OSC's installation location in your OS's default file browser");
             ui::next_column();
             ui::push_id(id++);
 
@@ -413,7 +463,8 @@ void osc::MainMenuAboutTab::on_draw()
 
         ui::draw_text("User Data Dir");
         ui::same_line();
-        ui::draw_help_marker("opens your OSC user data directory in your OS's default file browser");
+        ui::draw_help_marker(
+            "opens your OSC user data directory in your OS's default file browser");
         ui::next_column();
         ui::push_id(id++);
         if (ui::draw_button(MSMICONS_FOLDER " open")) {
@@ -424,7 +475,8 @@ void osc::MainMenuAboutTab::on_draw()
 
         ui::draw_text("Debug mode");
         ui::same_line();
-        ui::draw_help_marker("Toggles whether the application is in debug mode or not: enabling this can reveal more inforamtion about bugs");
+        ui::draw_help_marker(
+            "Toggles whether the application is in debug mode or not: enabling this can reveal more inforamtion about bugs");
         ui::next_column();
         {
             bool app_is_in_debug_mode = App::get().debug_mode();
@@ -452,7 +504,8 @@ void osc::MainMenuAboutTab::on_draw()
             if (ui::draw_button(MSMICONS_LINK " open")) {
                 open_url_in_os_default_web_browser(*docs_url);
             }
-            ui::draw_tooltip_body_only_if_item_hovered("this will open the documentation in a separate browser window");
+            ui::draw_tooltip_body_only_if_item_hovered(
+                "this will open the documentation in a separate browser window");
             ui::pop_id();
             ui::next_column();
         }
@@ -464,7 +517,8 @@ void osc::MainMenuAboutTab::on_draw()
             if (ui::draw_button(MSMICONS_LINK " open")) {
                 open_url_in_os_default_web_browser(*repo_url);
             }
-            ui::draw_tooltip_body_only_if_item_hovered("this will open the repository homepage in a separate browser window");
+            ui::draw_tooltip_body_only_if_item_hovered(
+                "this will open the repository homepage in a separate browser window");
             ui::pop_id();
             ui::next_column();
         }
@@ -476,7 +530,8 @@ void osc::MainMenuAboutTab::on_draw()
             if (ui::draw_button(MSMICONS_LINK " open")) {
                 open_url_in_os_default_web_browser(*help_url);
             }
-            ui::draw_tooltip_body_only_if_item_hovered("this will open the help/discussion page in a separate browser window");
+            ui::draw_tooltip_body_only_if_item_hovered(
+                "this will open the help/discussion page in a separate browser window");
             ui::pop_id();
             ui::next_column();
         }
@@ -485,9 +540,11 @@ void osc::MainMenuAboutTab::on_draw()
         ui::next_column();
         ui::push_id(id++);
         if (ui::draw_button(MSMICONS_LINK " open")) {
-            open_url_in_os_default_web_browser("https://simtk-confluence.stanford.edu/display/OpenSim/Documentation");
+            open_url_in_os_default_web_browser(
+                "https://simtk-confluence.stanford.edu/display/OpenSim/Documentation");
         }
-        ui::draw_tooltip_body_only_if_item_hovered("this will open the documentation in a separate browser window");
+        ui::draw_tooltip_body_only_if_item_hovered(
+            "this will open the documentation in a separate browser window");
         ui::pop_id();
         ui::next_column();
 

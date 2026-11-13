@@ -5,8 +5,7 @@
 #include <OpenSim/Simulation/Model/Muscle.h>
 
 osc::AddMusclePlotEvent::AddMusclePlotEvent(
-    const OpenSim::Coordinate& coordinate,
-    const OpenSim::Muscle& muscle) :
+    const OpenSim::Coordinate& coordinate, const OpenSim::Muscle& muscle) :
 
     coordinate_abs_path_{opyn::get_absolute_path(coordinate)},
     muscle_abs_path_{opyn::get_absolute_path(muscle)}

@@ -55,13 +55,21 @@ private:
     {
         if (ui::begin_menu("Edit")) {
             auto* undoable = dynamic_cast<UndoableModelStatePair*>(model_.get());
-            if (ui::draw_menu_item(MSMICONS_UNDO " Undo", ModifierKey::Ctrl | Key::Z, false, undoable != nullptr and undoable->can_undo())) {
+            if (ui::draw_menu_item(
+                    MSMICONS_UNDO " Undo",
+                    ModifierKey::Ctrl | Key::Z,
+                    false,
+                    undoable != nullptr and undoable->can_undo())) {
                 if (undoable) {
                     undoable->do_undo();
                 }
             }
 
-            if (ui::draw_menu_item(MSMICONS_REDO " Redo", ModifierKey::Ctrl | ModifierKey::Shift | Key::Z, false, undoable != nullptr and undoable->can_redo())) {
+            if (ui::draw_menu_item(
+                    MSMICONS_REDO " Redo",
+                    ModifierKey::Ctrl | ModifierKey::Shift | Key::Z,
+                    false,
+                    undoable != nullptr and undoable->can_redo())) {
                 if (undoable) {
                     undoable->do_redo();
                 }
@@ -69,7 +77,8 @@ private:
 
             ui::draw_separator();
 
-            if (ui::draw_menu_item("         Deselect", Key::Escape, false, model_->get_selected() != nullptr)) {
+            if (ui::draw_menu_item(
+                    "         Deselect", Key::Escape, false, model_->get_selected() != nullptr)) {
                 model_->clear_selected();
             }
 
@@ -102,7 +111,8 @@ private:
                 }
             }
 
-            if (ui::draw_menu_item("         Import Points", {}, nullptr, model_->can_upd_model())) {
+            if (ui::draw_menu_item(
+                    "         Import Points", {}, nullptr, model_->can_upd_model())) {
                 if (parent()) {
                     auto popup = std::make_unique<ImportStationsFromCSVPopup>(
                         &owner(),
@@ -130,7 +140,8 @@ private:
                 if (ui::draw_menu_item("Export Model Graph as Dotviz")) {
                     action_export_model_graph_to_dotviz(model_);
                 }
-                ui::draw_tooltip_if_item_hovered("Writes the model's data topology graph in dotviz format, so that it can be visualized in external tooling such as Graphviz Online");
+                ui::draw_tooltip_if_item_hovered(
+                    "Writes the model's data topology graph in dotviz format, so that it can be visualized in external tooling such as Graphviz Online");
 
                 if (ui::draw_menu_item("Export Model Graph as Dotviz (clipboard)")) {
                     action_export_model_graph_to_dotviz_clipboard(*model_);
@@ -139,12 +150,14 @@ private:
                 if (ui::draw_menu_item("Export Model Multibody System as Dotviz (clipboard)")) {
                     action_export_model_multibody_system_as_dotviz(*model_);
                 }
-                ui::draw_tooltip_if_item_hovered("Writes the model's multibody system (kinematic chain) in dotviz format, so that it can be visualized in external tooling such as Graphviz Online");
+                ui::draw_tooltip_if_item_hovered(
+                    "Writes the model's multibody system (kinematic chain) in dotviz format, so that it can be visualized in external tooling such as Graphviz Online");
 
                 if (ui::draw_menu_item("WIP: Bake Station Defined Frames")) {
                     action_bake_station_defined_frames(*model_);
                 }
-                ui::draw_tooltip_if_item_hovered("WORK IN PROGRESS (WIP): Converts any `StationDefinedFrame`s in the model into `PhysicalOffsetFrame`s. Effectively, \"baking\" the current (station-defined) frame transform.\n\nThe main reason to do this is backwards compatibility, OpenSim <= v4.5 doesn't have native support for `StationDefinedFrame`s (later versions should: see opensim-core/#3694)");
+                ui::draw_tooltip_if_item_hovered(
+                    "WORK IN PROGRESS (WIP): Converts any `StationDefinedFrame`s in the model into `PhysicalOffsetFrame`s. Effectively, \"baking\" the current (station-defined) frame transform.\n\nThe main reason to do this is backwards compatibility, OpenSim <= v4.5 doesn't have native support for `StationDefinedFrame`s (later versions should: see opensim-core/#3694)");
 
                 ui::end_menu();
             }
@@ -156,11 +169,13 @@ private:
     void draw_main_menu_actions_tab()
     {
         if (ui::begin_menu("Actions")) {
-            if (ui::draw_menu_item("Disable all wrapping surfaces", {}, nullptr, model_->can_upd_model())) {
+            if (ui::draw_menu_item(
+                    "Disable all wrapping surfaces", {}, nullptr, model_->can_upd_model())) {
                 action_disable_all_wrapping_surfaces(*model_);
             }
 
-            if (ui::draw_menu_item("Enable all wrapping surfaces", {}, nullptr, model_->can_upd_model())) {
+            if (ui::draw_menu_item(
+                    "Enable all wrapping surfaces", {}, nullptr, model_->can_upd_model())) {
                 action_enable_all_wrapping_surfaces(*model_);
             }
 
