@@ -1,5 +1,5 @@
-Unofficial Doxygen Reference
-============================
+Doxygen
+=======
 
 .. raw:: html
 

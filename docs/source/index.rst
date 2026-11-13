@@ -64,12 +64,12 @@ Table of Contents
    :maxdepth: 2
    :caption: Development
 
+   development/building-from-source
    development/architecture-overview
-   development/clion-setup
    development/opynsim-as-a-cpp-library
-   development/unofficial-doxygen-reference
+   development/doxygen
    development/opensim-interoperability
-   development/the-release-process
+   development/release-process
 
 .. toctree::
     :caption: Other Links
