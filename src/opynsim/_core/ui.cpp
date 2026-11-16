@@ -26,15 +26,14 @@ namespace
     // in a Python interpreter.
     UiCallbacks default_python_callbacks()
     {
-        return {
-            // Every UI loop tick, the Python interpreter should be checked
-            // for signals (e.g. keyboard interrupts) so that the user can
-            // close the UI from the terminal with `Ctrl+C` (for example).
-            .on_tick_begin = [] {
-                if (PyErr_CheckSignals() != 0) {
-                    throw nb::python_error{};
-                }
-            }};
+        return {// Every UI loop tick, the Python interpreter should be checked
+                // for signals (e.g. keyboard interrupts) so that the user can
+                // close the UI from the terminal with `Ctrl+C` (for example).
+                .on_tick_begin = [] {
+                    if (PyErr_CheckSignals() != 0) {
+                        throw nb::python_error{};
+                    }
+                }};
     }
 }
 
@@ -50,14 +49,14 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
         )");
     ui_module.def(
         "show_model_in_state",
-        [](
-            const Model& model,
-            const ModelState& model_state,
-            std::pair<int, int> dimensions,
-            const osc::Color& background_color,
-            bool draw_floor,
-            osc::SceneCache* scene_cache,
-            osc::Camera* camera) {
+        [](const Model& model,
+           const ModelState& model_state,
+           std::pair<int, int> dimensions,
+           const osc::Color& background_color,
+           bool draw_floor,
+           osc::SceneCache* scene_cache,
+           osc::Camera* camera) {
+
             show_model_in_state(
                 get_lazy_loaded_opynsim_app(),
                 model,

@@ -29,7 +29,9 @@ void opyn::python::def_model_warper(nb::module_& m)
         Raises:
             RuntimeError: If ``source`` cannot be found, read, or is invalid.
     )");
-    cls.def(nb::init<>{}, "Constructs a blank :class:`ModelWarper` that performs no warping operations (i.e. an identity warp).");
+    cls.def(
+        nb::init<>{},
+        "Constructs a blank :class:`ModelWarper` that performs no warping operations (i.e. an identity warp).");
     cls.def("warp", &ModelWarper::warp, nb::arg("model_specification"), R"(
         Returns a warped copy of ``model_specification``.
 

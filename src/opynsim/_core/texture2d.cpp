@@ -29,7 +29,8 @@ using namespace opyn;
 
 namespace
 {
-    /// Vertically flips `data`, which is assumed to be in a `dimensions.x()` by `dimensions.y()` grid.
+    /// Vertically flips `data`, which is assumed to be in a `dimensions.x()` by `dimensions.y()`
+    /// grid.
     template<typename T>
     void vertically_flip(std::span<T> data, osc::Vector2uz dimensions)
     {
@@ -44,15 +45,16 @@ namespace
     /// Returns `pixels`, which is assumed to be in a `dimensions.x()` by `dimensions.y()` grid, as
     /// a Python-compatible `ndarray`.
     template<typename T>
-    auto to_ndarray(
-        std::unique_ptr<std::vector<T>> pixels,
-        osc::Vector2uz dimensions) -> nb::ndarray<nb::numpy, const uint8_t, nb::shape<-1, -1, std::tuple_size_v<T>>>
+    auto to_ndarray(std::unique_ptr<std::vector<T>> pixels, osc::Vector2uz dimensions)
+        -> nb::ndarray<nb::numpy, const uint8_t, nb::shape<-1, -1, std::tuple_size_v<T>>>
     {
         static_assert(sizeof(typename T::value_type) == 1);
         static_assert(sizeof(T) == std::tuple_size_v<T> * sizeof(typename T::value_type));
 
-        const uint8_t* pixel_pointer = std::launder(reinterpret_cast<const uint8_t*>(pixels->data()));
-        const auto shape = std::to_array<size_t>({dimensions.y(), dimensions.x(), std::tuple_size_v<T>});
+        const uint8_t* pixel_pointer =
+            std::launder(reinterpret_cast<const uint8_t*>(pixels->data()));
+        const auto shape =
+            std::to_array<size_t>({dimensions.y(), dimensions.x(), std::tuple_size_v<T>});
 
         return {pixel_pointer, shape.size(), shape.data(), to_capsule(std::move(pixels))};
     }

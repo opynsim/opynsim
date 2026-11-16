@@ -8,8 +8,8 @@
 #include <liboscar/utilities/enum_helpers.h>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/filesystem.h>  // care: used by casters (might be incorrectly flagged as unused)
-#include <nanobind/stl/string.h>      // care: used by casters (might be incorrectly flagged as unused)
-#include <nanobind/stl/vector.h>      // care: used by casters (might be incorrectly flagged as unused)
+#include <nanobind/stl/string.h>  // care: used by casters (might be incorrectly flagged as unused)
+#include <nanobind/stl/vector.h>  // care: used by casters (might be incorrectly flagged as unused)
 
 #include <memory>
 #include <mutex>
@@ -21,9 +21,11 @@ namespace
 {
     osc::LogLevel to_oscar_log_level(int python_logging_level)
     {
-        static_assert(osc::num_options_v<osc::LogLevel> == 7, "review this code if oscar levels change");
+        static_assert(
+            osc::num_options_v<osc::LogLevel> == 7, "review this code if oscar levels change");
 
-        // These are dictated by the python documentation: https://docs.python.org/3/library/logging.html#logging-levels
+        // These are dictated by the python documentation:
+        // https://docs.python.org/3/library/logging.html#logging-levels
         switch (python_logging_level) {
         case 10: return osc::LogLevel::debug;     // logging.DEBUG
         case 20: return osc::LogLevel::info;      // logging.INFO
@@ -37,9 +39,11 @@ namespace
 
     int to_python_log_level(osc::LogLevel oscar_logging_level)
     {
-        static_assert(osc::num_options_v<osc::LogLevel> == 7, "review this code if oscar levels change");
+        static_assert(
+            osc::num_options_v<osc::LogLevel> == 7, "review this code if oscar levels change");
 
-        // These are dictated by the python documentation: https://docs.python.org/3/library/logging.html#logging-levels
+        // These are dictated by the python documentation:
+        // https://docs.python.org/3/library/logging.html#logging-levels
         switch (oscar_logging_level) {
         case osc::LogLevel::trace: [[fallthrough]];
         case osc::LogLevel::debug: return 10;     // logging.DEBUG
@@ -95,8 +99,10 @@ namespace
             }
         }
 
-        std::mutex log_mutex_;      // Protects `nb::object` accesses when Python is free-threaded (GIL-less)
-        nb::object python_logger_;  // Keeps the logger alive as long as the methods (below)
+        // Protects `nb::object` accesses when Python is free-threaded (GIL-less)
+        std::mutex log_mutex_;
+        // Keeps the logger alive as long as the methods (below)
+        nb::object python_logger_;
         nb::object is_enabled_for_method_;
         nb::object log_method_;
     };
@@ -122,7 +128,8 @@ namespace
         // Ensure the log sink is destroyed when Python exits, rather than when
         // oscar's static destructor runs, because the static destruction might
         // happen after Python is already dead.
-        nb::module_::import_("atexit").attr("register")(nb::cpp_function([]() { osc::global_default_logger()->sinks().clear(); }));
+        nb::module_::import_("atexit").attr("register")(
+            nb::cpp_function([]() { osc::global_default_logger()->sinks().clear(); }));
     }
 }
 
@@ -157,7 +164,8 @@ void opyn::init_config_submodule(nanobind::module_& config_module)
             set_log_level(to_oscar_log_level(python_logging_level));
 
             // Additionally, set the Python logging level (the user might forget to sync them).
-            nb::module_::import_("logging").attr("getLogger")("opynsim").attr("setLevel")(python_logging_level);
+            nb::module_::import_("logging").attr("getLogger")("opynsim").attr("setLevel")(
+                python_logging_level);
         },
         nb::arg("python_logging_level"),
         R"(

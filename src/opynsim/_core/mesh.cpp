@@ -23,10 +23,11 @@ using namespace opyn;
 
 namespace
 {
-    nb::ndarray<nb::numpy, const float, nb::shape<-1, 3>> mesh_vertices_impl(
-        const osc::Mesh& mesh)
+    nb::ndarray<nb::numpy, const float, nb::shape<-1, 3>> mesh_vertices_impl(const osc::Mesh& mesh)
     {
-        static_assert(sizeof(osc::Vector3f) == 3 * sizeof(float), "required to cast the pointer to float with no gaps between vertices");
+        static_assert(
+            sizeof(osc::Vector3f) == 3 * sizeof(float),
+            "required to cast the pointer to float with no gaps between vertices");
         static_assert(alignof(osc::Vector3f) == alignof(float));
 
         // Copy the vertices out of the `Mesh` and into a capsule-friendly pointer
@@ -64,8 +65,7 @@ namespace
             static_assert(sizeof(osc::Vector3d) == 3 * sizeof(double));
             static_assert(alignof(osc::Vector3d) <= alignof(double));
             const std::span<const osc::Vector3d> source_vertices{
-                static_cast<const osc::Vector3d*>(input.data()),
-                num_vertices};
+                static_cast<const osc::Vector3d*>(input.data()), num_vertices};
 
             std::vector<osc::Vector3f> converted_vertices;
             converted_vertices.reserve(num_vertices);
@@ -78,8 +78,7 @@ namespace
         }
     }
 
-    nb::ndarray<nb::numpy, const int32_t, nb::shape<-1>> mesh_faces_impl(
-        const osc::Mesh& mesh)
+    nb::ndarray<nb::numpy, const int32_t, nb::shape<-1>> mesh_faces_impl(const osc::Mesh& mesh)
     {
         // Read the `Mesh`'s indices into a pointer that can be put into a capsule
         const auto indices_view = mesh.indices();
@@ -113,13 +112,16 @@ namespace
         const size_t num_faces = input.shape(0);
 
         if (input.dtype() == nb::dtype<int32_t>()) {
-            const std::span<const int32_t> faces{static_cast<const int32_t*>(input.data()), num_faces};
+            const std::span<const int32_t> faces{
+                static_cast<const int32_t*>(input.data()), num_faces};
             mesh_assign_converted_indices<uint32_t>(mesh, faces);
         } else if (input.dtype() == nb::dtype<int64_t>()) {
-            const std::span<const int64_t> faces{static_cast<const int64_t*>(input.data()), num_faces};
+            const std::span<const int64_t> faces{
+                static_cast<const int64_t*>(input.data()), num_faces};
             mesh_assign_converted_indices<uint32_t>(mesh, faces);
         } else {
-            throw nb::type_error("Unsupported array type! The faces property only accepts int32/int64 data types.");
+            throw nb::type_error(
+                "Unsupported array type! The faces property only accepts int32/int64 data types.");
         }
     }
 }
