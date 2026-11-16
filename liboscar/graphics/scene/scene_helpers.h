@@ -30,42 +30,24 @@ namespace osc
 
 namespace osc
 {
-    void draw_bvh(
-        SceneCache&,
-        const BVH&,
-        const std::function<void(SceneDecoration&&)>& out);
+    void draw_bvh(SceneCache&, const BVH&, const std::function<void(SceneDecoration&&)>& out);
 
-    void draw_aabb(
-        SceneCache&,
-        const AABB&,
-        const std::function<void(SceneDecoration&&)>& out);
+    void draw_aabb(SceneCache&, const AABB&, const std::function<void(SceneDecoration&&)>& out);
 
     void draw_aabbs(
-        SceneCache&,
-        std::span<const AABB>,
-        const std::function<void(SceneDecoration&&)>& out);
+        SceneCache&, std::span<const AABB>, const std::function<void(SceneDecoration&&)>& out);
 
     void draw_bvh_leaf_nodes(
-        SceneCache&,
-        const BVH&,
-        const std::function<void(SceneDecoration&&)>& out);
+        SceneCache&, const BVH&, const std::function<void(SceneDecoration&&)>& out);
 
     void draw_xz_floor_lines(
-        SceneCache&,
-        const std::function<void(SceneDecoration&&)>& out,
-        float scale = 5.0f);
+        SceneCache&, const std::function<void(SceneDecoration&&)>& out, float scale = 5.0f);
 
-    void draw_xz_grid(
-        SceneCache&,
-        const std::function<void(SceneDecoration&&)>& out);
+    void draw_xz_grid(SceneCache&, const std::function<void(SceneDecoration&&)>& out);
 
-    void draw_xy_grid(
-        SceneCache&,
-        const std::function<void(SceneDecoration&&)>& out);
+    void draw_xy_grid(SceneCache&, const std::function<void(SceneDecoration&&)>& out);
 
-    void draw_yz_grid(
-        SceneCache&,
-        const std::function<void(SceneDecoration&&)>& out);
+    void draw_yz_grid(SceneCache&, const std::function<void(SceneDecoration&&)>& out);
 
     struct ArrowProperties final {
         Vector3 start{};
@@ -77,9 +59,7 @@ namespace osc
         SceneDecorationFlags decoration_flags = SceneDecorationFlag::Default;
     };
     void draw_arrow(
-        SceneCache&,
-        const ArrowProperties&,
-        const std::function<void(SceneDecoration&&)>& out);
+        SceneCache&, const ArrowProperties&, const std::function<void(SceneDecoration&&)>& out);
 
     void draw_line_segment(
         SceneCache&,
@@ -89,9 +69,7 @@ namespace osc
         const std::function<void(SceneDecoration&&)>& out);
 
     // updates the given BVH with the given component decorations
-    void update_scene_bvh(
-        std::span<const SceneDecoration>,
-        BVH&);
+    void update_scene_bvh(std::span<const SceneDecoration>, BVH&);
 
     // calls `out` with each `SceneCollision` found along `world_space_ray`
     void for_each_ray_collision_with_scene(
@@ -110,10 +88,7 @@ namespace osc
 
     // returns closest ray-triangle collision along `world_space_ray`
     std::optional<RayCollision> get_closest_world_space_ray_triangle_collision(
-        const Mesh&,
-        const BVH& triangle_bvh,
-        const Transform&,
-        const Ray& world_space_ray);
+        const Mesh&, const BVH& triangle_bvh, const Transform&, const Ray& world_space_ray);
 
     // returns closest ray-triangle collision in world space for a given mouse position
     // within the given render rectangle
@@ -126,12 +101,10 @@ namespace osc
 
     // returns scene rendering parameters for an generic panel
     SceneRendererParams calc_standard_dark_scene_render_params(
-        const Camera&,
-        AntiAliasingLevel,
-        Vector2 dimensions,
-        float device_pixel_ratio);
+        const Camera&, AntiAliasingLevel, Vector2 dimensions, float device_pixel_ratio);
 
-    // returns a triangle BVH for the given triangle mesh, or an empty BVH if the mesh is non-triangular or empty
+    // returns a triangle BVH for the given triangle mesh, or an empty BVH if the mesh is
+    // non-triangular or empty
     BVH create_triangle_bvh(const Mesh&);
 
     // returns `FrustumPlanes` that represent the clipping planes of `camera` when rendering to an

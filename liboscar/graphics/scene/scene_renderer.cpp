@@ -79,9 +79,7 @@ namespace
         };
     }
 
-    Camera make_shadow_camera(
-        const AABB& shadowcasters_aabb,
-        const Vector3& light_direction)
+    Camera make_shadow_camera(const AABB& shadowcasters_aabb, const Vector3& light_direction)
     {
         const Sphere shadowcasters_sphere = bounding_sphere_of(shadowcasters_aabb);
         OrbitCameraController camera_controller{
@@ -100,9 +98,9 @@ namespace
     // compute the world space bounds union of all rim-highlighted geometry
     std::optional<AABB> rim_aabb_of(const SceneDecoration& decoration)
     {
-        return decoration.has_flag(SceneDecorationFlag::AllRimHighlightGroups) ?
-            std::optional(decoration.world_space_bounds()) :
-            std::nullopt;
+        return decoration.has_flag(SceneDecorationFlag::AllRimHighlightGroups)
+                   ? std::optional(decoration.world_space_bounds())
+                   : std::nullopt;
     }
 
     // the `Material` that's used to shade the main scene (colored `SceneDecoration`s)
@@ -420,7 +418,8 @@ namespace
         )";
     };
 
-    // the `Material` that's used to detect the edges, per color component, in the input texture (used for rim-highlighting)
+    // the `Material` that's used to detect the edges, per color component, in the input texture
+    // (used for rim-highlighting)
     class EdgeDetectionMaterial final : public Material {
     public:
         explicit EdgeDetectionMaterial() :
@@ -551,12 +550,11 @@ public:
         backface_culled_depth_writer_material_.set_cull_mode(CullMode::Back);
     }
 
-    void render(
-        std::span<const SceneDecoration> decorations,
-        const SceneRendererParams& params)
+    void render(std::span<const SceneDecoration> decorations, const SceneRendererParams& params)
     {
         const std::optional<RimHighlights> maybe_rims = try_generate_rims(decorations, params);
-        const std::optional<Shadows> maybe_shadow_map = try_generate_shadow_map(decorations, params);
+        const std::optional<Shadows> maybe_shadow_map =
+            try_generate_shadow_map(decorations, params);
 
         // Setup camera (parameters are the same for all scene render passes)
         camera_.reset();
@@ -583,22 +581,27 @@ public:
                     quad_mesh_,
                     camera_.inverse_view_projection_matrix(aspect_ratio_of(params.dimensions)),
                     scene_oit_compositor_material_);
-                graphics::render_to(output_render_texture_, render_queue_, camera_, {
-                    .clear_flags = ClearFlag::None,
-                });
+                graphics::render_to(
+                    output_render_texture_,
+                    render_queue_,
+                    camera_,
+                    {
+                        .clear_flags = ClearFlag::None,
+                    });
                 render_queue_.clear();
             }
         }
 
         // Composite rim highlights over the top of the final render
         if (maybe_rims) {
-            render_queue_.emplace(
-                maybe_rims->mesh,
-                maybe_rims->transform,
-                maybe_rims->material);
-            graphics::render_to(output_render_texture_, render_queue_, camera_, {
-                .clear_flags = ClearFlag::None,
-            });
+            render_queue_.emplace(maybe_rims->mesh, maybe_rims->transform, maybe_rims->material);
+            graphics::render_to(
+                output_render_texture_,
+                render_queue_,
+                camera_,
+                {
+                    .clear_flags = ClearFlag::None,
+                });
             render_queue_.clear();
         }
 
@@ -609,10 +612,7 @@ public:
         scene_oit_compositor_material_.unset("uOITAccumulator");
     }
 
-    RenderTexture& upd_render_texture()
-    {
-        return output_render_texture_;
-    }
+    RenderTexture& upd_render_texture() { return output_render_texture_; }
 
 private:
     void render_objects_to_output_render(
@@ -658,17 +658,17 @@ private:
             // if a wireframe overlay is requested for the decoration then draw it over the top in
             // a solid color - even if `NoDrawInScene` is requested (opensim-creator#952).
             if (dec.has_flag(SceneDecorationFlag::DrawWireframeOverlay)) {
-                const Color wireframe_color = std::visit(Overload{
-                    [](const Color& color) { return color; },
-                    [](const auto&) { return Color::white(); },
-                }, dec.shading);
+                const Color wireframe_color = std::visit(
+                    Overload{
+                        [](const Color& color) { return color; },
+                        [](const auto&) { return Color::white(); },
+                    },
+                    dec.shading);
 
-                wireframe_prop_block.set(diffuse_color_propname(), multiply_luminance(wireframe_color, 0.25f));
+                wireframe_prop_block.set(
+                    diffuse_color_propname(), multiply_luminance(wireframe_color, 0.25f));
                 render_queue_.emplace(
-                    dec.mesh,
-                    dec.transform,
-                    wireframe_material_,
-                    wireframe_prop_block);
+                    dec.mesh, dec.transform, wireframe_material_, wireframe_prop_block);
             }
 
             if (dec.has_flag(SceneDecorationFlag::NoDrawInScene)) {
@@ -677,7 +677,13 @@ private:
 
             std::visit(
                 Overload{
-                    [this, &params, &opaque_material, &backface_culled_opaque_material, &transparent_material, &backface_culled_transparent_material, &dec](const Color& color) {
+                    [this,
+                     &params,
+                     &opaque_material,
+                     &backface_culled_opaque_material,
+                     &transparent_material,
+                     &backface_culled_transparent_material,
+                     &dec](const Color& color) {
                         const Color32 color32{color};  // Renderer doesn't need HDR colors
                         if (color32.a != 0xff and params.order_independent_transparency) {
                             return;  // OIT is handled in a separate pass
@@ -687,23 +693,21 @@ private:
                         if (inserted) {
                             it->second.set(diffuse_color_propname(), color32);
                         }
-                        const bool backface_culled = dec.has_flag(SceneDecorationFlag::CanBackfaceCull);
-                        const Material& material = color32.a == 0xff ?
-                                (backface_culled ? backface_culled_opaque_material : opaque_material) :
-                                (backface_culled ? backface_culled_transparent_material : transparent_material);
-                        render_queue_.emplace(
-                            dec.mesh,
-                            dec.transform,
-                            material,
-                            it->second);
+                        const bool backface_culled =
+                            dec.has_flag(SceneDecorationFlag::CanBackfaceCull);
+                        const Material& material =
+                            color32.a == 0xff
+                                ? (backface_culled ? backface_culled_opaque_material
+                                                   : opaque_material)
+                                : (backface_culled ? backface_culled_transparent_material
+                                                   : transparent_material);
+                        render_queue_.emplace(dec.mesh, dec.transform, material, it->second);
                     },
                     [this, &dec](const Material& material) {
-                        render_queue_.emplace(
-                            dec.mesh,
-                            dec.transform,
-                            material);
+                        render_queue_.emplace(dec.mesh, dec.transform, material);
                     },
-                    [this, &dec](const std::pair<Material, MaterialPropertyBlock>& material_props_pair) {
+                    [this,
+                     &dec](const std::pair<Material, MaterialPropertyBlock>& material_props_pair) {
                         render_queue_.emplace(
                             dec.mesh,
                             dec.transform,
@@ -748,17 +752,21 @@ private:
                 scene_floor_material_);
         }
 
-        graphics::render_to(output_render_texture_, render_queue_, camera_, {
-            .clear_color = params.background_color,
-        });
+        graphics::render_to(
+            output_render_texture_,
+            render_queue_,
+            camera_,
+            {
+                .clear_color = params.background_color,
+            });
         render_queue_.clear();
     }
 
     bool render_transparent_objects_to_oit_accumulators(
-        std::span<const SceneDecoration> decorations,
-        const SceneRendererParams& params)
+        std::span<const SceneDecoration> decorations, const SceneRendererParams& params)
     {
-        // Render transparent objects to OIT accumulators (use ADD blending, use opaque depth test but no depth writing).
+        // Render transparent objects to OIT accumulators (use ADD blending, use opaque depth test
+        // but no depth writing).
         SceneMainMaterial oit_material{scene_main_material_};
         oit_material.set_transparent(true);
         oit_material.set_source_blending_factor(SourceBlendingFactor::One);
@@ -789,10 +797,7 @@ private:
                             it->second.set(diffuse_color_propname(), color32);
                         }
                         render_queue_.emplace(
-                            decoration.mesh,
-                            decoration.transform,
-                            oit_material,
-                            it->second);
+                            decoration.mesh, decoration.transform, oit_material, it->second);
                     },
                     [](const auto&) {},  // Skip custom decorations (already done)
                 },
@@ -838,14 +843,14 @@ private:
     }
 
     std::optional<RimHighlights> try_generate_rims(
-        std::span<const SceneDecoration> decorations,
-        const SceneRendererParams& params)
+        std::span<const SceneDecoration> decorations, const SceneRendererParams& params)
     {
         if (not params.draw_rims) {
             return std::nullopt;
         }
 
-        const std::optional<AABB> maybe_rim_world_space_aabb = bounding_aabb_of(decorations, rim_aabb_of);
+        const std::optional<AABB> maybe_rim_world_space_aabb =
+            bounding_aabb_of(decorations, rim_aabb_of);
         if (not maybe_rim_world_space_aabb) {
             return std::nullopt;  // the scene does not contain any rim-highlighted geometry
         }
@@ -858,7 +863,8 @@ private:
             params.near_clipping_plane,
             params.far_clipping_plane);
         if (not maybe_rim_ndc_rect) {
-            return std::nullopt;  // the scene contains rim-highlighted geometry, but it isn't on-screen
+            // the scene contains rim-highlighted geometry, but it isn't on-screen
+            return std::nullopt;
         }
 
         // else: the rims appear on the screen and are loosely bounded (in NDC) by the returned rect
@@ -868,13 +874,15 @@ private:
         const Vector2 rim_ndc_thickness = 2.0f * params.rim_thickness / params.dimensions;
 
         // expand by 2x the rim thickness, so that the output has space on both sides for the rims
-        rim_ndc_rect = rim_ndc_rect.with_dimensions(rim_ndc_rect.dimensions() + 2.0f * rim_ndc_thickness);
+        rim_ndc_rect =
+            rim_ndc_rect.with_dimensions(rim_ndc_rect.dimensions() + 2.0f * rim_ndc_thickness);
 
         // constrain the result to within clip space
         rim_ndc_rect = clamp(rim_ndc_rect, {-1.0f, -1.0f}, {1.0f, 1.0f});
 
         // compute rim rectangle in texture coordinates
-        const Rect rim_rect_uv = ndc_rect_to_topleft_viewport_rect(rim_ndc_rect, Rect::from_corners({}, {1.0f, 1.0f}));
+        const Rect rim_rect_uv =
+            ndc_rect_to_topleft_viewport_rect(rim_ndc_rect, Rect::from_corners({}, {1.0f, 1.0f}));
 
         // compute where the quad needs to eventually be drawn in the scene
         const Transform quad_mesh_to_rims_quad{
@@ -907,12 +915,10 @@ private:
                 if (inserted) {
                     it->second.set(MeshBasicMaterial::color_property_name(), color);
                 }
-                const Material& material = decoration.has_flag(SceneDecorationFlag::CanBackfaceCull) ? backface_culled_rim_filler_material_ : rim_filler_material_;
-                render_queue_.emplace(
-                    decoration.mesh,
-                    decoration.transform,
-                    material,
-                    it->second);
+                const Material& material = decoration.has_flag(SceneDecorationFlag::CanBackfaceCull)
+                                               ? backface_culled_rim_filler_material_
+                                               : rim_filler_material_;
+                render_queue_.emplace(decoration.mesh, decoration.transform, material, it->second);
             }
         }
 
@@ -939,7 +945,9 @@ private:
         //
         // the off-screen texture is rendered as a quad via an edge-detection kernel
         // that transforms the solid shapes into "rims"
-        static_assert(SceneRendererParams::num_rim_groups() == 2, "Check below if the number of groups changed");
+        static_assert(
+            SceneRendererParams::num_rim_groups() == 2,
+            "Check below if the number of groups changed");
         edge_detection_material_.set("uScreenTexture", rims_render_texture_.upd_color_buffer());
         edge_detection_material_.set("uRim0Color", params.rim_group_colors[0]);
         edge_detection_material_.set("uRim1Color", params.rim_group_colors[1]);
@@ -950,14 +958,14 @@ private:
         // return necessary information for rendering the rims
         return RimHighlights{
             .mesh = quad_mesh_,
-            .transform = inverse(params.projection_matrix * params.view_matrix) * matrix4x4_cast(quad_mesh_to_rims_quad),
+            .transform = inverse(params.projection_matrix * params.view_matrix) *
+                         matrix4x4_cast(quad_mesh_to_rims_quad),
             .material = edge_detection_material_,
         };
     }
 
     std::optional<Shadows> try_generate_shadow_map(
-        std::span<const SceneDecoration> decorations,
-        const SceneRendererParams& params)
+        std::span<const SceneDecoration> decorations, const SceneRendererParams& params)
     {
         if (not params.draw_shadows) {
             return std::nullopt;
@@ -971,10 +979,11 @@ private:
             if (decoration.has_flag(SceneDecorationFlag::NoCastsShadows)) {
                 continue;  // this decoration shouldn't cast shadows
             }
-            shadowcaster_aabbs = bounding_aabb_of(shadowcaster_aabbs, decoration.world_space_bounds());
-            const Material& material = decoration.has_flag(SceneDecorationFlag::CanBackfaceCull) ?
-                backface_culled_depth_writer_material_ :
-                depth_writer_material_;
+            shadowcaster_aabbs =
+                bounding_aabb_of(shadowcaster_aabbs, decoration.world_space_bounds());
+            const Material& material = decoration.has_flag(SceneDecorationFlag::CanBackfaceCull)
+                                           ? backface_culled_depth_writer_material_
+                                           : depth_writer_material_;
             render_queue_.emplace(decoration.mesh, decoration.transform, material);
         }
 
@@ -1038,8 +1047,7 @@ osc::SceneRenderer& osc::SceneRenderer::operator=(SceneRenderer&&) noexcept = de
 osc::SceneRenderer::~SceneRenderer() noexcept = default;
 
 void osc::SceneRenderer::render(
-    std::span<const SceneDecoration> decorations,
-    const SceneRendererParams& params)
+    std::span<const SceneDecoration> decorations, const SceneRendererParams& params)
 {
     impl_->render(decorations, params);
 }
