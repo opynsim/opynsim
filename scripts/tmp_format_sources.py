@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # NEXT: for ext in "cpp" "h"; do find $(./scripts/tmp_format_sources.py) -name "*.${ext}" -exec clang-format-20 -i -style=file {} + ; done
-# COMPLETE: d=$(./scripts/tmp_format_sources.py) ; touch "${d}/.formatted" && find "${d}" -mindepth 2 -name ".formatted" -delete && git add "$d"
+# COMPLETE: d=$(./scripts/tmp_format_sources.py) ; touch "${d}/.formatted" && find "${d}" -mindepth 2 -name ".formatted" -delete && git add "$d" && git commit -m "Format ${d}/ to ColumnLimit 100"
 # MARK: d=$(./scripts/tmp_format_sources.py) ; touch "${d}/.formatted" && find "${d}" -mindepth 2 -name ".formatted" -delete
 
 from pathlib import Path
