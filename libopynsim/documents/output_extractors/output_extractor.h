@@ -64,10 +64,7 @@ namespace opyn
         requires(
             std::constructible_from<T, osc::Variant &&> and
             std::convertible_to<std::ranges::range_value_t<R>, const StateViewWithMetadata&>)
-        void values(
-            const OpenSim::Component& component,
-            const R& states,
-            Consumer&& consumer) const
+        void values(const OpenSim::Component& component, const R& states, Consumer&& consumer) const
         {
             const OutputValueExtractor extractor = output_value_extractor(component);
             for (const StateViewWithMetadata& state : states) {
@@ -101,7 +98,8 @@ namespace opyn
         virtual osc::CStringView impl_name() const = 0;
         virtual osc::CStringView impl_description() const = 0;
         virtual OutputExtractorDataType impl_output_type() const = 0;
-        virtual OutputValueExtractor impl_output_value_extractor(const OpenSim::Component&) const = 0;
+        virtual OutputValueExtractor impl_output_value_extractor(
+            const OpenSim::Component&) const = 0;
         virtual size_t impl_hash() const = 0;
         virtual bool impl_equals(const OutputExtractor&) const = 0;
     };

@@ -14,16 +14,17 @@ using namespace opyn;
 // constants
 namespace
 {
-    constexpr std::array<ComponentOutputSubfield, osc::num_flags_v<ComponentOutputSubfield>> output_subfields_lut = std::to_array({
-        ComponentOutputSubfield::X,
-        ComponentOutputSubfield::Y,
-        ComponentOutputSubfield::Z,
-        ComponentOutputSubfield::Magnitude,
-        ComponentOutputSubfield::RX,
-        ComponentOutputSubfield::RY,
-        ComponentOutputSubfield::RZ,
-        ComponentOutputSubfield::RMagnitude,
-    });
+    constexpr std::array<ComponentOutputSubfield, osc::num_flags_v<ComponentOutputSubfield>>
+        output_subfields_lut = std::to_array({
+            ComponentOutputSubfield::X,
+            ComponentOutputSubfield::Y,
+            ComponentOutputSubfield::Z,
+            ComponentOutputSubfield::Magnitude,
+            ComponentOutputSubfield::RX,
+            ComponentOutputSubfield::RY,
+            ComponentOutputSubfield::RZ,
+            ComponentOutputSubfield::RMagnitude,
+        });
 }
 
 // templated/concrete subfield extractor functions
@@ -46,84 +47,96 @@ namespace
 
     // extract X from `SimTK::Vec3`
     template<>
-    double extract<ComponentOutputSubfield::X>(const OpenSim::Output<SimTK::Vec3>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::X>(
+        const OpenSim::Output<SimTK::Vec3>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(0);
     }
 
     // extract Y from `SimTK::Vec3`
     template<>
-    double extract<ComponentOutputSubfield::Y>(const OpenSim::Output<SimTK::Vec3>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::Y>(
+        const OpenSim::Output<SimTK::Vec3>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(1);
     }
 
     // extract Z from `SimTK::Vec3`
     template<>
-    double extract<ComponentOutputSubfield::Z>(const OpenSim::Output<SimTK::Vec3>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::Z>(
+        const OpenSim::Output<SimTK::Vec3>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(2);
     }
 
     // extract magnitude from `SimTK::Vec3`
     template<>
-    double extract<ComponentOutputSubfield::Magnitude>(const OpenSim::Output<SimTK::Vec3>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::Magnitude>(
+        const OpenSim::Output<SimTK::Vec3>& o, const SimTK::State& s)
     {
         return o.getValue(s).norm();
     }
 
     // extract X from `SimTK::SpatialVec`
     template<>
-    double extract<ComponentOutputSubfield::X>(const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::X>(
+        const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(1).get(0);
     }
 
     // extract Y from `SimTK::SpatialVec`
     template<>
-    double extract<ComponentOutputSubfield::Y>(const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::Y>(
+        const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(1).get(1);
     }
 
     // extract Z from `SimTK::SpatialVec`
     template<>
-    double extract<ComponentOutputSubfield::Z>(const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::Z>(
+        const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(1).get(2);
     }
 
     // extract Magnitude from `SimTK::SpatialVec`
     template<>
-    double extract<ComponentOutputSubfield::Magnitude>(const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::Magnitude>(
+        const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(1).norm();
     }
 
     // extract RX from `SimTK::SpatialVec`
     template<>
-    double extract<ComponentOutputSubfield::RX>(const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::RX>(
+        const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(0).get(0);
     }
 
     // extract RY from `SimTK::SpatialVec`
     template<>
-    double extract<ComponentOutputSubfield::RY>(const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::RY>(
+        const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(0).get(1);
     }
 
     // extract RZ from `SimTK::SpatialVec`
     template<>
-    double extract<ComponentOutputSubfield::RZ>(const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::RZ>(
+        const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(0).get(2);
     }
 
     // extract RMagnitude from `SimTK::SpatialVec`
     template<>
-    double extract<ComponentOutputSubfield::RMagnitude>(const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
+    double extract<ComponentOutputSubfield::RMagnitude>(
+        const OpenSim::Output<SimTK::SpatialVec>& o, const SimTK::State& s)
     {
         return o.getValue(s).get(0).norm();
     }
@@ -136,9 +149,7 @@ namespace
     }
 
     // type-erase a concrete *subfield* extractor function
-    template<
-        ComponentOutputSubfield sf,
-        std::derived_from<OpenSim::AbstractOutput> OutputType>
+    template<ComponentOutputSubfield sf, std::derived_from<OpenSim::AbstractOutput> OutputType>
     double extract_type_erased(const OpenSim::AbstractOutput& o, const SimTK::State& s)
     {
         return extract<sf>(dynamic_cast<const OutputType&>(o), s);
@@ -206,8 +217,7 @@ ComponentOutputSubfields opyn::get_supported_subfields(const OpenSim::AbstractOu
 }
 
 SubfieldExtractorFunc opyn::get_extractor_func_or_null(
-    const OpenSim::AbstractOutput& ao,
-    ComponentOutputSubfield subfield)
+    const OpenSim::AbstractOutput& ao, ComponentOutputSubfield subfield)
 {
     if (dynamic_cast<const OpenSim::Output<double>*>(&ao)) {
         return extract_type_erased<OpenSim::Output<double>>;
@@ -220,30 +230,46 @@ SubfieldExtractorFunc opyn::get_extractor_func_or_null(
         case ComponentOutputSubfield::Z:
             return extract_type_erased<ComponentOutputSubfield::Z, OpenSim::Output<SimTK::Vec3>>;
         case ComponentOutputSubfield::Magnitude:
-            return extract_type_erased<ComponentOutputSubfield::Magnitude, OpenSim::Output<SimTK::Vec3>>;
-        default:
-            return nullptr;
+            return extract_type_erased<
+                ComponentOutputSubfield::Magnitude,
+                OpenSim::Output<SimTK::Vec3>>;
+        default: return nullptr;
         }
     } else if (dynamic_cast<const OpenSim::Output<SimTK::SpatialVec>*>(&ao)) {
         switch (subfield) {
         case ComponentOutputSubfield::X:
-            return extract_type_erased<ComponentOutputSubfield::X, OpenSim::Output<SimTK::SpatialVec>>;
+            return extract_type_erased<
+                ComponentOutputSubfield::X,
+                OpenSim::Output<SimTK::SpatialVec>>;
         case ComponentOutputSubfield::Y:
-            return extract_type_erased<ComponentOutputSubfield::Y, OpenSim::Output<SimTK::SpatialVec>>;
+            return extract_type_erased<
+                ComponentOutputSubfield::Y,
+                OpenSim::Output<SimTK::SpatialVec>>;
         case ComponentOutputSubfield::Z:
-            return extract_type_erased<ComponentOutputSubfield::Z, OpenSim::Output<SimTK::SpatialVec>>;
+            return extract_type_erased<
+                ComponentOutputSubfield::Z,
+                OpenSim::Output<SimTK::SpatialVec>>;
         case ComponentOutputSubfield::Magnitude:
-            return extract_type_erased<ComponentOutputSubfield::Magnitude, OpenSim::Output<SimTK::SpatialVec>>;
+            return extract_type_erased<
+                ComponentOutputSubfield::Magnitude,
+                OpenSim::Output<SimTK::SpatialVec>>;
         case ComponentOutputSubfield::RX:
-            return extract_type_erased<ComponentOutputSubfield::RX, OpenSim::Output<SimTK::SpatialVec>>;
+            return extract_type_erased<
+                ComponentOutputSubfield::RX,
+                OpenSim::Output<SimTK::SpatialVec>>;
         case ComponentOutputSubfield::RY:
-            return extract_type_erased<ComponentOutputSubfield::RY, OpenSim::Output<SimTK::SpatialVec>>;
+            return extract_type_erased<
+                ComponentOutputSubfield::RY,
+                OpenSim::Output<SimTK::SpatialVec>>;
         case ComponentOutputSubfield::RZ:
-            return extract_type_erased<ComponentOutputSubfield::RZ, OpenSim::Output<SimTK::SpatialVec>>;
+            return extract_type_erased<
+                ComponentOutputSubfield::RZ,
+                OpenSim::Output<SimTK::SpatialVec>>;
         case ComponentOutputSubfield::RMagnitude:
-            return extract_type_erased<ComponentOutputSubfield::RMagnitude, OpenSim::Output<SimTK::SpatialVec>>;
-        default:
-            return nullptr;
+            return extract_type_erased<
+                ComponentOutputSubfield::RMagnitude,
+                OpenSim::Output<SimTK::SpatialVec>>;
+        default: return nullptr;
         }
     } else {
         return nullptr;

@@ -19,9 +19,7 @@ namespace opyn
     // record values.
     class ForceRecordOutputExtractor final : public OutputExtractor {
     public:
-        explicit ForceRecordOutputExtractor(
-            const OpenSim::Force&,
-            int record_index);
+        explicit ForceRecordOutputExtractor(const OpenSim::Force&, int record_index);
         ForceRecordOutputExtractor(const ForceRecordOutputExtractor&);
         ForceRecordOutputExtractor(ForceRecordOutputExtractor&&) noexcept;
         ForceRecordOutputExtractor& operator=(const ForceRecordOutputExtractor&);

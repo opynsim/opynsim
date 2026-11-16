@@ -89,7 +89,8 @@ namespace opyn
     requires std::constructible_from<ConcreteOutputExtractor, Args&&...>
     SharedOutputExtractor make_output_extractor(Args&&... args)
     {
-        return SharedOutputExtractor{std::make_shared<ConcreteOutputExtractor>(std::forward<Args>(args)...)};
+        return SharedOutputExtractor{
+            std::make_shared<ConcreteOutputExtractor>(std::forward<Args>(args)...)};
     }
 
     std::ostream& operator<<(std::ostream&, const SharedOutputExtractor&);
@@ -98,8 +99,5 @@ namespace opyn
 
 template<>
 struct std::hash<opyn::SharedOutputExtractor> final {
-    size_t operator()(const opyn::SharedOutputExtractor& o) const
-    {
-        return o.output_->hash();
-    }
+    size_t operator()(const opyn::SharedOutputExtractor& o) const { return o.output_->hash(); }
 };

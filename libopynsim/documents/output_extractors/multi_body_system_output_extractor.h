@@ -32,9 +32,7 @@ namespace opyn
         using ExtractorFn = float (*)(const SimTK::MultibodySystem&);
 
         MultiBodySystemOutputExtractor(
-            std::string_view name,
-            std::string_view description,
-            ExtractorFn extractor) :
+            std::string_view name, std::string_view description, ExtractorFn extractor) :
 
             name_{name},
             description_{description},
@@ -47,7 +45,10 @@ namespace opyn
     private:
         osc::CStringView impl_name() const override { return name_; }
         osc::CStringView impl_description() const override { return description_; }
-        OutputExtractorDataType impl_output_type() const override { return opyn::OutputExtractorDataType::Float; }
+        OutputExtractorDataType impl_output_type() const override
+        {
+            return opyn::OutputExtractorDataType::Float;
+        }
         OutputValueExtractor impl_output_value_extractor(const OpenSim::Component&) const override;
         size_t impl_hash() const override;
         bool impl_equals(const OutputExtractor&) const override;
