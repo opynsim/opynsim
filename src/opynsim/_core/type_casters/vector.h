@@ -63,7 +63,8 @@ struct nanobind::detail::type_caster<osc::Vector3f> final {
         value_type* ptr = data.get();
         const auto shape = std::to_array({3uz});
 
-        python_output_type ndarray{ptr, shape.size(), shape.data(), opyn::to_capsule(std::move(data))};
+        python_output_type ndarray{
+            ptr, shape.size(), shape.data(), opyn::to_capsule(std::move(data))};
 
         return ndarray.cast().release();
     }
