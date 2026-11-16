@@ -16,9 +16,7 @@ namespace osc
 
     template<typename T>
     concept StandardRegisterableTab =
-        std::derived_from<T, Tab> and
-        std::constructible_from<T, Widget*> and
-        requires(T) {
+        std::derived_from<T, Tab> and std::constructible_from<T, Widget*> and requires(T) {
             { T::id() } -> std::same_as<CStringView>;
         };
 
@@ -42,10 +40,11 @@ namespace osc
         template<StandardRegisterableTab T>
         void register_tab()
         {
-            register_tab(TabRegistryEntry{
-                T::id(),
-                [](Widget* parent) { return std::make_unique<T>(parent); },
-            });
+            register_tab(
+                TabRegistryEntry{
+                    T::id(),
+                    [](Widget* parent) { return std::make_unique<T>(parent); },
+                });
         }
 
         const_iterator begin() const;

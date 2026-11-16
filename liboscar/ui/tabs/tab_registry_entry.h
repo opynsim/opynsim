@@ -14,8 +14,7 @@ namespace osc
     class TabRegistryEntry final {
     public:
         explicit TabRegistryEntry(
-            CStringView name,
-            std::function<std::unique_ptr<Tab>(Widget*)> tab_constructor);
+            CStringView name, std::function<std::unique_ptr<Tab>(Widget*)> tab_constructor);
 
         CStringView name() const;
         std::unique_ptr<Tab> construct_tab(Widget*) const;
