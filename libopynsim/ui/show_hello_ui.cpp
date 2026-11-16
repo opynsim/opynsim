@@ -27,21 +27,13 @@ namespace
         }
 
     private:
-        void impl_on_mount() override
-        {}
+        void impl_on_mount() override {}
 
-        void impl_on_unmount() override
-        {}
+        void impl_on_unmount() override {}
 
-        void impl_on_tick() override
-        {
-            callbacks_.on_tick_begin();
-        }
+        void impl_on_tick() override { callbacks_.on_tick_begin(); }
 
-        bool impl_on_event(osc::Event& e) override
-        {
-            return ui_context_.on_event(e);
-        }
+        bool impl_on_event(osc::Event& e) override { return ui_context_.on_event(e); }
 
         void impl_on_draw() override
         {
@@ -59,7 +51,8 @@ namespace
             update_torus_if_params_changed();
             const auto seconds_since_startup = osc::App::get().frame_delta_since_startup().count();
             const osc::Transform transform = {
-                .rotation = osc::angle_axis(osc::Radians{seconds_since_startup}, osc::CoordinateDirection::y()),
+                .rotation = osc::angle_axis(
+                    osc::Radians{seconds_since_startup}, osc::CoordinateDirection::y()),
             };
             render_queue_.emplace(mesh_, transform, material_);
             osc::graphics::render_to(target_texture_, render_queue_, camera_);
@@ -67,7 +60,8 @@ namespace
             osc::graphics::blit_to_main_window(target_texture_);
 
             ui::begin_panel("window");
-            ui::draw_float_slider("torus_radius", &edited_torus_parameters_.torus_radius, 0.0f, 5.0f);
+            ui::draw_float_slider(
+                "torus_radius", &edited_torus_parameters_.torus_radius, 0.0f, 5.0f);
             ui::draw_float_slider("tube_radius", &edited_torus_parameters_.tube_radius, 0.0f, 5.0f);
             ui::draw_size_t_input("p", &edited_torus_parameters_.p);
             ui::draw_size_t_input("q", &edited_torus_parameters_.q);

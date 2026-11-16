@@ -61,15 +61,9 @@ namespace
         }
 
     private:
-        bool impl_on_event(osc::Event& e) override
-        {
-            return ui_context_.on_event(e);
-        }
+        bool impl_on_event(osc::Event& e) override { return ui_context_.on_event(e); }
 
-        void impl_on_tick() override
-        {
-            callbacks_.on_tick_begin();
-        }
+        void impl_on_tick() override { callbacks_.on_tick_begin(); }
 
         void impl_on_draw() override
         {
@@ -78,7 +72,8 @@ namespace
 
             // Handle initial autofocus
             if (std::exchange(fit_camera_on_next_frame_, false)) {
-                if (const auto aabb = osc::bounding_aabb_of(decorations_, &osc::SceneDecoration::world_space_bounds)) {
+                if (const auto aabb = osc::bounding_aabb_of(
+                        decorations_, &osc::SceneDecoration::world_space_bounds)) {
                     camera_controller_.focus_on(
                         *aabb,
                         *camera_,
@@ -145,11 +140,5 @@ void opyn::show_model_in_state(
     app.focus_main_window();
 
     app.show<BasicModelViewer>(
-        model,
-        state,
-        background_color,
-        draw_floor,
-        scene_cache,
-        camera,
-        std::move(callbacks));
+        model, state, background_color, draw_floor, scene_cache, camera, std::move(callbacks));
 }
