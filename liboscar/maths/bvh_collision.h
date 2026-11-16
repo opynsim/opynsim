@@ -10,10 +10,7 @@ namespace osc
     // a collision between a ray and a leaf of a BVH
     struct BVHCollision final : public RayCollision {
 
-        BVHCollision(
-            float distance,
-            const Vector3& position,
-            ptrdiff_t id) :
+        BVHCollision(float distance, const Vector3& position, ptrdiff_t id) :
 
             RayCollision{distance, position},
             id{id}

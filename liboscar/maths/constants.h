@@ -28,7 +28,8 @@ namespace osc
     template<std::floating_point T>
     inline constexpr T pi_v = std::numbers::pi_v<T>;
 
-    // the difference between `T{1}` and the next representable value of the given floating-point type
+    // the difference between `T{1}` and the next representable value of the given floating-point
+    // type
     template<std::floating_point T>
     inline constexpr T epsilon_v = std::numeric_limits<T>::epsilon();
 

@@ -37,10 +37,22 @@ namespace osc
         {}
 
         constexpr Matrix(
-            const T& x0, const T& y0, const T& z0, const T& w0,
-            const T& x1, const T& y1, const T& z1, const T& w1,
-            const T& x2, const T& y2, const T& z2, const T& w2,
-            const T& x3, const T& y3, const T& z3, const T& w3) :
+            const T& x0,
+            const T& y0,
+            const T& z0,
+            const T& w0,
+            const T& x1,
+            const T& y1,
+            const T& z1,
+            const T& w1,
+            const T& x2,
+            const T& y2,
+            const T& z2,
+            const T& w2,
+            const T& x3,
+            const T& y3,
+            const T& z3,
+            const T& w3) :
 
             value_{
                 column_type{x0, y0, z0, w0},
@@ -59,15 +71,39 @@ namespace osc
         {}
 
         template<
-            typename X0, typename Y0, typename Z0, typename W0,
-            typename X1, typename Y1, typename Z1, typename W1,
-            typename X2, typename Y2, typename Z2, typename W2,
-            typename X3, typename Y3, typename Z3, typename W3>
+            typename X0,
+            typename Y0,
+            typename Z0,
+            typename W0,
+            typename X1,
+            typename Y1,
+            typename Z1,
+            typename W1,
+            typename X2,
+            typename Y2,
+            typename Z2,
+            typename W2,
+            typename X3,
+            typename Y3,
+            typename Z3,
+            typename W3>
         constexpr Matrix(
-            const X0& x0, const Y0& y0, const Z0& z0, const W0& w0,
-            const X1& x1, const Y1& y1, const Z1& z1, const W1& w1,
-            const X2& x2, const Y2& y2, const Z2& z2, const W2& w2,
-            const X3& x3, const Y3& y3, const Z3& z3, const W3& w3) :
+            const X0& x0,
+            const Y0& y0,
+            const Z0& z0,
+            const W0& w0,
+            const X1& x1,
+            const Y1& y1,
+            const Z1& z1,
+            const W1& w1,
+            const X2& x2,
+            const Y2& y2,
+            const Z2& z2,
+            const W2& w2,
+            const X3& x3,
+            const Y3& y3,
+            const Z3& z3,
+            const W3& w3) :
 
             value_{
                 column_type{x0, y0, z0, w0},
@@ -83,11 +119,7 @@ namespace osc
             const Vector<V3, 4>& v3,
             const Vector<V4, 4>& v4) :
 
-            value_{
-                column_type{v1},
-                column_type{v2},
-                column_type{v3},
-                column_type{v4}}
+            value_{column_type{v1}, column_type{v2}, column_type{v3}, column_type{v4}}
         {}
 
         constexpr Matrix(const Matrix<T, 3, 3>& m) :
@@ -289,7 +321,8 @@ namespace osc
     }
 
     template<typename T>
-    typename Matrix<T, 4, 4>::column_type operator*(const Matrix<T, 4, 4>& m, const typename Matrix<T, 4, 4>::row_type& v)
+    typename Matrix<T, 4, 4>::column_type operator*(
+        const Matrix<T, 4, 4>& m, const typename Matrix<T, 4, 4>::row_type& v)
     {
         using column_type = typename Matrix<T, 4, 4>::column_type;
 
@@ -308,7 +341,8 @@ namespace osc
     }
 
     template<typename T>
-    typename Matrix<T, 4, 4>::row_type operator*(const typename Matrix<T, 4, 4>::column_type& v, const Matrix<T, 4, 4>& m)
+    typename Matrix<T, 4, 4>::row_type operator*(
+        const typename Matrix<T, 4, 4>::column_type& v, const Matrix<T, 4, 4>& m)
     {
         return typename Matrix<T, 4, 4>::row_type(
             m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2] + m[0][3] * v[3],
@@ -353,13 +387,15 @@ namespace osc
     }
 
     template<typename T>
-    typename Matrix<T, 4, 4>::column_type operator/(const Matrix<T, 4, 4>& m, const typename Matrix<T, 4, 4>::row_type& v)
+    typename Matrix<T, 4, 4>::column_type operator/(
+        const Matrix<T, 4, 4>& m, const typename Matrix<T, 4, 4>::row_type& v)
     {
         return inverse(m) * v;
     }
 
     template<typename T>
-    typename Matrix<T, 4, 4>::row_type operator/(const typename Matrix<T, 4, 4>::column_type& v, const Matrix<T, 4, 4>& m)
+    typename Matrix<T, 4, 4>::row_type operator/(
+        const typename Matrix<T, 4, 4>::column_type& v, const Matrix<T, 4, 4>& m)
     {
         return v * inverse(m);
     }

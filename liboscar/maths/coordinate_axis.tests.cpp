@@ -137,5 +137,6 @@ INSTANTIATE_TEST_SUITE_P(
 TEST_P(CoordinateAxisParsingTestFixture, Check)
 {
     const ParsingTestCase test_case = GetParam();
-    ASSERT_EQ(CoordinateAxis::try_parse(test_case.input), test_case.expected) << "input = " << test_case.input;
+    ASSERT_EQ(CoordinateAxis::try_parse(test_case.input), test_case.expected)
+        << "input = " << test_case.input;
 }

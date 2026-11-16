@@ -43,10 +43,10 @@ namespace osc
     }
 
     // returns a `Rect` that tightly bounds the `Vector2`s projected from `r`
-    template<
-        std::ranges::input_range R,
-        typename Proj = std::identity>
-    requires std::convertible_to<typename std::projected<std::ranges::iterator_t<R>, Proj>::value_type, const Vector2&>
+    template<std::ranges::input_range R, typename Proj = std::identity>
+    requires std::convertible_to<
+        typename std::projected<std::ranges::iterator_t<R>, Proj>::value_type,
+        const Vector2&>
     constexpr Rect bounding_rect_of(const R& r, Proj proj = {})
     {
         auto it = std::ranges::begin(r);

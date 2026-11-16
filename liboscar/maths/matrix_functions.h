@@ -18,9 +18,7 @@ namespace osc
 {
     template<std::floating_point T>
     Matrix<T, 4, 4> look_at(
-        const Vector<T, 3>& eye,
-        const Vector<T, 3>& center,
-        const Vector<T, 3>& up)
+        const Vector<T, 3>& eye, const Vector<T, 3>& center, const Vector<T, 3>& up)
     {
         const Vector<T, 3> f(normalize(center - eye));
         const Vector<T, 3> s(normalize(cross(f, up)));
@@ -128,11 +126,9 @@ namespace osc
     template<std::floating_point T>
     T determinant_of(const Matrix<T, 3, 3>& m)
     {
-        return
-            +m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2])
-            -m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2])
-            +m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2]
-        );
+        return +m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2]) -
+               m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2]) +
+               m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2]);
     }
 
     template<std::floating_point T>
@@ -219,7 +215,8 @@ namespace osc
 
         const Vector<T, 4> sign_a(+1, -1, +1, -1);
         const Vector<T, 4> sign_b(-1, +1, -1, +1);
-        const Matrix<T, 4, 4> inverted(inv_0 * sign_a, inv_1 * sign_b, inv_2 * sign_a, inv_3 * sign_b);
+        const Matrix<T, 4, 4> inverted(
+            inv_0 * sign_a, inv_1 * sign_b, inv_2 * sign_a, inv_3 * sign_b);
 
         const Vector<T, 4> row_0(inverted[0][0], inverted[1][0], inverted[2][0], inverted[3][0]);
 
@@ -275,7 +272,8 @@ namespace osc
         return rv;
     }
 
-    // returns euler angles for performing an intrinsic, step-by-step, rotation about X, Y, and then Z
+    // returns euler angles for performing an intrinsic, step-by-step, rotation about X, Y, and then
+    // Z
     template<std::floating_point T>
     Vector<RadiansT<T>, 3> extract_eulers_xyz(const Matrix<T, 4, 4>& m)
     {
@@ -284,7 +282,8 @@ namespace osc
         const RadiansT<T> t2 = atan2(-m[2][0], c2);
         const T s1 = sin(t1);
         const T c1 = cos(t1);
-        const RadiansT<T> t3 = atan2((s1 * m[0][2]) - (c1 * m[0][1]), (c1 * m[1][1]) - (s1 * m[1][2]));
+        const RadiansT<T> t3 =
+            atan2((s1 * m[0][2]) - (c1 * m[0][1]), (c1 * m[1][1]) - (s1 * m[1][2]));
 
         return Vector<RadiansT<T>, 3>{-t1, -t2, -t3};
     }
@@ -344,8 +343,7 @@ namespace osc
         }
 
         // first, isolate perspective, which is the messiest
-        if (
-            not equal_within_epsilon(local_matrix[0][3], static_cast<T>(0)) or
+        if (not equal_within_epsilon(local_matrix[0][3], static_cast<T>(0)) or
             not equal_within_epsilon(local_matrix[1][3], static_cast<T>(0)) or
             not equal_within_epsilon(local_matrix[2][3], static_cast<T>(0))) {
             // `right_hand_side` is the right hand side of the equation
@@ -360,7 +358,8 @@ namespace osc
             // `right_hand_side` by the inverse. This is the easiest way, not
             // necessarily the best.
             const Matrix<T, 4, 4> inverse_perspective_matrix = inverse(perspective_matrix);
-            const Matrix<T, 4, 4> transposed_inverse_perspective_matrix = transpose(inverse_perspective_matrix);  //   transposeMatrix4(inversePerspectiveMatrix, transposedInversePerspectiveMatrix);
+            const Matrix<T, 4, 4> transposed_inverse_perspective_matrix =
+                transpose(inverse_perspective_matrix);
 
             r_perspective = transposed_inverse_perspective_matrix * right_hand_side;
 
@@ -556,8 +555,5 @@ namespace osc
 
 template<typename T, size_t C, size_t R>
 struct std::hash<osc::Matrix<T, C, R>> final {
-    size_t operator()(const osc::Matrix<T, C, R>& m) const
-    {
-        return osc::hash_range(m);
-    }
+    size_t operator()(const osc::Matrix<T, C, R>& m) const { return osc::hash_range(m); }
 };

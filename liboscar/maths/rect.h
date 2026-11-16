@@ -18,13 +18,11 @@ namespace osc
     public:
         // Returns a `Rect` with an `origin` of `point` and an area of zero (i.e.
         // dimensions = {0, 0}) in the coordinate system of `point`.
-        static constexpr Rect from_point(const Vector2& point)
-        {
-            return Rect{point, Vector2{}};
-        }
+        static constexpr Rect from_point(const Vector2& point) { return Rect{point, Vector2{}}; }
 
         // Returns a `Rect` with a centroid of `origin` and dimensions of `dimensions`.
-        static constexpr Rect from_origin_and_dimensions(const Vector2& origin, const Vector2& dimensions)
+        static constexpr Rect from_origin_and_dimensions(
+            const Vector2& origin, const Vector2& dimensions)
         {
             return Rect{origin, dimensions};
         }

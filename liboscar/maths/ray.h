@@ -28,9 +28,7 @@ namespace osc
     // and point in the same direction to within some (dot-product-defined)
     // tolerance.
     bool is_colinear_and_codirectional(
-        const Ray& a,
-        const Ray& b,
-        float tolerance = epsilon_v<float>);
+        const Ray& a, const Ray& b, float tolerance = epsilon_v<float>);
 
     // returns a `Ray` that has been transformed by the matrix.
     Ray transform_ray(const Ray&, const Matrix<float, 4, 4>&);

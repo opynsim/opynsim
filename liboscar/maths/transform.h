@@ -28,7 +28,8 @@ namespace osc
 
         constexpr Transform with_scale(float new_scale) const
         {
-            return Transform{.scale = Vector3{new_scale}, .rotation = rotation, .translation = translation};
+            return Transform{
+                .scale = Vector3{new_scale}, .rotation = rotation, .translation = translation};
         }
 
         friend bool operator==(const Transform&, const Transform&) = default;
@@ -55,6 +56,8 @@ namespace osc
 
     inline std::ostream& operator<<(std::ostream& out, const Transform& transform)
     {
-        return out << "Transform(translation = " << transform.translation << ", rotation = " << transform.rotation << ", scale = " << transform.scale << ')';
+        return out << "Transform(translation = " << transform.translation
+                   << ", rotation = " << transform.rotation << ", scale = " << transform.scale
+                   << ')';
     }
 }

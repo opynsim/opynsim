@@ -77,7 +77,8 @@ namespace osc
         return v * inversesqrt(dot(v, v));
     }
 
-    // returns the aspect ratio of the vector (effectively: `FloatingPointResult{x}/FloatingPointResult{y}`)
+    // returns the aspect ratio of the vector (effectively:
+    // `FloatingPointResult{x}/FloatingPointResult{y}`)
     template<std::integral T, std::floating_point FloatingPointResult = float>
     constexpr FloatingPointResult aspect_ratio_of(Vector<T, 2> v)
     {
@@ -103,10 +104,7 @@ namespace osc
     // The sign of the direction is ignored.
     template<std::floating_point T, size_t N>
     requires(N > 1)
-    bool is_parallel(
-        const Vector<T, N>& a,
-        const Vector<T, N>& b,
-        T tolerance = epsilon_v<T>)
+    bool is_parallel(const Vector<T, N>& a, const Vector<T, N>& b, T tolerance = epsilon_v<T>)
     {
         return equal_within_absdiff(abs(dot(a, b)), T(1), tolerance);
     }
@@ -114,10 +112,7 @@ namespace osc
     // Returns true if unit vectors `a` and `b` are codirectional within `tolerance`.
     template<std::floating_point T, size_t N>
     requires(N > 1)
-    bool is_codirectional(
-        const Vector<T, N>& a,
-        const Vector<T, N>& b,
-        T tolerance = epsilon_v<T>)
+    bool is_codirectional(const Vector<T, N>& a, const Vector<T, N>& b, T tolerance = epsilon_v<T>)
     {
         return equal_within_absdiff(dot(a, b), T(1), tolerance);
     }

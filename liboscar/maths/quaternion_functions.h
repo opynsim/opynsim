@@ -58,14 +58,12 @@ namespace osc
 
         if (len <= static_cast<T>(0)) {  // uh oh
             return Qua<T>::wxyz(
-                static_cast<T>(1),
-                static_cast<T>(0),
-                static_cast<T>(0),
-                static_cast<T>(0));
+                static_cast<T>(1), static_cast<T>(0), static_cast<T>(0), static_cast<T>(0));
         }
 
         const T one_over_len = static_cast<T>(1) / len;
-        return Qua<T>::wxyz(q.w * one_over_len, q.x * one_over_len, q.y * one_over_len, q.z * one_over_len);
+        return Qua<T>::wxyz(
+            q.w * one_over_len, q.x * one_over_len, q.y * one_over_len, q.z * one_over_len);
     }
 
     template<typename T>
@@ -91,20 +89,36 @@ namespace osc
             biggest_index = 3;
         }
 
-        const T biggest_val = sqrt(four_biggest_squared_minus_1 + static_cast<T>(1)) * static_cast<T>(0.5);
+        const T biggest_val =
+            sqrt(four_biggest_squared_minus_1 + static_cast<T>(1)) * static_cast<T>(0.5);
         const T mult = static_cast<T>(0.25) / biggest_val;
 
         switch (biggest_index) {
         case 0:
-            return Qua<T>::wxyz(biggest_val, (m[1][2] - m[2][1]) * mult, (m[2][0] - m[0][2]) * mult, (m[0][1] - m[1][0]) * mult);
+            return Qua<T>::wxyz(
+                biggest_val,
+                (m[1][2] - m[2][1]) * mult,
+                (m[2][0] - m[0][2]) * mult,
+                (m[0][1] - m[1][0]) * mult);
         case 1:
-            return Qua<T>::wxyz((m[1][2] - m[2][1]) * mult, biggest_val, (m[0][1] + m[1][0]) * mult, (m[2][0] + m[0][2]) * mult);
+            return Qua<T>::wxyz(
+                (m[1][2] - m[2][1]) * mult,
+                biggest_val,
+                (m[0][1] + m[1][0]) * mult,
+                (m[2][0] + m[0][2]) * mult);
         case 2:
-            return Qua<T>::wxyz((m[2][0] - m[0][2]) * mult, (m[0][1] + m[1][0]) * mult, biggest_val, (m[1][2] + m[2][1]) * mult);
+            return Qua<T>::wxyz(
+                (m[2][0] - m[0][2]) * mult,
+                (m[0][1] + m[1][0]) * mult,
+                biggest_val,
+                (m[1][2] + m[2][1]) * mult);
         case 3:
-            return Qua<T>::wxyz((m[0][1] - m[1][0]) * mult, (m[2][0] + m[0][2]) * mult, (m[1][2] + m[2][1]) * mult, biggest_val);
-        default:
-            std::unreachable();
+            return Qua<T>::wxyz(
+                (m[0][1] - m[1][0]) * mult,
+                (m[2][0] + m[0][2]) * mult,
+                (m[1][2] + m[2][1]) * mult,
+                biggest_val);
+        default: std::unreachable();
         }
     }
 
@@ -154,10 +168,7 @@ namespace osc
     constexpr Qua<T> quaternion_identity()
     {
         return Qua<T>::wxyz(
-            static_cast<T>(1),
-            static_cast<T>(0),
-            static_cast<T>(0),
-            static_cast<T>(0));
+            static_cast<T>(1), static_cast<T>(0), static_cast<T>(0), static_cast<T>(0));
     }
 
     template<
@@ -167,12 +178,12 @@ namespace osc
     Qua<T> angle_axis(Angle<T, Units> angle, VectorLike&& axis)
     {
         const T s = sin(angle * static_cast<T>(0.5));
-        return Qua<T>(cos(angle * static_cast<T>(0.5)), static_cast<const Vector<T, 3>&>(std::forward<VectorLike>(axis)) * s);
+        return Qua<T>(
+            cos(angle * static_cast<T>(0.5)),
+            static_cast<const Vector<T, 3>&>(std::forward<VectorLike>(axis)) * s);
     }
 
-    template<
-        std::floating_point T,
-        AngularUnitTraits Units>
+    template<std::floating_point T, AngularUnitTraits Units>
     Qua<T> angle_axis(Angle<T, Units> angle, CoordinateDirection direction)
     {
         return angle_axis(angle, direction.direction_vector<T>());
@@ -196,7 +207,8 @@ namespace osc
             // This implementation favors a rotation around the Up axis (Y),
             // since it's often what you want to do.
             rotation_axis = cross(Vector<T, 3>(0, 0, 1), origin);
-            if (length2(rotation_axis) < epsilon_v<T>) {  // bad luck, they were parallel, try again!
+            // bad luck, they were parallel, try again!
+            if (length2(rotation_axis) < epsilon_v<T>) {
                 rotation_axis = cross(Vector<T, 3>(1, 0, 0), origin);
             }
 
@@ -218,10 +230,7 @@ namespace osc
     }
 
     template<typename T>
-    Qua<T> quaternion_from_xyz(
-        const Vector<T, 3>& x,
-        const Vector<T, 3>& y,
-        const Vector<T, 3>& z)
+    Qua<T> quaternion_from_xyz(const Vector<T, 3>& x, const Vector<T, 3>& y, const Vector<T, 3>& z)
     {
         return quaternion_cast(Matrix<T, 3, 3>(x, y, z));
     }
@@ -243,7 +252,8 @@ namespace osc
     template<typename T>
     RadiansT<T> yaw(const Qua<T>& q)
     {
-        return asin(clamp(static_cast<T>(-2) * (q.x * q.z - q.w * q.y), static_cast<T>(-1), static_cast<T>(1)));
+        return asin(clamp(
+            static_cast<T>(-2) * (q.x * q.z - q.w * q.y), static_cast<T>(-1), static_cast<T>(1)));
     }
 
     template<typename T>

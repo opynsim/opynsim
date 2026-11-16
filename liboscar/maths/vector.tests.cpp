@@ -124,7 +124,8 @@ TEST(Vector, can_be_constructed_with_move_only_convertible_pointers)
     struct A {};
     struct B : A {};
     Vector<std::unique_ptr<B>, 2> pointers;
-    [[maybe_unused]] const Vector<std::unique_ptr<B>, 2> converted_move_only_target{std::move(pointers)};
+    [[maybe_unused]] const Vector<std::unique_ptr<B>, 2> converted_move_only_target{
+        std::move(pointers)};
 }
 
 TEST(Vector, can_be_constructed_from_a_std_array)
@@ -158,7 +159,8 @@ TEST(Vector, assignment_correctly_handles_truncation_move_assignment_and_convert
 {
     struct A {
         explicit A(int v) :
-            v_{v} {}
+            v_{v}
+        {}
         int v_;
     };
     struct B : A {
@@ -219,7 +221,8 @@ TEST(Vector, binary_operator_plus_works_with_Vector_as_expected)
     static_assert(std::same_as<decltype(Vector3i{1, 2, 3} + Vector3f{2.0f}), Vector3f>);
     static_assert(std::same_as<decltype(Vector3i{1, 2, 3} + Vector3d{2.0}), Vector3d>);
 
-    ASSERT_EQ((Vector3i{1, 2, 3} + Vector3f{4.0f, 5.0f, 9.0f}), Vector3f(1 + 4.0f, 2 + 5.0f, 3 + 9.0f));
+    ASSERT_EQ(
+        (Vector3i{1, 2, 3} + Vector3f{4.0f, 5.0f, 9.0f}), Vector3f(1 + 4.0f, 2 + 5.0f, 3 + 9.0f));
 }
 
 TEST(Vector, can_be_written_to_a_std_ostream)
@@ -378,5 +381,6 @@ TEST(Vector, can_be_formatted)
 
 TEST(Vector, uses_formatting_string_correctly)
 {
-    ASSERT_EQ(std::format("{:.2f}", Vector3d{1.337123, -2.89123, 50.1234}), "Vector(1.34, -2.89, 50.12)");
+    ASSERT_EQ(
+        std::format("{:.2f}", Vector3d{1.337123, -2.89123, 50.1234}), "Vector(1.34, -2.89, 50.12)");
 }

@@ -8,13 +8,15 @@
 
 namespace osc
 {
-    // validated wrapper for "a floating point value that lies within the closed interval [0.0, 1.0]"
+    // validated wrapper for "a floating point value that lies within the closed interval
+    // [0.0, 1.0]"
     template<std::floating_point T>
     class Normalized final {
     public:
         constexpr Normalized() = default;
         constexpr Normalized(T value) :
-            value_{saturate(value)} {}
+            value_{saturate(value)}
+        {}
 
         friend bool operator==(const Normalized&, const Normalized&) = default;
         friend auto operator<=>(const Normalized&, const Normalized&) = default;

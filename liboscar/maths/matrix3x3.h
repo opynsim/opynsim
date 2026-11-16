@@ -29,71 +29,48 @@ namespace osc
         constexpr Matrix() = default;
 
         explicit constexpr Matrix(T s) :
-            value_{
-                column_type{s, T{}, T{}},
-                column_type{T{}, s, T{}},
-                column_type{T{}, T{}, s}}
+            value_{column_type{s, T{}, T{}}, column_type{T{}, s, T{}}, column_type{T{}, T{}, s}}
         {}
 
-        constexpr Matrix(
-            T x0, T y0, T z0,
-            T x1, T y1, T z1,
-            T x2, T y2, T z2) :
+        constexpr Matrix(T x0, T y0, T z0, T x1, T y1, T z1, T x2, T y2, T z2) :
 
-            value_{
-                column_type{x0, y0, z0},
-                column_type{x1, y1, z1},
-                column_type{x2, y2, z2}}
+            value_{column_type{x0, y0, z0}, column_type{x1, y1, z1}, column_type{x2, y2, z2}}
         {}
 
-        constexpr Matrix(
-            const column_type& v0,
-            const column_type& v1,
-            const column_type& v2) :
+        constexpr Matrix(const column_type& v0, const column_type& v1, const column_type& v2) :
 
             value_{v0, v1, v2}
         {}
 
         template<
-            typename X0, typename Y0, typename Z0,
-            typename X1, typename Y1, typename Z1,
-            typename X2, typename Y2, typename Z2>
-        constexpr Matrix(
-            X0 x0, Y0 y0, Z0 z0,
-            X1 x1, Y1 y1, Z1 z1,
-            X2 x2, Y2 y2, Z2 z2) :
+            typename X0,
+            typename Y0,
+            typename Z0,
+            typename X1,
+            typename Y1,
+            typename Z1,
+            typename X2,
+            typename Y2,
+            typename Z2>
+        constexpr Matrix(X0 x0, Y0 y0, Z0 z0, X1 x1, Y1 y1, Z1 z1, X2 x2, Y2 y2, Z2 z2) :
 
-            value_{
-                column_type{x0, y0, z0},
-                column_type{x1, y1, z1},
-                column_type{x2, y2, z2}}
+            value_{column_type{x0, y0, z0}, column_type{x1, y1, z1}, column_type{x2, y2, z2}}
         {}
 
         template<typename V1, typename V2, typename V3>
         constexpr Matrix(
-            const Vector<V1, 3>& v1,
-            const Vector<V2, 3>& v2,
-            const Vector<V3, 3>& v3) :
+            const Vector<V1, 3>& v1, const Vector<V2, 3>& v2, const Vector<V3, 3>& v3) :
 
-            value_{
-                column_type{v1},
-                column_type{v2},
-                column_type{v3}}
+            value_{column_type{v1}, column_type{v2}, column_type{v3}}
         {}
 
         template<typename U>
         explicit constexpr Matrix(const Matrix<U, 3, 3>& m) :
-            value_{
-                column_type{m[0]},
-                column_type{m[1]},
-                column_type{m[2]}}
+            value_{column_type{m[0]}, column_type{m[1]}, column_type{m[2]}}
         {}
 
         explicit constexpr Matrix(const Matrix<T, 4, 4>& m) :
-            value_{
-                column_type{m[0]},
-                column_type{m[1]},
-                column_type{m[2]}}
+            value_{column_type{m[0]}, column_type{m[1]}, column_type{m[2]}}
         {}
 
         template<typename U>
@@ -278,7 +255,8 @@ namespace osc
     }
 
     template<typename T>
-    typename Matrix<T, 3, 3>::column_type operator*(const Matrix<T, 3, 3>& m, const typename Matrix<T, 3, 3>::row_type& v)
+    typename Matrix<T, 3, 3>::column_type operator*(
+        const Matrix<T, 3, 3>& m, const typename Matrix<T, 3, 3>::row_type& v)
     {
         return typename Matrix<T, 3, 3>::column_type{
             m[0][0] * v.x() + m[1][0] * v.y() + m[2][0] * v.z(),
@@ -288,7 +266,8 @@ namespace osc
     }
 
     template<typename T>
-    typename Matrix<T, 3, 3>::row_type operator*(const typename Matrix<T, 3, 3>::column_type& v, const Matrix<T, 3, 3>& m)
+    typename Matrix<T, 3, 3>::row_type operator*(
+        const typename Matrix<T, 3, 3>::column_type& v, const Matrix<T, 3, 3>& m)
     {
         return typename Matrix<T, 3, 3>::row_type{
             m[0][0] * v.x() + m[0][1] * v.y() + m[0][2] * v.z(),
@@ -346,13 +325,15 @@ namespace osc
     }
 
     template<typename T>
-    typename Matrix<T, 3, 3>::column_type operator/(const Matrix<T, 3, 3>& m, const typename Matrix<T, 3, 3>::row_type& v)
+    typename Matrix<T, 3, 3>::column_type operator/(
+        const Matrix<T, 3, 3>& m, const typename Matrix<T, 3, 3>::row_type& v)
     {
         return inverse(m) * v;
     }
 
     template<typename T>
-    typename Matrix<T, 3, 3>::row_type operator/(const typename Matrix<T, 3, 3>::column_type& v, const Matrix<T, 3, 3>& m)
+    typename Matrix<T, 3, 3>::row_type operator/(
+        const typename Matrix<T, 3, 3>::column_type& v, const Matrix<T, 3, 3>& m)
     {
         return v * inverse(m);
     }

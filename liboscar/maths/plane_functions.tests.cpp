@@ -57,6 +57,10 @@ TEST(is_in_front_of, produces_expected_answers_in_precalculated_cases)
     // clang-format on
 
     for (const auto& [plane, aabb, expected] : precalculated_cases) {
-        ASSERT_EQ(is_in_front_of(plane, aabb), expected) << "plane = " << plane << ", aabb = " << aabb << " (dimensions_of = " << dimensions_of(aabb) << ", half_widths . normal = " << dot(half_widths_of(aabb), abs(plane.normal)) << ", signed distance = " << signed_distance_between(plane, centroid_of(aabb)) << ')';
+        ASSERT_EQ(is_in_front_of(plane, aabb), expected)
+            << "plane = " << plane << ", aabb = " << aabb
+            << " (dimensions_of = " << dimensions_of(aabb)
+            << ", half_widths . normal = " << dot(half_widths_of(aabb), abs(plane.normal))
+            << ", signed distance = " << signed_distance_between(plane, centroid_of(aabb)) << ')';
     }
 }

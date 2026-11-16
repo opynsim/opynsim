@@ -28,35 +28,17 @@ namespace osc
         {}
 
     public:
-        const AABB& bounds() const
-        {
-            return bounds_;
-        }
+        const AABB& bounds() const { return bounds_; }
 
-        bool is_leaf() const
-        {
-            return (data_ & c_leaf_mask) > 0;
-        }
+        bool is_leaf() const { return (data_ & c_leaf_mask) > 0; }
 
-        bool is_node() const
-        {
-            return !is_leaf();
-        }
+        bool is_node() const { return !is_leaf(); }
 
-        size_t num_lhs_nodes() const
-        {
-            return data_ & ~c_leaf_mask;
-        }
+        size_t num_lhs_nodes() const { return data_ & ~c_leaf_mask; }
 
-        void set_num_lhs_nodes(size_t n)
-        {
-            data_ = n & ~c_leaf_mask;
-        }
+        void set_num_lhs_nodes(size_t n) { data_ = n & ~c_leaf_mask; }
 
-        size_t first_prim_offset() const
-        {
-            return data_ & ~c_leaf_mask;
-        }
+        size_t first_prim_offset() const { return data_ & ~c_leaf_mask; }
 
     private:
         static constexpr size_t c_leaf_mask = 1uz << ((8 * sizeof(size_t)) - 1);
