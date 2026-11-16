@@ -27,9 +27,10 @@ namespace
         const float slot_half_height = size.y() * 0.5f;
         const bool draw_circular_grabber = false;
 
-        const Color bg_color = hovered ?
-            ui::get_color(enabled ? ui::ColorVar::FrameBgActive : ui::ColorVar::FrameBgHovered) :
-            ui::get_color(enabled ? ui::ColorVar::CheckMark : ui::ColorVar::FrameBg);
+        const Color bg_color =
+            hovered ? ui::get_color(
+                          enabled ? ui::ColorVar::FrameBgActive : ui::ColorVar::FrameBgHovered)
+                    : ui::get_color(enabled ? ui::ColorVar::CheckMark : ui::ColorVar::FrameBg);
 
         const Vector2 pmid{
             pos.x() + radius + (enabled ? 1.0f : 0.0f) * (size.x() - radius * 2),
@@ -43,10 +44,14 @@ namespace
         draw_list.add_rect_filled(bg_rect, bg_color, rounding);
 
         if (draw_circular_grabber) {
-            draw_list.add_circle_filled({pmid, radius * 0.8f}, ui::get_color(ui::ColorVar::SliderGrab));
+            draw_list.add_circle_filled(
+                {pmid, radius * 0.8f}, ui::get_color(ui::ColorVar::SliderGrab));
         } else {
             const Vector2 offs = {radius * 0.8f, radius * 0.8f};
-            draw_list.add_rect_filled(Rect::from_origin_and_dimensions(pmid, 2.0f * offs), ui::get_color(ui::ColorVar::SliderGrab), rounding);
+            draw_list.add_rect_filled(
+                Rect::from_origin_and_dimensions(pmid, 2.0f * offs),
+                ui::get_color(ui::ColorVar::SliderGrab),
+                rounding);
         }
     }
 
@@ -111,9 +116,15 @@ private:
     bool toggle_state_ = false;
 };
 
-CStringView osc::CustomWidgetsTab::id() { return Impl::static_label(); }
+CStringView osc::CustomWidgetsTab::id()
+{
+    return Impl::static_label();
+}
 
 osc::CustomWidgetsTab::CustomWidgetsTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::CustomWidgetsTab::impl_on_draw() { private_data().on_draw(); }
+void osc::CustomWidgetsTab::impl_on_draw()
+{
+    private_data().on_draw();
+}

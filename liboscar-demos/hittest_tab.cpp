@@ -43,7 +43,8 @@ namespace
 
     struct SceneSphere final {
         explicit SceneSphere(Vector3 pos) :
-            pos{pos} {}
+            pos{pos}
+        {}
 
         Vector3 pos;
         bool is_hovered = false;
@@ -59,11 +60,12 @@ namespace
         for (int32_t x = min; x <= max; x += step) {
             for (int32_t y = min; y <= max; y += step) {
                 for (int32_t z = min; z <= max; z += step) {
-                    rv.emplace_back(Vector3{
-                        static_cast<float>(x),
-                        50.0f + (2.0f * static_cast<float>(y)),
-                        static_cast<float>(z),
-                    });
+                    rv.emplace_back(
+                        Vector3{
+                            static_cast<float>(x),
+                            50.0f + (2.0f * static_cast<float>(y)),
+                            static_cast<float>(z),
+                        });
                 }
             }
         }
@@ -113,10 +115,7 @@ public:
         App::upd().make_main_loop_waiting();
     }
 
-    bool on_event(Event& e)
-    {
-        return camera_.on_event(e);
-    }
+    bool on_event(Event& e) { return camera_.on_event(e); }
 
     void on_tick()
     {
@@ -135,7 +134,8 @@ public:
             };
 
             const std::optional<RayCollision> collision = find_collision(ray, hittest_sphere);
-            if (collision and 0.0f <= collision->distance and collision->distance < closest_distance) {
+            if (collision and 0.0f <= collision->distance and
+                collision->distance < closest_distance) {
                 closest_distance = collision->distance;
                 closest_sphere = &scene_sphere;
             }
@@ -197,7 +197,10 @@ public:
         {
             const std::optional<RayCollision> maybe_collision = find_collision(
                 camera_.principal_ray(),
-                Triangle{c_triangle_vertices.at(0), c_triangle_vertices.at(1), c_triangle_vertices.at(2)});
+                Triangle{
+                    c_triangle_vertices.at(0),
+                    c_triangle_vertices.at(1),
+                    c_triangle_vertices.at(2)});
 
             render_queue_.emplace(
                 triangle_mesh_,
@@ -216,10 +219,13 @@ public:
             black_color_material_props_);
 
         // render scene
-        graphics::render_to_main_window(render_queue_, camera_, {
-            .viewport_rect = workspace_screen_space_rect,
-            .clear_color = Color::white().with_alpha(0.0f),
-        });
+        graphics::render_to_main_window(
+            render_queue_,
+            camera_,
+            {
+                .viewport_rect = workspace_screen_space_rect,
+                .clear_color = Color::white().with_alpha(0.0f),
+            });
         render_queue_.clear();
     }
 
@@ -243,13 +249,31 @@ private:
     bool showing_aabbs_ = true;
 };
 
-CStringView osc::HittestTab::id() { return Impl::static_label(); }
+CStringView osc::HittestTab::id()
+{
+    return Impl::static_label();
+}
 
 osc::HittestTab::HittestTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::HittestTab::impl_on_mount() { private_data().on_mount(); }
-void osc::HittestTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::HittestTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::HittestTab::impl_on_tick() { private_data().on_tick(); }
-void osc::HittestTab::impl_on_draw() { private_data().on_draw(); }
+void osc::HittestTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::HittestTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::HittestTab::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::HittestTab::impl_on_tick()
+{
+    private_data().on_tick();
+}
+void osc::HittestTab::impl_on_draw()
+{
+    private_data().on_draw();
+}

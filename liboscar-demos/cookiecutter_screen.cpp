@@ -76,8 +76,23 @@ private:
 osc::CookiecutterScreen::CookiecutterScreen() :
     Widget{std::make_unique<Impl>(*this)}
 {}
-void osc::CookiecutterScreen::impl_on_mount() { private_data().on_mount(); }
-void osc::CookiecutterScreen::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::CookiecutterScreen::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::CookiecutterScreen::impl_on_tick() { private_data().on_tick(); }
-void osc::CookiecutterScreen::impl_on_draw() { private_data().on_draw(); }
+void osc::CookiecutterScreen::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::CookiecutterScreen::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::CookiecutterScreen::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::CookiecutterScreen::impl_on_tick()
+{
+    private_data().on_tick();
+}
+void osc::CookiecutterScreen::impl_on_draw()
+{
+    private_data().on_draw();
+}

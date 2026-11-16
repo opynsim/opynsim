@@ -20,7 +20,9 @@ namespace
         requires(requires { TWidget::id(); })
         static NamedWidget create()
         {
-            return NamedWidget{TWidget::id(), [](Widget* owner) { return std::make_unique<TWidget>(owner); }};
+            return NamedWidget{TWidget::id(), [](Widget* owner) {
+                                   return std::make_unique<TWidget>(owner);
+                               }};
         }
 
         const auto& name() const { return name_; }
@@ -28,7 +30,8 @@ namespace
 
     private:
         template<typename StringLike, typename Constructor>
-        requires(std::constructible_from<std::string, StringLike> and std::invocable<Constructor, Widget*>)
+        requires(std::constructible_from<std::string, StringLike> and
+                 std::invocable<Constructor, Widget*>)
         NamedWidget(StringLike&& name, Constructor&& constructor) :
             name_{std::forward<StringLike>(name)},
             constructor_{std::forward<Constructor>(constructor)}
@@ -51,15 +54,9 @@ namespace
     std::unique_ptr<App> g_app;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
     class RegisteredDemoTabsFixture : public testing::TestWithParam<NamedWidget> {
     protected:
-        static void SetUpTestSuite()
-        {
-            g_app = std::make_unique<App>();
-        }
+        static void SetUpTestSuite() { g_app = std::make_unique<App>(); }
 
-        static void TearDownTestSuite()
-        {
-            g_app.reset();
-        }
+        static void TearDownTestSuite() { g_app.reset(); }
     };
 }
 
