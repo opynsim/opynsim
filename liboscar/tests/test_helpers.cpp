@@ -94,7 +94,8 @@ Matrix3x3 osc::tests::generate()
 template<>
 Matrix4x4 osc::tests::generate()
 {
-    return Matrix4x4{generate<Vector4>(), generate<Vector4>(), generate<Vector4>(), generate<Vector4>()};
+    return Matrix4x4{
+        generate<Vector4>(), generate<Vector4>(), generate<Vector4>(), generate<Vector4>()};
 }
 
 template<>
