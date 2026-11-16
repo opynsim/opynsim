@@ -32,7 +32,8 @@ opyn::ModelStateStage opyn::to_opynsim_stage(SimTK::Stage simbody_stage)
     // Throw a user-facing runtime error if an invalid/unsupported
     // stage somehow slipped through cracks in the OPynSim API.
     default: {
-        throw std::runtime_error{"Internal Simbody state stage is incompatible with the OPynSim API: this is a developer error that needs to be reported (preferably, with a bug reproduction, please!)"};
+        throw std::runtime_error{
+            "Internal Simbody state stage is incompatible with the OPynSim API: this is a developer error that needs to be reported (preferably, with a bug reproduction, please!)"};
     }
     }
 }
