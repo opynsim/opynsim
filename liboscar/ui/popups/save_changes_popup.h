@@ -9,9 +9,7 @@ namespace osc
 
     class SaveChangesPopup final : public Popup {
     public:
-        explicit SaveChangesPopup(
-            Widget* parent,
-            const SaveChangesPopupConfig&);
+        explicit SaveChangesPopup(Widget* parent, const SaveChangesPopupConfig&);
 
     private:
         void impl_draw_content() override;

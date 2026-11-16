@@ -22,7 +22,9 @@ void osc::PopupManager::on_draw()
 {
     // begin and (if applicable) draw bottom-to-top in a nested fashion
     size_t num_opened = 0;
-    const size_t num_popups = popups_.size();  // only draw the popups that existed at the start of this frame, not the ones added during this frame
+    // only draw the popups that existed at the start of this frame, not the ones added during this
+    // frame
+    const size_t num_popups = popups_.size();
     for (size_t i = 0; i < num_popups; ++i) {
         if (popups_[i]->begin_popup()) {
             popups_[i]->on_draw();

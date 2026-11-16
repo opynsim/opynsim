@@ -19,10 +19,7 @@ namespace osc
         PopupManager& operator=(PopupManager&&) noexcept;
         ~PopupManager() noexcept;
 
-        void push_back(std::shared_ptr<Popup> ptr)
-        {
-            popups_.push_back(std::move(ptr));
-        }
+        void push_back(std::shared_ptr<Popup> ptr) { popups_.push_back(std::move(ptr)); }
 
         template<std::derived_from<Popup> T, typename... Args>
         requires std::constructible_from<T, Args&&...>

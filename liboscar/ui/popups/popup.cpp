@@ -43,10 +43,7 @@ void osc::PopupPrivate::set_modal(bool v)
 }
 
 osc::Popup::Popup(
-    Widget* parent,
-    std::string_view name,
-    Vector2 dimensions,
-    ui::PanelFlags panel_flags) :
+    Widget* parent, std::string_view name, Vector2 dimensions, ui::PanelFlags panel_flags) :
 
     Popup{std::make_unique<PopupPrivate>(*this, parent, name, dimensions, panel_flags)}
 {}
@@ -91,8 +88,7 @@ bool osc::Popup::begin_popup()
         // else, position the modal in the center of the application window
         if (pimpl.maybe_position_) {
             ui::set_next_panel_ui_position(
-                static_cast<Vector2>(*pimpl.maybe_position_),
-                ui::Conditional::Appearing);
+                static_cast<Vector2>(*pimpl.maybe_position_), ui::Conditional::Appearing);
         } else {
             ui::set_next_panel_ui_position(
                 0.5f * App::get().main_window_dimensions(),
@@ -106,12 +102,9 @@ bool osc::Popup::begin_popup()
         // else, set the position every frame, because the __nonzero__ dimensions
         // will stretch out the modal accordingly
         if (not(pimpl.panel_flags_ & ui::PanelFlag::AlwaysAutoResize)) {
-            ui::set_next_panel_size(
-                Vector2{pimpl.dimensions_},
-                ui::Conditional::Appearing);
+            ui::set_next_panel_size(Vector2{pimpl.dimensions_}, ui::Conditional::Appearing);
         } else {
-            ui::set_next_panel_size(
-                Vector2{pimpl.dimensions_});
+            ui::set_next_panel_size(Vector2{pimpl.dimensions_});
         }
 
         // try to begin the modal window
@@ -133,8 +126,7 @@ bool osc::Popup::begin_popup()
         // in it)
         if (pimpl.maybe_position_) {
             ui::set_next_panel_ui_position(
-                static_cast<Vector2>(*pimpl.maybe_position_),
-                ui::Conditional::Appearing);
+                static_cast<Vector2>(*pimpl.maybe_position_), ui::Conditional::Appearing);
         }
 
         // try to begin the popup window

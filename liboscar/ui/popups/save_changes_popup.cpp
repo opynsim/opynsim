@@ -8,10 +8,7 @@
 
 class osc::SaveChangesPopup::Impl final : public PopupPrivate {
 public:
-    explicit Impl(
-        SaveChangesPopup& owner,
-        Widget* parent,
-        SaveChangesPopupConfig config) :
+    explicit Impl(SaveChangesPopup& owner, Widget* parent, SaveChangesPopupConfig config) :
 
         PopupPrivate{owner, parent, config.popup_name},
         config_{std::move(config)}
@@ -48,9 +45,10 @@ private:
     SaveChangesPopupConfig config_;
 };
 
-osc::SaveChangesPopup::SaveChangesPopup(
-    Widget* parent,
-    const SaveChangesPopupConfig& config) :
+osc::SaveChangesPopup::SaveChangesPopup(Widget* parent, const SaveChangesPopupConfig& config) :
     Popup{std::make_unique<Impl>(*this, parent, config)}
 {}
-void osc::SaveChangesPopup::impl_draw_content() { private_data().draw_content(); }
+void osc::SaveChangesPopup::impl_draw_content()
+{
+    private_data().draw_content();
+}
