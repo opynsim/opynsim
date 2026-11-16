@@ -48,7 +48,8 @@ bool osc::CameraViewAxes::draw(OrbitCameraController& camera_controller, const C
 
     // figure out rendering order (back-to-front)
     const Matrix4x4 view_matrix = camera.view_matrix();
-    auto axes = std::array{CoordinateDirection::x(), CoordinateDirection::y(), CoordinateDirection::z()};
+    auto axes =
+        std::array{CoordinateDirection::x(), CoordinateDirection::y(), CoordinateDirection::z()};
     rgs::sort(axes, rgs::less{}, [&view_matrix](auto axis) {
         return transform_vector(view_matrix, axis.direction_vector()).z();
     });

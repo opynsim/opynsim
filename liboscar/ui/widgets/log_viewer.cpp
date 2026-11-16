@@ -128,4 +128,7 @@ private:
 osc::LogViewer::LogViewer(Widget* parent) :
     Widget{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::LogViewer::impl_on_draw() { private_data().on_draw(); }
+void osc::LogViewer::impl_on_draw()
+{
+    private_data().on_draw();
+}

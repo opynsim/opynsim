@@ -13,9 +13,7 @@
 #include <string>
 
 void osc::GuiRuler::on_draw(
-    const Camera& camera,
-    const Rect& render_rect,
-    std::optional<SceneCollision> maybe_mouseover)
+    const Camera& camera, const Rect& render_rect, std::optional<SceneCollision> maybe_mouseover)
 {
     if (state_ == State::Inactive) {
         return;
@@ -43,14 +41,14 @@ void osc::GuiRuler::on_draw(
     const float line_thickness = 3.0f;
 
     ui::DrawListView draw_list = ui::get_panel_draw_list();
-    const auto draw_tooltip_with_bg = [&draw_list, &text_background_color, &text_color](const Vector2& pos, CStringView tooltip_text) {
+    const auto draw_tooltip_with_bg = [&draw_list, &text_background_color, &text_color](
+                                          const Vector2& pos, CStringView tooltip_text) {
         const Vector2 text_size = ui::calc_text_size(tooltip_text);
         const float background_padding = 5.0f;
         const float edge_rounding = background_padding - 2.0f;
 
-        const Rect background_rect = Rect::from_corners(
-            pos - background_padding,
-            pos + text_size + background_padding);
+        const Rect background_rect =
+            Rect::from_corners(pos - background_padding, pos + text_size + background_padding);
         draw_list.add_rect_filled(background_rect, text_background_color, edge_rounding);
         draw_list.add_text(pos, text_color, tooltip_text);
     };
@@ -58,7 +56,8 @@ void osc::GuiRuler::on_draw(
     if (state_ == State::WaitingForFirstPoint) {
         if (not maybe_mouseover) {
             // not mousing over anything
-            draw_list.add_circle_filled(Circle{mouse_ui_pos, circle_radius}, circle_moused_over_nothing_color);
+            draw_list.add_circle_filled(
+                Circle{mouse_ui_pos, circle_radius}, circle_moused_over_nothing_color);
             return;
         } else {
             // mousing over something
@@ -77,16 +76,19 @@ void osc::GuiRuler::on_draw(
             // user is moused over something, so draw a line + circle between the two hitlocs
             const Vector2 end_ui_pos = mouse_ui_pos;
             const Vector2 line_ui_direction = normalize(start_ui_pos - end_ui_pos);
-            const Vector2 offset_vec = 15.0f * Vector2{line_ui_direction.y(), -line_ui_direction.x()};
+            const Vector2 offset_vec =
+                15.0f * Vector2{line_ui_direction.y(), -line_ui_direction.x()};
             const Vector2 line_midpoint = (start_ui_pos + end_ui_pos) / 2.0f;
-            const float line_world_length = length(maybe_mouseover->world_position - start_world_pos_);
+            const float line_world_length =
+                length(maybe_mouseover->world_position - start_world_pos_);
 
             draw_list.add_circle_filled({start_ui_pos, circle_radius}, circle_color);
             draw_list.add_line(start_ui_pos, end_ui_pos, line_color, line_thickness);
             draw_list.add_circle_filled({end_ui_pos, circle_radius}, circle_color);
 
             // label the line's length
-            draw_tooltip_with_bg(line_midpoint + offset_vec, std::format("{:.5f}", line_world_length));
+            draw_tooltip_with_bg(
+                line_midpoint + offset_vec, std::format("{:.5f}", line_world_length));
         } else {
             draw_list.add_circle_filled({start_ui_pos, circle_radius}, circle_color);
         }

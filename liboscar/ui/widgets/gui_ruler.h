@@ -12,10 +12,7 @@ namespace osc
 
     class GuiRuler final {
     public:
-        void on_draw(
-            const Camera&,
-            const Rect& render_rect,
-            std::optional<SceneCollision>);
+        void on_draw(const Camera&, const Rect& render_rect, std::optional<SceneCollision>);
         void start_measuring();
         void stop_measuring();
         void toggle_measuring();
