@@ -105,14 +105,14 @@ namespace osc::ui::gizmo::detail
         return static_cast<bool>(std::to_underlying(lhs) & std::to_underlying(rhs));
     }
 
-    enum class Mode {
-        Local,
-        World
-    };
+    enum class Mode { Local, World };
 
     // Returns the padding distance between the gizmo and any textual annotations
     // on it in device-independent pixels.
-    constexpr float annotation_offset() { return 15.0f; }
+    constexpr float annotation_offset()
+    {
+        return 15.0f;
+    }
 
     class GizmoContext final {
     public:
@@ -124,8 +124,8 @@ namespace osc::ui::gizmo::detail
         GizmoContext& operator=(const GizmoContext&) = delete;
         GizmoContext& operator=(GizmoContext&&) noexcept;
 
-        // call inside your own window and before Manipulate() in order to draw gizmo to that window.
-        // Or pass a specific ImDrawList to draw to (e.g. ImGui::GetForegroundDrawList()).
+        // call inside your own window and before Manipulate() in order to draw gizmo to that
+        // window. Or pass a specific ImDrawList to draw to (e.g. ImGui::GetForegroundDrawList()).
         void set_drawlist(ImDrawList* drawlist = nullptr);
 
         // call BeginFrame right after ImGui_XXXX_NewFrame();
@@ -171,8 +171,8 @@ namespace osc::ui::gizmo::detail
 
         // call it when you want a gizmo
         // Needs view and projection matrices.
-        // matrix parameter is the source matrix (where will be gizmo be drawn) and might be transformed by the function.
-        // translation is applied in world space
+        // matrix parameter is the source matrix (where will be gizmo be drawn) and might be
+        // transformed by the function. translation is applied in world space
         std::optional<Transform> manipulate(
             const Matrix4x4& view,
             const Matrix4x4& projection,
