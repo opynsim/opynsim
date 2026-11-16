@@ -41,7 +41,9 @@ namespace
     {
         // load the first face, so we know the width
         Texture2D face_texture = Image::read_into_texture(
-            loader.open(ResourcePath{"oscar_demos/learnopengl/textures"} / c_skybox_texture_filenames.front()),
+            loader.open(
+                ResourcePath{"oscar_demos/learnopengl/textures"} /
+                c_skybox_texture_filenames.front()),
             ColorSpace::sRGB);
 
         const Vector2i texture_dimensions = face_texture.pixel_dimensions();
@@ -56,7 +58,9 @@ namespace
         cubemap.set_pixel_data(*face_iterator++, face_texture.pixel_data());
         for (; face_iterator != cubemap_faces.end(); ++face_iterator) {
             face_texture = Image::read_into_texture(
-                loader.open(ResourcePath{"oscar_demos/learnopengl/textures"} / c_skybox_texture_filenames[to_index(*face_iterator)]),
+                loader.open(
+                    ResourcePath{"oscar_demos/learnopengl/textures"} /
+                    c_skybox_texture_filenames[to_index(*face_iterator)]),
                 ColorSpace::sRGB);
             OSC_ASSERT(face_texture.pixel_dimensions().x() == texture_dimensions.x());
             OSC_ASSERT(face_texture.pixel_dimensions().y() == texture_dimensions.x());
@@ -87,22 +91,28 @@ namespace
             CubeMaterial{
                 "Basic",
                 Material{Shader{
-                    loader.slurp("oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Basic.vert"),
-                    loader.slurp("oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Basic.frag"),
+                    loader.slurp(
+                        "oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Basic.vert"),
+                    loader.slurp(
+                        "oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Basic.frag"),
                 }},
             },
             CubeMaterial{
                 "Reflection",
                 Material{Shader{
-                    loader.slurp("oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Reflection.vert"),
-                    loader.slurp("oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Reflection.frag"),
+                    loader.slurp(
+                        "oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Reflection.vert"),
+                    loader.slurp(
+                        "oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Reflection.frag"),
                 }},
             },
             CubeMaterial{
                 "Refraction",
                 Material{Shader{
-                    loader.slurp("oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Refraction.vert"),
-                    loader.slurp("oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Refraction.frag"),
+                    loader.slurp(
+                        "oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Refraction.vert"),
+                    loader.slurp(
+                        "oscar_demos/learnopengl/shaders/AdvancedOpenGL/Cubemaps/Refraction.frag"),
                 }},
             },
         });
@@ -143,10 +153,7 @@ public:
         App::upd().make_main_loop_waiting();
     }
 
-    bool on_event(Event& e)
-    {
-        return camera_.on_event(e);
-    }
+    bool on_event(Event& e) { return camera_.on_event(e); }
 
     void on_draw()
     {
@@ -167,10 +174,13 @@ private:
             identity<Transform>(),
             cube_materials_.at(cube_material_index_).material,
             cube_properties_);
-        graphics::render_to_main_window(render_queue_, camera_, {
-            .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
-            .clear_color = {0.1f, 1.0f},
-        });
+        graphics::render_to_main_window(
+            render_queue_,
+            camera_,
+            {
+                .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
+                .clear_color = {0.1f, 1.0f},
+            });
         render_queue_.clear();
     }
 
@@ -178,10 +188,13 @@ private:
     {
         camera_.set_view_matrix_override(Matrix4x4{Matrix3x3{camera_.view_matrix()}});
         render_queue_.emplace(skybox_, skybox_material_);
-        graphics::render_to_main_window(render_queue_, camera_, {
-            .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
-            .clear_flags = ClearFlag::None,
-        });
+        graphics::render_to_main_window(
+            render_queue_,
+            camera_,
+            {
+                .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
+                .clear_flags = ClearFlag::None,
+            });
         render_queue_.clear();
         camera_.set_view_matrix_override(std::nullopt);
     }
@@ -209,8 +222,7 @@ private:
     MaterialPropertyBlock cube_properties_;
     Mesh cube_mesh_ = BoxGeometry{}.mesh();
     Texture2D container_texture_ = Image::read_into_texture(
-        loader_.open("oscar_demos/learnopengl/textures/container.jpg"),
-        ColorSpace::sRGB);
+        loader_.open("oscar_demos/learnopengl/textures/container.jpg"), ColorSpace::sRGB);
     float ior_ = 1.52f;
 
     Material skybox_material_{Shader{
@@ -224,12 +236,27 @@ private:
     RenderQueue render_queue_;
 };
 
-CStringView osc::LOGLCubemapsTab::id() { return Impl::static_label(); }
+CStringView osc::LOGLCubemapsTab::id()
+{
+    return Impl::static_label();
+}
 
 osc::LOGLCubemapsTab::LOGLCubemapsTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::LOGLCubemapsTab::impl_on_mount() { private_data().on_mount(); }
-void osc::LOGLCubemapsTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::LOGLCubemapsTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::LOGLCubemapsTab::impl_on_draw() { private_data().on_draw(); }
+void osc::LOGLCubemapsTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::LOGLCubemapsTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::LOGLCubemapsTab::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::LOGLCubemapsTab::impl_on_draw()
+{
+    private_data().on_draw();
+}
