@@ -28,7 +28,10 @@ namespace opyn
 
         osc::ClosedInterval<float> time_range() const;
         const OpenSim::Storage& storage() const { return *storage_; }
-        const std::unordered_map<int, int>& mapper() const { return storage_index_to_model_state_var_index_map_; }
+        const std::unordered_map<int, int>& mapper() const
+        {
+            return storage_index_to_model_state_var_index_map_;
+        }
 
     private:
         std::filesystem::path source_file_;

@@ -19,9 +19,9 @@ namespace opyn
     //       reason it's reproduced here is to provide like-for-like (ish) behavior
     //       between OSC's 'Preview Experimental Data' workflow and OpenSim GUI's.
     class AnnotatedMotion final : public OpenSim::ModelComponent {
-        OpenSim_DECLARE_CONCRETE_OBJECT(AnnotatedMotion, OpenSim::ModelComponent)
-    public:
+        OpenSim_DECLARE_CONCRETE_OBJECT(AnnotatedMotion, OpenSim::ModelComponent);
 
+    public:
         // Constructs an `AnnotationMotion` that was loaded from the given filesystem
         // path, or throws an `std::exception` if any error occurs.
         explicit AnnotatedMotion(const std::filesystem::path& path);
@@ -33,7 +33,8 @@ namespace opyn
         osc::ClosedInterval<float> time_range() const;
 
     private:
-        static std::shared_ptr<OpenSim::Storage> load_path_into_storage(const std::filesystem::path&);
+        static std::shared_ptr<OpenSim::Storage> load_path_into_storage(
+            const std::filesystem::path&);
         explicit AnnotatedMotion(std::shared_ptr<OpenSim::Storage>);
 
         std::shared_ptr<OpenSim::Storage> storage_;

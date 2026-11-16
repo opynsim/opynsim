@@ -30,9 +30,7 @@ namespace opyn
 
     // Returns the elements associated with one datapoint (e.g. [x, y, z])
     std::vector<double> extract_data_point(
-        double time,
-        const OpenSim::Storage&,
-        const DataSeriesAnnotation&);
+        double time, const OpenSim::Storage&, const DataSeriesAnnotation&);
 
     void generate_decorations(
         double time,
