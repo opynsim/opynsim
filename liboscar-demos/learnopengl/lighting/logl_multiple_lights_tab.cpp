@@ -52,7 +52,8 @@ namespace
     constexpr auto c_point_light_speculars = std::to_array<float>({0.5f, 0.5f, 0.5f, 0.5f});
     constexpr auto c_point_light_constants = std::to_array<float>({1.0f, 1.0f, 1.0f, 1.0f});
     constexpr auto c_point_light_linears = std::to_array<float>({0.09f, 0.09f, 0.09f, 0.09f});
-    constexpr auto c_point_light_quadratics = std::to_array<float>({0.032f, 0.032f, 0.032f, 0.032f});
+    constexpr auto c_point_light_quadratics =
+        std::to_array<float>({0.032f, 0.032f, 0.032f, 0.032f});
 
     MouseCapturingCamera create_camera()
     {
@@ -66,8 +67,7 @@ namespace
     Material create_multiple_lights_material(ResourceLoader& loader)
     {
         const Texture2D diffuse_map = Image::read_into_texture(
-            loader.open("oscar_demos/learnopengl/textures/container2.jpg"),
-            ColorSpace::sRGB);
+            loader.open("oscar_demos/learnopengl/textures/container2.jpg"), ColorSpace::sRGB);
 
         const Texture2D specular_map = Image::read_into_texture(
             loader.open("oscar_demos/learnopengl/textures/container2_specular.jpg"),
@@ -140,10 +140,7 @@ public:
         App::upd().make_main_loop_waiting();
     }
 
-    bool on_event(Event& e)
-    {
-        return camera_.on_event(e);
-    }
+    bool on_event(Event& e) { return camera_.on_event(e); }
 
     void on_draw()
     {
@@ -176,10 +173,13 @@ public:
         }
 
         // render to output (window)
-        graphics::render_to_main_window(render_queue_, camera_, {
-            .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
-            .clear_color = {0.1f, 1.0f},
-        });
+        graphics::render_to_main_window(
+            render_queue_,
+            camera_,
+            {
+                .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
+                .clear_color = {0.1f, 1.0f},
+            });
         render_queue_.clear();
 
         // render auxiliary UI
@@ -207,12 +207,27 @@ private:
     PerfPanel perf_panel_{&owner()};
 };
 
-CStringView osc::LOGLMultipleLightsTab::id() { return Impl::static_label(); }
+CStringView osc::LOGLMultipleLightsTab::id()
+{
+    return Impl::static_label();
+}
 
 osc::LOGLMultipleLightsTab::LOGLMultipleLightsTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::LOGLMultipleLightsTab::impl_on_mount() { private_data().on_mount(); }
-void osc::LOGLMultipleLightsTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::LOGLMultipleLightsTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::LOGLMultipleLightsTab::impl_on_draw() { private_data().on_draw(); }
+void osc::LOGLMultipleLightsTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::LOGLMultipleLightsTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::LOGLMultipleLightsTab::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::LOGLMultipleLightsTab::impl_on_draw()
+{
+    private_data().on_draw();
+}
