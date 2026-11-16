@@ -50,7 +50,8 @@ class opyn::ModelWarper::Impl {
 public:
     Impl() = default;
     explicit Impl(const std::filesystem::path& source) :
-        warping_document_{source} {}
+        warping_document_{source}
+    {}
 
     size_t num_scaling_steps() const { return warping_document_.get_num_scaling_steps(); }
     size_t num_scaling_parameters() const { return warping_document_.get_num_scaling_parameters(); }
@@ -88,7 +89,8 @@ private:
         }
 
         // Apply each `ScalingStep` one-by-one.
-        const ScalingParameters scaling_parameters = warping_document_.get_effective_scaling_parameters();
+        const ScalingParameters scaling_parameters =
+            warping_document_.get_effective_scaling_parameters();
         for (const auto& scaling_step : warping_document_.getComponentList<ScalingStep>()) {
             scaling_step.apply_scaling_step(scaling_cache, scaling_parameters, msp.get_model(), rv);
         }
@@ -113,8 +115,7 @@ private:
 
     /// Returns all validation messages from all enabled `ScalingStep`s.
     std::vector<ScalingDocumentValidationMessage> collect_scaling_validation_issues(
-        ScalingCache& scaling_cache,
-        const ModelStatePair& msp) const
+        ScalingCache& scaling_cache, const ModelStatePair& msp) const
     {
         std::vector<ScalingDocumentValidationMessage> rv;
 
@@ -122,7 +123,8 @@ private:
             return rv;  // No scaling steps, no validation messages.
         }
 
-        const ScalingParameters scaling_params = warping_document_.get_effective_scaling_parameters();
+        const ScalingParameters scaling_params =
+            warping_document_.get_effective_scaling_parameters();
         for (const auto& scaling_step : warping_document_.getComponentList<ScalingStep>()) {
             if (not scaling_step.get_enabled()) {
                 continue;  // Only enabled `ScalingStep`s are validated.
@@ -131,10 +133,11 @@ private:
             auto messages = scaling_step.validate(scaling_cache, scaling_params, msp);
             rv.reserve(rv.size() + messages.size());
             for (auto& message : messages) {
-                rv.push_back(ScalingDocumentValidationMessage{
-                    .source_scaling_step_abs_path = scaling_step.getAbsolutePath(),
-                    .payload = std::move(message),
-                });
+                rv.push_back(
+                    ScalingDocumentValidationMessage{
+                        .source_scaling_step_abs_path = scaling_step.getAbsolutePath(),
+                        .payload = std::move(message),
+                    });
             }
         }
 
@@ -162,8 +165,14 @@ opyn::ModelWarper::ModelWarper(osc::CopyOnUpdSharedValue<Impl> impl) :
     impl_{std::move(impl)}
 {}
 
-size_t opyn::ModelWarper::num_scaling_steps() const { return impl_->num_scaling_steps(); }
-size_t opyn::ModelWarper::num_scaling_parameters() const { return impl_->num_scaling_parameters(); }
+size_t opyn::ModelWarper::num_scaling_steps() const
+{
+    return impl_->num_scaling_steps();
+}
+size_t opyn::ModelWarper::num_scaling_parameters() const
+{
+    return impl_->num_scaling_parameters();
+}
 ModelSpecification opyn::ModelWarper::warp(const ModelSpecification& model_specification) const
 {
     return impl_->warp(model_specification);

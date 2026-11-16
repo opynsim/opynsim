@@ -71,11 +71,10 @@ namespace opyn
             if (get_destination_mesh_file().empty()) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error, "`destination_mesh_file` is empty.");
-            } else if (
-                const auto destination_mesh_path =
-                    model_filesystem_location->parent_path() /
-                    osc::read_windows_or_unix_path_string(get_destination_mesh_file());
-                not std::filesystem::exists(destination_mesh_path)) {
+            } else if (const auto destination_mesh_path =
+                           model_filesystem_location->parent_path() /
+                           osc::read_windows_or_unix_path_string(get_destination_mesh_file());
+                       not std::filesystem::exists(destination_mesh_path)) {
 
                 messages.emplace_back(
                     ScalingStepValidationState::Error,

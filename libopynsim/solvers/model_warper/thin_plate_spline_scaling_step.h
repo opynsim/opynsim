@@ -110,11 +110,10 @@ namespace opyn
             if (get_source_landmarks_file().empty()) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error, "`source_landmarks_file` is empty.");
-            } else if (
-                const auto source_landmarks_path =
-                    model_filesystem_location->parent_path() /
-                    osc::read_windows_or_unix_path_string(get_source_landmarks_file());
-                not std::filesystem::exists(source_landmarks_path)) {
+            } else if (const auto source_landmarks_path =
+                           model_filesystem_location->parent_path() /
+                           osc::read_windows_or_unix_path_string(get_source_landmarks_file());
+                       not std::filesystem::exists(source_landmarks_path)) {
 
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
@@ -127,11 +126,10 @@ namespace opyn
             if (get_destination_landmarks_file().empty()) {
                 messages.emplace_back(
                     ScalingStepValidationState::Error, "`destination_landmarks_file` is empty.");
-            } else if (
-                const auto destination_landmarks_path =
-                    model_filesystem_location->parent_path() /
-                    osc::read_windows_or_unix_path_string(get_destination_landmarks_file());
-                not std::filesystem::exists(destination_landmarks_path)) {
+            } else if (const auto destination_landmarks_path =
+                           model_filesystem_location->parent_path() /
+                           osc::read_windows_or_unix_path_string(get_destination_landmarks_file());
+                       not std::filesystem::exists(destination_landmarks_path)) {
 
                 messages.emplace_back(
                     ScalingStepValidationState::Error,
