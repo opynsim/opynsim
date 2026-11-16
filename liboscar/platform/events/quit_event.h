@@ -11,6 +11,7 @@ namespace osc
     class QuitEvent final : public Event {
     public:
         explicit QuitEvent() :
-            Event{EventType::Quit} {}
+            Event{EventType::Quit}
+        {}
     };
 }

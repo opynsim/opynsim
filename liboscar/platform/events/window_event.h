@@ -11,9 +11,7 @@ namespace osc
     // Represents a possible change in a single application window.
     class WindowEvent final : public Event {
     public:
-        explicit WindowEvent(
-            WindowEventType type,
-            WindowID window_id) :
+        explicit WindowEvent(WindowEventType type, WindowID window_id) :
 
             type_{type},
             window_id_{window_id}

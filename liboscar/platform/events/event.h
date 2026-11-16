@@ -14,7 +14,8 @@ namespace osc
     protected:
         Event() = default;
         explicit Event(EventType type) :
-            type_{type} {}
+            type_{type}
+        {}
         Event(const Event&) = default;
         Event(Event&&) noexcept = default;
         Event& operator=(const Event&) = default;

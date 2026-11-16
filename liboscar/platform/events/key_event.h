@@ -25,8 +25,14 @@ namespace osc
         KeyCombination combination() const { return combination_; }
         ModifierKeys modifiers() const { return combination_.modifiers(); }
         Key key() const { return combination_.key(); }
-        bool has_modifier(ModifierKey modifier) const { return static_cast<bool>(modifier & combination_.modifiers()); }
-        bool has_modifier(PhysicalModifierKey modifier) const { return static_cast<bool>(modifier & to<PhysicalModifierKeys>(combination_.modifiers())); }
+        bool has_modifier(ModifierKey modifier) const
+        {
+            return static_cast<bool>(modifier & combination_.modifiers());
+        }
+        bool has_modifier(PhysicalModifierKey modifier) const
+        {
+            return static_cast<bool>(modifier & to<PhysicalModifierKeys>(combination_.modifiers()));
+        }
 
     private:
         explicit KeyEvent(EventType event_type, KeyCombination combination) :
