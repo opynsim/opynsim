@@ -155,10 +155,8 @@ namespace
         rv.set_wrap_mode(TextureWrapMode::Clamp);
         rv.set_filter_mode(TextureFilterMode::Mipmap);
 
-        constexpr size_t max_mipmap_level =
-            static_cast<size_t>(  // NOLINT(readability-redundant-casting)
-                max(0,
-                    static_cast<int>(std::bit_width(static_cast<size_t>(level_zero_width)) - 1)));
+        constexpr size_t max_mipmap_level = static_cast<size_t>(
+            max(0, static_cast<int>(std::bit_width(static_cast<size_t>(level_zero_width)) - 1)));
         static_assert(max_mipmap_level == 7);
 
         Camera camera;

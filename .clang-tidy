@@ -80,6 +80,7 @@ Checks: >
   -readability-avoid-nested-conditional-operator,
   -readability-simplify-boolean-expr,
   -readability-make-member-function-const,
+  -readability-redundant-casting,
   cert-*,
   -cert-dcl21-cpp,
   -cert-oop54-cpp,

@@ -6937,10 +6937,7 @@ void osc::GraphicsBackend::copy_texture(
     //
     // - https://registry.khronos.org/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
     const auto max_mipmap_level = static_cast<size_t>(
-        max(0,
-            static_cast<int>(  // NOLINT(readability-redundant-casting)
-                std::bit_width(static_cast<size_t>(destination.width()))) -
-                1));
+        max(0, static_cast<int>(std::bit_width(static_cast<size_t>(destination.width()))) - 1));
 
     OSC_ASSERT(
         source.dimensionality() == TextureDimensionality::Cube &&
