@@ -80,7 +80,10 @@ namespace
 
 class osc::LOGLShadowMappingTab::Impl final : public TabPrivate {
 public:
-    static CStringView static_label() { return "oscar_demos/learnopengl/AdvancedLighting/ShadowMapping"; }
+    static CStringView static_label()
+    {
+        return "oscar_demos/learnopengl/AdvancedLighting/ShadowMapping";
+    }
 
     explicit Impl(LOGLShadowMappingTab& owner, Widget* parent) :
         TabPrivate{owner, parent, static_label()}
@@ -98,10 +101,7 @@ public:
         App::upd().make_main_loop_waiting();
     }
 
-    bool on_event(Event& e)
-    {
-        return camera_.on_event(e);
-    }
+    bool on_event(Event& e) { return camera_.on_event(e); }
 
     void on_draw()
     {
@@ -125,10 +125,13 @@ private:
         scene_material_.set("uShadowMapTexture", depth_texture_);
 
         draw_meshes_with_material(scene_material_);
-        graphics::render_to_main_window(render_queue_, camera_, {
-            .viewport_rect = workspace_screen_space_rect,
-            .clear_color = {0.1f, 1.0f},
-        });
+        graphics::render_to_main_window(
+            render_queue_,
+            camera_,
+            {
+                .viewport_rect = workspace_screen_space_rect,
+                .clear_color = {0.1f, 1.0f},
+            });
         graphics::blit_to_main_window(
             depth_texture_,
             Rect::from_corners(
@@ -145,13 +148,9 @@ private:
 
         // cubes
         render_queue_.emplace(
-            cube_mesh_,
-            {.scale = Vector3{0.5f}, .translation = {0.0f, 1.0f, 0.0f}},
-            material);
+            cube_mesh_, {.scale = Vector3{0.5f}, .translation = {0.0f, 1.0f, 0.0f}}, material);
         render_queue_.emplace(
-            cube_mesh_,
-            {.scale = Vector3{0.5f}, .translation = {2.0f, 0.0f, 1.0f}},
-            material);
+            cube_mesh_, {.scale = Vector3{0.5f}, .translation = {2.0f, 0.0f, 1.0f}}, material);
         render_queue_.emplace(
             cube_mesh_,
             Transform{
@@ -174,9 +173,13 @@ private:
 
         camera_.set_view_matrix_override(light_view_matrix);
         camera_.set_projection_matrix_override(light_projection_matrix);
-        graphics::render_to(depth_texture_, render_queue_, camera_, {
-            .clear_color = {0.1f, 1.0f},
-        });
+        graphics::render_to(
+            depth_texture_,
+            render_queue_,
+            camera_,
+            {
+                .clear_color = {0.1f, 1.0f},
+            });
         render_queue_.clear();
         camera_.set_view_matrix_override(std::nullopt);
         camera_.set_projection_matrix_override(std::nullopt);
@@ -186,8 +189,7 @@ private:
     MouseCapturingCamera camera_ = create_camera();
     RenderQueue render_queue_;
     Texture2D wood_texture_ = Image::read_into_texture(
-        loader_.open("oscar_demos/learnopengl/textures/wood.jpg"),
-        ColorSpace::sRGB);
+        loader_.open("oscar_demos/learnopengl/textures/wood.jpg"), ColorSpace::sRGB);
     Mesh cube_mesh_ = BoxGeometry{{.dimensions = Vector3{2.0f}}};
     Mesh plane_mesh_ = generate_learnopengl_plane_mesh();
     Material scene_material_{Shader{
@@ -195,20 +197,37 @@ private:
         loader_.slurp("oscar_demos/learnopengl/shaders/AdvancedLighting/shadow_mapping/Scene.frag"),
     }};
     Material depth_material_{Shader{
-        loader_.slurp("oscar_demos/learnopengl/shaders/AdvancedLighting/shadow_mapping/MakeShadowMap.vert"),
-        loader_.slurp("oscar_demos/learnopengl/shaders/AdvancedLighting/shadow_mapping/MakeShadowMap.frag"),
+        loader_.slurp(
+            "oscar_demos/learnopengl/shaders/AdvancedLighting/shadow_mapping/MakeShadowMap.vert"),
+        loader_.slurp(
+            "oscar_demos/learnopengl/shaders/AdvancedLighting/shadow_mapping/MakeShadowMap.frag"),
     }};
     RenderTexture depth_texture_ = create_depth_texture();
     Matrix4x4 latest_light_space_matrix_ = identity<Matrix4x4>();
     Vector3 light_pos_ = {-2.0f, 4.0f, -1.0f};
 };
 
-CStringView osc::LOGLShadowMappingTab::id() { return Impl::static_label(); }
+CStringView osc::LOGLShadowMappingTab::id()
+{
+    return Impl::static_label();
+}
 
 osc::LOGLShadowMappingTab::LOGLShadowMappingTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::LOGLShadowMappingTab::impl_on_mount() { private_data().on_mount(); }
-void osc::LOGLShadowMappingTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::LOGLShadowMappingTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::LOGLShadowMappingTab::impl_on_draw() { private_data().on_draw(); }
+void osc::LOGLShadowMappingTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::LOGLShadowMappingTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::LOGLShadowMappingTab::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::LOGLShadowMappingTab::impl_on_draw()
+{
+    private_data().on_draw();
+}
