@@ -41,8 +41,7 @@ namespace opyn
     // generates names for any unnamed landmarks and ensures that the names are
     // unique amongst all supplied landmarks (both named and unnamed)
     std::vector<NamedLandmark> generate_names(
-        std::span<const Landmark>,
-        std::string_view prefix = "unnamed_");
+        std::span<const Landmark>, std::string_view prefix = "unnamed_");
 
     void try_pairing_landmarks(
         std::vector<Landmark>,

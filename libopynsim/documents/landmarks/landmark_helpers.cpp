@@ -90,7 +90,8 @@ namespace
 
 std::string opyn::to_string(const CSVParseWarning& warning)
 {
-    const size_t displayed_line_number = warning.line_number + 1;  // user-facing software (e.g. IDEs) start at 1
+    const size_t displayed_line_number =
+        warning.line_number + 1;  // user-facing software (e.g. IDEs) start at 1
     return std::format("line {}: {}", displayed_line_number, warning.message);
 }
 
@@ -104,7 +105,9 @@ void opyn::read_landmarks_from_csv(
         std::visit(
             osc::Overload{
                 [&landmark_consumer](Landmark&& lm) { landmark_consumer(std::move(lm)); },
-                [&warning_consumer](CSVParseWarning&& warning) { warning_consumer(std::move(warning)); },
+                [&warning_consumer](CSVParseWarning&& warning) {
+                    warning_consumer(std::move(warning));
+                },
                 [](SkipRow) {
                 }},
             parse_row(line, cols));
@@ -116,7 +119,8 @@ std::vector<Landmark> opyn::read_landmarks_from_csv_into_vector_or_throw(
 {
     std::ifstream in{path};
     if (not in) {
-        throw osc::formatted_runtime_error("{}: cannot open landmarks file for reading", path.string());
+        throw osc::formatted_runtime_error(
+            "{}: cannot open landmarks file for reading", path.string());
     }
 
     std::vector<Landmark> rv;
@@ -148,14 +152,15 @@ void opyn::write_landmarks_to_csv(
         if (flags & LandmarkCSVFlags::NoNames) {
             osc::CSV::write_row(out, {{to_string(x), to_string(y), to_string(z)}});
         } else {
-            osc::CSV::write_row(out, {{lm->maybe_name.value_or("unnamed"), to_string(x), to_string(y), to_string(z)}});
+            osc::CSV::write_row(
+                out,
+                {{lm->maybe_name.value_or("unnamed"), to_string(x), to_string(y), to_string(z)}});
         }
     }
 }
 
 std::vector<NamedLandmark> opyn::generate_names(
-    std::span<const Landmark> lms,
-    std::string_view prefix)
+    std::span<const Landmark> lms, std::string_view prefix)
 {
     // collect up all already-named landmarks
     std::unordered_set<std::string_view> supplied_names;
@@ -211,7 +216,8 @@ void opyn::try_pairing_landmarks(
 
     // handle remaining (unpaired) elements in `b`
     for (auto& lm : b) {
-        std::string name = lm.maybe_name ? std::move(lm.maybe_name).value() : generate_name(num_unnamed++);
+        std::string name =
+            lm.maybe_name ? std::move(lm.maybe_name).value() : generate_name(num_unnamed++);
         consumer(MaybeNamedLandmarkPair{name, std::nullopt, lm.position});
     }
 }

@@ -94,7 +94,9 @@ TEST(LandmarkHelpers, read_landmarks_from_csv_ignores_invalid_rows)
 // although this is technically a bodged file, it's one of those things that custom python
 // scripts might spit out, or users might want blank lines in their CSV as a primitive way
 // of grouping datapoints - just ignore the whole row
-TEST(LandmarkHelpers, read_landmarks_from_csv_containing_sparse_errors_and_blank_rows_just_ignores_them)
+TEST(
+    LandmarkHelpers,
+    read_landmarks_from_csv_containing_sparse_errors_and_blank_rows_just_ignores_them)
 {
     auto input = open_fixture_file("3colsparseerrors.csv");
     size_t i = 0;
