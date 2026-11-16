@@ -28,7 +28,8 @@ namespace opyn
             warping_penalty{warping_penalty}
         {}
 
-        friend bool operator==(const ThinPlateSplineCommonInputs&, const ThinPlateSplineCommonInputs&) = default;
+        friend bool operator==(
+            const ThinPlateSplineCommonInputs&, const ThinPlateSplineCommonInputs&) = default;
 
         std::filesystem::path source_landmarks_path;
         std::filesystem::path destination_landmarks_path;

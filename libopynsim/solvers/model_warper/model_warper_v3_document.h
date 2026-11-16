@@ -22,9 +22,13 @@ namespace opyn
     // the source model in order to yield a scaled model.
     class ModelWarperV3Document final : public OpenSim::Component,
                                         public VersionedComponentAccessor {
-        OpenSim_DECLARE_CONCRETE_OBJECT(ModelWarperV3Document, OpenSim::Component)
+        OpenSim_DECLARE_CONCRETE_OBJECT(ModelWarperV3Document, OpenSim::Component);
 
-        OpenSim_DECLARE_LIST_PROPERTY(scaling_parameter_overrides, ScalingParameterOverride, "A sequence of `ScalingParameterOverride`s that should be used in place of the default values used by the `ScalingStep`s.");
+        OpenSim_DECLARE_LIST_PROPERTY(
+            scaling_parameter_overrides,
+            ScalingParameterOverride,
+            "A sequence of `ScalingParameterOverride`s that should be used in place of the default values used by the `ScalingStep`s.");
+
     public:
         explicit ModelWarperV3Document()
         {
@@ -61,10 +65,7 @@ namespace opyn
             return std::distance(lst.begin(), lst.end());
         }
 
-        auto iterate_scaling_steps() const
-        {
-            return getComponentList<ScalingStep>();
-        }
+        auto iterate_scaling_steps() const { return getComponentList<ScalingStep>(); }
 
         void add_scaling_step(std::unique_ptr<ScalingStep> step)
         {
@@ -97,7 +98,8 @@ namespace opyn
             }
             for (const ScalingStep& step : iterate_scaling_steps()) {
                 bool called = false;
-                step.for_each_scaling_parameter_declaration([&called](const ScalingParameterDeclaration&) { called = true; });
+                step.for_each_scaling_parameter_declaration(
+                    [&called](const ScalingParameterDeclaration&) { called = true; });
                 if (called) {
                     return true;
                 }
@@ -119,7 +121,9 @@ namespace opyn
 
             // Get/merge values from the scaling steps
             for (const ScalingStep& step : iterate_scaling_steps()) {
-                step.for_each_scaling_parameter_declaration([&step, &rv](const ScalingParameterDeclaration& decl) {
+                step.for_each_scaling_parameter_declaration([&step, &rv](
+                                                                const ScalingParameterDeclaration&
+                                                                    decl) {
                     const auto [it, inserted] = rv.try_emplace(decl.name(), decl.default_value());
                     if (not inserted and it->second != decl.default_value()) {
                         auto msg = std::format(
@@ -133,7 +137,8 @@ namespace opyn
 
             // Apply overrides to the effective scaling parameters
             {
-                const OpenSim::Property<ScalingParameterOverride>& overrides = getProperty_scaling_parameter_overrides();
+                const OpenSim::Property<ScalingParameterOverride>& overrides =
+                    getProperty_scaling_parameter_overrides();
                 for (int i = 0; i < overrides.size(); ++i) {
                     const ScalingParameterOverride& o = overrides.getValue(i);
                     rv.insert_or_assign(o.get_parameter_name(), o.get_parameter_value());
@@ -143,55 +148,50 @@ namespace opyn
             return rv;
         }
 
-        bool set_scaling_parameter_override(const std::string& scaling_param_name, ScalingParameterValue new_value)
+        bool set_scaling_parameter_override(
+            const std::string& scaling_param_name, ScalingParameterValue new_value)
         {
             mutate_scaling_parammeter_overrides_with_new_override(scaling_param_name, new_value);
             finalizeFromProperties();
             return true;
         }
 
-        void save_to(const std::filesystem::path& p) const
-        {
-            print(p.string());
-        }
+        void save_to(const std::filesystem::path& p) const { print(p.string()); }
 
     private:
-        void construct_properties()
-        {
-            constructProperty_scaling_parameter_overrides();
-        }
+        void construct_properties() { constructProperty_scaling_parameter_overrides(); }
 
-        void mutate_scaling_parammeter_overrides_with_new_override(const std::string& scaling_param_name, ScalingParameterValue new_value)
+        void mutate_scaling_parammeter_overrides_with_new_override(
+            const std::string& scaling_param_name, ScalingParameterValue new_value)
         {
             // First, try to find an existing override with the same name and overwrite it
-            const OpenSim::Property<ScalingParameterOverride>& overrides = getProperty_scaling_parameter_overrides();
+            const OpenSim::Property<ScalingParameterOverride>& overrides =
+                getProperty_scaling_parameter_overrides();
             for (int i = 0; i < overrides.size(); ++i) {
                 const ScalingParameterOverride& o = overrides.getValue(i);
                 if (o.get_parameter_name() == scaling_param_name) {
-                    updProperty_scaling_parameter_overrides().updValue(i).set_parameter_value(new_value);
+                    updProperty_scaling_parameter_overrides().updValue(i).set_parameter_value(
+                        new_value);
                     return;  // found and overwritten
                 }
             }
 
             // Otherwise, add a new override
-            int idx = updProperty_scaling_parameter_overrides().appendValue(ScalingParameterOverride{scaling_param_name, new_value});
-            updProperty_scaling_parameter_overrides().updValue(idx).set_parameter_name(scaling_param_name);
+            int idx = updProperty_scaling_parameter_overrides().appendValue(
+                ScalingParameterOverride{scaling_param_name, new_value});
+            updProperty_scaling_parameter_overrides().updValue(idx).set_parameter_name(
+                scaling_param_name);
             updProperty_scaling_parameter_overrides().updValue(idx).set_parameter_value(new_value);
         }
 
-        const OpenSim::Component& impl_get_component() const override
-        {
-            return *this;
-        }
+        const OpenSim::Component& impl_get_component() const override { return *this; }
 
-        bool impl_can_upd_component() const override
-        {
-            return true;
-        }
+        bool impl_can_upd_component() const override { return true; }
 
         OpenSim::Component& impl_upd_component() override
         {
-            throw std::runtime_error{"component updating not implemented for this IComponentAccessor"};
+            throw std::runtime_error{
+                "component updating not implemented for this IComponentAccessor"};
         }
     };
 }

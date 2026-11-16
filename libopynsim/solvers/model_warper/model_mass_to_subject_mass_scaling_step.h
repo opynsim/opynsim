@@ -20,12 +20,14 @@ namespace opyn
 {
     // A `ScalingStep` that scales the masses of bodies in the model.
     class ModelMassToSubjectMassScalingStep final : public ScalingStep {
-        OpenSim_DECLARE_CONCRETE_OBJECT(ModelMassToSubjectMassScalingStep, ScalingStep)
+        OpenSim_DECLARE_CONCRETE_OBJECT(ModelMassToSubjectMassScalingStep, ScalingStep);
+
     public:
         explicit ModelMassToSubjectMassScalingStep() :
             ScalingStep{"Scale Model Mass to Subject Mass"}
         {
-            setDescription("Scales the masses of bodies in the model to match the subject mass, while preserving the overall mass disribution of each body in the model.");
+            setDescription(
+                "Scales the masses of bodies in the model to match the subject mass, while preserving the overall mass disribution of each body in the model.");
         }
 
     private:
@@ -51,7 +53,8 @@ namespace opyn
             return messages;
         }
 
-        void impl_for_each_scaling_parameter_declaration(const std::function<void(const ScalingParameterDeclaration&)>& callback) const override
+        void impl_for_each_scaling_parameter_declaration(
+            const std::function<void(const ScalingParameterDeclaration&)>& callback) const override
         {
             callback(ScalingParameterDeclaration{"blending_factor", 1.0});
             callback(ScalingParameterDeclaration{"subject_mass", 75.0});
@@ -66,15 +69,18 @@ namespace opyn
             const auto subject_mass = parameters.lookup<double>("subject_mass").value_or(0.0);
             OSC_ASSERT_ALWAYS(subject_mass > 0.0 && "Subject mass must be greater than zero");
 
-            const std::optional<double> blending_factor = parameters.lookup<double>("blending_factor");
-            OSC_ASSERT_ALWAYS(blending_factor && "blending_factor was not set by the warping engine");
+            const std::optional<double> blending_factor =
+                parameters.lookup<double>("blending_factor");
+            OSC_ASSERT_ALWAYS(
+                blending_factor && "blending_factor was not set by the warping engine");
 
             const auto effective_target_mass = osc::lerp(
                 result_model.getTotalMass(result_model.getWorkingState()),
                 subject_mass,
                 *blending_factor);
 
-            scale_model_mass_preserve_mass_distribution(result_model, result_model.getWorkingState(), effective_target_mass);
+            scale_model_mass_preserve_mass_distribution(
+                result_model, result_model.getWorkingState(), effective_target_mass);
             initialize_model(result_model);
             initialize_state(result_model);
         }

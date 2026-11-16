@@ -22,18 +22,30 @@
 
 namespace opyn
 {
-    // A `ScalingStep` that scales body segments by the chosen (potentially, non-uniform) scale factors
+    // A `ScalingStep` that scales body segments by the chosen (potentially, non-uniform) scale
+    // factors
     class ManuallyScaleBodySegmentsScalingStep final : public ScalingStep {
-        OpenSim_DECLARE_CONCRETE_OBJECT(ManuallyScaleBodySegmentsScalingStep, ScalingStep)
+        OpenSim_DECLARE_CONCRETE_OBJECT(ManuallyScaleBodySegmentsScalingStep, ScalingStep);
 
-        OpenSim_DECLARE_LIST_PROPERTY(bodies,          std::string, "Absolute paths (e.g. `/bodyset/femur`) to `Body` components in the model");
-        OpenSim_DECLARE_PROPERTY(     scale_factors,   SimTK::Vec3, "The manual scale factors that should be applied to the specified bodies");
-        OpenSim_DECLARE_PROPERTY(     preserve_masses, bool,        "If enabled, the masses of the bodies will not be scaled (inertial properties will still be scaled)");
+        OpenSim_DECLARE_LIST_PROPERTY(
+            bodies,
+            std::string,
+            "Absolute paths (e.g. `/bodyset/femur`) to `Body` components in the model");
+        OpenSim_DECLARE_PROPERTY(
+            scale_factors,
+            SimTK::Vec3,
+            "The manual scale factors that should be applied to the specified bodies");
+        OpenSim_DECLARE_PROPERTY(
+            preserve_masses,
+            bool,
+            "If enabled, the masses of the bodies will not be scaled (inertial properties will still be scaled)");
+
     public:
         explicit ManuallyScaleBodySegmentsScalingStep() :
             ScalingStep{"Manually Scale Body Segments"}
         {
-            setDescription("Applies a manually-specified scaling factor to the given body segments in the model.");
+            setDescription(
+                "Applies a manually-specified scaling factor to the given body segments in the model.");
             constructProperty_bodies();
             constructProperty_scale_factors(SimTK::Vec3{1.0});
             constructProperty_preserve_masses(false);
@@ -53,17 +65,22 @@ namespace opyn
                 if (not body) {
                     messages.emplace_back(
                         ScalingStepValidationState::Error,
-                        std::format("{}: Cannot find a `Body` in 'bodies' in the source model (or it isn't a `Body`).", get_bodies(i)));
+                        std::format(
+                            "{}: Cannot find a `Body` in 'bodies' in the source model (or it isn't a `Body`).",
+                            get_bodies(i)));
                 }
             }
 
-            const std::optional<double> blending_factor = parameters.lookup<double>("blending_factor");
-            OSC_ASSERT_ALWAYS(blending_factor && "blending_factor was not set by the warping engine");
+            const std::optional<double> blending_factor =
+                parameters.lookup<double>("blending_factor");
+            OSC_ASSERT_ALWAYS(
+                blending_factor && "blending_factor was not set by the warping engine");
 
             return messages;
         }
 
-        void impl_for_each_scaling_parameter_declaration(const std::function<void(const ScalingParameterDeclaration&)>& callback) const override
+        void impl_for_each_scaling_parameter_declaration(
+            const std::function<void(const ScalingParameterDeclaration&)>& callback) const override
         {
             callback(ScalingParameterDeclaration{"blending_factor", 1.0});
         }
@@ -74,8 +91,10 @@ namespace opyn
             const OpenSim::Model&,
             OpenSim::Model& model) const override
         {
-            const std::optional<double> blending_factor = parameters.lookup<double>("blending_factor");
-            OSC_ASSERT_ALWAYS(blending_factor && "blending_factor was not set by the warping engine");
+            const std::optional<double> blending_factor =
+                parameters.lookup<double>("blending_factor");
+            OSC_ASSERT_ALWAYS(
+                blending_factor && "blending_factor was not set by the warping engine");
 
             const SimTK::Vec3 scale_factors = {
                 osc::lerp(1.0, get_scale_factors()[0], *blending_factor),
@@ -87,7 +106,9 @@ namespace opyn
             for (int i = 0; i < getProperty_bodies().size(); ++i) {
                 const auto* body = find_component<OpenSim::Body>(model, get_bodies(i));
                 if (not body) {
-                    auto msg = std::format("{}: Cannot find a `Body` in 'bodies' in the source model (or it isn't a `Body`).", get_bodies(i));
+                    auto msg = std::format(
+                        "{}: Cannot find a `Body` in 'bodies' in the source model (or it isn't a `Body`).",
+                        get_bodies(i));
                     throw std::runtime_error{msg};
                 }
 

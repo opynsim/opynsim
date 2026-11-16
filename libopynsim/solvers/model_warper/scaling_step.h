@@ -26,10 +26,11 @@ namespace opyn
     // order to yield the "result" or "scaled" model. Each scaling step can
     // request external data (`ScalingParameterDeclaration`).
     class ScalingStep : public OpenSim::Component {
-        OpenSim_DECLARE_ABSTRACT_OBJECT(ScalingStep, Component)
+        OpenSim_DECLARE_ABSTRACT_OBJECT(ScalingStep, Component);
 
     public:
-        OpenSim_DECLARE_PROPERTY(enabled, bool, "toggles applying this scaling step when scaling the model");
+        OpenSim_DECLARE_PROPERTY(
+            enabled, bool, "toggles applying this scaling step when scaling the model");
         OpenSim_DECLARE_PROPERTY(label, std::string, "a user-facing label for the scaling step");
 
     protected:
@@ -80,7 +81,8 @@ namespace opyn
             OpenSim::Model& result_model) const
         {
             if (get_enabled()) {
-                impl_apply_scaling_step(scaling_cache, scaling_parameters, source_model, result_model);
+                impl_apply_scaling_step(
+                    scaling_cache, scaling_parameters, source_model, result_model);
             }
         }
 
@@ -88,15 +90,14 @@ namespace opyn
         // Implementors should provide the callback with any `ScalingParameterDeclaration`s in order
         // to ensure that the runtime can later provide the `ScalingParameterValue` during model
         // scaling.
-        virtual void impl_for_each_scaling_parameter_declaration(const std::function<void(const ScalingParameterDeclaration&)>&) const
+        virtual void impl_for_each_scaling_parameter_declaration(
+            const std::function<void(const ScalingParameterDeclaration&)>&) const
         {}
 
         // Implementors should return any validation warnings/errors related to this scaling step
         // (e.g. incorrect property value, missing external data, etc.).
         virtual std::vector<ScalingStepValidationMessage> impl_validate(
-            ScalingCache&,
-            const ScalingParameters&,
-            const OpenSim::Model&) const
+            ScalingCache&, const ScalingParameters&, const OpenSim::Model&) const
         {
             return {};  // i.e. by default, return no validation errors.
         }
@@ -105,10 +106,7 @@ namespace opyn
         // available). Any computationally expensive scaling steps should be performed via
         // the `ScalingCache`.
         virtual void impl_apply_scaling_step(
-            ScalingCache&,
-            const ScalingParameters&,
-            const OpenSim::Model&,
-            OpenSim::Model&) const
+            ScalingCache&, const ScalingParameters&, const OpenSim::Model&, OpenSim::Model&) const
         {}
     };
 }
