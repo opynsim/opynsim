@@ -24,7 +24,9 @@ namespace
         requires(requires { TWidget::id(); })
         static NamedWidget create()
         {
-            return NamedWidget{TWidget::id(), [](Widget* owner) { return std::make_unique<TWidget>(owner); }};
+            return NamedWidget{TWidget::id(), [](Widget* owner) {
+                                   return std::make_unique<TWidget>(owner);
+                               }};
         }
 
         const auto& name() const { return name_; }
@@ -32,7 +34,8 @@ namespace
 
     private:
         template<typename StringLike, typename Constructor>
-        requires(std::constructible_from<std::string, StringLike> and std::invocable<Constructor, Widget*>)
+        requires(std::constructible_from<std::string, StringLike> and
+                 std::invocable<Constructor, Widget*>)
         NamedWidget(StringLike&& name, Constructor&& constructor) :
             name_{std::forward<StringLike>(name)},
             constructor_{std::forward<Constructor>(constructor)}
@@ -108,7 +111,8 @@ namespace
 
         void draw_ui_demo_selector()
         {
-            const auto& longest_entry = *rgs::max_element(demos_, rgs::less{}, [](auto const& entry) { return entry.name().size(); });
+            const auto& longest_entry = *rgs::max_element(
+                demos_, rgs::less{}, [](auto const& entry) { return entry.name().size(); });
             const float combo_len = ui::calc_text_size(longest_entry.name()).x();
 
             // Draw demo selector dropdown
@@ -124,7 +128,8 @@ namespace
                 ui::set_next_item_width(combo_len + 32.0f);  // pad the arrow
                 if (ui::begin_combobox("##DemoSelectorCombobox", active_demo_->name())) {
                     for (size_t i = 0; i < demos_.size(); ++i) {
-                        if (ui::draw_selectable(demos_[i].name(), demos_[i].name() == active_demo_->name())) {
+                        if (ui::draw_selectable(
+                                demos_[i].name(), demos_[i].name() == active_demo_->name())) {
                             switch_demo(i);
                         }
                     }
