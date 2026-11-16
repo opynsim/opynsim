@@ -56,7 +56,6 @@ void opyn::init_ui_submodule(nanobind::module_& ui_module)
            bool draw_floor,
            osc::SceneCache* scene_cache,
            osc::Camera* camera) {
-
             show_model_in_state(
                 get_lazy_loaded_opynsim_app(),
                 model,
