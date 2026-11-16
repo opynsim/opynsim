@@ -13,7 +13,9 @@ namespace osc
         concept HasTupleSize = requires { std::tuple_size<std::remove_cvref_t<T>>{}; };
 
         template<typename T>
-        concept HasExtent = requires { { std::remove_cvref_t<T>::extent } -> std::convertible_to<size_t>; };
+        concept HasExtent = requires {
+            { std::remove_cvref_t<T>::extent } -> std::convertible_to<size_t>;
+        };
 
         template<typename T, typename = void>
         struct SizeHelper {
@@ -34,5 +36,7 @@ namespace osc
 
     // Satisfied if `T` has a compile-time-known size greater than `N`
     template<typename T, size_t N>
-    concept RangeWithSizeGreaterThan = std::ranges::range<T> and (detail::SizeHelper<T>::size != std::dynamic_extent and detail::SizeHelper<T>::size > N);
+    concept RangeWithSizeGreaterThan =
+        std::ranges::range<T> and
+        (detail::SizeHelper<T>::size != std::dynamic_extent and detail::SizeHelper<T>::size > N);
 }
