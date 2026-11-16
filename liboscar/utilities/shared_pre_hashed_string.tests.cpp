@@ -170,6 +170,8 @@ TEST(SharedPreHashedString, std_hash_returns_same_as_std_string_view)
         " etc.",
     });
     for (const auto& source_string : source_strings) {
-        ASSERT_EQ(std::hash<std::string_view>{}(source_string), std::hash<SharedPreHashedString>{}(SharedPreHashedString{source_string}));
+        ASSERT_EQ(
+            std::hash<std::string_view>{}(source_string),
+            std::hash<SharedPreHashedString>{}(SharedPreHashedString{source_string}));
     }
 }

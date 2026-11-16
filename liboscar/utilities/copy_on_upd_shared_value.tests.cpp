@@ -13,20 +13,23 @@ namespace
 {
     struct TestStruct {
         explicit TestStruct(int v) :
-            value(v) {}
+            value(v)
+        {}
 
         int value;
     };
 
     struct alignas(64) OveralignedStruct {
         explicit OveralignedStruct(int v) :
-            value(v) {}
+            value(v)
+        {}
 
         int value;
         std::array<char, 60> padding{};  // Add some padding to make sure alignment matters
     };
 
-    static_assert(alignof(OveralignedStruct) == 64, "OveralignedStruct should have 64-byte alignment");
+    static_assert(
+        alignof(OveralignedStruct) == 64, "OveralignedStruct should have 64-byte alignment");
 }
 
 TEST(CopyOnUpdSharedValue, can_construct)
@@ -101,7 +104,8 @@ TEST(CopyOnUpdSharedValue, can_construct_overaligned)
     ASSERT_EQ((*cow).value, 123);
 
     // Check the alignment of the underlying pointer
-    ASSERT_EQ(std::bit_cast<uintptr_t>(cow.get()) % alignof(OveralignedStruct), 0u) << "Underlying storage must respect overalignment";
+    ASSERT_EQ(std::bit_cast<uintptr_t>(cow.get()) % alignof(OveralignedStruct), 0u)
+        << "Underlying storage must respect overalignment";
 }
 
 TEST(CopyOnUpdSharedValue, can_copy_construct_overaligned)
@@ -134,7 +138,8 @@ TEST(CopyOnUpdSharedValue, upd_correctly_triggers_a_copy_and_copy_is_overaligned
 
     ASSERT_NE(cow1, cow2);
     ASSERT_EQ(upd_ptr->value, 5);
-    ASSERT_EQ(std::bit_cast<uintptr_t>(upd_ptr) % alignof(OveralignedStruct), 0u) << "upd copy should also be overaligned";
+    ASSERT_EQ(std::bit_cast<uintptr_t>(upd_ptr) % alignof(OveralignedStruct), 0u)
+        << "upd copy should also be overaligned";
 
     upd_ptr->value = 42;
     ASSERT_EQ(cow2->value, 42);

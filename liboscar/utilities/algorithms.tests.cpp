@@ -183,7 +183,8 @@ namespace
     class Derived1 : public Base {
     public:
         explicit constexpr Derived1(int data) :
-            data_{data} {}
+            data_{data}
+        {}
         constexpr friend bool operator==(const Derived1&, const Derived1&) = default;
 
     private:
@@ -192,7 +193,8 @@ namespace
     class Derived2 : public Base {
     public:
         explicit constexpr Derived2(double data) :
-            data_{data} {}
+            data_{data}
+        {}
         constexpr friend bool operator==(const Derived2&, const Derived2&) = default;
 
     private:

@@ -15,15 +15,9 @@ namespace osc
     public:
         using element_type = intptr_t;
 
-        static constexpr UID invalid()
-        {
-            return UID{-1};
-        }
+        static constexpr UID invalid() { return UID{-1}; }
 
-        static constexpr UID empty()
-        {
-            return UID{0};
-        }
+        static constexpr UID empty() { return UID{0}; }
 
         template<std::integral T>
         requires(sizeof(T) <= sizeof(element_type))
@@ -41,20 +35,11 @@ namespace osc
         constexpr UID& operator=(UID&&) noexcept = default;
         ~UID() noexcept = default;
 
-        void reset()
-        {
-            value_ = allocate_next_id();
-        }
+        void reset() { value_ = allocate_next_id(); }
 
-        constexpr element_type get() const
-        {
-            return value_;
-        }
+        constexpr element_type get() const { return value_; }
 
-        explicit constexpr operator bool() const
-        {
-            return value_ > 0;
-        }
+        explicit constexpr operator bool() const { return value_ > 0; }
 
         friend auto operator<=>(const UID&, const UID&) = default;
 
@@ -81,8 +66,5 @@ namespace osc
 // lets them be used as associative lookup keys, etc.
 template<>
 struct std::hash<osc::UID> final {
-    size_t operator()(const osc::UID& id) const noexcept
-    {
-        return static_cast<size_t>(id.get());
-    }
+    size_t operator()(const osc::UID& id) const noexcept { return static_cast<size_t>(id.get()); }
 };

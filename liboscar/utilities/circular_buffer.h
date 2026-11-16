@@ -34,10 +34,7 @@ namespace osc
 
             // implicit conversion from non-const iterator to a const one
 
-            constexpr operator Iterator<true>() const
-            {
-                return Iterator<true>{data_, offset_};
-            }
+            constexpr operator Iterator<true>() const { return Iterator<true>{data_, offset_}; }
 
             // LegacyIterator
 
@@ -47,10 +44,7 @@ namespace osc
                 return *this;
             }
 
-            constexpr reference operator*() const
-            {
-                return data_[offset_];
-            }
+            constexpr reference operator*() const { return data_[offset_]; }
 
             // EqualityComparable
 
@@ -58,10 +52,7 @@ namespace osc
 
             // LegacyInputIterator
 
-            constexpr pointer operator->() const
-            {
-                return &data_[offset_];
-            }
+            constexpr pointer operator->() const { return &data_[offset_]; }
 
             // LegacyForwardIterator
 
@@ -155,131 +146,63 @@ namespace osc
         CircularBuffer(CircularBuffer&&) noexcept = delete;
         CircularBuffer& operator=(const CircularBuffer&) = delete;
         CircularBuffer& operator=(CircularBuffer&&) noexcept = delete;
-        ~CircularBuffer() noexcept
-        {
-            std::destroy(this->begin(), this->end());
-        }
+        ~CircularBuffer() noexcept { std::destroy(this->begin(), this->end()); }
 
         // element access
 
-        constexpr reference at(size_type pos)
-        {
-            return at(*this, pos);
-        }
+        constexpr reference at(size_type pos) { return at(*this, pos); }
 
-        constexpr const_reference at(size_type pos) const
-        {
-            return at(*this, pos);
-        }
+        constexpr const_reference at(size_type pos) const { return at(*this, pos); }
 
-        constexpr reference operator[](size_type pos)
-        {
-            return at(*this, pos);
-        }
+        constexpr reference operator[](size_type pos) { return at(*this, pos); }
 
-        constexpr const_reference operator[](size_type pos) const
-        {
-            return at(*this, pos);
-        }
+        constexpr const_reference operator[](size_type pos) const { return at(*this, pos); }
 
-        constexpr reference front()
-        {
-            return at(*this, 0);
-        }
+        constexpr reference front() { return at(*this, 0); }
 
-        constexpr const_reference front() const
-        {
-            return at(*this, 0);
-        }
+        constexpr const_reference front() const { return at(*this, 0); }
 
-        constexpr reference back()
-        {
-            return *rbegin();
-        }
+        constexpr reference back() { return *rbegin(); }
 
-        constexpr const_reference back() const
-        {
-            return *rbegin();
-        }
+        constexpr const_reference back() const { return *rbegin(); }
 
         // iterators
 
-        constexpr const_iterator begin() const
-        {
-            return iterator_at(*this, begin_offset_);
-        }
+        constexpr const_iterator begin() const { return iterator_at(*this, begin_offset_); }
 
-        constexpr iterator begin()
-        {
-            return iterator_at(*this, begin_offset_);
-        }
+        constexpr iterator begin() { return iterator_at(*this, begin_offset_); }
 
-        constexpr const_iterator cbegin() const
-        {
-            return begin();
-        }
+        constexpr const_iterator cbegin() const { return begin(); }
 
-        constexpr const_iterator end() const
-        {
-            return iterator_at(*this, end_offset_);
-        }
+        constexpr const_iterator end() const { return iterator_at(*this, end_offset_); }
 
-        constexpr iterator end()
-        {
-            return iterator_at(*this, end_offset_);
-        }
+        constexpr iterator end() { return iterator_at(*this, end_offset_); }
 
-        constexpr const_iterator cend() const
-        {
-            return end();
-        }
+        constexpr const_iterator cend() const { return end(); }
 
-        constexpr const_reverse_iterator rbegin() const
-        {
-            return const_reverse_iterator{end()};
-        }
+        constexpr const_reverse_iterator rbegin() const { return const_reverse_iterator{end()}; }
 
-        constexpr reverse_iterator rbegin()
-        {
-            return reverse_iterator{end()};
-        }
+        constexpr reverse_iterator rbegin() { return reverse_iterator{end()}; }
 
-        constexpr const_reverse_iterator crbegin() const
-        {
-            return const_reverse_iterator{end()};
-        }
+        constexpr const_reverse_iterator crbegin() const { return const_reverse_iterator{end()}; }
 
-        constexpr const_reverse_iterator rend() const
-        {
-            return const_reverse_iterator{begin()};
-        }
+        constexpr const_reverse_iterator rend() const { return const_reverse_iterator{begin()}; }
 
-        constexpr reverse_iterator rend()
-        {
-            return reverse_iterator{begin()};
-        }
+        constexpr reverse_iterator rend() { return reverse_iterator{begin()}; }
 
-        constexpr const_reverse_iterator crend() const
-        {
-            return const_reverse_iterator{begin()};
-        }
+        constexpr const_reverse_iterator crend() const { return const_reverse_iterator{begin()}; }
 
         // capacity
 
-        constexpr bool empty() const
-        {
-            return begin_offset_ == end_offset_;
-        }
+        constexpr bool empty() const { return begin_offset_ == end_offset_; }
 
         constexpr size_type size() const
         {
-            return end_offset_ >= begin_offset_ ? end_offset_ - begin_offset_ : (N - begin_offset_) + end_offset_;
+            return end_offset_ >= begin_offset_ ? end_offset_ - begin_offset_
+                                                : (N - begin_offset_) + end_offset_;
         }
 
-        constexpr size_type max_size() const
-        {
-            return N;
-        }
+        constexpr size_type max_size() const { return N; }
 
         // modifiers
         //
@@ -314,27 +237,22 @@ namespace osc
 
             // construct T in the old "dead" element position
             ObjectBytes* const ptr = raw_storage_bytes_.data() + end_offset_;
-            T* const constructed_el = new (ptr) T{std::forward<Args>(args)...};  // NOLINT(cppcoreguidelines-owning-memory)
+            T* const constructed_el = new (ptr) T{std::forward<Args>(args)...};
 
             end_offset_ = new_end;
 
             return *constructed_el;
         }
 
-        constexpr void push_back(const T& value)
-        {
-            emplace_back(value);
-        }
+        constexpr void push_back(const T& value) { emplace_back(value); }
 
-        constexpr void push_back(T&& value)
-        {
-            emplace_back(std::move(value));
-        }
+        constexpr void push_back(T&& value) { emplace_back(std::move(value)); }
 
         constexpr iterator erase(iterator first, iterator last)
         {
             if (last != end()) {
-                throw std::runtime_error{"tried to remove a range of elements in the middle of a circular buffer (can currently only erase elements from end of circular buffer)"};
+                throw std::runtime_error{
+                    "tried to remove a range of elements in the middle of a circular buffer (can currently only erase elements from end of circular buffer)"};
             }
 
             std::destroy(first, last);
@@ -360,7 +278,8 @@ namespace osc
         constexpr T pop_back()
         {
             if (empty()) {
-                throw std::runtime_error{"tried to call Circular_buffer::pop_back on an empty circular buffer"};
+                throw std::runtime_error{
+                    "tried to call Circular_buffer::pop_back on an empty circular buffer"};
             }
 
             T rv{std::move(back())};
@@ -373,7 +292,8 @@ namespace osc
         static constexpr auto at(CircularBuf& buf, size_type pos) -> decltype(*buf.begin())
         {
             if (pos >= buf.size()) {
-                throw std::out_of_range{"tried to access a circular buffer element outside of its range"};
+                throw std::out_of_range{
+                    "tried to access a circular buffer element outside of its range"};
             }
             return buf.begin()[pos];
         }
@@ -383,9 +303,14 @@ namespace osc
         {
             using Value = std::conditional_t<std::is_const_v<CircularBuf>, const T, T>;
 
-            static_assert(alignof(Value) == alignof(typename decltype(buf.raw_storage_bytes_)::value_type));
-            static_assert(sizeof(Value) == sizeof(typename decltype(buf.raw_storage_bytes_)::value_type));
-            Value* ptr = std::launder(reinterpret_cast<Value*>(buf.raw_storage_bytes_.data()));  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+            static_assert(
+                alignof(Value) == alignof(typename decltype(buf.raw_storage_bytes_)::value_type));
+            static_assert(
+                sizeof(Value) == sizeof(typename decltype(buf.raw_storage_bytes_)::value_type));
+            Value* ptr = std::launder(
+                reinterpret_cast<Value*>(
+                    buf.raw_storage_bytes_
+                        .data()));  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
 
             return Iterator{ptr, pos};
         }

@@ -49,9 +49,11 @@ TEST(Converter, automatically_defined_implementation_uses_ideal_constructor)
     struct A {};
     struct B {
         explicit B([[maybe_unused]] A&&) :
-            method{ConstructionMethod::Move} {}
+            method{ConstructionMethod::Move}
+        {}
         explicit B([[maybe_unused]] const A&) :
-            method{ConstructionMethod::Copy} {}
+            method{ConstructionMethod::Copy}
+        {}
 
         ConstructionMethod method;
     };
@@ -72,9 +74,11 @@ TEST(Converter, to_correctly_uses_lvalues_and_rvalues)
     struct A {};
     struct B {
         explicit B([[maybe_unused]] A&&) :
-            method{ConstructionMethod::Move} {}
+            method{ConstructionMethod::Move}
+        {}
         explicit B([[maybe_unused]] const A&) :
-            method{ConstructionMethod::Copy} {}
+            method{ConstructionMethod::Copy}
+        {}
 
         ConstructionMethod method;
     };

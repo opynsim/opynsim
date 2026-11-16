@@ -13,15 +13,21 @@ namespace
     class Callable final {
     public:
         explicit Callable(int* calls, int* copies, int* moves) :
-            calls_{calls}, copies_{copies}, moves_{moves}
+            calls_{calls},
+            copies_{copies},
+            moves_{moves}
         {}
         Callable(Callable&& tmp) noexcept(IsNoexceptMoveConstructible) :
-            calls_{tmp.calls_}, copies_{tmp.copies_}, moves_{tmp.moves_}
+            calls_{tmp.calls_},
+            copies_{tmp.copies_},
+            moves_{tmp.moves_}
         {
             ++(*moves_);
         }
         Callable(const Callable& src) noexcept(IsNoexceptCopyConstructible) :
-            calls_{src.calls_}, copies_{src.copies_}, moves_{src.moves_}
+            calls_{src.calls_},
+            copies_{src.copies_},
+            moves_{src.moves_}
         {
             ++(*copies_);
         }

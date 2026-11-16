@@ -72,7 +72,8 @@ namespace osc
             storage_{Storage::create(str)}
         {}
         explicit SharedPreHashedString(const char* s) :
-            SharedPreHashedString{std::string_view{s}} {}
+            SharedPreHashedString{std::string_view{s}}
+        {}
         explicit SharedPreHashedString(std::nullptr_t) = delete;
 
         SharedPreHashedString(const SharedPreHashedString& src) noexcept :
@@ -113,86 +114,51 @@ namespace osc
             std::swap(a.storage_, b.storage_);
         }
 
-        // returns a reference to the character at specified position `pos` if `pos <= size()`. Bounds checking
-        // is performed, and an exception of type `std::out_of_range` will be thrown on invalid access
-        const_reference at(size_type pos) const
-        {
-            return std::string_view{*this}.at(pos);
-        }
+        // returns a reference to the character at specified position `pos` if `pos <= size()`.
+        // Bounds checking is performed, and an exception of type `std::out_of_range` will be thrown
+        // on invalid access
+        const_reference at(size_type pos) const { return std::string_view{*this}.at(pos); }
 
-        // returns a reference to the character at the specified position `pos` if `pos < size()`, or a
-        // reference to `value_type()` if `pos == size()`. No bounds checking is performed. If `pos > size()`
-        // the behavior is undefined
-        const_reference operator[](size_type pos) const
-        {
-            return data()[pos];
-        }
+        // returns a reference to the character at the specified position `pos` if `pos < size()`,
+        // or a reference to `value_type()` if `pos == size()`. No bounds checking is performed. If
+        // `pos > size()` the behavior is undefined
+        const_reference operator[](size_type pos) const { return data()[pos]; }
 
-        // returns a reference to the first character in the string. The behavior is undefined if `empty()` is `true`
-        const_reference front() const
-        {
-            return *data();
-        }
+        // returns a reference to the first character in the string. The behavior is undefined if
+        // `empty()` is `true`
+        const_reference front() const { return *data(); }
 
-        // returns a reference to the last character in the string. The behavior is undefined if `empty()` is `true`
-        const_reference back() const
-        {
-            return std::string_view{*this}.back();
-        }
+        // returns a reference to the last character in the string. The behavior is undefined if
+        // `empty()` is `true`
+        const_reference back() const { return std::string_view{*this}.back(); }
 
         // returns a pointer to the underlying array serving as character storage
-        const value_type* data() const
-        {
-            return storage_->data();
-        }
+        const value_type* data() const { return storage_->data(); }
 
-        // returns a pointer to a null-terminated character array with data equivalent to those stored in the string.
-        const value_type* c_str() const
-        {
-            return data();
-        }
+        // returns a pointer to a null-terminated character array with data equivalent to those
+        // stored in the string.
+        const value_type* c_str() const { return data(); }
 
         // returns a non-modifiable `std::string_view` of the string's data
-        operator std::string_view() const noexcept
-        {
-            return std::string_view{data(), size()};
-        }
+        operator std::string_view() const noexcept { return std::string_view{data(), size()}; }
 
         // returns a non-modifiable `CStringView` of the string's data
-        operator CStringView() const noexcept
-        {
-            return CStringView{data(), size()};
-        }
+        operator CStringView() const noexcept { return CStringView{data(), size()}; }
 
         // returns an iterator to the first character in the string
-        const_iterator begin() const noexcept
-        {
-            return std::string_view{*this}.begin();
-        }
+        const_iterator begin() const noexcept { return std::string_view{*this}.begin(); }
 
         // returns a constant iterator to the first character in the string
-        const_iterator cbegin() const noexcept
-        {
-            return std::string_view{*this}.cbegin();
-        }
+        const_iterator cbegin() const noexcept { return std::string_view{*this}.cbegin(); }
 
         // returns an iterator to the character following the last character of the string
-        const_iterator end() const noexcept
-        {
-            return std::string_view{*this}.end();
-        }
+        const_iterator end() const noexcept { return std::string_view{*this}.end(); }
 
         // returns a constant iterator to the character following the last character of the string
-        const_iterator cend() const noexcept
-        {
-            return std::string_view{*this}.cend();
-        }
+        const_iterator cend() const noexcept { return std::string_view{*this}.cend(); }
 
         // returns `true` if the string contains no characters
-        [[nodiscard]] bool empty() const noexcept
-        {
-            return size() == 0;
-        }
+        [[nodiscard]] bool empty() const noexcept { return size() == 0; }
 
         bool starts_with(std::string_view sv) const noexcept
         {
@@ -200,31 +166,32 @@ namespace osc
         }
 
         // returns the number of characters in the string
-        size_type size() const
-        {
-            return storage_->size;
-        }
+        size_type size() const { return storage_->size; }
 
-        friend constexpr bool operator==(const SharedPreHashedString& lhs, const SharedPreHashedString& rhs)
+        friend constexpr bool operator==(
+            const SharedPreHashedString& lhs, const SharedPreHashedString& rhs)
         {
             return lhs.storage_ == rhs.storage_ or std::string_view{lhs} == std::string_view{rhs};
         }
 
         template<typename StringViewLike>
         requires std::constructible_from<std::string_view, StringViewLike>
-        friend constexpr bool operator==(const SharedPreHashedString& lhs, const StringViewLike& rhs)
+        friend constexpr bool operator==(
+            const SharedPreHashedString& lhs, const StringViewLike& rhs)
         {
             return std::string_view{lhs} == rhs;
         }
 
         template<typename StringViewLike>
         requires std::constructible_from<std::string_view, StringViewLike>
-        friend constexpr bool operator==(const StringViewLike& lhs, const SharedPreHashedString& rhs)
+        friend constexpr bool operator==(
+            const StringViewLike& lhs, const SharedPreHashedString& rhs)
         {
             return lhs == std::string_view{rhs};
         }
 
-        friend constexpr auto operator<=>(const SharedPreHashedString& lhs, const SharedPreHashedString& rhs)
+        friend constexpr auto operator<=>(
+            const SharedPreHashedString& lhs, const SharedPreHashedString& rhs)
         {
             if (lhs.storage_ == rhs.storage_) {
                 return std::strong_ordering::equal;
@@ -234,14 +201,16 @@ namespace osc
 
         template<typename StringViewLike>
         requires std::constructible_from<std::string_view, StringViewLike>
-        friend constexpr auto operator<=>(const SharedPreHashedString& lhs, const StringViewLike& rhs)
+        friend constexpr auto operator<=>(
+            const SharedPreHashedString& lhs, const StringViewLike& rhs)
         {
             return std::string_view{lhs} <=> rhs;
         }
 
         template<typename StringViewLike>
         requires std::constructible_from<std::string_view, StringViewLike>
-        friend constexpr auto operator<=>(const StringViewLike& lhs, const SharedPreHashedString& rhs)
+        friend constexpr auto operator<=>(
+            const StringViewLike& lhs, const SharedPreHashedString& rhs)
         {
             return lhs <=> std::string_view{rhs};
         }
@@ -260,10 +229,7 @@ namespace osc
             return static_cast<ptrdiff_t>(storage_->num_owners.load(std::memory_order_relaxed));
         }
 
-        size_t hash() const
-        {
-            return storage_->hash;
-        }
+        size_t hash() const { return storage_->hash; }
 
     private:
         static const SharedPreHashedString& static_default_instance()
@@ -279,7 +245,8 @@ namespace osc
             static Storage* create(std::string_view str)
             {
                 // Allocate memory
-                void* mem = ::operator new(storage_allocation_size(str.size()), std::align_val_t{alignof(Storage)});
+                void* mem = ::operator new(
+                    storage_allocation_size(str.size()), std::align_val_t{alignof(Storage)});
 
                 // Initialize header at the front
                 std::unique_ptr<Storage> storage{::new (mem) Storage{str}};
@@ -302,9 +269,7 @@ namespace osc
             void operator delete(Storage* ptr, std::destroying_delete_t)
             {
                 ptr->~Storage();
-                ::operator delete(
-                    static_cast<void*>(ptr),
-                    std::align_val_t{alignof(Storage)});
+                ::operator delete(static_cast<void*>(ptr), std::align_val_t{alignof(Storage)});
             }
 
             value_type* data() noexcept
@@ -342,8 +307,5 @@ namespace osc
 
 template<>
 struct std::hash<osc::SharedPreHashedString> final {
-    size_t operator()(const osc::SharedPreHashedString& str) const noexcept
-    {
-        return str.hash();
-    }
+    size_t operator()(const osc::SharedPreHashedString& str) const noexcept { return str.hash(); }
 };

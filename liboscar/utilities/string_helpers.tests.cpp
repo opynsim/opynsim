@@ -99,14 +99,9 @@ namespace
         rv.reserve(str.size());
         for (auto c : str) {
             switch (c) {
-            case '\n':
-                rv += "\\n";
-                break;
-            case '\r':
-                rv += "\\r";
-                break;
-            default:
-                rv += c;
+            case '\n': rv += "\\n"; break;
+            case '\r': rv += "\\r"; break;
+            default: rv += c;
             }
         }
         return rv;
@@ -118,10 +113,12 @@ namespace
         //       when they have to print test names containing control
         //       characters
         const std::string sanitized_input = with_escaped_control_characters(test_case.input);
-        return o << "TestCase(input = " << sanitized_input << ", expected_output = " << test_case.expected_output << ')';
+        return o << "TestCase(input = " << sanitized_input
+                 << ", expected_output = " << test_case.expected_output << ')';
     }
 
-    void PrintTo(const TestCase& test_case, std::ostream* o)  // NOLINT(readability-identifier-naming)
+    void PrintTo(
+        const TestCase& test_case, std::ostream* o)  // NOLINT(readability-identifier-naming)
     {
         // this teaches googletest to pretty-print a std::optional<float>
         //
@@ -168,14 +165,11 @@ namespace
     });
 
     // see: googletest/docs/advanced.md "How to write value-parameterized tests"
-    class FromCharsStripWhitespace : public testing::TestWithParam<TestCase> {
-    };
+    class FromCharsStripWhitespace : public testing::TestWithParam<TestCase> {};
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    FromCharsStripWhitespaceChecks,
-    FromCharsStripWhitespace,
-    testing::ValuesIn(c_test_cases));
+    FromCharsStripWhitespaceChecks, FromCharsStripWhitespace, testing::ValuesIn(c_test_cases));
 
 TEST_P(FromCharsStripWhitespace, Check)
 {

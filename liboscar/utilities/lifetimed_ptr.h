@@ -29,7 +29,8 @@ namespace osc
 
         // constructs a `nullptr` with an already-dead lifetime
         constexpr LifetimedPtr(std::nullptr_t) :
-            LifetimedPtr{} {}
+            LifetimedPtr{}
+        {}
 
         // constructs a `LifetimedPtr` that ties `lifetime_watcher` to `ptr`
         LifetimedPtr(LifetimeWatcher lifetime_watcher, T* ptr) :
@@ -58,7 +59,7 @@ namespace osc
 
         // constructs a `LifetimedPtr` by coercing from a more-derived pointer
         template<std::derived_from<T> U>
-        LifetimedPtr(LifetimedPtr<U>&& other) :  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+        LifetimedPtr(LifetimedPtr<U>&& other) :
             lifetime_watcher_{std::move(other.lifetime_watcher_)},
             ptr_{other.ptr_}
         {}
@@ -68,15 +69,9 @@ namespace osc
 
         ~LifetimedPtr() noexcept = default;
 
-        bool expired() const noexcept
-        {
-            return lifetime_watcher_.expired();
-        }
+        bool expired() const noexcept { return lifetime_watcher_.expired(); }
 
-        void reset()
-        {
-            *this = LifetimedPtr{};
-        }
+        void reset() { *this = LifetimedPtr{}; }
 
         T* get() const
         {
@@ -87,10 +82,7 @@ namespace osc
             return ptr_;
         }
 
-        T* get_if_not_expired() const
-        {
-            return not expired() ? ptr_ : nullptr;
-        }
+        T* get_if_not_expired() const { return not expired() ? ptr_ : nullptr; }
 
         T& operator*() const
         {
@@ -104,10 +96,7 @@ namespace osc
             return ptr_;
         }
 
-        explicit operator bool() const noexcept
-        {
-            return ptr_ and not lifetime_watcher_.expired();
-        }
+        explicit operator bool() const noexcept { return ptr_ and not lifetime_watcher_.expired(); }
 
         template<typename U>
         LifetimedPtr<U> dynamic_downcast()

@@ -33,6 +33,7 @@ osc::TemporaryDirectory::~TemporaryDirectory() noexcept
     try {
         std::filesystem::remove_all(absolute_path_);
     } catch (const std::filesystem::filesystem_error& ex) {
-        log_error("Error deleting a temporary directory ({}): {}", absolute_path_.string(), ex.what());
+        log_error(
+            "Error deleting a temporary directory ({}): {}", absolute_path_.string(), ex.what());
     }
 }

@@ -83,13 +83,13 @@ TEST(ValueOrSentinel, value_throws_if_called_on_sentinel)
     // const&& overload
     {
         const ValueOrSentinel<int, -5> empty;
-        ASSERT_THROW({ std::move(empty).value(); }, std::bad_optional_access);  // NOLINT(hicpp-move-const-arg,performance-move-const-arg)
+        ASSERT_THROW({ std::move(empty).value(); }, std::bad_optional_access);
     }
 
     // && overload
     {
         ValueOrSentinel<int, -5> empty;
-        ASSERT_THROW({ std::move(empty).value(); }, std::bad_optional_access);  // NOLINT(hicpp-move-const-arg,performance-move-const-arg)
+        ASSERT_THROW({ std::move(empty).value(); }, std::bad_optional_access);
     }
 }
 

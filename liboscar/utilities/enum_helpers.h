@@ -59,9 +59,7 @@ namespace osc
 
     // an iterable adaptor for a `DenselyPackedOptionsEnum` that, when iterated, emits
     // each enum option projected via `Proj`
-    template<
-        DenselyPackedOptionsEnum TEnum,
-        typename Proj = std::identity>
+    template<DenselyPackedOptionsEnum TEnum, typename Proj = std::identity>
     class DenselyPackedOptionsIterable final {
     public:
         class Iterator {
@@ -80,10 +78,7 @@ namespace osc
 
             friend bool operator==(const Iterator&, const Iterator&) = default;
 
-            value_type operator*() const
-            {
-                return std::invoke(*proj_, current_);
-            }
+            value_type operator*() const { return std::invoke(*proj_, current_); }
 
             Iterator& operator++()
             {
@@ -112,7 +107,11 @@ namespace osc
         {}
 
         auto front() const { return std::invoke(proj_, static_cast<TEnum>(0)); }
-        auto back() const { return std::invoke(proj_, static_cast<TEnum>(std::to_underlying(TEnum::NUM_OPTIONS) - 1)); }
+        auto back() const
+        {
+            return std::invoke(
+                proj_, static_cast<TEnum>(std::to_underlying(TEnum::NUM_OPTIONS) - 1));
+        }
         Iterator begin() const { return Iterator{proj_, static_cast<TEnum>(0)}; }
         Iterator end() const { return Iterator{proj_, TEnum::NUM_OPTIONS}; }
 
@@ -120,7 +119,8 @@ namespace osc
         Proj proj_;
     };
 
-    // returns a `DenselyPackedOptionsIterable` that, when iterated, projects each enum value via `proj`
+    // returns a `DenselyPackedOptionsIterable` that, when iterated, projects each enum value via
+    // `proj`
     template<DenselyPackedOptionsEnum TEnum, typename Proj = std::identity>
     constexpr DenselyPackedOptionsIterable<TEnum, Proj> make_option_iterable(Proj&& proj = {})
     {

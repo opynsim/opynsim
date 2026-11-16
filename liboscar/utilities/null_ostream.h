@@ -11,17 +11,12 @@ namespace osc
     class NullOstream final : public std::ostream {
     public:
         NullOstream() :
-            std::ostream{&streambuf_} {}
+            std::ostream{&streambuf_}
+        {}
 
-        size_t num_chars_written() const
-        {
-            return streambuf_.num_chars_written();
-        }
+        size_t num_chars_written() const { return streambuf_.num_chars_written(); }
 
-        bool was_written_to() const
-        {
-            return streambuf_.was_written_to();
-        }
+        bool was_written_to() const { return streambuf_.was_written_to(); }
 
     private:
         NullStreambuf streambuf_;

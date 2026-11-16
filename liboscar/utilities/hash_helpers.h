@@ -33,7 +33,8 @@ namespace osc
     }
 
     template<typename Range>
-    size_t hash_range(const Range& range) noexcept(noexcept(hash_combine(0, *std::ranges::begin(range))))
+    size_t hash_range(const Range& range) noexcept(
+        noexcept(hash_combine(0, *std::ranges::begin(range))))
     {
         size_t rv = 0;
         for (const auto& el : range) {
@@ -52,7 +53,8 @@ namespace osc
 
     template<typename T1, typename T2>
     struct Hasher<std::pair<T1, T2>> final {
-        size_t operator()(const std::pair<T1, T2>& p) const noexcept(noexcept(hash_of(p.first, p.second)))
+        size_t operator()(const std::pair<T1, T2>& p) const
+            noexcept(noexcept(hash_of(p.first, p.second)))
         {
             return hash_of(p.first, p.second);
         }

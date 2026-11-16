@@ -13,8 +13,7 @@ namespace osc
     struct NonTypelist;
 
     template<typename T>
-    struct NonTypelist<T> {
-    };
+    struct NonTypelist<T> {};
 
     template<typename T, T Head, T... Tails>
     struct NonTypelist<T, Head, Tails...> {

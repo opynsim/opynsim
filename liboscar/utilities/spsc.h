@@ -73,7 +73,8 @@ namespace osc
         {
             if (impl_) {
                 --impl_->num_senders_;
-                impl_->condition_variable_.notify_all();  // so receivers can know the hangup happened
+                // so receivers can know the hangup happened
+                impl_->condition_variable_.notify_all();
             }
         }
 
@@ -87,10 +88,7 @@ namespace osc
             impl_->condition_variable_.notify_one();
         }
 
-        [[nodiscard]] bool is_receiver_hung_up()
-        {
-            return impl_->num_receivers_ == 0;
-        }
+        [[nodiscard]] bool is_receiver_hung_up() { return impl_->num_receivers_ == 0; }
     };
 
     // a class the client can receive data from
@@ -147,9 +145,8 @@ namespace osc
 
             // harder case: sleep until the queue is not empty, *or* until
             // the sender hangs up
-            impl_->condition_variable_.wait(l, [&] {
-                return not impl_->message_queue_.empty() or impl_->num_senders_ == 0;
-            });
+            impl_->condition_variable_.wait(
+                l, [&] { return not impl_->message_queue_.empty() or impl_->num_senders_ == 0; });
 
             // the condition variable woke up (non-spuriously), either:
             //
@@ -165,10 +162,7 @@ namespace osc
             }
         }
 
-        [[nodiscard]] bool is_sender_hung_up()
-        {
-            return impl_->num_senders_ == 0;
-        }
+        [[nodiscard]] bool is_sender_hung_up() { return impl_->num_senders_ == 0; }
     };
 
     // create a new thread-safe spsc channel (sender + receiver)
@@ -218,9 +212,7 @@ namespace osc
         }
 
         SpscWorker(
-            cpp20::jthread&& worker,
-            SpscSender<Input>&& sender,
-            SpscReceiver<Output>&& receiver) :
+            cpp20::jthread&& worker, SpscSender<Input>&& sender, SpscReceiver<Output>&& receiver) :
 
             worker_thread_{std::move(worker)},
             sender_{std::move(sender)},
@@ -233,18 +225,17 @@ namespace osc
         {
             auto [request_sender, request_receiver] = make_spsc_channel<Input>();
             auto [response_sender, response_receiver] = make_spsc_channel<Output>();
-            cpp20::jthread worker{SpscWorker::main, std::move(request_receiver), std::move(response_sender), std::move(message_processor)};
-            return SpscWorker{std::move(worker), std::move(request_sender), std::move(response_receiver)};
+            cpp20::jthread worker{
+                SpscWorker::main,
+                std::move(request_receiver),
+                std::move(response_sender),
+                std::move(message_processor)};
+            return SpscWorker{
+                std::move(worker), std::move(request_sender), std::move(response_receiver)};
         }
 
-        void send(Input req)
-        {
-            sender_.send(std::move(req));
-        }
+        void send(Input req) { sender_.send(std::move(req)); }
 
-        std::optional<Output> poll()
-        {
-            return receiver_.try_receive();
-        }
+        std::optional<Output> poll() { return receiver_.try_receive(); }
     };
 }

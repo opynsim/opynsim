@@ -15,11 +15,13 @@ namespace osc
 
         // constructs a new lifetime
         ScopedLifetime(const ScopedLifetime&) :
-            ScopedLifetime{} {}
+            ScopedLifetime{}
+        {}
 
         // constructs a new lifetime
         ScopedLifetime(ScopedLifetime&&) noexcept :
-            ScopedLifetime{} {}
+            ScopedLifetime{}
+        {}
 
         // replaces the lifetime with a new lifetime
         ScopedLifetime& operator=(const ScopedLifetime& rhs)

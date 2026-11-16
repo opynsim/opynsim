@@ -18,7 +18,8 @@ namespace rgs = std::ranges;
 
 namespace
 {
-    constexpr auto c_nibble_to_character_lut = std::to_array({'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'});
+    constexpr auto c_nibble_to_character_lut = std::to_array(
+        {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'});
 }
 
 bool osc::contains_case_insensitive(std::string_view sv, std::string_view substr)
@@ -26,7 +27,8 @@ bool osc::contains_case_insensitive(std::string_view sv, std::string_view substr
     const auto tolower = [](const auto c) {
         return std::tolower(c);
     };
-    return std::ranges::search(sv, substr, std::ranges::equal_to{}, tolower, tolower).size() == substr.size();
+    return std::ranges::search(sv, substr, std::ranges::equal_to{}, tolower, tolower).size() ==
+           substr.size();
 }
 
 bool osc::is_string_case_insensitive_greater_than(std::string_view a, std::string_view b)
@@ -35,7 +37,8 @@ bool osc::is_string_case_insensitive_greater_than(std::string_view a, std::strin
     //
     //     https://stackoverflow.com/questions/33379846/case-insensitive-sorting-of-an-array-of-strings
 
-    auto [a_iter, b_iter] = rgs::mismatch(a, b, rgs::equal_to{}, [](auto c) { return std::tolower(c); });
+    auto [a_iter, b_iter] =
+        rgs::mismatch(a, b, rgs::equal_to{}, [](auto c) { return std::tolower(c); });
 
     if (b_iter == b.end()) {
         return false;  // `b` is not greater than `a` (they are equal)
@@ -59,14 +62,10 @@ bool osc::is_valid_identifier(std::string_view sv)
 {
     // helpers
     const auto is_valid_first_character_of_identifier = [](std::string_view::value_type c) {
-        return ('A' <= c && c <= 'Z') or
-               ('_' == c) or
-               ('a' <= c && c <= 'z');
+        return ('A' <= c && c <= 'Z') or ('_' == c) or ('a' <= c && c <= 'z');
     };
     const auto is_valid_non_first_character_of_identifier = [](std::string_view::value_type c) {
-        return ('0' <= c && c <= '9') or
-               ('A' <= c && c <= 'Z') or
-               ('_' == c) or
+        return ('0' <= c && c <= '9') or ('A' <= c && c <= 'Z') or ('_' == c) or
                ('a' <= c && c <= 'z');
     };
 
@@ -84,8 +83,12 @@ bool osc::is_valid_identifier(std::string_view sv)
 std::string_view osc::strip_whitespace(std::string_view sv)
 {
     const auto front = rgs::find_if_not(sv, ::isspace);
-    const auto back = rgs::find_if_not(sv.rbegin(), std::string_view::const_reverse_iterator{front}, ::isspace).base();
-    return {sv.data() + std::distance(sv.begin(), front), static_cast<size_t>(std::distance(front, back))};
+    const auto back =
+        rgs::find_if_not(sv.rbegin(), std::string_view::const_reverse_iterator{front}, ::isspace)
+            .base();
+    return {
+        sv.data() + std::distance(sv.begin(), front),
+        static_cast<size_t>(std::distance(front, back))};
 }
 
 std::optional<float> osc::from_chars_strip_whitespace(std::string_view sv)
@@ -126,7 +129,8 @@ std::string osc::truncate_with_ellipsis(std::string_view v, size_t max_length)
     return rv;
 }
 
-std::string_view osc::substring_after_last(std::string_view sv, std::string_view::value_type delimiter)
+std::string_view osc::substring_after_last(
+    std::string_view sv, std::string_view::value_type delimiter)
 {
     const size_t pos = sv.rfind(delimiter);
 
@@ -140,8 +144,7 @@ std::string_view osc::substring_after_last(std::string_view sv, std::string_view
 }
 
 std::optional<std::pair<std::string_view, std::string_view>> osc::rsplit_once(
-    std::string_view sv,
-    std::string_view::value_type delimiter)
+    std::string_view sv, std::string_view::value_type delimiter)
 {
     const auto pos = sv.find_last_of(delimiter);
     if (pos == std::string_view::npos) {
@@ -153,8 +156,10 @@ std::optional<std::pair<std::string_view, std::string_view>> osc::rsplit_once(
 
 std::pair<char, char> osc::to_hex_chars(uint8_t b)
 {
-    static_assert((std::numeric_limits<decltype(b)>::max() & 0xf) < c_nibble_to_character_lut.size());
-    static_assert(((std::numeric_limits<decltype(b)>::max() >> 1) & 0xf) < c_nibble_to_character_lut.size());
+    static_assert(
+        (std::numeric_limits<decltype(b)>::max() & 0xf) < c_nibble_to_character_lut.size());
+    static_assert(
+        ((std::numeric_limits<decltype(b)>::max() >> 1) & 0xf) < c_nibble_to_character_lut.size());
 
     const char msn = c_nibble_to_character_lut[(b >> 4) & 0xf];
     const char lsn = c_nibble_to_character_lut[b & 0xf];
@@ -200,7 +205,8 @@ std::optional<uint8_t> osc::try_parse_hex_chars_as_byte(char a, char b)
     const auto least_significant_nibble = try_convert_nibble_char_to_uint8(b);
 
     if (most_significant_nibble and least_significant_nibble) {
-        const auto v = static_cast<uint8_t>((*most_significant_nibble << 4) | *least_significant_nibble);
+        const auto v =
+            static_cast<uint8_t>((*most_significant_nibble << 4) | *least_significant_nibble);
         return v;
     } else {
         return std::nullopt;

@@ -52,6 +52,9 @@ TEST(TypeAtT, works_as_expected)
 
 TEST(VariantOfTypelistElements, works_as_expected)
 {
-    static_assert(std::is_same_v<VariantOfTypelistElements<Typelist<int64_t>>, std::variant<int64_t>>);
-    static_assert(std::is_same_v<VariantOfTypelistElements<Typelist<int, float, bool>>, std::variant<int, float, bool>>);
+    static_assert(
+        std::is_same_v<VariantOfTypelistElements<Typelist<int64_t>>, std::variant<int64_t>>);
+    static_assert(std::is_same_v<
+                  VariantOfTypelistElements<Typelist<int, float, bool>>,
+                  std::variant<int, float, bool>>);
 }

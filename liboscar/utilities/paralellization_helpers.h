@@ -18,11 +18,10 @@ namespace osc
     // isn't fully integrated into MacOS
     template<typename T, std::invocable<T&> UnaryFunction>
     void for_each_parallel_unsequenced(
-        size_t min_chunk_size,
-        std::span<T> values,
-        UnaryFunction mutator)
+        size_t min_chunk_size, std::span<T> values, UnaryFunction mutator)
     {
-        const size_t chunk_size = max(min_chunk_size, values.size() / std::thread::hardware_concurrency());
+        const size_t chunk_size =
+            max(min_chunk_size, values.size() / std::thread::hardware_concurrency());
         const size_t num_tasks = values.size() / chunk_size;
 
         if (num_tasks > 1) {
@@ -32,22 +31,24 @@ namespace osc
             for (size_t i = 0; i < num_tasks - 1; ++i) {
                 const size_t chunk_begin = i * chunk_size;
                 const size_t chunk_end = (i + 1) * chunk_size;
-                tasks.push_back(std::async(std::launch::async, [values, mutator, chunk_begin, chunk_end] {
-                    for (size_t j = chunk_begin; j < chunk_end; ++j) {
-                        mutator(values[j]);
-                    }
-                }));
+                tasks.push_back(
+                    std::async(std::launch::async, [values, mutator, chunk_begin, chunk_end] {
+                        for (size_t j = chunk_begin; j < chunk_end; ++j) {
+                            mutator(values[j]);
+                        }
+                    }));
             }
 
             // last worker must also handle the remainder
             {
                 const size_t chunk_begin = (num_tasks - 1) * chunk_size;
                 const size_t chunk_end = values.size();
-                tasks.push_back(std::async(std::launch::async, [values, mutator, chunk_begin, chunk_end] {
-                    for (size_t i = chunk_begin; i < chunk_end; ++i) {
-                        mutator(values[i]);
-                    }
-                }));
+                tasks.push_back(
+                    std::async(std::launch::async, [values, mutator, chunk_begin, chunk_end] {
+                        for (size_t i = chunk_begin; i < chunk_end; ++i) {
+                            mutator(values[i]);
+                        }
+                    }));
             }
 
             for (std::future<void>& task : tasks) {

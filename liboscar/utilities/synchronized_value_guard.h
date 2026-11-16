@@ -5,10 +5,7 @@
 namespace osc
 {
     // accessor to a reference to the guarded value
-    template<
-        typename T,
-        typename Mutex = std::mutex,
-        typename MutexGuard = std::lock_guard<Mutex>>
+    template<typename T, typename Mutex = std::mutex, typename MutexGuard = std::lock_guard<Mutex>>
     class SynchronizedValueGuard final {
     public:
         using value_type = T;

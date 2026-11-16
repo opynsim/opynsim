@@ -12,7 +12,8 @@ namespace osc
     public:
         BoolLike() = default;
         BoolLike(bool value) :
-            value_{value} {}
+            value_{value}
+        {}
 
         operator bool&() { return value_; }
         operator const bool&() const { return value_; }

@@ -20,7 +20,8 @@ TEST(TemporaryDirectory, default_constructed_exists_on_filesystem_as_an_empty_di
     ASSERT_TRUE(std::filesystem::is_directory(temporary_directory.absolute_path()));
 
     std::filesystem::recursive_directory_iterator it{temporary_directory.absolute_path()};
-    ASSERT_EQ(std::distance(std::filesystem::begin(it), std::filesystem::end(it)), 0) << "The directory should be empty";
+    ASSERT_EQ(std::distance(std::filesystem::begin(it), std::filesystem::end(it)), 0)
+        << "The directory should be empty";
 }
 
 TEST(TemporaryDirectory, is_removed_by_destructor)

@@ -11,8 +11,7 @@ namespace
 
     std::filesystem::file_time_type get_last_modification_time(const std::string& path)
     {
-        if (path.empty() or
-            path == c_model_no_backing_file_sentinel or
+        if (path.empty() or path == c_model_no_backing_file_sentinel or
             not std::filesystem::exists(path)) {
 
             return std::filesystem::file_time_type{};
@@ -23,8 +22,7 @@ namespace
 }
 
 osc::FileChangePoller::FileChangePoller(
-    std::chrono::milliseconds delay_between_checks,
-    const std::string& path) :
+    std::chrono::milliseconds delay_between_checks, const std::string& path) :
 
     delay_between_checks_{delay_between_checks},
     next_polling_time_{std::chrono::steady_clock::now() + delay_between_checks},

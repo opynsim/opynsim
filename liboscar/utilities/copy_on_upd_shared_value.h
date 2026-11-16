@@ -26,7 +26,7 @@ namespace osc
         }
 
         CopyOnUpdSharedValue(CopyOnUpdSharedValue&& tmp) noexcept :
-            CopyOnUpdSharedValue{static_cast<const CopyOnUpdSharedValue&>(tmp)}  // NOLINT(performance-move-constructor-init)
+            CopyOnUpdSharedValue{static_cast<const CopyOnUpdSharedValue&>(tmp)}
         {}
 
         ~CopyOnUpdSharedValue() noexcept
@@ -36,7 +36,7 @@ namespace osc
             }
         }
 
-        CopyOnUpdSharedValue& operator=(const CopyOnUpdSharedValue& rhs) noexcept  // NOLINT(bugprone-unhandled-self-assignment)
+        CopyOnUpdSharedValue& operator=(const CopyOnUpdSharedValue& rhs) noexcept
         {
             CopyOnUpdSharedValue copy{rhs};
             swap(*this, copy);
@@ -55,9 +55,15 @@ namespace osc
         }
 
         template<typename U>
-        friend bool operator==(const CopyOnUpdSharedValue& lhs, const CopyOnUpdSharedValue<U>& rhs) { return lhs.ptr_ == rhs.ptr_; }
+        friend bool operator==(const CopyOnUpdSharedValue& lhs, const CopyOnUpdSharedValue<U>& rhs)
+        {
+            return lhs.ptr_ == rhs.ptr_;
+        }
         template<typename U>
-        friend auto operator<=>(const CopyOnUpdSharedValue& lhs, const CopyOnUpdSharedValue<U>& rhs) { return lhs.ptr_ <=> rhs.ptr_; }
+        friend auto operator<=>(const CopyOnUpdSharedValue& lhs, const CopyOnUpdSharedValue<U>& rhs)
+        {
+            return lhs.ptr_ <=> rhs.ptr_;
+        }
 
         const_pointer get() const noexcept { return static_cast<const T*>(ptr_->data); }
         const_pointer operator->() const noexcept { return get(); }
@@ -93,16 +99,19 @@ namespace osc
         };
 
         explicit CopyOnUpdSharedValue(ControlBlock* ptr) noexcept :
-            ptr_{ptr} {}
+            ptr_{ptr}
+        {}
 
         template<typename... Args>
         requires std::constructible_from<T, Args&&...>
         static ControlBlock* allocate_representation(Args&&... args)
         {
             // Calculate memory allocation layout, size, and alignment
-            constexpr size_t data_offset = (sizeof(ControlBlock) + (alignof(T) - 1)) & ~(alignof(T) - 1);
+            constexpr size_t data_offset =
+                (sizeof(ControlBlock) + (alignof(T) - 1)) & ~(alignof(T) - 1);
             constexpr size_t allocation_size = data_offset + sizeof(T);
-            constexpr std::align_val_t allocation_alignment{std::max(alignof(ControlBlock), alignof(T))};
+            constexpr std::align_val_t allocation_alignment{
+                std::max(alignof(ControlBlock), alignof(T))};
 
             // Generate a type-erased and stateless destructor for `T`
             auto deleter = [](ControlBlock* cb) noexcept -> void {
@@ -120,7 +129,10 @@ namespace osc
             // Construct `ControlBlock` and `T` representations in the memory block
             std::byte* data_ptr = static_cast<std::byte*>(allocation.get()) + data_offset;
             new (data_ptr) T(std::forward<Args>(args)...);
-            static_assert(std::is_nothrow_constructible_v<ControlBlock, decltype(deleter), decltype(data_ptr)>);
+            static_assert(std::is_nothrow_constructible_v<
+                          ControlBlock,
+                          decltype(deleter),
+                          decltype(data_ptr)>);
             new (allocation.get()) ControlBlock(deleter, data_ptr);
 
             return static_cast<ControlBlock*>(allocation.release());
@@ -132,6 +144,7 @@ namespace osc
     template<typename U, typename... Args>
     CopyOnUpdSharedValue<U> make_cowv(Args&&... args)
     {
-        return CopyOnUpdSharedValue<U>{CopyOnUpdSharedValue<U>::allocate_representation(std::forward<Args>(args)...)};
+        return CopyOnUpdSharedValue<U>{
+            CopyOnUpdSharedValue<U>::allocate_representation(std::forward<Args>(args)...)};
     }
 }

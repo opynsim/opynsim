@@ -30,10 +30,16 @@ namespace osc
         friend constexpr bool operator==(ValueOrSentinel, ValueOrSentinel) = default;
 
         template<typename U>
-        friend constexpr bool operator==(const ValueOrSentinel& lhs, const U& rhs) { return *lhs == rhs; }
+        friend constexpr bool operator==(const ValueOrSentinel& lhs, const U& rhs)
+        {
+            return *lhs == rhs;
+        }
 
         template<typename U>
-        friend constexpr bool operator==(const U& lhs, const ValueOrSentinel& rhs) { return lhs == *rhs; }
+        friend constexpr bool operator==(const U& lhs, const ValueOrSentinel& rhs)
+        {
+            return lhs == *rhs;
+        }
 
         explicit constexpr operator bool() const { return value_ != Sentinel; }
 
@@ -62,7 +68,10 @@ namespace osc
 template<typename T, T Sentinel>
 struct std::formatter<osc::ValueOrSentinel<T, Sentinel>> {
     template<class ParseCtx>
-    constexpr auto parse(ParseCtx& ctx) { return inner_.parse(ctx); }
+    constexpr auto parse(ParseCtx& ctx)
+    {
+        return inner_.parse(ctx);
+    }
 
     template<class FmtCtx>
     auto format(const osc::ValueOrSentinel<T, Sentinel>& v, FmtCtx& ctx) const

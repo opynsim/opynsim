@@ -44,14 +44,16 @@ namespace osc
         using reverse_iterator = typename underlying_vector::reverse_iterator;
         using const_reverse_iterator = typename underlying_vector::const_reverse_iterator;
 
-        explicit VariableLengthArray(std::pmr::memory_resource* upstream_allocator = std::pmr::new_delete_resource()) :
+        explicit VariableLengthArray(
+            std::pmr::memory_resource* upstream_allocator = std::pmr::new_delete_resource()) :
             pool_{stack_data_.data(), stack_data_.size(), upstream_allocator}
         {
             vector_.reserve(N);  // reserve the stack as one unit of allocation
         }
 
         VariableLengthArray(const VariableLengthArray& other)
-        requires std::copy_constructible<T> :
+        requires std::copy_constructible<T>
+            :
             pool_{stack_data_.data(), stack_data_.size(), other.pool_.upstream_resource()}
         {
             vector_.reserve(N);  // reserve the stack as one unit of allocation
@@ -59,17 +61,21 @@ namespace osc
         }
 
         VariableLengthArray(VariableLengthArray&& other) noexcept
-        requires std::move_constructible<T> :
+        requires std::move_constructible<T>
+            :
             pool_{stack_data_.data(), stack_data_.size(), other.pool_.upstream_resource()}
         {
             vector_.reserve(N);  // reserve the stack as one unit of allocation
-            vector_.assign(std::make_move_iterator(other.vector_.begin()), std::make_move_iterator(other.vector_.end()));
+            vector_.assign(
+                std::make_move_iterator(other.vector_.begin()),
+                std::make_move_iterator(other.vector_.end()));
         }
 
         VariableLengthArray(
             std::initializer_list<T> init,
             std::pmr::memory_resource* upstream_allocator = std::pmr::new_delete_resource())
-        requires std::copy_constructible<T> :
+        requires std::copy_constructible<T>
+            :
             pool_{stack_data_.data(), stack_data_.size(), upstream_allocator}
         {
             vector_.reserve(N);  // reserve the stack as one unit of allocation
@@ -88,7 +94,9 @@ namespace osc
         VariableLengthArray& operator=(VariableLengthArray&& other) noexcept
         requires std::is_move_assignable_v<T>
         {
-            vector_.assign(std::make_move_iterator(other.vector_.begin()), std::make_move_iterator(other.vector_.end()));
+            vector_.assign(
+                std::make_move_iterator(other.vector_.begin()),
+                std::make_move_iterator(other.vector_.end()));
             return *this;
         }
 
@@ -119,7 +127,10 @@ namespace osc
         void push_back(const T& value) { vector_.push_back(value); }
         void push_back(T&& value) { vector_.push_back(std::move(value)); }
 
-        friend bool operator==(const VariableLengthArray& lhs, const VariableLengthArray& rhs) { return lhs.vector_ == rhs.vector_; }
+        friend bool operator==(const VariableLengthArray& lhs, const VariableLengthArray& rhs)
+        {
+            return lhs.vector_ == rhs.vector_;
+        }
 
     private:
 // Fix debug ABI issue from MSVC: when compiling in debug mode, MSVC will allocate a
@@ -127,7 +138,8 @@ namespace osc
 // allocations) and that causes problems when downstream code expects spillover to
 // occur at particular points (e.g. the test suite ensures this).
 //
-// see: https://developercommunity.visualstudio.com/t/debug-version-of-stl-is-not-excepion-safe-and-caus/77779
+// see:
+// https://developercommunity.visualstudio.com/t/debug-version-of-stl-is-not-excepion-safe-and-caus/77779
 #if defined(_MSC_VER) && _ITERATOR_DEBUG_LEVEL > 0
         static inline constexpr size_t extra_bytes_ = []() {
             // from MSVC
@@ -142,10 +154,14 @@ namespace osc
 #endif
 
         // The object representation of elements, stored on-stack when `size() <= N`
-        alignas(T) std::array<std::byte, N * sizeof(T) + extra_bytes> stack_data_;  // NOLINT(bugprone-sizeof-expression)
+        alignas(T) std::array<
+            std::byte,
+            N * sizeof(T) + extra_bytes> stack_data_;  // NOLINT(bugprone-sizeof-expression)
 
-        // A memory resource that uses `stack_data_` until `size() > N`, it then uses an upstream resource
-        std::pmr::monotonic_buffer_resource pool_{stack_data_.data(), stack_data_.size(), std::pmr::new_delete_resource()};
+        // A memory resource that uses `stack_data_` until `size() > N`, it then uses an upstream
+        // resource
+        std::pmr::monotonic_buffer_resource pool_{
+            stack_data_.data(), stack_data_.size(), std::pmr::new_delete_resource()};
 
         // A vector that's backed by the above memory resource
         underlying_vector vector_ = underlying_vector(&pool_);
