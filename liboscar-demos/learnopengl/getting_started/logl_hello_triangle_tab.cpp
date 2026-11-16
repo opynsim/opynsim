@@ -53,7 +53,10 @@ namespace
 
 class osc::LOGLHelloTriangleTab::Impl final : public TabPrivate {
 public:
-    static CStringView static_label() { return "oscar_demos/learnopengl/GettingStarted/HelloTriangle"; }
+    static CStringView static_label()
+    {
+        return "oscar_demos/learnopengl/GettingStarted/HelloTriangle";
+    }
 
     explicit Impl(LOGLHelloTriangleTab& owner, Widget* parent) :
         TabPrivate{owner, parent, static_label()}
@@ -62,9 +65,12 @@ public:
     void on_draw()
     {
         render_queue_.emplace(triangle_mesh_, identity<Transform>(), material_);
-        graphics::render_to_main_window(render_queue_, camera_, {
-            .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
-        });
+        graphics::render_to_main_window(
+            render_queue_,
+            camera_,
+            {
+                .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
+            });
         render_queue_.clear();
     }
 
@@ -76,9 +82,15 @@ private:
     RenderQueue render_queue_;
 };
 
-CStringView osc::LOGLHelloTriangleTab::id() { return Impl::static_label(); }
+CStringView osc::LOGLHelloTriangleTab::id()
+{
+    return Impl::static_label();
+}
 
 osc::LOGLHelloTriangleTab::LOGLHelloTriangleTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::LOGLHelloTriangleTab::impl_on_draw() { private_data().on_draw(); }
+void osc::LOGLHelloTriangleTab::impl_on_draw()
+{
+    private_data().on_draw();
+}

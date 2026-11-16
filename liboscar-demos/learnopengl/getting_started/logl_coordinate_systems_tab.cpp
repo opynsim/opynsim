@@ -58,14 +58,12 @@ namespace
         material.set(
             "uTexture1",
             Image::read_into_texture(
-                loader.open("oscar_demos/learnopengl/textures/container.jpg"),
-                ColorSpace::sRGB));
+                loader.open("oscar_demos/learnopengl/textures/container.jpg"), ColorSpace::sRGB));
 
         material.set(
             "uTexture2",
             Image::read_into_texture(
-                loader.open("oscar_demos/learnopengl/textures/awesomeface.png"),
-                ColorSpace::sRGB));
+                loader.open("oscar_demos/learnopengl/textures/awesomeface.png"), ColorSpace::sRGB));
 
         return material;
     }
@@ -91,10 +89,7 @@ public:
         App::upd().make_main_loop_waiting();
     }
 
-    bool on_event(Event& e)
-    {
-        return camera_.on_event(e);
-    }
+    bool on_event(Event& e) { return camera_.on_event(e); }
 
     void on_tick()
     {
@@ -128,10 +123,13 @@ private:
             }
         }
 
-        graphics::render_to_main_window(render_queue_, camera_, {
-            .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
-            .clear_color = {0.2f, 0.3f, 0.3f, 1.0f},
-        });
+        graphics::render_to_main_window(
+            render_queue_,
+            camera_,
+            {
+                .viewport_rect = ui::get_main_window_workspace_screen_space_rect(),
+                .clear_color = {0.2f, 0.3f, 0.3f, 1.0f},
+            });
         render_queue_.clear();
     }
 
@@ -162,13 +160,31 @@ private:
     PerfPanel perf_panel_{&owner()};
 };
 
-CStringView osc::LOGLCoordinateSystemsTab::id() { return Impl::static_label(); }
+CStringView osc::LOGLCoordinateSystemsTab::id()
+{
+    return Impl::static_label();
+}
 
 osc::LOGLCoordinateSystemsTab::LOGLCoordinateSystemsTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::LOGLCoordinateSystemsTab::impl_on_mount() { private_data().on_mount(); }
-void osc::LOGLCoordinateSystemsTab::impl_on_unmount() { private_data().on_unmount(); }
-bool osc::LOGLCoordinateSystemsTab::impl_on_event(Event& e) { return private_data().on_event(e); }
-void osc::LOGLCoordinateSystemsTab::impl_on_tick() { private_data().on_tick(); }
-void osc::LOGLCoordinateSystemsTab::impl_on_draw() { private_data().on_draw(); }
+void osc::LOGLCoordinateSystemsTab::impl_on_mount()
+{
+    private_data().on_mount();
+}
+void osc::LOGLCoordinateSystemsTab::impl_on_unmount()
+{
+    private_data().on_unmount();
+}
+bool osc::LOGLCoordinateSystemsTab::impl_on_event(Event& e)
+{
+    return private_data().on_event(e);
+}
+void osc::LOGLCoordinateSystemsTab::impl_on_tick()
+{
+    private_data().on_tick();
+}
+void osc::LOGLCoordinateSystemsTab::impl_on_draw()
+{
+    private_data().on_draw();
+}
