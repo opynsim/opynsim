@@ -10,9 +10,7 @@ namespace osc
 
     class LogViewerPanel final : public Panel {
     public:
-        explicit LogViewerPanel(
-            Widget* parent = nullptr,
-            std::string_view panel_name = "Log");
+        explicit LogViewerPanel(Widget* parent = nullptr, std::string_view panel_name = "Log");
 
     private:
         void impl_draw_content() override;

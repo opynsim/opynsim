@@ -24,4 +24,7 @@ private:
 osc::LogViewerPanel::LogViewerPanel(Widget* parent, std::string_view panel_name) :
     Panel{std::make_unique<Impl>(*this, parent, panel_name)}
 {}
-void osc::LogViewerPanel::impl_draw_content() { private_data().draw_content(); }
+void osc::LogViewerPanel::impl_draw_content()
+{
+    private_data().draw_content();
+}

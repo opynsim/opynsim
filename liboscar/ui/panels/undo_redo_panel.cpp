@@ -24,10 +24,7 @@ public:
         storage_{std::move(storage)}
     {}
 
-    void draw_content()
-    {
-        UndoRedoPanel::draw_content(*storage_);
-    }
+    void draw_content() { UndoRedoPanel::draw_content(*storage_); }
 
 private:
     std::shared_ptr<UndoRedoBase> storage_;
@@ -78,7 +75,11 @@ void osc::UndoRedoPanel::draw_content(UndoRedoBase& storage)
     }
 }
 
-osc::UndoRedoPanel::UndoRedoPanel(Widget* parent, std::string_view panel_name, std::shared_ptr<UndoRedoBase> storage) :
+osc::UndoRedoPanel::UndoRedoPanel(
+    Widget* parent, std::string_view panel_name, std::shared_ptr<UndoRedoBase> storage) :
     Panel{std::make_unique<Impl>(*this, parent, panel_name, std::move(storage))}
 {}
-void osc::UndoRedoPanel::impl_draw_content() { private_data().draw_content(); }
+void osc::UndoRedoPanel::impl_draw_content()
+{
+    private_data().draw_content();
+}

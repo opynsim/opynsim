@@ -15,9 +15,7 @@ namespace osc
         static void draw_content(UndoRedoBase&);
 
         explicit UndoRedoPanel(
-            Widget* parent,
-            std::string_view panel_name,
-            std::shared_ptr<UndoRedoBase>);
+            Widget* parent, std::string_view panel_name, std::shared_ptr<UndoRedoBase>);
 
     private:
         void impl_draw_content() override;

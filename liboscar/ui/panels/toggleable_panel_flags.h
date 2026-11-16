@@ -17,7 +17,8 @@ namespace osc
 
     constexpr ToggleablePanelFlags operator-(ToggleablePanelFlags lhs, ToggleablePanelFlags rhs)
     {
-        return static_cast<ToggleablePanelFlags>(std::to_underlying(lhs) & ~std::to_underlying(rhs));
+        return static_cast<ToggleablePanelFlags>(
+            std::to_underlying(lhs) & ~std::to_underlying(rhs));
     }
 
     constexpr bool operator&(ToggleablePanelFlags lhs, ToggleablePanelFlags rhs)
