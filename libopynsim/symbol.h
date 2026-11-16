@@ -18,7 +18,8 @@ namespace opyn
     public:
         Symbol() = default;
         explicit Symbol(std::string_view sv) :
-            data_{sv} {}
+            data_{sv}
+        {}
 
         friend bool operator==(const Symbol&, const Symbol&) = default;
         friend bool operator==(std::string_view lhs, const Symbol& rhs) { return lhs == rhs.data_; }
@@ -71,10 +72,7 @@ namespace opyn
 
 template<>
 struct std::hash<opyn::Symbol> final {
-    size_t operator()(const opyn::Symbol& symbol) const noexcept
-    {
-        return hasher_(symbol.data_);
-    }
+    size_t operator()(const opyn::Symbol& symbol) const noexcept { return hasher_(symbol.data_); }
 
 private:
     std::hash<osc::StringName> hasher_;

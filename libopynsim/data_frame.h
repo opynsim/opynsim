@@ -34,8 +34,7 @@ namespace opyn
 
         /// Constructs a `DataFrame` with the given `series`.
         explicit DataFrame(
-            std::vector<Series> series,
-            std::unordered_map<std::string, std::string> attrs = {});
+            std::vector<Series> series, std::unordered_map<std::string, std::string> attrs = {});
 
         /// Returns `true` all members of `lhs` compare equivalent to `rhs`.
         ///

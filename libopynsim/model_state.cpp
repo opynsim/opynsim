@@ -37,7 +37,8 @@ namespace
             return false;  // Different stages
         }
         if (lhs.getSystemStage() < SimTK::Stage::Time) {
-            return true;  // Same time+stage, but no state variables allocated: nothing more to compare.
+            // Same time+stage, but no state variables allocated: nothing more to compare.
+            return true;
         }
 
         // clang-format off
@@ -57,7 +58,8 @@ public:
     Impl() = default;
 
     explicit Impl(SimTK::State&& state) :
-        state_{std::move(state)} {}
+        state_{std::move(state)}
+    {}
 
     friend bool operator==(const Impl& lhs, const Impl& rhs)
     {
@@ -84,10 +86,31 @@ opyn::ModelState::ModelState() :
 opyn::ModelState::ModelState(SimTK::State&& state) :
     impl_{osc::make_cow<Impl>(std::move(state))}
 {}
-opyn::ModelStateStage opyn::ModelState::stage() const { return impl_->stage(); }
-double opyn::ModelState::time() const { return impl_->time(); }
-const opyn::ModelState::attrs_type& opyn::ModelState::attrs() const { return impl_->attrs(); }
-void opyn::ModelState::set_attrs(attrs_type new_attrs) { impl_.upd()->set_attrs(std::move(new_attrs)); }
-const SimTK::State& opyn::ModelState::simbody_state() const { return impl_->simbody_state(); }
-SimTK::State& opyn::ModelState::upd_simbody_state() { return impl_.upd()->upd_simbody_state(); }
-bool opyn::operator==(const ModelState& lhs, const ModelState& rhs) { return lhs.impl_ == rhs.impl_ or *lhs.impl_ == *rhs.impl_; }
+opyn::ModelStateStage opyn::ModelState::stage() const
+{
+    return impl_->stage();
+}
+double opyn::ModelState::time() const
+{
+    return impl_->time();
+}
+const opyn::ModelState::attrs_type& opyn::ModelState::attrs() const
+{
+    return impl_->attrs();
+}
+void opyn::ModelState::set_attrs(attrs_type new_attrs)
+{
+    impl_.upd()->set_attrs(std::move(new_attrs));
+}
+const SimTK::State& opyn::ModelState::simbody_state() const
+{
+    return impl_->simbody_state();
+}
+SimTK::State& opyn::ModelState::upd_simbody_state()
+{
+    return impl_.upd()->upd_simbody_state();
+}
+bool opyn::operator==(const ModelState& lhs, const ModelState& rhs)
+{
+    return lhs.impl_ == rhs.impl_ or *lhs.impl_ == *rhs.impl_;
+}

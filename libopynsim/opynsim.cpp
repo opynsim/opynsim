@@ -89,7 +89,8 @@ namespace
     protected:
         void sinkImpl(const OpenSim::LogMessage& msg) override
         {
-            osc::log_message(osc::to<osc::LogLevel>(msg.getLevel()), osc::to<std::string>(msg.getPayload()));
+            osc::log_message(
+                osc::to<osc::LogLevel>(msg.getLevel()), osc::to<std::string>(msg.getPayload()));
         }
     };
 
@@ -158,7 +159,15 @@ namespace
     {
         osc::log_info("setting locale to US (so that numbers are always in the format '0.x')");
         const char* locale = "C";
-        for (const char* envvar : {"LANG", "LC_CTYPE", "LC_NUMERIC", "LC_TIME", "LC_COLLATE", "LC_MONETARY", "LC_MESSAGES", "LC_ALL"}) {
+        for (const char* envvar :
+             {"LANG",
+              "LC_CTYPE",
+              "LC_NUMERIC",
+              "LC_TIME",
+              "LC_COLLATE",
+              "LC_MONETARY",
+              "LC_MESSAGES",
+              "LC_ALL"}) {
             setenv_wrapper(envvar, locale, true);
         }
 
@@ -268,8 +277,8 @@ namespace
         // becomes "no"
         if (const auto it = attrs.find("inDegrees"); it != attrs.end()) {
 
-            if (   osc::is_equal_case_insensitive(it->second, "y")
-                or osc::is_equal_case_insensitive(it->second, "yes")) {
+            if (osc::is_equal_case_insensitive(it->second, "y") or
+                osc::is_equal_case_insensitive(it->second, "yes")) {
 
                 it->second = "yes";
             } else {
@@ -281,10 +290,8 @@ namespace
         // in the header then that should be coerced into an `inDegrees` key. This
         // is a backwards compatibility shim because `OpenSim::Storage` works that
         // way.
-        if (not attrs.contains("inDegrees")
-            and attrs.contains("version")
-            and attrs["version"] == "0"
-            and attrs.contains("header")) {
+        if (not attrs.contains("inDegrees") and attrs.contains("version") and
+            attrs["version"] == "0" and attrs.contains("header")) {
 
             if (attrs["header"].contains("Angles are in degrees.")) {
                 attrs["inDegrees"] = "yes";
@@ -310,7 +317,8 @@ namespace
         const std::filesystem::path& source,
         std::optional<std::string_view> table_name = std::nullopt)
     {
-        const auto tables = OpenSim::FileAdapter::createAdapterFromExtension(source.string())->read(source.string());
+        const auto tables = OpenSim::FileAdapter::createAdapterFromExtension(source.string())
+                                ->read(source.string());
         if (tables.size() > 1 and not table_name) {
             std::stringstream ss;
             ss << source << ": contains more than one table (";
@@ -327,7 +335,10 @@ namespace
         if (table_name) {
             const auto it = tables.find(std::string{*table_name});
             if (it == tables.end()) {
-                throw osc::formatted_runtime_error("{}: Could not find table '{}' in the data source", source.string(), *table_name);
+                throw osc::formatted_runtime_error(
+                    "{}: Could not find table '{}' in the data source",
+                    source.string(),
+                    *table_name);
             }
             table = it->second.get();
         } else {
@@ -339,17 +350,24 @@ namespace
         // than OpenSim's typed data table API but easier to work with in
         // the wider Python ecosystem.
         OSC_ASSERT(table != nullptr && "Earlier code should have set this");
-        if (const auto* doubles_table = dynamic_cast<const OpenSim::DataTable_<double, double>*>(table)) {
+        if (const auto* doubles_table =
+                dynamic_cast<const OpenSim::DataTable_<double, double>*>(table)) {
             return read_opensim_datatable_into_data_frame(*doubles_table);
         }
-        if (const auto* vec3_table = dynamic_cast<const OpenSim::DataTable_<double, SimTK::Vec3>*>(table)) {
+        if (const auto* vec3_table =
+                dynamic_cast<const OpenSim::DataTable_<double, SimTK::Vec3>*>(table)) {
             return read_opensim_datatable_into_data_frame(vec3_table->flatten({"_x", "_y", "_z"}));
         }
-        if (const auto* quaternion_table = dynamic_cast<const OpenSim::DataTable_<double, SimTK::Quaternion>*>(table)) {
-            return read_opensim_datatable_into_data_frame(quaternion_table->flatten({"_w", "_x", "_y", "_z"}));
+        if (const auto* quaternion_table =
+                dynamic_cast<const OpenSim::DataTable_<double, SimTK::Quaternion>*>(table)) {
+            return read_opensim_datatable_into_data_frame(
+                quaternion_table->flatten({"_w", "_x", "_y", "_z"}));
         }
 
-        throw osc::formatted_runtime_error("{}: : Specified data table has an unsupported data type ({}).", source.string(), typeid(*table).name());
+        throw osc::formatted_runtime_error(
+            "{}: : Specified data table has an unsupported data type ({}).",
+            source.string(),
+            typeid(*table).name());
     }
 
     osc::Texture2D read_texture_via_oscar(const std::filesystem::path& source)
@@ -359,7 +377,8 @@ namespace
             throw osc::formatted_runtime_error("{}: : Error opening input file", source.string());
         }
 
-        return osc::Image::read_into_texture(ifs, source.filename().string(), osc::ColorSpace::sRGB);
+        return osc::Image::read_into_texture(
+            ifs, source.filename().string(), osc::ColorSpace::sRGB);
     }
 }
 

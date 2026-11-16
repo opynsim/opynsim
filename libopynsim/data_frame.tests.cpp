@@ -22,7 +22,8 @@ TEST(DataFrame, default_constructed_is_empty)
 TEST(DataFrame, attrs_returns_attrs_provided_via_constructor)
 {
     const DataFrame df{{}, {}, {{"metadata1", "someval"}, {"metadata2", "someotherval"}}};
-    const std::unordered_map<std::string, std::string> expected{{"metadata1", "someval"}, {"metadata2", "someotherval"}};
+    const std::unordered_map<std::string, std::string> expected{
+        {"metadata1", "someval"}, {"metadata2", "someotherval"}};
     const std::unordered_map<std::string, std::string> got = df.attrs();
 
     ASSERT_EQ(got, expected);
@@ -227,13 +228,16 @@ TEST(DataFrame, with_series_appends_series_when_new_name_given)
 TEST(DataFrame, with_series_appends_any_length_when_DataFrame_is_initially_empty)
 {
     const DataFrame df;
-    const DataFrame got = df.with_series(Series{"column1", {1.0, 2.0, 3.0}});  // shouldn't throw: source `DataFrame` is empty
+    // shouldn't throw: source `DataFrame` is empty
+    const DataFrame got = df.with_series(Series{"column1", {1.0, 2.0, 3.0}});
     const DataFrame expected{{"column1"}, {{1.0, 2.0, 3.0}}};
 
     ASSERT_EQ(got, expected);
 }
 
-TEST(DataFrame, with_series_works_with_appending_empty_series_to_DataFrame_with_existing_empty_Series)
+TEST(
+    DataFrame,
+    with_series_works_with_appending_empty_series_to_DataFrame_with_existing_empty_Series)
 {
     const DataFrame df{{"column1"}, {{}}};
     const DataFrame got = df.with_series({"column2", {}});
@@ -245,10 +249,13 @@ TEST(DataFrame, with_series_works_with_appending_empty_series_to_DataFrame_with_
 TEST(DataFrame, with_series_throws_if_passed_series_with_different_size_to_existing_DataFrame)
 {
     const DataFrame df{{"column1"}, {{1.0, 2.0}}};
-    ASSERT_ANY_THROW({ df.with_series({"column2", {}}); }) << "Should be disallowed: appended column is shorter";
-    ASSERT_ANY_THROW({ df.with_series({"column2", {2.0}}); }) << "Should be disallowed: appended column is shorter";
+    ASSERT_ANY_THROW({ df.with_series({"column2", {}}); })
+        << "Should be disallowed: appended column is shorter";
+    ASSERT_ANY_THROW({ df.with_series({"column2", {2.0}}); })
+        << "Should be disallowed: appended column is shorter";
     ASSERT_NO_THROW({ df.with_series({"column2", {2.0, 4.0}}); }) << "OK: correct length";
-    ASSERT_ANY_THROW({ df.with_series({"column2", {2.0, 4.0, 6.0}}); }) << "Should be disallowed: appended column is longer";
+    ASSERT_ANY_THROW({ df.with_series({"column2", {2.0, 4.0, 6.0}}); })
+        << "Should be disallowed: appended column is longer";
 }
 
 TEST(DataFrame, with_series_erases_attributes)

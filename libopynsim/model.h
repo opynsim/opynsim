@@ -53,7 +53,8 @@ namespace opyn
         /// Returns associative mappings between the names of columns in
         /// `data_frame` and state variables in this `Model`, where the
         /// correspondence can be found.
-        std::unordered_map<std::string, Symbol> column_to_state_variable_mappings(const DataFrame& data_frame) const;
+        std::unordered_map<std::string, Symbol> column_to_state_variable_mappings(
+            const DataFrame& data_frame) const;
 
         /// Returns a new `DataFrame` that's the result of converting rotational columns
         /// in `data_frame` to radians (if applicable).
@@ -98,19 +99,22 @@ namespace opyn
         double get_coordinate_value(const ModelState& model_state, const Symbol& coordinate) const;
 
         /// Sets the value of `coordinate` in `model_state` to `value`.
-        void set_coordinate_value(ModelState& model_state, const Symbol& coordinate, double value) const;
+        void set_coordinate_value(
+            ModelState& model_state, const Symbol& coordinate, double value) const;
 
         /// Returns the speed of `coordinate` in `model_state`.
         double get_coordinate_speed(const ModelState& model_state, const Symbol& coordinate) const;
 
         /// Sets the speed of `coordinate` in `model_state` to `speed`.
-        void set_coordinate_speed(ModelState& model_state, const Symbol& coordinate, double speed) const;
+        void set_coordinate_speed(
+            ModelState& model_state, const Symbol& coordinate, double speed) const;
 
         /// Returns `true` if `coordinate` is locked in `model_state`.
         bool is_coordinate_locked(const ModelState& model_state, const Symbol& coordinate) const;
 
         /// Sets the locked state of `coordinate` in `model_state` to `locked`.
-        void set_coordinate_locked(ModelState& model_state, const Symbol& coordinate, bool locked = true) const;
+        void set_coordinate_locked(
+            ModelState& model_state, const Symbol& coordinate, bool locked = true) const;
 
         /// Returns `true` if `coordinate` has a rotational (i.e. not translational or coupled).
         bool is_coordinate_rotational(const Symbol& coordinate) const;
@@ -141,14 +145,15 @@ namespace opyn
 
 template<>
 struct std::formatter<opyn::Model> final {
-    constexpr auto parse(std::format_parse_context& ctx) const
-    {
-        return ctx.begin();
-    }
+    constexpr auto parse(std::format_parse_context& ctx) const { return ctx.begin(); }
 
     template<class FormatContext>
     auto format(const opyn::Model& model, FormatContext& ctx) const
     {
-        return std::format_to(ctx.out(), "Model(num_coordinates={}, num_outputs={})", model.num_coordinates(), model.num_outputs());
+        return std::format_to(
+            ctx.out(),
+            "Model(num_coordinates={}, num_outputs={})",
+            model.num_coordinates(),
+            model.num_outputs());
     }
 };

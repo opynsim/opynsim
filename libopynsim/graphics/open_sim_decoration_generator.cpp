@@ -1503,9 +1503,8 @@ void opyn::generate_subcomponent_decorations(
             handle_body(renderer_state, *b);
         } else if (const auto* const fg = dynamic_cast<const OpenSim::FrameGeometry*>(&c)) {
             handle_frame_geometry(renderer_state, *fg);
-        } else if (
-            const auto* const p2p = dynamic_cast<const OpenSim::PointToPointSpring*>(&c);
-            p2p and opts.get_should_show_point_to_point_springs()) {
+        } else if (const auto* const p2p = dynamic_cast<const OpenSim::PointToPointSpring*>(&c);
+                   p2p and opts.get_should_show_point_to_point_springs()) {
 
             generate_body_spatial_vector_arrow_decorations_for_forces_that_only_have_compute_force_method(
                 renderer_state, *p2p);
@@ -1513,9 +1512,8 @@ void opyn::generate_subcomponent_decorations(
         } else if (typeid(c) == typeid(OpenSim::Station)) {
             // CARE: it's a typeid comparison because OpenSim::Marker inherits from OpenSim::Station
             handle_station(renderer_state, dynamic_cast<const OpenSim::Station&>(c));
-        } else if (
-            const auto* const sj = dynamic_cast<const OpenSim::ScapulothoracicJoint*>(&c);
-            sj && opts.get_should_show_scapulo()) {
+        } else if (const auto* const sj = dynamic_cast<const OpenSim::ScapulothoracicJoint*>(&c);
+                   sj && opts.get_should_show_scapulo()) {
 
             handle_scapulothoracic_joint(renderer_state, *sj);
         } else if (const auto* const hcf = dynamic_cast<const OpenSim::HuntCrossleyForce*>(&c)) {
@@ -1537,9 +1535,9 @@ void opyn::generate_subcomponent_decorations(
             generate_body_spatial_vector_arrow_decorations_for_forces_that_only_have_compute_force_method(
                 renderer_state, *force);
             renderer_state.emit_generic_decorations(c, c);
-        } else if (
-            const auto* obstacle = dynamic_cast<const OpenSim::Scholz2015GeometryPathObstacle*>(&c);
-            obstacle and opts.get_should_show_scholz2015_obstacle_contact_hints()) {
+        } else if (const auto* obstacle =
+                       dynamic_cast<const OpenSim::Scholz2015GeometryPathObstacle*>(&c);
+                   obstacle and opts.get_should_show_scholz2015_obstacle_contact_hints()) {
 
             handle_scholz_geometry_path_obstacle(renderer_state, *obstacle);
         } else {

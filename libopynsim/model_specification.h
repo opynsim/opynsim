@@ -18,7 +18,8 @@ namespace opyn
     /// and compiled into a `Model`.
     ///
     /// Related: https://simtk.org/api_docs/opensim/api_docs32/classOpenSim_1_1Model.html#details
-    /// Related: https://opensimconfluence.atlassian.net/wiki/spaces/OpenSim/pages/53089017/SimTK+Simulation+Concepts
+    /// Related:
+    /// https://opensimconfluence.atlassian.net/wiki/spaces/OpenSim/pages/53089017/SimTK+Simulation+Concepts
     class ModelSpecification {
     public:
         static ModelSpecification from_osim(const std::filesystem::path& source);

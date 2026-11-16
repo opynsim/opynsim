@@ -20,7 +20,8 @@ namespace opyn
     // Represents all state information for a `Model`.
     //
     // Related: https://simtk.org/api_docs/simbody/3.5/classSimTK_1_1State.html#details
-    // Related: https://opensimconfluence.atlassian.net/wiki/spaces/OpenSim/pages/53089017/SimTK+Simulation+Concepts
+    // Related:
+    // https://opensimconfluence.atlassian.net/wiki/spaces/OpenSim/pages/53089017/SimTK+Simulation+Concepts
     class ModelState final {
     public:
         using attrs_type = std::unordered_map<Symbol, double>;
@@ -62,14 +63,12 @@ namespace opyn
 
 template<>
 struct std::formatter<opyn::ModelState> {
-    constexpr auto parse(std::format_parse_context& ctx) const
-    {
-        return ctx.begin();
-    }
+    constexpr auto parse(std::format_parse_context& ctx) const { return ctx.begin(); }
 
     template<class FormatContext>
     auto format(const opyn::ModelState& model_state, FormatContext& ctx) const
     {
-        return std::format_to(ctx.out(), "ModelState(time={}, stage={})", model_state.time(), model_state.stage());
+        return std::format_to(
+            ctx.out(), "ModelState(time={}, stage={})", model_state.time(), model_state.stage());
     }
 };
