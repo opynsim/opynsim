@@ -23,8 +23,9 @@ namespace opyn
         auto data = std::make_unique<T[]>(N);
         std::uninitialized_copy_n(&vec[0], N, data.get());
         auto* handle = data.get();
-        nanobind::capsule owner{
-            data.release(), [](void* p) noexcept { delete[] static_cast<T*>(p); }};
+        nanobind::capsule owner{data.release(), [](void* p) noexcept {
+                                    delete[] static_cast<T*>(p);
+                                }};
         return {handle, {}, owner};
     }
 

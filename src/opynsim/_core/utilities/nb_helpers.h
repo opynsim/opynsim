@@ -10,15 +10,17 @@ namespace opyn
     template<typename T>
     nanobind::capsule to_capsule(std::unique_ptr<T> p)
     {
-        return nanobind::capsule{
-            p.release(), [](void* ptr) noexcept { delete static_cast<T*>(ptr); }};
+        return nanobind::capsule{p.release(), [](void* ptr) noexcept {
+                                     delete static_cast<T*>(ptr);
+                                 }};
     }
 
     /// Wrap a unique pointer to an array of `T` into a capsule.
     template<typename T>
     nanobind::capsule to_capsule(std::unique_ptr<T[]> p)
     {
-        return nanobind::capsule{
-            p.release(), [](void* ptr) noexcept { delete[] static_cast<T*>(ptr); }};
+        return nanobind::capsule{p.release(), [](void* ptr) noexcept {
+                                     delete[] static_cast<T*>(ptr);
+                                 }};
     }
 }
