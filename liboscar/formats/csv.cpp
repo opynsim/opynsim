@@ -25,8 +25,7 @@ namespace
     }
 }
 
-std::optional<std::vector<std::string>> osc::CSV::read_row(
-    std::istream& in)
+std::optional<std::vector<std::string>> osc::CSV::read_row(std::istream& in)
 {
     std::optional<std::vector<std::string>> columns;
     columns.emplace();
@@ -37,9 +36,7 @@ std::optional<std::vector<std::string>> osc::CSV::read_row(
     return columns;
 }
 
-bool osc::CSV::read_row_into_vector(
-    std::istream& in,
-    std::vector<std::string>& r_columns)
+bool osc::CSV::read_row_into_vector(std::istream& in, std::vector<std::string>& r_columns)
 {
     if (in.eof()) {
         return false;
@@ -106,9 +103,7 @@ bool osc::CSV::read_row_into_vector(
     }
 }
 
-void osc::CSV::write_row(
-    std::ostream& out,
-    std::span<const std::string> columns)
+void osc::CSV::write_row(std::ostream& out, std::span<const std::string> columns)
 {
     std::string_view delimiter;
     for (const auto& column : columns) {

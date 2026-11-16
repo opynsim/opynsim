@@ -13,8 +13,7 @@ namespace osc
 
         explicit STLMetadata();
 
-        explicit STLMetadata(
-            std::string_view authoring_tool);
+        explicit STLMetadata(std::string_view authoring_tool);
 
         std::string authoring_tool;
         std::tm creation_time;

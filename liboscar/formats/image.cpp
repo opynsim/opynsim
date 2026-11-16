@@ -27,7 +27,8 @@ namespace
     inline constexpr int c_stb_true = 1;
     inline constexpr int c_stb_false = 0;
 
-    // this mutex is required because stbi has global mutable state (e.g. `stbi_set_flip_vertically_on_load`)
+    // this mutex is required because stbi has global mutable state (e.g.
+    // `stbi_set_flip_vertically_on_load`)
     auto lock_stbi_api()
     {
         static std::mutex s_stbi_mutex;
@@ -70,35 +71,47 @@ namespace
         ImageLoadingFlags flags)
     {
         if (not(flags & ImageLoadingFlag::FlipVertically)) {
-            stbi_set_flip_vertically_on_load_thread(c_stb_true);  // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
+            // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
+            stbi_set_flip_vertically_on_load_thread(c_stb_true);
         }
 
         Vector2i dimensions{};
         int num_components = 0;
         const std::unique_ptr<float, decltype(&stbi_image_free)> pixel_data = {
-            stbi_loadf_from_callbacks(&c_stbi_stream_callbacks, &in, &dimensions.x(), &dimensions.y(), &num_components, 0),
+            stbi_loadf_from_callbacks(
+                &c_stbi_stream_callbacks,
+                &in,
+                &dimensions.x(),
+                &dimensions.y(),
+                &num_components,
+                0),
             stbi_image_free,
         };
 
         if (not(flags & ImageLoadingFlag::FlipVertically)) {
-            stbi_set_flip_vertically_on_load_thread(c_stb_false);  // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
+            // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
+            stbi_set_flip_vertically_on_load_thread(c_stb_false);
         }
 
         if (not pixel_data) {
-            throw formatted_runtime_error("{}: error loading HDR image: {}", input_name, stbi_failure_reason());
+            throw formatted_runtime_error(
+                "{}: error loading HDR image: {}", input_name, stbi_failure_reason());
         }
 
-        const std::optional<TextureFormat> texture_format = to_texture_format(
-            static_cast<size_t>(num_components),
-            TextureComponentFormat::Float32);
+        const std::optional<TextureFormat> texture_format =
+            to_texture_format(static_cast<size_t>(num_components), TextureComponentFormat::Float32);
 
         if (not texture_format) {
-            throw formatted_runtime_error("{}: error loading HDR image: no TextureFormat exists for {}-floating-point component images", input_name, num_components);
+            throw formatted_runtime_error(
+                "{}: error loading HDR image: no TextureFormat exists for {}-floating-point component images",
+                input_name,
+                num_components);
         }
 
         const std::span<const float> pixel_span{
             pixel_data.get(),
-            static_cast<size_t>(dimensions.x()) * static_cast<size_t>(dimensions.y()) * static_cast<size_t>(num_components)};
+            static_cast<size_t>(dimensions.x()) * static_cast<size_t>(dimensions.y()) *
+                static_cast<size_t>(num_components)};
 
         Texture2D rv{dimensions, *texture_format, color_space};
         rv.set_pixel_data(view_object_representations<uint8_t>(pixel_span));
@@ -112,34 +125,48 @@ namespace
         ImageLoadingFlags flags)
     {
         if (not(flags & ImageLoadingFlag::FlipVertically)) {
-            stbi_set_flip_vertically_on_load_thread(c_stb_true);  // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
+            // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
+            stbi_set_flip_vertically_on_load_thread(c_stb_true);
         }
 
         Vector2i dimensions{};
         int num_components = 0;
         const std::unique_ptr<stbi_uc, decltype(&stbi_image_free)> pixel_data = {
-            stbi_load_from_callbacks(&c_stbi_stream_callbacks, &in, &dimensions.x(), &dimensions.y(), &num_components, 0),
+            stbi_load_from_callbacks(
+                &c_stbi_stream_callbacks,
+                &in,
+                &dimensions.x(),
+                &dimensions.y(),
+                &num_components,
+                0),
             stbi_image_free,
         };
 
         if (not(flags & ImageLoadingFlag::FlipVertically)) {
-            stbi_set_flip_vertically_on_load_thread(c_stb_false);  // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
+            // STBI's flag is opposite to `ImageLoadingFlag::FlipVertically`
+            stbi_set_flip_vertically_on_load_thread(c_stb_false);
         }
 
         if (not pixel_data) {
-            throw formatted_runtime_error("{} error loading non-HDR image: {}", input_name, stbi_failure_reason());
+            throw formatted_runtime_error(
+                "{} error loading non-HDR image: {}", input_name, stbi_failure_reason());
         }
 
-        const std::optional<TextureFormat> texture_format = to_texture_format(
-            static_cast<size_t>(num_components),
-            TextureComponentFormat::Uint8);
+        const std::optional<TextureFormat> texture_format =
+            to_texture_format(static_cast<size_t>(num_components), TextureComponentFormat::Uint8);
 
         if (not texture_format) {
-            throw formatted_runtime_error("{}: error loading non-HDR image: no TextureFormat exists for {}-8-bit component images", input_name, num_components);
+            throw formatted_runtime_error(
+                "{}: error loading non-HDR image: no TextureFormat exists for {}-8-bit component images",
+                input_name,
+                num_components);
         }
 
         Texture2D rv{dimensions, *texture_format, color_space};
-        rv.set_pixel_data({pixel_data.get(), static_cast<size_t>(dimensions.x()) * static_cast<size_t>(dimensions.y()) * static_cast<size_t>(num_components)});
+        rv.set_pixel_data(
+            {pixel_data.get(),
+             static_cast<size_t>(dimensions.x()) * static_cast<size_t>(dimensions.y()) *
+                 static_cast<size_t>(num_components)});
         return rv;
     }
 
@@ -153,10 +180,7 @@ namespace
 }
 
 Texture2D osc::Image::read_into_texture(
-    std::istream& in,
-    std::string_view input_name,
-    ColorSpace color_space,
-    ImageLoadingFlags flags)
+    std::istream& in, std::string_view input_name, ColorSpace color_space, ImageLoadingFlags flags)
 {
     // test whether file content is HDR or not
     const auto original_cursor_pos = in.tellg();
@@ -164,18 +188,22 @@ Texture2D osc::Image::read_into_texture(
     in.clear();                     // Ensure any flags from probing for HDR are cleared.
     in.seekg(original_cursor_pos);  // Rewind, before reading content
 
-    OSC_ASSERT_ALWAYS(in.tellg() == original_cursor_pos && "could not rewind the stream (required for loading images)");
+    OSC_ASSERT_ALWAYS(
+        in.tellg() == original_cursor_pos &&
+        "could not rewind the stream (required for loading images)");
 
-    Texture2D rv = is_hdr ?
-        load_32bit_texture(in, input_name, color_space, flags) :
-        load_8bit_texture(in, input_name, color_space, flags);
+    Texture2D rv = is_hdr ? load_32bit_texture(in, input_name, color_space, flags)
+                          : load_8bit_texture(in, input_name, color_space, flags);
 
-    if ((flags & ImageLoadingFlag::TreatComponentsAsSpatialVectors) and not(flags & ImageLoadingFlag::FlipVertically)) {
-        // HACK: We know that all currently-supported image formats are encoded top-to-bottom and, therefore, required
+    if ((flags & ImageLoadingFlag::TreatComponentsAsSpatialVectors) and
+        not(flags & ImageLoadingFlag::FlipVertically)) {
+
+        // HACK: We know that all currently-supported image formats are encoded top-to-bottom and,
+        // therefore, required
         //       a vertical flip - unless the caller specified `ImageLoadingFlag::FlipVertically`.
         //
-        //       Therefore, the Y component must be flipped. This assumption will fail if the implementation starts
-        //       supporting image formats that are encoded bottom-to-top.
+        //       Therefore, the Y component must be flipped. This assumption will fail if the
+        //       implementation starts supporting image formats that are encoded bottom-to-top.
         auto pixels = rv.pixels();
         for (auto& pixel : pixels) {
             pixel.g = 1.0f - pixel.g;
@@ -186,9 +214,7 @@ Texture2D osc::Image::read_into_texture(
     return rv;
 }
 
-void osc::PNG::write(
-    std::ostream& out,
-    const Texture2D& texture)
+void osc::PNG::write(std::ostream& out, const Texture2D& texture)
 {
     const Vector2i dimensions = texture.pixel_dimensions();
     const int row_stride = 4 * dimensions.x();
@@ -214,7 +240,8 @@ void osc::PNG::write(
     stbi_flip_vertically_on_write(c_stb_false);
 
     if (rv == 0) {
-        throw formatted_runtime_error("Failed to write a texture as a PNG: {}", stbi_failure_reason());
+        throw formatted_runtime_error(
+            "Failed to write a texture as a PNG: {}", stbi_failure_reason());
     }
 }
 
@@ -243,6 +270,7 @@ void osc::JPEG::write(std::ostream& out, const Texture2D& texture, float quality
     stbi_flip_vertically_on_write(c_stb_false);
 
     if (rv == 0) {
-        throw formatted_runtime_error("failed to write a texture as a JPEG: {}", stbi_failure_reason());
+        throw formatted_runtime_error(
+            "failed to write a texture as a JPEG: {}", stbi_failure_reason());
     }
 }

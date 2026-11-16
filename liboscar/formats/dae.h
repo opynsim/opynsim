@@ -14,9 +14,7 @@ namespace osc
 
         explicit DAEMetadata();
 
-        explicit DAEMetadata(
-            std::string_view author,
-            std::string_view authoring_tool);
+        explicit DAEMetadata(std::string_view author, std::string_view authoring_tool);
 
         std::string author;
         std::string authoring_tool;
@@ -27,8 +25,6 @@ namespace osc
     class DAE final {
     public:
         static void write(
-            std::ostream&,
-            std::span<const SceneDecoration>,
-            const DAEMetadata& = DAEMetadata{});
+            std::ostream&, std::span<const SceneDecoration>, const DAEMetadata& = DAEMetadata{});
     };
 }

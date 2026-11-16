@@ -62,7 +62,8 @@ namespace
             const uint32_t i2 = indices[i + 2] + 1;
 
             if (not(flags & OBJWriterFlag::NoWriteNormals)) {
-                out << "f " << i0 << "//" << i0 << ' ' << i1 << "//" << i1 << ' ' << i2 << "//" << i2 << '\n';
+                out << "f " << i0 << "//" << i0 << ' ' << i1 << "//" << i1 << ' ' << i2 << "//"
+                    << i2 << '\n';
             } else {
                 // ignore the normals and only declare faces dependent on vertices
                 out << "f " << i0 << ' ' << i1 << ' ' << i2 << '\n';
@@ -81,10 +82,7 @@ osc::OBJMetadata::OBJMetadata(std::string_view authoring_tool) :
 {}
 
 void osc::OBJ::write(
-    std::ostream& out,
-    const Mesh& mesh,
-    const OBJMetadata& metadata,
-    OBJWriterFlags flags)
+    std::ostream& out, const Mesh& mesh, const OBJMetadata& metadata, OBJWriterFlags flags)
 {
     write_header(out, metadata);
     write_vertices(out, mesh);

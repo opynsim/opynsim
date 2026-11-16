@@ -12,7 +12,8 @@ namespace osc
 
     class CSV final {
     public:
-        // Returns a vector of column data if a row could be read; otherwise, returns `std::nullopt`.
+        // Returns a vector of column data if a row could be read; otherwise, returns
+        // `std::nullopt`.
         static std::optional<std::vector<std::string>> read_row(std::istream&);
 
         // Returns `true` if a CSV row was read from the input and written to `r_columns`

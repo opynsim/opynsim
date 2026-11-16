@@ -30,14 +30,16 @@ namespace
     std::string calc_header_text(const STLMetadata& metadata)
     {
         std::stringstream ss;
-        ss << "created " << std::put_time(&metadata.creation_time, "%Y-%m-%d %H:%M:%S") << " by " << metadata.authoring_tool;
+        ss << "created " << std::put_time(&metadata.creation_time, "%Y-%m-%d %H:%M:%S") << " by "
+           << metadata.authoring_tool;
         return std::move(ss).str();
     }
 
     void write_header(std::ostream& out, const STLMetadata& metadata)
     {
         constexpr size_t c_num_bytes_in_stl_header = 80;
-        constexpr size_t c_max_chars_in_stl_header = c_num_bytes_in_stl_header - 1;  // nul-terminator
+        // Includes nul-terminator
+        constexpr size_t c_max_chars_in_stl_header = c_num_bytes_in_stl_header - 1;
 
         const std::string header_content = calc_header_text(metadata);
         const size_t len = min(header_content.size(), c_max_chars_in_stl_header);
@@ -96,7 +98,8 @@ namespace
 
     void write_triangles(std::ostream& out, const Mesh& mesh)
     {
-        mesh.for_each_indexed_triangle([&out](Triangle triangle) { write_triangle(out, triangle); });
+        mesh.for_each_indexed_triangle(
+            [&out](Triangle triangle) { write_triangle(out, triangle); });
     }
 }
 
@@ -104,17 +107,13 @@ osc::STLMetadata::STLMetadata() :
     STLMetadata{OSC_LIBRARY_NAME}
 {}
 
-osc::STLMetadata::STLMetadata(
-    std::string_view authoring_tool) :
+osc::STLMetadata::STLMetadata(std::string_view authoring_tool) :
 
     authoring_tool{authoring_tool},
     creation_time{system_calendar_time()}
 {}
 
-void osc::STL::write(
-    std::ostream& output,
-    const Mesh& mesh,
-    const STLMetadata& metadata)
+void osc::STL::write(std::ostream& output, const Mesh& mesh, const STLMetadata& metadata)
 {
     if (mesh.topology() != MeshTopology::Triangles) {
         return;

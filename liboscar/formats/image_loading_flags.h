@@ -32,10 +32,10 @@ namespace osc
         // underlying data format (e.g. PNG, JPEG) and then adjust it to follow liboscar's internal
         // format (right-handed, bottom-to-top). The adjustment may require internally flipping the
         // image (e.g. because PNG's are encoded top-to-bottom), which is problematic if the pixels
-        // encode vectors because the flipping operation mirrors the coordinate space that the pixels
-        // are encoded in. To fix that, the implementation needs to flip the green (Y) component of
-        // each pixel in the image. It shouldn't perform this fix if the pixels encode colors, though,
-        // which is why this flag is necessary.
+        // encode vectors because the flipping operation mirrors the coordinate space that the
+        // pixels are encoded in. To fix that, the implementation needs to flip the green (Y)
+        // component of each pixel in the image. It shouldn't perform this fix if the pixels encode
+        // colors, though, which is why this flag is necessary.
         //
         // NOTE: This assumes that the encoded vectors are right-handed in the first place, because
         //       that is how liboscar defines tangent space. If the vectors are left-handed (e.g.
