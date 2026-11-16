@@ -87,7 +87,8 @@ TEST(PolyhedronGeometry, can_default_construct_with_params)
 TEST(PolyhedronGeometry, can_construct_with_custom_params)
 {
     const PolyhedronGeometry mesh{{
-        .vertices = {{1.0f, 1.0f, 1.0f}, {-1.0f, -1.0f, 1.0f}, {-1.0f, 1.0f, -1.0f}, {1.0f, -1.0f, -1.0f}},
+        .vertices =
+            {{1.0f, 1.0f, 1.0f}, {-1.0f, -1.0f, 1.0f}, {-1.0f, 1.0f, -1.0f}, {1.0f, -1.0f, -1.0f}},
         .indices = {2, 1, 0, 0, 3, 2, 1, 3, 0, 2, 3, 1},
         .radius = 10.0f,
         .detail_level = 1,
@@ -97,10 +98,7 @@ TEST(PolyhedronGeometry, can_construct_with_custom_params)
 TEST(PolyhedronGeometry, works_with_a_couple_of_basic_verts)
 {
     const Mesh mesh = PolyhedronGeometry{
-        {{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}},
-        {{0, 1, 2}},
-        5.0f,
-        2};
+        {{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}}, {{0, 1, 2}}, 5.0f, 2};
     ASSERT_TRUE(mesh.has_vertices());
     ASSERT_TRUE(mesh.has_normals());
     ASSERT_TRUE(mesh.has_tex_coords());
@@ -109,11 +107,8 @@ TEST(PolyhedronGeometry, works_with_a_couple_of_basic_verts)
 
 TEST(PolyhedronGeometry, is_empty_if_given_less_than_3_points)
 {
-    const Mesh mesh = PolyhedronGeometry{
-        {{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 1.0f}}},
-        {{0, 1}},
-        5.0f,
-        2};
+    const Mesh mesh =
+        PolyhedronGeometry{{{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 1.0f}}}, {{0, 1}}, 5.0f, 2};
     ASSERT_FALSE(mesh.has_vertices());
     ASSERT_FALSE(mesh.has_normals());
     ASSERT_FALSE(mesh.has_tex_coords());

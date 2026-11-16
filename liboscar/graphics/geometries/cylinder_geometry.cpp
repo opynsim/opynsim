@@ -54,9 +54,7 @@ osc::CylinderGeometry::CylinderGeometry(const Params& p)
                 const float cos_theta = cos(theta);
 
                 vertices.emplace_back(
-                    radius * sin_theta,
-                    (-v * p.height) + half_height,
-                    radius * cos_theta);
+                    radius * sin_theta, (-v * p.height) + half_height, radius * cos_theta);
                 normals.push_back(normalize(Vector3{sin_theta, slope, cos_theta}));
                 uvs.emplace_back(u, 1 - v);
                 row_indices.push_back(index++);
@@ -110,9 +108,7 @@ osc::CylinderGeometry::CylinderGeometry(const Params& p)
 
             vertices.emplace_back(radius * sin_theta, half_height * sign, radius * cos_theta);
             normals.emplace_back(0.0f, sign, 0.0f);
-            uvs.emplace_back(
-                (cos_theta * 0.5f) + 0.5f,
-                (sin_theta * 0.5f * sign) + 0.5f);
+            uvs.emplace_back((cos_theta * 0.5f) + 0.5f, (sin_theta * 0.5f * sign) + 0.5f);
             ++index;
         }
 

@@ -39,11 +39,11 @@ osc::RingGeometry::RingGeometry(const Params& p)
             const auto fi = static_cast<float>(i);
             const Radians segment = p.theta_start + (fi / fnum_theta_segments * p.theta_length);
 
-            const Vector3& v = vertices.emplace_back(radius * cos(segment), radius * sin(segment), 0.0f);
+            const Vector3& v =
+                vertices.emplace_back(radius * cos(segment), radius * sin(segment), 0.0f);
             normals.emplace_back(0.0f, 0.0f, 1.0f);
             uvs.emplace_back(
-                (v.x() / p.outer_radius + 1.0f) / 2.0f,
-                (v.y() / p.outer_radius + 1.0f) / 2.0f);
+                (v.x() / p.outer_radius + 1.0f) / 2.0f, (v.y() / p.outer_radius + 1.0f) / 2.0f);
         }
         radius += radius_step;
     }

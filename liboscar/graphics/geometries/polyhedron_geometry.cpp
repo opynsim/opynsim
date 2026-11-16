@@ -37,57 +37,61 @@ osc::PolyhedronGeometry::PolyhedronGeometry(
     std::vector<Vector3> generated_vertices;
     std::vector<Vector2> uvs;
 
-    const auto subdivide_face = [&generated_vertices](Vector3 a, Vector3 b, Vector3 c, size_t detail) {
-        const auto num_cols = detail + 1;
-        const auto fnum_cols = static_cast<float>(num_cols);
+    const auto subdivide_face =
+        [&generated_vertices](Vector3 a, Vector3 b, Vector3 c, size_t detail) {
+            const auto num_cols = detail + 1;
+            const auto fnum_cols = static_cast<float>(num_cols);
 
-        // we use this multidimensional array as a data structure for creating the subdivision
-        std::vector<std::vector<Vector3>> v;
-        v.reserve(num_cols + 1);
+            // we use this multidimensional array as a data structure for creating the subdivision
+            std::vector<std::vector<Vector3>> v;
+            v.reserve(num_cols + 1);
 
-        for (size_t i = 0; i <= num_cols; ++i) {
-            const auto fi = static_cast<float>(i);
-            const Vector3 aj = lerp(a, c, fi / fnum_cols);
-            const Vector3 bj = lerp(b, c, fi / fnum_cols);
+            for (size_t i = 0; i <= num_cols; ++i) {
+                const auto fi = static_cast<float>(i);
+                const Vector3 aj = lerp(a, c, fi / fnum_cols);
+                const Vector3 bj = lerp(b, c, fi / fnum_cols);
 
-            const auto num_rows = num_cols - i;
-            const auto fnum_rows = static_cast<float>(num_rows);
+                const auto num_rows = num_cols - i;
+                const auto fnum_rows = static_cast<float>(num_rows);
 
-            v.emplace_back().reserve(num_rows + 1);
-            for (size_t j = 0; j <= num_rows; ++j) {
-                v.at(i).emplace_back();
+                v.emplace_back().reserve(num_rows + 1);
+                for (size_t j = 0; j <= num_rows; ++j) {
+                    v.at(i).emplace_back();
 
-                const auto fj = static_cast<float>(j);
-                if (j == 0 and i == num_cols) {
-                    v.at(i).at(j) = aj;
-                } else {
-                    v.at(i).at(j) = lerp(aj, bj, fj / fnum_rows);
+                    const auto fj = static_cast<float>(j);
+                    if (j == 0 and i == num_cols) {
+                        v.at(i).at(j) = aj;
+                    } else {
+                        v.at(i).at(j) = lerp(aj, bj, fj / fnum_rows);
+                    }
                 }
             }
-        }
 
-        // construct all the faces
-        for (size_t i = 0; i < num_cols; ++i) {
-            for (size_t j = 0; j < 2 * (num_cols - i) - 1; ++j) {
-                const size_t k = j / 2;
+            // construct all the faces
+            for (size_t i = 0; i < num_cols; ++i) {
+                for (size_t j = 0; j < 2 * (num_cols - i) - 1; ++j) {
+                    const size_t k = j / 2;
 
-                if (j % 2 == 0) {
-                    generated_vertices.insert(generated_vertices.end(), {
-                        v.at(i).at(k+1),
-                        v.at(i+1).at(k),
-                        v.at(i).at(k),
-                    });
-                }
-                else {
-                    generated_vertices.insert(generated_vertices.end(), {
-                        v.at(i).at(k+1),
-                        v.at(i+1).at(k+1),
-                        v.at(i+1).at(k),
-                    });
+                    if (j % 2 == 0) {
+                        generated_vertices.insert(
+                            generated_vertices.end(),
+                            {
+                                v.at(i).at(k + 1),
+                                v.at(i + 1).at(k),
+                                v.at(i).at(k),
+                            });
+                    } else {
+                        generated_vertices.insert(
+                            generated_vertices.end(),
+                            {
+                                v.at(i).at(k + 1),
+                                v.at(i + 1).at(k + 1),
+                                v.at(i + 1).at(k),
+                            });
+                    }
                 }
             }
-        }
-    };
+        };
 
     const auto subdivide = [&subdivide_face, &vertices, &indices](size_t detail) {
         // subdivide each input triangle by the given detail_level

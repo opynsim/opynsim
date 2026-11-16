@@ -69,16 +69,10 @@ osc::LatheGeometry::LatheGeometry(const Params& p)
             const auto fj = static_cast<float>(j);
 
             vertices.emplace_back(
-                p.points[j].x() * sin_phi,
-                p.points[j].y(),
-                p.points[j].x() * cos_phi);
-            uvs.emplace_back(
-                fi / fnum_segments,
-                fj / static_cast<float>(p.points.size() - 1));
+                p.points[j].x() * sin_phi, p.points[j].y(), p.points[j].x() * cos_phi);
+            uvs.emplace_back(fi / fnum_segments, fj / static_cast<float>(p.points.size() - 1));
             normals.emplace_back(
-                init_normals[j].x() * sin_phi,
-                init_normals[j].y(),
-                init_normals[j].x() * cos_phi);
+                init_normals[j].x() * sin_phi, init_normals[j].y(), init_normals[j].x() * cos_phi);
         }
     }
 
