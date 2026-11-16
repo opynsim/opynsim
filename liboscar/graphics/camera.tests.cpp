@@ -81,7 +81,9 @@ TEST(Camera, constructing_from_position_direction_up_is_equivalent_to_calling_se
     ASSERT_EQ(directly_constructed, from_setters);
 }
 
-TEST(Camera, constructing_from_position_direction_up_vertical_field_of_view_is_equivalent_to_calling_setters)
+TEST(
+    Camera,
+    constructing_from_position_direction_up_vertical_field_of_view_is_equivalent_to_calling_setters)
 {
     const Vector3 position = {1.0f, 2.0f, 3.0f};
     const Vector3 direction = {1.0f, 0.0f, 0.0f};
@@ -131,7 +133,8 @@ TEST(Camera, constructing_from_position_direction_up_falls_back_when_direction_a
 
     const Camera camera{position, direction, up};
 
-    ASSERT_TRUE(all_of(equal_within_absdiff(camera.direction(), direction, 0.000001f))) << "`direction` should be mostly as-provided";
+    ASSERT_TRUE(all_of(equal_within_absdiff(camera.direction(), direction, 0.000001f)))
+        << "`direction` should be mostly as-provided";
     ASSERT_EQ(camera.up(), Vector3(0.0f, 1.0f, 0.0f)) << "`up` should have used a fallback";
 }
 
@@ -247,7 +250,8 @@ TEST(Camera, set_vertical_field_of_view_sets_the_vertical_field_of_view)
 TEST(Camera, horizontal_field_of_view_equals_vertical_field_of_view_when_aspect_ratio_is_1)
 {
     const Camera camera;
-    ASSERT_FLOAT_EQ(camera.vertical_field_of_view().count(), camera.horizontal_field_of_view(1.0f).count());
+    ASSERT_FLOAT_EQ(
+        camera.vertical_field_of_view().count(), camera.horizontal_field_of_view(1.0f).count());
 }
 
 TEST(Camera, set_projection_on_copy_makes_it_compare_nonequal_to_original)
@@ -325,7 +329,8 @@ TEST(Camera, principal_ray_is_changed_by_changing_the_position_and_direction_of_
     camera.set_direction({1.0f, 0.0f, 0.0f});
 
     ASSERT_EQ(camera.principal_ray().origin, Vector3(3.0f, 2.0f, 1.0f));
-    OSC_ASSERT_VECTOR_NEAR(camera.principal_ray().direction, Vector3(1.0f, 0.0f, 0.0f), sqrt_epsilon_v<float>);
+    OSC_ASSERT_VECTOR_NEAR(
+        camera.principal_ray().direction, Vector3(1.0f, 0.0f, 0.0f), sqrt_epsilon_v<float>);
 }
 
 TEST(Camera, default_rotation_is_identity)
@@ -461,7 +466,9 @@ TEST(Camera, set_projection_matrix_override_makes_projection_matrix_return_the_o
     ASSERT_EQ(camera.projection_matrix(1.0f), projection_matrix);
 }
 
-TEST(Camera, set_projection_matrix_override_to_nullopt_resets_projection_matrix_to_use_camera_field_of_view_etc)
+TEST(
+    Camera,
+    set_projection_matrix_override_to_nullopt_resets_projection_matrix_to_use_camera_field_of_view_etc)
 {
     Camera camera;
     const Matrix4x4 initial_projection_matrix = camera.projection_matrix(1.0f);
@@ -570,7 +577,8 @@ TEST(Camera, world_to_ui_is_invariant_with_depth_for_orthographic_projection)
     std::optional<Vector2> prev;
     for (size_t i = 1; i < 16; ++i) {
         const Vector2 p = camera.world_to_ui({1.0f, 1.0f, static_cast<float>(i) * 7.5f}, ui_rect);
-        ASSERT_TRUE(not prev or all_of(equal_within_absdiff(p, *prev, 0.001f))) << "p = " << p << ", prev = " << prev.value_or(Vector3{-5.0f});
+        ASSERT_TRUE(not prev or all_of(equal_within_absdiff(p, *prev, 0.001f)))
+            << "p = " << p << ", prev = " << prev.value_or(Vector3{-5.0f});
         prev = p;
     }
 }
@@ -680,7 +688,8 @@ TEST(Camera, ui_to_world_returns_projected_out_ray_for_projection_camera)
         const Vector3 c = b + h * camera.up();
         const Ray expected{camera.position(), normalize(c)};
         const Ray got = camera.ui_to_world({32.0f, 0.0f}, ui_rect);
-        ASSERT_TRUE(is_colinear_and_codirectional(expected, got)) << "expected = " << expected << "got = " << got;
+        ASSERT_TRUE(is_colinear_and_codirectional(expected, got))
+            << "expected = " << expected << "got = " << got;
     }
 
     // The point going through the bottom-middle of the UI rectangle should produce
@@ -705,7 +714,8 @@ TEST(Camera, ui_to_world_returns_projected_out_ray_for_projection_camera)
         const Vector3 c = b + h * -camera.up();  // (go down)
         const Ray expected{camera.position(), normalize(c)};
         const Ray got = camera.ui_to_world({32.0f, 64.0f}, ui_rect);
-        ASSERT_TRUE(is_colinear_and_codirectional(expected, got)) << "expected = " << expected << "got = " << got;
+        ASSERT_TRUE(is_colinear_and_codirectional(expected, got))
+            << "expected = " << expected << "got = " << got;
     }
 }
 
@@ -720,7 +730,8 @@ TEST(Camera, view_volume_height_at_depth_returns_orthographic_height_for_any_dep
 
     for (size_t i = 0; i < 16; ++i) {
         const float h = camera.view_volume_height_at_depth(-8.0f + static_cast<float>(i) * 1.0f);
-        ASSERT_EQ(h, 1.0f) << "The view volume height should always be the orthographic size with an orthographic camera";
+        ASSERT_EQ(h, 1.0f)
+            << "The view volume height should always be the orthographic size with an orthographic camera";
     }
 }
 

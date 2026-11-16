@@ -14,11 +14,10 @@ namespace osc
     struct OrbitCameraController final {
 
         static OrbitCameraController focused_on(
-            const AABB& aabb,
-            const Camera& camera,
-            float aspect_ratio = 1.0f);
+            const AABB& aabb, const Camera& camera, float aspect_ratio = 1.0f);
 
-        friend bool operator==(const OrbitCameraController&, const OrbitCameraController&) = default;
+        friend bool operator==(const OrbitCameraController&, const OrbitCameraController&) =
+            default;
 
         void update_camera(Camera&) const;
 

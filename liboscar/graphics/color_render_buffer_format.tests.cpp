@@ -28,5 +28,6 @@ TEST(ColorRenderBufferFormat, defaults_to_R8G8B8A8_SRGB)
 
 TEST(ColorRenderBufferFormat, DefaultHDR_is_R16R16B16A16_SFLOAT)
 {
-    static_assert(ColorRenderBufferFormat::DefaultHDR == ColorRenderBufferFormat::R16G16B16A16_SFLOAT);
+    static_assert(
+        ColorRenderBufferFormat::DefaultHDR == ColorRenderBufferFormat::R16G16B16A16_SFLOAT);
 }

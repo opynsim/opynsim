@@ -22,7 +22,8 @@ namespace rgs = std::ranges;
 
 namespace
 {
-    std::unique_ptr<App> g_material_app;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+    std::unique_ptr<App>
+        g_material_app;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
     class MaterialTest : public ::testing::Test {
     protected:
@@ -34,10 +35,7 @@ namespace
             g_material_app = std::make_unique<App>(metadata);
         }
 
-        static void TearDownTestSuite()
-        {
-            g_material_app.reset();
-        }
+        static void TearDownTestSuite() { g_material_app.reset(); }
     };
 
     constexpr CStringView c_vertex_shader_src = R"(
@@ -365,7 +363,8 @@ TEST_F(MaterialTest, MaterialSetFloatArrayOnMaterialCausesGetFloatArrayToReturnT
 {
     Material material = generate_material();
     const std::string key = "someKey";
-    const auto values = std::to_array({generate<float>(), generate<float>(), generate<float>(), generate<float>()});
+    const auto values =
+        std::to_array({generate<float>(), generate<float>(), generate<float>(), generate<float>()});
 
     ASSERT_FALSE(material.get_array<float>(key));
 
@@ -428,11 +427,13 @@ TEST_F(MaterialTest, MaterialSetVector3OnMaterialCausesGetVector3ToReturnTheProv
     ASSERT_EQ(*material.get<Vector3>(key), value);
 }
 
-TEST_F(MaterialTest, MaterialSetVector3ArrayOnMaterialCausesGetVector3ArrayToReutrnTheProvidedValues)
+TEST_F(
+    MaterialTest, MaterialSetVector3ArrayOnMaterialCausesGetVector3ArrayToReutrnTheProvidedValues)
 {
     Material material = generate_material();
     const std::string key = "someKey";
-    const auto values = std::to_array({generate<Vector3>(), generate<Vector3>(), generate<Vector3>(), generate<Vector3>()});
+    const auto values = std::to_array(
+        {generate<Vector3>(), generate<Vector3>(), generate<Vector3>(), generate<Vector3>()});
 
     ASSERT_FALSE(material.get_array<Vector3>(key));
 
@@ -850,7 +851,8 @@ TEST_F(MaterialTest, MaterialOutputStringContainsUsefulInformation)
 
 TEST_F(MaterialTest, MaterialSetFloatAndThenSetVector3CausesGetFloatToReturnEmpty)
 {
-    // compound test: when the caller sets a `Vector3` then calling get_int with the same key should return empty
+    // compound test: when the caller sets a `Vector3` then calling get_int with the same key should
+    // return empty
     Material material = generate_material();
 
     const std::string key = "someKey";

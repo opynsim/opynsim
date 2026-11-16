@@ -51,7 +51,8 @@ namespace osc
         explicit SharedDepthStencilRenderBuffer();
         explicit SharedDepthStencilRenderBuffer(const DepthStencilRenderBufferParams&);
 
-        friend bool operator==(const SharedDepthStencilRenderBuffer&, const SharedDepthStencilRenderBuffer&) = default;
+        friend bool operator==(
+            const SharedDepthStencilRenderBuffer&, const SharedDepthStencilRenderBuffer&) = default;
 
         SharedDepthStencilRenderBuffer clone() const;
 

@@ -28,10 +28,7 @@ namespace osc
         /// `up` is normalized by the implementation. If it parallel with
         /// `target - position` then it will fallback to something
         /// non-parallel.
-        static Camera look_at(
-            const Vector3& position,
-            const Vector3& target,
-            const Vector3& up);
+        static Camera look_at(const Vector3& position, const Vector3& target, const Vector3& up);
 
         Camera();
 
@@ -66,16 +63,16 @@ namespace osc
 
         // get/set the vertical field-of-view angle of the viewer's projection camera
         //
-        // undefined behavior if `projection() != CameraProjection::Perspective` or the projection matrix
-        // has been overridden with `set_projection_matrix_override`.
+        // undefined behavior if `projection() != CameraProjection::Perspective` or the projection
+        // matrix has been overridden with `set_projection_matrix_override`.
         Radians vertical_field_of_view() const;
         void set_vertical_field_of_view(Radians);
 
         // returns the horizontal field-of-view angle of the viewer's projection camera, assuming
         // it's rendering to a render target with the given `aspect_ratio`.
         //
-        // undefined behavior if `projection() != CameraProjection::Perspective` or the projection matrix
-        // has been overridden with `set_projection_matrix_override`.
+        // undefined behavior if `projection() != CameraProjection::Perspective` or the projection
+        // matrix has been overridden with `set_projection_matrix_override`.
         Radians horizontal_field_of_view(float aspect_ratio) const;
 
         // get/set the distance, in world space units, between both the camera and the nearest
@@ -151,7 +148,8 @@ namespace osc
         // clip space is defined such that there exists a unit cube in it that eventually
         // projects onto screen space in the following way:
         //
-        // - transformed points (affine, homogeneous) are divided by their `w` component (perspective
+        // - transformed points (affine, homogeneous) are divided by their `w` component
+        // (perspective
         //   divide) to yield their normalized device coordinates (NDC).
         // - Anything outside of [{-1,-1,-1},{+1,+1,+1}] in NDC is discarded (clipping)
         // - NDC `( 0,  0,  0)` maps to the midpoint of screen space (i.e. 0.5 * {w, h})
@@ -203,7 +201,10 @@ namespace osc
 template<>
 struct std::formatter<osc::Camera> {
     template<class ParseCtx>
-    constexpr typename ParseCtx::iterator parse(ParseCtx& ctx) { return inner_.parse(ctx); }
+    constexpr typename ParseCtx::iterator parse(ParseCtx& ctx)
+    {
+        return inner_.parse(ctx);
+    }
 
     template<class FmtCtx>
     typename FmtCtx::iterator format(const osc::Camera& camera, FmtCtx& ctx) const

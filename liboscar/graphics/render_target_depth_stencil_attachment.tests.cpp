@@ -37,7 +37,9 @@ TEST(RenderTargetDepthStencilAttachment, compares_equal_to_copies)
     ASSERT_EQ(copy, attachment);
 }
 
-TEST(RenderTargetDepthStencilAttachment, compares_equal_to_separately_constructed_but_logically_equal_value)
+TEST(
+    RenderTargetDepthStencilAttachment,
+    compares_equal_to_separately_constructed_but_logically_equal_value)
 {
     RenderTexture render_texture;
 

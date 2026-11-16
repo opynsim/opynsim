@@ -84,9 +84,7 @@ namespace
         rv.set_vertices({{0.0f, -1.0f, 0.0f}, {0.0f, +1.0f, 0.0f}});
         // Just give the line *something* in-case they are rendered through a
         // shader that requires normals.
-        rv.set_normals(
-            {{0.0f, 0.0f, 1.0f},
-             {0.0f, 0.0f, 1.0f}});
+        rv.set_normals({{0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}});
         rv.set_indices({0, 1});
         return rv;
     }

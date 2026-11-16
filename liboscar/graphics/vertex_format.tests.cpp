@@ -70,9 +70,14 @@ TEST(VertexFormat, constructor_throws_if_Position_VertexAttribute_is_missing)
     //
     // ... it doesn't matter if you provide any/all of the other data
 
-    for (VertexAttribute attr : {VertexAttribute::Normal, VertexAttribute::Tangent, VertexAttribute::Color, VertexAttribute::TexCoord0}) {
+    for (VertexAttribute attr :
+         {VertexAttribute::Normal,
+          VertexAttribute::Tangent,
+          VertexAttribute::Color,
+          VertexAttribute::TexCoord0}) {
         const std::initializer_list<VertexAttributeDescriptor> initializer_list = {
-            {attr, VertexAttributeFormat::Float32x3},  // format/dimensionality is flexible w.r.t. the chosen attribute
+            // format/dimensionality is flexible w.r.t. the chosen attribute
+            {attr, VertexAttributeFormat::Float32x3},
         };
         ASSERT_ANY_THROW({ VertexFormat{initializer_list}; });
     }
@@ -89,7 +94,8 @@ TEST(VertexFormat, throws_if_same_VertexAttribute_is_supplied_multiple_times)
         {VertexAttribute::Normal, VertexAttributeFormat::Float32x3},
         {VertexAttribute::Tangent, VertexAttributeFormat::Unorm8x4},
         {VertexAttribute::Color, VertexAttributeFormat::Unorm8x4},
-        {VertexAttribute::Normal, VertexAttributeFormat::Float32x3},  // uh oh (doesn't matter if it matches)
+        {VertexAttribute::Normal,
+         VertexAttributeFormat::Float32x3},  // uh oh (doesn't matter if it matches)
         {VertexAttribute::TexCoord0, VertexAttributeFormat::Float32x2},
     };
 
@@ -195,9 +201,21 @@ TEST(VertexFormat, attribute_layout_returns_expected_answers_for_existent_Vertex
 
     using Layout = VertexFormat::VertexAttributeLayout;
 
-    ASSERT_EQ(vertex_format.attribute_layout(VertexAttribute::Position), Layout(VertexAttributeDescriptor(VertexAttribute::Position, VertexAttributeFormat::Float32x3), 0));
-    ASSERT_EQ(vertex_format.attribute_layout(VertexAttribute::Normal), Layout(VertexAttributeDescriptor(VertexAttribute::Normal, VertexAttributeFormat::Unorm8x4), 3 * sizeof(float)));
-    ASSERT_EQ(vertex_format.attribute_layout(VertexAttribute::TexCoord0), Layout(VertexAttributeDescriptor(VertexAttribute::TexCoord0, VertexAttributeFormat::Float32x2), (3 * sizeof(float)) + 4));
+    ASSERT_EQ(
+        vertex_format.attribute_layout(VertexAttribute::Position),
+        Layout(
+            VertexAttributeDescriptor(VertexAttribute::Position, VertexAttributeFormat::Float32x3),
+            0));
+    ASSERT_EQ(
+        vertex_format.attribute_layout(VertexAttribute::Normal),
+        Layout(
+            VertexAttributeDescriptor(VertexAttribute::Normal, VertexAttributeFormat::Unorm8x4),
+            3 * sizeof(float)));
+    ASSERT_EQ(
+        vertex_format.attribute_layout(VertexAttribute::TexCoord0),
+        Layout(
+            VertexAttributeDescriptor(VertexAttribute::TexCoord0, VertexAttributeFormat::Float32x2),
+            (3 * sizeof(float)) + 4));
 }
 
 TEST(VertexFormat, attribute_layouts_returns_provided_descriptions_with_expected_offsets)
@@ -219,7 +237,9 @@ TEST(VertexFormat, attribute_layouts_returns_provided_descriptions_with_expected
     ASSERT_TRUE(rgs::equal(vertex_format.attribute_layouts(), expected_layouts));
 }
 
-TEST(VertexFormat, insert_does_nothing_if_assigning_non_Position_VertexAttribute_if_no_Position_is_available)
+TEST(
+    VertexFormat,
+    insert_does_nothing_if_assigning_non_Position_VertexAttribute_if_no_Position_is_available)
 {
     VertexFormat vertex_format;
     vertex_format.insert({VertexAttribute::Tangent, VertexAttributeFormat::Float32x4});
@@ -232,7 +252,8 @@ TEST(VertexFormat, insert_works_when_inserting_position_to_an_empty_format)
     VertexFormat vertex_format;
     vertex_format.insert({VertexAttribute::Position, VertexAttributeFormat::Float32x3});
 
-    const VertexFormat expected_format = {{VertexAttribute::Position, VertexAttributeFormat::Float32x3}};
+    const VertexFormat expected_format = {
+        {VertexAttribute::Position, VertexAttributeFormat::Float32x3}};
 
     ASSERT_EQ(vertex_format, expected_format);
 }
@@ -336,15 +357,19 @@ TEST(VertexFormat, retains_caller_provided_layout)
 
     // permute the non-Position fields
     const auto fields_to_permute = std::span{attribute_descriptions}.subspan(1);
-    for (bool permuted = true; permuted; permuted = rgs::next_permutation(fields_to_permute, rgs::less{}, &VertexAttributeDescriptor::attribute).found) {
+    for (bool permuted = true; permuted;
+         permuted = rgs::next_permutation(
+                        fields_to_permute, rgs::less{}, &VertexAttributeDescriptor::attribute)
+                        .found) {
 
         const VertexFormat permutation_format{attribute_descriptions};
 
-        ASSERT_TRUE(rgs::equal(
-            attribute_descriptions,
-            permutation_format.attribute_layouts(),
-            rgs::equal_to{},
-            &VertexAttributeDescriptor::attribute,
-            &VertexFormat::VertexAttributeLayout::attribute));
+        ASSERT_TRUE(
+            rgs::equal(
+                attribute_descriptions,
+                permutation_format.attribute_layouts(),
+                rgs::equal_to{},
+                &VertexAttributeDescriptor::attribute,
+                &VertexFormat::VertexAttributeLayout::attribute));
     }
 }

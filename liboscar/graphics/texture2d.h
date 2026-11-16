@@ -39,7 +39,8 @@ namespace osc
 
         // Returns the dimensions of the texture in device-independent pixels.
         //
-        // Effectively, returns the equivalent of `texture.pixel_dimensions() / texture.device_pixel_ratio()`.
+        // Effectively, returns the equivalent of `texture.pixel_dimensions() /
+        // texture.device_pixel_ratio()`.
         Vector2 dimensions() const;
 
         // Returns the ratio of the resolution of the texture in physical pixels

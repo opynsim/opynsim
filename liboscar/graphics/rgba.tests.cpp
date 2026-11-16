@@ -27,7 +27,8 @@ TEST(Rgba, can_be_constructed_from_Rgb_of_same_type)
 
 TEST(Rgba, can_be_constructed_from_Rgb_with_custom_alpha)
 {
-    static_assert(Rgba{Rgb<float>{0.25f, 0.50f, 0.75f}, 0.33f} == Rgba<float>{0.25, 0.5f, 0.75f, 0.33f});
+    static_assert(
+        Rgba{Rgb<float>{0.25f, 0.50f, 0.75f}, 0.33f} == Rgba<float>{0.25, 0.5f, 0.75f, 0.33f});
 }
 
 TEST(Rgba, rgb_returns_Rgba_converted_into_Rgb)
@@ -116,7 +117,9 @@ TEST(Rgba, Unorm8_rgba_can_be_hashed)
     }
 }
 
-TEST(Rgba, can_implicitly_construct_Rgba_from_different_components_if_components_are_implicitly_convertible)
+TEST(
+    Rgba,
+    can_implicitly_construct_Rgba_from_different_components_if_components_are_implicitly_convertible)
 {
     const Rgba<float> float_val{0.0f, 0.5f, 1.0f, 1.0f};
     const Rgba<Unorm8> unorm8_val = float_val;

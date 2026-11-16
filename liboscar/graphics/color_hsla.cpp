@@ -12,13 +12,7 @@ using namespace osc;
 
 namespace
 {
-    float calc_normalized_hsla_hue(
-        float r,
-        float g,
-        float b,
-        float,
-        float max,
-        float delta)
+    float calc_normalized_hsla_hue(float r, float g, float b, float, float max, float delta)
     {
         if (delta == 0.0f) {
             return 0.0f;
@@ -110,5 +104,6 @@ osc::ColorHSLA::operator Color() const
 
 std::ostream& osc::operator<<(std::ostream& color, const ColorHSLA& c)
 {
-    return color << "ColorHSLA(h = " << c.hue << ", s = " << c.saturation << ", l = " << c.lightness << ", a = " << c.alpha << ')';
+    return color << "ColorHSLA(h = " << c.hue << ", s = " << c.saturation << ", l = " << c.lightness
+                 << ", a = " << c.alpha << ')';
 }

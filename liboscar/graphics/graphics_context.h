@@ -41,8 +41,8 @@ namespace osc
         //   thread (it's a deadlock or, at least, an exception, to do so).
         std::future<Texture2D> request_screenshot();
 
-        // execute the "swap chain" operation, which makes the current backbuffer the frontbuffer and
-        // the frontbuffer the backbuffer
+        // execute the "swap chain" operation, which makes the current backbuffer the frontbuffer
+        // and the frontbuffer the backbuffer
         void swap_buffers(SDL_Window&);
 
         // human-readable identifier strings: useful for printouts/debugging

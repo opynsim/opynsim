@@ -93,7 +93,9 @@ TEST(RenderTexture, throws_if_given_non_square_pixel_dimensions_but_Cube_dimensi
     ASSERT_ANY_THROW(const RenderTexture render_texture(render_texture_params));
 }
 
-TEST(RenderTexture, set_dimensionality_throws_if_set_on_RenderTexture_with_non_square_pixel_dimensions)
+TEST(
+    RenderTexture,
+    set_dimensionality_throws_if_set_on_RenderTexture_with_non_square_pixel_dimensions)
 {
     RenderTexture render_texture;
     render_texture.set_pixel_dimensions({1, 2});  // not square

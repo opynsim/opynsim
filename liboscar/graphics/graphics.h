@@ -27,13 +27,16 @@ namespace osc::graphics
 {
     void render_to_main_window(const RenderQueue&, const Camera&, const RenderPassConfig& = {});
     void render_to(RenderTexture&, const RenderQueue&, const Camera&, const RenderPassConfig& = {});
-    void render_to(const RenderTarget&, const RenderQueue&, const Camera&, const RenderPassConfig& = {});
-    void render_to(SharedDepthStencilRenderBuffer&, const RenderQueue&, const Camera&, const RenderPassConfig& = {});
+    void render_to(
+        const RenderTarget&, const RenderQueue&, const Camera&, const RenderPassConfig& = {});
+    void render_to(
+        SharedDepthStencilRenderBuffer&,
+        const RenderQueue&,
+        const Camera&,
+        const RenderPassConfig& = {});
 
     // Blits the `Texture` to the `RenderTexture`.
-    void blit(
-        const Texture2D&,
-        RenderTexture&);
+    void blit(const Texture2D&, RenderTexture&);
 
     // Blits `render_texture` into a rectangular region of the main window.
     //
@@ -71,23 +74,13 @@ namespace osc::graphics
     // - Is measured in device-independent pixels
     // - Starts in the bottom-left corner
     // - Ends in the top-right corner
-    void blit_to_main_window(
-        const Texture2D&,
-        const Rect&);
+    void blit_to_main_window(const Texture2D&, const Rect&);
 
     // copy: copy a GPU texture to a (potentially, CPU-accessible) texture
 
-    void copy_texture(
-        const RenderTexture&,
-        Texture2D&);
+    void copy_texture(const RenderTexture&, Texture2D&);
 
-    void copy_texture(
-        const RenderTexture&,
-        Texture2D&,
-        CubemapFace);
+    void copy_texture(const RenderTexture&, Texture2D&, CubemapFace);
 
-    void copy_texture(
-        const RenderTexture&,
-        Cubemap&,
-        size_t mipmap_level);
+    void copy_texture(const RenderTexture&, Cubemap&, size_t mipmap_level);
 }

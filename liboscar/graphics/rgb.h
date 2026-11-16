@@ -46,13 +46,22 @@ namespace osc
         Rgb() = default;
 
         explicit constexpr Rgb(value_type v) :
-            r{v}, g{v}, b{v} {}
+            r{v},
+            g{v},
+            b{v}
+        {}
 
         constexpr Rgb(value_type r, value_type g, value_type b) :
-            r{r}, g{g}, b{b} {}
+            r{r},
+            g{g},
+            b{b}
+        {}
 
         explicit constexpr Rgb(const Vector<value_type, 3>& v) :
-            r{v.x()}, g{v.y()}, b{v.z()} {}
+            r{v.x()},
+            g{v.y()},
+            b{v.z()}
+        {}
 
         template<ColorComponent U>
         requires std::constructible_from<T, const U&>
@@ -89,16 +98,28 @@ namespace osc
     };
 
     template<size_t I, typename T>
-    constexpr const T& get(const Rgb<T>& v) { return v[I]; }
+    constexpr const T& get(const Rgb<T>& v)
+    {
+        return v[I];
+    }
 
     template<size_t I, typename T>
-    constexpr T& get(Rgb<T>& v) { return v[I]; }
+    constexpr T& get(Rgb<T>& v)
+    {
+        return v[I];
+    }
 
     template<size_t I, typename T>
-    constexpr T&& get(Rgb<T>&& v) { return std::move(v[I]); }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+    constexpr T&& get(Rgb<T>&& v)
+    {
+        return std::move(v[I]);
+    }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
 
     template<size_t I, typename T>
-    constexpr const T&& get(const Rgb<T>&& v) { return std::move(v[I]); }
+    constexpr const T&& get(const Rgb<T>&& v)
+    {
+        return std::move(v[I]);
+    }
 }
 
 template<osc::ColorComponent T>

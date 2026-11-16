@@ -240,7 +240,8 @@ TEST(Cubemap, set_wrap_mode_u_sets_U_axis_and_general_wrap_mode_getter)
     ASSERT_EQ(cubemap.wrap_mode_v(), TextureWrapMode::Repeat);
     ASSERT_EQ(cubemap.wrap_mode_w(), TextureWrapMode::Repeat);
     cubemap.set_wrap_mode_u(TextureWrapMode::Clamp);
-    ASSERT_EQ(cubemap.wrap_mode(), TextureWrapMode::Clamp);  // `wrap_mode()` is an alias for `wrap_mode_u()`
+    // `wrap_mode()` is an alias for `wrap_mode_u()`
+    ASSERT_EQ(cubemap.wrap_mode(), TextureWrapMode::Clamp);
     ASSERT_EQ(cubemap.wrap_mode_u(), TextureWrapMode::Clamp);
     ASSERT_EQ(cubemap.wrap_mode_v(), TextureWrapMode::Repeat);
     ASSERT_EQ(cubemap.wrap_mode_w(), TextureWrapMode::Repeat);

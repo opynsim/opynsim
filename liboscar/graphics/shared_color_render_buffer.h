@@ -50,7 +50,8 @@ namespace osc
         explicit SharedColorRenderBuffer();
         explicit SharedColorRenderBuffer(const ColorRenderBufferParams&);
 
-        friend bool operator==(const SharedColorRenderBuffer&, const SharedColorRenderBuffer&) = default;
+        friend bool operator==(const SharedColorRenderBuffer&, const SharedColorRenderBuffer&) =
+            default;
 
         // returns an independent (as in, not-shared) copy of the underlying render buffer data
         SharedColorRenderBuffer clone() const;
