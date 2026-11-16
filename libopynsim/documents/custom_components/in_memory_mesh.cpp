@@ -8,8 +8,7 @@
 using namespace opyn;
 
 void opyn::InMemoryMesh::impl_generate_custom_decorations(
-    const SimTK::State& state,
-    const std::function<void(osc::SceneDecoration&&)>& out) const
+    const SimTK::State& state, const std::function<void(osc::SceneDecoration&&)>& out) const
 {
     out(osc::SceneDecoration{
         .mesh = osc_mesh_,
