@@ -66,31 +66,40 @@
 
 #include <ankerl/unordered_dense.h>
 
-#define IM_VEC4_CLASS_EXTRA                                            \
-    ImVec4(const osc::Vector4& v)                                      \
-    {                                                                  \
-        x = v.x();                                                     \
-        y = v.y();                                                     \
-        z = v.z();                                                     \
-        w = v.w();                                                     \
-    }                                                                  \
-    operator osc::Vector4() const { return osc::Vector4(x, y, z, w); } \
-    ImVec4(const osc::Color& v)                                        \
-    {                                                                  \
-        x = v.r;                                                       \
-        y = v.g;                                                       \
-        z = v.b;                                                       \
-        w = v.a;                                                       \
-    }                                                                  \
-    operator osc::Color() const { return osc::Color{x, y, z, w}; }
+#define IM_VEC4_CLASS_EXTRA                                                                        \
+    ImVec4(const osc::Vector4& v)                                                                  \
+    {                                                                                              \
+        x = v.x();                                                                                 \
+        y = v.y();                                                                                 \
+        z = v.z();                                                                                 \
+        w = v.w();                                                                                 \
+    }                                                                                              \
+    operator osc::Vector4() const                                                                  \
+    {                                                                                              \
+        return osc::Vector4(x, y, z, w);                                                           \
+    }                                                                                              \
+    ImVec4(const osc::Color& v)                                                                    \
+    {                                                                                              \
+        x = v.r;                                                                                   \
+        y = v.g;                                                                                   \
+        z = v.b;                                                                                   \
+        w = v.a;                                                                                   \
+    }                                                                                              \
+    operator osc::Color() const                                                                    \
+    {                                                                                              \
+        return osc::Color{x, y, z, w};                                                             \
+    }
 
-#define IM_VEC2_CLASS_EXTRA       \
-    ImVec2(const osc::Vector2& f) \
-    {                             \
-        x = f.x();                \
-        y = f.y();                \
-    }                             \
-    operator osc::Vector2() const { return osc::Vector2(x, y); }
+#define IM_VEC2_CLASS_EXTRA                                                                        \
+    ImVec2(const osc::Vector2& f)                                                                  \
+    {                                                                                              \
+        x = f.x();                                                                                 \
+        y = f.y();                                                                                 \
+    }                                                                                              \
+    operator osc::Vector2() const                                                                  \
+    {                                                                                              \
+        return osc::Vector2(x, y);                                                                 \
+    }
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
@@ -295,7 +304,8 @@ namespace
     // The default size of the font in the UI
     constexpr float c_default_base_font_device_independent_pixel_size = 15.0f;
 
-    // The default threshold, in device-independent pixels that a user has to drag their mouse to trigger a drag
+    // The default threshold, in device-independent pixels that a user has to drag their mouse to
+    // trigger a drag
     constexpr float c_default_drag_threshold = 5.0f;
 
     // Vertex shader that's used to rasterize the UI.
@@ -393,15 +403,13 @@ namespace
         {
             return allocate_texture(textures_allocated_this_frame_, std::forward<Texture>(texture));
         }
-        void clear_textures_allocated_this_frame()
-        {
-            textures_allocated_this_frame_.clear();
-        }
+        void clear_textures_allocated_this_frame() { textures_allocated_this_frame_.clear(); }
 
         texture_type* lookup_texture(ImTextureID id)
         {
             static_assert(sizeof(decltype(UID{}.get())) <= sizeof(ImTextureID));
-            if (auto* t = lookup_or_nullptr(textures_allocated_this_frame_, UID::from_int_unchecked(id))) {
+            if (auto* t = lookup_or_nullptr(
+                    textures_allocated_this_frame_, UID::from_int_unchecked(id))) {
                 return t;
             } else {
                 return lookup_or_nullptr(textures_allocated_by_imgui_, UID::from_int_unchecked(id));
@@ -411,7 +419,8 @@ namespace
     private:
         template<typename Texture>
         requires(std::constructible_from<texture_type, Texture>)
-        ImTextureID allocate_texture(ankerl::unordered_dense::map<UID, texture_type>& storage, Texture&& texture)
+        ImTextureID allocate_texture(
+            ankerl::unordered_dense::map<UID, texture_type>& storage, Texture&& texture)
         {
             UID id;
             storage.insert_or_assign(id, std::forward<Texture>(texture));
@@ -432,8 +441,7 @@ namespace
     struct OscarUIBackendData final {
 
         explicit OscarUIBackendData(
-            CopyOnUpdPtr<ui::ContextConfiguration::Impl> config,
-            WindowID window_id) :
+            CopyOnUpdPtr<ui::ContextConfiguration::Impl> config, WindowID window_id) :
 
             caller_config{std::move(config)},
             window_id{window_id}
@@ -448,7 +456,9 @@ namespace
 
         CStringView mouse_button_label_or_icon(MouseButton b) const
         {
-            if (const auto it = mouse_button_ui_icons_or_strings.find(b); it != mouse_button_ui_icons_or_strings.end()) {
+            if (const auto it = mouse_button_ui_icons_or_strings.find(b);
+                it != mouse_button_ui_icons_or_strings.end()) {
+
                 return it->second;
             }
             return mouse_button_ui_icon_or_string_fallback;
@@ -457,8 +467,10 @@ namespace
         CopyOnUpdPtr<ui::ContextConfiguration::Impl> caller_config;
 
         WindowID window_id;
-        WindowID ime_window_id;      // important: used for UI's textual inputs (e.g. `ImGui::InputText`)
-        std::string clipboard_text;  // necessary because ImGui dishes out C-strings that need lifetime management
+        // important: used for UI's textual inputs (e.g. `ImGui::InputText`)
+        WindowID ime_window_id;
+        // necessary because ImGui dishes out C-strings that need lifetime management
+        std::string clipboard_text;
         std::optional<AppClock::time_point> last_frame_time;
 
         // Mouse handling
@@ -466,8 +478,10 @@ namespace
         std::optional<CursorShape> current_custom_cursor;
         int mouse_buttons_down = 0;
         int mouse_last_leave_frame = 0;
-        Vector2 mouse_delta_this_frame;   // Delta vector of the mouse in ui space this frame.
-        Vector2 mouse_delta_from_events;  // Delta vector of the mouse in ui space, accumulated from events.
+        // Delta vector of the mouse in ui space this frame.
+        Vector2 mouse_delta_this_frame;
+        // Delta vector of the mouse in ui space, accumulated from events.
+        Vector2 mouse_delta_from_events;
         std::unordered_map<MouseButton, CStringView> mouse_button_ui_icons_or_strings = {
             {MouseButton::Left, "LeftClick"},
             {MouseButton::Right, "RightClick"},
@@ -496,7 +510,8 @@ namespace
 
     OscarUIBackendData* try_get_ui_backend_data(ImGuiContext* context)
     {
-        return context ? static_cast<OscarUIBackendData*>(context->IO.BackendPlatformUserData) : nullptr;
+        return context ? static_cast<OscarUIBackendData*>(context->IO.BackendPlatformUserData)
+                       : nullptr;
     }
 
     OscarUIBackendData* try_get_ui_backend_data()
@@ -520,7 +535,9 @@ namespace
 
     Matrix4x4 display_projection_matrix(const ImDrawData& draw_data)
     {
-        // Our visible imgui space lies from draw_data->DisplayPos (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
+        // Our visible imgui space lies from draw_data->DisplayPos (top left) to
+        // draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for
+        // single viewport apps.
         const float left = draw_data.DisplayPos.x;
         const float right = draw_data.DisplayPos.x + draw_data.DisplaySize.x;
         const float top = draw_data.DisplayPos.y;
@@ -544,13 +561,17 @@ namespace
         const ImDrawCmd& draw_command,
         RenderTexture* maybe_target)
     {
-        OSC_ASSERT(draw_command.UserCallback == nullptr && "user callbacks are not supported in oscar's ImGui renderer impl");
+        OSC_ASSERT(
+            draw_command.UserCallback == nullptr &&
+            "user callbacks are not supported in oscar's ImGui renderer impl");
 
         // Project scissor/clipping rectangles from ui space, in device-independent
         // pixels, into screenspace, also in device-independent pixels.
         const Vector2 clip_off = draw_data.DisplayPos;  // (0,0) unless using multi-viewports
-        const Vector2 clip_min(draw_command.ClipRect.x - clip_off.x(), draw_command.ClipRect.y - clip_off.y());
-        const Vector2 clip_max(draw_command.ClipRect.z - clip_off.x(), draw_command.ClipRect.w - clip_off.y());
+        const Vector2 clip_min(
+            draw_command.ClipRect.x - clip_off.x(), draw_command.ClipRect.y - clip_off.y());
+        const Vector2 clip_max(
+            draw_command.ClipRect.z - clip_off.x(), draw_command.ClipRect.w - clip_off.y());
 
         if (clip_max.x() <= clip_min.x() or clip_max.y() <= clip_min.y()) {
             return;
@@ -560,11 +581,12 @@ namespace
 
         // setup sub-mesh description
         const size_t sub_mesh_index = mesh.num_submesh_descriptors();
-        mesh.push_submesh_descriptor(SubMeshDescriptor{
-            draw_command.IdxOffset,
-            draw_command.ElemCount,
-            MeshTopology::Triangles,
-            draw_command.VtxOffset});
+        mesh.push_submesh_descriptor(
+            SubMeshDescriptor{
+                draw_command.IdxOffset,
+                draw_command.ElemCount,
+                MeshTopology::Triangles,
+                draw_command.VtxOffset});
 
         // setup texture binding (it's almost always the font texture)
         //
@@ -573,9 +595,9 @@ namespace
         // a backend can actually have an invalid texture ID (specifically, drawing into
         // a drawlist on the first frame before ImGui has had a chance to populate its
         // font texture cache).
-        const ImTextureID tex_id = draw_command.TexRef._TexData ?
-            draw_command.TexRef._TexData->TexID :
-            draw_command.TexRef.GetTexID();
+        const ImTextureID tex_id = draw_command.TexRef._TexData
+                                       ? draw_command.TexRef._TexData->TexID
+                                       : draw_command.TexRef.GetTexID();
         if (const auto* texture = bd.textures.lookup_texture(tex_id)) {
             std::visit(
                 Overload{
@@ -584,11 +606,7 @@ namespace
                 *texture);
         }
 
-        bd.render_queue.emplace(
-            mesh,
-            identity<Matrix4x4>(),
-            bd.ui_material,
-            sub_mesh_index);
+        bd.render_queue.emplace(mesh, identity<Matrix4x4>(), bd.ui_material, sub_mesh_index);
 
         // flush render queue to output
         const RenderPassConfig render_pass_config{
@@ -632,13 +650,19 @@ namespace
 
         Mesh& mesh = bd.mesh;
         mesh.clear();
-        mesh.set_vertex_buffer_params(draw_list.VtxBuffer.Size, {
-            {VertexAttribute::Position,  VertexAttributeFormat::Float32x2},
-            {VertexAttribute::TexCoord0, VertexAttributeFormat::Float32x2},
-            {VertexAttribute::Color,     VertexAttributeFormat::Unorm8x4},
-        });
-        mesh.set_vertex_buffer_data(std::span<ImDrawVert>{draw_list.VtxBuffer.Data, static_cast<size_t>(draw_list.VtxBuffer.Size)});
-        mesh.set_indices({draw_list.IdxBuffer.Data, static_cast<size_t>(draw_list.IdxBuffer.size())}, {MeshUpdateFlag::DontRecalculateBounds, MeshUpdateFlag::DontValidateIndices});
+        mesh.set_vertex_buffer_params(
+            draw_list.VtxBuffer.Size,
+            {
+                {VertexAttribute::Position, VertexAttributeFormat::Float32x2},
+                {VertexAttribute::TexCoord0, VertexAttributeFormat::Float32x2},
+                {VertexAttribute::Color, VertexAttributeFormat::Unorm8x4},
+            });
+        mesh.set_vertex_buffer_data(
+            std::span<ImDrawVert>{
+                draw_list.VtxBuffer.Data, static_cast<size_t>(draw_list.VtxBuffer.Size)});
+        mesh.set_indices(
+            {draw_list.IdxBuffer.Data, static_cast<size_t>(draw_list.IdxBuffer.size())},
+            {MeshUpdateFlag::DontRecalculateBounds, MeshUpdateFlag::DontValidateIndices});
 
         // iterate through command buffer
         for (const ImDrawCmd& draw_command : draw_list.CmdBuffer) {
@@ -652,7 +676,9 @@ namespace
     ImTextureID allocate_texture_for_current_frame(const Texture& texture)
     {
         OscarUIBackendData* bd = try_get_ui_backend_data();
-        OSC_ASSERT(bd != nullptr && "no oscar ImGui renderer backend was available to shutdown - this is a developer error");
+        OSC_ASSERT(
+            bd != nullptr &&
+            "no oscar ImGui renderer backend was available to shutdown - this is a developer error");
         return bd->textures.allocate_texture_for_this_frame(texture);
     }
 
@@ -669,10 +695,13 @@ namespace
 
     void graphics_backend_on_start_new_frame()
     {
-        // `ImGui_ImplOpenGL3_CreateDeviceObjects` is now part of constructing `OscarImguiBackendData`
+        // `ImGui_ImplOpenGL3_CreateDeviceObjects` is now part of constructing
+        // `OscarImguiBackendData`
 
         OscarUIBackendData* bd = try_get_ui_backend_data();
-        OSC_ASSERT(bd != nullptr && "no oscar ImGui renderer backend was available - this is a developer error");
+        OSC_ASSERT(
+            bd != nullptr &&
+            "no oscar ImGui renderer backend was available - this is a developer error");
         bd->textures.clear_textures_allocated_this_frame();
     }
 
@@ -686,7 +715,8 @@ namespace
 
             // Allocate the texture in oscar's backend
             const Vector2i dimensions{texture_data.Width, texture_data.Height};
-            const size_t bytes_in_texture = area_of(dimensions) * num_bytes_per_pixel_in(TextureFormat::RGBA32);
+            const size_t bytes_in_texture =
+                area_of(dimensions) * num_bytes_per_pixel_in(TextureFormat::RGBA32);
             Texture2D texture{
                 dimensions,
                 TextureFormat::RGBA32,
@@ -694,7 +724,8 @@ namespace
                 TextureWrapMode::Clamp,
                 TextureFilterMode::Linear,
             };
-            texture.set_pixel_data({static_cast<const uint8_t*>(texture_data.GetPixels()), bytes_in_texture});
+            texture.set_pixel_data(
+                {static_cast<const uint8_t*>(texture_data.GetPixels()), bytes_in_texture});
 
             // Update ImGui with texture details
             texture_data.SetTexID(bd.textures.allocate_imgui_texture(texture));
@@ -704,13 +735,18 @@ namespace
         case ImTextureStatus_WantUpdates: {
             // Fetch the texture handle from the liboscar backend data
             auto* t = bd.textures.lookup_texture(texture_data.GetTexID());
-            OSC_ASSERT(t and std::holds_alternative<Texture2D>(*t) && "the texture should've been created by ImTextureStatus_WantCreate");
+            OSC_ASSERT(
+                t and std::holds_alternative<Texture2D>(*t) &&
+                "the texture should've been created by ImTextureStatus_WantCreate");
 
             // Update pixel data in the texture
-            std::get<Texture2D>(*t).update_pixel_data([&texture_data](std::span<uint8_t> pixel_data) {
-                // Unpack all of ImGui's numbers into `ptrdiff_t`s so that integer widening is explicit.
+            std::get<Texture2D>(*t).update_pixel_data([&texture_data](
+                                                          std::span<uint8_t> pixel_data) {
+                // Unpack all of ImGui's numbers into `ptrdiff_t`s so that integer widening is
+                // explicit.
                 const auto texture_data_width = static_cast<ptrdiff_t>(texture_data.Width);
-                const auto texture_data_bytes_per_pixel = static_cast<ptrdiff_t>(texture_data.BytesPerPixel);
+                const auto texture_data_bytes_per_pixel =
+                    static_cast<ptrdiff_t>(texture_data.BytesPerPixel);
                 const auto texture_data_pitch = static_cast<ptrdiff_t>(texture_data.GetPitch());
                 for (const ImTextureRect& source_rect : texture_data.Updates) {
                     const auto source_rect_x = static_cast<ptrdiff_t>(source_rect.x);
@@ -719,11 +755,17 @@ namespace
                     const auto source_rect_h = static_cast<ptrdiff_t>(source_rect.h);
                     const size_t num_pixels_per_row = source_rect_w * texture_data_bytes_per_pixel;
 
-                    const auto* source_first_pixel = static_cast<const uint8_t*>(texture_data.GetPixelsAt(source_rect.x, source_rect.y));
-                    auto* destination_first_pixel = pixel_data.data() + ((source_rect_x + (source_rect_y * texture_data_width)) * texture_data_bytes_per_pixel);
+                    const auto* source_first_pixel = static_cast<const uint8_t*>(
+                        texture_data.GetPixelsAt(source_rect.x, source_rect.y));
+                    auto* destination_first_pixel =
+                        pixel_data.data() +
+                        ((source_rect_x + (source_rect_y * texture_data_width)) *
+                         texture_data_bytes_per_pixel);
                     for (ptrdiff_t row = 0; row < source_rect_h; ++row) {
-                        std::span<const uint8_t> source_row{source_first_pixel + (row * texture_data_pitch), num_pixels_per_row};
-                        uint8_t* destination_row_begin = destination_first_pixel + (row * texture_data_pitch);
+                        std::span<const uint8_t> source_row{
+                            source_first_pixel + (row * texture_data_pitch), num_pixels_per_row};
+                        uint8_t* destination_row_begin =
+                            destination_first_pixel + (row * texture_data_pitch);
                         rgs::copy(source_row, destination_row_begin);
                     }
                 }
@@ -735,13 +777,15 @@ namespace
         case ImTextureStatus_WantDestroy: {
             // Requesting backend to destroy the texture. Set status to Destroyed when done.
             bd.textures.deallocate_imgui_texture(texture_data.GetTexID());
-            // Clear identifiers and mark as destroyed (in order to allow e.g. calling InvalidateDeviceObjects while running)
+            // Clear identifiers and mark as destroyed (in order to allow e.g. calling
+            // InvalidateDeviceObjects while running)
             texture_data.SetTexID(ImTextureID_Invalid);
             texture_data.SetStatus(ImTextureStatus_Destroyed);
             break;
         }
         case ImTextureStatus_OK:         // nothing to do
-        case ImTextureStatus_Destroyed:  // nothing to do (no callback-style behavior in this backend)
+        case ImTextureStatus_Destroyed:  // nothing to do (no callback-style behavior in this
+                                         // backend)
         default: break;
         }
     }
@@ -749,10 +793,12 @@ namespace
     void graphics_backend_render(ImDrawData* draw_data, RenderTexture* maybe_target = nullptr)
     {
         OscarUIBackendData* bd = try_get_ui_backend_data();
-        OSC_ASSERT(bd != nullptr && "no oscar ImGui renderer backend was available to shutdown - this is a developer error");
+        OSC_ASSERT(
+            bd != nullptr &&
+            "no oscar ImGui renderer backend was available to shutdown - this is a developer error");
 
-        // Before processing the draw data, which may contain texture references, catch up with texture
-        // updates.
+        // Before processing the draw data, which may contain texture references, catch up with
+        // texture updates.
         //
         // Most of the time, the list will have 1 element with an OK status, aka nothing to do.
         // (This almost always points to `ImGui::GetPlatformIO().Textures[]` but is part of
@@ -805,17 +851,20 @@ namespace
 
     // maps between ui:: flag types and imgui flag types
     template<FlagsEnum SourceFlagType, typename DestinationImGuiFlagsType>
-    requires std::is_enum_v<DestinationImGuiFlagsType> or std::is_integral_v<DestinationImGuiFlagsType>
+    requires std::is_enum_v<DestinationImGuiFlagsType> or
+             std::is_integral_v<DestinationImGuiFlagsType>
     class FlagMapper {
     public:
-        constexpr FlagMapper(std::initializer_list<std::pair<SourceFlagType, DestinationImGuiFlagsType>> mappings)
+        constexpr FlagMapper(
+            std::initializer_list<std::pair<SourceFlagType, DestinationImGuiFlagsType>> mappings)
         {
             if (mappings.size() != num_flags_v<SourceFlagType>) {
                 throw std::runtime_error{"invalid number of flags passed to a FlagMapper"};
             }
 
             for (const auto& [source_flag, destination_flag] : mappings) {
-                const auto source_index = std::countr_zero(std::bit_floor(std::to_underlying(source_flag)));
+                const auto source_index =
+                    std::countr_zero(std::bit_floor(std::to_underlying(source_flag)));
                 lut_[source_index] = destination_flag;
             }
         }
@@ -868,7 +917,8 @@ public:
     {
         custom_font_config_ = CustomFontConfig{
             .main_font = {.path = std::move(main_font_ttf_path)},
-            .icon_font = {.path = std::move(icon_font_ttf_path), .codepoint_range = codepoint_range},
+            .icon_font =
+                {.path = std::move(icon_font_ttf_path), .codepoint_range = codepoint_range},
         };
     }
 
@@ -911,7 +961,8 @@ namespace
         const ImWchar* glyph_ranges = nullptr)
     {
         const std::string base_font_data = loader.slurp(path);
-        const std::span<const char> data_including_nul_terminator{base_font_data.data(), base_font_data.size() + 1};
+        const std::span<const char> data_including_nul_terminator{
+            base_font_data.data(), base_font_data.size() + 1};
 
         atlas.AddFontFromMemoryTTF(
             to_imgui_allocated_copy(data_including_nul_terminator),
@@ -963,7 +1014,9 @@ namespace
         {
             // Load the "base" config, which is the configuration that's loaded if the
             // user hasn't got a configuration.
-            if (const auto* base_path = config.base_imgui_ini_config(); base_path and loader.resource_exists(*base_path)) {
+            if (const auto* base_path = config.base_imgui_ini_config();
+                base_path and loader.resource_exists(*base_path)) {
+
                 const std::string base_ini_data = loader.slurp(*base_path);
                 ImGui::LoadIniSettingsFromMemory(base_ini_data.data(), base_ini_data.size());
             }
@@ -977,9 +1030,7 @@ namespace
     }
 
     void configure_fonts(
-        ResourceLoader loader,
-        const ui::ContextConfiguration::Impl& config,
-        OscarUIBackendData& bd)
+        ResourceLoader loader, const ui::ContextConfiguration::Impl& config, OscarUIBackendData& bd)
     {
         ImGuiIO& io = ImGui::GetIO();
 
@@ -992,7 +1043,8 @@ namespace
 
             // Main font support
             bool main_font_added = false;
-            if (const auto* main_font = config.main_font_config(); main_font and loader.resource_exists(main_font->path)) {
+            if (const auto* main_font = config.main_font_config();
+                main_font and loader.resource_exists(main_font->path)) {
                 io.Fonts->Clear();
                 io.FontDefault = nullptr;
 
@@ -1001,16 +1053,25 @@ namespace
             }
 
             // Add icon support
-            if (const auto* icon_font = config.icon_font_config(); main_font_added and icon_font and loader.resource_exists(icon_font->path)) {
+            if (const auto* icon_font = config.icon_font_config();
+                main_font_added and icon_font and loader.resource_exists(icon_font->path)) {
+
                 ImFontConfig icon_font_config = base_font_config;
                 icon_font_config.MergeMode = true;
                 icon_font_config.GlyphMinAdvanceX = floor(1.5f * icon_font_config.SizePixels);
                 icon_font_config.GlyphMaxAdvanceX = floor(1.5f * icon_font_config.SizePixels);
-                static_assert(sizeof(decltype(icon_font->codepoint_range.lower)) == sizeof(ImWchar));
+                static_assert(
+                    sizeof(decltype(icon_font->codepoint_range.lower)) == sizeof(ImWchar));
                 // CARE: icon_font_glyph_ranges has to outlive the ImGui context
-                bd.icon_font_glyph_ranges = std::to_array<ImWchar>({icon_font->codepoint_range.lower, icon_font->codepoint_range.upper, 0});
+                bd.icon_font_glyph_ranges = std::to_array<ImWchar>(
+                    {icon_font->codepoint_range.lower, icon_font->codepoint_range.upper, 0});
 
-                add_resource_as_font(loader, icon_font_config, *io.Fonts, icon_font->path, bd.icon_font_glyph_ranges.data());
+                add_resource_as_font(
+                    loader,
+                    icon_font_config,
+                    *io.Fonts,
+                    icon_font->path,
+                    bd.icon_font_glyph_ranges.data());
             }
         }
     }
@@ -1018,40 +1079,47 @@ namespace
     // note: the native IME UI will only display if the caller enables IME before creating
     //       the application window.
     //
-    //       However, even if the native overlay isn't showing it's still __VERY IMPORTANT__ to handle
-    //       IME correctly, because ImGui's text input widgets use text input events, rather than key
-    //       events, to track user input.
+    //       However, even if the native overlay isn't showing it's still __VERY IMPORTANT__ to
+    //       handle IME correctly, because ImGui's text input widgets use text input events, rather
+    //       than key events, to track user input.
     void imgui_oscar_platform_set_ime_data(
-        ImGuiContext*,
-        ImGuiViewport* viewport,
-        ImGuiPlatformImeData* ime_data)
+        ImGuiContext*, ImGuiViewport* viewport, ImGuiPlatformImeData* ime_data)
     {
         App& app = App::upd();
         OscarUIBackendData* bd = try_get_ui_backend_data();
         WindowID viewport_window{viewport->PlatformHandle};
 
-        if (bd->ime_window_id and (not ime_data->WantVisible or bd->ime_window_id != viewport_window)) {
+        if (bd->ime_window_id and
+            (not ime_data->WantVisible or bd->ime_window_id != viewport_window)) {
+
             app.stop_text_input(std::exchange(bd->ime_window_id, WindowID{}));
         }
 
         if (ime_data->WantVisible) {
             const Vector2 input_dimensions = {1.0f, ime_data->InputLineHeight};
             const auto input_top_left_ui = to<Vector2>(ime_data->InputPos);
-            const Vector2 input_bottom_left_ui = {input_top_left_ui.x(), input_top_left_ui.y() + input_dimensions.y()};
-            const Vector2 input_bottom_left_screen = {input_top_left_ui.x(), viewport->Size.y - input_bottom_left_ui.y()};
+            const Vector2 input_bottom_left_ui = {
+                input_top_left_ui.x(), input_top_left_ui.y() + input_dimensions.y()};
+            const Vector2 input_bottom_left_screen = {
+                input_top_left_ui.x(), viewport->Size.y - input_bottom_left_ui.y()};
 
-            app.set_main_window_unicode_input_rect(Rect::from_corners(
-                input_bottom_left_screen,
-                input_bottom_left_screen + input_dimensions));
+            app.set_main_window_unicode_input_rect(
+                Rect::from_corners(
+                    input_bottom_left_screen, input_bottom_left_screen + input_dimensions));
             app.start_text_input(bd->window_id);
             bd->ime_window_id = viewport_window;
         }
     }
 
-    // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-    // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-    // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-    // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+    // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui
+    // wants to use your inputs.
+    //
+    // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main
+    //   application, or clear/overwrite your copy of the mouse data.
+    // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main
+    //   application, or clear/overwrite your copy of the keyboard data. Generally you may always
+    //   pass all inputs to dear imgui, and hide them from your application based on those two
+    //   flags.
     bool imgui_oscar_platform_process_event(Event& e)
     {
         ImGuiIO& io = ImGui::GetIO();
@@ -1060,15 +1128,23 @@ namespace
         switch (e.type()) {
         case EventType::MouseMove: {
             const auto& move_event = dynamic_cast<const MouseEvent&>(e);
-            io.AddMouseSourceEvent(move_event.input_source() == MouseInputSource::TouchScreen ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
-            io.AddMousePosEvent(move_event.position().x(), io.DisplaySize.y - move_event.position().y());
-            bd->mouse_delta_from_events += Vector2{1.0f, -1.0f} * move_event.delta();  // Transform screen space to ui space.
+            io.AddMouseSourceEvent(
+                move_event.input_source() == MouseInputSource::TouchScreen
+                    ? ImGuiMouseSource_TouchScreen
+                    : ImGuiMouseSource_Mouse);
+            io.AddMousePosEvent(
+                move_event.position().x(), io.DisplaySize.y - move_event.position().y());
+            // Transform screen space to ui space.
+            bd->mouse_delta_from_events += Vector2{1.0f, -1.0f} * move_event.delta();
             return true;
         }
         case EventType::MouseWheel: {
             const auto& wheel_event = dynamic_cast<const MouseWheelEvent&>(e);
             const auto delta = wheel_event.delta();
-            io.AddMouseSourceEvent(wheel_event.input_source() == MouseInputSource::TouchScreen ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
+            io.AddMouseSourceEvent(
+                wheel_event.input_source() == MouseInputSource::TouchScreen
+                    ? ImGuiMouseSource_TouchScreen
+                    : ImGuiMouseSource_Mouse);
             io.AddMouseWheelEvent(delta.x(), delta.y());
             return true;
         }
@@ -1090,9 +1166,14 @@ namespace
                 return false;
             }
 
-            io.AddMouseSourceEvent(button_event.input_source() == MouseInputSource::TouchScreen ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
+            io.AddMouseSourceEvent(
+                button_event.input_source() == MouseInputSource::TouchScreen
+                    ? ImGuiMouseSource_TouchScreen
+                    : ImGuiMouseSource_Mouse);
             io.AddMouseButtonEvent(mouse_button, button_event.type() == EventType::MouseButtonDown);
-            bd->mouse_buttons_down = (button_event.type() == EventType::MouseButtonDown) ? (bd->mouse_buttons_down | (1 << mouse_button)) : (bd->mouse_buttons_down & ~(1 << mouse_button));
+            bd->mouse_buttons_down = (button_event.type() == EventType::MouseButtonDown)
+                                         ? (bd->mouse_buttons_down | (1 << mouse_button))
+                                         : (bd->mouse_buttons_down & ~(1 << mouse_button));
             return true;
         }
         case EventType::KeyDown:
@@ -1117,17 +1198,18 @@ namespace
             return true;
         }
         case EventType::DisplayStateChange: {
-            // triggered when monitors are connected/disconnected: oscar doesn't use imgui's multi-viewport
-            // so we don't need this
+            // triggered when monitors are connected/disconnected: oscar doesn't use imgui's
+            // multi-viewport so we don't need this
             return true;
         }
         case EventType::Window: {
             // - When capturing mouse, the application may send a bunch of conflicting LEAVE/ENTER
             //   events on every mouse move, but the final ENTER tends to be right.
             // - However we won't get a correct LEAVE event for a captured window.
-            // - In some cases, when detaching a window from main viewport the application may send an ENTER event
-            //   one frame too late, causing LEAVE on previous frame to interrupt drag operation by clear mouse
-            //   position. This is why delay process the LEAVE events by one frame. See issue imgui#5012 for details.
+            // - In some cases, when detaching a window from main viewport the application may send
+            //   an ENTER event one frame too late, causing LEAVE on previous frame to interrupt
+            //   drag operation by clear mouse position. This is why delay process the LEAVE events
+            //   by one frame. See issue imgui#5012 for details.
             const auto& window_event = dynamic_cast<const WindowEvent&>(e);
 
             switch (window_event.type()) {
@@ -1169,7 +1251,9 @@ namespace
                 }
                 return true;
             }
-            case WindowEventType::WindowDisplayScaleChanged:  // Doesn't matter in modern ImGui anymore, because it now natively handles rescaling textures etc.
+            // Doesn't matter in modern ImGui anymore, because it now natively handles rescaling
+            // textures etc.
+            case WindowEventType::WindowDisplayScaleChanged:
             default: return true;
             }
         }
@@ -1180,21 +1264,26 @@ namespace
     }
 
     void imgui_oscar_platform_init(
-        std::unique_ptr<OscarUIBackendData> context_data,
-        WindowID main_window_id)
+        std::unique_ptr<OscarUIBackendData> context_data, WindowID main_window_id)
     {
         ImGuiIO& io = ImGui::GetIO();
-        OSC_ASSERT_ALWAYS(io.BackendPlatformUserData == nullptr && "Already initialized a platform backend!");
+        OSC_ASSERT_ALWAYS(
+            io.BackendPlatformUserData == nullptr && "Already initialized a platform backend!");
 
         // init `BackendData` and setup `ImGuiIO` pointers etc.
-        io.BackendPlatformUserData = static_cast<void*>(context_data.release());  // give ownership to ImGui
+
+        // Give ownership to ImGui
+        io.BackendPlatformUserData = static_cast<void*>(context_data.release());
         io.BackendPlatformName = "imgui_impl_oscar";
         io.BackendFlags = ImGuiBackendFlags_None;
-        io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;  // We can honor GetMouseCursor() values (optional)
-        io.ConfigDebugHighlightIdConflicts = false;            // Disable this highlight (annoying for users, opensim-creator#964)
+        // We can honor GetMouseCursor() values (optional)
+        io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+        // Disable this highlight (annoying for users, opensim-creator#964)
+        io.ConfigDebugHighlightIdConflicts = false;
         io.BackendRendererName = "imgui_impl_osc";
         io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
-        io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;  // Support dynamic font scaling etc.
+        // Support dynamic font scaling etc.
+        io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
 
         ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
         platform_io.Platform_SetClipboardTextFn = ui_set_clipboard_text;
@@ -1211,19 +1300,23 @@ namespace
         // Our mouse update function expect PlatformHandle to be filled for the main viewport
         ImGuiViewport* main_viewport = ImGui::GetMainViewport();
         main_viewport->PlatformHandle = to<void*>(main_window_id);
-        main_viewport->PlatformHandleRaw = nullptr;  // oscar: don't expose underlying OS/App abstraction
+        // oscar: don't expose underlying OS/App abstraction
+        main_viewport->PlatformHandleRaw = nullptr;
     }
 
     [[nodiscard]] std::unique_ptr<OscarUIBackendData> imgui_oscar_platform_shutdown(App* app)
     {
         ImGuiIO& io = ImGui::GetIO();
-        OSC_ASSERT_ALWAYS(io.BackendPlatformUserData != nullptr && "No platform backend to shutdown, or already shutdown?");
+        OSC_ASSERT_ALWAYS(
+            io.BackendPlatformUserData != nullptr &&
+            "No platform backend to shutdown, or already shutdown?");
 
         // shutdown platform interface
         ImGui::DestroyPlatformWindows();
 
         // take ownership back from ImGui
-        std::unique_ptr<OscarUIBackendData> bd{static_cast<OscarUIBackendData*>(std::exchange(io.BackendPlatformUserData, nullptr))};
+        std::unique_ptr<OscarUIBackendData> bd{
+            static_cast<OscarUIBackendData*>(std::exchange(io.BackendPlatformUserData, nullptr))};
 
         // destroy all textures created/handled by ImGui
         for (ImTextureData* texture_data : ImGui::GetPlatformIO().Textures) {
@@ -1293,16 +1386,21 @@ namespace
                 // handle the case where the clock hasn't increased since the last frame by
                 // adding a very small amount of time, because ImGui doesn't accept a `DeltaTime`
                 // of zero (see: imgui#6189, imgui#6114, imgui#3644)
-                static_assert(static_cast<float>(std::chrono::duration<AppClock::rep, std::nano>{1}.count()) > std::numeric_limits<float>::epsilon());
+                static_assert(
+                    static_cast<float>(std::chrono::duration<AppClock::rep, std::nano>{1}.count()) >
+                    std::numeric_limits<float>::epsilon());
                 t = *bd.last_frame_time + std::chrono::nanoseconds{1};
             }
-            const auto delta = bd.last_frame_time ? t - *bd.last_frame_time : AppClock::duration{1.0 / 60.0};
+            const auto delta =
+                bd.last_frame_time ? t - *bd.last_frame_time : AppClock::duration{1.0 / 60.0};
             io.DeltaTime = static_cast<float>(delta.count());
             bd.last_frame_time = t;
         }
 
         // Handle mouse leaving the window
-        if (bd.mouse_last_leave_frame and (bd.mouse_last_leave_frame >= ImGui::GetFrameCount()) and bd.mouse_buttons_down == 0) {
+        if (bd.mouse_last_leave_frame and (bd.mouse_last_leave_frame >= ImGui::GetFrameCount()) and
+            bd.mouse_buttons_down == 0) {
+
             bd.mouse_window_id.reset();
             bd.mouse_last_leave_frame = 0;
             io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
@@ -1562,10 +1660,7 @@ struct osc::Converter<MouseButton, std::optional<ImGuiMouseButton>> final {
 
 template<>
 struct osc::Converter<ui::SliderFlags, ImGuiSliderFlags> final {
-    ImGuiSliderFlags operator()(ui::SliderFlags flags) const
-    {
-        return c_mappings(flags);
-    }
+    ImGuiSliderFlags operator()(ui::SliderFlags flags) const { return c_mappings(flags); }
 
 private:
     static constexpr FlagMapper<ui::SliderFlag, ImGuiSliderFlags> c_mappings = {
@@ -1586,10 +1681,7 @@ struct osc::Converter<ui::DataType, ImGuiDataType> final {
 
 template<>
 struct osc::Converter<ui::TextInputFlags, ImGuiInputTextFlags> final {
-    ImGuiInputTextFlags operator()(ui::TextInputFlags flags) const
-    {
-        return c_mappings(flags);
-    }
+    ImGuiInputTextFlags operator()(ui::TextInputFlags flags) const { return c_mappings(flags); }
 
 private:
     static constexpr FlagMapper<ui::TextInputFlag, ImGuiInputTextFlags> c_mappings = {
@@ -1600,10 +1692,7 @@ private:
 
 template<>
 struct osc::Converter<ui::ComboFlags, ImGuiComboFlags> final {
-    ImGuiComboFlags operator()(ui::ComboFlags flags) const
-    {
-        return c_mappings(flags);
-    }
+    ImGuiComboFlags operator()(ui::ComboFlags flags) const { return c_mappings(flags); }
 
 private:
     static constexpr FlagMapper<ui::ComboFlag, ImGuiComboFlags> c_mappings = {
@@ -1613,10 +1702,7 @@ private:
 
 template<>
 struct osc::Converter<ui::PanelFlags, ImGuiWindowFlags> final {
-    ImGuiWindowFlags operator()(ui::PanelFlags flags) const
-    {
-        return c_mappings(flags);
-    }
+    ImGuiWindowFlags operator()(ui::PanelFlags flags) const { return c_mappings(flags); }
 
 private:
     // clang-format off
@@ -1643,10 +1729,7 @@ private:
 
 template<>
 struct osc::Converter<ui::ChildPanelFlags, ImGuiChildFlags> final {
-    ImGuiChildFlags operator()(ui::ChildPanelFlags flags) const
-    {
-        return c_mappings(flags);
-    }
+    ImGuiChildFlags operator()(ui::ChildPanelFlags flags) const { return c_mappings(flags); }
 
 private:
     static constexpr FlagMapper<ui::ChildPanelFlag, ImGuiChildFlags> c_mappings = {
@@ -1671,10 +1754,7 @@ struct osc::Converter<ui::Conditional, ImGuiCond> final {
 
 template<>
 struct osc::Converter<ui::HoveredFlags, ImGuiHoveredFlags> final {
-    ImGuiHoveredFlags operator()(ui::HoveredFlags flags) const
-    {
-        return c_mappings(flags);
-    }
+    ImGuiHoveredFlags operator()(ui::HoveredFlags flags) const { return c_mappings(flags); }
 
 private:
     // clang-format off
@@ -1693,10 +1773,7 @@ private:
 
 template<>
 struct osc::Converter<ui::ItemFlags, ImGuiItemFlags> final {
-    ImGuiItemFlags operator()(ui::ItemFlags flags) const
-    {
-        return c_mappings(flags);
-    }
+    ImGuiItemFlags operator()(ui::ItemFlags flags) const { return c_mappings(flags); }
 
 private:
     static constexpr FlagMapper<ui::ItemFlag, ImGuiItemFlags> c_mappings = {
@@ -1707,10 +1784,7 @@ private:
 
 template<>
 struct osc::Converter<ui::PopupFlags, ImGuiPopupFlags> final {
-    ImGuiPopupFlags operator()(ui::PopupFlags flags) const
-    {
-        return c_mappings(flags);
-    }
+    ImGuiPopupFlags operator()(ui::PopupFlags flags) const { return c_mappings(flags); }
 
 private:
     static constexpr FlagMapper<ui::PopupFlag, ImGuiPopupFlags> c_mappings = {
@@ -1721,10 +1795,7 @@ private:
 
 template<>
 struct osc::Converter<ui::TableFlags, ImGuiTableFlags> final {
-    ImGuiTableFlags operator()(ui::TableFlags flags) const
-    {
-        return c_mappings(flags);
-    }
+    ImGuiTableFlags operator()(ui::TableFlags flags) const { return c_mappings(flags); }
 
 private:
     // clang-format off
@@ -1745,10 +1816,7 @@ private:
 
 template<>
 struct osc::Converter<ui::ColumnFlags, ImGuiTableColumnFlags> final {
-    ImGuiTableColumnFlags operator()(ui::ColumnFlags flags) const
-    {
-        return c_mappings(flags);
-    }
+    ImGuiTableColumnFlags operator()(ui::ColumnFlags flags) const { return c_mappings(flags); }
 
 private:
     static constexpr FlagMapper<ui::ColumnFlag, ImGuiTableColumnFlags> c_mappings = {
@@ -1849,9 +1917,7 @@ void osc::ui::ContextConfiguration::set_main_font_as_standard_plus_icon_font(
     ClosedInterval<char16_t> codepoint_range)
 {
     impl_.upd()->set_main_font_as_standard_plus_icon_font(
-        std::move(main_font_ttf_path),
-        std::move(icon_font_ttf_path),
-        codepoint_range);
+        std::move(main_font_ttf_path), std::move(icon_font_ttf_path), codepoint_range);
 }
 
 osc::ui::Context::Context(App& app, const ContextConfiguration& configuration)
@@ -1861,7 +1927,8 @@ osc::ui::Context::Context(App& app, const ContextConfiguration& configuration)
 
 osc::ui::Context::~Context() noexcept
 {
-    shutdown(App::try_upd());  // CARE: don't call `App::upd()` during a destructor: throw within a throw, etc.
+    // CARE: don't call `App::upd()` during a destructor: throw within a throw, etc.
+    shutdown(App::try_upd());
 }
 
 void osc::ui::Context::reset()
@@ -1883,7 +1950,11 @@ bool osc::ui::Context::on_event(Event& ev)
     }
 
     // handle `.WantCaptureMouse`
-    constexpr auto mouse_event_types = std::to_array({EventType::MouseWheel, EventType::MouseMove, EventType::MouseButtonUp, EventType::MouseButtonDown});
+    constexpr auto mouse_event_types = std::to_array(
+        {EventType::MouseWheel,
+         EventType::MouseMove,
+         EventType::MouseButtonUp,
+         EventType::MouseButtonDown});
     return ImGui::GetIO().WantCaptureMouse and cpp23::contains(mouse_event_types, ev.type());
 }
 
@@ -1912,11 +1983,11 @@ void osc::ui::Context::render()
     }
 }
 
-void osc::ui::Context::init(
-    App& app,
-    const CopyOnUpdPtr<ui::ContextConfiguration::Impl>& config)
+void osc::ui::Context::init(App& app, const CopyOnUpdPtr<ui::ContextConfiguration::Impl>& config)
 {
-    OSC_ASSERT(ImGui::GetCurrentContext() == nullptr && "a global UI context has already been initialized");
+    OSC_ASSERT(
+        ImGui::GetCurrentContext() == nullptr &&
+        "a global UI context has already been initialized");
     {
         // ensure ImGui uses the same allocator as the rest of
         // our (C++ stdlib) application
@@ -1932,7 +2003,8 @@ void osc::ui::Context::init(
         ImGui::CreateContext();
 
         // load `imgui.ini`
-        load_imgui_config(app.user_data_directory(), App::resource_loader(), *config, *context_data);
+        load_imgui_config(
+            app.user_data_directory(), App::resource_loader(), *config, *context_data);
 
         // setup (custom) fonts
         configure_fonts(App::resource_loader(), *config, *context_data);
@@ -1980,7 +2052,8 @@ void osc::ui::draw_text_disabled(std::string_view text)
 void osc::ui::draw_text_wrapped(std::string_view text)
 {
     ImGuiContext& g = *GImGui;
-    const bool need_backup = (g.CurrentWindow->DC.TextWrapPos < 0.0f);  // Keep existing wrap position if one is already set
+    // Keep existing wrap position if one is already set
+    const bool need_backup = (g.CurrentWindow->DC.TextWrapPos < 0.0f);
     if (need_backup) {
         ImGui::PushTextWrapPos(0.0f);
     }
@@ -2035,29 +2108,23 @@ void osc::ui::end_menu()
     ImGui::EndMenu();
 }
 
-bool osc::ui::draw_menu_item(
-    CStringView label,
-    std::nullopt_t,
-    bool selected,
-    bool enabled)
+bool osc::ui::draw_menu_item(CStringView label, std::nullopt_t, bool selected, bool enabled)
 {
     return ImGui::MenuItem(label.c_str(), nullptr, selected, enabled);
 }
 
 bool osc::ui::draw_menu_item(
-    CStringView label,
-    std::optional<KeyCombination> shortcut,
-    bool selected,
-    bool enabled)
+    CStringView label, std::optional<KeyCombination> shortcut, bool selected, bool enabled)
 {
-    return ImGui::MenuItem(label.c_str(), shortcut ? to_human_readable_representation(*shortcut).c_str() : nullptr, selected, enabled);
+    return ImGui::MenuItem(
+        label.c_str(),
+        shortcut ? to_human_readable_representation(*shortcut).c_str() : nullptr,
+        selected,
+        enabled);
 }
 
 bool osc::ui::draw_menu_item(
-    CStringView label,
-    std::optional<MouseCombination> shortcut,
-    bool selected,
-    bool enabled)
+    CStringView label, std::optional<MouseCombination> shortcut, bool selected, bool enabled)
 {
     if (not shortcut) {
         return ImGui::MenuItem(label.c_str(), nullptr, selected, enabled);
@@ -2069,12 +2136,13 @@ bool osc::ui::draw_menu_item(
 }
 
 bool osc::ui::draw_menu_item(
-    CStringView label,
-    std::optional<KeyCombination> shortcut,
-    bool* p_selected,
-    bool enabled)
+    CStringView label, std::optional<KeyCombination> shortcut, bool* p_selected, bool enabled)
 {
-    return ImGui::MenuItem(label.c_str(), shortcut ? to_human_readable_representation(*shortcut).c_str() : nullptr, p_selected, enabled);
+    return ImGui::MenuItem(
+        label.c_str(),
+        shortcut ? to_human_readable_representation(*shortcut).c_str() : nullptr,
+        p_selected,
+        enabled);
 }
 
 bool osc::ui::begin_tab_bar(CStringView str_id)
@@ -2177,42 +2245,82 @@ bool osc::ui::draw_checkbox(CStringView label, bool* v)
     return ImGui::Checkbox(label.c_str(), v);
 }
 
-bool osc::ui::draw_float_slider(CStringView label, float* v, float v_min, float v_max, const char* format, SliderFlags flags)
+bool osc::ui::draw_float_slider(
+    CStringView label, float* v, float v_min, float v_max, const char* format, SliderFlags flags)
 {
     return ImGui::SliderFloat(label.c_str(), v, v_min, v_max, format, to<ImGuiSliderFlags>(flags));
 }
 
-bool osc::ui::draw_scalar_input(CStringView label, DataType data_type, void* p_data, const void* p_step, const void* p_step_fast, const char* format, TextInputFlags flags)
+bool osc::ui::draw_scalar_input(
+    CStringView label,
+    DataType data_type,
+    void* p_data,
+    const void* p_step,
+    const void* p_step_fast,
+    const char* format,
+    TextInputFlags flags)
 {
-    return ImGui::InputScalar(label.c_str(), to<ImGuiDataType>(data_type), p_data, p_step, p_step_fast, format, to<ImGuiInputTextFlags>(flags));
+    return ImGui::InputScalar(
+        label.c_str(),
+        to<ImGuiDataType>(data_type),
+        p_data,
+        p_step,
+        p_step_fast,
+        format,
+        to<ImGuiInputTextFlags>(flags));
 }
 
-bool osc::ui::draw_int_input(CStringView label, int* v, int step, int step_fast, TextInputFlags flags)
+bool osc::ui::draw_int_input(
+    CStringView label, int* v, int step, int step_fast, TextInputFlags flags)
 {
     return ImGui::InputInt(label.c_str(), v, step, step_fast, to<ImGuiInputTextFlags>(flags));
 }
 
-bool osc::ui::draw_size_t_input(CStringView label, size_t* v, size_t step, size_t step_fast, TextInputFlags flags)
+bool osc::ui::draw_size_t_input(
+    CStringView label, size_t* v, size_t step, size_t step_fast, TextInputFlags flags)
 {
-    return ImGui::InputScalar(label.c_str(), data_type_for<size_t>(), v, &step, &step_fast, nullptr, to<ImGuiInputTextFlags>(flags));
+    return ImGui::InputScalar(
+        label.c_str(),
+        data_type_for<size_t>(),
+        v,
+        &step,
+        &step_fast,
+        nullptr,
+        to<ImGuiInputTextFlags>(flags));
 }
 
-bool osc::ui::draw_double_input(CStringView label, double* v, double step, double step_fast, const char* format, TextInputFlags flags)
+bool osc::ui::draw_double_input(
+    CStringView label,
+    double* v,
+    double step,
+    double step_fast,
+    const char* format,
+    TextInputFlags flags)
 {
-    return ImGui::InputDouble(label.c_str(), v, step, step_fast, format, to<ImGuiInputTextFlags>(flags));
+    return ImGui::InputDouble(
+        label.c_str(), v, step, step_fast, format, to<ImGuiInputTextFlags>(flags));
 }
 
-bool osc::ui::draw_float_input(CStringView label, float* v, float step, float step_fast, const char* format, TextInputFlags flags)
+bool osc::ui::draw_float_input(
+    CStringView label,
+    float* v,
+    float step,
+    float step_fast,
+    const char* format,
+    TextInputFlags flags)
 {
-    return ImGui::InputFloat(label.c_str(), v, step, step_fast, format, to<ImGuiInputTextFlags>(flags));
+    return ImGui::InputFloat(
+        label.c_str(), v, step, step_fast, format, to<ImGuiInputTextFlags>(flags));
 }
 
-bool osc::ui::draw_float3_input(CStringView label, float* v, const char* format, TextInputFlags flags)
+bool osc::ui::draw_float3_input(
+    CStringView label, float* v, const char* format, TextInputFlags flags)
 {
     return ImGui::InputFloat3(label.c_str(), v, format, to<ImGuiInputTextFlags>(flags));
 }
 
-bool osc::ui::draw_vector3_input(CStringView label, Vector3& v, const char* format, TextInputFlags flags)
+bool osc::ui::draw_vector3_input(
+    CStringView label, Vector3& v, const char* format, TextInputFlags flags)
 {
     return ImGui::InputFloat3(label.c_str(), &v.x(), format, to<ImGuiInputTextFlags>(flags));
 }
@@ -2269,7 +2377,10 @@ void osc::ui::draw_vertical_spacer(float num_lines)
 
 bool osc::ui::begin_combobox(CStringView label, CStringView preview_value, ComboFlags flags)
 {
-    return ImGui::BeginCombo(label.c_str(), preview_value.empty() ? nullptr : preview_value.c_str(), to<ImGuiComboFlags>(flags));
+    return ImGui::BeginCombo(
+        label.c_str(),
+        preview_value.empty() ? nullptr : preview_value.c_str(),
+        to<ImGuiComboFlags>(flags));
 }
 
 void osc::ui::end_combobox()
@@ -2289,7 +2400,8 @@ void osc::ui::end_listbox()
 
 void osc::ui::enable_dockspace_over_main_window()
 {
-    ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGui::DockSpaceOverViewport(
+        0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 }
 
 bool osc::ui::begin_panel(CStringView name, bool* p_open, PanelFlags flags)
@@ -2302,9 +2414,11 @@ void osc::ui::end_panel()
     ImGui::End();
 }
 
-bool osc::ui::begin_child_panel(CStringView str_id, const Vector2& size, ChildPanelFlags child_flags, PanelFlags panel_flags)
+bool osc::ui::begin_child_panel(
+    CStringView str_id, const Vector2& size, ChildPanelFlags child_flags, PanelFlags panel_flags)
 {
-    return ImGui::BeginChild(str_id.c_str(), size, to<ImGuiChildFlags>(child_flags), to<ImGuiWindowFlags>(panel_flags));
+    return ImGui::BeginChild(
+        str_id.c_str(), size, to<ImGuiChildFlags>(child_flags), to<ImGuiWindowFlags>(panel_flags));
 }
 
 void osc::ui::end_child_panel()
@@ -2451,8 +2565,9 @@ ui::ID osc::ui::get_id(std::string_view str_id)
     return ID{ImGui::GetID(str_id.data(), str_id.data() + str_id.size())};
 }
 
-void osc::ui::set_next_item_size(Rect r)  // note: ImGui API assumes cursor is located at `p1` already
+void osc::ui::set_next_item_size(Rect r)
 {
+    // note: ImGui API assumes cursor is located at `p1` already
     ImGui::ItemSize(to<ImRect>(r));
 }
 
@@ -2669,9 +2784,11 @@ Vector2 osc::ui::get_item_bottom_right_ui_position()
     return ImGui::GetItemRectMax();
 }
 
-bool osc::ui::begin_table(CStringView str_id, int column, TableFlags flags, const Vector2& outer_size, float inner_width)
+bool osc::ui::begin_table(
+    CStringView str_id, int column, TableFlags flags, const Vector2& outer_size, float inner_width)
 {
-    return ImGui::BeginTable(str_id.c_str(), column, to<ImGuiTableFlags>(flags), outer_size, inner_width);
+    return ImGui::BeginTable(
+        str_id.c_str(), column, to<ImGuiTableFlags>(flags), outer_size, inner_width);
 }
 
 void osc::ui::table_setup_scroll_freeze(int cols, int rows)
@@ -2713,9 +2830,11 @@ void osc::ui::table_next_row()
     ImGui::TableNextRow(0, 0.0f);
 }
 
-void osc::ui::table_setup_column(CStringView label, ColumnFlags flags, float init_width_or_weight, ID user_id)
+void osc::ui::table_setup_column(
+    CStringView label, ColumnFlags flags, float init_width_or_weight, ID user_id)
 {
-    ImGui::TableSetupColumn(label.c_str(), to<ImGuiTableColumnFlags>(flags), init_width_or_weight, user_id.value());
+    ImGui::TableSetupColumn(
+        label.c_str(), to<ImGuiTableColumnFlags>(flags), init_width_or_weight, user_id.value());
 }
 
 void osc::ui::end_table()
@@ -2740,13 +2859,17 @@ Color osc::ui::get_color(ColorVar var)
 
 float osc::ui::get_text_line_height_in_current_panel()
 {
-    OSC_ASSERT_ALWAYS(ImGui::GetCurrentWindow() && "not currently in a panel (use ui::get_font_base_size if you want a panel-independent size)");
+    OSC_ASSERT_ALWAYS(
+        ImGui::GetCurrentWindow() &&
+        "not currently in a panel (use ui::get_font_base_size if you want a panel-independent size)");
     return ImGui::GetTextLineHeight();
 }
 
 float osc::ui::get_text_line_height_with_spacing_in_current_panel()
 {
-    OSC_ASSERT_ALWAYS(ImGui::GetCurrentWindow() && "not currently in a panel (use ui::get_font_base_size if you want a panel-independent size)");
+    OSC_ASSERT_ALWAYS(
+        ImGui::GetCurrentWindow() &&
+        "not currently in a panel (use ui::get_font_base_size if you want a panel-independent size)");
     return ImGui::GetTextLineHeightWithSpacing();
 }
 
@@ -2784,7 +2907,8 @@ std::optional<Texture2D> osc::ui::get_font_texture()
 
 Vector2 osc::ui::calc_text_size(CStringView text, bool hide_text_after_double_hash)
 {
-    return ImGui::CalcTextSize(text.c_str(), text.c_str() + text.size(), hide_text_after_double_hash);
+    return ImGui::CalcTextSize(
+        text.c_str(), text.c_str() + text.size(), hide_text_after_double_hash);
 }
 
 Vector2 osc::ui::get_panel_size()
@@ -2792,10 +2916,12 @@ Vector2 osc::ui::get_panel_size()
     return ImGui::GetWindowSize();
 }
 
-void osc::ui::DrawListAPI::add_rect(const Rect& ui_rect, const Color& color, float rounding, float thickness)
+void osc::ui::DrawListAPI::add_rect(
+    const Rect& ui_rect, const Color& color, float rounding, float thickness)
 {
     const auto ui_corners = ui_rect.corners();
-    impl_get_drawlist().AddRect(ui_corners.min, ui_corners.max, to_ImU32(color), rounding, 0, thickness);
+    impl_get_drawlist().AddRect(
+        ui_corners.min, ui_corners.max, to_ImU32(color), rounding, 0, thickness);
 }
 
 void osc::ui::DrawListAPI::add_rect_filled(const Rect& ui_rect, const Color& color, float rounding)
@@ -2804,27 +2930,35 @@ void osc::ui::DrawListAPI::add_rect_filled(const Rect& ui_rect, const Color& col
     impl_get_drawlist().AddRectFilled(ui_corners.min, ui_corners.max, to_ImU32(color), rounding);
 }
 
-void osc::ui::DrawListAPI::add_circle(const Circle& ui_circle, const Color& color, int num_segments, float thickness)
+void osc::ui::DrawListAPI::add_circle(
+    const Circle& ui_circle, const Color& color, int num_segments, float thickness)
 {
-    impl_get_drawlist().AddCircle(ui_circle.origin, ui_circle.radius, to_ImU32(color), num_segments, thickness);
+    impl_get_drawlist().AddCircle(
+        ui_circle.origin, ui_circle.radius, to_ImU32(color), num_segments, thickness);
 }
 
-void osc::ui::DrawListAPI::add_circle_filled(const Circle& ui_circle, const Color& color, int num_segments)
+void osc::ui::DrawListAPI::add_circle_filled(
+    const Circle& ui_circle, const Color& color, int num_segments)
 {
-    impl_get_drawlist().AddCircleFilled(ui_circle.origin, ui_circle.radius, to_ImU32(color), num_segments);
+    impl_get_drawlist().AddCircleFilled(
+        ui_circle.origin, ui_circle.radius, to_ImU32(color), num_segments);
 }
 
-void osc::ui::DrawListAPI::add_text(const Vector2& ui_position, const Color& color, CStringView text)
+void osc::ui::DrawListAPI::add_text(
+    const Vector2& ui_position, const Color& color, CStringView text)
 {
-    impl_get_drawlist().AddText(ui_position, to_ImU32(color), text.c_str(), text.c_str() + text.size());
+    impl_get_drawlist().AddText(
+        ui_position, to_ImU32(color), text.c_str(), text.c_str() + text.size());
 }
 
-void osc::ui::DrawListAPI::add_line(const Vector2& ui_start, const Vector2& ui_end, const Color& color, float thickness)
+void osc::ui::DrawListAPI::add_line(
+    const Vector2& ui_start, const Vector2& ui_end, const Color& color, float thickness)
 {
     impl_get_drawlist().AddLine(ui_start, ui_end, to_ImU32(color), thickness);
 }
 
-void osc::ui::DrawListAPI::add_triangle_filled(const Vector2& ui_p0, const Vector2& ui_p1, const Vector2& ui_p2, const Color& color)
+void osc::ui::DrawListAPI::add_triangle_filled(
+    const Vector2& ui_p0, const Vector2& ui_p1, const Vector2& ui_p2, const Color& color)
 {
     impl_get_drawlist().AddTriangleFilled(ui_p0, ui_p1, ui_p2, to_ImU32(color));
 }
@@ -2873,7 +3007,8 @@ osc::ui::DrawList::DrawList() :
     underlying_drawlist_{std::make_unique<ImDrawList>(ImGui::GetDrawListSharedData())}
 {
     underlying_drawlist_->_ResetForNewFrame();
-    underlying_drawlist_->PushTexture(ImGui::GetIO().Fonts->TexRef);  // Ensure the draw list can use the main font texture
+    // Ensure the draw list can use the main font texture
+    underlying_drawlist_->PushTexture(ImGui::GetIO().Fonts->TexRef);
 }
 osc::ui::DrawList::DrawList(DrawList&&) noexcept = default;
 osc::ui::DrawList& osc::ui::DrawList::operator=(DrawList&&) noexcept = default;
@@ -2920,7 +3055,8 @@ void osc::ui::apply_dark_theme()
     colors[ImGuiCol_Button] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
     colors[ImGuiCol_ButtonHovered] = ImVec4(0.28f, 0.56f, 1.00f, 1.00f);
     colors[ImGuiCol_ButtonActive] = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
-    colors[ImGuiCol_Header] = ImVec4(0.24f, 0.32f, 0.35f, 0.70f);  // contrasts against other Header* elements (opensim-creator#677)
+    // contrasts against other Header* elements (opensim-creator#677)
+    colors[ImGuiCol_Header] = ImVec4(0.24f, 0.32f, 0.35f, 0.70f);
     colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
     colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
     colors[ImGuiCol_Separator] = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
@@ -2965,9 +3101,9 @@ bool osc::ui::update_orbit_controller_from_mouse_inputs(
     // these camera controls try to be the union of other GUIs (e.g. Blender)
     //
     // left drag: drags/orbits camera
-    // left drag + L/R SHIFT: pans camera (CUSTOM behavior: can be handy on laptops where right-click + drag sucks)
-    // left drag + L/R CTRL: zoom camera (CUSTOM behavior: can be handy on laptops where right-click + drag sucks)
-    // middle drag: drags/orbits camera (Blender behavior)
+    // left drag + L/R SHIFT: pans camera (CUSTOM behavior: can be handy on laptops where
+    // right-click + drag sucks) left drag + L/R CTRL: zoom camera (CUSTOM behavior: can be handy on
+    // laptops where right-click + drag sucks) middle drag: drags/orbits camera (Blender behavior)
     // middle drag + L/R SHIFT: pans camera (Blender behavior)
     // middle drag + L/R CTRL: zooms camera (Blender behavior)
     // right drag: pans camera
@@ -2980,7 +3116,8 @@ bool osc::ui::update_orbit_controller_from_mouse_inputs(
 
     const bool left_dragging = ui::is_mouse_dragging(MouseButton::Left);
     const bool middle_dragging = ui::is_mouse_dragging(MouseButton::Middle);
-    const Vector2 delta = get_backend_data().mouse_delta_this_frame;  // Track actual physical movement of the mouse (relevant in relative mode).
+    // Track actual physical movement of the mouse (relevant in relative mode).
+    const Vector2 delta = get_backend_data().mouse_delta_this_frame;
 
     if (delta != Vector2{} and (left_dragging or middle_dragging)) {
         if (is_ctrl_down()) {
@@ -3045,9 +3182,7 @@ bool osc::ui::update_orbit_controller_from_keyboard_inputs(
     } else if (ctrl_or_super_down and ui::is_key_pressed(Key::_8)) {
         if (maybe_scene_world_space_aabb) {
             orbit_controller.focus_on(
-                *maybe_scene_world_space_aabb,
-                associated_camera,
-                aspect_ratio_of(viewport_rect));
+                *maybe_scene_world_space_aabb, associated_camera, aspect_ratio_of(viewport_rect));
             return true;
         }
     } else if (ui::is_key_down(Key::UpArrow)) {
@@ -3115,19 +3250,14 @@ bool osc::ui::update_orbit_controller_from_all_inputs(
 
     // we don't check `io.WantCaptureMouse` because clicking/dragging on an `ImGui::Image`
     // is classed as a mouse interaction
-    const bool mouse_handled =
-        update_orbit_controller_from_mouse_inputs(
-            orbit_controller,
-            associated_camera,
-            viewport_rect.dimensions());
+    const bool mouse_handled = update_orbit_controller_from_mouse_inputs(
+        orbit_controller, associated_camera, viewport_rect.dimensions());
 
-    const bool keyboard_handled = not io.WantCaptureKeyboard ?
-        update_orbit_controller_from_keyboard_inputs(
-            orbit_controller,
-            associated_camera,
-            viewport_rect,
-            maybe_scene_world_space_aabb) :
-        false;
+    const bool keyboard_handled =
+        not io.WantCaptureKeyboard
+            ? update_orbit_controller_from_keyboard_inputs(
+                  orbit_controller, associated_camera, viewport_rect, maybe_scene_world_space_aabb)
+            : false;
 
     return mouse_handled or keyboard_handled;
 }
@@ -3137,7 +3267,8 @@ void osc::ui::update_camera_from_all_inputs(Camera& camera, EulerAngles& eulers)
     const Vector3 front = camera.direction();
     const Vector3 up = camera.up();
     const Vector3 right = cross(front, up);
-    const Vector2 mouse_delta = get_backend_data().mouse_delta_this_frame;  // Track actual physical movement of the mouse (relevant in relative mode).
+    // Track actual physical movement of the mouse (relevant in relative mode).
+    const Vector2 mouse_delta = get_backend_data().mouse_delta_this_frame;
 
     const float speed = 10.0f;
     const float displacement = speed * ImGui::GetIO().DeltaTime;
@@ -3180,15 +3311,17 @@ Rect osc::ui::get_content_region_available_ui_rect()
 }
 
 void osc::ui::draw_image(
-    const Texture2D& texture,
-    std::optional<Vector2> dimensions,
-    const Rect& region_uv_coordinates)
+    const Texture2D& texture, std::optional<Vector2> dimensions, const Rect& region_uv_coordinates)
 {
     if (not dimensions) {
         dimensions = texture.dimensions();
     }
     const auto handle = allocate_texture_for_current_frame(texture);
-    ImGui::Image(handle, *dimensions, region_uv_coordinates.ypu_top_left(), region_uv_coordinates.ypu_bottom_right());
+    ImGui::Image(
+        handle,
+        *dimensions,
+        region_uv_coordinates.ypu_top_left(),
+        region_uv_coordinates.ypu_bottom_right());
 }
 
 void osc::ui::draw_image(const RenderTexture& texture)
@@ -3231,17 +3364,24 @@ bool osc::ui::draw_image_button(
     const Rect& texture_coordinates)
 {
     const auto handle = allocate_texture_for_current_frame(texture);
-    return ImGui::ImageButton(label.c_str(), handle, dimensions, texture_coordinates.ypu_top_left(), texture_coordinates.ypu_bottom_right());
+    return ImGui::ImageButton(
+        label.c_str(),
+        handle,
+        dimensions,
+        texture_coordinates.ypu_top_left(),
+        texture_coordinates.ypu_bottom_right());
 }
 
 bool osc::ui::draw_image_button(CStringView label, const Texture2D& texture, Vector2 dimensions)
 {
-    return draw_image_button(label, texture, dimensions, Rect::from_corners({0.0f, 1.0f}, {1.0f, 0.0f}));
+    return draw_image_button(
+        label, texture, dimensions, Rect::from_corners({0.0f, 1.0f}, {1.0f, 0.0f}));
 }
 
 Rect osc::ui::get_last_drawn_item_ui_rect()
 {
-    return Rect::from_corners(ui::get_item_top_left_ui_position(), ui::get_item_bottom_right_ui_position());
+    return Rect::from_corners(
+        ui::get_item_top_left_ui_position(), ui::get_item_bottom_right_ui_position());
 }
 
 Rect osc::ui::get_last_drawn_item_screen_rect()
@@ -3269,8 +3409,10 @@ ui::HittestResult osc::ui::hittest_last_drawn_item(float drag_threshold)
     HittestResult rv;
     rv.item_ui_rect = ui::get_item_ui_rect();
     rv.is_hovered = ui::is_item_hovered();
-    rv.is_left_click_released_without_dragging = rv.is_hovered and is_mouse_released_without_dragging(MouseButton::Left, drag_threshold);
-    rv.is_right_click_released_without_dragging = rv.is_hovered and is_mouse_released_without_dragging(MouseButton::Right, drag_threshold);
+    rv.is_left_click_released_without_dragging =
+        rv.is_hovered and is_mouse_released_without_dragging(MouseButton::Left, drag_threshold);
+    rv.is_right_click_released_without_dragging =
+        rv.is_hovered and is_mouse_released_without_dragging(MouseButton::Right, drag_threshold);
     return rv;
 }
 
@@ -3334,8 +3476,7 @@ bool osc::ui::is_mouse_released_without_dragging(MouseButton mouse_button, float
 
 bool osc::ui::is_mouse_dragging_with_any_button_down()
 {
-    return ui::is_mouse_dragging(MouseButton::Left) or
-           ui::is_mouse_dragging(MouseButton::Middle) or
+    return ui::is_mouse_dragging(MouseButton::Left) or ui::is_mouse_dragging(MouseButton::Middle) or
            ui::is_mouse_dragging(MouseButton::Right);
 }
 
@@ -3373,9 +3514,7 @@ void osc::ui::draw_tooltip_body_only(CStringView content)
     end_tooltip();
 }
 
-void osc::ui::draw_tooltip_body_only_if_item_hovered(
-    CStringView content,
-    HoveredFlags flags)
+void osc::ui::draw_tooltip_body_only_if_item_hovered(CStringView content, HoveredFlags flags)
 {
     if (ui::is_item_hovered(flags)) {
         draw_tooltip_body_only(content);
@@ -3394,9 +3533,7 @@ void osc::ui::draw_tooltip(CStringView header, CStringView description)
 }
 
 void osc::ui::draw_tooltip_if_item_hovered(
-    CStringView header,
-    CStringView description,
-    HoveredFlags flags)
+    CStringView header, CStringView description, HoveredFlags flags)
 {
     if (ui::is_item_hovered(flags)) {
         draw_tooltip(header, description);
@@ -3420,12 +3557,15 @@ bool osc::ui::draw_string_input(CStringView label, std::string& edited_string, T
     return ImGui::InputText(label.c_str(), &edited_string, to<ImGuiInputTextFlags>(flags));
 }
 
-bool osc::ui::draw_string_input_with_hint(CStringView label, CStringView hint, std::string& edited_string, TextInputFlags flags)
+bool osc::ui::draw_string_input_with_hint(
+    CStringView label, CStringView hint, std::string& edited_string, TextInputFlags flags)
 {
-    return ImGui::InputTextWithHint(label.c_str(), hint.c_str(), &edited_string, to<ImGuiInputTextFlags>(flags));
+    return ImGui::InputTextWithHint(
+        label.c_str(), hint.c_str(), &edited_string, to<ImGuiInputTextFlags>(flags));
 }
 
-bool osc::ui::draw_float_meters_input(CStringView label, float& v, float step, float step_fast, TextInputFlags flags)
+bool osc::ui::draw_float_meters_input(
+    CStringView label, float& v, float step, float step_fast, TextInputFlags flags)
 {
     return ui::draw_float_input(label, &v, step, step_fast, "%.6f", flags);
 }
@@ -3435,12 +3575,14 @@ bool osc::ui::draw_float3_meters_input(CStringView label, Vector3& vec, TextInpu
     return ui::draw_float3_input(label, value_ptr(vec), "%.6f", flags);
 }
 
-bool osc::ui::draw_float_meters_slider(CStringView label, float& v, float v_min, float v_max, SliderFlags flags)
+bool osc::ui::draw_float_meters_slider(
+    CStringView label, float& v, float v_min, float v_max, SliderFlags flags)
 {
     return ui::draw_float_slider(label, &v, v_min, v_max, "%.6f", flags);
 }
 
-bool osc::ui::draw_float_kilogram_input(CStringView label, float& v, float step, float step_fast, TextInputFlags flags)
+bool osc::ui::draw_float_kilogram_input(
+    CStringView label, float& v, float step, float step_fast, TextInputFlags flags)
 {
     return draw_float_meters_input(label, v, step, step_fast, flags);
 }
@@ -3455,12 +3597,10 @@ bool osc::ui::draw_angle_input(CStringView label, Radians& v)
     return false;
 }
 
-bool osc::ui::draw_angle3_input(
-    CStringView label,
-    Vector<Radians, 3>& angles,
-    CStringView format)
+bool osc::ui::draw_angle3_input(CStringView label, Vector<Radians, 3>& angles, CStringView format)
 {
-    Vector3 dvs = {Degrees{angles.x()}.count(), Degrees{angles.y()}.count(), Degrees{angles.z()}.count()};
+    Vector3 dvs = {
+        Degrees{angles.x()}.count(), Degrees{angles.y()}.count(), Degrees{angles.z()}.count()};
     if (ui::draw_vector3_input(label, dvs, format.c_str())) {
         angles = Vector<Radians, 3>{Vector<Degrees, 3>{dvs}};
         return true;
@@ -3507,15 +3647,16 @@ Rect osc::ui::get_main_window_workspace_ui_rect()
     const ImGuiViewport& viewport = *ImGui::GetMainViewport();
 
     return Rect::from_corners(
-        viewport.WorkPos,
-        Vector2{viewport.WorkPos} + Vector2{viewport.WorkSize});
+        viewport.WorkPos, Vector2{viewport.WorkPos} + Vector2{viewport.WorkSize});
 }
 
 Rect osc::ui::get_main_window_workspace_screen_space_rect()
 {
     const ImGuiViewport& viewport = *ImGui::GetMainViewport();
-    const Vector2 bottom_left_ui_space = Vector2{viewport.WorkPos} + Vector2{0.0f, viewport.WorkSize.y};
-    const Vector2 bottom_left_screen_space = Vector2{bottom_left_ui_space.x(), viewport.Size.y - bottom_left_ui_space.y()};
+    const Vector2 bottom_left_ui_space =
+        Vector2{viewport.WorkPos} + Vector2{0.0f, viewport.WorkSize.y};
+    const Vector2 bottom_left_screen_space =
+        Vector2{bottom_left_ui_space.x(), viewport.Size.y - bottom_left_ui_space.y()};
     const Vector2 top_right_screen_space = bottom_left_screen_space + Vector2{viewport.WorkSize};
 
     return Rect::from_corners(bottom_left_screen_space, top_right_screen_space);
@@ -3540,30 +3681,25 @@ bool osc::ui::is_mouse_in_main_window_workspace()
 bool osc::ui::begin_main_window_top_bar(CStringView label, float height, PanelFlags flags)
 {
     return ImGui::BeginViewportSideBar(
-        label.c_str(),
-        ImGui::GetMainViewport(),
-        ImGuiDir_Up,
-        height,
-        to<ImGuiWindowFlags>(flags));
+        label.c_str(), ImGui::GetMainViewport(), ImGuiDir_Up, height, to<ImGuiWindowFlags>(flags));
 }
 
 bool osc::ui::begin_main_window_bottom_bar(CStringView label)
 {
-    constexpr ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings;
+    constexpr ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings;
     const float height = ui::get_frame_height() + ui::get_style_panel_padding().y();
 
     return ImGui::BeginViewportSideBar(
-        label.c_str(),
-        ImGui::GetMainViewport(),
-        ImGuiDir_Down,
-        height,
-        flags);
+        label.c_str(), ImGui::GetMainViewport(), ImGuiDir_Down, height, flags);
 }
 
 bool osc::ui::draw_button_centered(CStringView label)
 {
-    const float button_width = ui::calc_text_size(label).x() + (2.0f * ui::get_style_frame_padding().x());
-    const float midpoint = ui::get_cursor_ui_position().x() + (0.5f * ui::get_content_region_available().x());
+    const float button_width =
+        ui::calc_text_size(label).x() + (2.0f * ui::get_style_frame_padding().x());
+    const float midpoint =
+        ui::get_cursor_ui_position().x() + (0.5f * ui::get_content_region_available().x());
     const float button_start_x = midpoint - (0.5f * button_width);
 
     ui::set_cursor_ui_position({button_start_x, ui::get_cursor_ui_position().y()});
@@ -3684,16 +3820,9 @@ bool osc::ui::draw_combobox(
     return changed;
 }
 
-bool osc::ui::draw_combobox(
-    CStringView label,
-    size_t* current,
-    std::span<const CStringView> items)
+bool osc::ui::draw_combobox(CStringView label, size_t* current, std::span<const CStringView> items)
 {
-    return draw_combobox(
-        label,
-        current,
-        items.size(),
-        [items](size_t i) { return items[i]; });
+    return draw_combobox(label, current, items.size(), [items](size_t i) { return items[i]; });
 }
 
 void osc::ui::draw_vertical_separator()
@@ -3709,12 +3838,7 @@ void osc::ui::draw_same_line_with_vertical_separator()
 }
 
 bool osc::ui::draw_float_circular_slider(
-    CStringView label,
-    float* v,
-    float min,
-    float max,
-    CStringView format,
-    SliderFlags flags)
+    CStringView label, float* v, float min, float max, CStringView format, SliderFlags flags)
 {
     // this implementation was initially copied from `ImGui::SliderFloat` and written in a
     // similar style to code in `imgui_widgets.cpp` (see https://github.com/ocornut/imgui),
@@ -3736,33 +3860,47 @@ bool osc::ui::draw_float_circular_slider(
 
     // calculate top-level item info for early-cull checks etc.
     const Vector2 label_size = ui::calc_text_size(label, true);
-    const Vector2 frame_dims = {ImGui::CalcItemWidth(), label_size.y() + (2.0f * style.FramePadding.y)};
+    const Vector2 frame_dims = {
+        ImGui::CalcItemWidth(), label_size.y() + (2.0f * style.FramePadding.y)};
     const Vector2 cursor_screen_pos = ui::get_cursor_ui_position();
     const ImRect frame_bounds = {cursor_screen_pos, cursor_screen_pos + frame_dims};
-    const float label_width_with_spacing = label_size.x() > 0.0f ? label_size.x() + style.ItemInnerSpacing.x : 0.0f;
-    const ImRect total_bounds = {frame_bounds.Min, Vector2{frame_bounds.Max} + Vector2{label_width_with_spacing, 0.0f}};
+    const float label_width_with_spacing =
+        label_size.x() > 0.0f ? label_size.x() + style.ItemInnerSpacing.x : 0.0f;
+    const ImRect total_bounds = {
+        frame_bounds.Min, Vector2{frame_bounds.Max} + Vector2{label_width_with_spacing, 0.0f}};
 
-    const bool temporary_text_input_allowed = (to<ImGuiSliderFlags>(flags) & ImGuiSliderFlags_NoInput) == 0;
+    const bool temporary_text_input_allowed =
+        (to<ImGuiSliderFlags>(flags) & ImGuiSliderFlags_NoInput) == 0;
     ImGui::ItemSize(total_bounds, style.FramePadding.y);
-    if (not ImGui::ItemAdd(total_bounds, id, &frame_bounds, temporary_text_input_allowed ? ImGuiItemFlags_Inputable : 0)) {
+    if (not ImGui::ItemAdd(
+            total_bounds,
+            id,
+            &frame_bounds,
+            temporary_text_input_allowed ? ImGuiItemFlags_Inputable : 0)) {
         // skip drawing: the slider item is off-screen or not interactable
         return false;
     }
-    const bool is_hovered = ImGui::ItemHoverable(frame_bounds, id, g.LastItemData.ItemFlags);  // hovertest the item
+    const bool is_hovered =
+        ImGui::ItemHoverable(frame_bounds, id, g.LastItemData.ItemFlags);  // hovertest the item
 
     // figure out whether the user is (temporarily) editing the slider as an input text box
-    bool temporary_text_input_active = temporary_text_input_allowed and ImGui::TempInputIsActive(id);
+    bool temporary_text_input_active =
+        temporary_text_input_allowed and ImGui::TempInputIsActive(id);
     if (not temporary_text_input_active) {
         // tabbing or double-clicking the slider temporarily transforms it into an input box
         const bool clicked = is_hovered and ui::is_mouse_clicked(MouseButton::Left, ui::ID{id});
-        const bool double_clicked = (is_hovered and g.IO.MouseClickedCount[0] == 2 and ImGui::TestKeyOwner(ImGuiKey_MouseLeft, id));
+        const bool double_clicked =
+            (is_hovered and g.IO.MouseClickedCount[0] == 2 and
+             ImGui::TestKeyOwner(ImGuiKey_MouseLeft, id));
         const bool make_active = (clicked or double_clicked or g.NavActivateId == id);
 
         if (make_active and (clicked or double_clicked)) {
-            ImGui::SetKeyOwner(ImGuiKey_MouseLeft, id);  // tell ImGui that left-click is locked from further interaction etc. this frame
+            // tell ImGui that left-click is locked from further interaction etc. this frame
+            ImGui::SetKeyOwner(ImGuiKey_MouseLeft, id);
         }
         if (make_active and temporary_text_input_allowed) {
-            if ((clicked and g.IO.KeyCtrl) or double_clicked or (g.NavActivateId == id and (g.NavActivateFlags & ImGuiActivateFlags_PreferInput))) {
+            if ((clicked and g.IO.KeyCtrl) or double_clicked or
+                (g.NavActivateId == id and (g.NavActivateFlags & ImGuiActivateFlags_PreferInput))) {
                 temporary_text_input_active = true;
             }
         }
@@ -3779,7 +3917,8 @@ bool osc::ui::draw_float_circular_slider(
 
     // if the user is editing the slider as an input text box then draw that instead of the slider
     if (temporary_text_input_active) {
-        const bool should_clamp_textual_input = (to<ImGuiSliderFlags>(flags) & ImGuiSliderFlags_AlwaysClamp) != 0;
+        const bool should_clamp_textual_input =
+            (to<ImGuiSliderFlags>(flags) & ImGuiSliderFlags_AlwaysClamp) != 0;
 
         return ImGui::TempInputScalar(
             frame_bounds,
@@ -3824,8 +3963,12 @@ bool osc::ui::draw_float_circular_slider(
         const float slider_rail_bottom_y = slider_nob_center.y() + (0.5f * slider_rail_thickness);
 
         const bool is_active = g.ActiveId == id;
-        const ImU32 rail_color = ImGui::GetColorU32(is_hovered ? ImGuiCol_FrameBgHovered : is_active ? ImGuiCol_FrameBgActive : ImGuiCol_FrameBg);
-        const ImU32 grab_color = ImGui::GetColorU32(is_active ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab);
+        const ImU32 rail_color = ImGui::GetColorU32(
+            is_hovered  ? ImGuiCol_FrameBgHovered
+            : is_active ? ImGuiCol_FrameBgActive
+                        : ImGuiCol_FrameBg);
+        const ImU32 grab_color =
+            ImGui::GetColorU32(is_active ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab);
 
         // render left-hand rail (brighter)
         {
@@ -3846,10 +3989,7 @@ bool osc::ui::draw_float_circular_slider(
             const Vector2 rhs_rail_bottomright = {frame_bounds.Max.x, slider_rail_bottom_y};
 
             window->DrawList->AddRectFilled(
-                rhs_rail_topleft,
-                rhs_rail_bottomright,
-                rail_color,
-                g.Style.FrameRounding);
+                rhs_rail_topleft, rhs_rail_bottomright, rail_color, g.Style.FrameRounding);
         }
 
         // render slider grab on top of rail
@@ -3861,47 +4001,89 @@ bool osc::ui::draw_float_circular_slider(
         // render current slider value using user-provided display format
         {
             std::array<char, 64> buf{};
-            const char* const buf_end = buf.data() + ImGui::DataTypeFormatString(buf.data(), static_cast<int>(buf.size()), ImGuiDataType_Float, v, format.c_str());
+            const char* const buf_end = buf.data() + ImGui::DataTypeFormatString(
+                                                         buf.data(),
+                                                         static_cast<int>(buf.size()),
+                                                         ImGuiDataType_Float,
+                                                         v,
+                                                         format.c_str());
             if (g.LogEnabled) {
                 ImGui::LogSetNextTextDecoration("{", "}");
             }
-            ImGui::RenderTextClipped(frame_bounds.Min, frame_bounds.Max, buf.data(), buf_end, nullptr, ImVec2(0.5f, 0.5f));
+            ImGui::RenderTextClipped(
+                frame_bounds.Min,
+                frame_bounds.Max,
+                buf.data(),
+                buf_end,
+                nullptr,
+                ImVec2(0.5f, 0.5f));
         }
 
         // render input label in remaining space
         if (label_size.x() > 0.0f) {
-            ImGui::RenderText(ImVec2(frame_bounds.Max.x + style.ItemInnerSpacing.x, frame_bounds.Min.y + style.FramePadding.y), label.c_str());
+            ImGui::RenderText(
+                ImVec2(
+                    frame_bounds.Max.x + style.ItemInnerSpacing.x,
+                    frame_bounds.Min.y + style.FramePadding.y),
+                label.c_str());
         }
     } else {
         // render slider background frame
         {
-            const ImU32 frame_color = ImGui::GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : is_hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
+            const ImU32 frame_color = ImGui::GetColorU32(
+                g.ActiveId == id ? ImGuiCol_FrameBgActive
+                : is_hovered     ? ImGuiCol_FrameBgHovered
+                                 : ImGuiCol_FrameBg);
             ImGui::RenderNavCursor(frame_bounds, id);
-            ImGui::RenderFrame(frame_bounds.Min, frame_bounds.Max, frame_color, true, g.Style.FrameRounding);
+            ImGui::RenderFrame(
+                frame_bounds.Min, frame_bounds.Max, frame_color, true, g.Style.FrameRounding);
         }
 
         // render slider grab handle
         if (grab_bounding_box.Max.x > grab_bounding_box.Min.x) {
-            window->DrawList->AddRectFilled(grab_bounding_box.Min, grab_bounding_box.Max, ImGui::GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab), style.GrabRounding);
+            window->DrawList->AddRectFilled(
+                grab_bounding_box.Min,
+                grab_bounding_box.Max,
+                ImGui::GetColorU32(
+                    g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab),
+                style.GrabRounding);
         }
 
         // render current slider value using user-provided display format
         {
             std::array<char, 64> buf{};
-            const char* const buf_end = buf.data() + ImGui::DataTypeFormatString(buf.data(), static_cast<int>(buf.size()), ImGuiDataType_Float, v, format.c_str());
+            const char* const buf_end = buf.data() + ImGui::DataTypeFormatString(
+                                                         buf.data(),
+                                                         static_cast<int>(buf.size()),
+                                                         ImGuiDataType_Float,
+                                                         v,
+                                                         format.c_str());
             if (g.LogEnabled) {
                 ImGui::LogSetNextTextDecoration("{", "}");
             }
-            ImGui::RenderTextClipped(frame_bounds.Min, frame_bounds.Max, buf.data(), buf_end, nullptr, ImVec2(0.5f, 0.5f));
+            ImGui::RenderTextClipped(
+                frame_bounds.Min,
+                frame_bounds.Max,
+                buf.data(),
+                buf_end,
+                nullptr,
+                ImVec2(0.5f, 0.5f));
         }
 
         // render input label in remaining space
         if (label_size.x() > 0.0f) {
-            ImGui::RenderText(ImVec2(frame_bounds.Max.x + style.ItemInnerSpacing.x, frame_bounds.Min.y + style.FramePadding.y), label.c_str());
+            ImGui::RenderText(
+                ImVec2(
+                    frame_bounds.Max.x + style.ItemInnerSpacing.x,
+                    frame_bounds.Min.y + style.FramePadding.y),
+                label.c_str());
         }
     }
 
-    IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | (temp_input_allowed ? ImGuiItemStatusFlags_Inputable : 0));
+    IMGUI_TEST_ENGINE_ITEM_INFO(
+        id,
+        label,
+        g.LastItemData.StatusFlags | (temp_input_allowed ? ImGuiItemStatusFlags_Inputable : 0));
 
     return value_changed;
 }
@@ -3931,7 +4113,8 @@ bool osc::ui::draw_gizmo_mode_selector(GizmoMode& mode)
     }
     ui::pop_style_var();
     constexpr CStringView tooltip_title = "Manipulation coordinate system";
-    constexpr CStringView tooltip_description = "This affects whether manipulations (such as the arrow gizmos that you can use to translate things) are performed relative to the global coordinate system or the selection's (local) one. Local manipulations can be handy when translating/rotating something that's already rotated.";
+    constexpr CStringView tooltip_description =
+        "This affects whether manipulations (such as the arrow gizmos that you can use to translate things) are performed relative to the global coordinate system or the selection's (local) one. Local manipulations can be handy when translating/rotating something that's already rotated.";
     ui::draw_tooltip_if_item_hovered(tooltip_title, tooltip_description);
 
     return rv;
@@ -3947,7 +4130,14 @@ bool osc::ui::draw_gizmo_operation_selector(
     CStringView scale_button_text)
 {
     GizmoOperation op = gizmo.operation();
-    if (draw_gizmo_operation_selector(op, can_translate, can_rotate, can_scale, translate_button_text, rotate_button_text, scale_button_text)) {
+    if (draw_gizmo_operation_selector(
+            op,
+            can_translate,
+            can_rotate,
+            can_scale,
+            translate_button_text,
+            rotate_button_text,
+            scale_button_text)) {
         gizmo.set_operation(op);
         return true;
     }
@@ -3980,7 +4170,8 @@ bool osc::ui::draw_gizmo_operation_selector(
                 rv = true;
             }
         }
-        ui::draw_tooltip_if_item_hovered("Translate", "Make the 3D manipulation gizmos translate things (hotkey: G)");
+        ui::draw_tooltip_if_item_hovered(
+            "Translate", "Make the 3D manipulation gizmos translate things (hotkey: G)");
         ui::pop_style_color(std::exchange(num_colors_pushed, 0));
         ui::same_line();
     }
@@ -3996,7 +4187,8 @@ bool osc::ui::draw_gizmo_operation_selector(
                 rv = true;
             }
         }
-        ui::draw_tooltip_if_item_hovered("Rotate", "Make the 3D manipulation gizmos rotate things (hotkey: R)");
+        ui::draw_tooltip_if_item_hovered(
+            "Rotate", "Make the 3D manipulation gizmos rotate things (hotkey: R)");
         ui::pop_style_color(std::exchange(num_colors_pushed, 0));
         ui::same_line();
     }
@@ -4012,7 +4204,8 @@ bool osc::ui::draw_gizmo_operation_selector(
                 rv = true;
             }
         }
-        ui::draw_tooltip_if_item_hovered("Scale", "Make the 3D manipulation gizmos scale things (hotkey: S)");
+        ui::draw_tooltip_if_item_hovered(
+            "Scale", "Make the 3D manipulation gizmos scale things (hotkey: S)");
         ui::pop_style_color(std::exchange(num_colors_pushed, 0));
         ui::same_line();
     }
@@ -4072,14 +4265,13 @@ std::optional<Transform> osc::ui::Gizmo::draw_to(
     }
 
     // important: necessary when showing multiple gizmos in one frame
-    // also important: don't use ui::get_id(), because it uses an ID stack and we might want to know if "isover" etc. is true outside of a window
+    // also important: don't use ui::get_id(), because it uses an ID stack and we might want to know
+    // if "isover" etc. is true outside of a window
 
     auto& gizmo_context = get_backend_data().gizmo_context;
 
     gizmo_context.push_id(id_);
-    const ScopeExit g{[&gizmo_context] {
-        gizmo_context.pop_id();
-    }};
+    const ScopeExit g{[&gizmo_context] { gizmo_context.pop_id(); }};
 
     // update last-frame cache
     was_using_last_frame_ = gizmo_context.is_using();
@@ -4160,7 +4352,8 @@ bool osc::ui::Gizmo::handle_keyboard_inputs()
 // `ui::plot::` helpers
 namespace
 {
-    constexpr ImPlotFlags to_ImPlotFlags(plot::PlotFlags flags)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotFlags to_ImPlotFlags(
+        plot::PlotFlags flags)  // NOLINT(readability-identifier-naming)
     {
         static_assert(std::to_underlying(plot::PlotFlags::NoTitle) == ImPlotFlags_NoTitle);
         static_assert(std::to_underlying(plot::PlotFlags::NoLegend) == ImPlotFlags_NoLegend);
@@ -4172,7 +4365,8 @@ namespace
         return static_cast<ImPlotFlags>(flags);
     }
 
-    constexpr ImPlotStyleVar to_ImPlotStyleVar(plot::PlotStyleVar var)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotStyleVar to_ImPlotStyleVar(
+        plot::PlotStyleVar var)  // NOLINT(readability-identifier-naming)
     {
         static_assert(num_options_v<plot::PlotStyleVar> == 4);
         switch (var) {
@@ -4184,7 +4378,8 @@ namespace
         }
     }
 
-    constexpr ImPlotCol to_ImPlotCol(plot::PlotColorVar var)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotCol to_ImPlotCol(
+        plot::PlotColorVar var)  // NOLINT(readability-identifier-naming)
     {
         static_assert(num_options_v<plot::PlotColorVar> == 2);
         switch (var) {
@@ -4204,24 +4399,30 @@ namespace
         }
     }
 
-    constexpr ImPlotAxisFlags to_ImPlotAxisFlags(plot::AxisFlags flags)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotAxisFlags to_ImPlotAxisFlags(
+        plot::AxisFlags flags)  // NOLINT(readability-identifier-naming)
     {
         static_assert(std::to_underlying(plot::AxisFlags::None) == ImPlotAxisFlags_None);
         static_assert(std::to_underlying(plot::AxisFlags::NoLabel) == ImPlotAxisFlags_NoLabel);
-        static_assert(std::to_underlying(plot::AxisFlags::NoGridLines) == ImPlotAxisFlags_NoGridLines);
-        static_assert(std::to_underlying(plot::AxisFlags::NoTickMarks) == ImPlotAxisFlags_NoTickMarks);
-        static_assert(std::to_underlying(plot::AxisFlags::NoTickLabels) == ImPlotAxisFlags_NoTickLabels);
+        static_assert(
+            std::to_underlying(plot::AxisFlags::NoGridLines) == ImPlotAxisFlags_NoGridLines);
+        static_assert(
+            std::to_underlying(plot::AxisFlags::NoTickMarks) == ImPlotAxisFlags_NoTickMarks);
+        static_assert(
+            std::to_underlying(plot::AxisFlags::NoTickLabels) == ImPlotAxisFlags_NoTickLabels);
         static_assert(std::to_underlying(plot::AxisFlags::NoMenus) == ImPlotAxisFlags_NoMenus);
         static_assert(std::to_underlying(plot::AxisFlags::AutoFit) == ImPlotAxisFlags_AutoFit);
         static_assert(std::to_underlying(plot::AxisFlags::LockMin) == ImPlotAxisFlags_LockMin);
         static_assert(std::to_underlying(plot::AxisFlags::LockMax) == ImPlotAxisFlags_LockMax);
         static_assert(std::to_underlying(plot::AxisFlags::Lock) == ImPlotAxisFlags_Lock);
-        static_assert(std::to_underlying(plot::AxisFlags::NoDecorations) == ImPlotAxisFlags_NoDecorations);
+        static_assert(
+            std::to_underlying(plot::AxisFlags::NoDecorations) == ImPlotAxisFlags_NoDecorations);
 
         return static_cast<ImPlotAxisFlags>(flags);
     }
 
-    constexpr ImPlotCond to_ImPlotCond(plot::Condition condition)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotCond to_ImPlotCond(
+        plot::Condition condition)  // NOLINT(readability-identifier-naming)
     {
         static_assert(num_options_v<plot::Condition> == 2);
         switch (condition) {
@@ -4231,7 +4432,8 @@ namespace
         }
     }
 
-    constexpr ImPlotMarker to_ImPlotMarker(plot::MarkerType marker_type)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotMarker to_ImPlotMarker(
+        plot::MarkerType marker_type)  // NOLINT(readability-identifier-naming)
     {
         static_assert(num_options_v<plot::MarkerType> == 2);
         switch (marker_type) {
@@ -4241,16 +4443,19 @@ namespace
         }
     }
 
-    constexpr ImPlotDragToolFlags to_ImPlotDragToolFlags(plot::DragToolFlags flags)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotDragToolFlags to_ImPlotDragToolFlags(
+        plot::DragToolFlags flags)  // NOLINT(readability-identifier-naming)
     {
         static_assert(std::to_underlying(plot::DragToolFlag::None) == ImPlotDragToolFlags_None);
         static_assert(std::to_underlying(plot::DragToolFlag::NoFit) == ImPlotDragToolFlags_NoFit);
-        static_assert(std::to_underlying(plot::DragToolFlag::NoInputs) == ImPlotDragToolFlags_NoInputs);
+        static_assert(
+            std::to_underlying(plot::DragToolFlag::NoInputs) == ImPlotDragToolFlags_NoInputs);
         static_assert(num_flags_v<plot::DragToolFlag> == 2);
         return static_cast<ImPlotDragToolFlags>(flags.underlying_value());
     }
 
-    constexpr ImPlotLocation to_ImPlotLocation(plot::Location location)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotLocation to_ImPlotLocation(
+        plot::Location location)  // NOLINT(readability-identifier-naming)
     {
         static_assert(num_options_v<plot::Location> == 9);
         // clang-format off
@@ -4269,7 +4474,8 @@ namespace
         // clang-format on
     }
 
-    constexpr ImPlotLegendFlags to_ImPlotLegendFlags(plot::LegendFlags flags)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotLegendFlags to_ImPlotLegendFlags(
+        plot::LegendFlags flags)  // NOLINT(readability-identifier-naming)
     {
         static_assert(std::to_underlying(plot::LegendFlags::None) == ImPlotLegendFlags_None);
         static_assert(std::to_underlying(plot::LegendFlags::Outside) == ImPlotLegendFlags_Outside);
@@ -4322,22 +4528,27 @@ void osc::ui::plot::setup_axis(Axis axis, std::optional<CStringView> label, Axis
     ImPlot::SetupAxis(to_ImAxis(axis), label ? label->c_str() : nullptr, to_ImPlotAxisFlags(flags));
 }
 
-void osc::ui::plot::setup_axes(CStringView x_label, CStringView y_label, AxisFlags x_flags, AxisFlags y_flags)
+void osc::ui::plot::setup_axes(
+    CStringView x_label, CStringView y_label, AxisFlags x_flags, AxisFlags y_flags)
 {
-    ImPlot::SetupAxes(x_label.c_str(), y_label.c_str(), to_ImPlotAxisFlags(x_flags), to_ImPlotAxisFlags(y_flags));
+    ImPlot::SetupAxes(
+        x_label.c_str(), y_label.c_str(), to_ImPlotAxisFlags(x_flags), to_ImPlotAxisFlags(y_flags));
 }
 
-void osc::ui::plot::setup_axis_limits(Axis axis, ClosedInterval<float> data_range, float padding_percentage, Condition condition)
+void osc::ui::plot::setup_axis_limits(
+    Axis axis, ClosedInterval<float> data_range, float padding_percentage, Condition condition)
 {
     // apply padding
-    data_range = expand_by_absolute_amount(data_range, padding_percentage * data_range.half_length());
+    data_range =
+        expand_by_absolute_amount(data_range, padding_percentage * data_range.half_length());
 
     // apply absolute padding in the edge-case where the data is constant
     if (equal_within_scaled_epsilon(data_range.lower, data_range.upper)) {
         data_range = expand_by_absolute_amount(data_range, 0.5f);
     }
 
-    ImPlot::SetupAxisLimits(to_ImAxis(axis), data_range.lower, data_range.upper, to_ImPlotCond(condition));
+    ImPlot::SetupAxisLimits(
+        to_ImAxis(axis), data_range.lower, data_range.upper, to_ImPlotCond(condition));
 }
 
 void osc::ui::plot::setup_finish()
@@ -4372,7 +4583,8 @@ void osc::ui::plot::plot_line(CStringView name, std::span<const Vector2> points)
         sizeof(Vector2));
 }
 
-void osc::ui::plot::plot_line(CStringView name, std::span<const float> y_values, std::optional<ClosedInterval<float>> x_range)
+void osc::ui::plot::plot_line(
+    CStringView name, std::span<const float> y_values, std::optional<ClosedInterval<float>> x_range)
 {
     double xscale = 1.0;
     double xstart = 0.0;
@@ -4381,7 +4593,8 @@ void osc::ui::plot::plot_line(CStringView name, std::span<const float> y_values,
         xstart = x_range->lower;
     }
 
-    ImPlot::PlotLine(name.c_str(), y_values.data(), static_cast<int>(y_values.size()), xscale, xstart);
+    ImPlot::PlotLine(
+        name.c_str(), y_values.data(), static_cast<int>(y_values.size()), xscale, xstart);
 }
 
 Rect osc::ui::plot::get_plot_ui_rect()
@@ -4390,22 +4603,39 @@ Rect osc::ui::plot::get_plot_ui_rect()
     return Rect::from_corners(top_left, top_left + Vector2{ImPlot::GetPlotSize()});
 }
 
-void osc::ui::plot::detail::draw_annotation_v(Vector2 position_dataspace, const Color& color, Vector2 pixel_offset, bool clamp, CStringView fmt, va_list args)
+void osc::ui::plot::detail::draw_annotation_v(
+    Vector2 position_dataspace,
+    const Color& color,
+    Vector2 pixel_offset,
+    bool clamp,
+    CStringView fmt,
+    va_list args)
 {
-    ImPlot::AnnotationV(position_dataspace.x(), position_dataspace.y(), color, pixel_offset, clamp, fmt.c_str(), args);
+    ImPlot::AnnotationV(
+        position_dataspace.x(),
+        position_dataspace.y(),
+        color,
+        pixel_offset,
+        clamp,
+        fmt.c_str(),
+        args);
 }
 
-bool osc::ui::plot::drag_point(int id, Vector2d* plot_point, const Color& color, float size, DragToolFlags flags)
+bool osc::ui::plot::drag_point(
+    int id, Vector2d* plot_point, const Color& color, float size, DragToolFlags flags)
 {
-    return ImPlot::DragPoint(id, &plot_point->x(), &plot_point->y(), color, size, to_ImPlotDragToolFlags(flags));
+    return ImPlot::DragPoint(
+        id, &plot_point->x(), &plot_point->y(), color, size, to_ImPlotDragToolFlags(flags));
 }
 
-bool osc::ui::plot::drag_line_x(int id, double* plot_x, const Color& color, float thickness, DragToolFlags flags)
+bool osc::ui::plot::drag_line_x(
+    int id, double* plot_x, const Color& color, float thickness, DragToolFlags flags)
 {
     return ImPlot::DragLineX(id, plot_x, color, thickness, to_ImPlotDragToolFlags(flags));
 }
 
-bool osc::ui::plot::drag_line_y(int id, double* plot_y, const Color& color, float thickness, DragToolFlags flags)
+bool osc::ui::plot::drag_line_y(
+    int id, double* plot_y, const Color& color, float thickness, DragToolFlags flags)
 {
     return ImPlot::DragLineY(id, plot_y, color, thickness, to_ImPlotDragToolFlags(flags));
 }

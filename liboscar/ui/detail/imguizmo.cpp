@@ -776,7 +776,9 @@ public:
         const float* boundsSnap)
     {
         mDrawList->PushClipRect(ImVec2(mX, mY), ImVec2(mX + mWidth, mY + mHeight), false);
-        const ScopeExit popClipRectOnExit{[&] { mDrawList->PopClipRect(); }};
+        const ScopeExit popClipRectOnExit{[&] {
+            mDrawList->PopClipRect();
+        }};
 
         // Scale is always local or matrix will be skewed when applying world scale or oriented
         // matrix
