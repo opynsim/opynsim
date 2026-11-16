@@ -295,7 +295,7 @@ namespace osc
     constexpr T&& get(Qua<T>&& v)
     {
         return std::move(v[I]);
-    }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+    }
 
     template<size_t I, typename T>
     constexpr const T&& get(const Qua<T>&& v)

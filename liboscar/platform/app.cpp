@@ -495,7 +495,9 @@ namespace
         // SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, "1");
 
         SDL_PropertiesID properties = SDL_CreateProperties();
-        const ScopeExit g{[&] { SDL_DestroyProperties(properties); }};
+        const ScopeExit g{[&] {
+            SDL_DestroyProperties(properties);
+        }};
 
         SDL_SetBooleanProperty(properties, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, true);
         SDL_SetBooleanProperty(properties, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
@@ -1584,7 +1586,9 @@ public:
         setup_main_loop(std::move(widget));
 
         // ensure `teardown_main_loop` is called - even if there's an exception
-        const ScopeExit scope_guard{[this] { teardown_main_loop(); }};
+        const ScopeExit scope_guard{[this] {
+            teardown_main_loop();
+        }};
 
         while (do_main_loop_step()) {
             ;  // keep ticking the loop until it's not ok
@@ -1711,8 +1715,7 @@ public:
     {
         auto inner_callback =
             [caller_callback = std::move(callback), maybe_extension](
-                FileDialogResponse&&
-                    response)  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+                FileDialogResponse&& response)
         {
             if (response.has_error() or response.size() > 1) {
                 return;  // Error, or the user somehow selected >1 file.
@@ -1871,7 +1874,9 @@ public:
     {
         int displays = 0;
         SDL_DisplayID* display_list_head = SDL_GetDisplays(&displays);
-        ScopeExit list_destructor{[display_list_head] { SDL_free(display_list_head); }};
+        ScopeExit list_destructor{[display_list_head] {
+            SDL_free(display_list_head);
+        }};
 
         // note: On some OSes, like MacOS, SDL_GetDisplayContentScale() might return
         //       a different (lower) value from SDL_GetWindowDisplayScale().

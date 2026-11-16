@@ -105,8 +105,9 @@ namespace osc
     // `nullptr` if no such element exists in `r`
     template<std::ranges::input_range R, typename T, typename Proj = std::identity>
     requires std::ranges::borrowed_range<R>
-    auto find_or_nullptr(R&& r, const T& value, Proj proj = {}) -> decltype(std::addressof(
-        *std::ranges::begin(r)))  // NOLINT(cppcoreguidelines-missing-std-forward)
+    auto find_or_nullptr(
+        R&& r, const T& value, Proj proj = {})  // NOLINT(cppcoreguidelines-missing-std-forward)
+        -> decltype(std::addressof(*std::ranges::begin(r)))
     {
         const auto it = std::ranges::find(r, value, std::move(proj));
         return it != std::ranges::end(r) ? std::addressof(*it) : nullptr;

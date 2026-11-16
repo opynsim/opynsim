@@ -113,7 +113,7 @@ namespace osc
     constexpr T&& get(Rgb<T>&& v)
     {
         return std::move(v[I]);
-    }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+    }
 
     template<size_t I, typename T>
     constexpr const T&& get(const Rgb<T>&& v)

@@ -115,7 +115,9 @@ void osc::open_url_in_os_default_web_browser(std::string_view url_view)
 std::string osc::get_clipboard_text()
 {
     if (char* str = SDL_GetClipboardText()) {
-        const ScopeExit guard{[str] { SDL_free(str); }};
+        const ScopeExit guard{[str] {
+            SDL_free(str);
+        }};
         return std::string{str};
     } else {
         return {};

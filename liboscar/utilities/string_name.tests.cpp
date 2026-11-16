@@ -51,7 +51,7 @@ TEST(StringName, copy_constructing_default_constructed_instance_compares_equival
 TEST(StringName, can_move_construct)
 {
     StringName a;
-    const StringName b{std::move(a)};  // NOLINT(hicpp-move-const-arg,performance-move-const-arg)
+    const StringName b{std::move(a)};
 
     ASSERT_TRUE(b.empty());
     ASSERT_EQ(b.size(), 0);
@@ -69,7 +69,7 @@ TEST(StringName, move_assigning_default_over_non_default_instance_makes_lhs_defa
 {
     StringName a;
     StringName b{c_long_cstring_to_avoid_sso};
-    b = std::move(a);  // NOLINT(hicpp-move-const-arg,performance-move-const-arg)
+    b = std::move(a);
     ASSERT_EQ(b, StringName{});
 }
 
@@ -311,7 +311,7 @@ TEST(
     StringName lhs{c_long_cstring_to_avoid_sso};
     StringName rhs{c_another_long_cstring_to_avoid_sso};
     const StringName rhs_copy{rhs};
-    lhs = std::move(rhs);  // NOLINT(hicpp-move-const-arg,performance-move-const-arg)
+    lhs = std::move(rhs);
     ASSERT_EQ(lhs, rhs_copy);
 }
 

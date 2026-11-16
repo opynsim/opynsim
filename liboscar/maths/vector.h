@@ -115,8 +115,7 @@ namespace osc
         requires(
             detail::CompileTimeSizeGreaterThanOrEqualTo<R, N> and
             std::assignable_from<T&, typename std::remove_cvref_t<R>::value_type>)
-        constexpr Vector& operator=(
-            R&& r)  // NOLINT(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
+        constexpr Vector& operator=(R&& r)
         {
             copy_or_move_assign(std::forward<R>(r), std::make_index_sequence<N>{});
             return *this;
@@ -610,7 +609,7 @@ namespace osc
     constexpr T&& get(Vector<T, N>&& v)
     {
         return std::move(v[I]);
-    }  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+    }
 
     // Returns the `I`th element of `v` (structured binding support)
     template<size_t I, typename T, size_t N>

@@ -4352,8 +4352,8 @@ bool osc::ui::Gizmo::handle_keyboard_inputs()
 // `ui::plot::` helpers
 namespace
 {
-    constexpr ImPlotFlags to_ImPlotFlags(
-        plot::PlotFlags flags)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotFlags to_ImPlotFlags(  // NOLINT(readability-identifier-naming)
+        plot::PlotFlags flags)
     {
         static_assert(std::to_underlying(plot::PlotFlags::NoTitle) == ImPlotFlags_NoTitle);
         static_assert(std::to_underlying(plot::PlotFlags::NoLegend) == ImPlotFlags_NoLegend);
@@ -4365,8 +4365,8 @@ namespace
         return static_cast<ImPlotFlags>(flags);
     }
 
-    constexpr ImPlotStyleVar to_ImPlotStyleVar(
-        plot::PlotStyleVar var)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotStyleVar to_ImPlotStyleVar(  // NOLINT(readability-identifier-naming)
+        plot::PlotStyleVar var)
     {
         static_assert(num_options_v<plot::PlotStyleVar> == 4);
         switch (var) {
@@ -4378,8 +4378,8 @@ namespace
         }
     }
 
-    constexpr ImPlotCol to_ImPlotCol(
-        plot::PlotColorVar var)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotCol to_ImPlotCol(  // NOLINT(readability-identifier-naming)
+        plot::PlotColorVar var)
     {
         static_assert(num_options_v<plot::PlotColorVar> == 2);
         switch (var) {
@@ -4399,8 +4399,8 @@ namespace
         }
     }
 
-    constexpr ImPlotAxisFlags to_ImPlotAxisFlags(
-        plot::AxisFlags flags)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotAxisFlags to_ImPlotAxisFlags(  // NOLINT(readability-identifier-naming)
+        plot::AxisFlags flags)
     {
         static_assert(std::to_underlying(plot::AxisFlags::None) == ImPlotAxisFlags_None);
         static_assert(std::to_underlying(plot::AxisFlags::NoLabel) == ImPlotAxisFlags_NoLabel);
@@ -4421,8 +4421,8 @@ namespace
         return static_cast<ImPlotAxisFlags>(flags);
     }
 
-    constexpr ImPlotCond to_ImPlotCond(
-        plot::Condition condition)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotCond to_ImPlotCond(  // NOLINT(readability-identifier-naming)
+        plot::Condition condition)
     {
         static_assert(num_options_v<plot::Condition> == 2);
         switch (condition) {
@@ -4432,8 +4432,8 @@ namespace
         }
     }
 
-    constexpr ImPlotMarker to_ImPlotMarker(
-        plot::MarkerType marker_type)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotMarker to_ImPlotMarker(  // NOLINT(readability-identifier-naming)
+        plot::MarkerType marker_type)
     {
         static_assert(num_options_v<plot::MarkerType> == 2);
         switch (marker_type) {
@@ -4443,8 +4443,8 @@ namespace
         }
     }
 
-    constexpr ImPlotDragToolFlags to_ImPlotDragToolFlags(
-        plot::DragToolFlags flags)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotDragToolFlags to_ImPlotDragToolFlags(  // NOLINT(readability-identifier-naming)
+        plot::DragToolFlags flags)
     {
         static_assert(std::to_underlying(plot::DragToolFlag::None) == ImPlotDragToolFlags_None);
         static_assert(std::to_underlying(plot::DragToolFlag::NoFit) == ImPlotDragToolFlags_NoFit);
@@ -4454,8 +4454,8 @@ namespace
         return static_cast<ImPlotDragToolFlags>(flags.underlying_value());
     }
 
-    constexpr ImPlotLocation to_ImPlotLocation(
-        plot::Location location)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotLocation to_ImPlotLocation(  // NOLINT(readability-identifier-naming)
+        plot::Location location)
     {
         static_assert(num_options_v<plot::Location> == 9);
         // clang-format off
@@ -4474,8 +4474,8 @@ namespace
         // clang-format on
     }
 
-    constexpr ImPlotLegendFlags to_ImPlotLegendFlags(
-        plot::LegendFlags flags)  // NOLINT(readability-identifier-naming)
+    constexpr ImPlotLegendFlags to_ImPlotLegendFlags(  // NOLINT(readability-identifier-naming)
+        plot::LegendFlags flags)
     {
         static_assert(std::to_underlying(plot::LegendFlags::None) == ImPlotLegendFlags_None);
         static_assert(std::to_underlying(plot::LegendFlags::Outside) == ImPlotLegendFlags_Outside);

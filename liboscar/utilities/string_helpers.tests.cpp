@@ -117,15 +117,6 @@ namespace
                  << ", expected_output = " << test_case.expected_output << ')';
     }
 
-    void PrintTo(
-        const TestCase& test_case, std::ostream* o)  // NOLINT(readability-identifier-naming)
-    {
-        // this teaches googletest to pretty-print a std::optional<float>
-        //
-        // see: googletest/include/gtest/gtest-printers.h `PrintTo`
-        *o << test_case;
-    }
-
     constexpr auto c_test_cases = std::to_array<TestCase>({
         // it strips purely-whitespace strings
         {"", std::nullopt},

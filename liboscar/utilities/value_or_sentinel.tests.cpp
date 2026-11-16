@@ -111,13 +111,13 @@ TEST(ValueOrSentinel, operator_star_accesses_value)
     // const&& overload
     {
         const ValueOrSentinel<int, -5> v = -3;
-        ASSERT_EQ(*std::move(v), -3);  // NOLINT(hicpp-move-const-arg,performance-move-const-arg)
+        ASSERT_EQ(*std::move(v), -3);
     }
 
     // && overload
     {
         const ValueOrSentinel<int, -5> v = -4;
-        ASSERT_EQ(*std::move(v), -4);  // NOLINT(hicpp-move-const-arg,performance-move-const-arg)
+        ASSERT_EQ(*std::move(v), -4);
     }
 }
 
