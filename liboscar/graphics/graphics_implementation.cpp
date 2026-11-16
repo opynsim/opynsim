@@ -934,7 +934,7 @@ public:
 
     gl::TextureCubemap& upd_cubemap()
     {
-        if (not *maybe_gpu_texture_) {
+        if (not*maybe_gpu_texture_) {
             *maybe_gpu_texture_ = CubemapOpenGLData{};
         }
 
@@ -1382,7 +1382,7 @@ public:
 
     gl::Texture2D& upd_texture()
     {
-        if (not *maybe_opengl_data_) {
+        if (not*maybe_opengl_data_) {
             upload_to_gpu();
         }
 
@@ -1866,7 +1866,7 @@ namespace
 
         RenderBufferOpenGLData& upd_opengl_data()
         {
-            if (not *maybe_opengl_data_) {
+            if (not*maybe_opengl_data_) {
                 upload_to_gpu();
             }
             return maybe_opengl_data_->value();
@@ -3095,7 +3095,7 @@ namespace
         template<typename Value>
         requires(
             not std::same_as<MaterialValue, std::remove_cvref_t<Value>> and
-            std::constructible_from<MaterialValueStorage<std::remove_cvref_t<Value>>, Value&&>)
+            std::constructible_from<MaterialValueStorage<std::remove_cvref_t<Value>>, Value &&>)
         explicit MaterialValue(Value&& single_value) :
             data_{
                 MaterialValueStorage<std::remove_cvref_t<Value>>{std::forward<Value>(single_value)}}
@@ -3112,7 +3112,9 @@ namespace
         ShaderPropertyType shader_property_type() const
         {
             return std::visit(
-                Overload{[](const auto& storage) { return storage.shader_property_type(); }},
+                Overload{[](const auto& storage) {
+                    return storage.shader_property_type();
+                }},
                 data_);
         }
 
@@ -4602,7 +4604,7 @@ public:
 
     gl::VertexArray& upd_vertex_array()
     {
-        if (not *maybe_gpu_data_ or (*maybe_gpu_data_).value().data_version != *version_) {
+        if (not*maybe_gpu_data_ or (*maybe_gpu_data_).value().data_version != *version_) {
             upload_to_gpu();
         }
         return (*maybe_gpu_data_).value().vao;
@@ -4770,7 +4772,7 @@ private:
     void upload_to_gpu()
     {
         // allocate GPU-side buffers (or re-use the last ones)
-        if (not *maybe_gpu_data_) {
+        if (not*maybe_gpu_data_) {
             *maybe_gpu_data_ = MeshOpenGLData{};
         }
         MeshOpenGLData& buffers = maybe_gpu_data_->value();
@@ -6504,7 +6506,8 @@ std::optional<gl::FrameBuffer> osc::GraphicsBackend::bind_and_clear_render_buffe
                             t.multisampled_rbo);
                     },
 #ifdef EMSCRIPTEN
-                    [](SingleSampledCubemap&) {}
+                    [](SingleSampledCubemap&) {
+                    }
 #else
                     [i](SingleSampledCubemap& t) {
                         glFramebufferTexture(
@@ -6535,7 +6538,8 @@ std::optional<gl::FrameBuffer> osc::GraphicsBackend::bind_and_clear_render_buffe
                             GL_DRAW_FRAMEBUFFER, attachment, t.multisampled_rbo);
                     },
 #ifdef EMSCRIPTEN
-                    [](SingleSampledCubemap&) {}
+                    [](SingleSampledCubemap&) {
+                    }
 #else
                     [attachment](SingleSampledCubemap& t) {
                         glFramebufferTexture(GL_DRAW_FRAMEBUFFER, attachment, t.cubemap.get(), 0);

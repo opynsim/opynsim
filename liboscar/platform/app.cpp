@@ -1713,10 +1713,8 @@ public:
         std::optional<std::string_view> maybe_extension,
         std::optional<std::filesystem::path> initial_directory_to_show)
     {
-        auto inner_callback =
-            [caller_callback = std::move(callback), maybe_extension](
-                FileDialogResponse&& response)
-        {
+        auto inner_callback = [caller_callback = std::move(callback),
+                               maybe_extension](FileDialogResponse&& response) {
             if (response.has_error() or response.size() > 1) {
                 return;  // Error, or the user somehow selected >1 file.
             }

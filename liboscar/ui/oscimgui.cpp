@@ -4271,7 +4271,9 @@ std::optional<Transform> osc::ui::Gizmo::draw_to(
     auto& gizmo_context = get_backend_data().gizmo_context;
 
     gizmo_context.push_id(id_);
-    const ScopeExit g{[&gizmo_context] { gizmo_context.pop_id(); }};
+    const ScopeExit g{[&gizmo_context] {
+        gizmo_context.pop_id();
+    }};
 
     // update last-frame cache
     was_using_last_frame_ = gizmo_context.is_using();
