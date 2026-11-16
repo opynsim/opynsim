@@ -42,15 +42,14 @@ int main(int argc, char* argv[])
 {
     std::vector<std::string_view> unnamed_args;
     for (int i = 1; i < argc; ++i) {
-        const std::string_view arg{argv[i]};  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        const std::string_view arg{argv[i]};
 
         if (arg.empty()) {
             // do nothing (this shouldn't happen)
         } else if (arg.front() != '-') {
             unnamed_args.push_back(arg);
         } else if (arg == "--help") {
-            std::cout << c_usage << '\n'
-                      << c_help << '\n';
+            std::cout << c_usage << '\n' << c_help << '\n';
             return EXIT_SUCCESS;
         }
     }
