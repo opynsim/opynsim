@@ -72,7 +72,8 @@ namespace rgs = std::ranges;
 
 namespace
 {
-    std::unique_ptr<OPynSimApp> g_lazy_loaded_app;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+    std::unique_ptr<OPynSimApp>
+        g_lazy_loaded_app;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
     template<typename CppType>
     struct PythonTypeMapper {
@@ -87,16 +88,13 @@ namespace
         using cpp_type = osc::Vector3d;
         using python_type = nb::ndarray<nb::numpy, double, nb::shape<3>>;
 
-        static python_type to_python(cpp_type&& v)  // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+        static python_type to_python(cpp_type&& v)
         {
-            auto* data = new double[3]{v[0], v[1], v[2]};  // NOLINT(cppcoreguidelines-owning-memory)
+            auto* data = new double[3]{v[0], v[1], v[2]};
             const std::array<size_t, 1> shape = {3};
-            return {
-                data,
-                1,
-                shape.data(),
-                nb::capsule(data, [](void* p) noexcept { delete[] static_cast<double*>(p); })  // NOLINT(cppcoreguidelines-owning-memory)
-            };
+            return {data, 1, shape.data(), nb::capsule(data, [](void* p) noexcept {
+                        delete[] static_cast<double*>(p);
+                    })};
         }
     };
 
@@ -106,14 +104,17 @@ namespace
         return osc::Typelist<typename PythonTypeMapper<Ts>::python_type...>{};
     }
 
-    using SupportedPythonOutputValues = decltype(to_python_mapper_typelist(std::declval<SupportedOutputValueTypes>()));
+    using SupportedPythonOutputValues =
+        decltype(to_python_mapper_typelist(std::declval<SupportedOutputValueTypes>()));
     using PythonOutputValue = osc::VariantOfTypelistElements<SupportedPythonOutputValues>;
 
     PythonOutputValue to_python_output(OutputValue&& output_value)
     {
-        return std::visit(osc::Overload{
-            []<typename T>(T&& v) -> PythonOutputValue { return PythonTypeMapper<T>::to_python(std::forward<T>(v)); }
-        }, std::move(output_value));  // NOLINT(hicpp-move-const-arg,performance-move-const-arg)
+        return std::visit(
+            osc::Overload{[]<typename T>(T&& v) -> PythonOutputValue {
+                return PythonTypeMapper<T>::to_python(std::forward<T>(v));
+            }},
+            std::move(output_value));
     }
 
     // Satisfied if `T` is an Arrow object (a C struct with a type-erased destructor).
@@ -131,7 +132,7 @@ namespace
     void private_data_releaser(T* ptr)
     {
         if (ptr->release) {
-            delete static_cast<PrivateDataType*>(ptr->private_data);  // NOLINT(cppcoreguidelines-owning-memory)
+            delete static_cast<PrivateDataType*>(ptr->private_data);
             ptr->release = nullptr;
         }
     }
@@ -180,7 +181,8 @@ namespace
     template<ArrowCObject T>
     struct ArrowLifetimeWrapper final : T {
         ArrowLifetimeWrapper() :
-            T{} {}
+            T{}
+        {}
         ArrowLifetimeWrapper(const ArrowLifetimeWrapper&) = delete;
         ArrowLifetimeWrapper(ArrowLifetimeWrapper&&) noexcept = delete;
         ~ArrowLifetimeWrapper() noexcept
@@ -196,7 +198,8 @@ namespace
     template<ArrowCObject T>
     nb::capsule to_capsule(ArrowHandle<T> handle, char const* name)
     {
-        return nb::capsule(handle.release(), name, [](void* p) noexcept { delete static_cast<T*>(p); });  // NOLINT(cppcoreguidelines-owning-memory)
+        return nb::capsule(
+            handle.release(), name, [](void* p) noexcept { delete static_cast<T*>(p); });
     }
 
     // Represents a contiguous sequence of `ArrowHandle<T>`s.
@@ -211,7 +214,8 @@ namespace
             static_assert(sizeof(ArrowHandle<T>) == sizeof(T*));
             static_assert(alignof(ArrowHandle<T>) == alignof(T*));
             static_assert(std::is_standard_layout_v<ArrowHandle<T>>);
-            return handles_.empty() ? nullptr : reinterpret_cast<T**>(std::launder(handles_.data()));
+            return handles_.empty() ? nullptr
+                                    : reinterpret_cast<T**>(std::launder(handles_.data()));
         }
 
     private:
@@ -254,7 +258,8 @@ namespace
 
         // Converts the size of range `r` into a sequence of native-endian int32 bytes.
         const auto size_as_int32_bytes = [](const auto& r) {
-            return std::bit_cast<std::array<char, sizeof(int32_t)>>(static_cast<int32_t>(rgs::size(r)));
+            return std::bit_cast<std::array<char, sizeof(int32_t)>>(
+                static_cast<int32_t>(rgs::size(r)));
         };
 
         // Create + encode the string
@@ -292,11 +297,13 @@ namespace
     {
         struct PrivateData {
             explicit PrivateData(const DataFrame& df) :
-                data_frame{df} {}
+                data_frame{df}
+            {}
 
             DataFrame data_frame;
             ArrowChildren<ArrowSchema> children = generate_children<ArrowSchema>(this->data_frame);
-            std::optional<std::vector<char>> metadata = encode_attrs_to_binary_string(this->data_frame);
+            std::optional<std::vector<char>> metadata =
+                encode_attrs_to_binary_string(this->data_frame);
         };
         auto pdata = std::make_unique<PrivateData>(data_frame);
 
@@ -316,10 +323,12 @@ namespace
     {
         struct PrivateData {
             explicit PrivateData(const Series& s) :
-                series{s} {}
+                series{s}
+            {}
 
             Series series;
-            std::vector<const void*> buffers = {nullptr, this->series.data()};  // [validity bitmap (unused), data]
+            std::vector<const void*> buffers = {
+                nullptr, this->series.data()};  // [validity bitmap (unused), data]
         };
         auto pdata = std::make_unique<PrivateData>(series);
 
@@ -340,7 +349,8 @@ namespace
     {
         struct PrivateData {
             explicit PrivateData(const DataFrame& df) :
-                data_frame{df} {}
+                data_frame{df}
+            {}
 
             DataFrame data_frame;
             ArrowChildren<ArrowArray> children = generate_children<ArrowArray>(this->data_frame);
@@ -365,7 +375,8 @@ namespace
     {
         struct PrivateData {
             explicit PrivateData(const DataFrame& df) :
-                data_frame_{df} {}
+                data_frame_{df}
+            {}
 
             int get_schema(ArrowSchema* out)
             {
@@ -406,9 +417,18 @@ namespace
         };
         auto pdata = std::make_unique<PrivateData>(data_frame);
 
-        lhs.get_schema = type_erased_callback<ArrowArrayStream, PrivateData, &PrivateData::get_schema, ArrowSchema*>;
-        lhs.get_next = type_erased_callback<ArrowArrayStream, PrivateData, &PrivateData::get_next, ArrowArray*>;
-        lhs.get_last_error = type_erased_callback<ArrowArrayStream, PrivateData, &PrivateData::get_last_error>;
+        lhs.get_schema = type_erased_callback<
+            ArrowArrayStream,
+            PrivateData,
+            &PrivateData::get_schema,
+            ArrowSchema*>;
+        lhs.get_next = type_erased_callback<
+            ArrowArrayStream,
+            PrivateData,
+            &PrivateData::get_next,
+            ArrowArray*>;
+        lhs.get_last_error =
+            type_erased_callback<ArrowArrayStream, PrivateData, &PrivateData::get_last_error>;
         lhs.release = private_data_releaser<ArrowArrayStream, PrivateData>;
         lhs.private_data = pdata.release();
     }
@@ -417,12 +437,14 @@ namespace
     {
         ArrowLifetimeWrapper<ArrowSchema> schema;
         if (stream.get_schema(&stream, &schema) != 0) {
-            throw std::runtime_error{"Failed to get `ArrowSchema` from the provided `ArrowArrayStream`"};
+            throw std::runtime_error{
+                "Failed to get `ArrowSchema` from the provided `ArrowArrayStream`"};
         }
 
         // Validate top-level schema.
         if (std::string_view{schema.format} != "+s") {
-            throw std::runtime_error{"OPynSim can only parse a table (a struct, '+s') containing float64 columns into a `DataFrame` right now - you may need to flatten and convert your columns accordingly (sorry - work in progress!)"};
+            throw std::runtime_error{
+                "OPynSim can only parse a table (a struct, '+s') containing float64 columns into a `DataFrame` right now - you may need to flatten and convert your columns accordingly (sorry - work in progress!)"};
         }
 
         // Get column names and validate each column's data type.
@@ -447,13 +469,17 @@ namespace
             ArrowLifetimeWrapper<ArrowArray> array;
             OSC_ASSERT(array.release == nullptr);
             if (stream.get_next(&stream, &array) != 0) {
-                throw osc::formatted_runtime_error("Error encountered when reading an array stream: {}", stream.get_last_error(&stream));
+                throw osc::formatted_runtime_error(
+                    "Error encountered when reading an array stream: {}",
+                    stream.get_last_error(&stream));
             }
             if (array.release == nullptr) {
                 break;  // This is how the API communicates "done"
             }
 
-            OSC_ASSERT(static_cast<size_t>(array.n_children) == column_data.size() && "The number of children in an array stream doesn't match the provided schema");
+            OSC_ASSERT(
+                static_cast<size_t>(array.n_children) == column_data.size() &&
+                "The number of children in an array stream doesn't match the provided schema");
 
             // Read each child of doubles (validated above)
             for (size_t i = 0; i < column_data.size(); ++i) {
@@ -462,7 +488,8 @@ namespace
                     std::span source_span{
                         static_cast<const double*>(chunk->buffers[1]) + chunk->offset,
                         static_cast<size_t>(chunk->length)};
-                    column_data[i].insert(column_data[i].end(), source_span.begin(), source_span.end());
+                    column_data[i].insert(
+                        column_data[i].end(), source_span.begin(), source_span.end());
                 }
             }
         }
@@ -472,7 +499,9 @@ namespace
         if (schema.metadata) {
             const auto read_int32_as_size_t = [](const char*& cursor) {
                 std::array<char, sizeof(int32_t)> copied_bytes{};
-                rgs::copy(std::span<const char, sizeof(int32_t)>{cursor, sizeof(int32_t)}, copied_bytes.begin());
+                rgs::copy(
+                    std::span<const char, sizeof(int32_t)>{cursor, sizeof(int32_t)},
+                    copied_bytes.begin());
                 cursor += sizeof(int32_t);
                 return static_cast<size_t>(std::bit_cast<int32_t>(copied_bytes));
             };
@@ -504,7 +533,8 @@ namespace
 
         const char* capsule_name = stream_capsule.name();
         if (not(capsule_name and std::string_view{capsule_name} == "arrow_array_stream")) {
-            throw nb::value_error("Expected capsule name 'arrow_array_stream', but got something else");
+            throw nb::value_error(
+                "Expected capsule name 'arrow_array_stream', but got something else");
         }
 
         auto* stream = static_cast<ArrowArrayStream*>(stream_capsule.data());
@@ -690,7 +720,9 @@ namespace
         cls.def("__hash__", [](const Symbol& s) { return std::hash<Symbol>{}(s); });
         cls.def("__eq__", [](const Symbol& lhs, const Symbol& rhs) { return lhs == rhs; });
         cls.def("__eq__", [](const Symbol& lhs, std::string_view rhs) { return lhs == rhs; });
-        cls.def("__contains__", [](const Symbol& sym, std::string_view substr) { return sym.name().contains(substr); });
+        cls.def("__contains__", [](const Symbol& sym, std::string_view substr) {
+            return sym.name().contains(substr);
+        });
     }
 
     void def_model_specification(nb::module_& m)
@@ -732,7 +764,8 @@ namespace
         model_specification_class.def(
             "to_osim",
             [](const ModelSpecification& self,
-               std::optional<std::filesystem::path> destination = std::nullopt) -> std::optional<std::string> {
+               std::optional<std::filesystem::path> destination =
+                   std::nullopt) -> std::optional<std::string> {
                 if (destination) {
                     self.to_osim(*destination);
                     return std::nullopt;
@@ -1062,7 +1095,8 @@ namespace
             ModelStates rv;
             rv.reserve(slice_length);
             for (size_t i = 0; i < slice_length; ++i) {
-                const auto cur = static_cast<size_t>(start + (static_cast<std::decay_t<decltype(step)>>(i) * step));
+                const auto cur = static_cast<size_t>(
+                    start + (static_cast<std::decay_t<decltype(step)>>(i) * step));
                 rv.handle_push_back(states.handle_at(cur));
             }
             return rv;
@@ -1101,15 +1135,34 @@ namespace
                 - :attr:`opynsim.STAGE_ACCELERATION` -> :attr:`opynsim.ModelStateStage.ACCELERATION`
                 - :attr:`opynsim.STAGE_REPORT` -> :attr:`opynsim.ModelStateStage.REPORT`
             )");
-        model_state_stage_class.value("TOPOLOGY", ModelStateStage::topology, "System topology known.");
-        model_state_stage_class.value("MODEL", ModelStateStage::model, "Modelling choices have been made.");
-        model_state_stage_class.value("INSTANCE", ModelStateStage::instance, "Physical parameters have been set.");
-        model_state_stage_class.value("TIME", ModelStateStage::time, "Time has advanced and state variables have new values, but no derived information has been calculated.");
-        model_state_stage_class.value("POSITION", ModelStateStage::position, "The spatial positions of all bodies are known.");
-        model_state_stage_class.value("VELOCITY", ModelStateStage::velocity, "The spatial velocities of all bodies are known.");
-        model_state_stage_class.value("DYNAMICS", ModelStateStage::dynamics, "The force acting on each body is known, along with total kinetic/potential energy.");
-        model_state_stage_class.value("ACCELERATION", ModelStateStage::acceleration, "The time derivatives of all continuous state variables are known.");
-        model_state_stage_class.value("REPORT", ModelStateStage::report, "Additional variables useful for output are known");
+        model_state_stage_class.value(
+            "TOPOLOGY", ModelStateStage::topology, "System topology known.");
+        model_state_stage_class.value(
+            "MODEL", ModelStateStage::model, "Modelling choices have been made.");
+        model_state_stage_class.value(
+            "INSTANCE", ModelStateStage::instance, "Physical parameters have been set.");
+        model_state_stage_class.value(
+            "TIME",
+            ModelStateStage::time,
+            "Time has advanced and state variables have new values, but no derived information has been calculated.");
+        model_state_stage_class.value(
+            "POSITION",
+            ModelStateStage::position,
+            "The spatial positions of all bodies are known.");
+        model_state_stage_class.value(
+            "VELOCITY",
+            ModelStateStage::velocity,
+            "The spatial velocities of all bodies are known.");
+        model_state_stage_class.value(
+            "DYNAMICS",
+            ModelStateStage::dynamics,
+            "The force acting on each body is known, along with total kinetic/potential energy.");
+        model_state_stage_class.value(
+            "ACCELERATION",
+            ModelStateStage::acceleration,
+            "The time derivatives of all continuous state variables are known.");
+        model_state_stage_class.value(
+            "REPORT", ModelStateStage::report, "Additional variables useful for output are known");
 
         model_state_stage_class.def("__lt__", std::less<ModelStateStage>{});
         model_state_stage_class.def("__le__", std::less_equal<ModelStateStage>{});
@@ -1268,14 +1321,17 @@ void opyn::destroy_lazy_loaded_opynsim_app()
     g_lazy_loaded_app.reset();
 }
 
-NB_MODULE(_core, _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables,misc-use-anonymous-namespace)
+NB_MODULE(
+    _core,
+    _core_module)  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables,misc-use-anonymous-namespace)
 {
     // Disable type/instance leak checks (for now ;)).
     nb::set_leak_warnings(false);
 
     // Install an exit handler that cleans up any lazy-loaded application state
     // when the Python interpreter shuts down
-    nb::module_::import_("atexit").attr("register")(nb::cpp_function(&destroy_lazy_loaded_opynsim_app));
+    nb::module_::import_("atexit").attr("register")(
+        nb::cpp_function(&destroy_lazy_loaded_opynsim_app));
 
     // Initialize top-level functions/classes
     def_symbol(_core_module);
