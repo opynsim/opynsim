@@ -70,7 +70,8 @@ TEST(ComponentRegistry, coords_have_expected_names)
         TestCase::create<OpenSim::GimbalJoint>("rx", "ry", "rz"),
         TestCase::create<OpenSim::PinJoint>("rz"),
         TestCase::create<OpenSim::PlanarJoint>("rz", "tx", "ty"),
-        TestCase::create<OpenSim::ScapulothoracicJoint>("rx_abduction", "ry_elevation", "rz_upwardrotation", "ryp_winging"),
+        TestCase::create<OpenSim::ScapulothoracicJoint>(
+            "rx_abduction", "ry_elevation", "rz_upwardrotation", "ryp_winging"),
         TestCase::create<OpenSim::SliderJoint>("tx"),
         TestCase::create<OpenSim::UniversalJoint>("rx", "ry"),
     };
@@ -82,10 +83,12 @@ TEST(ComponentRegistry, coords_have_expected_names)
         const auto& proto = get_component_registry<OpenSim::Joint>()[*tc.maybe_index].prototype();
         const auto& coord_prop = proto.getProperty_coordinates();
 
-        ASSERT_EQ(coord_prop.size(), tc.expected_names.size()) << tc.name << " has different number of coords from expected";
+        ASSERT_EQ(coord_prop.size(), tc.expected_names.size())
+            << tc.name << " has different number of coords from expected";
 
         for (int i = 0; i < coord_prop.size(); ++i) {
-            ASSERT_EQ(coord_prop.getValue(i).getName(), tc.expected_names[i]) << tc.name << " coordinate " << i << " has different name from expected";
+            ASSERT_EQ(coord_prop.getValue(i).getName(), tc.expected_names[i])
+                << tc.name << " coordinate " << i << " has different name from expected";
         }
     }
 }
