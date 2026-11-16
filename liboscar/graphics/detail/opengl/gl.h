@@ -46,7 +46,8 @@ namespace osc::gl
             shader_handle_{glCreateShader(type)}
         {
             if (shader_handle_ == c_empty_shader_sentinel) {
-                throw OpenGlException{"glCreateShader() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
+                throw OpenGlException{
+                    "glCreateShader() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
             }
         }
 
@@ -89,7 +90,8 @@ namespace osc::gl
         static constexpr GLuint type = ShaderType;
 
         Shader() :
-            shader_handle_{type} {}
+            shader_handle_{type}
+        {}
 
         GLuint get() const { return shader_handle_.get(); }
 
@@ -119,7 +121,8 @@ namespace osc::gl
             program_handle_{glCreateProgram()}
         {
             if (program_handle_ == c_empty_program_sentinel) {
-                throw OpenGlException{"glCreateProgram() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
+                throw OpenGlException{
+                    "glCreateProgram() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
             }
         }
 
@@ -178,8 +181,7 @@ namespace osc::gl
     void link_program(Program&);
 
     inline gl::Program create_program_from(
-        const VertexShader& vertex_shader,
-        const FragmentShader& fragment_shader)
+        const VertexShader& vertex_shader, const FragmentShader& fragment_shader)
     {
         gl::Program program;
         attach_shader(program, vertex_shader);
@@ -204,23 +206,23 @@ namespace osc::gl
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml
     //     - throws on error
     [[nodiscard]] inline GLint get_uniform_location(
-        const Program& program,
-        const GLchar* uniform_name)
+        const Program& program, const GLchar* uniform_name)
     {
         const GLint location = glGetUniformLocation(program.get(), uniform_name);
         if (location == -1) {
-            throw OpenGlException{std::string{"glGetUniformLocation() failed: cannot get "} + uniform_name};
+            throw OpenGlException{
+                std::string{"glGetUniformLocation() failed: cannot get "} + uniform_name};
         }
         return location;
     }
 
     [[nodiscard]] inline GLint get_attribute_location(
-        const Program& program,
-        const GLchar* attribute_name)
+        const Program& program, const GLchar* attribute_name)
     {
         const GLint location = glGetAttribLocation(program.get(), attribute_name);
         if (location == -1) {
-            throw OpenGlException{std::string{"glGetAttribLocation() failed: cannot get "} + attribute_name};
+            throw OpenGlException{
+                std::string{"glGetAttribLocation() failed: cannot get "} + attribute_name};
         }
         return location;
     }
@@ -288,10 +290,7 @@ namespace osc::gl
             return static_cast<GLuint>(uniform_location_);
         }
 
-        [[nodiscard]] constexpr GLint geti() const
-        {
-            return uniform_location_;
-        }
+        [[nodiscard]] constexpr GLint geti() const { return uniform_location_; }
 
     private:
         GLint uniform_location_;
@@ -421,7 +420,8 @@ namespace osc::gl
     inline void set_uniform(UniformVec3& uniform, std::span<const Vector3> vectors)
     {
         static_assert(sizeof(Vector3) == 3 * sizeof(GLfloat));
-        glUniform3fv(uniform.geti(), static_cast<GLsizei>(vectors.size()), value_ptr(vectors.front()));
+        glUniform3fv(
+            uniform.geti(), static_cast<GLsizei>(vectors.size()), value_ptr(vectors.front()));
     }
 
     // set a uniform array of vec3s from a userspace container type (e.g. `std::vector<Vector3>`)
@@ -430,7 +430,10 @@ namespace osc::gl
     inline void set_uniform(UniformArray<glsl::Vec3, N>& uniform, R& range)
     {
         OSC_ASSERT(std::ranges::size(range) == N);
-        glUniform3fv(uniform.geti(), static_cast<GLsizei>(std::ranges::size(range)), ValuePtr(*std::ranges::data(range)));
+        glUniform3fv(
+            uniform.geti(),
+            static_cast<GLsizei>(std::ranges::size(range)),
+            ValuePtr(*std::ranges::data(range)));
     }
 
     inline void set_uniform(UniformMat4& uniform, const Matrix4x4& mat)
@@ -441,7 +444,8 @@ namespace osc::gl
     inline void set_uniform(UniformMat4& uniform, std::span<const Matrix4x4> matrices)
     {
         static_assert(sizeof(Matrix4x4) == 16 * sizeof(GLfloat));
-        glUniformMatrix4fv(uniform.geti(), static_cast<GLsizei>(matrices.size()), 0u, value_ptr(matrices.front()));
+        glUniformMatrix4fv(
+            uniform.geti(), static_cast<GLsizei>(matrices.size()), 0u, value_ptr(matrices.front()));
     }
 
     inline void set_uniform(UniformVec2& u, const Vector2& v)
@@ -454,9 +458,7 @@ namespace osc::gl
         static_assert(sizeof(Vector2) == 2 * sizeof(GLfloat));
 
         glUniform2fv(
-            uniform.geti(),
-            static_cast<GLsizei>(vectors.size()),
-            value_ptr(vectors.front()));
+            uniform.geti(), static_cast<GLsizei>(vectors.size()), value_ptr(vectors.front()));
     }
 
     template<std::ranges::contiguous_range R, size_t N>
@@ -489,10 +491,7 @@ namespace osc::gl
             return static_cast<GLuint>(attribute_location_);
         }
 
-        [[nodiscard]] constexpr GLint geti() const
-        {
-            return attribute_location_;
-        }
+        [[nodiscard]] constexpr GLint geti() const { return attribute_location_; }
 
     private:
         GLint attribute_location_;
@@ -515,10 +514,7 @@ namespace osc::gl
     // also "magically" handles attributes that span multiple locations (e.g. mat4)
     template<typename TGlsl, GLenum SourceType = TGlsl::type>
     inline void vertex_attrib_pointer(
-        const Attribute<TGlsl>& attribute,
-        bool normalized,
-        size_t stride,
-        size_t offset)
+        const Attribute<TGlsl>& attribute, bool normalized, size_t stride, size_t offset)
     {
         static_assert(TGlsl::size <= 4 or TGlsl::type == GL_FLOAT);
 
@@ -541,7 +537,8 @@ namespace osc::gl
                     SourceType,
                     normgl,
                     stridegl,
-                    std::bit_cast<void*>(offset + (i * TGlsl::elements_per_location * sizeof(float))));
+                    std::bit_cast<void*>(
+                        offset + (i * TGlsl::elements_per_location * sizeof(float))));
             }
         }
 
@@ -612,7 +609,8 @@ namespace osc::gl
             glGenBuffers(1, &buffer_handle_);
 
             if (buffer_handle_ == c_empty_buffer_handle_sentinel) {
-                throw OpenGlException{"glGenBuffers() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
+                throw OpenGlException{
+                    "glGenBuffers() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
             }
         }
 
@@ -694,7 +692,8 @@ namespace osc::gl
         void assign(const R& range)
         {
             bind_buffer(*this);
-            buffer_data(buffer_type, sizeof(T) * std::ranges::size(range), std::ranges::data(range), Usage);
+            buffer_data(
+                buffer_type, sizeof(T) * std::ranges::size(range), std::ranges::data(range), Usage);
         }
     };
 
@@ -729,13 +728,22 @@ namespace osc::gl
     constexpr GLenum index_type();
 
     template<>
-    constexpr GLenum index_type<uint8_t>() { return GL_UNSIGNED_BYTE; }
+    constexpr GLenum index_type<uint8_t>()
+    {
+        return GL_UNSIGNED_BYTE;
+    }
 
     template<>
-    constexpr GLenum index_type<uint16_t>() { return GL_UNSIGNED_SHORT; }
+    constexpr GLenum index_type<uint16_t>()
+    {
+        return GL_UNSIGNED_SHORT;
+    }
 
     template<>
-    constexpr GLenum index_type<uint32_t>() { return GL_UNSIGNED_INT; }
+    constexpr GLenum index_type<uint32_t>()
+    {
+        return GL_UNSIGNED_INT;
+    }
 
     // utility overload of index_type specifically for EBOs (the most common
     // use-case in downstream code)
@@ -752,7 +760,8 @@ namespace osc::gl
         {
             glGenVertexArrays(1, &vao_handle_);
             if (vao_handle_ == c_empty_vao_sentinel) {
-                throw OpenGlException{"glGenVertexArrays() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
+                throw OpenGlException{
+                    "glGenVertexArrays() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
             }
         }
 
@@ -803,7 +812,8 @@ namespace osc::gl
         {
             glGenTextures(1, &texture_handle_);
             if (texture_handle_ == c_empty_texture_handle_sentinel) {
-                throw OpenGlException{"glGenTextures() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
+                throw OpenGlException{
+                    "glGenTextures() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
             }
         }
 
@@ -859,20 +869,11 @@ namespace osc::gl
     public:
         static constexpr GLenum type = TextureType;
 
-        [[nodiscard]] constexpr GLuint get() const
-        {
-            return texture_handle_.get();
-        }
+        [[nodiscard]] constexpr GLuint get() const { return texture_handle_.get(); }
 
-        constexpr const TextureHandle& handle() const
-        {
-            return texture_handle_;
-        }
+        constexpr const TextureHandle& handle() const { return texture_handle_; }
 
-        constexpr TextureHandle& handle()
-        {
-            return texture_handle_;
-        }
+        constexpr TextureHandle& handle() { return texture_handle_; }
 
     private:
         TextureHandle texture_handle_;
@@ -895,7 +896,8 @@ namespace osc::gl
         {
             glGenFramebuffers(1, &fbo_handle_);
             if (fbo_handle_ == c_empty_fbo_sentinel) {
-                throw OpenGlException{"glGenFramebuffers() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
+                throw OpenGlException{
+                    "glGenFramebuffers() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
             }
         }
 
@@ -945,7 +947,8 @@ namespace osc::gl
     // assign a 2D texture to the framebuffer (so that subsequent draws/reads
     // to/from the FBO use the texture)
     template<typename Texture>
-    inline void framebuffer_texture_2d(GLenum target, GLenum attachment, const Texture& texture, GLint level)
+    inline void framebuffer_texture_2d(
+        GLenum target, GLenum attachment, const Texture& texture, GLint level)
     {
         glFramebufferTexture2D(target, attachment, texture.type, texture.get(), level);
     }
@@ -957,7 +960,8 @@ namespace osc::gl
         {
             glGenRenderbuffers(1, &rbo_handle_);
             if (rbo_handle_ == c_empty_rbo_sentinel) {
-                throw OpenGlException{"glGenRenderBuffers() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
+                throw OpenGlException{
+                    "glGenRenderBuffers() failed: this could mean that your GPU/system is out of memory, or that your OpenGL driver is invalid in some way"};
             }
         }
 
@@ -965,8 +969,7 @@ namespace osc::gl
 
         RenderBuffer(RenderBuffer&& tmp) noexcept :
             rbo_handle_{std::exchange(tmp.rbo_handle_, c_empty_rbo_sentinel)}
-        {
-        }
+        {}
 
         RenderBuffer& operator=(const RenderBuffer&) = delete;
 
@@ -986,7 +989,8 @@ namespace osc::gl
         GLuint get() const { return rbo_handle_; }
 
     private:
-        // khronos: glDeleteRenderBuffers: "The uniform_name zero is reserved by the GL and is silently ignored"
+        // khronos: glDeleteRenderBuffers: "The uniform_name zero is reserved by the GL and is
+        // silently ignored"
         static constexpr GLuint c_empty_rbo_sentinel = 0;
         GLuint rbo_handle_{};
     };
@@ -1003,13 +1007,15 @@ namespace osc::gl
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
 
-    inline void framebuffer_renderbuffer(GLenum target, GLenum attachment, const RenderBuffer& renderbuffer)
+    inline void framebuffer_renderbuffer(
+        GLenum target, GLenum attachment, const RenderBuffer& renderbuffer)
     {
         glFramebufferRenderbuffer(target, attachment, GL_RENDERBUFFER, renderbuffer.get());
     }
 
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glRenderbufferStorage.xhtml
-    inline void renderbuffer_storage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
+    inline void renderbuffer_storage(
+        GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
     {
         glRenderbufferStorage(target, internalformat, width, height);
     }
@@ -1027,7 +1033,8 @@ namespace osc::gl
     }
 
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDrawArraysInstanced.xhtml
-    inline void draw_arrays_instanced(GLenum mode, GLint first, GLsizei count, GLsizei instancecount)
+    inline void draw_arrays_instanced(
+        GLenum mode, GLint first, GLsizei count, GLsizei instancecount)
     {
         glDrawArraysInstanced(mode, first, count, instancecount);
     }
@@ -1077,16 +1084,7 @@ namespace osc::gl
         GLenum type,
         const void* pixels)
     {
-        glTexImage2D(
-            target,
-            level,
-            internalformat,
-            width,
-            height,
-            border,
-            format,
-            type,
-            pixels);
+        glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
     }
 
     // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexParameter.xhtml
@@ -1115,16 +1113,7 @@ namespace osc::gl
         GLenum filter)
     {
         glBlitFramebuffer(
-            src_x0,
-            src_y0,
-            src_x1,
-            src_y1,
-            dst_x0,
-            dst_y0,
-            dst_x1,
-            dst_y1,
-            mask,
-            filter);
+            src_x0, src_y0, src_x1, src_y1, dst_x0, dst_y0, dst_x1, dst_y1, mask, filter);
     }
 
     inline void draw_buffer(GLenum mode)
