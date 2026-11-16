@@ -13,9 +13,13 @@ namespace osc
     class KeyCombination final {
     public:
         constexpr KeyCombination(Key key = Key::Unknown) :
-            key_{key} {}
+            key_{key}
+        {}
+
         constexpr KeyCombination(ModifierKeys modifiers, Key key) :
-            modifiers_{modifiers}, key_{key} {}
+            modifiers_{modifiers},
+            key_{key}
+        {}
 
         friend bool operator==(const KeyCombination&, const KeyCombination&) = default;
 

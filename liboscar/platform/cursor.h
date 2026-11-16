@@ -8,7 +8,8 @@ namespace osc
     public:
         Cursor() = default;
         explicit Cursor(CursorShape shape) :
-            shape_{shape} {}
+            shape_{shape}
+        {}
 
         CursorShape shape() const { return shape_; }
 

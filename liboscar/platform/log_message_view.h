@@ -13,10 +13,7 @@ namespace osc
     public:
         LogMessageView() = default;
 
-        LogMessageView(
-            StringName const& logger_name,
-            CStringView payload,
-            LogLevel level) :
+        LogMessageView(StringName const& logger_name, CStringView payload, LogLevel level) :
 
             logger_name_{logger_name},
             time_{std::chrono::system_clock::now()},

@@ -12,7 +12,8 @@ namespace osc
         // Constructs a `WindowID` from a type-erased void pointer. This is mostly
         // used when `WindowID`s are stored by third-party libraries.
         explicit WindowID(void* handle) :
-            handle_{handle} {}
+            handle_{handle}
+        {}
 
         friend bool operator==(const WindowID&, const WindowID&) = default;
 

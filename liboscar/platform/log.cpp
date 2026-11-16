@@ -18,13 +18,15 @@ namespace
             static std::mutex s_stdout_mutex;
 
             const std::lock_guard g{s_stdout_mutex};
-            std::cerr << '[' << message.logger_name() << "] [" << message.level() << "] " << message.payload() << std::endl;
+            std::cerr << '[' << message.logger_name() << "] [" << message.level() << "] "
+                      << message.payload() << std::endl;
         }
     };
 
     class CircularLogSink final : public LogSink {
     public:
-        SynchronizedValue<CircularBuffer<LogMessage, detail::c_max_log_traceback_messages>>& upd_messages()
+        SynchronizedValue<CircularBuffer<LogMessage, detail::c_max_log_traceback_messages>>&
+        upd_messages()
         {
             return messages_;
         }
@@ -36,16 +38,15 @@ namespace
             l->emplace_back(message_view);
         }
 
-        SynchronizedValue<CircularBuffer<LogMessage, detail::c_max_log_traceback_messages>> messages_;
+        SynchronizedValue<CircularBuffer<LogMessage, detail::c_max_log_traceback_messages>>
+            messages_;
     };
 
     struct GlobalSinks final {
-        GlobalSinks()
-        {
-            default_log_sink->sinks().push_back(traceback_sink);
-        }
+        GlobalSinks() { default_log_sink->sinks().push_back(traceback_sink); }
 
-        std::shared_ptr<Logger> default_log_sink = std::make_shared<Logger>("default", std::make_shared<StdoutSink>());
+        std::shared_ptr<Logger> default_log_sink =
+            std::make_shared<Logger>("default", std::make_shared<StdoutSink>());
         std::shared_ptr<CircularLogSink> traceback_sink = std::make_shared<CircularLogSink>();
     };
 
@@ -76,7 +77,8 @@ void osc::global_set_traceback_level(LogLevel lvl)
     get_global_sinks().traceback_sink->set_level(lvl);
 }
 
-SynchronizedValue<CircularBuffer<LogMessage, detail::c_max_log_traceback_messages>>& osc::global_get_traceback_log()
+SynchronizedValue<CircularBuffer<LogMessage, detail::c_max_log_traceback_messages>>& osc::
+    global_get_traceback_log()
 {
     return get_global_sinks().traceback_sink->upd_messages();
 }

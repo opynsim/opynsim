@@ -12,10 +12,7 @@ namespace osc
     class FileDialogFilter final {
     public:
         // Returns a `FileDialogFilter` that allows any file to be selected.
-        static FileDialogFilter all_files()
-        {
-            return FileDialogFilter{"All Files (*.*)", "*"};
-        }
+        static FileDialogFilter all_files() { return FileDialogFilter{"All Files (*.*)", "*"}; }
 
         // Constructs an instance of a `FileDialogFilter`:
         //

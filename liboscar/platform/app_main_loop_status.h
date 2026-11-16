@@ -20,13 +20,11 @@ namespace osc
         explicit operator bool() const { return status_ == Status::Ok; }
 
     private:
-        enum class Status {
-            Ok,
-            QuitRequested
-        };
+        enum class Status { Ok, QuitRequested };
 
         AppMainLoopStatus(Status status) :
-            status_{status} {}
+            status_{status}
+        {}
 
         Status status_;
     };

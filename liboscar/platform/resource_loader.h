@@ -24,8 +24,7 @@ namespace osc
     class ResourceLoader {
     public:
         explicit ResourceLoader(
-            std::shared_ptr<VirtualFilesystem> impl,
-            ResourcePath prefix = ResourcePath{}) :
+            std::shared_ptr<VirtualFilesystem> impl, ResourcePath prefix = ResourcePath{}) :
 
             impl_{std::move(impl)},
             prefix_{std::move(prefix)}
@@ -58,7 +57,8 @@ namespace osc
             return with_prefix(ResourcePath{std::forward<StringLike>(str)});
         }
 
-        cpp23::generator<ResourceDirectoryEntry> iterate_directory(const ResourcePath& resource_path)
+        cpp23::generator<ResourceDirectoryEntry> iterate_directory(
+            const ResourcePath& resource_path)
         {
             return impl_->iterate_directory(prefix_ / resource_path);
         }

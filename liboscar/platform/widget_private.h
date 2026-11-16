@@ -7,9 +7,15 @@
 #include <string_view>
 
 // NOLINTBEGIN
-#define OSC_OWNER_GETTERS(OwnerClass)                                                             \
-    const OwnerClass& owner() const { return reinterpret_cast<const OwnerClass&>(base_owner()); } \
-    OwnerClass& owner() { return reinterpret_cast<OwnerClass&>(base_owner()); }
+#define OSC_OWNER_GETTERS(OwnerClass)                                                              \
+    const OwnerClass& owner() const                                                                \
+    {                                                                                              \
+        return reinterpret_cast<const OwnerClass&>(base_owner());                                  \
+    }                                                                                              \
+    OwnerClass& owner()                                                                            \
+    {                                                                                              \
+        return reinterpret_cast<OwnerClass&>(base_owner());                                        \
+    }
 // NOLINTEND
 
 namespace osc

@@ -62,16 +62,19 @@ namespace osc
 
         template<typename T>
         requires std::constructible_from<Variant, T&&>
-        void set_value(std::string_view key, T&& value, AppSettingScope scope = AppSettingScope::User)
+        void set_value(
+            std::string_view key, T&& value, AppSettingScope scope = AppSettingScope::User)
         {
             set_value(key, Variant{std::forward<T>(value)}, scope);
         }
 
-        void set_value_if_not_found(std::string_view key, Variant, AppSettingScope = AppSettingScope::User);
+        void set_value_if_not_found(
+            std::string_view key, Variant, AppSettingScope = AppSettingScope::User);
 
         template<typename T>
         requires std::constructible_from<Variant, T&&>
-        void set_value_if_not_found(std::string_view key, T&& value, AppSettingScope scope = AppSettingScope::User)
+        void set_value_if_not_found(
+            std::string_view key, T&& value, AppSettingScope scope = AppSettingScope::User)
         {
             set_value_if_not_found(key, Variant{std::forward<T>(value)}, scope);
         }
@@ -87,7 +90,8 @@ namespace osc
         // - `key` isn't set
         // - `key` is set, but `AppSettings` was unable to find/create a suitable
         //   user configuration file (e.g. user filesystem permissions are wrong)
-        std::optional<std::filesystem::path> find_value_filesystem_source(std::string_view key) const;
+        std::optional<std::filesystem::path> find_value_filesystem_source(
+            std::string_view key) const;
 
         // synchronize the current in-memory state of this settings object to disk
         //

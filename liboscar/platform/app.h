@@ -45,9 +45,12 @@ namespace osc
     public:
         template<std::destructible T, typename... Args>
         requires std::constructible_from<T, Args&&...>
-        static std::shared_ptr<T> singleton(Args&&... args)  // NOLINT(cppcoreguidelines-missing-std-forward)
+        static std::shared_ptr<T> singleton(
+            Args&&... args)  // NOLINT(cppcoreguidelines-missing-std-forward)
         {
-            const auto singleton_constructor = [args_tuple = std::make_tuple(std::forward<Args>(args)...)] mutable -> std::shared_ptr<void> {
+            const auto singleton_constructor =
+                [args_tuple = std::make_tuple(
+                     std::forward<Args>(args)...)] mutable -> std::shared_ptr<void> {
                 return std::apply(
                     [](auto&&... inner_args) -> std::shared_ptr<void> {
                         return std::make_shared<T>(std::forward<Args>(inner_args)...);
@@ -55,7 +58,8 @@ namespace osc
                     std::move(args_tuple));
             };
 
-            return std::static_pointer_cast<T>(App::upd().upd_singleton(typeid(T), singleton_constructor));
+            return std::static_pointer_cast<T>(
+                App::upd().upd_singleton(typeid(T), singleton_constructor));
         }
 
         // returns the currently-active application global
@@ -67,8 +71,9 @@ namespace osc
         static const AppSettings& settings();
         static AppSettings& upd_settings();
 
-        // returns a full filesystem path to a (runtime- and configuration-dependent) application resource,
-        // or `std::nullopt` if the `ResourcePath` cannot be resolved to a filesystem location.
+        // returns a full filesystem path to a (runtime- and configuration-dependent) application
+        // resource, or `std::nullopt` if the `ResourcePath` cannot be resolved to a filesystem
+        // location.
         static std::optional<std::filesystem::path> resource_filepath(const ResourcePath&);
 
         // returns the contents of a runtime resource in the `resources/` dir as a string
@@ -90,17 +95,22 @@ namespace osc
         // to run after `main` has completed).
         template<std::derived_from<Widget> TWidget, typename... Args>
         requires std::constructible_from<TWidget, Args&&...>
-        static int main(const AppMetadata& metadata, Args&&... args)  // NOLINT(cppcoreguidelines-missing-std-forward)
+        static int main(
+            const AppMetadata& metadata,
+            Args&&... args)  // NOLINT(cppcoreguidelines-missing-std-forward)
         {
             // Pack the `TWidget` constructor arguments into a type-erased `std::function` and defer
             // to the internal implementation.
-            return main_internal(metadata, [args_tuple = std::make_tuple(std::forward<Args>(args)...)] mutable -> std::unique_ptr<Widget> {
-                return std::apply(
-                    [](auto&&... inner_args) -> std::unique_ptr<Widget> {
-                        return std::make_unique<TWidget>(std::forward<Args>(inner_args)...);
-                    },
-                    std::move(args_tuple));
-            });
+            return main_internal(
+                metadata,
+                [args_tuple = std::make_tuple(
+                     std::forward<Args>(args)...)] mutable -> std::unique_ptr<Widget> {
+                    return std::apply(
+                        [](auto&&... inner_args) -> std::unique_ptr<Widget> {
+                            return std::make_unique<TWidget>(std::forward<Args>(inner_args)...);
+                        },
+                        std::move(args_tuple));
+                });
         }
 
         // constructs an `App` from a default-constructed `AppMetadata`
@@ -108,7 +118,8 @@ namespace osc
 
         // constructs an app by initializing it from a settings at the default app settings location
         //
-        // this also sets the currently-active application global (i.e. `App::upd()` and `App::get()` will work)
+        // this also sets the currently-active application global (i.e. `App::upd()` and
+        // `App::get()` will work)
         explicit App(const AppMetadata&);
         App(const App&) = delete;
         App(App&&) noexcept = delete;
@@ -158,7 +169,8 @@ namespace osc
             return post_event(receiver, std::make_unique<TEvent>(std::forward<Args>(args)...));
         }
 
-        // Immediately sends `event` to `receiver` as-if by calling `return receiver.on_event(event)`.
+        // Immediately sends `event` to `receiver` as-if by calling `return
+        // receiver.on_event(event)`.
         //
         // This application-level event handler behaves differently from directly calling
         // `receiver.on_event(event)` because it also handles event propagation. The implementation
@@ -176,9 +188,9 @@ namespace osc
         // Sets the currently active widget, creates an application loop, then starts showing
         // the supplied widget
         //
-        // this function only returns once the active widget calls `app.request_quit()`, or an exception
-        // is thrown. Use `set_widget` in combination with `handle_one_frame` if you want to use your
-        // own application loop
+        // this function only returns once the active widget calls `app.request_quit()`, or an
+        // exception is thrown. Use `set_widget` in combination with `handle_one_frame` if you want
+        // to use your own application loop
         //
         // this is effectively sugar over:
         //
@@ -189,7 +201,8 @@ namespace osc
         //     }
         //     teardown_main_loop();
         //
-        // which you may need to write yourself if your loop is external (e.g. from a browser's event queue)
+        // which you may need to write yourself if your loop is external (e.g. from a browser's
+        // event queue)
         void show(std::unique_ptr<Widget>);
 
         // constructs `TWidget` with `Args` and starts `show`ing it
@@ -322,9 +335,7 @@ namespace osc
             std::optional<std::filesystem::path> initial_directory_to_show = std::nullopt)
         {
             prompt_user_to_save_file_async(
-                std::move(callback),
-                std::span{filters},
-                std::move(initial_directory_to_show));
+                std::move(callback), std::span{filters}, std::move(initial_directory_to_show));
         }
 
         // Prompts a user to select a new or existing filesystem path where they would like
@@ -332,13 +343,15 @@ namespace osc
         // user types a filename without the extension into the dialog.
         //
         // - `callback` is called when either the user selects a file or cancels out of the dialog.
-        //   If provided, the given path will always end with the specified extension. `std::nullopt`
-        //   is sent through the callback when the user cancels out of the dialog.
+        //   If provided, the given path will always end with the specified extension.
+        //   `std::nullopt` is sent through the callback when the user cancels out of the dialog.
         //
-        // - `maybe_extension` can be `std::nullopt`, meaning "don't filter by extension", or a single
+        // - `maybe_extension` can be `std::nullopt`, meaning "don't filter by extension", or a
+        // single
         //   extension (e.g. "blend").
         //
-        // - `maybe_initial_directory_to_open` can be `std::nullopt`, meaning "use a system-defined default"
+        // - `maybe_initial_directory_to_open` can be `std::nullopt`, meaning "use a system-defined
+        // default"
         //   or a directory to initially show to the user when the prompt opens.
         void prompt_user_to_save_file_with_extension_async(
             std::function<void(std::optional<std::filesystem::path>)> callback,
@@ -416,7 +429,8 @@ namespace osc
         // Sets the confinement rectangle to a 1x1 device-independent pixel rectangle
         // at `confinement_point`.
         //
-        // - If provided, `confinement_point` should be defined in screen space in device-independent
+        // - If provided, `confinement_point` should be defined in screen space in
+        // device-independent
         //   pixels. For best behavior (OS-dependent), it should be completely inside the OS window
         //   by at least one device-independent pixel.
         // - If `std::nullopt`, disables the current confinement rectangle (if active).
@@ -530,7 +544,8 @@ namespace osc
         bool vsync_enabled() const;
         void set_vsync_enabled(bool);
 
-        // returns human-readable strings representing (parts of) the currently-active graphics backend (e.g. OpenGL)
+        // returns human-readable strings representing (parts of) the currently-active graphics
+        // backend (e.g. OpenGL)
         std::string graphics_backend_vendor_string() const;
         std::string graphics_backend_renderer_string() const;
         std::string graphics_backend_version_string() const;
@@ -559,9 +574,10 @@ namespace osc
         // method makes the main application wait until at least one event is processed from
         // the event queue.
         //
-        // Rendering this way is *much* more power efficient (especially handy on TDP-limited devices
-        // like laptops), but top-level widgets *must* ensure the application keeps moving forward by
-        // calling methods like `request_redraw` or by adding events into the event queue.
+        // Rendering this way is *much* more power efficient (especially handy on TDP-limited
+        // devices like laptops), but top-level widgets *must* ensure the application keeps moving
+        // forward by calling methods like `request_redraw` or by adding events into the event
+        // queue.
         bool is_main_loop_waiting() const;
         void set_main_loop_waiting(bool);
         void make_main_loop_waiting();
@@ -574,7 +590,9 @@ namespace osc
         void process_events();
 
     private:
-        static int main_internal(const AppMetadata& metadata, const std::function<std::unique_ptr<Widget>()>& widget_ctor);
+        static int main_internal(
+            const AppMetadata& metadata,
+            const std::function<std::unique_ptr<Widget>()>& widget_ctor);
 
         // returns the top- (application-)level resource loader
         ResourceLoader& upd_resource_loader();
@@ -589,7 +607,8 @@ namespace osc
         std::optional<std::filesystem::path> get_resource_filepath(const ResourcePath&) const;
 
         // try and retrieve a singleton that has the same lifetime as the app
-        std::shared_ptr<void> upd_singleton(const std::type_info&, const std::function<std::shared_ptr<void>()>&);
+        std::shared_ptr<void> upd_singleton(
+            const std::type_info&, const std::function<std::shared_ptr<void>()>&);
 
         // returns the current application configuration
         const AppSettings& settings_internal() const;

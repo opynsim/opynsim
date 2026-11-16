@@ -7,9 +7,15 @@
 #include <string_view>
 
 // NOLINTBEGIN
-#define OSC_WIDGET_DATA_GETTERS(ImplClass)                                                                    \
-    const ImplClass& private_data() const { return reinterpret_cast<const ImplClass&>(base_private_data()); } \
-    ImplClass& private_data() { return reinterpret_cast<ImplClass&>(base_private_data()); }
+#define OSC_WIDGET_DATA_GETTERS(ImplClass)                                                         \
+    const ImplClass& private_data() const                                                          \
+    {                                                                                              \
+        return reinterpret_cast<const ImplClass&>(base_private_data());                            \
+    }                                                                                              \
+    ImplClass& private_data()                                                                      \
+    {                                                                                              \
+        return reinterpret_cast<ImplClass&>(base_private_data());                                  \
+    }
 // NOLINTEND
 
 namespace osc
@@ -44,17 +50,19 @@ namespace osc
         // - `App::notify(Widget&, Event&)`
         bool on_event(Event& e) { return impl_on_event(e); }
 
-        // Called by the implementation before it's about to start calling `on_event`, `on_tick`, and `on_draw`
+        // Called by the implementation before it's about to start calling `on_event`, `on_tick`,
+        // and `on_draw`
         void on_mount() { impl_on_mount(); }
 
-        // Called by the implementation after the last time it calls `on_event`, `on_tick`, and `on_draw`
+        // Called by the implementation after the last time it calls `on_event`, `on_tick`, and
+        // `on_draw`
         void on_unmount() { impl_on_unmount(); }
 
         // Called by the implementation once per frame.
         void on_tick() { impl_on_tick(); }
 
-        // Called once per frame with the expectation that the implementation will draw its contents into the current
-        // framebuffer or active ui context.
+        // Called once per frame with the expectation that the implementation will draw its contents
+        // into the current framebuffer or active ui context.
         void on_draw() { impl_on_draw(); }
 
         // Returns a lifetime-checked, but non-lockable, pointer to this `Widget`.

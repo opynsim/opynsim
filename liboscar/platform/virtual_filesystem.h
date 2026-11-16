@@ -29,7 +29,10 @@ namespace osc
         virtual ~VirtualFilesystem() noexcept = default;
 
         // Returns true if `resource_path` can be resolved by this `VirtualFilesystem`.
-        bool resource_exists(const ResourcePath& resource_path) { return impl_resource_exists(resource_path); }
+        bool resource_exists(const ResourcePath& resource_path)
+        {
+            return impl_resource_exists(resource_path);
+        }
 
         // Returns a freshly-opened input stream to the data referenced by `resource_path`.
         //
@@ -57,18 +60,20 @@ namespace osc
         }
 
     private:
-        // Implementors must return `true` if `resource_path` can be resolved by this `VirtualFilesystem`
-        // (i.e. a subsequent call to `impl_open`/`impl_iterate_directory` would succeed). Otherwise,
-        // `false` must be returned.
+        // Implementors must return `true` if `resource_path` can be resolved by this
+        // `VirtualFilesystem` (i.e. a subsequent call to `impl_open`/`impl_iterate_directory` would
+        // succeed). Otherwise, `false` must be returned.
         virtual bool impl_resource_exists(const ResourcePath& resource_path) = 0;
 
         // Implementors must return an opened `ResourceStream` that points to the first byte of the
-        // resource referenced by `resource_path`. Otherwise, the impelementation must throw an exception.
+        // resource referenced by `resource_path`. Otherwise, the impelementation must throw an
+        // exception.
         virtual ResourceStream impl_open(const ResourcePath& resource_path) = 0;
 
         // Implementors must return a generator that yields entries of a directory referenced by
         // `resource_path`, or throw an exception (see `iterate_directory` docstring for expected
         // behavior).
-        virtual cpp23::generator<ResourceDirectoryEntry> impl_iterate_directory(ResourcePath resource_path) = 0;
+        virtual cpp23::generator<ResourceDirectoryEntry> impl_iterate_directory(
+            ResourcePath resource_path) = 0;
     };
 }
