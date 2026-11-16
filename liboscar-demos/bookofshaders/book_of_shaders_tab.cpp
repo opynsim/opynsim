@@ -36,7 +36,12 @@ void main()
 
     class BookOfShadersCommonProperties final : public MaterialPropertyBlock {
     public:
-        void set_time(AppClock::time_point p) { set("u_time", std::chrono::duration_cast<std::chrono::duration<float>>(p.time_since_epoch()).count()); }
+        void set_time(AppClock::time_point p)
+        {
+            set("u_time",
+                std::chrono::duration_cast<std::chrono::duration<float>>(p.time_since_epoch())
+                    .count());
+        }
         void set_resolution(Vector2 resolution) { set("u_resolution", resolution); }
         void set_mouse_position(Vector2 mouse_position) { set("u_mouse", mouse_position); }
     };
@@ -57,7 +62,8 @@ void main()
     class HelloWorldMaterial final : public BookOfShadersMaterial {
     public:
         HelloWorldMaterial() :
-            BookOfShadersMaterial{"hello_world", c_fragment_source} {}
+            BookOfShadersMaterial{"hello_world", c_fragment_source}
+        {}
 
     private:
         static constexpr CStringView c_fragment_source = R"(
@@ -74,7 +80,8 @@ void main() {
     class UniformsTimeColored final : public BookOfShadersMaterial {
     public:
         UniformsTimeColored() :
-            BookOfShadersMaterial{"uniforms_time_colored", c_fragment_source} {}
+            BookOfShadersMaterial{"uniforms_time_colored", c_fragment_source}
+        {}
 
     private:
         static constexpr CStringView c_fragment_source = R"(
@@ -93,7 +100,8 @@ void main() {
     class UniformsGlFragCoord final : public BookOfShadersMaterial {
     public:
         UniformsGlFragCoord() :
-            BookOfShadersMaterial{"uniforms_gl_FragCoord", c_fragment_source} {}
+            BookOfShadersMaterial{"uniforms_gl_FragCoord", c_fragment_source}
+        {}
 
     private:
         static constexpr CStringView c_fragment_source = R"(
@@ -113,7 +121,8 @@ void main() {
     class AlgorithmicDrawingSmoothstep final : public BookOfShadersMaterial {
     public:
         AlgorithmicDrawingSmoothstep() :
-            BookOfShadersMaterial{"algorithmic_drawing", c_fragment_source} {}
+            BookOfShadersMaterial{"algorithmic_drawing", c_fragment_source}
+        {}
 
     private:
         static constexpr CStringView c_fragment_source = R"(
@@ -206,9 +215,15 @@ private:
     BookOfShadersCommonProperties props_;
 };
 
-CStringView osc::BookOfShadersTab::id() { return Impl::static_label(); }
+CStringView osc::BookOfShadersTab::id()
+{
+    return Impl::static_label();
+}
 
 osc::BookOfShadersTab::BookOfShadersTab(Widget* parent) :
     Tab{std::make_unique<Impl>(*this, parent)}
 {}
-void osc::BookOfShadersTab::impl_on_draw() { private_data().on_draw(); }
+void osc::BookOfShadersTab::impl_on_draw()
+{
+    private_data().on_draw();
+}
