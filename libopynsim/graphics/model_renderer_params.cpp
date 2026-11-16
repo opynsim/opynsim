@@ -23,8 +23,7 @@ using namespace osc::literals;
 namespace
 {
     std::unordered_map<std::string, osc::Variant> to_values(
-        std::string_view prefix,
-        const ModelRendererParams& params)
+        std::string_view prefix, const ModelRendererParams& params)
     {
         std::unordered_map<std::string, osc::Variant> rv;
         std::string sub_prefix;
@@ -39,7 +38,8 @@ namespace
         sub_prefix = std::string{prefix} + std::string{"graphics/"};
         params.rendering_options.for_each_option_as_app_setting_value(callback);
         rv.insert_or_assign(std::string{prefix} + "light_color", osc::Variant{params.light_color});
-        rv.insert_or_assign(std::string{prefix} + "background_color", osc::Variant{params.background_color});
+        rv.insert_or_assign(
+            std::string{prefix} + "background_color", osc::Variant{params.background_color});
         // TODO: floorLocation
 
         return rv;
@@ -74,9 +74,7 @@ opyn::ModelRendererParams::ModelRendererParams() :
 }
 
 void opyn::upd_model_renderer_params_from(
-    const osc::AppSettings& settings,
-    std::string_view key_prefix,
-    ModelRendererParams& params)
+    const osc::AppSettings& settings, std::string_view key_prefix, ModelRendererParams& params)
 {
     auto values = to_values(key_prefix, params);
     for (auto& [k, v] : values) {

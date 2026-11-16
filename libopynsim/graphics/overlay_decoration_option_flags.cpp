@@ -50,15 +50,14 @@ namespace
 osc::CStringView opyn::get_label(OverlayDecorationOptionGroup g)
 {
     switch (g) {
-    case OverlayDecorationOptionGroup::Alignment:
-        return "Alignment";
+    case OverlayDecorationOptionGroup::Alignment: return "Alignment";
     case OverlayDecorationOptionGroup::Development:
-    default:
-        return "Development";
+    default: return "Development";
     }
 }
 
-std::span<const OverlayDecorationOptionFlagsMetadata> opyn::get_all_overlay_decoration_option_flags_metadata()
+std::span<const OverlayDecorationOptionFlagsMetadata> opyn::
+    get_all_overlay_decoration_option_flags_metadata()
 {
     return c_metadata;
 }

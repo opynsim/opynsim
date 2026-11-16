@@ -30,12 +30,15 @@ namespace opyn
         return (std::to_underlying(lhs) & std::to_underlying(rhs)) != 0;
     }
 
-    constexpr void set_option(OverlayDecorationOptionFlags& flags, OverlayDecorationOptionFlags flag, bool v)
+    constexpr void set_option(
+        OverlayDecorationOptionFlags& flags, OverlayDecorationOptionFlags flag, bool v)
     {
         if (v) {
-            flags = static_cast<OverlayDecorationOptionFlags>(std::to_underlying(flags) | std::to_underlying(flag));
+            flags = static_cast<OverlayDecorationOptionFlags>(
+                std::to_underlying(flags) | std::to_underlying(flag));
         } else {
-            flags = static_cast<OverlayDecorationOptionFlags>(std::to_underlying(flags) & ~std::to_underlying(flag));
+            flags = static_cast<OverlayDecorationOptionFlags>(
+                std::to_underlying(flags) & ~std::to_underlying(flag));
         }
     }
 
@@ -58,5 +61,6 @@ namespace opyn
         OverlayDecorationOptionFlags value;
     };
     osc::CStringView get_label(OverlayDecorationOptionGroup);
-    std::span<const OverlayDecorationOptionFlagsMetadata> get_all_overlay_decoration_option_flags_metadata();
+    std::span<const OverlayDecorationOptionFlagsMetadata>
+    get_all_overlay_decoration_option_flags_metadata();
 }

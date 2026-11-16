@@ -51,9 +51,7 @@ namespace
             mesh_cache_{std::move(mesh_cache)}
         {}
 
-        bool update(
-            const opyn::ModelStatePair& model_state,
-            const ModelRendererParams& params)
+        bool update(const opyn::ModelStatePair& model_state, const ModelRendererParams& params)
         {
             OSC_PERF("CachedModelRenderer/generateDecorationsCached");
 
@@ -67,17 +65,16 @@ namespace
                 scene_bounds_.reset();
 
                 // regenerate
-                const auto on_component_decoration = [this](const OpenSim::Component&, osc::SceneDecoration&& dec) {
-                    if (is_contributor_to_scene_volume(dec)) {
-                        scene_bounds_ = osc::bounding_aabb_of(scene_bounds_, dec.world_space_bounds());
-                    }
-                    drawlist_.push_back(std::move(dec));
-                };
+                const auto on_component_decoration =
+                    [this](const OpenSim::Component&, osc::SceneDecoration&& dec) {
+                        if (is_contributor_to_scene_volume(dec)) {
+                            scene_bounds_ =
+                                osc::bounding_aabb_of(scene_bounds_, dec.world_space_bounds());
+                        }
+                        drawlist_.push_back(std::move(dec));
+                    };
                 generate_decorations(
-                    *mesh_cache_,
-                    model_state,
-                    params.decoration_options,
-                    on_component_decoration);
+                    *mesh_cache_, model_state, params.decoration_options, on_component_decoration);
                 osc::update_scene_bvh(drawlist_, bvh_);
 
                 const auto on_overlay_decoration = [this](osc::SceneDecoration&& dec) {
@@ -101,14 +98,8 @@ namespace
 
         std::span<const osc::SceneDecoration> get_drawlist() const { return drawlist_; }
         const osc::BVH& get_bvh() const { return bvh_; }
-        std::optional<osc::AABB> get_aabb() const
-        {
-            return bvh_.bounds();
-        }
-        std::optional<osc::AABB> get_visible_aabb() const
-        {
-            return scene_bounds_;
-        }
+        std::optional<osc::AABB> get_aabb() const { return bvh_.bounds(); }
+        std::optional<osc::AABB> get_visible_aabb() const { return scene_bounds_; }
         osc::SceneCache& upd_scene_cache() const
         {
             // TODO: technically (imo) this breaks `const`
@@ -162,29 +153,19 @@ public:
         return renderer_.upd_render_texture();
     }
 
-    osc::RenderTexture& upd_render_texture()
-    {
-        return renderer_.upd_render_texture();
-    }
+    osc::RenderTexture& upd_render_texture() { return renderer_.upd_render_texture(); }
 
     std::span<const osc::SceneDecoration> get_drawlist() const
     {
         return decoration_cache_.get_drawlist();
     }
 
-    std::optional<osc::AABB> bounds() const
-    {
-        return decoration_cache_.get_aabb();
-    }
+    std::optional<osc::AABB> bounds() const { return decoration_cache_.get_aabb(); }
 
-    std::optional<osc::AABB> visible_bounds() const
-    {
-        return decoration_cache_.get_visible_aabb();
-    }
+    std::optional<osc::AABB> visible_bounds() const { return decoration_cache_.get_visible_aabb(); }
 
     std::optional<osc::AABB> visible_bounds(
-        const ModelStatePair& model_state,
-        const ModelRendererParams& params)
+        const ModelStatePair& model_state, const ModelRendererParams& params)
     {
         decoration_cache_.update(model_state, params);
         return decoration_cache_.get_visible_aabb();
@@ -214,7 +195,8 @@ opyn::CachedModelRenderer::CachedModelRenderer(const std::shared_ptr<osc::SceneC
     impl_{std::make_unique<Impl>(cache)}
 {}
 opyn::CachedModelRenderer::CachedModelRenderer(CachedModelRenderer&&) noexcept = default;
-opyn::CachedModelRenderer& opyn::CachedModelRenderer::operator=(CachedModelRenderer&&) noexcept = default;
+opyn::CachedModelRenderer& opyn::CachedModelRenderer::operator=(CachedModelRenderer&&) noexcept =
+    default;
 opyn::CachedModelRenderer::~CachedModelRenderer() noexcept = default;
 
 osc::RenderTexture& opyn::CachedModelRenderer::on_draw(
@@ -225,11 +207,7 @@ osc::RenderTexture& opyn::CachedModelRenderer::on_draw(
     osc::AntiAliasingLevel anti_aliasing_level)
 {
     return impl_->on_draw(
-        model_state,
-        render_params,
-        dims,
-        device_pixel_ratio,
-        anti_aliasing_level);
+        model_state, render_params, dims, device_pixel_ratio, anti_aliasing_level);
 }
 
 osc::RenderTexture& opyn::CachedModelRenderer::upd_render_texture()
@@ -253,8 +231,7 @@ std::optional<osc::AABB> opyn::CachedModelRenderer::visible_bounds() const
 }
 
 std::optional<osc::AABB> opyn::CachedModelRenderer::visible_bounds(
-    const ModelStatePair& model_state,
-    const ModelRendererParams& render_params)
+    const ModelStatePair& model_state, const ModelRendererParams& render_params)
 {
     return impl_->visible_bounds(model_state, render_params);
 }

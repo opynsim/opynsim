@@ -41,7 +41,8 @@ ptrdiff_t opyn::get_index_of(MuscleDecorationStyle s)
     return static_cast<ptrdiff_t>(s);
 }
 
-const MuscleDecorationStyleMetadata& opyn::get_muscle_decoration_style_metadata(MuscleDecorationStyle s)
+const MuscleDecorationStyleMetadata& opyn::get_muscle_decoration_style_metadata(
+    MuscleDecorationStyle s)
 {
     return get_all_muscle_decoration_style_metadata()[get_index_of(s)];
 }

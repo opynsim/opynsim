@@ -18,8 +18,7 @@ namespace opyn
     class ComponentSceneDecorationFlagsTagger final {
     public:
         ComponentSceneDecorationFlagsTagger(
-            const OpenSim::Component* selected,
-            const OpenSim::Component* hovered);
+            const OpenSim::Component* selected, const OpenSim::Component* hovered);
 
         void operator()(const OpenSim::Component&, osc::SceneDecoration&);
 

@@ -36,7 +36,8 @@ namespace
     });
 }
 
-std::span<const CustomRenderingOptionFlagsMetadata> opyn::get_all_custom_rendering_option_flags_metadata()
+std::span<const CustomRenderingOptionFlagsMetadata> opyn::
+    get_all_custom_rendering_option_flags_metadata()
 {
     return c_metadata;
 }

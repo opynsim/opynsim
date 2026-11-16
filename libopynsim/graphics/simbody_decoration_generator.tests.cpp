@@ -27,10 +27,11 @@ TEST(SimTKDecorationGenerator, PropagatesWireframeShadingFlag)
     sphere.setRepresentation(SimTK::DecorativeGeometry::DrawWireframe);
 
     size_t ncalls = 0;
-    generate_decorations(cache, matter, state, sphere, 1.0f, [&ncalls](const osc::SceneDecoration& dec) {
-        ++ncalls;
-        ASSERT_TRUE(dec.flags & osc::SceneDecorationFlag::DrawWireframeOverlay);
-    });
+    generate_decorations(
+        cache, matter, state, sphere, 1.0f, [&ncalls](const osc::SceneDecoration& dec) {
+            ++ncalls;
+            ASSERT_TRUE(dec.flags & osc::SceneDecorationFlag::DrawWireframeOverlay);
+        });
     ASSERT_EQ(ncalls, 1) << "should only emit one is_wireframe sphere";
 }
 
@@ -50,10 +51,11 @@ TEST(SimTKDecorationGenerator, PropagatesHiddenRepresentation)
     sphere.setRepresentation(SimTK::DecorativeGeometry::Hide);
 
     size_t ncalls = 0;
-    generate_decorations(cache, matter, state, sphere, 1.0f, [&ncalls](const osc::SceneDecoration& dec) {
-        ++ncalls;
-        ASSERT_TRUE(dec.flags & osc::SceneDecorationFlag::NoDrawInScene);
-    });
+    generate_decorations(
+        cache, matter, state, sphere, 1.0f, [&ncalls](const osc::SceneDecoration& dec) {
+            ++ncalls;
+            ASSERT_TRUE(dec.flags & osc::SceneDecorationFlag::NoDrawInScene);
+        });
     ASSERT_EQ(ncalls, 1) << "should only emit one is_wireframe sphere";
 }
 
@@ -117,22 +119,26 @@ TEST(SimTKDecorationGenerator, Emits111WhenGivenGeometryWithDefaultedScaleFactor
     SimTK::State state = sys.realizeTopology();
     sys.realize(state);
 
-    // Defaulting it should just propagate the brick edge-lengths (ComputationalBiomechanicsLab/opensim-creator#1179).
+    // Defaulting it should just propagate the brick edge-lengths
+    // (ComputationalBiomechanicsLab/opensim-creator#1179).
     {
         SimTK::DecorativeBrick brick{SimTK::Vec3{0.02, 0.01, 0.005}};
         brick.setColor(SimTK::Orange);
-        generate_decorations(cache, matter, state, brick, 1.0f, [&](const osc::SceneDecoration& dec) {
-            ASSERT_EQ(dec.transform.scale, osc::Vector3f(0.02f, 0.01f, 0.005f));
-        });
+        generate_decorations(
+            cache, matter, state, brick, 1.0f, [&](const osc::SceneDecoration& dec) {
+                ASSERT_EQ(dec.transform.scale, osc::Vector3f(0.02f, 0.01f, 0.005f));
+            });
     }
 
-    // Explicitly setting an axis to -1 should propagate it, though (ComputationalBiomechanicsLab/opensim-creator#974).
+    // Explicitly setting an axis to -1 should propagate it, though
+    // (ComputationalBiomechanicsLab/opensim-creator#974).
     {
         SimTK::DecorativeBrick scaled_brick{SimTK::Vec3{0.02, 0.01, 0.005}};
         scaled_brick.setColor(SimTK::Orange);
         scaled_brick.setScaleFactors({-1.0, 1.0, 1.0});
-        generate_decorations(cache, matter, state, scaled_brick, 1.0f, [&](const osc::SceneDecoration& dec) {
-            ASSERT_EQ(dec.transform.scale, osc::Vector3f(-0.02f, 0.01f, 0.005f));
-        });
+        generate_decorations(
+            cache, matter, state, scaled_brick, 1.0f, [&](const osc::SceneDecoration& dec) {
+                ASSERT_EQ(dec.transform.scale, osc::Vector3f(-0.02f, 0.01f, 0.005f));
+            });
     }
 }

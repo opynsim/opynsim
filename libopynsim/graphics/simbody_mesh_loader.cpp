@@ -24,7 +24,8 @@ namespace rgs = std::ranges;
 
 namespace
 {
-    constexpr auto c_supported_mesh_extensions = std::to_array({"obj"sv, "vtp"sv, "stl"sv, "stla"sv});
+    constexpr auto c_supported_mesh_extensions =
+        std::to_array({"obj"sv, "vtp"sv, "stl"sv, "stla"sv});
 
     std::span<const osc::FileDialogFilter> get_file_dialog_filters()
     {
@@ -173,7 +174,10 @@ osc::Mesh opyn::load_mesh_via_simbody(const std::filesystem::path& p)
     return to_osc_mesh(mesh);
 }
 
-void opyn::assign_indexed_verts(SimTK::PolygonalMesh& mesh, std::span<const osc::Vector3> vertices, osc::MeshIndicesView indices)
+void opyn::assign_indexed_verts(
+    SimTK::PolygonalMesh& mesh,
+    std::span<const osc::Vector3> vertices,
+    osc::MeshIndicesView indices)
 {
     mesh.clear();
 

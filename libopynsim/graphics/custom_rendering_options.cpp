@@ -90,13 +90,13 @@ void opyn::CustomRenderingOptions::for_each_option_as_app_setting_value(
 }
 
 void opyn::CustomRenderingOptions::try_upd_from_values(
-    std::string_view key_prefix,
-    const std::unordered_map<std::string, osc::Variant>& lut)
+    std::string_view key_prefix, const std::unordered_map<std::string, osc::Variant>& lut)
 {
     for (const auto& metadata : get_all_custom_rendering_option_flags_metadata()) {
 
         const std::string key = std::string{key_prefix} + metadata.id;
-        if (const auto* v = lookup_or_nullptr(lut, key); v and v->type() == osc::VariantType::Bool) {
+        if (const auto* v = lookup_or_nullptr(lut, key);
+            v and v->type() == osc::VariantType::Bool) {
             set_option(flags_, metadata.value, to<bool>(*v));
         }
     }

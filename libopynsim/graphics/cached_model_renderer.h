@@ -49,11 +49,11 @@ namespace opyn
         // purposes.
         std::optional<osc::AABB> bounds() const;
 
-        // Returns an `AABB` that tightly bounds all visible geometry in the scene, or `std::nullopt`
-        // if the scene contains no visible geometry.
+        // Returns an `AABB` that tightly bounds all visible geometry in the scene, or
+        // `std::nullopt` if the scene contains no visible geometry.
         //
-        // This is useful if (e.g.) you want to ensure a scene camera only tries to scope the visible
-        // parts of a scene (#1029).
+        // This is useful if (e.g.) you want to ensure a scene camera only tries to scope the
+        // visible parts of a scene (#1029).
         std::optional<osc::AABB> visible_bounds() const;
 
         // Updates the internal decoration cache and returns `visible_bounds()`.

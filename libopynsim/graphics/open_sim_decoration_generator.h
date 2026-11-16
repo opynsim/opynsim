@@ -79,17 +79,12 @@ namespace opyn
         float fixup_scale_factor);
 
     // as above, but uncached and defaults decoration options and scale factor
-    osc::Mesh to_osc_mesh(
-        const OpenSim::Model&,
-        const SimTK::State&,
-        const OpenSim::Mesh&);
+    osc::Mesh to_osc_mesh(const OpenSim::Model&, const SimTK::State&, const OpenSim::Mesh&);
 
     // as above, but also bakes the `OpenSim::Mesh`'s `scale_factors` into the mesh's
     // vertex data
     osc::Mesh to_osc_mesh_bake_scale_factors(
-        const OpenSim::Model&,
-        const SimTK::State&,
-        const OpenSim::Mesh&);
+        const OpenSim::Model&, const SimTK::State&, const OpenSim::Mesh&);
 
     // returns the recommended scale factor for the given {model, state} pair
     float get_recommended_scale_factor(

@@ -26,5 +26,6 @@ namespace opyn
     osc::Mesh load_mesh_via_simbody(const std::filesystem::path&);
 
     // populate the `SimTK::PolygonalMesh` from the given indexed mesh data
-    void assign_indexed_verts(SimTK::PolygonalMesh&, std::span<const osc::Vector3>, osc::MeshIndicesView);
+    void assign_indexed_verts(
+        SimTK::PolygonalMesh&, std::span<const osc::Vector3>, osc::MeshIndicesView);
 }

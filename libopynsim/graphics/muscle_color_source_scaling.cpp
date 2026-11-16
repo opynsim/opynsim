@@ -26,12 +26,14 @@ namespace
     static_assert(c_metadata.size() == osc::num_options_v<MuscleColorSourceScaling>);
 }
 
-std::span<const MuscleColorSourceScalingMetadata> opyn::get_all_possible_muscle_color_source_scaling_metadata()
+std::span<const MuscleColorSourceScalingMetadata> opyn::
+    get_all_possible_muscle_color_source_scaling_metadata()
 {
     return c_metadata;
 }
 
-const MuscleColorSourceScalingMetadata& opyn::get_muscle_color_source_scaling_metadata(MuscleColorSourceScaling option)
+const MuscleColorSourceScalingMetadata& opyn::get_muscle_color_source_scaling_metadata(
+    MuscleColorSourceScaling option)
 {
     return c_metadata.at(osc::to_index(option));
 }
