@@ -8,7 +8,9 @@
 namespace osc
 {
     struct MeshBasicTexturedMaterialParams final {
-        friend bool operator==(const MeshBasicTexturedMaterialParams&, const MeshBasicTexturedMaterialParams&) = default;
+        friend bool operator==(
+            const MeshBasicTexturedMaterialParams&,
+            const MeshBasicTexturedMaterialParams&) = default;
 
         Texture2D texture;
     };
