@@ -30,7 +30,8 @@ namespace osc
     public:
         std::unique_ptr<Node> clone() const
         {
-            return std::unique_ptr<Node>{dynamic_cast<Node*>(static_cast<const Object&>(*this).clone().release())};
+            return std::unique_ptr<Node>{
+                dynamic_cast<Node*>(static_cast<const Object&>(*this).clone().release())};
         }
 
         CStringView name() const;

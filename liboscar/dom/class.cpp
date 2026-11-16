@@ -99,17 +99,27 @@ osc::Class::Class()
 }
 
 osc::Class::Class(
-    std::string_view name,
-    const Class& parent_class,
-    std::span<const PropertyInfo> properties) :
+    std::string_view name, const Class& parent_class, std::span<const PropertyInfo> properties) :
 
     impl_{std::make_shared<Impl>(name, parent_class, properties)}
 {}
 
-const StringName& osc::Class::name() const { return impl_->name(); }
-std::optional<Class> osc::Class::parent_class() const { return impl_->parent_class(); }
-std::span<const PropertyInfo> osc::Class::properties() const { return impl_->properties(); }
-std::optional<size_t> osc::Class::property_index(const StringName& property_name) const { return impl_->property_index(property_name); }
+const StringName& osc::Class::name() const
+{
+    return impl_->name();
+}
+std::optional<Class> osc::Class::parent_class() const
+{
+    return impl_->parent_class();
+}
+std::span<const PropertyInfo> osc::Class::properties() const
+{
+    return impl_->properties();
+}
+std::optional<size_t> osc::Class::property_index(const StringName& property_name) const
+{
+    return impl_->property_index(property_name);
+}
 
 bool osc::operator==(const Class& a, const Class& b)
 {

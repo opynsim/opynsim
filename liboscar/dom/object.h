@@ -36,20 +36,11 @@ namespace osc
 
         virtual ~Object() noexcept = default;
 
-        std::string to_string() const
-        {
-            return impl_to_string();
-        }
+        std::string to_string() const { return impl_to_string(); }
 
-        std::unique_ptr<Object> clone() const
-        {
-            return impl_clone();
-        }
+        std::unique_ptr<Object> clone() const { return impl_clone(); }
 
-        const Class& klass() const
-        {
-            return klass_;
-        }
+        const Class& klass() const { return klass_; }
 
         size_t num_properties() const;
         const StringName& property_name(size_t property_index) const;
@@ -74,7 +65,8 @@ namespace osc
         //
         // - return `false` if your implementation did not handle the `set` call and, therefore,
         //   `Object` should handle it instead
-        virtual bool impl_custom_property_setter(const StringName& property_name, const Variant& value);
+        virtual bool impl_custom_property_setter(
+            const StringName& property_name, const Variant& value);
 
         Class klass_;
         std::vector<Variant> property_values_;

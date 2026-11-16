@@ -102,18 +102,16 @@ namespace
             Lookahead l = get_lookahead(cursor, path_end);
             while (l.a == '.') {
                 switch (l.b) {
-                case NodePath::separator:
-                    shift(cursor, 2);
-                    break;
-                case c_nul:
-                    shift(cursor, 1);
-                    break;
+                case NodePath::separator: shift(cursor, 2); break;
+                case c_nul: shift(cursor, 1); break;
                 case '.': {
                     if (l.c == NodePath::separator or l.c == c_nul) {
                         // starts with '..' element: only allowed if the path
                         // is relative
                         if (is_absolute) {
-                            throw std::runtime_error{path + ": is an invalid path: it is absolute, but starts with relative elements."};
+                            throw std::runtime_error{
+                                path +
+                                ": is an invalid path: it is absolute, but starts with relative elements."};
                         }
 
                         // if not absolute, then make sure `contentStart` skips
@@ -165,7 +163,9 @@ namespace
                 // handle '..' (if found)
 
                 if (cursor == content_start) {
-                    throw std::runtime_error{path + ": cannot handle '..' element in a path string: dereferencing this would hop above the root of the path."};
+                    throw std::runtime_error{
+                        path +
+                        ": cannot handle '..' element in a path string: dereferencing this would hop above the root of the path."};
                 }
 
                 // search backwards for previous separator
@@ -174,7 +174,8 @@ namespace
                     --prev_separator;
                 }
 
-                const iterator prev_start = prev_separator <= content_start ? content_start : prev_separator + 1;
+                const iterator prev_start =
+                    prev_separator <= content_start ? content_start : prev_separator + 1;
                 const size_t num_chars_in_current_el = (l.c == NodePath::separator) ? 3 : 2;
                 const size_t num_chars_in_previous_el = cursor - prev_start;
 
