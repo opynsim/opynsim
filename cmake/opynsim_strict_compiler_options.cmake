@@ -85,13 +85,13 @@ function(opyn_add_strict_compiler_options_to target)
             -Wno-sign-conversion     # don't warn if an implicit conversion involving signed-to-unsigned etc. may alter a value (hard to implement)
             -Wno-unknown-pragmas     # don't warn if the codebase contains unknown `pragma`s (e.g. MSVC-specific `pragma warning` etc.)
             -Wno-extra-semi          # don't warn if extra semicolons are detected: some macro expansions can write additional semicolons
-            -Wno-implicit-int-float-conversion  # don't warn if an int is converted into a float (it's a numeric codebase)
             -Wno-conversion          # don't warn if implicit conversion may alter a value
         >
 
         # clang flags
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
             -Wuninitialized  # warn if using an uninitialized variable
+            -Wno-implicit-int-float-conversion  # don't warn if an int is converted into a float (it's a numeric codebase)
         >
 
         # gcc flags
