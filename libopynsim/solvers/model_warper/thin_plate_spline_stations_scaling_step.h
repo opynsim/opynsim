@@ -25,7 +25,7 @@ namespace opyn
     // `OpenSim::Station`s it can find via the `stations` search string.
     class ThinPlateSplineStationsScalingStep final : public ToggleableThinPlateSplineScalingStep {
         OpenSim_DECLARE_CONCRETE_OBJECT(
-            ThinPlateSplineStationsScalingStep, ThinPlateSplineScalingStep);
+            ThinPlateSplineStationsScalingStep, ThinPlateSplineScalingStep)
 
         OpenSim_DECLARE_LIST_PROPERTY(
             stations,

@@ -47,4 +47,6 @@ BraceWrapping:
   BeforeElse: false
   SplitEmptyFunction: false
   BeforeLambdaBody: false
-
+StatementMacros:
+  - OpenSim_DECLARE_CONCRETE_OBJECT
+  - OpenSim_DECLARE_ABSTRACT_OBJECT

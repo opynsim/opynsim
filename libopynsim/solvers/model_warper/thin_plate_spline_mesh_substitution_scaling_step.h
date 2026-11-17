@@ -28,7 +28,7 @@ namespace opyn
     // correctly.
     class ThinPlateSplineMeshSubstitutionScalingStep final : public ThinPlateSplineScalingStep {
         OpenSim_DECLARE_CONCRETE_OBJECT(
-            ThinPlateSplineMeshSubstitutionScalingStep, ThinPlateSplineScalingStep);
+            ThinPlateSplineMeshSubstitutionScalingStep, ThinPlateSplineScalingStep)
 
     public:
         OpenSim_DECLARE_PROPERTY(

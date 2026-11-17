@@ -37,7 +37,7 @@ namespace
     };
 
     class Child2 final : public InnerParent {
-        OpenSim_DECLARE_CONCRETE_OBJECT(Child2, OpenSim::Component);
+        OpenSim_DECLARE_CONCRETE_OBJECT(Child2, OpenSim::Component)
         OpenSim_DECLARE_SOCKET(sibling, InnerParent, "sibling connection");
 
     public:
@@ -45,7 +45,7 @@ namespace
     };
 
     class Root final : public OpenSim::Component {
-        OpenSim_DECLARE_CONCRETE_OBJECT(Root, OpenSim::Component);
+        OpenSim_DECLARE_CONCRETE_OBJECT(Root, OpenSim::Component)
         OpenSim_DECLARE_PROPERTY(child1, Child1, "first child");
         OpenSim_DECLARE_PROPERTY(child2, Child2, "second child");
 

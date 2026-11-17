@@ -12,7 +12,7 @@ namespace opyn
     // document to override the default that a `ScalingStep` would typically declare
     // in a `ScalingParameterDeclaration`.
     class ScalingParameterOverride final : public OpenSim::Object {
-        OpenSim_DECLARE_CONCRETE_OBJECT(ScalingParameterOverride, OpenSim::Object);
+        OpenSim_DECLARE_CONCRETE_OBJECT(ScalingParameterOverride, OpenSim::Object)
 
     public:
         OpenSim_DECLARE_PROPERTY(

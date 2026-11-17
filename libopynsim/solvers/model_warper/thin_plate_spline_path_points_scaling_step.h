@@ -22,7 +22,7 @@ namespace opyn
     class ThinPlateSplinePathPointsScalingStep final : public ToggleableThinPlateSplineScalingStep {
 
         OpenSim_DECLARE_CONCRETE_OBJECT(
-            ThinPlateSplinePathPointsScalingStep, ToggleableThinPlateSplineScalingStep);
+            ThinPlateSplinePathPointsScalingStep, ToggleableThinPlateSplineScalingStep)
 
         OpenSim_DECLARE_LIST_PROPERTY(
             path_points,

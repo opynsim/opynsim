@@ -26,7 +26,7 @@ namespace opyn
 {
     class RecalculateWrapEllipsoidDimensionsFromStationScalingStep final : public ScalingStep {
         OpenSim_DECLARE_CONCRETE_OBJECT(
-            RecalculateWrapEllipsoidDimensionsFromStationScalingStep, ScalingStep);
+            RecalculateWrapEllipsoidDimensionsFromStationScalingStep, ScalingStep)
 
     public:
         OpenSim_DECLARE_PROPERTY(

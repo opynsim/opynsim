@@ -16,7 +16,7 @@ namespace opyn
     // toggles for parts of the TPS algorithm.
     class ToggleableThinPlateSplineScalingStep : public ThinPlateSplineScalingStep {
         OpenSim_DECLARE_ABSTRACT_OBJECT(
-            ToggleableThinPlateSplineScalingStep, ThinPlateSplineScalingStep);
+            ToggleableThinPlateSplineScalingStep, ThinPlateSplineScalingStep)
 
     public:
         OpenSim_DECLARE_PROPERTY(

@@ -20,7 +20,7 @@ namespace opyn
 {
     // A `ScalingStep` that scales the masses of bodies in the model.
     class ModelMassToSubjectMassScalingStep final : public ScalingStep {
-        OpenSim_DECLARE_CONCRETE_OBJECT(ModelMassToSubjectMassScalingStep, ScalingStep);
+        OpenSim_DECLARE_CONCRETE_OBJECT(ModelMassToSubjectMassScalingStep, ScalingStep)
 
     public:
         explicit ModelMassToSubjectMassScalingStep() :

@@ -19,7 +19,7 @@ namespace opyn
     //       reason it's reproduced here is to provide like-for-like (ish) behavior
     //       between OSC's 'Preview Experimental Data' workflow and OpenSim GUI's.
     class AnnotatedMotion final : public OpenSim::ModelComponent {
-        OpenSim_DECLARE_CONCRETE_OBJECT(AnnotatedMotion, OpenSim::ModelComponent);
+        OpenSim_DECLARE_CONCRETE_OBJECT(AnnotatedMotion, OpenSim::ModelComponent)
 
     public:
         // Constructs an `AnnotationMotion` that was loaded from the given filesystem

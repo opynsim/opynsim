@@ -25,7 +25,7 @@ namespace opyn
     // A `ScalingStep` that scales body segments by the chosen (potentially, non-uniform) scale
     // factors
     class ManuallyScaleBodySegmentsScalingStep final : public ScalingStep {
-        OpenSim_DECLARE_CONCRETE_OBJECT(ManuallyScaleBodySegmentsScalingStep, ScalingStep);
+        OpenSim_DECLARE_CONCRETE_OBJECT(ManuallyScaleBodySegmentsScalingStep, ScalingStep)
 
         OpenSim_DECLARE_LIST_PROPERTY(
             bodies,

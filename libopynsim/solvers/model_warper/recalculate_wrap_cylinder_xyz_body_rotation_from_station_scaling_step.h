@@ -29,7 +29,7 @@ namespace opyn
 {
     class RecalculateWrapCylinderXYZBodyRotationFromStationScalingStep final : public ScalingStep {
         OpenSim_DECLARE_CONCRETE_OBJECT(
-            RecalculateWrapCylinderXYZBodyRotationFromStationScalingStep, ScalingStep);
+            RecalculateWrapCylinderXYZBodyRotationFromStationScalingStep, ScalingStep)
 
     public:
         OpenSim_DECLARE_PROPERTY(

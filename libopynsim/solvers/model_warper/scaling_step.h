@@ -26,7 +26,7 @@ namespace opyn
     // order to yield the "result" or "scaled" model. Each scaling step can
     // request external data (`ScalingParameterDeclaration`).
     class ScalingStep : public OpenSim::Component {
-        OpenSim_DECLARE_ABSTRACT_OBJECT(ScalingStep, Component);
+        OpenSim_DECLARE_ABSTRACT_OBJECT(ScalingStep, Component)
 
     public:
         OpenSim_DECLARE_PROPERTY(

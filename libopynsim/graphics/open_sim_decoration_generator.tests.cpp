@@ -467,7 +467,7 @@ namespace
 {
     // A mock component that emits a cylinder with NaN radius.
     class ComponentThatGeneratesNaNCylinder : public OpenSim::ModelComponent {
-        OpenSim_DECLARE_CONCRETE_OBJECT(ComponentThatGeneratesNaNCylinder, OpenSim::ModelComponent);
+        OpenSim_DECLARE_CONCRETE_OBJECT(ComponentThatGeneratesNaNCylinder, OpenSim::ModelComponent)
 
     public:
         void generateDecorations(
@@ -509,7 +509,7 @@ namespace
     // A mock component that generates `SimTK::DecorativeSphere`s with NaNed rotations.
     class ComponentThatGeneratesNaNRotationSphere : public OpenSim::ModelComponent {
         OpenSim_DECLARE_CONCRETE_OBJECT(
-            ComponentThatGeneratesNaNRotationSphere, OpenSim::ModelComponent);
+            ComponentThatGeneratesNaNRotationSphere, OpenSim::ModelComponent)
 
     public:
         void generateDecorations(
@@ -560,7 +560,7 @@ namespace
     // A mock component that generates `SimTK::DecorativeSphere`s with NaNed translation.
     class ComponentThatGeneratesNaNTranslationSphere : public OpenSim::ModelComponent {
         OpenSim_DECLARE_CONCRETE_OBJECT(
-            ComponentThatGeneratesNaNTranslationSphere, OpenSim::ModelComponent);
+            ComponentThatGeneratesNaNTranslationSphere, OpenSim::ModelComponent)
 
     public:
         void generateDecorations(

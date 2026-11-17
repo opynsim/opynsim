@@ -23,7 +23,7 @@ namespace opyn
     // associated files.
     class ThinPlateSplineMeshesScalingStep final : public ToggleableThinPlateSplineScalingStep {
         OpenSim_DECLARE_CONCRETE_OBJECT(
-            ThinPlateSplineMeshesScalingStep, ToggleableThinPlateSplineScalingStep);
+            ThinPlateSplineMeshesScalingStep, ToggleableThinPlateSplineScalingStep)
 
         OpenSim_DECLARE_LIST_PROPERTY(
             meshes,

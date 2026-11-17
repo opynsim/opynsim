@@ -20,7 +20,7 @@ namespace
 {
     // Refers to one data series within one annotated motion.
     class DataSeries final : public OpenSim::ModelComponent {
-        OpenSim_DECLARE_CONCRETE_OBJECT(DataSeries, OpenSim::ModelComponent);
+        OpenSim_DECLARE_CONCRETE_OBJECT(DataSeries, OpenSim::ModelComponent)
 
     public:
         OpenSim_DECLARE_PROPERTY(type, std::string, "the datatype of the data series");

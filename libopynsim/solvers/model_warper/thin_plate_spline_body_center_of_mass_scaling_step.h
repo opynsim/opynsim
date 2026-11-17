@@ -28,7 +28,7 @@ namespace opyn
         : public ToggleableThinPlateSplineScalingStep {
 
         OpenSim_DECLARE_CONCRETE_OBJECT(
-            ThinPlateSplineBodyCenterOfMassScalingStep, ToggleableThinPlateSplineScalingStep);
+            ThinPlateSplineBodyCenterOfMassScalingStep, ToggleableThinPlateSplineScalingStep)
 
         OpenSim_DECLARE_LIST_PROPERTY(
             bodies,

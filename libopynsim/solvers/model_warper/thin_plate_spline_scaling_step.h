@@ -27,7 +27,7 @@ namespace opyn
     // algorithm to perform some kind of (concrete-implementation-defined) scaling to
     // the model.
     class ThinPlateSplineScalingStep : public ScalingStep {
-        OpenSim_DECLARE_ABSTRACT_OBJECT(ThinPlateSplineScalingStep, ScalingStep);
+        OpenSim_DECLARE_ABSTRACT_OBJECT(ThinPlateSplineScalingStep, ScalingStep)
 
     public:
         // These parameters are common for all TPS `ScalingStep`s.

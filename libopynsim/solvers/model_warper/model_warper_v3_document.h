@@ -22,7 +22,7 @@ namespace opyn
     // the source model in order to yield a scaled model.
     class ModelWarperV3Document final : public OpenSim::Component,
                                         public VersionedComponentAccessor {
-        OpenSim_DECLARE_CONCRETE_OBJECT(ModelWarperV3Document, OpenSim::Component);
+        OpenSim_DECLARE_CONCRETE_OBJECT(ModelWarperV3Document, OpenSim::Component)
 
         OpenSim_DECLARE_LIST_PROPERTY(
             scaling_parameter_overrides,
