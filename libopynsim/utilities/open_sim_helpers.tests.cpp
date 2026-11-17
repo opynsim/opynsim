@@ -29,11 +29,11 @@ using namespace opyn;
 namespace
 {
     class InnerParent : public OpenSim::Component {
-        OpenSim_DECLARE_ABSTRACT_OBJECT(InnerParent, OpenSim::Component);
+        OpenSim_DECLARE_ABSTRACT_OBJECT(InnerParent, OpenSim::Component)
     };
 
     class Child1 final : public InnerParent {
-        OpenSim_DECLARE_CONCRETE_OBJECT(Child1, OpenSim::Component);
+        OpenSim_DECLARE_CONCRETE_OBJECT(Child1, OpenSim::Component)
     };
 
     class Child2 final : public InnerParent {
