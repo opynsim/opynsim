@@ -65,7 +65,6 @@ Table of Contents
    :caption: Development
 
    development/building-from-source
-   development/architecture-overview
    development/opynsim-as-a-cpp-library
    development/doxygen
    development/opensim-interoperability
