@@ -55,6 +55,7 @@ websites like GitHub.
             user-level.
     - [ ] Update `README.md` with Zenodo release details
     - [ ] Ensure the entire repository is pushed/mirrored to the official TU Delft mirror:
+      - [ ] Connect to TUD VPN/network (optional: can help connectivity).
       - [ ] `git remote add tud https://gitlab.tudelft.nl/opynsim/opynsim.git`
       - [ ] `git push tud --all`
       - [ ] `git push tud --tags`
