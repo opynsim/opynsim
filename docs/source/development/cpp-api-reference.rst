@@ -1,5 +1,5 @@
-Doxygen
-=======
+C++ API Reference
+=================
 
 .. raw:: html
 

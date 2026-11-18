@@ -66,7 +66,7 @@ Table of Contents
 
    development/building-from-source
    development/opynsim-as-a-cpp-library
-   development/doxygen
+   development/cpp-api-reference
    development/opensim-interoperability
    development/release-process
 
