@@ -80,6 +80,7 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/Release-Linux-amd64/install",
                 "CPACK_STRIP_FILES": "ON",
 
+                "OPYN_BUILD_DOCS": "ON",
                 "OPYN_USE_STRICT_COMPILER_FLAGS": "ON",
                 "OPYN_STRICT_ABI_CHECKS": "ON",
                 "OPYN_ABI_MAX_SYMBOL_VERSIONS": "GLIBCXX_3.4.22 CXXABI_1.3.11 GLIBC_2.27 GCC_7.0.0",
