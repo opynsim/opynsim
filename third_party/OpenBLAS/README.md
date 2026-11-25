@@ -2,15 +2,10 @@
 
 [![Join the chat at https://gitter.im/xianyi/OpenBLAS](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/xianyi/OpenBLAS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Cirrus CI: [![Build Status](https://api.cirrus-ci.com/github/xianyi/OpenBLAS.svg?branch=develop)](https://cirrus-ci.com/github/xianyi/OpenBLAS)
+GitHub Actions: [![Build Status](https://github.com/OpenMathLib/OpenBLAS/actions/workflows/dynamic_arch.yml/badge.svg?branch=develop)](https://github.com/OpenMathLib/OpenBLAS/actions/workflows/dynamic_arch.yml?query=branch%3Adevelop)
 
+Azure Pipelines: [![Build Status](https://dev.azure.com/xianyi/OpenBLAS/_apis/build/status/xianyi.OpenBLAS?branchName=develop)](https://dev.azure.com/xianyi/OpenBLAS/_build/latest?definitionId=1&branchName=develop)
 
-
-[![Build Status](https://dev.azure.com/xianyi/OpenBLAS/_apis/build/status/xianyi.OpenBLAS?branchName=develop)](https://dev.azure.com/xianyi/OpenBLAS/_build/latest?definitionId=1&branchName=develop)
-
-OSUOSL POWERCI [![Build Status](https://powerci.osuosl.org/buildStatus/icon?job=OpenBLAS_gh%2Fdevelop)](http://powerci.osuosl.org/job/OpenBLAS_gh/job/develop/)
-
-OSUOSL IBMZ-CI [![Build Status](http://ibmz-ci.osuosl.org/buildStatus/icon?job=OpenBLAS-Z%2Fdevelop)](http://ibmz-ci.osuosl.org/job/OpenBLAS-Z/job/develop/)
 ## Introduction
 
 OpenBLAS is an optimized BLAS (Basic Linear Algebra Subprograms) library based on GotoBLAS2 1.13 BSD version.
@@ -148,11 +143,12 @@ Please read `GotoBLAS_01Readme.txt` for older CPU models already supported by th
 - **Intel Haswell**: Optimized Level-3 and Level-2 BLAS with AVX2 and FMA on x86-64.
 - **Intel Skylake-X**: Optimized Level-3 and Level-2 BLAS with AVX512 and FMA on x86-64.
 - **Intel Cooper Lake**: as Skylake-X with improved BFLOAT16 support.
+- **Intel Sapphire Rapids**: as Cooper Lake with improved BFLOAT16 SBGEMM kernel.
 - **AMD Bobcat**: Used GotoBLAS2 Barcelona codes.
 - **AMD Bulldozer**: x86-64 ?GEMM FMA4 kernels. (Thanks to Werner Saar)
 - **AMD PILEDRIVER**: Uses Bulldozer codes with some optimizations.
 - **AMD STEAMROLLER**: Uses Bulldozer codes with some optimizations.
-- **AMD ZEN**: Uses Haswell codes with some optimizations for Zen 2/3 (use SkylakeX for Zen4)
+- **AMD ZEN**: Uses Haswell codes with some optimizations for Zen 2/3, SkylakeX for Zen4, Cooperlake for Zen5
 
 #### MIPS32
 
@@ -175,7 +171,7 @@ Please read `GotoBLAS_01Readme.txt` for older CPU models already supported by th
 - **Cortex-A53**: same as ARMV8 (different cpu specifications)
 - **Cortex-A55**: same as ARMV8 (different cpu specifications)
 - **Cortex A57**: Optimized Level-3 and Level-2 functions
-- **Cortex A72**: same as A57 ( different cpu specifications)
+- **Cortex A72**: same as A57 (different cpu specifications)
 - **Cortex A73**: same as A57 (different cpu specifications)
 - **Cortex A76**: same as A57 (different cpu specifications)
 - **Falkor**: same as A57 (different cpu specifications)
@@ -186,9 +182,15 @@ Please read `GotoBLAS_01Readme.txt` for older CPU models already supported by th
 - **EMAG 8180**: preliminary support based on A57
 - **Neoverse N1**: (AWS Graviton2) preliminary support
 - **Neoverse V1**: (AWS Graviton3) optimized Level-3 BLAS
+- **Neoverse N2**: preliminary support
+- **Neoverse V2**: preliminary support
+- **Neoverse V3**: preliminary support
+- **Neoverse V3AE**: preliminary support
 - **Apple Vortex**: preliminary support based on ThunderX2/3
+- **Apple VortexM4**: preliminary support based on ThunderX2/3, SME kernels for SGEMM,SSYMM,STRMM,SSYRK,SSYR2K
 - **A64FX**:  preliminary support, optimized Level-3 BLAS
 - **ARMV8SVE**: any ARMV8 cpu with SVE extensions 
+- **ARMV9SME**: any ARMV9 cpu with SVE and SME extensions 
 
 #### PPC/PPC64
 
@@ -218,6 +220,8 @@ Please read `GotoBLAS_01Readme.txt` for older CPU models already supported by th
   ```sh
   make HOSTCC=gcc TARGET=x280 NUM_THREADS=8 CC=riscv64-unknown-linux-gnu-clang FC=riscv64-unknown-linux-gnu-gfortran
   ```
+
+(For RVV 1.0 target selection and compiler requirements, see the [RISC-V section in docs/install.md](docs/install.md#risc-v).)
 
 - **ZVL???B**: Level-3 BLAS and Level-1,2 including vectorised kernels targeting generic RISCV cores with vector support with registers of at least the corresponding width; ZVL128B and ZVL256B are available.
 e.g.:
@@ -249,9 +253,15 @@ e.g.:
   ```
   The old-style TARGET=LOONGSON3R5 is still supported
 
+#### WASM
+  Not a cpu target in the strict sense, but portable WebAssembly for browser-based applications and the like. See emscripten.org for the compiler and related information
+
+- **WASM128_GENERIC**: Optimized SGEMM,DGEMM, DAXPY, SSUM/DSUM, SDOT/DDOT and SROT/DROT
+
+
 ### Support for multiple targets in a single library
 
-OpenBLAS can be built for multiple targets with runtime detection of the target cpu by specifiying `DYNAMIC_ARCH=1` in Makefile.rule, on the gmake command line or as `-DDYNAMIC_ARCH=TRUE` in cmake.
+OpenBLAS can be built for multiple targets with runtime detection of the target cpu by specifying `DYNAMIC_ARCH=1` in Makefile.rule, on the gmake command line or as `-DDYNAMIC_ARCH=TRUE` in cmake.
 
 For **x86_64**, the list of targets this activates contains Prescott, Core2, Nehalem, Barcelona, Sandybridge, Bulldozer, Piledriver, Steamroller, Excavator, Haswell, Zen, SkylakeX, Cooper Lake, Sapphire Rapids. For cpu generations not included in this list, the corresponding older model is used. If you also specify `DYNAMIC_OLDER=1`, specific support for Penryn, Dunnington, Opteron, Opteron/SSE3, Bobcat, Atom and Nano is added. Finally there is an option `DYNAMIC_LIST` that allows to specify an individual list of targets to include instead of the default.
 
@@ -277,22 +287,28 @@ Please note that it is not possible to combine support for different architectur
 ### Supported OS
 
 - **GNU/Linux**
-- **MinGW or Visual Studio (CMake)/Windows**: Please read <https://github.com/xianyi/OpenBLAS/wiki/How-to-use-OpenBLAS-in-Microsoft-Visual-Studio>.
-- **Darwin/macOS/OSX/iOS**: Experimental. Although GotoBLAS2 already supports Darwin, we are not OSX/iOS experts.
-- **FreeBSD**: Supported by the community. We don't actively test the library on this OS.
+- **MinGW or Visual Studio (CMake)/Windows**: Please read <https://github.com/OpenMathLib/OpenBLAS/blob/develop/docs/install.md#visual-studio--native-windows-abi>.
+- **Darwin/macOS/OSX/iOS**: Already supported on PPC and x86 by the original GotoBLAS, now also on ARM64 but we are not OSX/iOS experts.
+- **FreeBSD**: Supported by the community. Basic test coverage is provided by GitHub Actions.
 - **OpenBSD**: Supported by the community. We don't actively test the library on this OS.
 - **NetBSD**: Supported by the community. We don't actively test the library on this OS.
 - **DragonFly BSD**: Supported by the community. We don't actively test the library on this OS.
-- **Android**: Supported by the community. Please read <https://github.com/xianyi/OpenBLAS/wiki/How-to-build-OpenBLAS-for-Android>.
-- **AIX**: Supported on PPC up to POWER10
+- **Android**: Supported by the community. Please read <https://github.com/OpenMathLib/OpenBLAS/blob/develop/docs/install.md#android>.
+- **AIX**: Supported on PPC up to POWER10 but testing is increasingly problematic due to lack of publicly available systems
 - **Haiku**: Supported by the community. We don't actively test the library on this OS.
 - **SunOS**: Supported by the community. We don't actively test the library on this OS.
-- **Cortex-M**: Supported by the community. Please read <https://github.com/xianyi/OpenBLAS/wiki/How-to-use-OpenBLAS-on-Cortex-M>.
+- **Cortex-M**: Supported by the community. Please read <https://github.com/OpenMathLib/OpenBLAS/blob/develop/docs/install.md#cortex-m>.
 
 ## Usage
 
 Statically link with `libopenblas.a` or dynamically link with `-lopenblas` if OpenBLAS was
 compiled as a shared library.
+
+### Considerations for using the library from Java
+
+The default stack size of only 1MB may be too small, especially if you built OpenBLAS to support larger matrix sizes than provided for by the default settings. Use the -Xss option to request a larger stack size if you encounter problems.
+
+When a Windows build of OpenBLAS was created using the MINGW gfortran (for the LAPACK parts), the java application may hang on startup due to a deadlock between the gfortran runtime library initialization and any pipes created by a Win11/SBT/Play Framework environment. Use -Djdk.console=jdk.internal.le to work around this. 
 
 ### Setting the number of threads using environment variables
 

@@ -122,12 +122,16 @@ main (int argc, char *argv[])
                 (float)AA[k * j + l] * (float)BB[i + l * n];
             }
           if (!is_close(CC[i * m + j], C[i * m + j], 0.01, 0.001)) {
-		  fprintf(stderr,"CC %f C %f \n",(float)CC[i*m+j],C[i*m+j]);
-            ret++;
+#ifdef DEBUG
+		  	fprintf(stderr,"CC %f C %f \n",(float)CC[i*m+j],C[i*m+j]);
+#endif
+			ret++;
           }
-          if (!is_close(CC[i * m + j], DD[i * m + j], 0.001, 0.0001)) {
-		  fprintf(stderr,"CC %f DD  %f \n",(float)CC[i*m+j],(float)DD[i*m+j]);
-            ret++;
+          if (!is_close(CC[i * m + j], DD[i * m + j], 0.01, 0.001)) {
+#ifdef DEBUG
+			fprintf(stderr,"CC %f DD  %f \n",(float)CC[i*m+j],(float)DD[i*m+j]);
+#endif
+			ret++;
           }
         }
     }

@@ -184,11 +184,11 @@ static int init_amxtile_permission() {
 }
 #endif
 
-#ifdef SMP
 #ifdef DYNAMIC_ARCH
 extern char* gotoblas_corename(void);
 #endif
 
+#ifdef SMP
 #if defined(DYNAMIC_ARCH) || defined(NEOVERSEV1)
 static inline int get_gemm_optimal_nthreads_neoversev1(double MNK, int ncpu) {
   return
@@ -562,12 +562,12 @@ if (strcmp(gotoblas_corename(), "armv9sme") == 0
 )
 // if (support_sme1())
 #endif
-  if (order == CblasRowMajor && m==lda && n ==ldb && k==ldc && beta == 0 && alpha == 1.0 && TransA == CblasNoTrans && TransB == CblasNoTrans&& SGEMM_DIRECT_PERFORMANT(m,n,k)) {
+  if (order == CblasRowMajor && k==lda && n==ldb && n==ldc && beta == 0 && alpha == 1.0 && TransA == CblasNoTrans && TransB == CblasNoTrans && SGEMM_DIRECT_PERFORMANT(m,n,k)) {
         SGEMM_DIRECT(m, n, k, a, lda, b, ldb, c, ldc);
         return;
   }
 else
- if (order == CblasRowMajor && m==lda && n==ldb && k==ldc && TransA == CblasNoTrans && TransB == CblasNoTrans&& SGEMM_DIRECT_PERFORMANT(m,n,k)) {
+ if (order == CblasRowMajor && k==lda && n==ldb && n==ldc && TransA == CblasNoTrans && TransB == CblasNoTrans && SGEMM_DIRECT_PERFORMANT(m,n,k)) {
         SGEMM_DIRECT_ALPHA_BETA(m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
         return;
   }

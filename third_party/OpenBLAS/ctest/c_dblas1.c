@@ -54,7 +54,7 @@ void F77_drot( const int *N, double *X, const int *incX, double *Y,
 }
 
 void F77_drotm(const int *N, double *X, const int *incX, double *Y,
-               const int *incY, const double *dparam)
+               const int *incY, double *dparam)
 {
    cblas_drotm(*N, X, *incX, Y, *incY, dparam);
    return;

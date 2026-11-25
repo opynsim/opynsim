@@ -395,8 +395,8 @@ void get_cpuconfig(void) {
     }
   }
 
-  if(os_support_lsx)  printf("#define HAVE_LSX\n");
-  if(os_support_lasx) printf("#define HAVE_LASX\n");
+  if(os_support_lsx())  printf("#define HAVE_LSX\n");
+  if(os_support_lasx()) printf("#define HAVE_LASX\n");
 
   get_cpucount(&num_cores);
   if (num_cores)

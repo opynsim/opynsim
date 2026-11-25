@@ -70,8 +70,8 @@ set(SLASRC
    slaqgb.f slaqge.f slaqp2.f slaqps.f slaqp2rk.f slaqp3rk.f slaqsb.f slaqsp.f slaqsy.f
    slaqr0.f slaqr1.f slaqr2.f slaqr3.f slaqr4.f slaqr5.f
    slaqtr.f slar1v.f slar2v.f ilaslr.f ilaslc.f
-   slarf.f  slarfb.f slarfb_gett.f slarfg.f slarfgp.f slarft.f slarfx.f slarfy.f slargv.f
-   slarrv.f slartv.f
+   slarf.f  slarfb.f slarfb_gett.f slarfg.f slarfgp.f slarft.f slarft_lvl2.f slarfx.f
+   slarfy.f slargv.f slarf1f.f slarf1l.f slarrv.f slartv.f
    slarz.f  slarzb.f slarzt.f slasy2.f
    slasyf.f slasyf_rook.f slasyf_rk.f slasyf_aa.f
    slatbs.f slatdf.f slatps.f slatrd.f slatrs.f slatrz.f
@@ -177,7 +177,8 @@ set(CLASRC
    claqr0.f claqr1.f claqr2.f claqr3.f claqr4.f claqr5.f
    claqz0.f claqz1.f claqz2.f claqz3.f
    claqsp.f claqsy.f clar1v.f clar2v.f ilaclr.f ilaclc.f
-   clarf.f  clarfb.f clarfb_gett.f clarfg.f clarfgp.f clarft.f
+   clarf.f  clarfb.f clarfb_gett.f clarfg.f clarfgp.f clarft.f clarft_lvl2.f
+   clarf1f.f clarf1l.f
    clarfx.f clarfy.f clargv.f clarnv.f clarrv.f clartg.f90 clartv.f
    clarz.f  clarzb.f clarzt.f clascl.f claset.f clasr.f  classq.f90
    clasyf.f clasyf_rook.f clasyf_rk.f clasyf_aa.f
@@ -261,8 +262,8 @@ set(DLASRC
    dlaqgb.f dlaqge.f dlaqp2.f dlaqp2rk.f dlaqp3rk.f dlaqps.f dlaqsb.f dlaqsp.f dlaqsy.f
    dlaqr0.f dlaqr1.f dlaqr2.f dlaqr3.f dlaqr4.f dlaqr5.f
    dlaqtr.f dlar1v.f dlar2v.f iladlr.f iladlc.f
-   dlarf.f  dlarfb.f dlarfb_gett.f dlarfg.f dlarfgp.f dlarft.f dlarfx.f dlarfy.f
-   dlargv.f dlarrv.f dlartv.f
+   dlarf.f  dlarfb.f dlarfb_gett.f dlarfg.f dlarfgp.f dlarft.f dlarft_lvl2.f
+   dlarfx.f dlarfy.f dlarf1f.f dlarf1l.f dlargv.f dlarrv.f dlartv.f
    dlarz.f  dlarzb.f dlarzt.f dlasy2.f
    dlasyf.f dlasyf_rook.f dlasyf_rk.f dlasyf_aa.f
    dlatbs.f dlatdf.f dlatps.f dlatrd.f dlatrs.f dlatrz.f
@@ -371,7 +372,7 @@ set(ZLASRC
    zlaqr0.f zlaqr1.f zlaqr2.f zlaqr3.f zlaqr4.f zlaqr5.f
    zlaqsp.f zlaqsy.f zlar1v.f zlar2v.f ilazlr.f ilazlc.f
    zlarcm.f zlarf.f  zlarfb.f zlarfb_gett.f
-   zlarfg.f zlarfgp.f zlarft.f
+   zlarfg.f zlarfgp.f zlarft.f zlarft_lvl2.f zlarf1f.f zlarf1l.f
    zlarfx.f zlarfy.f zlargv.f zlarnv.f zlarrv.f zlartg.f90 zlartv.f
    zlarz.f  zlarzb.f zlarzt.f zlascl.f zlaset.f zlasr.f
    zlassq.f90 zlasyf.f zlasyf_rook.f zlasyf_rk.f zlasyf_aa.f
@@ -574,8 +575,8 @@ set(SLASRC
    slaqgb.c slaqge.c slaqp2.c slaqp2rk.c slaqp3rk.c slaqps.c slaqsb.c slaqsp.c slaqsy.c
    slaqr0.c slaqr1.c slaqr2.c slaqr3.c slaqr4.c slaqr5.c
    slaqtr.c slar1v.c slar2v.c ilaslr.c ilaslc.c
-   slarf.c  slarfb.c slarfb_gett.c slarfg.c slarfgp.c slarft.c slarfx.c slarfy.c slargv.c
-   slarrv.c slartv.c
+   slarf.c  slarfb.c slarfb_gett.c slarfg.c slarfgp.c slarft.c slarft_lvl2.c slarfx.c
+   slarfy.c slargv.c slarf1f.c slarf1l.c slarrv.c slartv.c
    slarz.c  slarzb.c slarzt.c slasy2.c
    slasyf.c slasyf_rook.c slasyf_rk.c slasyf_aa.c
    slatbs.c slatdf.c slatps.c slatrd.c slatrs.c slatrz.c
@@ -681,6 +682,7 @@ set(CLASRC
    claqr0.c claqr1.c claqr2.c claqr3.c claqr4.c claqr5.c
    claqsp.c claqsy.c clar1v.c clar2v.c ilaclr.c ilaclc.c
    clarf.c  clarfb.c clarfb_gett.c clarfg.c clarfgp.c clarft.c
+   clarft_lvl2.c clarf1f.c clarf1l.c
    clarfx.c clarfy.c clargv.c clarnv.c clarrv.c clartg.c clartv.c
    clarz.c  clarzb.c clarzt.c clascl.c claset.c clasr.c  classq.c
    clasyf.c clasyf_rook.c clasyf_rk.c clasyf_aa.c
@@ -763,8 +765,8 @@ set(DLASRC
    dlaqgb.c dlaqge.c dlaqp2.c dlaqp2rk.c dlaqp3rk.c dlaqps.c dlaqsb.c dlaqsp.c dlaqsy.c
    dlaqr0.c dlaqr1.c dlaqr2.c dlaqr3.c dlaqr4.c dlaqr5.c
    dlaqtr.c dlar1v.c dlar2v.c iladlr.c iladlc.c
-   dlarf.c  dlarfb.c dlarfb_gett.c dlarfg.c dlarfgp.c dlarft.c dlarfx.c dlarfy.c
-   dlargv.c dlarrv.c dlartv.c
+   dlarf.c  dlarfb.c dlarfb_gett.c dlarfg.c dlarfgp.c dlarft.c dlarft_lvl2.c 
+   dlarfx.c dlarfy.c dlarf1f.c dlarf1l.c dlargv.c dlarrv.c dlartv.c
    dlarz.c  dlarzb.c dlarzt.c dlasy2.c
    dlasyf.c dlasyf_rook.c dlasyf_rk.c dlasyf_aa.c
    dlatbs.c dlatdf.c dlatps.c dlatrd.c dlatrs.c dlatrz.c
@@ -871,8 +873,8 @@ set(ZLASRC
    zlaqhb.c zlaqhe.c zlaqhp.c zlaqp2.c zlaqp2rk.c zlaqp3rk.c zlaqps.c zlaqsb.c
    zlaqr0.c zlaqr1.c zlaqr2.c zlaqr3.c zlaqr4.c zlaqr5.c
    zlaqsp.c zlaqsy.c zlar1v.c zlar2v.c ilazlr.c ilazlc.c
-   zlarcm.c zlarf.c  zlarfb.c zlarfb_gett.c
-   zlarfg.c zlarfgp.c zlarft.c
+   zlarcm.c zlarf.c  zlarfb.c zlarfb_gett.c zlarf1f.c zlarf1l.c
+   zlarfg.c zlarfgp.c zlarft.c zlarft_lvl2.c
    zlarfx.c zlarfy.c zlargv.c zlarnv.c zlarrv.c zlartg.c zlartv.c
    zlarz.c  zlarzb.c zlarzt.c zlascl.c zlaset.c zlasr.c
    zlassq.c zlasyf.c zlasyf_rook.c zlasyf_rk.c zlasyf_aa.c

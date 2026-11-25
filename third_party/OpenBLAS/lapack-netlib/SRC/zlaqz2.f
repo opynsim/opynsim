@@ -5,7 +5,6 @@
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
 *> Download ZLAQZ2 + dependencies
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/ZLAQZ2.f">
 *> [TGZ]</a>
@@ -13,7 +12,6 @@
 *> [ZIP]</a>
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/ZLAQZ2.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -224,10 +222,11 @@
 *
 *> \date May 2020
 *
-*> \ingroup complex16GEcomputational
+*> \ingroup laqz2
 *>
 *  =====================================================================
-      RECURSIVE SUBROUTINE ZLAQZ2( ILSCHUR, ILQ, ILZ, N, ILO, IHI, NW,
+      RECURSIVE SUBROUTINE ZLAQZ2( ILSCHUR, ILQ, ILZ, N, ILO, IHI,
+     $                             NW,
      $                             A, LDA, B, LDB, Q, LDQ, Z, LDZ, NS,
      $                             ND, ALPHA, BETA, QC, LDQC, ZC, LDZC,
      $                             WORK, LWORK, RWORK, REC, INFO )
@@ -258,7 +257,7 @@
       COMPLEX*16 :: S, S1, TEMP
 
 *     External Functions
-      EXTERNAL :: XERBLA, ZLAQZ0, ZLAQZ1, DLABAD, ZLACPY, ZLASET, ZGEMM,
+      EXTERNAL :: XERBLA, ZLAQZ0, ZLAQZ1, ZLACPY, ZLASET, ZGEMM,
      $            ZTGEXC, ZLARTG, ZROT
       DOUBLE PRECISION, EXTERNAL :: DLAMCH
 
@@ -286,7 +285,7 @@
          WORK( 1 ) = LWORKREQ
          RETURN
       ELSE IF ( LWORK .LT. LWORKREQ ) THEN
-         INFO = -26
+         INFO = -25
       END IF
 
       IF( INFO.NE.0 ) THEN
@@ -297,7 +296,6 @@
 *     Get machine constants
       SAFMIN = DLAMCH( 'SAFE MINIMUM' )
       SAFMAX = ONE/SAFMIN
-      CALL DLABAD( SAFMIN, SAFMAX )
       ULP = DLAMCH( 'PRECISION' )
       SMLNUM = SAFMIN*( DBLE( N )/ULP )
 
@@ -320,7 +318,8 @@
 
 *     Store window in case of convergence failure
       CALL ZLACPY( 'ALL', JW, JW, A( KWTOP, KWTOP ), LDA, WORK, JW )
-      CALL ZLACPY( 'ALL', JW, JW, B( KWTOP, KWTOP ), LDB, WORK( JW**2+
+      CALL ZLACPY( 'ALL', JW, JW, B( KWTOP, KWTOP ), LDB,
+     $             WORK( JW**2+
      $             1 ), JW )
 
 *     Transform window to real schur form
@@ -335,7 +334,8 @@
 *        Convergence failure, restore the window and exit
          ND = 0
          NS = JW-QZ_SMALL_INFO
-         CALL ZLACPY( 'ALL', JW, JW, WORK, JW, A( KWTOP, KWTOP ), LDA )
+         CALL ZLACPY( 'ALL', JW, JW, WORK, JW, A( KWTOP, KWTOP ),
+     $                LDA )
          CALL ZLACPY( 'ALL', JW, JW, WORK( JW**2+1 ), JW, B( KWTOP,
      $                KWTOP ), LDB )
          RETURN
@@ -392,11 +392,14 @@
             A( K, KWTOP-1 ) = TEMP
             A( K+1, KWTOP-1 ) = CZERO
             K2 = MAX( KWTOP, K-1 )
-            CALL ZROT( IHI-K2+1, A( K, K2 ), LDA, A( K+1, K2 ), LDA, C1,
+            CALL ZROT( IHI-K2+1, A( K, K2 ), LDA, A( K+1, K2 ), LDA,
+     $                 C1,
      $                 S1 )
-            CALL ZROT( IHI-( K-1 )+1, B( K, K-1 ), LDB, B( K+1, K-1 ),
+            CALL ZROT( IHI-( K-1 )+1, B( K, K-1 ), LDB, B( K+1,
+     $                 K-1 ),
      $                 LDB, C1, S1 )
-            CALL ZROT( JW, QC( 1, K-KWTOP+1 ), 1, QC( 1, K+1-KWTOP+1 ),
+            CALL ZROT( JW, QC( 1, K-KWTOP+1 ), 1, QC( 1,
+     $                 K+1-KWTOP+1 ),
      $                 1, C1, DCONJG( S1 ) )
          END DO
 
@@ -438,25 +441,29 @@
      $                IHI+1 ), LDB )
       END IF
       IF ( ILQ ) THEN
-         CALL ZGEMM( 'N', 'N', N, JW, JW, CONE, Q( 1, KWTOP ), LDQ, QC,
+         CALL ZGEMM( 'N', 'N', N, JW, JW, CONE, Q( 1, KWTOP ), LDQ,
+     $               QC,
      $               LDQC, CZERO, WORK, N )
          CALL ZLACPY( 'ALL', N, JW, WORK, N, Q( 1, KWTOP ), LDQ )
       END IF
 
       IF ( KWTOP-1-ISTARTM+1 > 0 ) THEN
-         CALL ZGEMM( 'N', 'N', KWTOP-ISTARTM, JW, JW, CONE, A( ISTARTM,
+         CALL ZGEMM( 'N', 'N', KWTOP-ISTARTM, JW, JW, CONE,
+     $               A( ISTARTM,
      $               KWTOP ), LDA, ZC, LDZC, CZERO, WORK,
      $               KWTOP-ISTARTM )
         CALL ZLACPY( 'ALL', KWTOP-ISTARTM, JW, WORK, KWTOP-ISTARTM,
      $               A( ISTARTM, KWTOP ), LDA )
-         CALL ZGEMM( 'N', 'N', KWTOP-ISTARTM, JW, JW, CONE, B( ISTARTM,
+         CALL ZGEMM( 'N', 'N', KWTOP-ISTARTM, JW, JW, CONE,
+     $               B( ISTARTM,
      $               KWTOP ), LDB, ZC, LDZC, CZERO, WORK,
      $               KWTOP-ISTARTM )
         CALL ZLACPY( 'ALL', KWTOP-ISTARTM, JW, WORK, KWTOP-ISTARTM,
      $               B( ISTARTM, KWTOP ), LDB )
       END IF
       IF ( ILZ ) THEN
-         CALL ZGEMM( 'N', 'N', N, JW, JW, CONE, Z( 1, KWTOP ), LDZ, ZC,
+         CALL ZGEMM( 'N', 'N', N, JW, JW, CONE, Z( 1, KWTOP ), LDZ,
+     $               ZC,
      $               LDZC, CZERO, WORK, N )
          CALL ZLACPY( 'ALL', N, JW, WORK, N, Z( 1, KWTOP ), LDZ )
       END IF

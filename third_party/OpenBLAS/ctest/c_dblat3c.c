@@ -21,19 +21,6 @@ typedef float real;
 typedef double doublereal;
 typedef struct { real r, i; } complex;
 typedef struct { doublereal r, i; } doublecomplex;
-#ifdef _MSC_VER
-static inline _Fcomplex Cf(complex *z) {_Fcomplex zz={z->r , z->i}; return zz;}
-static inline _Dcomplex Cd(doublecomplex *z) {_Dcomplex zz={z->r , z->i};return zz;}
-static inline _Fcomplex * _pCf(complex *z) {return (_Fcomplex*)z;}
-static inline _Dcomplex * _pCd(doublecomplex *z) {return (_Dcomplex*)z;}
-#else
-static inline _Complex float Cf(complex *z) {return z->r + z->i*_Complex_I;}
-static inline _Complex double Cd(doublecomplex *z) {return z->r + z->i*_Complex_I;}
-static inline _Complex float * _pCf(complex *z) {return (_Complex float*)z;}
-static inline _Complex double * _pCd(doublecomplex *z) {return (_Complex double*)z;}
-#endif
-#define pCf(z) (*_pCf(z))
-#define pCd(z) (*_pCd(z))
 typedef int logical;
 typedef short int shortlogical;
 typedef char logical1;
@@ -309,7 +296,7 @@ static logical c_false = FALSE_;
     static char snamet[12], transa[1], transb[1];
     static doublereal thresh;
     static logical rorder;
-    extern /* Subroutine */ void cd3chke_(char*, ftnlen);
+    extern /* Subroutine */ void cd3chke_(char*);
     static integer layout;
     static logical ltestt, tsterr;
     static doublereal alf[7];
@@ -658,7 +645,7 @@ L80:
 		    ftnlen)12);
 /*           Test error exits. */
 	    if (tsterr) {
-		cd3chke_(snames[isnum - 1], (ftnlen)12);
+		cd3chke_(snames[isnum - 1]);
 	    }
 /*           Test computations. */
 	    infoc_1.infot = 0;
@@ -807,7 +794,7 @@ L230:
     static logical reset;
     extern /* Subroutine */ void dprcn1_(integer*, integer*, char*, integer*, char*, char*, integer*, integer*, integer*, doublereal*, integer*, integer*, doublereal*, integer*, ftnlen, ftnlen, ftnlen);
     static integer ia, ib, ma, mb, na, nb, nc, ik, im, in;
-    extern /* Subroutine */ void cdgemm_(integer*, char*, char*, integer*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, integer*, doublereal*, doublereal*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void cdgemm_(integer*, char*, char*, integer*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, integer*, doublereal*, doublereal*, integer*);
     static integer ks, ms, ns;
     extern logical lderes_(char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, ftnlen, ftnlen);
     static char tranas[1], tranbs[1], transa[1], transb[1];
@@ -1012,8 +999,7 @@ L230:
 				}
 				cdgemm_(iorder, transa, transb, &m, &n, &k, &
 					alpha, &aa[1], &lda, &bb[1], &ldb, &
-					beta, &cc[1], &ldc, (ftnlen)1, (
-					ftnlen)1);
+					beta, &cc[1], &ldc);
 
 /*                          Check if error-exit was taken incorrectly. */
 
@@ -1204,7 +1190,7 @@ L130:
     extern /* Subroutine */ void dprcn2_(integer*, integer*, char*, integer*, char*, char*, integer*, integer*, doublereal*, integer*, integer*, doublereal*, integer*, ftnlen, ftnlen, ftnlen);
     static integer ia, ib, na, nc, im, in, ms, ns;
     extern logical lderes_(char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, ftnlen, ftnlen);
-    extern /* Subroutine */ void cdsymm_(integer*, char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, integer*, doublereal*, doublereal*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void cdsymm_(integer*, char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, integer*, doublereal*, doublereal*, integer*);
     static doublereal errmax;
     static integer laa, lbb, lda, lcc, ldb, ldc;
     extern logical lde_(doublereal*, doublereal*, integer*);
@@ -1386,8 +1372,7 @@ L130:
 				f_rew(&al__1);*/
 			    }
 			    cdsymm_(iorder, side, uplo, &m, &n, &alpha, &aa[1]
-				    , &lda, &bb[1], &ldb, &beta, &cc[1], &ldc,
-				     (ftnlen)1, (ftnlen)1);
+				    , &lda, &bb[1], &ldb, &beta, &cc[1], &ldc);
 
 /*                       Check if error-exit was taken incorrectly. */
 
@@ -1580,9 +1565,9 @@ L120:
     extern /* Subroutine */ void dprcn3_(integer*, integer*, char*, integer*, char*, char*, char*, char*, integer*, integer*, doublereal*, integer*, integer*, ftnlen, ftnlen, ftnlen, ftnlen, ftnlen);
     static integer ia, na, nc, im, in, ms, ns;
     extern logical lderes_(char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, ftnlen, ftnlen);
-    extern /* Subroutine */ void cdtrmm_(integer*, char*, char*, char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, integer*, ftnlen, ftnlen, ftnlen, ftnlen);
+    extern /* Subroutine */ void cdtrmm_(integer*, char*, char*, char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, integer*);
     static char tranas[1], transa[1];
-    extern /* Subroutine */ void cdtrsm_(integer*, char*, char*, char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, integer*, ftnlen, ftnlen, ftnlen, ftnlen);
+    extern /* Subroutine */ void cdtrsm_(integer*, char*, char*, char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, integer*);
     static doublereal errmax;
     static integer laa, icd, lbb, lda, ldb;
     extern logical lde_(doublereal*, doublereal*, integer*);
@@ -1762,8 +1747,7 @@ L120:
 				    }
 				    cdtrmm_(iorder, side, uplo, transa, diag, 
 					    &m, &n, &alpha, &aa[1], &lda, &bb[
-					    1], &ldb, (ftnlen)1, (ftnlen)1, (
-					    ftnlen)1, (ftnlen)1);
+					    1], &ldb);
 				} else if (s_cmp(sname + 9, "sm", (ftnlen)2, (
 					ftnlen)2) == 0) {
 				    if (*trace) {
@@ -1780,8 +1764,7 @@ L120:
 				    }
 				    cdtrsm_(iorder, side, uplo, transa, diag, 
 					    &m, &n, &alpha, &aa[1], &lda, &bb[
-					    1], &ldb, (ftnlen)1, (ftnlen)1, (
-					    ftnlen)1, (ftnlen)1);
+					    1], &ldb);
 				}
 
 /*                          Check if error-exit was taken incorrectly. */
@@ -2038,7 +2021,7 @@ L160:
     static integer ia, ib, jc, ma, na, nc, ik, in, jj, lj, ks, ns;
     extern logical lderes_(char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, ftnlen, ftnlen);
     static doublereal errmax;
-    extern /* Subroutine */ void cdsyrk_(integer*, char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, doublereal*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void cdsyrk_(integer*, char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, doublereal*, integer*);
     static char transs[1];
     static integer laa, lda, lcc, ldc;
     extern logical lde_(doublereal*, doublereal*, integer*);
@@ -2199,8 +2182,7 @@ L160:
 				f_rew(&al__1);*/
 			    }
 			    cdsyrk_(iorder, uplo, trans, &n, &k, &alpha, &aa[
-				    1], &lda, &beta, &cc[1], &ldc, (ftnlen)1, 
-				    (ftnlen)1);
+				    1], &lda, &beta, &cc[1], &ldc);
 
 /*                       Check if error-exit was taken incorrectly. */
 
@@ -2420,7 +2402,7 @@ L130:
     static char transs[1];
     static integer laa, lbb, lda, lcc, ldb, ldc;
     extern logical lde_(doublereal*, doublereal*, integer*);
-    extern /* Subroutine */ void cdsyr2k_(integer*, char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, integer*, doublereal*, doublereal*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void cdsyr2k_(integer*, char*, char*, integer*, integer*, doublereal*, doublereal*, integer*, doublereal*, integer*, doublereal*, doublereal*, integer*);
     static doublereal als;
     static integer ict, icu;
     static doublereal err;
@@ -2604,7 +2586,7 @@ L130:
 			    }
 			    cdsyr2k_(iorder, uplo, trans, &n, &k, &alpha, &aa[
 				    1], &lda, &bb[1], &ldb, &beta, &cc[1], &
-				    ldc, (ftnlen)1, (ftnlen)1);
+				    ldc);
 
 /*                       Check if error-exit was taken incorrectly. */
 

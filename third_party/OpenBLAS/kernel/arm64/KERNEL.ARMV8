@@ -196,3 +196,8 @@ ZGEMMONCOPY    =  ../generic/zgemm_ncopy_$(ZGEMM_UNROLL_N).c
 ZGEMMOTCOPY    =  ../generic/zgemm_tcopy_$(ZGEMM_UNROLL_N).c
 ZGEMMONCOPYOBJ =  zgemm_oncopy$(TSUFFIX).$(SUFFIX)
 ZGEMMOTCOPYOBJ =  zgemm_otcopy$(TSUFFIX).$(SUFFIX)
+
+SOMATCOPY_CT = omatcopy_ct_neon.c
+DOMATCOPY_CT = omatcopy_ct_neon.c
+SOMATCOPY_RT = omatcopy_rt_neon.c
+DOMATCOPY_RT = omatcopy_rt_neon.c

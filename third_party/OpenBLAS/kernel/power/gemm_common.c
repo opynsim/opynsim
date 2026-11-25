@@ -46,11 +46,11 @@ FORCEINLINE void vec_load_pair(vec_f32 *dst, vec_f32 *src)
 {
 #ifdef USE_VECTOR_PAIRS
   __vector_pair vy0p;
-#ifdef __clang__
+//#ifdef __clang__
   vy0p = __builtin_vsx_lxvp(0L, (const __vector_pair *)(src));
-#else
-  vy0p = *(__vector_pair *)((void *)src);
-#endif
+//#else
+//  vy0p = *(__vector_pair *)((void *)src);
+//#endif
   __builtin_vsx_disassemble_pair((void *)(dst), &vy0p);
 #else
   dst[0] = src[0];

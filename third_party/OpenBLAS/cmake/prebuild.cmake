@@ -98,6 +98,10 @@ if (${COMPILER_ID} STREQUAL "GNU")
   set(COMPILER_ID "GCC")
 endif ()
 
+if (HOST_OS STREQUAL "EMSCRIPTEN")
+	set (ARCH wasm)
+endif()
+
 string(TOUPPER ${ARCH} UC_ARCH)
 file(WRITE ${TARGET_CONF_TEMP}
   "#define OS_${HOST_OS}\t1\n"
@@ -1492,6 +1496,24 @@ endif ()
       "#define DTB_SIZE 4096\n"
       "#define L2_ASSOCIATIVE 8\n")
   elseif ("${TCORE}" STREQUAL "RISCV64_GENERIC")
+    file(APPEND ${TARGET_CONF_TEMP}
+      "#define L1_DATA_SIZE 32768\n"
+      "#define L1_DATA_LINESIZE 32\n"
+      "#define L2_SIZE 1048576\n"
+      "#define L2_LINESIZE 32 \n"
+      "#define DTB_DEFAULT_ENTRIES 128\n"
+      "#define DTB_SIZE 4096\n"
+      "#define L2_ASSOCIATIVE 4\n")
+  elseif ("${TCORE}" STREQUAL "U74")
+    file(APPEND ${TARGET_CONF_TEMP}
+      "#define L1_DATA_SIZE 32768\n"
+      "#define L1_DATA_LINESIZE 64\n"
+      "#define L2_SIZE 2097152\n"
+      "#define L2_LINESIZE 64 \n"
+      "#define DTB_DEFAULT_ENTRIES 128\n"
+      "#define DTB_SIZE 4096\n"
+      "#define L2_ASSOCIATIVE 16\n")
+  elseif ("${TCORE}" STREQUAL "WASM128_GENERIC")
     file(APPEND ${TARGET_CONF_TEMP}
       "#define L1_DATA_SIZE 32768\n"
       "#define L1_DATA_LINESIZE 32\n"

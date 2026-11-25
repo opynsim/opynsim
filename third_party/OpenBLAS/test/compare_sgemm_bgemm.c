@@ -42,6 +42,7 @@ main (int argc, char *argv[])
   blasint x, y;
   blasint one = 1;
   int ret = 0;
+  int ret2 = 0;
   int loop = BGEMM_LARGEST;
   char transA = 'N', transB = 'N';
   float alpha = 1.0, beta = 1.0;
@@ -143,6 +144,7 @@ main (int argc, char *argv[])
             printf("Mismatch at i=%d, j=%d, k=%d: CC=%.6f, DD=%.6f\n",
                     i, j, k, float16to32(CC[i * m + j]), truncate_float32_to_bfloat16(DD[i * m + j]));
 #endif
+            ret2++;
             ret++;
           }
             
@@ -158,7 +160,7 @@ main (int argc, char *argv[])
   }
 
   if (ret != 0) {
-    fprintf(stderr, "BGEMM FAILURES: %d\n", ret);
+    fprintf(stderr, "BGEMM FAILURES: %d (%d of which in comparison to naive loop)\n", ret,ret2);
     return 1;
   }
 

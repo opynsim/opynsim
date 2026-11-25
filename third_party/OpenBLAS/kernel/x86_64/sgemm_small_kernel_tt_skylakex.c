@@ -307,7 +307,7 @@ int CNAME(BLASLONG M, BLASLONG N, BLASLONG K, FLOAT * A, BLASLONG lda, FLOAT alp
 		}
 	}
 	if (i < M) {
-		int index_n[16];
+		static int index_n[16];
 		for (int ii = 0; ii < 16; ii++) {
 			index_n[ii] = ii * ldc;
 		}

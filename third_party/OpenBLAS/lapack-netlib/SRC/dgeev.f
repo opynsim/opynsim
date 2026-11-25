@@ -228,7 +228,7 @@
      $                   XERBLA
 *     ..
 *     .. External Functions ..
-      LOGICAL            LSAME
+      LOGICAL            LSAME, DISNAN
       INTEGER            IDAMAX, ILAENV
       DOUBLE PRECISION   DLAMCH, DLANGE, DLAPY2, DNRM2
       EXTERNAL           LSAME, IDAMAX, ILAENV, DLAMCH, DLANGE, DLAPY2,
@@ -350,6 +350,10 @@
       ELSE IF( ANRM.GT.BIGNUM ) THEN
          SCALEA = .TRUE.
          CSCALE = BIGNUM
+      ELSE IF ( DISNAN (ANRM ) ) THEN
+         INFO = -4
+         CALL XERBLA ( 'DGEEV', -INFO )
+         RETURN
       END IF
       IF( SCALEA )
      $   CALL DLASCL( 'G', 0, 0, ANRM, CSCALE, N, N, A, LDA, IERR )

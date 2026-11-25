@@ -11,7 +11,7 @@
 !                        W, LDW,  S, LDS, ZWORK,  LZWORK,   &
 !                        RWORK, LRWORK, IWORK, LIWORK, INFO )
 !.....
-!     USE                   iso_fortran_env
+!     USE, INTRINSIC :: iso_fortran_env, only: real32
 !     IMPLICIT NONE
 !     INTEGER, PARAMETER :: WP = real32
 !
@@ -506,7 +506,7 @@
 !  -- Colorado Denver and NAG Ltd..                                   --
 !
 !.....
-      USE                   iso_fortran_env
+      USE, INTRINSIC :: iso_fortran_env, only: real32
       IMPLICIT NONE
       INTEGER, PARAMETER :: WP = real32
 !
@@ -540,7 +540,7 @@
 !     Local scalars
 !     ~~~~~~~~~~~~~
       REAL(KIND=WP) :: OFL,   ROOTSC, SCALE,  SMALL,   &
-                       SSUM,  XSCL1,  XSCL2
+                       SSUM,  XSCL1,  XSCL2, TBIG
       INTEGER       ::  i,  j, IMINWR,  INFO1, INFO2,   &
                         LWRKEV, LWRSDD, LWRSVD, LWRSVJ, &
                        LWRSVQ, MLWORK, MWRKEV, MWRSDD, &
@@ -741,9 +741,9 @@
       ELSE IF ( LQUERY ) THEN
 !     Return minimal and optimal workspace sizes
           IWORK(1) = IMINWR
-          RWORK(1) = MLRWRK
-          ZWORK(1) = MLWORK
-          ZWORK(2) = OLWORK
+          RWORK(1) = REAL(MLRWRK)
+          ZWORK(1) = CMPLX(MLWORK)
+          ZWORK(2) = CMPLX(OLWORK)
           RETURN
       END IF
 !............................................................
@@ -771,7 +771,9 @@
             END IF
             IF ( (SCALE /= ZERO) .AND. (SSUM /= ZERO) ) THEN
                ROOTSC = SQRT(SSUM)
-               IF ( SCALE .GE. (OFL / ROOTSC) ) THEN
+               TBIG = OFL
+               IF ( ROOTSC .GT. ONE ) TBIG = OFL / ROOTSC
+               IF ( SCALE .GE. TBIG ) THEN
 !                 Norm of X(:,i) overflows. First, X(:,i)
 !                 is scaled by
 !                 ( ONE / ROOTSC ) / SCALE = 1/||X(:,i)||_2.
@@ -845,7 +847,9 @@
             END IF
             IF ( SCALE /= ZERO  .AND. (SSUM /= ZERO) ) THEN
                ROOTSC = SQRT(SSUM)
-               IF ( SCALE .GE. (OFL / ROOTSC) ) THEN
+               TBIG = OFL
+               IF ( ROOTSC .GT. ONE ) TBIG = OFL / ROOTSC
+               IF ( SCALE .GE. TBIG ) THEN
 !                 Norm of Y(:,i) overflows. First, Y(:,i)
 !                 is scaled by
 !                 ( ONE / ROOTSC ) / SCALE = 1/||Y(:,i)||_2.
@@ -1148,4 +1152,3 @@
       RETURN
 !     ......
       END SUBROUTINE CGEDMD
-

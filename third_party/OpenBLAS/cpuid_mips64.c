@@ -1,5 +1,5 @@
 /*****************************************************************************
-Copyright (c) 2011-2014, The OpenBLAS Project
+Copyright (c) 2011-2026, The OpenBLAS Project
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -13,9 +13,9 @@ met:
       notice, this list of conditions and the following disclaimer in
       the documentation and/or other materials provided with the
       distribution.
-   3. Neither the name of the OpenBLAS project nor the names of 
-      its contributors may be used to endorse or promote products 
-      derived from this software without specific prior written 
+   3. Neither the name of the OpenBLAS project nor the names of
+      its contributors may be used to endorse or promote products
+      derived from this software without specific prior written
       permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -145,11 +145,45 @@ void get_subarchitecture(void){
     printf("SICORTEX");
   }else{
     printf("MIPS64_GENERIC");
-  } 
+  }
 }
 
 void get_subdirname(void){
   printf("mips64");
+}
+
+int get_feature(char *search) {
+
+#ifdef __linux
+  FILE *infile;
+  char buffer[2048], *p, *t;
+  p = (char *)NULL;
+
+  infile = fopen("/proc/cpuinfo", "r");
+
+  while (fgets(buffer, sizeof(buffer), infile)) {
+
+    if (!strncmp("Features", buffer, 8) ||
+        !strncmp("ASEs implemented", buffer, 16)) {
+      p = strchr(buffer, ':') + 2;
+      break;
+    }
+  }
+
+  fclose(infile);
+
+  if (p == NULL)
+    return 0;
+
+  t = strtok(p, " ");
+  while (t = strtok(NULL, " ")) {
+    if (strstr(t, search)) {
+      return (1);
+    }
+  }
+
+#endif
+  return (0);
 }
 
 void get_cpuconfig(void){
@@ -228,38 +262,3 @@ void get_libname(void){
     printf("mips64_generic\n");
   }
 }
-
-int get_feature(char *search)
-{
-
-#ifdef __linux
-        FILE *infile;
-        char buffer[2048], *p,*t;
-        p = (char *) NULL ;
-
-        infile = fopen("/proc/cpuinfo", "r");
-
-        while (fgets(buffer, sizeof(buffer), infile))
-        {
-
-                if (!strncmp("Features", buffer, 8) || !strncmp("ASEs implemented", buffer, 16))
-                {
-                        p = strchr(buffer, ':') + 2;
-                        break;
-                }
-        }
-
-        fclose(infile);
-
-        if( p == NULL ) return 0;
-
-        t = strtok(p," ");
-        while( t = strtok(NULL," "))
-        {
-                if (strstr(t, search))   { return(1); }
-        }
-
-#endif
-        return(0);
-}
-

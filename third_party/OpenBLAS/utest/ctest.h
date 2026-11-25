@@ -373,12 +373,14 @@ static void __ctest_linkTests(void)
     struct ctest ** ctest_end = (struct ctest **)__PNAME(suite, test);
 
     // find begin and end of section by comparing magics
-    while (1) {
+#if 0
+    	while (1) {
         struct ctest** t = __CTEST_POINTER_PREV(ctest_begin);
 	if (t[0] == NULL) break;
         if (t[1] != (struct ctest*)__CTEST_MAGIC) break;
         ctest_begin = t;
     }
+#endif
     while (1) {
         struct ctest** t = __CTEST_POINTER_NEXT(ctest_end);
        	if (t[0] == NULL) break;

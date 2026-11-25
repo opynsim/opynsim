@@ -43,12 +43,23 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #ifndef HAVE_KERNEL_16
+#include"../simd/intrin.h"
 
 static void saxpy_kernel_16(BLASLONG n, FLOAT *x, FLOAT *y, FLOAT *alpha)
 {
 	BLASLONG register i = 0;
 	FLOAT a = *alpha;
 
+#if V_SIMD
+	v_f32 __alpha, tmp;
+	__alpha = v_setall_f32(*alpha);
+	const int vstep = v_nlanes_f32;
+
+	for (; i < n; i += vstep) {
+		tmp = v_muladd_f32(__alpha, v_loadu_f32(x + i), v_loadu_f32(y + i));
+		v_storeu_f32(y + i, tmp);
+	}
+#else
 	while(i < n)
         {
               y[i]   += a * x[i];
@@ -62,6 +73,7 @@ static void saxpy_kernel_16(BLASLONG n, FLOAT *x, FLOAT *y, FLOAT *alpha)
               i+=8 ;
 
        }
+#endif
 
 }
 
@@ -130,5 +142,4 @@ int CNAME(BLASLONG n, BLASLONG dummy0, BLASLONG dummy1, FLOAT da, FLOAT *x, BLAS
 	return(0);
 
 }
-
 

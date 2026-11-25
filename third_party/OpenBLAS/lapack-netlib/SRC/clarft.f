@@ -5,7 +5,6 @@
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
 *> Download CLARFT + dependencies
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/clarft.f">
 *> [TGZ]</a>
@@ -13,7 +12,6 @@
 *> [ZIP]</a>
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/clarft.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -161,6 +159,7 @@
 *  =====================================================================
       RECURSIVE SUBROUTINE CLARFT( DIRECT, STOREV, N, K, V, LDV,
      $                             TAU, T, LDT )
+      IMPLICIT NONE
 *
 *  -- LAPACK auxiliary routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -179,11 +178,12 @@
 *     .. Parameters ..
 *
       COMPLEX           ONE, NEG_ONE, ZERO
-      PARAMETER(ONE=1.0E+0, ZERO = 0.0E+0, NEG_ONE=-1.0E+0)
+      PARAMETER(ONE=(1.0E+0,0.0E+0), ZERO = (0.0E+0,0.0E+0),
+     $            NEG_ONE=(-1.0E+0,0.0E+0))
 *
 *     .. Local Scalars ..
 *
-      INTEGER           I,J,L
+      INTEGER           I,J,L,NX
       LOGICAL           QR,LQ,QL,DIRF,COLV
 *
 *     .. External Subroutines ..
@@ -193,7 +193,8 @@
 *     .. External Functions..
 *
       LOGICAL           LSAME
-      EXTERNAL          LSAME
+      INTEGER           ILAENV
+      EXTERNAL          LSAME, ILAENV
 *
 *     .. Intrinsic Functions..
 *
@@ -216,6 +217,14 @@
 *
       IF(N.EQ.1.OR.K.EQ.1) THEN
          T(1,1) = TAU(1)
+         RETURN
+      END IF
+*
+*     Determine when to cross over into the level 2 based implementation
+*
+      NX = ILAENV(3, "CLARFT", DIRECT // STOREV, N, K, -1, -1)
+      IF(K.LT.NX) THEN
+         CALL CLARFT_LVL2(DIRECT, STOREV, N, K, V, LDV, TAU, T, LDT)
          RETURN
       END IF
 *

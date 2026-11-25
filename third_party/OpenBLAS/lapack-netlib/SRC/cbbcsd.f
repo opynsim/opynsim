@@ -5,7 +5,6 @@
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
 *> Download CBBCSD + dependencies
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/cbbcsd.f">
 *> [TGZ]</a>
@@ -13,7 +12,6 @@
 *> [ZIP]</a>
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/cbbcsd.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -322,13 +320,15 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \ingroup complexOTHERcomputational
+*> \ingroup bbcsd
 *
 *  =====================================================================
-      SUBROUTINE CBBCSD( JOBU1, JOBU2, JOBV1T, JOBV2T, TRANS, M, P, Q,
+      SUBROUTINE CBBCSD( JOBU1, JOBU2, JOBV1T, JOBV2T, TRANS, M, P,
+     $                   Q,
      $                   THETA, PHI, U1, LDU1, U2, LDU2, V1T, LDV1T,
      $                   V2T, LDV2T, B11D, B11E, B12D, B12E, B21D, B21E,
      $                   B22D, B22E, RWORK, LRWORK, INFO )
+      IMPLICIT NONE
 *
 *  -- LAPACK computational routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -351,9 +351,9 @@
 *     .. Parameters ..
       INTEGER            MAXITR
       PARAMETER          ( MAXITR = 6 )
-      REAL               HUNDRED, MEIGHTH, ONE, TEN, ZERO
+      REAL               HUNDRED, MEIGHTH, ZERO, ONE, TEN
       PARAMETER          ( HUNDRED = 100.0E0, MEIGHTH = -0.125E0,
-     $                     ONE = 1.0E0, TEN = 10.0E0, ZERO = 0.0E0 )
+     $                     ZERO = 0.0E0, ONE = 1.0E0, TEN = 10.0E0 )
       COMPLEX            NEGONECOMPLEX
       PARAMETER          ( NEGONECOMPLEX = (-1.0E0,0.0E0) )
       REAL               PIOVER2
@@ -372,7 +372,8 @@
      $                   UNFL, X1, X2, Y1, Y2
 *
 *     .. External Subroutines ..
-      EXTERNAL           CLASR, CSCAL, CSWAP, SLARTGP, SLARTGS, SLAS2,
+      EXTERNAL           CLASR, CSCAL, CSWAP, SLARTGP, SLARTGS,
+     $                   SLAS2,
      $                   XERBLA
 *     ..
 *     .. External Functions ..
@@ -417,7 +418,7 @@
 *
       IF( INFO .EQ. 0 .AND. Q .EQ. 0 ) THEN
          LRWORKMIN = 1
-         RWORK(1) = LRWORKMIN
+         RWORK(1) = REAL( LRWORKMIN )
          RETURN
       END IF
 *
@@ -434,7 +435,7 @@
          IV2TSN = IV2TCS + Q
          LRWORKOPT = IV2TSN + Q - 1
          LRWORKMIN = LRWORKOPT
-         RWORK(1) = LRWORKOPT
+         RWORK(1) = REAL( LRWORKOPT )
          IF( LRWORK .LT. LRWORKMIN .AND. .NOT. LQUERY ) THEN
             INFO = -28
          END IF
@@ -453,7 +454,7 @@
       UNFL = SLAMCH( 'Safe minimum' )
       TOLMUL = MAX( TEN, MIN( HUNDRED, EPS**MEIGHTH ) )
       TOL = TOLMUL*EPS
-      THRESH = MAX( TOL, MAXITR*Q*Q*UNFL )
+      THRESH = MAX( TOL, REAL( MAXITR*Q*Q )*UNFL )
 *
 *     Test for negligible sines or cosines
 *
@@ -559,9 +560,11 @@
 *
 *           Compute shifts for B11 and B21 and use the lesser
 *
-            CALL SLAS2( B11D(IMAX-1), B11E(IMAX-1), B11D(IMAX), SIGMA11,
+            CALL SLAS2( B11D(IMAX-1), B11E(IMAX-1), B11D(IMAX),
+     $                  SIGMA11,
      $                  DUMMY )
-            CALL SLAS2( B21D(IMAX-1), B21E(IMAX-1), B21D(IMAX), SIGMA21,
+            CALL SLAS2( B21D(IMAX-1), B21E(IMAX-1), B21D(IMAX),
+     $                  SIGMA21,
      $                  DUMMY )
 *
             IF( SIGMA11 .LE. SIGMA21 ) THEN
@@ -573,7 +576,7 @@
                END IF
             ELSE
                NU = SIGMA21
-               MU = SQRT( 1.0 - NU**2 )
+               MU = SQRT( ONE - NU**2 )
                IF( NU .LT. THRESH ) THEN
                   MU = ONE
                   NU = ZERO
@@ -613,7 +616,9 @@
 *
 *        Chase the bulges in B11(IMIN+1,IMIN) and B21(IMIN+1,IMIN)
 *
-         IF( B11D(IMIN)**2+B11BULGE**2 .GT. THRESH**2 ) THEN
+          IF( B11D(IMIN)**2+B11BULGE**2 .GT.
+     $        (THRESH*MAX( ABS(B11D(IMIN)),
+     $        ABS(B11D(IMIN+1)), UNFL ))**2 ) THEN
             CALL SLARTGP( B11BULGE, B11D(IMIN), RWORK(IU1SN+IMIN-1),
      $                    RWORK(IU1CS+IMIN-1), R )
          ELSE IF( MU .LE. NU ) THEN
@@ -623,7 +628,9 @@
             CALL SLARTGS( B12D( IMIN ), B12E( IMIN ), NU,
      $                    RWORK(IU1CS+IMIN-1), RWORK(IU1SN+IMIN-1) )
          END IF
-         IF( B21D(IMIN)**2+B21BULGE**2 .GT. THRESH**2 ) THEN
+           IF( B21D(IMIN)**2+B21BULGE**2 .GT.
+     $        (THRESH*MAX( ABS(B21D(IMIN)),
+     $        ABS(B21D(IMIN+1)), UNFL ))**2 ) THEN
             CALL SLARTGP( B21BULGE, B21D(IMIN), RWORK(IU2SN+IMIN-1),
      $                    RWORK(IU2CS+IMIN-1), R )
          ELSE IF( NU .LT. MU ) THEN
@@ -687,10 +694,18 @@
 *           Determine if there are bulges to chase or if a new direct
 *           summand has been reached
 *
-            RESTART11 = B11E(I-1)**2 + B11BULGE**2 .LE. THRESH**2
-            RESTART21 = B21E(I-1)**2 + B21BULGE**2 .LE. THRESH**2
-            RESTART12 = B12D(I-1)**2 + B12BULGE**2 .LE. THRESH**2
-            RESTART22 = B22D(I-1)**2 + B22BULGE**2 .LE. THRESH**2
+            RESTART11 = B11E(I-1)**2 + B11BULGE**2 .LE.
+     $                  (THRESH*MAX( ABS(B11D(I-1)), ABS(B11D(I)),
+     $                  UNFL ))**2
+            RESTART21 = B21E(I-1)**2 + B21BULGE**2 .LE.
+     $                  (THRESH*MAX( ABS(B21D(I-1)), ABS(B21D(I)),
+     $                  UNFL ))**2
+            RESTART12 = B12D(I-1)**2 + B12BULGE**2 .LE.
+     $                  (THRESH*MAX( ABS(B12E(I-1)), ABS(B12D(I)),
+     $                  UNFL ))**2
+            RESTART22 = B22D(I-1)**2 + B22BULGE**2 .LE.
+     $                  (THRESH*MAX( ABS(B22E(I-1)), ABS(B22D(I)),
+     $                  UNFL ))**2
 *
 *           If possible, chase bulges from B11(I-1,I+1), B12(I-1,I),
 *           B21(I-1,I+1), and B22(I-1,I). If necessary, restart bulge-
@@ -718,10 +733,12 @@
                CALL SLARTGP( Y2, Y1, RWORK(IV2TSN+I-1-1),
      $                       RWORK(IV2TCS+I-1-1), R )
             ELSE IF( .NOT. RESTART12 .AND. RESTART22 ) THEN
-               CALL SLARTGP( B12BULGE, B12D(I-1), RWORK(IV2TSN+I-1-1),
+               CALL SLARTGP( B12BULGE, B12D(I-1),
+     $                       RWORK(IV2TSN+I-1-1),
      $                       RWORK(IV2TCS+I-1-1), R )
             ELSE IF( RESTART12 .AND. .NOT. RESTART22 ) THEN
-               CALL SLARTGP( B22BULGE, B22D(I-1), RWORK(IV2TSN+I-1-1),
+               CALL SLARTGP( B22BULGE, B22D(I-1),
+     $                       RWORK(IV2TSN+I-1-1),
      $                       RWORK(IV2TCS+I-1-1), R )
             ELSE IF( NU .LT. MU ) THEN
                CALL SLARTGS( B12E(I-1), B12D(I), NU,
@@ -770,17 +787,26 @@
 *           Determine if there are bulges to chase or if a new direct
 *           summand has been reached
 *
-            RESTART11 =   B11D(I)**2 + B11BULGE**2 .LE. THRESH**2
-            RESTART12 = B12E(I-1)**2 + B12BULGE**2 .LE. THRESH**2
-            RESTART21 =   B21D(I)**2 + B21BULGE**2 .LE. THRESH**2
-            RESTART22 = B22E(I-1)**2 + B22BULGE**2 .LE. THRESH**2
+            RESTART11 =   B11D(I)**2 + B11BULGE**2 .LE.
+     $                    (THRESH*MAX( ABS(B11E(I)), ABS(B11D(I+1)),
+     $                    UNFL ))**2
+            RESTART12 = B12E(I-1)**2 + B12BULGE**2 .LE.
+     $                    (THRESH*MAX( ABS(B12D(I)), ABS(B12E(I)),
+     $                    UNFL ))**2
+            RESTART21 =   B21D(I)**2 + B21BULGE**2 .LE.
+     $                    (THRESH*MAX( ABS(B21E(I)), ABS(B21D(I+1)),
+     $                    UNFL ))**2
+            RESTART22 = B22E(I-1)**2 + B22BULGE**2 .LE.
+     $                    (THRESH*MAX( ABS(B22D(I)), ABS(B22E(I)),
+     $                    UNFL ))**2
 *
 *           If possible, chase bulges from B11(I+1,I), B12(I+1,I-1),
 *           B21(I+1,I), and B22(I+1,I-1). If necessary, restart bulge-
 *           chasing by applying the original shift again.
 *
             IF( .NOT. RESTART11 .AND. .NOT. RESTART12 ) THEN
-               CALL SLARTGP( X2, X1, RWORK(IU1SN+I-1), RWORK(IU1CS+I-1),
+               CALL SLARTGP( X2, X1, RWORK(IU1SN+I-1),
+     $                       RWORK(IU1CS+I-1),
      $                       R )
             ELSE IF( .NOT. RESTART11 .AND. RESTART12 ) THEN
                CALL SLARTGP( B11BULGE, B11D(I), RWORK(IU1SN+I-1),
@@ -789,14 +815,16 @@
                CALL SLARTGP( B12BULGE, B12E(I-1), RWORK(IU1SN+I-1),
      $                       RWORK(IU1CS+I-1), R )
             ELSE IF( MU .LE. NU ) THEN
-               CALL SLARTGS( B11E(I), B11D(I+1), MU, RWORK(IU1CS+I-1),
+               CALL SLARTGS( B11E(I), B11D(I+1), MU,
+     $                       RWORK(IU1CS+I-1),
      $                       RWORK(IU1SN+I-1) )
             ELSE
                CALL SLARTGS( B12D(I), B12E(I), NU, RWORK(IU1CS+I-1),
      $                       RWORK(IU1SN+I-1) )
             END IF
             IF( .NOT. RESTART21 .AND. .NOT. RESTART22 ) THEN
-               CALL SLARTGP( Y2, Y1, RWORK(IU2SN+I-1), RWORK(IU2CS+I-1),
+               CALL SLARTGP( Y2, Y1, RWORK(IU2SN+I-1),
+     $                       RWORK(IU2CS+I-1),
      $                       R )
             ELSE IF( .NOT. RESTART21 .AND. RESTART22 ) THEN
                CALL SLARTGP( B21BULGE, B21D(I), RWORK(IU2SN+I-1),
@@ -805,7 +833,8 @@
                CALL SLARTGP( B22BULGE, B22E(I-1), RWORK(IU2SN+I-1),
      $                       RWORK(IU2CS+I-1), R )
             ELSE IF( NU .LT. MU ) THEN
-               CALL SLARTGS( B21E(I), B21D(I+1), NU, RWORK(IU2CS+I-1),
+               CALL SLARTGS( B21E(I), B21D(I+1), NU,
+     $                       RWORK(IU2CS+I-1),
      $                       RWORK(IU2SN+I-1) )
             ELSE
                CALL SLARTGS( B22D(I), B22E(I), MU, RWORK(IU2CS+I-1),
@@ -857,8 +886,10 @@
 *
 *        Chase bulges from B12(IMAX-1,IMAX) and B22(IMAX-1,IMAX)
 *
-         RESTART12 = B12D(IMAX-1)**2 + B12BULGE**2 .LE. THRESH**2
-         RESTART22 = B22D(IMAX-1)**2 + B22BULGE**2 .LE. THRESH**2
+          RESTART12 = B12D(IMAX-1)**2 + B12BULGE**2 .LE.
+     $                (THRESH*MAX( ABS(B12E(IMAX-1)), UNFL ))**2
+          RESTART22 = B22D(IMAX-1)**2 + B22BULGE**2 .LE.
+     $                (THRESH*MAX( ABS(B22E(IMAX-1)), UNFL ))**2
 *
          IF( .NOT. RESTART12 .AND. .NOT. RESTART22 ) THEN
             CALL SLARTGP( Y2, Y1, RWORK(IV2TSN+IMAX-1-1),
@@ -991,7 +1022,8 @@
          IF( B12D(IMAX)+B22D(IMAX) .LT. 0 ) THEN
             IF( WANTV2T ) THEN
                IF( COLMAJOR ) THEN
-                  CALL CSCAL( M-Q, NEGONECOMPLEX, V2T(IMAX,1), LDV2T )
+                  CALL CSCAL( M-Q, NEGONECOMPLEX, V2T(IMAX,1),
+     $                        LDV2T )
                ELSE
                   CALL CSCAL( M-Q, NEGONECOMPLEX, V2T(1,IMAX), 1 )
                END IF
@@ -1058,7 +1090,8 @@
                IF( WANTU2 )
      $            CALL CSWAP( M-P, U2(1,I), 1, U2(1,MINI), 1 )
                IF( WANTV1T )
-     $            CALL CSWAP( Q, V1T(I,1), LDV1T, V1T(MINI,1), LDV1T )
+     $            CALL CSWAP( Q, V1T(I,1), LDV1T, V1T(MINI,1),
+     $                        LDV1T )
                IF( WANTV2T )
      $            CALL CSWAP( M-Q, V2T(I,1), LDV2T, V2T(MINI,1),
      $               LDV2T )
@@ -1081,4 +1114,3 @@
 *     End of CBBCSD
 *
       END
-

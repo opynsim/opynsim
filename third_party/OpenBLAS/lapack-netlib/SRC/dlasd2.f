@@ -5,7 +5,6 @@
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
 *> Download DLASD2 + dependencies
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dlasd2.f">
 *> [TGZ]</a>
@@ -13,7 +12,6 @@
 *> [ZIP]</a>
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dlasd2.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -254,7 +252,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \ingroup OTHERauxiliary
+*> \ingroup lasd2
 *
 *> \par Contributors:
 *  ==================
@@ -263,9 +261,11 @@
 *>     California at Berkeley, USA
 *>
 *  =====================================================================
-      SUBROUTINE DLASD2( NL, NR, SQRE, K, D, Z, ALPHA, BETA, U, LDU, VT,
+      SUBROUTINE DLASD2( NL, NR, SQRE, K, D, Z, ALPHA, BETA, U, LDU,
+     $                   VT,
      $                   LDVT, DSIGMA, U2, LDU2, VT2, LDVT2, IDXP, IDX,
      $                   IDXC, IDXQ, COLTYP, INFO )
+      IMPLICIT NONE
 *
 *  -- LAPACK auxiliary routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -303,7 +303,8 @@
       EXTERNAL           DLAMCH, DLAPY2
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           DCOPY, DLACPY, DLAMRG, DLASET, DROT, XERBLA
+      EXTERNAL           DCOPY, DLACPY, DLAMRG, DLASET, DROT,
+     $                   XERBLA
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, MAX
@@ -396,7 +397,7 @@
 *
       EPS = DLAMCH( 'Epsilon' )
       TOL = MAX( ABS( ALPHA ), ABS( BETA ) )
-      TOL = EIGHT*EPS*MAX( ABS( D( N ) ), TOL )
+      TOL = EIGHT*EIGHT*EPS*MAX( ABS( D( N ) ), TOL )
 *
 *     There are 2 kinds of deflation -- first a value in the z-vector
 *     is small, second two (or more) singular values are very close
@@ -479,7 +480,8 @@
                IDXJ = IDXJ - 1
             END IF
             CALL DROT( N, U( 1, IDXJP ), 1, U( 1, IDXJ ), 1, C, S )
-            CALL DROT( M, VT( IDXJP, 1 ), LDVT, VT( IDXJ, 1 ), LDVT, C,
+            CALL DROT( M, VT( IDXJP, 1 ), LDVT, VT( IDXJ, 1 ), LDVT,
+     $                 C,
      $                 S )
             IF( COLTYP( J ).NE.COLTYP( JPREV ) ) THEN
                COLTYP( J ) = 3
@@ -621,7 +623,8 @@
          CALL DCOPY( N-K, DSIGMA( K+1 ), 1, D( K+1 ), 1 )
          CALL DLACPY( 'A', N, N-K, U2( 1, K+1 ), LDU2, U( 1, K+1 ),
      $                LDU )
-         CALL DLACPY( 'A', N-K, M, VT2( K+1, 1 ), LDVT2, VT( K+1, 1 ),
+         CALL DLACPY( 'A', N-K, M, VT2( K+1, 1 ), LDVT2, VT( K+1,
+     $                1 ),
      $                LDVT )
       END IF
 *

@@ -22,18 +22,10 @@ typedef double doublereal;
 typedef struct { real r, i; } complex;
 typedef struct { doublereal r, i; } doublecomplex;
 #ifdef _MSC_VER
-static inline _Fcomplex Cf(complex *z) {_Fcomplex zz={z->r , z->i}; return zz;}
 static inline _Dcomplex Cd(doublecomplex *z) {_Dcomplex zz={z->r , z->i};return zz;}
-static inline _Fcomplex * _pCf(complex *z) {return (_Fcomplex*)z;}
-static inline _Dcomplex * _pCd(doublecomplex *z) {return (_Dcomplex*)z;}
 #else
-static inline _Complex float Cf(complex *z) {return z->r + z->i*_Complex_I;}
 static inline _Complex double Cd(doublecomplex *z) {return z->r + z->i*_Complex_I;}
-static inline _Complex float * _pCf(complex *z) {return (_Complex float*)z;}
-static inline _Complex double * _pCd(doublecomplex *z) {return (_Complex double*)z;}
 #endif
-#define pCf(z) (*_pCf(z))
-#define pCd(z) (*_pCd(z))
 typedef int logical;
 typedef short int shortlogical;
 typedef char logical1;
@@ -380,11 +372,12 @@ static doublereal c_b43 = 1.;
     static integer i__;
     extern /* Subroutine */ int ctest_(integer*, doublecomplex*, doublecomplex*, doublecomplex*, doublereal*);
     static doublecomplex mwpcs[5], mwpct[5];
-    extern /* Subroutine */ int zscaltest_(integer*, doublecomplex*, doublecomplex*, integer*), itest1_(integer*, integer*), stest1_(doublereal*, doublereal*, doublereal*, doublereal*);
+    extern /* Subroutine */ void zscaltest_(integer*, doublecomplex*, doublecomplex*, integer*);
+    extern int itest1_(integer*, integer*), stest1_(doublereal*, doublereal*, doublereal*, doublereal*);
     static doublecomplex cx[8];
     extern doublereal dznrm2test_(integer*, doublecomplex*, integer*);
     static integer np1;
-    extern /* Subroutine */ int zdscaltest_(integer*, doublereal*, doublecomplex*, integer*);
+    extern /* Subroutine */ void zdscaltest_(integer*, doublereal*, doublecomplex*, integer*);
     extern integer izamaxtest_(integer*, doublecomplex*, integer*);
     extern doublereal dzasumtest_(integer*, doublecomplex*, integer*);
     static integer len;
@@ -408,7 +401,7 @@ static doublereal c_b43 = 1.;
 	    i__1 = len;
 	    for (i__ = 1; i__ <= i__1; ++i__) {
 		i__2 = i__ - 1;
-		i__3 = i__ + (np1 + combla_1.incx * 5 << 3) - 49;
+		i__3 = i__ + ((np1 + combla_1.incx * 5) << 3) - 49;
 		cx[i__2].r = cv[i__3].r, cx[i__2].i = cv[i__3].i;
 /* L20: */
 	    }
@@ -423,13 +416,13 @@ static doublereal c_b43 = 1.;
 	    } else if (combla_1.icase == 8) {
 /*              .. ZSCALTEST .. */
 		zscaltest_(&combla_1.n, &ca, cx, &combla_1.incx);
-		ctest_(&len, cx, &ctrue5[(np1 + combla_1.incx * 5 << 3) - 48],
-			 &ctrue5[(np1 + combla_1.incx * 5 << 3) - 48], sfac);
+		ctest_(&len, cx, &ctrue5[((np1 + combla_1.incx * 5) << 3) - 48],
+			 &ctrue5[((np1 + combla_1.incx * 5) << 3) - 48], sfac);
 	    } else if (combla_1.icase == 9) {
 /*              .. ZDSCALTEST .. */
 		zdscaltest_(&combla_1.n, &sa, cx, &combla_1.incx);
-		ctest_(&len, cx, &ctrue6[(np1 + combla_1.incx * 5 << 3) - 48],
-			 &ctrue6[(np1 + combla_1.incx * 5 << 3) - 48], sfac);
+		ctest_(&len, cx, &ctrue6[((np1 + combla_1.incx * 5) << 3) - 48],
+			 &ctrue6[((np1 + combla_1.incx * 5) << 3) - 48], sfac);
 	    } else if (combla_1.icase == 10) {
 /*              .. IZAMAXTEST .. */
 		i__1 = izamaxtest_(&combla_1.n, cx, &combla_1.incx);
@@ -591,11 +584,11 @@ static doublereal c_b43 = 1.;
     extern /* Subroutine */ int ctest_(integer*, doublecomplex*, doublecomplex*, doublecomplex*, doublereal*);
     static integer ksize;
     static doublecomplex ztemp;
-    extern /* Subroutine */ int zdotctest_(integer*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*), zcopytest_(integer*, doublecomplex*, integer*, doublecomplex*, integer*);
+    extern /* Subroutine */ void zdotctest_(integer*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*), zcopytest_(integer*, doublecomplex*, integer*, doublecomplex*, integer*);
     static integer ki;
-    extern /* Subroutine */ int zdotutest_(integer*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*), zswaptest_(integer*, doublecomplex*, integer*, doublecomplex*, integer*);
+    extern /* Subroutine */ void zdotutest_(integer*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*), zswaptest_(integer*, doublecomplex*, integer*, doublecomplex*, integer*);
     static integer kn;
-    extern /* Subroutine */ int zaxpytest_(integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*);
+    extern /* Subroutine */ void zaxpytest_(integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*);
     static doublecomplex cx[7], cy[7];
     static integer mx, my;
 

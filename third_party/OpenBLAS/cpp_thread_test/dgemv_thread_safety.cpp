@@ -2,8 +2,11 @@
 #include <vector>
 #include <random>
 #include <future>
-#include <omp.h>
+#ifdef OPENBLAS_USE_GENERATED_CBLAS_H
+#include "generated/cblas.h"
+#else
 #include "../cblas.h"
+#endif
 #include "cpp_thread_safety_common.h"
 
 void launch_cblas_dgemv(double* A, double* x, double* y, const blasint randomMatSize)
@@ -17,7 +20,7 @@ int main(int argc, char* argv[])
 	blasint randomMatSize = 1024; //dimension of the random square matrices and vectors being used
 	uint32_t numConcurrentThreads = 52; //number of concurrent calls of the functions being tested
 	uint32_t numTestRounds = 16; //number of testing rounds before success exit
-	uint32_t maxHwThreads = omp_get_max_threads();
+	uint32_t maxHwThreads = GetMaxHwThreads();
 	
 	if (maxHwThreads < 52)
 		numConcurrentThreads = maxHwThreads;
@@ -84,12 +87,14 @@ int main(int argc, char* argv[])
 	std::cout<<"done\n";
 	
 	std::cout<<"Testing CBLAS DGEMV thread safety"<<std::endl;
-	omp_set_num_threads(numConcurrentThreads);
+	SetLauncherThreads(numConcurrentThreads);
 	for(uint32_t R=0; R<numTestRounds; R++)
 		{
 		std::cout<<"DGEMV round #"<<R<<std::endl;
-		std::cout<<"Launching "<<numConcurrentThreads<<" threads simultaneously using OpenMP..."<<std::flush;
+		std::cout<<"Launching "<<numConcurrentThreads<<" threads simultaneously"<<LauncherName()<<"..."<<std::flush;
+		#ifdef CPP_THREAD_SAFETY_USE_OPENMP
 		#pragma omp parallel for default(none) shared(futureBlock, matBlock, vecBlock, randomMatSize, numConcurrentThreads)
+		#endif
 		for(uint32_t i=0; i<numConcurrentThreads; i++)
 			{
 			futureBlock[i] = std::async(std::launch::async, launch_cblas_dgemv, &matBlock[i][0], &vecBlock[i*2][0], &vecBlock[i*2+1][0], randomMatSize);

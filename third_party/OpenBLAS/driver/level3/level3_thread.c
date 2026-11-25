@@ -41,12 +41,18 @@
 #define CACHE_LINE_SIZE 8
 #endif
 
+#define DIVIDE_RATE_MAX 2
+
 #ifndef DIVIDE_RATE
 #define DIVIDE_RATE 2
 #endif
 
-#ifndef GEMM_PREFERED_SIZE
-#define GEMM_PREFERED_SIZE 1
+#ifdef DYNAMIC_ARCH
+#undef GEMM_PREFERRED_SIZE
+#define GEMM_PREFERRED_SIZE gotoblas->preferred_size
+#endif
+#ifndef GEMM_PREFERRED_SIZE
+#define GEMM_PREFERRED_SIZE 1
 #endif
 
 //The array of job_t may overflow the stack.
@@ -92,8 +98,12 @@
 #endif
 
 typedef struct {
+#ifdef HAVE_C11
+  _Atomic
+#else
   volatile
-   BLASLONG working[MAX_CPU_NUMBER][CACHE_LINE_SIZE * DIVIDE_RATE];
+#endif
+   BLASLONG working[MAX_CPU_NUMBER][CACHE_LINE_SIZE * DIVIDE_RATE_MAX];
 } job_t;
 
 
@@ -234,7 +244,7 @@ typedef struct {
 
 static int inner_thread(blas_arg_t *args, BLASLONG *range_m, BLASLONG *range_n, IFLOAT *sa, IFLOAT *sb, BLASLONG mypos){
 
-  IFLOAT *buffer[DIVIDE_RATE];
+  IFLOAT *buffer[DIVIDE_RATE_MAX];
 
   BLASLONG k, lda, ldb, ldc;
   BLASLONG m_from, m_to, n_from, n_to;
@@ -563,33 +573,6 @@ static int gemm_driver(blas_arg_t *args, BLASLONG *range_m, BLASLONG
 		       *range_n, IFLOAT *sa, IFLOAT *sb,
                        BLASLONG nthreads_m, BLASLONG nthreads_n) {
 
-#ifdef USE_OPENMP
-  static omp_lock_t level3_lock, critical_section_lock;
-  static volatile BLASULONG init_lock = 0, omp_lock_initialized = 0,
-                  parallel_section_left = MAX_PARALLEL_NUMBER;
-
-  // Lock initialization; Todo : Maybe this part can be moved to blas_init() in blas_server_omp.c
-  while(omp_lock_initialized == 0)
-  {
-    blas_lock(&init_lock);
-    {
-      if(omp_lock_initialized == 0)
-      {
-        omp_init_lock(&level3_lock);
-        omp_init_lock(&critical_section_lock);
-        omp_lock_initialized = 1;
-        WMB;
-      }
-    blas_unlock(&init_lock);
-    }
-  }
-#elif defined(OS_WINDOWS)
-  CRITICAL_SECTION level3_lock;
-  InitializeCriticalSection((PCRITICAL_SECTION)&level3_lock);
-#else
-  static pthread_mutex_t  level3_lock    = PTHREAD_MUTEX_INITIALIZER;
-#endif
-
   blas_arg_t newarg;
 
 #ifndef USE_ALLOC_HEAP
@@ -635,29 +618,7 @@ static int gemm_driver(blas_arg_t *args, BLASLONG *range_m, BLASLONG
 #endif
 #endif
 
-#ifdef USE_OPENMP
-  omp_set_lock(&level3_lock);
-  omp_set_lock(&critical_section_lock);
-
-  parallel_section_left--;
-  
-  /*
-    How OpenMP locks works with NUM_PARALLEL
-  1) parallel_section_left  = Number of available concurrent executions of OpenBLAS - Number of currently executing OpenBLAS executions
-  2) level3_lock is acting like a master lock or barrier which stops OpenBLAS calls when all the parallel_section are currently busy executing other OpenBLAS calls
-  3) critical_section_lock is used for updating variables shared between threads executing OpenBLAS calls concurrently and for unlocking of master lock whenever required
-  4) Unlock master lock only when we have not already exhausted all the parallel_sections and allow another thread with a OpenBLAS call to enter
-  */
-  if(parallel_section_left != 0) 
-    omp_unset_lock(&level3_lock);
-
-  omp_unset_lock(&critical_section_lock);
-
-#elif defined(OS_WINDOWS)
-  EnterCriticalSection((PCRITICAL_SECTION)&level3_lock);
-#else
-  pthread_mutex_lock(&level3_lock);
-#endif
+  blas_level3_thread_enter();
 
 #ifdef USE_ALLOC_HEAP
   /* Dynamically allocate workspace */
@@ -707,7 +668,7 @@ static int gemm_driver(blas_arg_t *args, BLASLONG *range_m, BLASLONG
   while (m > 0){
     width = blas_quickdivide(m + nthreads_m - num_parts - 1, nthreads_m - num_parts);
 
-    width = round_up(m, width, GEMM_PREFERED_SIZE);
+    width = round_up(m, width, GEMM_PREFERRED_SIZE);
 
     m -= width;
 
@@ -758,7 +719,7 @@ static int gemm_driver(blas_arg_t *args, BLASLONG *range_m, BLASLONG
         if (width < switch_ratio) {
           width = switch_ratio;
         }
-        width = round_up(width_n, width, GEMM_PREFERED_SIZE);
+        width = round_up(width_n, width, GEMM_PREFERRED_SIZE);
 
         width_n -= width;
         if (width_n < 0) {
@@ -791,25 +752,7 @@ static int gemm_driver(blas_arg_t *args, BLASLONG *range_m, BLASLONG
   free(job);
 #endif
 
-#ifdef USE_OPENMP
-  omp_set_lock(&critical_section_lock);
-  parallel_section_left++;
-
-  /*
-  Unlock master lock only when all the parallel_sections are already exhausted and one of the thread has completed its OpenBLAS call
-  otherwise just increment the parallel_section_left
-  The master lock is only locked when we have exhausted all the parallel_sections, So only unlock it then and otherwise just increment the count
-  */
-  if(parallel_section_left == 1)
-    omp_unset_lock(&level3_lock);
-  
-  omp_unset_lock(&critical_section_lock);
-
-#elif defined(OS_WINDOWS)
-  LeaveCriticalSection((PCRITICAL_SECTION)&level3_lock);
-#else
-  pthread_mutex_unlock(&level3_lock);
-#endif
+  blas_level3_thread_leave();
 
   return 0;
 }

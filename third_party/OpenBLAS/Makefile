@@ -1,6 +1,7 @@
 TOPDIR	= .
 include ./Makefile.system
 LNCMD = ln -fs
+OSNAME_DISPLAY ?= $(OSNAME)
 ifeq ($(FIXED_LIBNAME), 1)
 LNCMD = true
 endif
@@ -58,7 +59,7 @@ all :: tests
 	@echo
 	@echo " OpenBLAS build complete. ($(LIB_COMPONENTS))"
 	@echo
-	@echo "  OS               ... $(OSNAME)             "
+	@echo "  OS               ... $(OSNAME_DISPLAY)             "
 	@echo "  Architecture     ... $(ARCH)               "
 ifndef BINARY64
 	@echo "  BINARY           ... 32bit                 "

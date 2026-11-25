@@ -154,8 +154,8 @@ SLASRC_O = \
    slaqgb.o slaqge.o slaqp2.o slaqp2rk.o slaqp3rk.o slaqps.o slaqsb.o slaqsp.o slaqsy.o \
    slaqr0.o slaqr1.o slaqr2.o slaqr3.o slaqr4.o slaqr5.o \
    slaqtr.o slar1v.o slar2v.o ilaslr.o ilaslc.o \
-   slarf.o  slarfb.o slarfb_gett.o slarfg.o slarfgp.o slarft.o slarfx.o slarfy.o slargv.o \
-   slarrv.o slartv.o \
+   slarf.o  slarfb.o slarfb_gett.o slarfg.o slarfgp.o slarft.o slarft_lvl2.o slarfx.o slarfy.o slargv.o \
+   slarf1f.o slarf1l.o slarrv.o slartv.o \
    slarz.o  slarzb.o slarzt.o slaswp.o slasy2.o slasyf.o slasyf_rook.o \
    slasyf_rk.o \
    slatbs.o slatdf.o slatps.o slatrd.o slatrs.o slatrz.o \
@@ -270,7 +270,8 @@ CLASRC_O = \
    claqr0.o claqr1.o claqr2.o claqr3.o claqr4.o claqr5.o \
    claqsp.o claqsy.o clar1v.o clar2v.o ilaclr.o ilaclc.o \
    claqz0.o claqz1.o claqz2.o claqz3.o \
-   clarf.o  clarfb.o clarfb_gett.o clarfg.o clarft.o clarfgp.o \
+   clarf.o  clarfb.o clarfb_gett.o clarfg.o clarft.o clarft_lvl2.o clarfgp.o \
+   clarf1f.o clarf1l.o \
    clarfx.o clarfy.o clargv.o clarnv.o clarrv.o clartg.o clartv.o \
    clarz.o  clarzb.o clarzt.o clascl.o claset.o clasr.o  classq.o \
    claswp.o clasyf.o clasyf_rook.o clasyf_rk.o clasyf_aa.o \
@@ -363,8 +364,8 @@ DLASRC_O = \
    dlaqgb.o dlaqge.o dlaqp2.o dlaqp2rk.o dlaqp3rk.o dlaqps.o dlaqsb.o dlaqsp.o dlaqsy.o \
    dlaqr0.o dlaqr1.o dlaqr2.o dlaqr3.o dlaqr4.o dlaqr5.o \
    dlaqtr.o dlar1v.o dlar2v.o iladlr.o iladlc.o \
-   dlarf.o  dlarfb.o dlarfb_gett.o dlarfg.o dlarfgp.o dlarft.o dlarfx.o dlarfy.o \
-   dlargv.o dlarrv.o dlartv.o \
+   dlarf.o  dlarfb.o dlarfb_gett.o dlarfg.o dlarfgp.o dlarft.o dlarft_lvl2.o dlarfx.o dlarfy.o \
+   dlarf1f.o dlarf1l.o dlargv.o dlarrv.o dlartv.o \
    dlarz.o  dlarzb.o dlarzt.o dlaswp.o dlasy2.o \
    dlasyf.o dlasyf_rook.o dlasyf_rk.o \
    dlatbs.o dlatdf.o dlatps.o dlatrd.o dlatrs.o dlatrz.o dlauu2.o \
@@ -478,7 +479,7 @@ ZLASRC_O = \
    zlaqsp.o zlaqsy.o zlar1v.o zlar2v.o ilazlr.o ilazlc.o \
    zlaqz0.o zlaqz1.o zlaqz2.o zlaqz3.o \
    zlarcm.o zlarf.o  zlarfb.o zlarfb_gett.o \
-   zlarfg.o zlarft.o zlarfgp.o \
+   zlarfg.o zlarft.o zlarft_lvl2.o zlarfgp.o zlarf1f.o zlarf1l.o \
    zlarfx.o zlarfy.o zlargv.o zlarnv.o zlarrv.o zlartg.o zlartv.o \
    zlarz.o  zlarzb.o zlarzt.o zlascl.o zlaset.o zlasr.o \
    zlassq.o zlaswp.o zlasyf.o zlasyf_rook.o zlasyf_rk.o zlasyf_aa.o \

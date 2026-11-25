@@ -106,6 +106,7 @@ exit(0);
     if (fork_pid == -1) {
         perror("fork");
         CTEST_ERR("Failed to fork process.");
+	    free(a);free(b);free(c);free(d);
     } else if (fork_pid == 0) {
         // Compute a DGEMM product in the child process to check that the
         // thread pool as been properly been reinitialized after the fork.
@@ -117,14 +118,17 @@ exit(0);
         if (fork_pid_nested == -1) {
             perror("fork");
             CTEST_ERR("Failed to fork nested process.");
+	    free(a);free(b);free(c);free(d);
             exit(1);
         } else if (fork_pid_nested == 0) {
             check_dgemm(a, b, d, c, n);
+	    free(a);free(b);free(c);free(d);
             exit(0);
         } else {
             check_dgemm(a, b, d, c, n);
             int child_status = 0;
             pid_t wait_pid = wait(&child_status);
+	    free(a);free(b);free(c);free(d);
             ASSERT_EQUAL(wait_pid, fork_pid_nested);
             ASSERT_EQUAL(0, WEXITSTATUS (child_status));
             exit(0);
@@ -134,6 +138,7 @@ exit(0);
         // Wait for the child to finish and check the exit code.
         int child_status = 0;
         pid_t wait_pid = wait(&child_status);
+	    free(a);free(b);free(c);free(d);
         ASSERT_EQUAL(wait_pid, fork_pid);
         ASSERT_EQUAL(0, WEXITSTATUS (child_status));
     }

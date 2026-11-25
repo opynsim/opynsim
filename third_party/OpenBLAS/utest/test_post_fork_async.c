@@ -80,6 +80,7 @@ exit(0);
     if (fork_pid == -1) {
         perror("fork");
         CTEST_ERR("Failed to fork process.");
+	free(arr);free(ipiv);
     } else if (fork_pid == 0) {
       exit(0);
     } else {
@@ -90,5 +91,6 @@ exit(0);
         ASSERT_EQUAL(0, WEXITSTATUS (child_status));
     }
     BLASFUNC(dgetrf)(&n, &n, arr, &n, ipiv, &info);
+	free(arr);free(ipiv);
 #endif
 }

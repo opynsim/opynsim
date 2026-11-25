@@ -5,7 +5,6 @@
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
 *> Download ILAENV + dependencies
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/ilaenv.f">
 *> [TGZ]</a>
@@ -13,7 +12,6 @@
 *> [ZIP]</a>
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/ilaenv.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -159,6 +157,7 @@
 *>
 *  =====================================================================
       INTEGER FUNCTION ILAENV( ISPEC, NAME, OPTS, N1, N2, N3, N4 )
+      IMPLICIT NONE
 *
 *  -- LAPACK auxiliary routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -277,6 +276,16 @@
          ELSE
              NB = 32
          END IF
+      ELSE IF( SUBNAM(2:6).EQ.'TZRZF' ) THEN
+         IF( SNAME ) THEN
+             NB = 64
+         ELSE
+             NB = 32
+         END IF
+      ELSE IF( SUBNAM(2:6).EQ.'ORMRZ' ) THEN
+             NB = 64
+      ELSE IF( SUBNAM(2:6).EQ.'UNMRZ' ) THEN
+             NB = 32
       ELSE IF( C2.EQ.'GE' ) THEN
          IF( C3.EQ.'TRF' ) THEN
             IF( SNAME ) THEN
@@ -666,6 +675,10 @@
          NX = 128
          IF( C3.EQ.'HD3' ) THEN
             NX = 128
+         END IF
+      ELSE IF( C2.EQ.'LA' ) THEN
+         IF( C3.EQ.'RFT' ) THEN
+            NX = 64
          END IF
       END IF
       ILAENV = NX

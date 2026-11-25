@@ -51,7 +51,7 @@ extern void goto_set_num_threads(int nthreads);
 #undef TIMING_DEBUG
 
 /* Global Parameter */
-extern int blas_cpu_number;
+extern _Atomic int blas_cpu_number;
 extern int blas_num_threads;
 extern int blas_omp_linked;
 
@@ -138,10 +138,19 @@ typedef struct blas_queue {
 extern int blas_server_avail;
 extern int blas_omp_number_max;
 extern int blas_omp_threads_local;
+extern int blas_is_num_threads_set_explicitly;
 
 static __inline int num_cpu_avail(int level) {
 
 #ifdef USE_OPENMP
+  /* If the user explicitly called openblas_set_num_threads(),
+     respect that setting instead of overriding it with
+     `omp_get_max_threads()` below (which is to get a default
+     in case the user hasn't made an explicit choice). */
+  if (blas_is_num_threads_set_explicitly) {
+    return blas_cpu_number;
+  }
+
 int openmp_nthreads;
 	openmp_nthreads=omp_get_max_threads();
 	if (omp_in_parallel()) openmp_nthreads = blas_omp_threads_local;
@@ -190,6 +199,9 @@ int exec_blas(BLASLONG num_cpu, blas_param_t *param, void *buffer);
 #endif
 
 #ifndef ASSEMBLER
+
+void blas_level3_thread_enter(void);
+void blas_level3_thread_leave(void);
 
 int blas_level1_thread(int mode, BLASLONG m, BLASLONG n, BLASLONG k, void *alpha,
 		       void *a, BLASLONG lda,

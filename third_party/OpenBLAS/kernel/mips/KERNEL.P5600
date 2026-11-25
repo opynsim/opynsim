@@ -1,50 +1,13 @@
-SAMAXKERNEL  = ../mips/amax.c
-DAMAXKERNEL  = ../mips/amax.c
-CAMAXKERNEL  = ../mips/zamax.c
-ZAMAXKERNEL  = ../mips/zamax.c
-
-SAMINKERNEL  = ../mips/amin.c
-DAMINKERNEL  = ../mips/amin.c
-CAMINKERNEL  = ../mips/zamin.c
-ZAMINKERNEL  = ../mips/zamin.c
-
-SMAXKERNEL   = ../mips/max.c
-DMAXKERNEL   = ../mips/max.c
-
-SMINKERNEL   = ../mips/min.c
-DMINKERNEL   = ../mips/min.c
-
-ISAMAXKERNEL = ../mips/iamax.c
-IDAMAXKERNEL = ../mips/iamax.c
-ICAMAXKERNEL = ../mips/izamax.c
-IZAMAXKERNEL = ../mips/izamax.c
-
-ISAMINKERNEL = ../mips/iamin.c
-IDAMINKERNEL = ../mips/iamin.c
-ICAMINKERNEL = ../mips/izamin.c
-IZAMINKERNEL = ../mips/izamin.c
-
-ISMAXKERNEL  = ../mips/imax.c
-IDMAXKERNEL  = ../mips/imax.c
-
-ISMINKERNEL  = ../mips/imin.c
-IDMINKERNEL  = ../mips/imin.c
-
-SSUMKERNEL  = ../mips/sum.c
-DSUMKERNEL  = ../mips/sum.c
-CSUMKERNEL  = ../mips/zsum.c
-ZSUMKERNEL  = ../mips/zsum.c
-
 ifndef NO_MSA
 SASUMKERNEL  = ../mips/sasum_msa.c
 DASUMKERNEL  = ../mips/dasum_msa.c
 CASUMKERNEL  = ../mips/casum_msa.c
 ZASUMKERNEL  = ../mips/zasum_msa.c
 else
-SASUMKERNEL  = ../mips/asum.c
-DASUMKERNEL  = ../mips/asum.c
-CASUMKERNEL  = ../mips/zasum.c
-ZASUMKERNEL  = ../mips/zasum.c
+SASUMKERNEL  = ../arm/asum.c
+DASUMKERNEL  = ../arm/asum.c
+CASUMKERNEL  = ../arm/zasum.c
+ZASUMKERNEL  = ../arm/zasum.c
 endif
 
 ifndef NO_MSA
@@ -53,10 +16,10 @@ DAXPYKERNEL  = ../mips/daxpy_msa.c
 CAXPYKERNEL  = ../mips/caxpy_msa.c
 ZAXPYKERNEL  = ../mips/zaxpy_msa.c
 else
-SAXPYKERNEL  = ../mips/axpy.c
-DAXPYKERNEL  = ../mips/axpy.c
-CAXPYKERNEL  = ../mips/zaxpy.c
-ZAXPYKERNEL  = ../mips/zaxpy.c
+SAXPYKERNEL  = ../arm/axpy.c
+DAXPYKERNEL  = ../arm/axpy.c
+CAXPYKERNEL  = ../arm/zaxpy.c
+ZAXPYKERNEL  = ../arm/zaxpy.c
 endif
 
 ifndef NO_MSA
@@ -65,10 +28,10 @@ DCOPYKERNEL  = ../mips/dcopy_msa.c
 CCOPYKERNEL  = ../mips/ccopy_msa.c
 ZCOPYKERNEL  = ../mips/zcopy_msa.c
 else
-SCOPYKERNEL  = ../mips/copy.c
-DCOPYKERNEL  = ../mips/copy.c
-CCOPYKERNEL  = ../mips/zcopy.c
-ZCOPYKERNEL  = ../mips/zcopy.c
+SCOPYKERNEL  = ../arm/copy.c
+DCOPYKERNEL  = ../arm/copy.c
+CCOPYKERNEL  = ../arm/zcopy.c
+ZCOPYKERNEL  = ../arm/zcopy.c
 endif
 
 ifndef NO_MSA
@@ -77,16 +40,16 @@ DDOTKERNEL   = ../mips/ddot_msa.c
 CDOTKERNEL   = ../mips/cdot_msa.c
 ZDOTKERNEL   = ../mips/zdot_msa.c
 else
-SDOTKERNEL   = ../mips/dot.c
-DDOTKERNEL   = ../mips/dot.c
-CDOTKERNEL   = ../mips/zdot.c
-ZDOTKERNEL   = ../mips/zdot.c
+SDOTKERNEL   = ../arm/dot.c
+DDOTKERNEL   = ../arm/dot.c
+CDOTKERNEL   = ../arm/zdot.c
+ZDOTKERNEL   = ../arm/zdot.c
 endif
 
-SNRM2KERNEL  = ../mips/nrm2.c
-DNRM2KERNEL  = ../mips/nrm2.c
-CNRM2KERNEL  = ../mips/znrm2.c
-ZNRM2KERNEL  = ../mips/znrm2.c
+SNRM2KERNEL  = ../arm/nrm2.c
+DNRM2KERNEL  = ../arm/nrm2.c
+CNRM2KERNEL  = ../arm/znrm2.c
+ZNRM2KERNEL  = ../arm/znrm2.c
 
 ifndef NO_MSA
 SROTKERNEL   = ../mips/srot_msa.c
@@ -94,10 +57,10 @@ DROTKERNEL   = ../mips/drot_msa.c
 CROTKERNEL   = ../mips/crot_msa.c
 ZROTKERNEL   = ../mips/zrot_msa.c
 else
-SROTKERNEL   = ../mips/rot.c
-DROTKERNEL   = ../mips/rot.c
-CROTKERNEL   = ../mips/zrot.c
-ZROTKERNEL   = ../mips/zrot.c
+SROTKERNEL   = ../arm/rot.c
+DROTKERNEL   = ../arm/rot.c
+CROTKERNEL   = ../arm/zrot.c
+ZROTKERNEL   = ../arm/zrot.c
 endif
 
 ifndef NO_MSA
@@ -105,13 +68,13 @@ SSCALKERNEL  = ../mips/sscal_msa.c
 DSCALKERNEL  = ../mips/dscal_msa.c
 #CSCALKERNEL  = ../mips/cscal_msa.c
 #ZSCALKERNEL  = ../mips/zscal_msa.c
-CSCALKERNEL = ../mips/zscal.c
-ZSCALKERNEL = ../mips/zscal.c
+CSCALKERNEL  = ../arm/zscal.c
+ZSCALKERNEL  = ../arm/zscal.c
 else
-SSCALKERNEL  = ../mips/scal.c
-DSCALKERNEL  = ../mips/scal.c
-CSCALKERNEL  = ../mips/zscal.c
-ZSCALKERNEL  = ../mips/zscal.c
+SSCALKERNEL  = ../arm/scal.c
+DSCALKERNEL  = ../arm/scal.c
+CSCALKERNEL  = ../arm/zscal.c
+ZSCALKERNEL  = ../arm/zscal.c
 endif
 
 ifndef NO_MSA
@@ -120,10 +83,10 @@ DSWAPKERNEL  = ../mips/dswap_msa.c
 CSWAPKERNEL  = ../mips/cswap_msa.c
 ZSWAPKERNEL  = ../mips/zswap_msa.c
 else
-SSWAPKERNEL  = ../mips/swap.c
-DSWAPKERNEL  = ../mips/swap.c
-CSWAPKERNEL  = ../mips/zswap.c
-ZSWAPKERNEL  = ../mips/zswap.c
+SSWAPKERNEL  = ../arm/swap.c
+DSWAPKERNEL  = ../arm/swap.c
+CSWAPKERNEL  = ../arm/zswap.c
+ZSWAPKERNEL  = ../arm/zswap.c
 endif
 
 ifndef NO_MSA
@@ -132,10 +95,10 @@ DGEMVNKERNEL = ../mips/dgemv_n_msa.c
 CGEMVNKERNEL = ../mips/cgemv_n_msa.c
 ZGEMVNKERNEL = ../mips/zgemv_n_msa.c
 else
-SGEMVNKERNEL = ../mips/gemv_n.c
-DGEMVNKERNEL = ../mips/gemv_n.c
-CGEMVNKERNEL = ../mips/zgemv_n.c
-ZGEMVNKERNEL = ../mips/zgemv_n.c
+SGEMVNKERNEL = ../arm/gemv_n.c
+DGEMVNKERNEL = ../arm/gemv_n.c
+CGEMVNKERNEL = ../arm/zgemv_n.c
+ZGEMVNKERNEL = ../arm/zgemv_n.c
 endif
 
 ifndef NO_MSA
@@ -144,25 +107,24 @@ DGEMVTKERNEL = ../mips/dgemv_t_msa.c
 CGEMVTKERNEL = ../mips/cgemv_t_msa.c
 ZGEMVTKERNEL = ../mips/zgemv_t_msa.c
 else
-SGEMVTKERNEL = ../mips/gemv_t.c
-DGEMVTKERNEL = ../mips/gemv_t.c
-CGEMVTKERNEL = ../mips/zgemv_t.c
-ZGEMVTKERNEL = ../mips/zgemv_t.c
+SGEMVTKERNEL = ../arm/gemv_t.c
+DGEMVTKERNEL = ../arm/gemv_t.c
+CGEMVTKERNEL = ../arm/zgemv_t.c
+ZGEMVTKERNEL = ../arm/zgemv_t.c
 endif
 
 ifndef NO_MSA
 SGEMMKERNEL    = ../mips/sgemm_kernel_8x8_msa.c
 SGEMMONCOPY    = ../mips/sgemm_ncopy_8_msa.c
 SGEMMOTCOPY    = ../mips/sgemm_tcopy_8_msa.c
-SGEMMONCOPYOBJ = sgemm_oncopy.o
-SGEMMOTCOPYOBJ = sgemm_otcopy.o
 else
 SGEMMKERNEL    = ../generic/gemmkernel_2x2.c
 SGEMMONCOPY    = ../generic/gemm_ncopy_2.c
 SGEMMOTCOPY    = ../generic/gemm_tcopy_2.c
+endif
+
 SGEMMONCOPYOBJ = sgemm_oncopy.o
 SGEMMOTCOPYOBJ = sgemm_otcopy.o
-endif
 
 ifndef NO_MSA
 DGEMMKERNEL    = ../mips/dgemm_kernel_8x4_msa.c
@@ -172,15 +134,14 @@ DGEMMONCOPY    = ../mips/dgemm_ncopy_4_msa.c
 DGEMMOTCOPY    = ../mips/dgemm_tcopy_4_msa.c
 DGEMMINCOPYOBJ = dgemm_incopy.o
 DGEMMITCOPYOBJ = dgemm_itcopy.o
-DGEMMONCOPYOBJ = dgemm_oncopy.o
-DGEMMOTCOPYOBJ = dgemm_otcopy.o
 else
 DGEMMKERNEL    = ../generic/gemmkernel_2x2.c
 DGEMMONCOPY    = ../generic/gemm_ncopy_2.c
 DGEMMOTCOPY    = ../generic/gemm_tcopy_2.c
+endif
+
 DGEMMONCOPYOBJ = dgemm_oncopy.o
 DGEMMOTCOPYOBJ = dgemm_otcopy.o
-endif
 
 ifndef NO_MSA
 CGEMMKERNEL    = ../mips/cgemm_kernel_8x4_msa.c
@@ -190,29 +151,27 @@ CGEMMONCOPY    = ../mips/cgemm_ncopy_4_msa.c
 CGEMMOTCOPY    = ../mips/cgemm_tcopy_4_msa.c
 CGEMMINCOPYOBJ = cgemm_incopy.o
 CGEMMITCOPYOBJ = cgemm_itcopy.o
-CGEMMONCOPYOBJ = cgemm_oncopy.o
-CGEMMOTCOPYOBJ = cgemm_otcopy.o
 else
 CGEMMKERNEL    = ../generic/zgemmkernel_2x2.c
 CGEMMONCOPY    = ../generic/zgemm_ncopy_2.c
 CGEMMOTCOPY    = ../generic/zgemm_tcopy_2.c
+endif
+
 CGEMMONCOPYOBJ = cgemm_oncopy.o
 CGEMMOTCOPYOBJ = cgemm_otcopy.o
-endif
 
 ifndef NO_MSA
 ZGEMMKERNEL    = ../mips/zgemm_kernel_4x4_msa.c
 ZGEMMONCOPY    = ../mips/zgemm_ncopy_4_msa.c
 ZGEMMOTCOPY    = ../mips/zgemm_tcopy_4_msa.c
-ZGEMMONCOPYOBJ = zgemm_oncopy.o
-ZGEMMOTCOPYOBJ = zgemm_otcopy.o
 else
 ZGEMMKERNEL    = ../generic/zgemmkernel_2x2.c
 ZGEMMONCOPY    = ../generic/zgemm_ncopy_2.c
 ZGEMMOTCOPY    = ../generic/zgemm_tcopy_2.c
+endif
+
 ZGEMMONCOPYOBJ = zgemm_oncopy.o
 ZGEMMOTCOPYOBJ = zgemm_otcopy.o
-endif
 
 ifndef NO_MSA
 STRSMKERNEL_LN = ../mips/strsm_kernel_LN_8x8_msa.c
@@ -261,3 +220,41 @@ ZTRSMKERNEL_LT = ../generic/trsm_kernel_LT.c
 ZTRSMKERNEL_RN = ../generic/trsm_kernel_RN.c
 ZTRSMKERNEL_RT = ../generic/trsm_kernel_RT.c
 endif
+
+#Pure C for other kernels
+SAMAXKERNEL  = ../arm/amax.c
+DAMAXKERNEL  = ../arm/amax.c
+CAMAXKERNEL  = ../arm/zamax.c
+ZAMAXKERNEL  = ../arm/zamax.c
+
+SAMINKERNEL  = ../arm/amin.c
+DAMINKERNEL  = ../arm/amin.c
+CAMINKERNEL  = ../arm/zamin.c
+ZAMINKERNEL  = ../arm/zamin.c
+
+SMAXKERNEL   = ../arm/max.c
+DMAXKERNEL   = ../arm/max.c
+
+SMINKERNEL   = ../arm/min.c
+DMINKERNEL   = ../arm/min.c
+
+ISAMAXKERNEL = ../arm/iamax.c
+IDAMAXKERNEL = ../arm/iamax.c
+ICAMAXKERNEL = ../arm/izamax.c
+IZAMAXKERNEL = ../arm/izamax.c
+
+ISAMINKERNEL = ../arm/iamin.c
+IDAMINKERNEL = ../arm/iamin.c
+ICAMINKERNEL = ../arm/izamin.c
+IZAMINKERNEL = ../arm/izamin.c
+
+ISMAXKERNEL  = ../arm/imax.c
+IDMAXKERNEL  = ../arm/imax.c
+
+ISMINKERNEL  = ../arm/imin.c
+IDMINKERNEL  = ../arm/imin.c
+
+SSUMKERNEL   = ../arm/sum.c
+DSUMKERNEL   = ../arm/sum.c
+CSUMKERNEL   = ../arm/zsum.c
+ZSUMKERNEL   = ../arm/zsum.c

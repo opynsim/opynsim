@@ -232,7 +232,7 @@
       EXTERNAL           SPPTRF, SSPEVD, SSPGST, STPMV, STPSV, XERBLA
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC          MAX, REAL
+      INTRINSIC          MAX
 *     ..
 *     .. Executable Statements ..
 *
@@ -302,8 +302,8 @@
       CALL SSPGST( ITYPE, UPLO, N, AP, BP, INFO )
       CALL SSPEVD( JOBZ, UPLO, N, AP, W, Z, LDZ, WORK, LWORK, IWORK,
      $             LIWORK, INFO )
-      LWMIN = INT( MAX( REAL( LWMIN ), REAL( WORK( 1 ) ) ) )
-      LIWMIN = INT( MAX( REAL( LIWMIN ), REAL( IWORK( 1 ) ) ) )
+      LWMIN = MAX( LWMIN, INT( WORK( 1 ) ) )
+      LIWMIN = MAX( LIWMIN, IWORK( 1 ) )
 *
       IF( WANTZ ) THEN
 *

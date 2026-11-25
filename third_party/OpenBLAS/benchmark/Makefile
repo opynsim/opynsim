@@ -3155,7 +3155,7 @@ bgemv.$(SUFFIX) : gemv.c
 	$(CC) $(CFLAGS) -c -DBFLOAT16 -DBGEMM -UCOMPLEX -UDOUBLE -o $(@F) $^
 sbgemv.$(SUFFIX) : gemv.c
 	$(CC) $(CFLAGS) -c -DBFLOAT16 -UCOMPLEX -UDOUBLE -o $(@F) $^
-endif ()
+endif
 
 zgemv.$(SUFFIX) : gemv.c
 	$(CC) $(CFLAGS) -c -DCOMPLEX -DDOUBLE -o $(@F) $^

@@ -147,7 +147,7 @@ typedef FLOAT v2sf_t __attribute__ ((vector_size (8)));
 	  __builtin_mma_xxsetaccz (&acc6); \
 	  __builtin_mma_xxsetaccz (&acc7);
 
-#define PREFETCH1(x, y) asm volatile ("dcbt %0, %1" : : "r" (x), "b" (y) : "memory");
+#define PREFETCH1(x, y) asm volatile ("dcbt %0, %1" : : "b" (x), "r" (y) : "memory");
 /*************************************************************************************
 * SBGEMM Kernel
 *************************************************************************************/

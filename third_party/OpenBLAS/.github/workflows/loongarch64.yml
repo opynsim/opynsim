@@ -1,6 +1,14 @@
 name: loongarch64 qemu test
 
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -38,7 +46,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Install APT deps
         run: |
@@ -47,7 +55,7 @@ jobs:
                                gcc-14-loongarch64-linux-gnu g++-14-loongarch64-linux-gnu gfortran-14-loongarch64-linux-gnu
 
       - name: Compilation cache
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ~/.ccache
           key: ccache-${{ runner.os }}-${{ matrix.target }}-${{ github.ref }}-${{ github.sha }}

@@ -236,7 +236,7 @@ def test_gesdd(benchmark, mn, variant):
 
     assert info == 0
 
-    atol = {'s': 1e-5, 'd': 1e-13}
+    atol = {'s': 5e-5, 'd': 1e-13}
     np.testing.assert_allclose(u @ np.diag(s) @ vt, a, atol=atol[variant])
 
 

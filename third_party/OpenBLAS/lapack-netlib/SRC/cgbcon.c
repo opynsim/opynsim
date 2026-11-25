@@ -247,7 +247,6 @@ typedef struct Namelist Namelist;
 #define s_copy(A,B,C,D) { int __i,__m; for (__i=0, __m=f2cmin((C),(D)); __i<__m && (B)[__i] != 0; ++__i) (A)[__i] = (B)[__i]; }
 #define sig_die(s, kill) { exit(1); }
 #define s_stop(s, n) {exit(0);}
-static char junk[] = "\n@(#)LIBF77 VERSION 19990503\n";
 #define z_abs(z) (cabs(Cd(z)))
 #define z_exp(R, Z) {pCd(R) = cexp(Cd(Z));}
 #define z_sqrt(R, Z) {pCd(R) = csqrt(Cd(Z));}
@@ -256,7 +255,7 @@ static char junk[] = "\n@(#)LIBF77 VERSION 19990503\n";
 #define myceiling(w) {ceil(w)}
 #define myhuge(w) {HUGE_VAL}
 //#define mymaxloc_(w,s,e,n) {if (sizeof(*(w)) == sizeof(double)) dmaxloc_((w),*(s),*(e),n); else dmaxloc_((w),*(s),*(e),n);}
-#define mymaxloc(w,s,e,n) {dmaxloc_(w,*(s),*(e),n)}
+//#define mymaxloc(w,s,e,n) {dmaxloc_(w,*(s),*(e),n)}
 
 /* procedure parameter types for -A and -C++ */
 
@@ -267,6 +266,7 @@ typedef logical (*L_fp)(...);
 typedef logical (*L_fp)();
 #endif
 
+#if 0
 static float spow_ui(float x, integer n) {
 	float pow=1.0; unsigned long int u;
 	if(n != 0) {
@@ -378,6 +378,7 @@ static integer smaxloc_(float *w, integer s, integer e, integer *n)
 		if (w[i-1]>m) mi=i ,m=w[i-1];
 	return mi-s+1;
 }
+#endif
 
 static inline void cdotc_(complex *z, integer *n_, complex *x, integer *incx_, complex *y, integer *incy_) {
 	integer n = *n_, incx = *incx_, incy = *incy_, i;
@@ -411,7 +412,7 @@ static inline void cdotc_(complex *z, integer *n_, complex *x, integer *incx_, c
 			zdotc += conjf(Cf(&x[i*incx])) * Cf(&y[i*incy]);
 		}
 	}
-	pCf(z) = zdotc;
+	z->r=creal(zdotc);z->i=cimag(zdotc);
 }
 #endif
 static inline void zdotc_(doublecomplex *z, integer *n_, doublecomplex *x, integer *incx_, doublecomplex *y, integer *incy_) {

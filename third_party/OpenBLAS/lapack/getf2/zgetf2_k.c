@@ -51,7 +51,8 @@ blasint CNAME(blas_arg_t *args, BLASLONG *range_m, BLASLONG *range_n, FLOAT *sa,
   blasint *ipiv;
   FLOAT *a;
 
-  FLOAT temp1, temp2, temp3, temp4, ratio, den;
+  volatile FLOAT temp1;
+  FLOAT temp2, temp3, temp4, ratio, den;
   blasint i, j;
   blasint ip, jp;
   blasint info;

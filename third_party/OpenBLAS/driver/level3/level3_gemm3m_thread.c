@@ -41,6 +41,7 @@
 #define CACHE_LINE_SIZE 8
 #endif
 
+#define DIVIDE_RATE_MAX 2
 #ifndef DIVIDE_RATE
 #define DIVIDE_RATE 2
 #endif
@@ -93,7 +94,7 @@ typedef struct {
 #else
   volatile
 #endif  
-   BLASLONG working[MAX_CPU_NUMBER][CACHE_LINE_SIZE * DIVIDE_RATE];
+   BLASLONG working[MAX_CPU_NUMBER][CACHE_LINE_SIZE * DIVIDE_RATE_MAX];
 } job_t;
 
 
@@ -294,7 +295,7 @@ static int inner_thread(blas_arg_t *args, BLASLONG *range_m, BLASLONG *range_n, 
   FLOAT *a, *b, *c;
   job_t *job = (job_t *)args -> common;
   BLASLONG xxx, bufferside;
-  FLOAT *buffer[DIVIDE_RATE];
+  FLOAT *buffer[DIVIDE_RATE_MAX];
 
   BLASLONG ls, min_l, jjs, min_jj;
   BLASLONG is, min_i, div_n;
@@ -843,15 +844,6 @@ static int inner_thread(blas_arg_t *args, BLASLONG *range_m, BLASLONG *range_n, 
 static int gemm_driver(blas_arg_t *args, BLASLONG *range_m, BLASLONG
 		       *range_n, FLOAT *sa, FLOAT *sb, BLASLONG mypos){
 
-#ifndef USE_OPENMP
-#ifndef OS_WINDOWS
-static pthread_mutex_t  level3_lock    = PTHREAD_MUTEX_INITIALIZER;
-#else
-CRITICAL_SECTION level3_lock;
-InitializeCriticalSection((PCRITICAL_SECTION)&level3_lock);
-#endif
-#endif
-
   blas_arg_t newarg;
 
   blas_queue_t queue[MAX_CPU_NUMBER];
@@ -881,13 +873,7 @@ InitializeCriticalSection((PCRITICAL_SECTION)&level3_lock);
   mode  =  BLAS_SINGLE  | BLAS_REAL | BLAS_NODE;
 #endif
 
-#ifndef USE_OPENMP
-#ifndef OS_WINDOWS
-pthread_mutex_lock(&level3_lock);
-#else
-EnterCriticalSection((PCRITICAL_SECTION)&level3_lock);
-#endif
-#endif
+  blas_level3_thread_enter();
 
   newarg.m        = args -> m;
   newarg.n        = args -> n;
@@ -993,13 +979,7 @@ EnterCriticalSection((PCRITICAL_SECTION)&level3_lock);
   free(job);
 #endif
 
-#ifndef USE_OPENMP
-#ifndef OS_WINDOWS
-  pthread_mutex_unlock(&level3_lock);
-#else
-  LeaveCriticalSection((PCRITICAL_SECTION)&level3_lock);
-#endif
-#endif
+  blas_level3_thread_leave();
 
   return 0;
 }

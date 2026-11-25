@@ -2712,7 +2712,7 @@
 #ifndef ASSEMBLER
 #if !defined(DYNAMIC_ARCH) \
   && (defined(ARCH_X86) || defined(ARCH_X86_64) || defined(ARCH_IA64) || defined(ARCH_MIPS64) || defined(ARCH_ARM64) \
-      || defined(ARCH_LOONGARCH64) || defined(ARCH_E2K) || defined(ARCH_ALPHA))
+      || defined(ARCH_LOONGARCH64) || defined(ARCH_E2K) || defined(ARCH_ALPHA) || defined(ARCH_RISCV64))
 extern BLASLONG gemm_offset_a;
 extern BLASLONG gemm_offset_b;
 extern BLASLONG bgemm_p;
@@ -3159,6 +3159,8 @@ typedef struct {
 #define NEG_TCOPY	ZNEG_TCOPY
 #define	LARF_L		ZLARF_L
 #define	LARF_R		ZLARF_R
+#define LAED3_SINGLE	dlaed3_single
+#define LAED3_PARALLEL	dlaed3_parallel
 #else
 #define GETF2	CGETF2
 #define GETRF	CGETRF
@@ -3180,6 +3182,8 @@ typedef struct {
 #define NEG_TCOPY	CNEG_TCOPY
 #define	LARF_L		CLARF_L
 #define	LARF_R		CLARF_R
+#define LAED3_SINGLE	slaed3_single
+#define LAED3_PARALLEL	slaed3_parallel
 #endif
 #endif
 

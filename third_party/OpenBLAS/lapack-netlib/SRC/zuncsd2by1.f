@@ -5,7 +5,6 @@
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
 *> Download ZUNCSD2BY1 + dependencies
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/zuncsd2by1.f">
 *> [TGZ]</a>
@@ -13,7 +12,6 @@
 *> [ZIP]</a>
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/zuncsd2by1.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -246,13 +244,15 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \ingroup complex16OTHERcomputational
+*> \ingroup uncsd2by1
 *
 *  =====================================================================
-      SUBROUTINE ZUNCSD2BY1( JOBU1, JOBU2, JOBV1T, M, P, Q, X11, LDX11,
+      SUBROUTINE ZUNCSD2BY1( JOBU1, JOBU2, JOBV1T, M, P, Q, X11,
+     $                       LDX11,
      $                       X21, LDX21, THETA, U1, LDU1, U2, LDU2, V1T,
      $                       LDV1T, WORK, LWORK, RWORK, LRWORK, IWORK,
      $                       INFO )
+      IMPLICIT NONE
 *
 *  -- LAPACK computational routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -292,7 +292,9 @@
       COMPLEX*16         CDUM( 1, 1 )
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           ZBBCSD, ZCOPY, ZLACPY, ZLAPMR, ZLAPMT, ZUNBDB1,
+      EXTERNAL           ZBBCSD, ZCOPY, ZLACPY, ZLAPMR, ZLAPMT,
+     $                   ZLASET,
+     $                   ZUNBDB1,
      $                   ZUNBDB2, ZUNBDB3, ZUNBDB4, ZUNGLQ, ZUNGQR,
      $                   XERBLA
 *     ..
@@ -388,7 +390,8 @@
          LORGLQMIN = 1
          LORGLQOPT = 1
          IF( R .EQ. Q ) THEN
-            CALL ZUNBDB1( M, P, Q, X11, LDX11, X21, LDX21, THETA, DUM,
+            CALL ZUNBDB1( M, P, Q, X11, LDX11, X21, LDX21, THETA,
+     $                    DUM,
      $                    CDUM, CDUM, CDUM, WORK, -1, CHILDINFO )
             LORBDB = INT( WORK(1) )
             IF( WANTU1 .AND. P .GT. 0 ) THEN
@@ -409,17 +412,20 @@
                LORGLQMIN = MAX( LORGLQMIN, Q-1 )
                LORGLQOPT = MAX( LORGLQOPT, INT( WORK(1) ) )
             END IF
-            CALL ZBBCSD( JOBU1, JOBU2, JOBV1T, 'N', 'N', M, P, Q, THETA,
+            CALL ZBBCSD( JOBU1, JOBU2, JOBV1T, 'N', 'N', M, P, Q,
+     $                   THETA,
      $                   DUM, U1, LDU1, U2, LDU2, V1T, LDV1T, CDUM, 1,
      $                   DUM, DUM, DUM, DUM, DUM, DUM, DUM, DUM,
      $                   RWORK(1), -1, CHILDINFO )
             LBBCSD = INT( RWORK(1) )
          ELSE IF( R .EQ. P ) THEN
-            CALL ZUNBDB2( M, P, Q, X11, LDX11, X21, LDX21, THETA, DUM,
+            CALL ZUNBDB2( M, P, Q, X11, LDX11, X21, LDX21, THETA,
+     $                    DUM,
      $                    CDUM, CDUM, CDUM, WORK(1), -1, CHILDINFO )
             LORBDB = INT( WORK(1) )
             IF( WANTU1 .AND. P .GT. 0 ) THEN
-               CALL ZUNGQR( P-1, P-1, P-1, U1(2,2), LDU1, CDUM, WORK(1),
+               CALL ZUNGQR( P-1, P-1, P-1, U1(2,2), LDU1, CDUM,
+     $                      WORK(1),
      $                      -1, CHILDINFO )
                LORGQRMIN = MAX( LORGQRMIN, P-1 )
                LORGQROPT = MAX( LORGQROPT, INT( WORK(1) ) )
@@ -436,13 +442,15 @@
                LORGLQMIN = MAX( LORGLQMIN, Q )
                LORGLQOPT = MAX( LORGLQOPT, INT( WORK(1) ) )
             END IF
-            CALL ZBBCSD( JOBV1T, 'N', JOBU1, JOBU2, 'T', M, Q, P, THETA,
+            CALL ZBBCSD( JOBV1T, 'N', JOBU1, JOBU2, 'T', M, Q, P,
+     $                   THETA,
      $                   DUM, V1T, LDV1T, CDUM, 1, U1, LDU1, U2, LDU2,
      $                   DUM, DUM, DUM, DUM, DUM, DUM, DUM, DUM,
      $                   RWORK(1), -1, CHILDINFO )
             LBBCSD = INT( RWORK(1) )
          ELSE IF( R .EQ. M-P ) THEN
-            CALL ZUNBDB3( M, P, Q, X11, LDX11, X21, LDX21, THETA, DUM,
+            CALL ZUNBDB3( M, P, Q, X11, LDX11, X21, LDX21, THETA,
+     $                    DUM,
      $                    CDUM, CDUM, CDUM, WORK(1), -1, CHILDINFO )
             LORBDB = INT( WORK(1) )
             IF( WANTU1 .AND. P .GT. 0 ) THEN
@@ -469,7 +477,8 @@
      $                   RWORK(1), -1, CHILDINFO )
             LBBCSD = INT( RWORK(1) )
          ELSE
-            CALL ZUNBDB4( M, P, Q, X11, LDX11, X21, LDX21, THETA, DUM,
+            CALL ZUNBDB4( M, P, Q, X11, LDX11, X21, LDX21, THETA,
+     $                    DUM,
      $                    CDUM, CDUM, CDUM, CDUM, WORK(1), -1, CHILDINFO
      $                  )
             LORBDB = M + INT( WORK(1) )
@@ -480,7 +489,8 @@
                LORGQROPT = MAX( LORGQROPT, INT( WORK(1) ) )
             END IF
             IF( WANTU2 .AND. M-P .GT. 0 ) THEN
-               CALL ZUNGQR( M-P, M-P, M-Q, U2, LDU2, CDUM, WORK(1), -1,
+               CALL ZUNGQR( M-P, M-P, M-Q, U2, LDU2, CDUM, WORK(1),
+     $                      -1,
      $                      CHILDINFO )
                LORGQRMIN = MAX( LORGQRMIN, M-P )
                LORGQROPT = MAX( LORGQROPT, INT( WORK(1) ) )
@@ -523,6 +533,36 @@
       LORGQR = LWORK-IORGQR+1
       LORGLQ = LWORK-IORGLQ+1
 *
+      IF( R .EQ. 0 ) THEN
+*
+*        R = 0: C and S are empty. Handle the trivial CSD directly.
+*
+         IF( Q .EQ. 0 ) THEN
+            IF( WANTU1 .AND. P .GT. 0 )
+     $         CALL ZLASET( 'A', P, P, ZERO, ONE, U1, LDU1 )
+            IF( WANTU2 .AND. M-P .GT. 0 )
+     $         CALL ZLASET( 'A', M-P, M-P, ZERO, ONE, U2, LDU2 )
+            RETURN
+         END IF
+*
+         IF( P .EQ. 0 .AND. M .EQ. Q ) THEN
+            IF( WANTU2 )
+     $         CALL ZLACPY( 'A', M-P, Q, X21, LDX21, U2, LDU2 )
+            IF( WANTV1T )
+     $         CALL ZLASET( 'A', Q, Q, ZERO, ONE, V1T, LDV1T )
+            RETURN
+         END IF
+*
+         IF( P .EQ. M .AND. M .EQ. Q ) THEN
+            IF( WANTU1 )
+     $         CALL ZLACPY( 'A', P, Q, X11, LDX11, U1, LDU1 )
+            IF( WANTV1T )
+     $         CALL ZLASET( 'A', Q, Q, ZERO, ONE, V1T, LDV1T )
+            RETURN
+         END IF
+*
+      END IF
+*
 *     Handle four cases separately: R = Q, R = P, R = M-P, and R = M-Q,
 *     in which R = MIN(P,M-P,Q,M-Q)
 *
@@ -540,7 +580,8 @@
 *
          IF( WANTU1 .AND. P .GT. 0 ) THEN
             CALL ZLACPY( 'L', P, Q, X11, LDX11, U1, LDU1 )
-            CALL ZUNGQR( P, P, Q, U1, LDU1, WORK(ITAUP1), WORK(IORGQR),
+            CALL ZUNGQR( P, P, Q, U1, LDU1, WORK(ITAUP1),
+     $                   WORK(IORGQR),
      $                   LORGQR, CHILDINFO )
          END IF
          IF( WANTU2 .AND. M-P .GT. 0 ) THEN
@@ -556,7 +597,8 @@
             END DO
             CALL ZLACPY( 'U', Q-1, Q-1, X21(1,2), LDX21, V1T(2,2),
      $                   LDV1T )
-            CALL ZUNGLQ( Q-1, Q-1, Q-1, V1T(2,2), LDV1T, WORK(ITAUQ1),
+            CALL ZUNGLQ( Q-1, Q-1, Q-1, V1T(2,2), LDV1T,
+     $                   WORK(ITAUQ1),
      $                   WORK(IORGLQ), LORGLQ, CHILDINFO )
          END IF
 *
@@ -599,7 +641,8 @@
                U1(1,J) = ZERO
                U1(J,1) = ZERO
             END DO
-            CALL ZLACPY( 'L', P-1, P-1, X11(2,1), LDX11, U1(2,2), LDU1 )
+            CALL ZLACPY( 'L', P-1, P-1, X11(2,1), LDX11, U1(2,2),
+     $                   LDU1 )
             CALL ZUNGQR( P-1, P-1, P-1, U1(2,2), LDU1, WORK(ITAUP1),
      $                   WORK(IORGQR), LORGQR, CHILDINFO )
          END IF
@@ -649,7 +692,8 @@
 *
          IF( WANTU1 .AND. P .GT. 0 ) THEN
             CALL ZLACPY( 'L', P, Q, X11, LDX11, U1, LDU1 )
-            CALL ZUNGQR( P, P, Q, U1, LDU1, WORK(ITAUP1), WORK(IORGQR),
+            CALL ZUNGQR( P, P, Q, U1, LDU1, WORK(ITAUP1),
+     $                   WORK(IORGQR),
      $                   LORGQR, CHILDINFO )
          END IF
          IF( WANTU2 .AND. M-P .GT. 0 ) THEN
@@ -732,7 +776,8 @@
          END IF
          IF( WANTV1T .AND. Q .GT. 0 ) THEN
             CALL ZLACPY( 'U', M-Q, Q, X21, LDX21, V1T, LDV1T )
-            CALL ZLACPY( 'U', P-(M-Q), Q-(M-Q), X11(M-Q+1,M-Q+1), LDX11,
+            CALL ZLACPY( 'U', P-(M-Q), Q-(M-Q), X11(M-Q+1,M-Q+1),
+     $                   LDX11,
      $                   V1T(M-Q+1,M-Q+1), LDV1T )
             CALL ZLACPY( 'U', -P+Q, Q-P, X21(M-Q+1,P+1), LDX21,
      $                   V1T(P+1,P+1), LDV1T )

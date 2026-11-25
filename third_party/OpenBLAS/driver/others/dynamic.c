@@ -829,7 +829,17 @@ static gotoblas_t *get_coretype(void){
       }
     if (family == 0xf){
       if ((exfamily == 0) || (exfamily == 2)) {
-	if (ecx & (1 <<  0)) return &gotoblas_OPTERON_SSE3;
+		if (exmodel == 6 && model == 11) { /*QEMU virtual cpu*/
+	      if (support_avx512_bf16())
+             return &gotoblas_COOPERLAKE;
+          if (support_avx512())
+	         return &gotoblas_SKYLAKEX;
+          if (support_avx2())
+			 return &gotoblas_ZEN;
+          else
+            return &gotoblas_BARCELONA;
+		}
+	    if (ecx & (1 <<  0)) return &gotoblas_OPTERON_SSE3;
 	else return &gotoblas_OPTERON;
       }  else if (exfamily == 5 || exfamily == 7) {
 	return &gotoblas_BOBCAT;
@@ -951,9 +961,15 @@ static gotoblas_t *get_coretype(void){
           else
             return &gotoblas_DUNNINGTON;
         default:
+          if (support_avx2())
+            return &gotoblas_ZEN;
+          else
           return &gotoblas_NEHALEM;
         }
       default:
+          if (support_avx2())
+            return &gotoblas_ZEN;
+          else
         return &gotoblas_NEHALEM;
     }
   }

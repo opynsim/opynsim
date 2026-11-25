@@ -1,3 +1,9 @@
+#ifdef CPP_THREAD_SAFETY_USE_OPENMP
+#include <omp.h>
+#else
+#include <thread>
+#endif
+
 inline void pauser(){
     /// a portable way to pause a program
     std::string dummy;
@@ -11,6 +17,29 @@ void FailIfThreadsAreZero(uint32_t numConcurrentThreads) {
 		std::cout<<"CBLAS DGEMV thread safety test FAILED!"<<std::endl;
 		exit(-1);
 	}
+}
+
+uint32_t GetMaxHwThreads() {
+#ifdef CPP_THREAD_SAFETY_USE_OPENMP
+	return omp_get_max_threads();
+#else
+	const uint32_t maxHwThreads = std::thread::hardware_concurrency();
+	return maxHwThreads == 0 ? 1 : maxHwThreads;
+#endif
+}
+
+void SetLauncherThreads(uint32_t numConcurrentThreads) {
+#ifdef CPP_THREAD_SAFETY_USE_OPENMP
+	omp_set_num_threads(numConcurrentThreads);
+#endif
+}
+
+const char *LauncherName() {
+#ifdef CPP_THREAD_SAFETY_USE_OPENMP
+	return " using OpenMP";
+#else
+	return "";
+#endif
 }
 
 void FillMatrices(std::vector<std::vector<double>>& matBlock, std::mt19937_64& PRNG, std::uniform_real_distribution<double>& rngdist, const blasint randomMatSize, const uint32_t numConcurrentThreads, const uint32_t numMat){

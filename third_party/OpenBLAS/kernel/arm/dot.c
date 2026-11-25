@@ -1,5 +1,5 @@
 /***************************************************************************
-Copyright (c) 2013, The OpenBLAS Project
+Copyright (c) 2013-2026, The OpenBLAS Project
 All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -50,8 +50,11 @@ FLOAT CNAME(BLASLONG n, FLOAT *x, BLASLONG inc_x, FLOAT *y, BLASLONG inc_y)
 
 	while(i < n)
 	{
-
-		dot += y[iy] * x[ix] ;
+#if defined(DSDOT)
+		dot += (double)y[iy] * (double)x[ix] ;
+#else
+		dot += y[iy] * x[ix];
+#endif
 		ix  += inc_x ;
 		iy  += inc_y ;
 		i++ ;

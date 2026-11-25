@@ -128,7 +128,7 @@ if (${F_COMPILER} STREQUAL "INTEL" OR CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   endif ()
   set(FCOMMON_OPT "${FCOMMON_OPT} -recursive -fp-model=consistent")
   if (USE_OPENMP)
-    set(OpenMP_Fortran_FLAGS "-openmp" CACHE STRING "OpenMP Fortran compiler flags")
+    set(OpenMP_Fortran_FLAGS "-qopenmp" CACHE STRING "OpenMP Fortran compiler flags")
   endif ()
 endif ()
 

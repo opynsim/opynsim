@@ -245,7 +245,8 @@
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      EXTERNAL           LSAME
+      DOUBLE PRECISION   DROUNDUP_LWORK
+      EXTERNAL           LSAME, DROUNDUP_LWORK
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DPOTRF, DSYEVD, DSYGST, DTRMM, DTRSM, XERBLA
@@ -289,7 +290,7 @@
       END IF
 *
       IF( INFO.EQ.0 ) THEN
-         WORK( 1 ) = LOPT
+         WORK( 1 ) = DROUNDUP_LWORK(LOPT)
          IWORK( 1 ) = LIOPT
 *
          IF( LWORK.LT.LWMIN .AND. .NOT.LQUERY ) THEN
@@ -324,8 +325,8 @@
       CALL DSYGST( ITYPE, UPLO, N, A, LDA, B, LDB, INFO )
       CALL DSYEVD( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, IWORK, LIWORK,
      $             INFO )
-      LOPT = INT( MAX( DBLE( LOPT ), DBLE( WORK( 1 ) ) ) )
-      LIOPT = INT( MAX( DBLE( LIOPT ), DBLE( IWORK( 1 ) ) ) )
+      LOPT = MAX( LOPT, INT( WORK( 1 ) ) )
+      LIOPT = MAX( LIOPT, IWORK( 1 ) )
 *
       IF( WANTZ .AND. INFO.EQ.0 ) THEN
 *
@@ -361,7 +362,7 @@
          END IF
       END IF
 *
-      WORK( 1 ) = LOPT
+      WORK( 1 ) = DROUNDUP_LWORK(LOPT)
       IWORK( 1 ) = LIOPT
 *
       RETURN

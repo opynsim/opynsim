@@ -135,7 +135,7 @@ typedef FLOAT v2sf_t __attribute__ ((vector_size (8)));
           __builtin_mma_xvf32gerpp (&acc6, rowB[i], rowA[j+3]); \
           __builtin_mma_xvf32gerpp (&acc7, rowB[i+1], rowA[j+3]);
 
-#define PREFETCH1(x, y) asm volatile ("dcbt %0, %1" : : "r" (x), "b" (y) : "memory");
+#define PREFETCH1(x, y) asm volatile ("dcbt %0, %1" : : "b" (x), "r" (y) : "memory");
 
 #if (defined(LEFT) && !defined(TRANSA)) || (!defined(LEFT) && defined(TRANSA))
 #define REFRESH_TEMP_BK(x, y) \

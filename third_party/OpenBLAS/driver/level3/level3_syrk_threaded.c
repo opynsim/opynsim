@@ -41,6 +41,8 @@
 #define CACHE_LINE_SIZE 8
 #endif
 
+#define DIVIDE_RATE_MAX 2
+
 #ifndef DIVIDE_RATE
 #define DIVIDE_RATE 2
 #endif
@@ -69,7 +71,7 @@ _Atomic
 #else 
   volatile
 #endif
-   BLASLONG working[MAX_CPU_NUMBER][CACHE_LINE_SIZE * DIVIDE_RATE];
+   BLASLONG working[MAX_CPU_NUMBER][CACHE_LINE_SIZE * DIVIDE_RATE_MAX];
 } job_t;
 
 
@@ -133,7 +135,7 @@ _Atomic
 
 static int inner_thread(blas_arg_t *args, BLASLONG *range_m, BLASLONG *range_n, FLOAT *sa, FLOAT *sb, BLASLONG mypos){
 
-  FLOAT *buffer[DIVIDE_RATE];
+  FLOAT *buffer[DIVIDE_RATE_MAX];
 
   BLASLONG k, lda, ldc;
   BLASLONG m_from, m_to, n_from, n_to;
@@ -560,6 +562,8 @@ int CNAME(blas_arg_t *args, BLASLONG *range_m, BLASLONG *range_n, FLOAT *sa, FLO
 #endif
 #endif
 
+  blas_level3_thread_enter();
+
   newarg.m        = args -> m;
   newarg.n        = args -> n;
   newarg.k        = args -> k;
@@ -705,6 +709,8 @@ int CNAME(blas_arg_t *args, BLASLONG *range_m, BLASLONG *range_n, FLOAT *sa, FLO
 #ifdef USE_ALLOC_HEAP
   free(job);
 #endif
+
+  blas_level3_thread_leave();
 
   return 0;
 }

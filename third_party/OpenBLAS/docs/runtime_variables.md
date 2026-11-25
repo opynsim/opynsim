@@ -30,7 +30,7 @@ OpenBLAS checks the following environment variables on startup:
   cache where it is not reported correctly (in virtual environments)
 
 
-Deprecated variables still recognized for compatibilty:
+Deprecated variables still recognized for compatibility:
 
 * `GOTO_NUM_THREADS`: equivalent to `OPENBLAS_NUM_THREADS`
 * `GOTOBLAS_MAIN_FREE`: equivalent to `OPENBLAS_MAIN_FREE`

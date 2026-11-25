@@ -23,17 +23,12 @@ typedef struct { real r, i; } complex;
 typedef struct { doublereal r, i; } doublecomplex;
 #ifdef _MSC_VER
 static inline _Fcomplex Cf(complex *z) {_Fcomplex zz={z->r , z->i}; return zz;}
-static inline _Dcomplex Cd(doublecomplex *z) {_Dcomplex zz={z->r , z->i};return zz;}
 static inline _Fcomplex * _pCf(complex *z) {return (_Fcomplex*)z;}
-static inline _Dcomplex * _pCd(doublecomplex *z) {return (_Dcomplex*)z;}
 #else
 static inline _Complex float Cf(complex *z) {return z->r + z->i*_Complex_I;}
-static inline _Complex double Cd(doublecomplex *z) {return z->r + z->i*_Complex_I;}
 static inline _Complex float * _pCf(complex *z) {return (_Complex float*)z;}
-static inline _Complex double * _pCd(doublecomplex *z) {return (_Complex double*)z;}
 #endif
 #define pCf(z) (*_pCf(z))
-#define pCd(z) (*_pCd(z))
 typedef int logical;
 typedef short int shortlogical;
 typedef char logical1;
@@ -319,7 +314,7 @@ static logical c_false = FALSE_;
     static char snamet[12];
     static real thresh;
     static logical rorder;
-    extern /* Subroutine */ void cc2chke_(char*, ftnlen);
+    extern /* Subroutine */ void cc2chke_(char*);
     static integer layout;
     static logical ltestt, tsterr;
     static complex alf[7];
@@ -712,7 +707,7 @@ L100:
 		    ftnlen)12);
 /*           Test error exits. */
 	    if (tsterr) {
-		cc2chke_(snames[isnum - 1], (ftnlen)12);
+		cc2chke_(snames[isnum - 1]);
 	    }
 /*           Test computations. */
 	    infoc_1.infot = 0;
@@ -892,8 +887,8 @@ L240:
     static integer ia, ib, ic;
     static logical banded;
     static integer nc, nd, im, in, kl, ml, nk, nl, ku, ix, iy, ms, lx, ly, ns;
-    extern /* Subroutine */ int ccgbmv_(integer*, char*, integer*, integer*, integer*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, complex*, integer*, ftnlen);
-    extern /* Subroutine */ void ccgemv_(integer*, char*, integer*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, complex*, integer*, ftnlen);
+    extern /* Subroutine */ void ccgbmv_(integer*, char*, integer*, integer*, integer*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, complex*, integer*);
+    extern /* Subroutine */ void ccgemv_(integer*, char*, integer*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, complex*, integer*);
     extern logical lceres_(char*, char*, integer*, integer*, complex*, complex*, integer*, ftnlen, ftnlen);
     static char ctrans[14];
     static real errmax;
@@ -1142,8 +1137,7 @@ L240:
 					}
 					ccgemv_(iorder, trans, &m, &n, &alpha,
 						 &aa[1], &lda, &xx[1], &incx, 
-						&beta, &yy[1], &incy, (ftnlen)
-						1);
+						&beta, &yy[1], &incy);
 				    } else if (banded) {
 					if (*trace) {
 /*
@@ -1158,8 +1152,7 @@ L240:
 					}
 					ccgbmv_(iorder, trans, &m, &n, &kl, &
 						ku, &alpha, &aa[1], &lda, &xx[
-						1], &incx, &beta, &yy[1], &
-						incy, (ftnlen)1);
+						1], &incx, &beta, &yy[1], &incy);
 				    }
 
 /*                            Check if error-exit was taken incorrectly. */
@@ -1347,10 +1340,10 @@ L140:
     static integer nc, ik, in;
     static logical packed;
     static integer nk, ks, ix, iy, ns, lx, ly;
-    extern /* Subroutine */ void cchbmv_(integer*, char*, integer*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, complex*, integer*, ftnlen);
-    extern /* Subroutine */ void cchemv_(integer*, char*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, complex*, integer*, ftnlen);
+    extern /* Subroutine */ void cchbmv_(integer*, char*, integer*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, complex*, integer*);
+    extern /* Subroutine */ void cchemv_(integer*, char*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, complex*, integer*);
     extern logical lceres_(char*, char*, integer*, integer*, complex*, complex*, integer*, ftnlen, ftnlen);
-    extern /* Subroutine */ void cchpmv_(integer*, char*, integer*, complex*, complex*, complex*, integer*, complex*, complex*, integer*, ftnlen);
+    extern /* Subroutine */ void cchpmv_(integer*, char*, integer*, complex*, complex*, complex*, integer*, complex*, complex*, integer*);
     static real errmax;
     static complex transl;
     static integer laa, lda;
@@ -1566,7 +1559,7 @@ L140:
 				    }
 				    cchemv_(iorder, uplo, &n, &alpha, &aa[1], 
 					    &lda, &xx[1], &incx, &beta, &yy[1]
-					    , &incy, (ftnlen)1);
+					    , &incy);
 				} else if (banded) {
 				    if (*trace) {
 /*
@@ -1581,7 +1574,7 @@ L140:
 				    }
 				    cchbmv_(iorder, uplo, &n, &k, &alpha, &aa[
 					    1], &lda, &xx[1], &incx, &beta, &
-					    yy[1], &incy, (ftnlen)1);
+					    yy[1], &incy);
 				} else if (packed) {
 				    if (*trace) {
 /*
@@ -1596,7 +1589,7 @@ L140:
 				    }
 				    cchpmv_(iorder, uplo, &n, &alpha, &aa[1], 
 					    &xx[1], &incx, &beta, &yy[1], &
-					    incy, (ftnlen)1);
+					    incy);
 				}
 
 /*                          Check if error-exit was taken incorrectly. */
@@ -1792,15 +1785,15 @@ L130:
     static logical packed;
     static integer nk, ks, ix, ns, lx;
     extern logical lceres_(char*, char*, integer*, integer*, complex*, complex*, integer*, ftnlen, ftnlen);
-    extern /* Subroutine */ void cctbmv_(integer*, char*, char*, char*, integer*, integer*, complex*, integer*, complex*, integer*, ftnlen, ftnlen, ftnlen);
-    extern /* Subroutine */ void cctbsv_(integer*, char*, char*, char*, integer*, integer*, complex*, integer*, complex*, integer*, ftnlen, ftnlen, ftnlen);
+    extern /* Subroutine */ void cctbmv_(integer*, char*, char*, char*, integer*, integer*, complex*, integer*, complex*, integer*);
+    extern /* Subroutine */ void cctbsv_(integer*, char*, char*, char*, integer*, integer*, complex*, integer*, complex*, integer*);
     static char ctrans[14];
-    extern /* Subroutine */ void cctpmv_(integer*, char*, char*, char*, integer*, complex*, complex*, integer*, ftnlen, ftnlen, ftnlen);
+    extern /* Subroutine */ void cctpmv_(integer*, char*, char*, char*, integer*, complex*, complex*, integer*);
     static real errmax;
-    extern /* Subroutine */ void cctrmv_(integer*, char*, char*, char*, integer*, complex*, integer*, complex*, integer*, ftnlen, ftnlen, ftnlen);
-    extern /* Subroutine */ void cctpsv_(integer*, char*, char*, char*, integer*, complex*, complex*, integer*, ftnlen, ftnlen, ftnlen);
+    extern /* Subroutine */ void cctrmv_(integer*, char*, char*, char*, integer*, complex*, integer*, complex*, integer*);
+    extern /* Subroutine */ void cctpsv_(integer*, char*, char*, char*, integer*, complex*, complex*, integer*);
     static complex transl;
-    extern /* Subroutine */ void cctrsv_(integer*, char*, char*, char*, integer*, complex*, integer*, complex*, integer*, ftnlen, ftnlen, ftnlen);
+    extern /* Subroutine */ void cctrsv_(integer*, char*, char*, char*, integer*, complex*, integer*, complex*, integer*);
     static char transs[1];
     static integer laa, icd, lda;
     extern logical lce_(complex*, complex*, integer*);
@@ -2010,8 +2003,7 @@ L130:
 					f_rew(&al__1);*/
 				    }
 				    cctrmv_(iorder, uplo, trans, diag, &n, &
-					    aa[1], &lda, &xx[1], &incx, (
-					    ftnlen)1, (ftnlen)1, (ftnlen)1);
+					    aa[1], &lda, &xx[1], &incx);
 				} else if (banded) {
 				    if (*trace) {
 /*
@@ -2025,8 +2017,7 @@ L130:
 					f_rew(&al__1);*/
 				    }
 				    cctbmv_(iorder, uplo, trans, diag, &n, &k,
-					     &aa[1], &lda, &xx[1], &incx, (
-					    ftnlen)1, (ftnlen)1, (ftnlen)1);
+					     &aa[1], &lda, &xx[1], &incx);
 				} else if (packed) {
 				    if (*trace) {
 /*
@@ -2040,8 +2031,7 @@ L130:
 					f_rew(&al__1);*/
 				    }
 				    cctpmv_(iorder, uplo, trans, diag, &n, &
-					    aa[1], &xx[1], &incx, (ftnlen)1, (
-					    ftnlen)1, (ftnlen)1);
+					    aa[1], &xx[1], &incx);
 				}
 			    } else if (s_cmp(sname + 9, "sv", (ftnlen)2, (
 				    ftnlen)2) == 0) {
@@ -2058,8 +2048,7 @@ L130:
 					f_rew(&al__1);*/
 				    }
 				    cctrsv_(iorder, uplo, trans, diag, &n, &
-					    aa[1], &lda, &xx[1], &incx, (
-					    ftnlen)1, (ftnlen)1, (ftnlen)1);
+					    aa[1], &lda, &xx[1], &incx);
 				} else if (banded) {
 				    if (*trace) {
 /*
@@ -2073,8 +2062,7 @@ L130:
 					f_rew(&al__1);*/
 				    }
 				    cctbsv_(iorder, uplo, trans, diag, &n, &k,
-					     &aa[1], &lda, &xx[1], &incx, (
-					    ftnlen)1, (ftnlen)1, (ftnlen)1);
+					     &aa[1], &lda, &xx[1], &incx);
 				} else if (packed) {
 				    if (*trace) {
 /*
@@ -2088,8 +2076,7 @@ L130:
 					f_rew(&al__1);*/
 				    }
 				    cctpsv_(iorder, uplo, trans, diag, &n, &
-					    aa[1], &xx[1], &incx, (ftnlen)1, (
-					    ftnlen)1, (ftnlen)1);
+					    aa[1], &xx[1], &incx);
 				}
 			    }
 
@@ -2634,10 +2621,10 @@ L150:
     static char uplo[1];
     static integer i__, j, n;
     extern /* Subroutine */ int cmake_(char*, char*, char*, integer*, integer*, complex*, integer*, complex*, integer*, integer*, integer*, logical*, complex*, ftnlen, ftnlen, ftnlen);
-    extern /* Subroutine */ void ccher_(integer*, char*, integer*, real*, complex*, integer*, complex*, integer*, ftnlen);
+    extern /* Subroutine */ void ccher_(integer*, char*, integer*, real*, complex*, integer*, complex*, integer*);
     static complex alpha, w[1];
     static logical isame[13];
-    extern /* Subroutine */ void cchpr_(integer*, char*, integer*, real*, complex*, integer*, complex*, ftnlen);
+    extern /* Subroutine */ void cchpr_(integer*, char*, integer*, real*, complex*, integer*, complex*);
     extern /* Subroutine */ int cmvch_(char*, integer*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, complex*, integer*, complex*, real*, complex*, real*, real*, logical*, integer*, logical*, ftnlen);
     static integer nargs;
     static logical reset;
@@ -2812,7 +2799,7 @@ L150:
 			    f_rew(&al__1);*/
 			}
 			ccher_(iorder, uplo, &n, &ralpha, &xx[1], &incx, &aa[
-				1], &lda, (ftnlen)1);
+				1], &lda);
 		    } else if (packed) {
 			if (*trace) {
 /*
@@ -2825,8 +2812,7 @@ L150:
 			    al__1.aunit = *ntra;
 			    f_rew(&al__1);*/
 			}
-			cchpr_(iorder, uplo, &n, &ralpha, &xx[1], &incx, &aa[
-				1], (ftnlen)1);
+			cchpr_(iorder, uplo, &n, &ralpha, &xx[1], &incx, &aa[1]);
 		    }
 
 /*                 Check if error-exit was taken incorrectly. */
@@ -3005,8 +2991,8 @@ L130:
     static integer incxs, incys;
     static logical upper;
     static char uplos[1];
-    extern /* Subroutine */ void ccher2_(integer*, char*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, integer*, ftnlen);
-    extern /* Subroutine */ void cchpr2_(integer*, char*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, ftnlen);
+    extern /* Subroutine */ void ccher2_(integer*, char*, integer*, complex*, complex*, integer*, complex*, integer*, complex*, integer*);
+    extern /* Subroutine */ void cchpr2_(integer*, char*, integer*, complex*, complex*, integer*, complex*, integer*, complex*);
     static integer ia, ja, ic, nc, jj, lj, in;
     static logical packed;
     static integer ix, iy, ns, lx, ly;
@@ -3202,7 +3188,7 @@ L130:
 				f_rew(&al__1);*/
 			    }
 			    ccher2_(iorder, uplo, &n, &alpha, &xx[1], &incx, &
-				    yy[1], &incy, &aa[1], &lda, (ftnlen)1);
+				    yy[1], &incy, &aa[1], &lda);
 			} else if (packed) {
 			    if (*trace) {
 /*
@@ -3216,7 +3202,7 @@ L130:
 				f_rew(&al__1);*/
 			    }
 			    cchpr2_(iorder, uplo, &n, &alpha, &xx[1], &incx, &
-				    yy[1], &incy, &aa[1], (ftnlen)1);
+				    yy[1], &incy, &aa[1]);
 			}
 
 /*                    Check if error-exit was taken incorrectly. */

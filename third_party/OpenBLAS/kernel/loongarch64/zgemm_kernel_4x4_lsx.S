@@ -271,10 +271,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vld       D4,     B0,    0x30  // b3ri
     vld       D0,     A0,    0x00  // a0ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a0rr
-    vshuf4i.d  D6,     D0,    0x55  //a0ii
+    vshuf4i.d  D5,     D0,    0x0a  //a0rr
+    vshuf4i.d  D6,     D0,    0x0f  //a0ii
 
     vpackev.d D7,     D2,    D1     //b0r b1r
     vpackod.d D8,     D2,    D1     //b0i b1i
@@ -294,10 +292,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     vld       D0,     A0,    0x10  // a1ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a1rr
-    vshuf4i.d  D6,     D0,    0x55  //a1ii
+    vshuf4i.d  D5,     D0,    0x0a  //a1rr
+    vshuf4i.d  D6,     D0,    0x0f  //a1ii
 
     VMADD1    U4,     D5,    D7,     U4  //01r 11r
     VMADD2    U5,     D6,    D7,     U5  //01i 11i
@@ -311,10 +307,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     vld       D0,     A0,    0x20  // a2ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a2rr
-    vshuf4i.d  D6,     D0,    0x55  //a2ii
+    vshuf4i.d  D5,     D0,    0x0a  //a2rr
+    vshuf4i.d  D6,     D0,    0x0f  //a2ii
 
     VMADD1    U8,     D5,    D7,     U8  //02r 12r
     VMADD2    U9,     D6,    D7,     U9  //02i 12i
@@ -328,10 +322,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     vld       D0,     A0,    0x30  // a3ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a3rr
-    vshuf4i.d  D6,     D0,    0x55  //a3ii
+    vshuf4i.d  D5,     D0,    0x0a  //a3rr
+    vshuf4i.d  D6,     D0,    0x0f  //a3ii
 
     VMADD1    U12,     D5,    D7,     U12  //03r 13r
     VMADD2    U13,     D6,    D7,     U13  //03i 13i
@@ -522,70 +514,6 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     //res00 res10
     vld       D0,     C0,    0x00 //c0: 0 1
     vld       D1,     C1,    0x00 //c1: 0 1
-
-    vst       U0,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U1,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U2,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U3,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U4,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U5,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U6,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U7,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U8,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U9,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U10,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U11,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U12,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U13,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U14,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
-
-    vst       U15,     C0,    0x00
-    fld.d     $f27,  C0,    0x00
-    fld.d     $f27,  C0,    0x08
 
     vpackev.d D2,     D1,    D0   //c0[0] c1[0]
     vpackod.d D3,     D1,    D0   //c0[1] c1[1]
@@ -823,10 +751,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vld       D4,     B0,    0x30  // b3ri
     vld       D0,     A0,    0x00  // a0ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a0rr
-    vshuf4i.d  D6,     D0,    0x55  //a0ii
+    vshuf4i.d  D5,     D0,    0x0a  //a0rr
+    vshuf4i.d  D6,     D0,    0x0f  //a0ii
 
     vpackev.d D7,     D2,    D1     //b0r b1r
     vpackod.d D8,     D2,    D1     //b0i b1i
@@ -846,10 +772,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     vld       D0,     A0,    0x10  // a1ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a1rr
-    vshuf4i.d  D6,     D0,    0x55  //a1ii
+    vshuf4i.d  D5,     D0,    0x0a  //a1rr
+    vshuf4i.d  D6,     D0,    0x0f  //a1ii
 
     VMADD1    U4,     D5,    D7,     U4  //01r 11r
     VMADD2    U5,     D6,    D7,     U5  //01i 11i
@@ -1100,10 +1024,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vld       D4,     B0,    0x30  // b3ri
     vld       D0,     A0,    0x00  // a0ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a0rr
-    vshuf4i.d  D6,     D0,    0x55  //a0ii
+    vshuf4i.d  D5,     D0,    0x0a  //a0rr
+    vshuf4i.d  D6,     D0,    0x0f  //a0ii
 
     vpackev.d D7,     D2,    D1     //b0r b1r
     vpackod.d D8,     D2,    D1     //b0i b1i
@@ -1309,10 +1231,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vld       D2,     B0,    0x10  // b1ri
     vld       D0,     A0,    0x00  // a0ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a0rr
-    vshuf4i.d  D6,     D0,    0x55  //a0ii
+    vshuf4i.d  D5,     D0,    0x0a  //a0rr
+    vshuf4i.d  D6,     D0,    0x0f  //a0ii
 
     vpackev.d D7,     D2,    D1     //b0r b1r
     vpackod.d D8,     D2,    D1     //b0i b1i
@@ -1324,10 +1244,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     vld       D0,     A0,    0x10  // a1ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a1rr
-    vshuf4i.d  D6,     D0,    0x55  //a1ii
+    vshuf4i.d  D5,     D0,    0x0a  //a1rr
+    vshuf4i.d  D6,     D0,    0x0f  //a1ii
 
     VMADD1    U2,     D5,    D7,     U2  //01r 11r
     VMADD2    U3,     D6,    D7,     U3  //01i 11i
@@ -1336,10 +1254,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     vld       D0,     A0,    0x20  // a2ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a2rr
-    vshuf4i.d  D6,     D0,    0x55  //a2ii
+    vshuf4i.d  D5,     D0,    0x0a  //a2rr
+    vshuf4i.d  D6,     D0,    0x0f  //a2ii
 
     VMADD1    U4,     D5,    D7,     U4  //02r 12r
     VMADD2    U5,     D6,    D7,     U5  //02i 12i
@@ -1348,10 +1264,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     vld       D0,     A0,    0x30  // a3ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a3rr
-    vshuf4i.d  D6,     D0,    0x55  //a3ii
+    vshuf4i.d  D5,     D0,    0x0a  //a3rr
+    vshuf4i.d  D6,     D0,    0x0f  //a3ii
 
     VMADD1    U6,     D5,    D7,     U6  //03r 13r
     VMADD2    U7,     D6,    D7,     U7  //03i 13i
@@ -1598,10 +1512,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vld       D2,     B0,    0x10  // b1ri
     vld       D0,     A0,    0x00  // a0ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a0rr
-    vshuf4i.d  D6,     D0,    0x55  //a0ii
+    vshuf4i.d  D5,     D0,    0x0a  //a0rr
+    vshuf4i.d  D6,     D0,    0x0f  //a0ii
 
     vpackev.d D7,     D2,    D1     //b0r b1r
     vpackod.d D8,     D2,    D1     //b0i b1i
@@ -1613,10 +1525,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     vld       D0,     A0,    0x10  // a1ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a1rr
-    vshuf4i.d  D6,     D0,    0x55  //a1ii
+    vshuf4i.d  D5,     D0,    0x0a  //a1rr
+    vshuf4i.d  D6,     D0,    0x0f  //a1ii
 
     VMADD1    U2,     D5,    D7,     U2  //01r 11r
     VMADD2    U3,     D6,    D7,     U3  //01i 11i
@@ -1775,10 +1685,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vld       D2,     B0,    0x10  // b1ri
     vld       D0,     A0,    0x00  // a0ri
 
-    vand.v     D5,     D0,    D0
-    vand.v     D6,     D0,    D0
-    vshuf4i.d  D5,     D0,    0x00  //a0rr
-    vshuf4i.d  D6,     D0,    0x55  //a0ii
+    vshuf4i.d  D5,     D0,    0x0a  //a0rr
+    vshuf4i.d  D6,     D0,    0x0f  //a0ii
 
     vpackev.d D7,     D2,    D1     //b0r b1r
     vpackod.d D8,     D2,    D1     //b0i b1i
@@ -1930,10 +1838,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vpackev.d  D5,     D2,    D0  //a0r a1r
     vpackod.d  D6,     D2,    D0  //a0i a1i
 
-    vand.v     D7,     D1,    D1
-    vand.v     D8,     D1,    D1
-    vshuf4i.d  D7,     D1,    0x00  //b0rr
-    vshuf4i.d  D8,     D1,    0x55  //b0ii
+    vshuf4i.d  D7,     D1,    0x0a  //b0rr
+    vshuf4i.d  D8,     D1,    0x0f  //b0ii
 
     VMADD1    U0,     D5,    D7,     U0  //00r 01r
     VMADD2    U1,     D6,    D7,     U1  //00i 01i
@@ -2108,10 +2014,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vpackev.d  D5,     D2,    D0  //a0r a1r
     vpackod.d  D6,     D2,    D0  //a0i a1i
 
-    vand.v     D7,     D1,    D1
-    vand.v     D8,     D1,    D1
-    vshuf4i.d  D7,     D1,    0x00  //b0rr
-    vshuf4i.d  D8,     D1,    0x55  //b0ii
+    vshuf4i.d  D7,     D1,    0x0a  //b0rr
+    vshuf4i.d  D8,     D1,    0x0f  //b0ii
 
     VMADD1    U0,     D5,    D7,     U0  //00r 01r
     VMADD2    U1,     D6,    D7,     U1  //00i 01i

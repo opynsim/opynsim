@@ -49,12 +49,33 @@ int CNAME(BLASLONG m, BLASLONG n, BLASLONG dummy1, FLOAT alpha, FLOAT *a, BLASLO
 {
     if (n < 0) return(0);
 
-    FLOAT *a_ptr, *y_ptr, temp;
+    FLOAT *a_ptr, *y_ptr, *a2_ptr, temp, temp2;
     BLASLONG i, j, vl;
-    FLOAT_V_T va, vy;
+    FLOAT_V_T va, vy, va2;
 
     if (inc_y == 1) {
-        for (j = 0; j < n; j++) {
+        for (j = 0; j < (n >> 1); j++) {
+            temp = alpha * x[0];
+            temp2 = alpha * x[inc_x];
+            y_ptr = y;
+            a_ptr = a;
+            a2_ptr = a + lda;
+            for (i = m; i > 0; i -= vl) {
+                vl = VSETVL(i);
+                vy = VLEV_FLOAT(y_ptr, vl);
+                va = VLEV_FLOAT(a_ptr, vl);
+                va2 = VLEV_FLOAT(a2_ptr, vl);
+                vy = VFMACCVF_FLOAT(vy, temp, va, vl);
+                vy = VFMACCVF_FLOAT(vy, temp2, va2, vl);
+                VSEV_FLOAT(y_ptr, vy, vl);
+                y_ptr += vl;
+                a_ptr += vl;
+                a2_ptr += vl;
+            }
+            x += inc_x * 2;
+            a += lda * 2;
+        }
+        if (n & 1) {
             temp = alpha * x[0];
             y_ptr = y;
             a_ptr = a;
@@ -67,12 +88,31 @@ int CNAME(BLASLONG m, BLASLONG n, BLASLONG dummy1, FLOAT alpha, FLOAT *a, BLASLO
                 y_ptr += vl;
                 a_ptr += vl;
             }
-            x += inc_x;
-            a += lda;
         }
     } else {
         BLASLONG stride_y = inc_y * sizeof(FLOAT);
-        for (j = 0; j < n; j++) {
+        for (j = 0; j < (n >> 1); j++) {
+            temp = alpha * x[0];
+            temp2 = alpha * x[inc_x];
+            y_ptr = y;
+            a_ptr = a;
+            a2_ptr = a + lda;
+            for (i = m; i > 0; i -= vl) {
+                vl = VSETVL(i);
+                vy = VLSEV_FLOAT(y_ptr, stride_y, vl);
+                va = VLEV_FLOAT(a_ptr, vl);
+                va2 = VLEV_FLOAT(a2_ptr, vl);
+                vy = VFMACCVF_FLOAT(vy, temp, va, vl);
+                vy = VFMACCVF_FLOAT(vy, temp2, va2, vl);
+                VSSEV_FLOAT(y_ptr, stride_y, vy, vl);
+                y_ptr += vl * inc_y;
+                a_ptr += vl;
+                a2_ptr += vl;
+            }
+            x += inc_x * 2;
+            a += lda * 2;
+        }
+        if (n & 1) {
             temp = alpha * x[0];
             y_ptr = y;
             a_ptr = a;
@@ -85,8 +125,6 @@ int CNAME(BLASLONG m, BLASLONG n, BLASLONG dummy1, FLOAT alpha, FLOAT *a, BLASLO
                 y_ptr += vl * inc_y;
                 a_ptr += vl;
             }
-            x += inc_x;
-            a += lda;
         }
     }
     return(0);

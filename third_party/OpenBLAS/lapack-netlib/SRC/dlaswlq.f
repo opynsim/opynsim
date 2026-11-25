@@ -167,6 +167,7 @@
 *  =====================================================================
       SUBROUTINE DLASWLQ( M, N, MB, NB, A, LDA, T, LDT, WORK, LWORK,
      $                    INFO )
+      IMPLICIT NONE
 *
 *  -- LAPACK computational routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -217,7 +218,7 @@
         INFO = -2
       ELSE IF( MB.LT.1 .OR. ( MB.GT.M .AND. M.GT.0 ) ) THEN
         INFO = -3
-      ELSE IF( NB.LT.0 ) THEN
+      ELSE IF( NB.LE.0 ) THEN
         INFO = -4
       ELSE IF( LDA.LT.MAX( 1, M ) ) THEN
         INFO = -6

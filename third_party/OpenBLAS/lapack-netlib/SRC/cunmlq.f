@@ -5,7 +5,6 @@
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
 *> Download CUNMLQ + dependencies
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/cunmlq.f">
 *> [TGZ]</a>
@@ -13,7 +12,6 @@
 *> [ZIP]</a>
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/cunmlq.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -165,6 +163,7 @@
 *  =====================================================================
       SUBROUTINE CUNMLQ( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC,
      $                   WORK, LWORK, INFO )
+      IMPLICIT NONE
 *
 *  -- LAPACK computational routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -244,13 +243,10 @@
 *
 *        Compute the workspace requirements
 *
-         IF( M.EQ.0 .OR. N.EQ.0 .OR. K.EQ.0 ) THEN
-            LWKOPT = 1
-         ELSE
-            NB = MIN( NBMAX, ILAENV( 1, 'CUNMLQ', SIDE // TRANS, M, N,
-     $                               K, -1 ) )
-            LWKOPT = NW*NB + TSIZE
-         END IF
+        NB = MIN( NBMAX, ILAENV( 1, 'CUNMLQ', SIDE // TRANS, M, N,
+     $             K,
+     $        -1 ) )
+          LWKOPT = NW*NB + LDT*NB
          WORK( 1 ) = SROUNDUP_LWORK(LWKOPT)
       END IF
 *
@@ -264,6 +260,7 @@
 *     Quick return if possible
 *
       IF( M.EQ.0 .OR. N.EQ.0 .OR. K.EQ.0 ) THEN
+         WORK( 1 ) = 1
          RETURN
       END IF
 *
@@ -273,8 +270,9 @@
       LDWORK = NW
       IF( NB.GT.1 .AND. NB.LT.K ) THEN
          IF( LWORK.LT.LWKOPT ) THEN
-            NB = (LWORK-TSIZE) / LDWORK
-            NBMIN = MAX( 2, ILAENV( 2, 'CUNMLQ', SIDE // TRANS, M, N, K,
+             NB = LWORK / (LDWORK + LDT)
+            NBMIN = MAX( 2, ILAENV( 2, 'CUNMLQ', SIDE // TRANS, M, N,
+     $                   K,
      $              -1 ) )
          END IF
       END IF
@@ -283,7 +281,8 @@
 *
 *        Use unblocked code
 *
-         CALL CUNML2( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC, WORK,
+         CALL CUNML2( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC,
+     $                WORK,
      $                IINFO )
       ELSE
 *
@@ -339,7 +338,8 @@
 *
 *           Apply H or H**H
 *
-            CALL CLARFB( SIDE, TRANST, 'Forward', 'Rowwise', MI, NI, IB,
+            CALL CLARFB( SIDE, TRANST, 'Forward', 'Rowwise', MI, NI,
+     $                   IB,
      $                   A( I, I ), LDA, WORK( IWT ), LDT,
      $                   C( IC, JC ), LDC, WORK, LDWORK )
    10    CONTINUE

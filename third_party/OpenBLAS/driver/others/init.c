@@ -72,6 +72,12 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common.h"
 
+#if (MAX_CPU_NUMBER > 256)
+#ifndef BIGNUMA
+#define BIGNUMA
+#endif
+#endif
+
 #if defined(OS_LINUX) && defined(SMP)
 
 #define _GNU_SOURCE

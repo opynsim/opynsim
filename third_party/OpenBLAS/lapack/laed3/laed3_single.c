@@ -53,7 +53,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LASET  BLASFUNC(slaset)
 #endif
 
-FLOAT LAMC3(FLOAT *, FLOAT *);
+FLOATRET LAMC3(FLOAT *, FLOAT *);
 void LAED4(blasint *, blasint *, FLOAT *, FLOAT *, FLOAT *, FLOAT *, FLOAT *, blasint *);
 void LACPY(char *, blasint *, blasint *, FLOAT *, blasint *, FLOAT *, blasint *);
 void LASET(char *, blasint *, blasint *, FLOAT *, FLOAT *, FLOAT *, blasint *);
@@ -123,7 +123,7 @@ blasint CNAME(blasint *k, blasint *n, blasint *n1, FLOAT *d,
       }
     }
     for (i = 0; i < kval; i++) {
-      temp = sqrt(-w[i]);
+      temp = sqrt(fmax(-w[i], 0.0));
       w[i] = copysign(temp, s[i]);
     }
 

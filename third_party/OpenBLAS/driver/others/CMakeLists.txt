@@ -27,7 +27,6 @@ if (USE_THREAD)
     ${BLAS_SERVER}
     divtable.c # TODO: Makefile has -UDOUBLE
     blas_l1_thread.c
-    blas_server_callback.c
   )
 
   if (NOT NO_AFFINITY)
@@ -42,6 +41,7 @@ set(COMMON_SOURCES
   openblas_env.c
   openblas_get_num_procs.c
   openblas_get_num_threads.c
+  blas_server_callback.c
 )
 
 # these need to have NAME/CNAME set, so use GenerateNamedObjects, but don't use standard name mangling

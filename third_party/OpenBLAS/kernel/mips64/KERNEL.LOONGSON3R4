@@ -21,7 +21,7 @@ DDOTKERNEL   = ../mips/ddot_msa.c
 CDOTKERNEL   = ../mips/cdot_msa.c
 ZDOTKERNEL   = ../mips/zdot_msa.c
 endif
-DSDOTKERNEL  = ../mips/dot.c
+DSDOTKERNEL  = ../arm/dot.c
 
 ifndef NO_MSA
 SROTKERNEL   = ../mips/srot_msa.c

@@ -70,6 +70,7 @@
 #define RMB
 #endif
 
+#ifndef BLAS_LOCK_DEFINED
 static __inline void blas_lock(volatile BLASULONG *address){
 
 	
@@ -83,11 +84,15 @@ static __inline void blas_lock(volatile BLASULONG *address){
     while (*address) {YIELDING;}
 
 #ifndef C_MSVC
+#ifdef __PIZLONATOR_WAS_HERE__
+    ret=__atomic_exchange_n(address, 1, __ATOMIC_SEQ_CST);
+#else    
     __asm__ __volatile__(
 			 "xchgl %0, %1\n"
 			 : "=r"(ret), "=m"(*address)
 			 : "0"(1), "m"(*address)
 			 : "memory");
+#endif
 #else
     ret=InterlockedExchange64((volatile LONG64 *)(address), 1);
 #endif
@@ -95,6 +100,7 @@ static __inline void blas_lock(volatile BLASULONG *address){
 
 }
 #define BLAS_LOCK_DEFINED
+#endif
 
 static __inline BLASULONG rpcc(void){
 #ifdef C_MSVC
@@ -237,7 +243,7 @@ static __inline unsigned int blas_quickdivide(unsigned int x, unsigned int y){
 	
   y = blas_quick_divide_table[y];
 
-  __asm__ __volatile__  ("mull %0" :"=d" (result), "+a"(x) : "0" (y));
+  __asm__ __volatile__  ("mull %0" :"=d" (result), "+a"(x) : "0" (y) : "cc");
   return result;
 }
 #endif

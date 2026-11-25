@@ -1,16 +1,16 @@
-CAXPYKERNEL = ../mips/zaxpy.c
-ZAXPYKERNEL = ../mips/zaxpy.c
-SROTKERNEL  = ../mips/rot.c
-DROTKERNEL  = ../mips/rot.c
-CROTKERNEL  = ../mips/zrot.c
-ZROTKERNEL  = ../mips/zrot.c
-CSWAPKERNEL = ../mips/zswap.c
-ZSWAPKERNEL = ../mips/zswap.c
+CAXPYKERNEL = ../arm/zaxpy.c
+ZAXPYKERNEL = ../arm/zaxpy.c
+SROTKERNEL  = ../arm/rot.c
+DROTKERNEL  = ../arm/rot.c
+CROTKERNEL  = ../arm/zrot.c
+ZROTKERNEL  = ../arm/zrot.c
+CSWAPKERNEL = ../arm/zswap.c
+ZSWAPKERNEL = ../arm/zswap.c
 
-CSCALKERNEL = ../mips/zscal.c
-ZSCALKERNEL = ../mips/zscal.c
-                                                                                        
-                                                                                                                                          
+CSCALKERNEL = ../arm/zscal.c
+ZSCALKERNEL = ../arm/zscal.c
+
+
 ifndef SNRM2KERNEL
 SNRM2KERNEL = snrm2.S
 endif

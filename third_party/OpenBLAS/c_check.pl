@@ -56,6 +56,7 @@ if ($@){
 }
 
 $compiler = "";
+$darwin_os = "";
 $compiler = LSB       if ($data =~ /COMPILER_LSB/);
 $compiler = CLANG     if ($data =~ /COMPILER_CLANG/);
 $compiler = PGI       if ($data =~ /COMPILER_PGI/);
@@ -73,7 +74,13 @@ $os = FreeBSD         if ($data =~ /OS_FREEBSD/);
 $os = NetBSD          if ($data =~ /OS_NETBSD/);
 $os = OpenBSD         if ($data =~ /OS_OPENBSD/);
 $os = DragonFly       if ($data =~ /OS_DRAGONFLY/);
-$os = Darwin          if ($data =~ /OS_DARWIN/);
+if ($data =~ /OS_DARWIN/) {
+    $os = Darwin;
+    $darwin_os = "macOS";
+}
+if ($data =~ /OS_IOS/) {
+    $darwin_os = "iOS";
+}
 $os = SunOS           if ($data =~ /OS_SUNOS/);
 $os = AIX             if ($data =~ /OS_AIX/);
 $os = osf             if ($data =~ /OS_OSF/);
@@ -391,6 +398,7 @@ if ($architecture ne $hostarch) {
 
 $cross = 1 if ($os ne $hostos);
 $cross = 0 if (($os eq "Android") && ($hostos eq "Linux") && ($ENV{TERMUX_APP_PID} != ""));
+$cross = 1 if $darwin_os eq "iOS";
 
 $openmp = "" if $ENV{USE_OPENMP} != 1;
 
@@ -454,6 +462,7 @@ open(CONFFILE, "> $config"  ) || die "Can't create $config";
 # print $data, "\n";
 
 print MAKEFILE "OSNAME=$os\n";
+print MAKEFILE "OSNAME_DISPLAY=$darwin_os\n" if $darwin_os ne "";
 print MAKEFILE "ARCH=$architecture\n";
 print MAKEFILE "C_COMPILER=$compiler\n";
 print MAKEFILE "BINARY32=\n" if $binformat ne bin32;

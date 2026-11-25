@@ -3,17 +3,17 @@
 #
 
 # This library's version
-VERSION = 0.3.31
+VERSION = 0.3.34
 
-# If you set this prefix, the library name will be lib$(LIBNAMESUFFIX)openblas.a
-# and lib$(LIBNAMESUFFIX)openblas.so, with a matching soname in the shared library
-# 
+# If you set this prefix, the library name will be lib$(LIBNAMEPREFIX)openblas.a
+# and lib$(LIBNAMEPREFIX)openblas.so, with a matching soname in the shared library
+#
 # LIBNAMEPREFIX = scipy
 
-# If you set the suffix, the library name will be libopenblas_$(LIBNAMESUFFIX).a
-# and libopenblas_$(LIBNAMESUFFIX).so. Meanwhile, the soname in shared library
-# is libopenblas_$(LIBNAMESUFFIX).so.0.
-# LIBNAMESUFFIX = omp
+# If you set the suffix, the library name will be libopenblas$(LIBNAMESUFFIX).a
+# and libopenblas$(LIBNAMESUFFIX).so. Meanwhile, the soname in shared library
+# is libopenblas$(LIBNAMESUFFIX).so.0.
+# LIBNAMESUFFIX = _omp
 
 # You can specify the target architecture, otherwise it's
 # automatically detected.
@@ -290,10 +290,10 @@ COMMON_PROF = -pg
 # This is mostly intended as a developer feature to spot regressions, but users and
 # package maintainers can enable this if they have doubts about the thread safety of
 # the library, given the configuration in this file.
-# By default, the thread safety tester launches 52 concurrent calculations at the same
-# time.
+# By default, the thread safety testers launch many concurrent calculations at
+# the same time.
 #
-# Please note that the test uses ~1300 MiB of RAM for the DGEMM test.
+# Please note that the tests use ~1300 MiB of RAM for the DGEMM test.
 #
 # The test requires CBLAS to be built, a C++11 capable compiler and the presence of
 # an OpenMP implementation. If you are cross-compiling this test will probably not

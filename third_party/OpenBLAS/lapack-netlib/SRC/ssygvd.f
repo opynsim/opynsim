@@ -252,7 +252,7 @@
       EXTERNAL           SPOTRF, SSYEVD, SSYGST, STRMM, STRSM, XERBLA
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC          MAX, REAL
+      INTRINSIC          MAX
 *     ..
 *     .. Executable Statements ..
 *
@@ -325,8 +325,8 @@
       CALL SSYGST( ITYPE, UPLO, N, A, LDA, B, LDB, INFO )
       CALL SSYEVD( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, IWORK, LIWORK,
      $             INFO )
-      LOPT = INT( MAX( REAL( LOPT ), REAL( WORK( 1 ) ) ) )
-      LIOPT = INT( MAX( REAL( LIOPT ), REAL( IWORK( 1 ) ) ) )
+      LOPT = MAX( LOPT, INT( WORK( 1 ) ) )
+      LIOPT = MAX( LIOPT, IWORK( 1 ) )
 *
       IF( WANTZ .AND. INFO.EQ.0 ) THEN
 *

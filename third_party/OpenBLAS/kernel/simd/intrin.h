@@ -56,6 +56,11 @@ extern "C" {
 #include <arm_neon.h>
 #endif
 
+/** WASM SIMD **/
+#if defined(ARCH_WASM) && defined(__wasm_simd128__)
+#include <wasm_simd128.h>
+#endif
+
 // distribute
 #if defined(HAVE_AVX512VL) || defined(HAVE_AVX512BF16)
 #include "intrin_avx512.h"
@@ -67,6 +72,10 @@ extern "C" {
 
 #ifdef HAVE_NEON
 #include "intrin_neon.h"
+#endif
+
+#if defined(ARCH_WASM) && defined(__wasm_simd128__)
+#include "intrin_wasm.h"
 #endif
 
 #ifndef V_SIMD

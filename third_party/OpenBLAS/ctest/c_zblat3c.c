@@ -25,11 +25,9 @@ typedef struct { doublereal r, i; } doublecomplex;
 static inline _Dcomplex Cd(doublecomplex *z) {_Dcomplex zz={z->r , z->i};return zz;}
 static inline _Dcomplex * _pCd(doublecomplex *z) {return (_Dcomplex*)z;}
 #else
-static inline _Complex float Cf(complex *z) {return z->r + z->i*_Complex_I;}
 static inline _Complex double Cd(doublecomplex *z) {return z->r + z->i*_Complex_I;}
 static inline _Complex double * _pCd(doublecomplex *z) {return (_Complex double*)z;}
 #endif
-#define pCf(z) (*_pCf(z))
 #define pCd(z) (*_pCd(z))
 typedef int logical;
 typedef short int shortlogical;
@@ -314,7 +312,7 @@ static logical c_false = FALSE_;
     static logical rorder;
     static integer layout;
     static logical ltestt, tsterr;
-    extern /* Subroutine */ int cz3chke_(char*, ftnlen);
+    extern /* Subroutine */ void cz3chke_(char*);
     static doublecomplex alf[7], bet[7];
     static doublereal eps, err;
     extern logical lze_(doublecomplex*, doublecomplex*, integer*);
@@ -679,7 +677,7 @@ L80:
 		    ftnlen)12);
 /*           Test error exits. */
 	    if (tsterr) {
-		cz3chke_(snames[isnum - 1], (ftnlen)12);
+		cz3chke_(snames[isnum - 1]);
 	    }
 /*           Test computations. */
 	    infoc_1.infot = 0;
@@ -831,7 +829,7 @@ L230:
     static integer ia, ib;
     extern /* Subroutine */ int zprcn1_(integer*, integer*, char*, integer*, char*, char*, integer*, integer*, integer*, doublecomplex*, integer*, integer*, doublecomplex*, integer*, ftnlen, ftnlen, ftnlen);
     static integer ma, mb, na, nb, nc, ik, im, in, ks, ms, ns;
-    extern /* Subroutine */ void czgemm_(integer*, char*, char*, integer*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*, doublecomplex*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void czgemm_(integer*, char*, char*, integer*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*, doublecomplex*, integer*);
     static char tranas[1], tranbs[1], transa[1], transb[1];
     static doublereal errmax;
     extern logical lzeres_(char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, ftnlen, ftnlen);
@@ -1047,8 +1045,7 @@ L230:
 				}
 				czgemm_(iorder, transa, transb, &m, &n, &k, &
 					alpha, &aa[1], &lda, &bb[1], &ldb, &
-					beta, &cc[1], &ldc, (ftnlen)1, (
-					ftnlen)1);
+					beta, &cc[1], &ldc);
 
 /*                          Check if error-exit was taken incorrectly. */
 
@@ -1242,10 +1239,10 @@ return 0;
     static integer ia, ib;
     extern /* Subroutine */ int zprcn2_(integer*, integer*, char*, integer*, char*, char*, integer*, integer*, doublecomplex*, integer*, integer*, doublecomplex*, integer*, ftnlen, ftnlen, ftnlen);
     static integer na, nc, im, in, ms, ns;
-    extern /* Subroutine */ void czhemm_(integer*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*, doublecomplex*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void czhemm_(integer*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*, doublecomplex*, integer*);
     static doublereal errmax;
     extern logical lzeres_(char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, ftnlen, ftnlen);
-    extern /* Subroutine */ void czsymm_(integer*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*, doublecomplex*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void czsymm_(integer*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*, doublecomplex*, integer*);
     static integer laa, lbb, lda, lcc, ldb, ldc, ics;
     static doublecomplex als, bls;
     static integer icu;
@@ -1438,11 +1435,11 @@ return 0;
 			    if (isconj) {
 				czhemm_(iorder, side, uplo, &m, &n, &alpha, &
 					aa[1], &lda, &bb[1], &ldb, &beta, &cc[
-					1], &ldc, (ftnlen)1, (ftnlen)1);
+					1], &ldc);
 			    } else {
 				czsymm_(iorder, side, uplo, &m, &n, &alpha, &
 					aa[1], &lda, &bb[1], &ldb, &beta, &cc[
-					1], &ldc, (ftnlen)1, (ftnlen)1);
+					1], &ldc);
 			    }
 
 /*                       Check if error-exit was taken incorrectly. */
@@ -1641,8 +1638,8 @@ return 0;
     static char tranas[1], transa[1];
     static doublereal errmax;
     extern logical lzeres_(char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, ftnlen, ftnlen);
-    extern /* Subroutine */ void cztrmm_(integer*, char*, char*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, ftnlen, ftnlen, ftnlen, ftnlen);
-    extern /* Subroutine */ void cztrsm_(integer*, char*, char*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, ftnlen, ftnlen, ftnlen, ftnlen);
+    extern /* Subroutine */ void cztrmm_(integer*, char*, char*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*);
+    extern /* Subroutine */ void cztrsm_(integer*, char*, char*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*);
     static integer laa, icd, lbb, lda, ldb, ics;
     static doublecomplex als;
     static integer ict, icu;
@@ -1828,8 +1825,7 @@ return 0;
 				    }
 				    cztrmm_(iorder, side, uplo, transa, diag, 
 					    &m, &n, &alpha, &aa[1], &lda, &bb[
-					    1], &ldb, (ftnlen)1, (ftnlen)1, (
-					    ftnlen)1, (ftnlen)1);
+					    1], &ldb);
 				} else if (s_cmp(sname + 9, "sm", (ftnlen)2, (
 					ftnlen)2) == 0) {
 				    if (*trace) {
@@ -1846,8 +1842,7 @@ return 0;
 				    }
 				    cztrsm_(iorder, side, uplo, transa, diag, 
 					    &m, &n, &alpha, &aa[1], &lda, &bb[
-					    1], &ldb, (ftnlen)1, (ftnlen)1, (
-					    ftnlen)1, (ftnlen)1);
+					    1], &ldb);
 				}
 
 /*                          Check if error-exit was taken incorrectly. */
@@ -2119,11 +2114,11 @@ return 0;
     extern /* Subroutine */ int zprcn6_(integer*, integer*, char*, integer*, char*, char*, integer*, integer*, doublereal*, integer*, doublereal*, integer*, ftnlen, ftnlen, ftnlen);
     static integer ik, in, jj, lj, ks, ns;
     static doublereal ralpha;
-    extern /* Subroutine */ int czherk_(integer*, char*, char*, integer*, integer*, doublereal*, doublecomplex*, integer*, doublereal*, doublecomplex*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void czherk_(integer*, char*, char*, integer*, integer*, doublereal*, doublecomplex*, integer*, doublereal*, doublecomplex*, integer*);
     static doublereal errmax;
     extern logical lzeres_(char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, ftnlen, ftnlen);
     static char transs[1], transt[1];
-    extern /* Subroutine */ int czsyrk_(integer*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, doublecomplex*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void czsyrk_(integer*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, doublecomplex*, integer*);
     static integer laa, lda, lcc, ldc;
     static doublecomplex als;
     static integer ict, icu;
@@ -2319,8 +2314,7 @@ return 0;
 				    f_rew(&al__1);*/
 				}
 				czherk_(iorder, uplo, trans, &n, &k, &ralpha, 
-					&aa[1], &lda, &rbeta, &cc[1], &ldc, (
-					ftnlen)1, (ftnlen)1);
+					&aa[1], &lda, &rbeta, &cc[1], &ldc);
 			    } else {
 				if (*trace) {
 				    zprcn4_(ntra, &nc, sname, iorder, uplo, 
@@ -2334,8 +2328,7 @@ return 0;
 				    f_rew(&al__1);*/
 				}
 				czsyrk_(iorder, uplo, trans, &n, &k, &alpha, &
-					aa[1], &lda, &beta, &cc[1], &ldc, (
-					ftnlen)1, (ftnlen)1);
+					aa[1], &lda, &beta, &cc[1], &ldc);
 			    }
 
 /*                       Check if error-exit was taken incorrectly. */
@@ -2615,11 +2608,11 @@ return 0;
     static doublereal errmax;
     extern logical lzeres_(char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, ftnlen, ftnlen);
     static char transs[1], transt[1];
-    extern /* Subroutine */ int czher2k_(integer*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, doublereal*, doublecomplex*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void czher2k_(integer*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, doublereal*, doublecomplex*, integer*);
     static integer laa, lbb, lda, lcc, ldb, ldc;
     static doublecomplex als;
     static integer ict, icu;
-    extern /* Subroutine */ int czsyr2k_(integer*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*, doublecomplex*, integer*, ftnlen, ftnlen);
+    extern /* Subroutine */ void czsyr2k_(integer*, char*, char*, integer*, integer*, doublecomplex*, doublecomplex*, integer*, doublecomplex*, integer*, doublecomplex*, doublecomplex*, integer*);
     static doublereal err;
     extern logical lze_(doublecomplex*, doublecomplex*, integer*);
 
@@ -2830,7 +2823,7 @@ return 0;
 				}
 				czher2k_(iorder, uplo, trans, &n, &k, &alpha, 
 					&aa[1], &lda, &bb[1], &ldb, &rbeta, &
-					cc[1], &ldc, (ftnlen)1, (ftnlen)1);
+					cc[1], &ldc);
 			    } else {
 				if (*trace) {
 				    zprcn5_(ntra, &nc, sname, iorder, uplo, 
@@ -2845,7 +2838,7 @@ return 0;
 				}
 				czsyr2k_(iorder, uplo, trans, &n, &k, &alpha, 
 					&aa[1], &lda, &bb[1], &ldb, &beta, &
-					cc[1], &ldc, (ftnlen)1, (ftnlen)1);
+					cc[1], &ldc);
 			    }
 
 /*                       Check if error-exit was taken incorrectly. */

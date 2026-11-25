@@ -11,10 +11,10 @@
 !                         W, LDW,  S, LDS, ZWORK,  LZWORK,   &
 !                         RWORK, LRWORK, IWORK, LIWORK, INFO )
 !......
-!      USE                   iso_fortran_env
+!      USE, INTRINSIC :: iso_fortran_env, only: real64
 !      IMPLICIT NONE
 !      INTEGER, PARAMETER :: WP = real64
-! 
+!
 !......
 !      Scalar arguments
 !      CHARACTER, INTENT(IN)   :: JOBS,   JOBZ,  JOBR,  JOBF
@@ -199,7 +199,7 @@
 !>    (the number of columns of X and Y).
 !>    \endverbatim
 !.....
-!>    \param[in] LDX
+!>    \param[in,out] X
 !>    \verbatim
 !>    X (input/output) COMPLEX(KIND=WP) M-by-N array
 !>    > On entry, X contains the data snapshot matrix X. It is
@@ -210,7 +210,10 @@
 !>    data matrix X, U(:,1:K). All N columns of X contain all
 !>    left singular vectors of the input matrix X.
 !>    See the descriptions of K, Z and W.
+!>    \endverbatim
 !.....
+!>    \param[in] LDX
+!>    \verbatim
 !>    LDX (input) INTEGER, LDX >= M
 !>    The leading dimension of the array X.
 !>    \endverbatim
@@ -503,7 +506,7 @@
 !  -- Colorado Denver and NAG Ltd..                                   --
 !
 !.....
-      USE                   iso_fortran_env
+      USE, INTRINSIC :: iso_fortran_env, only: real64
       IMPLICIT NONE
       INTEGER, PARAMETER :: WP = real64
 !
@@ -537,7 +540,7 @@
 !     Local scalars
 !     ~~~~~~~~~~~~~
       REAL(KIND=WP) :: OFL,   ROOTSC, SCALE,  SMALL,    &
-                       SSUM,  XSCL1,  XSCL2
+                       SSUM,  XSCL1,  XSCL2, TBIG
       INTEGER       ::  i,  j,  IMINWR,  INFO1, INFO2,  &
                         LWRKEV, LWRSDD, LWRSVD, LWRSVJ, &
                         LWRSVQ, MLWORK, MWRKEV, MWRSDD, &
@@ -768,7 +771,9 @@
             END IF
             IF ( (SCALE /= ZERO) .AND. (SSUM /= ZERO) ) THEN
                ROOTSC = SQRT(SSUM)
-               IF ( SCALE .GE. (OFL / ROOTSC) ) THEN
+               TBIG = OFL
+               IF ( ROOTSC .GT. ONE ) TBIG = OFL / ROOTSC
+               IF ( SCALE .GE. TBIG ) THEN
 !                 Norm of X(:,i) overflows. First, X(:,i)
 !                 is scaled by
 !                 ( ONE / ROOTSC ) / SCALE = 1/||X(:,i)||_2.
@@ -842,7 +847,9 @@
             END IF
             IF ( SCALE /= ZERO  .AND. (SSUM /= ZERO) ) THEN
                ROOTSC = SQRT(SSUM)
-               IF ( SCALE .GE. (OFL / ROOTSC) ) THEN
+               TBIG = OFL
+               IF ( ROOTSC .GT. ONE ) TBIG = OFL / ROOTSC
+               IF ( SCALE .GE. TBIG ) THEN
 !                 Norm of Y(:,i) overflows. First, Y(:,i)
 !                 is scaled by
 !                 ( ONE / ROOTSC ) / SCALE = 1/||Y(:,i)||_2.
@@ -1145,4 +1152,3 @@
       RETURN
 !     ......
       END SUBROUTINE ZGEDMD
-

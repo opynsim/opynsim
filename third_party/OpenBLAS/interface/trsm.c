@@ -359,6 +359,9 @@ void CNAME(enum CBLAS_ORDER order,
     return;
   }
 
+  if (args.m == 0 || args.n == 0) return;
+
+#if defined(TRMM)
 #if !defined(COMPLEX) && !defined(DOUBLE) && !defined(BFLOAT16)  && !defined(HFLOAT16)
 #if defined(ARCH_ARM64) && (defined(USE_STRMM_KERNEL_DIRECT)||defined(DYNAMIC_ARCH))
 #if defined(DYNAMIC_ARCH)
@@ -368,22 +371,25 @@ if (strcmp(gotoblas_corename(), "armv9sme") == 0
 #endif
 )
 #endif
-  if (args.m == 0 || args.n == 0) return;
   if (order == CblasRowMajor && Diag == CblasNonUnit && Side == CblasLeft && m == lda && n == ldb) {
-    if (Trans ==  CblasNoTrans) {
+    if (Trans == CblasNoTrans || Trans == CblasConjNoTrans) {
       (Uplo == CblasUpper ? STRMM_DIRECT_LNUN : STRMM_DIRECT_LNLN)(m, n, alpha, a, lda, b, ldb);
-    } else if (Trans == CblasTrans) {
+      return;
+    } else if (Trans == CblasTrans || Trans == CblasConjTrans) {
       (Uplo == CblasUpper ? STRMM_DIRECT_LTUN : STRMM_DIRECT_LTLN)(m, n, alpha, a, lda, b, ldb);
+      return;
     }
-    return;
   }
 #endif
 #endif
+#endif
 
+
+
+//end of the ifndef CBLAS ... else ... section	
 #endif
 
   if ((args.m == 0) || (args.n == 0)) return;
-
   IDEBUG_START;
 
   FUNCTION_PROFILE_START();

@@ -5,7 +5,6 @@
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
 *> Download DBDSQR + dependencies
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dbdsqr.f">
 *> [TGZ]</a>
@@ -13,7 +12,6 @@
 *> [ZIP]</a>
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dbdsqr.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -166,7 +164,9 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is DOUBLE PRECISION array, dimension (4*(N-1))
+*>          WORK is DOUBLE PRECISION array, dimension (LWORK)
+*>          LWORK = 4*N, if NCVT = NRU = NCC = 0, and
+*>          LWORK = 4*(N-1), otherwise
 *> \endverbatim
 *>
 *> \param[out] INFO
@@ -181,7 +181,7 @@
 *>                     iterations (in inner while loop)
 *>                = 3, termination criterion of outer while loop not met
 *>                     (program created more than N unreduced blocks)
-*>             else NCVT = NRU = NCC = 0,
+*>             else,
 *>                   the algorithm did not converge; D and E contain the
 *>                   elements of a bidiagonal matrix which is orthogonally
 *>                   similar to the input matrix B;  if INFO = i, i
@@ -233,11 +233,12 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \ingroup auxOTHERcomputational
+*> \ingroup bdsqr
 *
 *  =====================================================================
       SUBROUTINE DBDSQR( UPLO, N, NCVT, NRU, NCC, D, E, VT, LDVT, U,
      $                   LDU, C, LDC, WORK, INFO )
+      IMPLICIT NONE
 *
 *  -- LAPACK computational routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -287,7 +288,8 @@
       EXTERNAL           LSAME, DLAMCH
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           DLARTG, DLAS2, DLASQ1, DLASR, DLASV2, DROT,
+      EXTERNAL           DLARTG, DLAS2, DLASQ1, DLASR, DLASV2,
+     $                   DROT,
      $                   DSCAL, DSWAP, XERBLA
 *     ..
 *     .. Intrinsic Functions ..
@@ -336,9 +338,10 @@
       IF( .NOT.ROTATE ) THEN
          CALL DLASQ1( N, D, E, WORK, INFO )
 *
-*     If INFO equals 2, dqds didn't finish, try to finish
+*     If the dqds algorithm failed, try to finish with
+*     the standard QR algorithm
 *
-         IF( INFO .NE. 2 ) RETURN
+         IF( INFO .EQ. 0 ) RETURN
          INFO = 0
       END IF
 *
@@ -368,10 +371,12 @@
 *        Update singular vectors if desired
 *
          IF( NRU.GT.0 )
-     $      CALL DLASR( 'R', 'V', 'F', NRU, N, WORK( 1 ), WORK( N ), U,
+     $      CALL DLASR( 'R', 'V', 'F', NRU, N, WORK( 1 ), WORK( N ),
+     $                  U,
      $                  LDU )
          IF( NCC.GT.0 )
-     $      CALL DLASR( 'L', 'V', 'F', N, NCC, WORK( 1 ), WORK( N ), C,
+     $      CALL DLASR( 'L', 'V', 'F', N, NCC, WORK( 1 ), WORK( N ),
+     $                  C,
      $                  LDC )
       END IF
 *
@@ -493,10 +498,12 @@
 *        Compute singular vectors, if desired
 *
          IF( NCVT.GT.0 )
-     $      CALL DROT( NCVT, VT( M-1, 1 ), LDVT, VT( M, 1 ), LDVT, COSR,
+     $      CALL DROT( NCVT, VT( M-1, 1 ), LDVT, VT( M, 1 ), LDVT,
+     $                 COSR,
      $                 SINR )
          IF( NRU.GT.0 )
-     $      CALL DROT( NRU, U( 1, M-1 ), 1, U( 1, M ), 1, COSL, SINL )
+     $      CALL DROT( NRU, U( 1, M-1 ), 1, U( 1, M ), 1, COSL,
+     $                 SINL )
          IF( NCC.GT.0 )
      $      CALL DROT( NCC, C( M-1, 1 ), LDC, C( M, 1 ), LDC, COSL,
      $                 SINL )
@@ -629,7 +636,8 @@
                CALL DLARTG( D( I )*CS, E( I ), CS, SN, R )
                IF( I.GT.LL )
      $            E( I-1 ) = OLDSN*R
-               CALL DLARTG( OLDCS*R, D( I+1 )*SN, OLDCS, OLDSN, D( I ) )
+               CALL DLARTG( OLDCS*R, D( I+1 )*SN, OLDCS, OLDSN,
+     $                      D( I ) )
                WORK( I-LL+1 ) = CS
                WORK( I-LL+1+NM1 ) = SN
                WORK( I-LL+1+NM12 ) = OLDCS
@@ -645,10 +653,12 @@
      $         CALL DLASR( 'L', 'V', 'F', M-LL+1, NCVT, WORK( 1 ),
      $                     WORK( N ), VT( LL, 1 ), LDVT )
             IF( NRU.GT.0 )
-     $         CALL DLASR( 'R', 'V', 'F', NRU, M-LL+1, WORK( NM12+1 ),
+     $         CALL DLASR( 'R', 'V', 'F', NRU, M-LL+1,
+     $                     WORK( NM12+1 ),
      $                     WORK( NM13+1 ), U( 1, LL ), LDU )
             IF( NCC.GT.0 )
-     $         CALL DLASR( 'L', 'V', 'F', M-LL+1, NCC, WORK( NM12+1 ),
+     $         CALL DLASR( 'L', 'V', 'F', M-LL+1, NCC,
+     $                     WORK( NM12+1 ),
      $                     WORK( NM13+1 ), C( LL, 1 ), LDC )
 *
 *           Test convergence
@@ -667,7 +677,8 @@
                CALL DLARTG( D( I )*CS, E( I-1 ), CS, SN, R )
                IF( I.LT.M )
      $            E( I ) = OLDSN*R
-               CALL DLARTG( OLDCS*R, D( I-1 )*SN, OLDCS, OLDSN, D( I ) )
+               CALL DLARTG( OLDCS*R, D( I-1 )*SN, OLDCS, OLDSN,
+     $                      D( I ) )
                WORK( I-LL ) = CS
                WORK( I-LL+NM1 ) = -SN
                WORK( I-LL+NM12 ) = OLDCS
@@ -680,7 +691,8 @@
 *           Update singular vectors
 *
             IF( NCVT.GT.0 )
-     $         CALL DLASR( 'L', 'V', 'B', M-LL+1, NCVT, WORK( NM12+1 ),
+     $         CALL DLASR( 'L', 'V', 'B', M-LL+1, NCVT,
+     $                     WORK( NM12+1 ),
      $                     WORK( NM13+1 ), VT( LL, 1 ), LDVT )
             IF( NRU.GT.0 )
      $         CALL DLASR( 'R', 'V', 'B', NRU, M-LL+1, WORK( 1 ),
@@ -735,10 +747,12 @@
      $         CALL DLASR( 'L', 'V', 'F', M-LL+1, NCVT, WORK( 1 ),
      $                     WORK( N ), VT( LL, 1 ), LDVT )
             IF( NRU.GT.0 )
-     $         CALL DLASR( 'R', 'V', 'F', NRU, M-LL+1, WORK( NM12+1 ),
+     $         CALL DLASR( 'R', 'V', 'F', NRU, M-LL+1,
+     $                     WORK( NM12+1 ),
      $                     WORK( NM13+1 ), U( 1, LL ), LDU )
             IF( NCC.GT.0 )
-     $         CALL DLASR( 'L', 'V', 'F', M-LL+1, NCC, WORK( NM12+1 ),
+     $         CALL DLASR( 'L', 'V', 'F', M-LL+1, NCC,
+     $                     WORK( NM12+1 ),
      $                     WORK( NM13+1 ), C( LL, 1 ), LDC )
 *
 *           Test convergence
@@ -785,7 +799,8 @@
 *           Update singular vectors if desired
 *
             IF( NCVT.GT.0 )
-     $         CALL DLASR( 'L', 'V', 'B', M-LL+1, NCVT, WORK( NM12+1 ),
+     $         CALL DLASR( 'L', 'V', 'B', M-LL+1, NCVT,
+     $                     WORK( NM12+1 ),
      $                     WORK( NM13+1 ), VT( LL, 1 ), LDVT )
             IF( NRU.GT.0 )
      $         CALL DLASR( 'R', 'V', 'B', NRU, M-LL+1, WORK( 1 ),
@@ -804,6 +819,12 @@
 *
   160 CONTINUE
       DO 170 I = 1, N
+         IF( D( I ).EQ.ZERO ) THEN
+*
+*           Avoid -ZERO
+*
+            D( I ) = ZERO
+         END IF
          IF( D( I ).LT.ZERO ) THEN
             D( I ) = -D( I )
 *
@@ -841,7 +862,8 @@
             IF( NRU.GT.0 )
      $         CALL DSWAP( NRU, U( 1, ISUB ), 1, U( 1, N+1-I ), 1 )
             IF( NCC.GT.0 )
-     $         CALL DSWAP( NCC, C( ISUB, 1 ), LDC, C( N+1-I, 1 ), LDC )
+     $         CALL DSWAP( NCC, C( ISUB, 1 ), LDC, C( N+1-I, 1 ),
+     $                     LDC )
          END IF
   190 CONTINUE
       GO TO 220

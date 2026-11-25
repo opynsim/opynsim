@@ -1,19 +1,17 @@
-*> \brief \b ZDRSCL multiplies a vector by the reciprocal of a real scalar.
+*> \brief \b ZRSCL multiplies a vector by the reciprocal of a complex scalar.
 *
 *  =========== DOCUMENTATION ===========
 *
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
-*> Download ZDRSCL + dependencies
-*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/zdrscl.f">
+*> Download ZRSCL + dependencies
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/zrscl.f">
 *> [TGZ]</a>
-*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/zdrscl.f">
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/zrscl.f">
 *> [ZIP]</a>
-*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/zdrscl.f">
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/zrscl.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -81,6 +79,7 @@
 *
 *  =====================================================================
       SUBROUTINE ZRSCL( N, A, X, INCX )
+      IMPLICIT NONE
 *
 *  -- LAPACK auxiliary routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -170,7 +169,8 @@
          ELSE IF( (ABS( UR ).GT.SAFMAX).OR.(ABS( UI ).GT.SAFMAX) ) THEN
             IF( (ABSR.GT.OV).OR.(ABSI.GT.OV) ) THEN
 *              This means that a and b are both Inf. No need for scaling.
-               CALL ZSCAL( N, DCMPLX( ONE / UR, -ONE / UI ), X, INCX )
+               CALL ZSCAL( N, DCMPLX( ONE / UR, -ONE / UI ), X,
+     $                     INCX )
             ELSE
                CALL ZDSCAL( N, SAFMIN, X, INCX )
                IF( (ABS( UR ).GT.OV).OR.(ABS( UI ).GT.OV) ) THEN

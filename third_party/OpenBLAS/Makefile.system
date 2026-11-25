@@ -18,6 +18,10 @@ HOSTARCH := $(shell uname -m)
 ifeq ($(HOSTARCH), amd64)
 HOSTARCH=x86_64
 endif
+ifeq ($(HOSTARCH), i386)
+HOSTARCH=x86
+override BINARY=32
+endif
 
 # Catch conflicting usage of ARCH in some BSD environments
 ifeq ($(ARCH), amd64)
@@ -194,7 +198,7 @@ ifeq ($(TARGET_CORE), EXCAVATOR)
 GETARCH_FLAGS := -DFORCE_BARCELONA
 endif
 ifeq ($(TARGET_CORE), ZEN)
-GETARCH_FLAGS := -DFORCE_BARCELONA
+GETARCH_FLAGS := -DFORCE_NEHALEM
 endif
 endif
 
@@ -247,6 +251,11 @@ NO_PARALLEL_MAKE=0
 endif
 GETARCH_FLAGS	+= -DNO_PARALLEL_MAKE=$(NO_PARALLEL_MAKE)
 
+ifndef MAKE_NB_JOBS
+ifneq (,$(patsubst -j%,%,$(filter -j%,$(MAKEFLAGS))))
+MAKE_NB_JOBS=-1
+endif
+endif
 ifdef MAKE_NB_JOBS
 GETARCH_FLAGS += -DMAKE_NB_JOBS=$(MAKE_NB_JOBS)
 endif
@@ -417,6 +426,9 @@ endif
 ifeq ($(C_COMPILER), CLANG)
 CLANGVERSIONGTEQ9 := $(shell expr `$(CC) -dumpversion | cut -f1 -d.` \>= 9)
 CLANGVERSIONGTEQ12 := $(shell expr `$(CC) -dumpversion | cut -f1 -d.` \>= 12)
+ifeq ($(F_COMPILER), GFORTRAN)
+GCCVERSIONGT4 := $(shell expr `$(CC) -dumpversion | cut -f1 -d.` \> 4)
+endif
 endif
 
 #
@@ -469,7 +481,7 @@ EXTRALIB	+= -lm
 endif
 
 ifeq ($(OSNAME), $(filter $(OSNAME),FreeBSD OpenBSD NetBSD DragonFly))
-ifeq ($(ARCH), $(filter $(ARCH),arm arm64))
+ifeq ($(ARCH), $(filter $(ARCH),arm arm64 power))
 EXTRALIB	+= -lm
 endif
 endif
@@ -733,6 +745,20 @@ DYNAMIC_CORE += THUNDERX2T99
 DYNAMIC_CORE += TSV110
 DYNAMIC_CORE += EMAG8180
 DYNAMIC_CORE += THUNDERX3T110
+
+ifeq ($(OSNAME), Darwin)
+DYNAMIC_CORE =  ARMV8
+DYNAMIC_CORE += NEOVERSEN1
+ifneq ($(NO_SME), 1)
+DYNAMIC_CORE += ARMV9SME
+ifeq ($(OSNAME), Darwin)
+ifneq ($(C_COMPILER), GCC)
+DYNAMIC_CORE += VORTEXM4
+endif
+endif
+endif
+endif
+
 ifdef DYNAMIC_LIST
 override DYNAMIC_CORE = ARMV8 $(DYNAMIC_LIST)
 XCCOMMON_OPT = -DDYNAMIC_LIST -DDYN_ARMV8
@@ -1626,7 +1652,11 @@ ifneq ($(C_COMPILER), SUN)
 CCOMMON_OPT     += -UASMNAME -UASMFNAME -UNAME -UCNAME -UCHAR_NAME -UCHAR_CNAME
 endif
 endif
+ifeq ( ,$(findstring pizfix,$(CEXTRALIB)))
 CCOMMON_OPT	+= -DASMNAME=$(FU)$(*F) -DASMFNAME=$(FU)$(*F)$(BU) -DNAME=$(*F)$(BU) -DCNAME=$(*F) -DCHAR_NAME=\"$(*F)$(BU)\" -DCHAR_CNAME=\"$(*F)\"
+else
+CCOMMON_OPT	+= -DASMNAME=$(FU)pizlonated_$(*F) -DASMFNAME=$(FU)pizlonated_$(*F)$(BU) -DNAME=$(*F)$(BU) -DCNAME=$(*F) -DCHAR_NAME=\"$(*F)$(BU)\" -DCHAR_CNAME=\"$(*F)\"
+endif
 
 ifeq ($(CORE), PPC440)
 CCOMMON_OPT	+= -DALLOC_QALLOC
@@ -1794,6 +1824,14 @@ endif
 
 ifndef LIBSUFFIX
 LIBSUFFIX = a
+endif
+
+ifndef EXE
+ifeq ($(OSNAME), $(filter $(OSNAME),WINNT CYGWIN_NT))
+EXE = .exe
+else
+EXE =
+endif
 endif
 
 ifneq ($(DYNAMIC_ARCH), 1)

@@ -4,6 +4,15 @@ trigger:
   branches:
     include:
       - develop
+  paths:
+    exclude:
+      - 'docs/**'
+      - '**/*.md'
+pr:
+  paths:
+    exclude:
+      - 'docs/**'
+      - '**/*.md'
 resources:
   containers:
       - container: oneapi-hpckit
@@ -91,6 +100,7 @@ jobs:
       openblas_utest.exe
 
 - job: Windows_mingw_gmake
+  timeoutInMinutes: 100
   pool:
      vmImage: 'windows-latest'
   steps:   
@@ -185,6 +195,7 @@ jobs:
   variables:
      LD_LIBRARY_PATH: /usr/local/opt/llvm/lib
      LIBRARY_PATH: /usr/local/opt/llvm/lib
+     RANLIB: touch
   steps:   
   - script: |
       brew update
@@ -197,6 +208,7 @@ jobs:
   variables:
      LD_LIBRARY_PATH: /usr/local/opt/llvm/lib
      LIBRARY_PATH: /usr/local/opt/llvm/lib
+     RANLIB: touch
   steps:   
   - script: |
       brew update
@@ -240,6 +252,7 @@ jobs:
      LD_LIBRARY_PATH: /usr/local/opt/llvm/lib
      MACOS_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/edb4dc2f-266f-47f2-8d56-21bc7764e119/m_HPCKit_p_2023.2.0.49443.dmg
      LIBRARY_PATH: /usr/local/opt/llvm/lib
+     RANLIB: touch
      MACOS_FORTRAN_COMPONENTS: intel.oneapi.mac.ifort-compiler
   steps:   
   - script: |

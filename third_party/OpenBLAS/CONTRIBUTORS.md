@@ -272,3 +272,15 @@ In chronological order:
 
 * Anna Mayne <anna.mayne@arm.com>
   * [2025-11-19] Update thread throttling profile for SGEMV on NEOVERSEV1 and NEOVERSEV2
+
+* Fadi Arafeh <fadi.arafeh@arm.com>
+  * [2026-03-05] Accelerate SVE128 SBGEMM/BGEMM
+
+* Nathan Sircombe <nathan.sircombe@arm.com>
+  * [2026-04-16] Add CPU ID for Neoverse V3
+hheei <hheei@users.noreply.github.com>
+
+* Aadityansha Verma <https://github.com/aadityansha06>
+  * [2026-07-14] Add independent transpose support for C in GEADD (sgeadd/dgeadd/cgeadd/zgeadd).
+
+

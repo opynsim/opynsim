@@ -5,7 +5,6 @@
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
 *> Download ZLACPY + dependencies
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/zlacpy.f">
 *> [TGZ]</a>
@@ -13,7 +12,6 @@
 *> [ZIP]</a>
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/zlacpy.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -96,10 +94,11 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \ingroup complex16OTHERauxiliary
+*> \ingroup lacpy
 *
 *  =====================================================================
       SUBROUTINE ZLACPY( UPLO, M, N, A, LDA, B, LDB )
+      IMPLICIT NONE
 *
 *  -- LAPACK auxiliary routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -135,7 +134,7 @@
    20    CONTINUE
 *
       ELSE IF( LSAME( UPLO, 'L' ) ) THEN
-         DO 40 J = 1, N
+         DO 40 J = 1, MIN( M, N )
             DO 30 I = J, M
                B( I, J ) = A( I, J )
    30       CONTINUE

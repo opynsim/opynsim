@@ -33,6 +33,9 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "common.h"
 
+#ifdef max
+#undef max
+#endif
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define copysign(x,y) ((y) < 0 ? ((x) < 0 ? (x) : -(x)) : ((x) < 0 ? -(x) : (x)))
 
@@ -54,7 +57,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LASET  BLASFUNC(slaset)
 #endif
 
-FLOAT LAMC3(FLOAT *, FLOAT *);
+FLOATRET LAMC3(FLOAT *, FLOAT *);
 void LAED4(blasint *, blasint *, FLOAT *, FLOAT *, FLOAT *, FLOAT *, FLOAT *, blasint *);
 void LACPY(char *, blasint *, blasint *, FLOAT *, blasint *, FLOAT *, blasint *);
 void LASET(char *, blasint *, blasint *, FLOAT *, FLOAT *, FLOAT *, blasint *);
@@ -200,7 +203,7 @@ blasint CNAME(blasint *k, blasint *n, blasint *n1, FLOAT *d,
       exec_blas(num_cpu, queue);
     }
     for (i = 0; i < kval; i++) {
-      temp = sqrt(-w[i]);
+      temp = sqrt(fmax(-w[i], 0.0));
       w[i] = copysign(temp, s[i]);
     }
 

@@ -1,5 +1,6 @@
 site_name: OpenBLAS
 site_url: https://openblas.net/docs/
+repo_name: "OpenMathLib/OpenBLAS"
 repo_url: https://github.com/OpenMathLib/OpenBLAS
 copyright: Copyright &copy; 2012- OpenBLAS contributors
 

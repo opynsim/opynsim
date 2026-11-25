@@ -120,6 +120,7 @@ exit(0);
 #ifdef USE_OPENMP
             CTEST_ERR("Number of OpenMP threads was %d in this attempt.",i);
 #endif
+	    free(a);free(b);free(c);free(d);
         } else if (fork_pid == 0) {
             // Just pretend to do something, e.g. call `uname`, then exit
             exit(0);
@@ -137,5 +138,6 @@ exit(0);
     }
 #endif
 
+	    free(a);free(b);free(c);free(d);
 #endif
 }

@@ -227,7 +227,7 @@
      $                   SLASCL, SORGHR, SROT, SSCAL, STREVC3, XERBLA
 *     ..
 *     .. External Functions ..
-      LOGICAL            LSAME
+      LOGICAL            LSAME, SISNAN
       INTEGER            ISAMAX, ILAENV
       REAL               SLAMCH, SLANGE, SLAPY2, SNRM2, SROUNDUP_LWORK
       EXTERNAL           LSAME, ISAMAX, ILAENV, SLAMCH, SLANGE, SLAPY2,
@@ -348,6 +348,10 @@
       ELSE IF( ANRM.GT.BIGNUM ) THEN
          SCALEA = .TRUE.
          CSCALE = BIGNUM
+      ELSE IF ( SISNAN ( ANRM ) ) THEN
+         INFO = -4
+         CALL XERBLA ( 'SGEEV', -INFO )
+         RETURN
       END IF
       IF( SCALEA )
      $   CALL SLASCL( 'G', 0, 0, ANRM, CSCALE, N, N, A, LDA, IERR )

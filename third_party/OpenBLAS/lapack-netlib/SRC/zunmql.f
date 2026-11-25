@@ -5,7 +5,6 @@
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
 *> Download ZUNMQL + dependencies
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/zunmql.f">
 *> [TGZ]</a>
@@ -13,7 +12,6 @@
 *> [ZIP]</a>
 *> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/zunmql.f">
 *> [TXT]</a>
-*> \endhtmlonly
 *
 *  Definition:
 *  ===========
@@ -159,11 +157,12 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \ingroup complex16OTHERcomputational
+*> \ingroup unmql
 *
 *  =====================================================================
       SUBROUTINE ZUNMQL( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC,
      $                   WORK, LWORK, INFO )
+      IMPLICIT NONE
 *
 *  -- LAPACK computational routine --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -243,9 +242,10 @@
          IF( M.EQ.0 .OR. N.EQ.0 ) THEN
             LWKOPT = 1
          ELSE
-            NB = MIN( NBMAX, ILAENV( 1, 'ZUNMQL', SIDE // TRANS, M, N,
+            NB = MIN( NBMAX, ILAENV( 1, 'ZUNMQL', SIDE // TRANS, M,
+     $                N,
      $                               K, -1 ) )
-            LWKOPT = NW*NB + TSIZE
+             LWKOPT = NW*NB + LDT*NB
          END IF
          WORK( 1 ) = LWKOPT
       END IF
@@ -267,8 +267,9 @@
       LDWORK = NW
       IF( NB.GT.1 .AND. NB.LT.K ) THEN
          IF( LWORK.LT.LWKOPT ) THEN
-            NB = (LWORK-TSIZE) / LDWORK
-            NBMIN = MAX( 2, ILAENV( 2, 'ZUNMQL', SIDE // TRANS, M, N, K,
+             NB = LWORK / (LDWORK + LDT)
+            NBMIN = MAX( 2, ILAENV( 2, 'ZUNMQL', SIDE // TRANS, M, N,
+     $                   K,
      $              -1 ) )
          END IF
       END IF
@@ -277,7 +278,8 @@
 *
 *        Use unblocked code
 *
-         CALL ZUNM2L( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC, WORK,
+         CALL ZUNM2L( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC,
+     $                WORK,
      $                IINFO )
       ELSE
 *
@@ -323,7 +325,8 @@
 *
 *           Apply H or H**H
 *
-            CALL ZLARFB( SIDE, TRANS, 'Backward', 'Columnwise', MI, NI,
+            CALL ZLARFB( SIDE, TRANS, 'Backward', 'Columnwise', MI,
+     $                   NI,
      $                   IB, A( 1, I ), LDA, WORK( IWT ), LDT, C, LDC,
      $                   WORK, LDWORK )
    10    CONTINUE

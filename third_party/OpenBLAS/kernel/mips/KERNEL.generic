@@ -53,92 +53,92 @@ ZTRSMKERNEL_RN	= ../generic/trsm_kernel_RN.c
 ZTRSMKERNEL_RT	= ../generic/trsm_kernel_RT.c
 
 #Pure C for other kernels
-SAMAXKERNEL  = ../mips/amax.c
-DAMAXKERNEL  = ../mips/amax.c
-CAMAXKERNEL  = ../mips/zamax.c
-ZAMAXKERNEL  = ../mips/zamax.c
+SAMAXKERNEL  = ../arm/amax.c
+DAMAXKERNEL  = ../arm/amax.c
+CAMAXKERNEL  = ../arm/zamax.c
+ZAMAXKERNEL  = ../arm/zamax.c
 
-SAMINKERNEL  = ../mips/amin.c
-DAMINKERNEL  = ../mips/amin.c
-CAMINKERNEL  = ../mips/zamin.c
-ZAMINKERNEL  = ../mips/zamin.c
+SAMINKERNEL  = ../arm/amin.c
+DAMINKERNEL  = ../arm/amin.c
+CAMINKERNEL  = ../arm/zamin.c
+ZAMINKERNEL  = ../arm/zamin.c
 
-SMAXKERNEL   = ../mips/max.c
-DMAXKERNEL   = ../mips/max.c
+SMAXKERNEL   = ../arm/max.c
+DMAXKERNEL   = ../arm/max.c
 
-SMINKERNEL   = ../mips/min.c
-DMINKERNEL   = ../mips/min.c
+SMINKERNEL   = ../arm/min.c
+DMINKERNEL   = ../arm/min.c
 
-ISAMAXKERNEL = ../mips/iamax.c
-IDAMAXKERNEL = ../mips/iamax.c
-ICAMAXKERNEL = ../mips/izamax.c
-IZAMAXKERNEL = ../mips/izamax.c
+ISAMAXKERNEL = ../arm/iamax.c
+IDAMAXKERNEL = ../arm/iamax.c
+ICAMAXKERNEL = ../arm/izamax.c
+IZAMAXKERNEL = ../arm/izamax.c
 
-ISAMINKERNEL = ../mips/iamin.c
-IDAMINKERNEL = ../mips/iamin.c
-ICAMINKERNEL = ../mips/izamin.c
-IZAMINKERNEL = ../mips/izamin.c
+ISAMINKERNEL = ../arm/iamin.c
+IDAMINKERNEL = ../arm/iamin.c
+ICAMINKERNEL = ../arm/izamin.c
+IZAMINKERNEL = ../arm/izamin.c
 
-ISMAXKERNEL  = ../mips/imax.c
-IDMAXKERNEL  = ../mips/imax.c
+ISMAXKERNEL  = ../arm/imax.c
+IDMAXKERNEL  = ../arm/imax.c
 
-ISMINKERNEL  = ../mips/imin.c
-IDMINKERNEL  = ../mips/imin.c
+ISMINKERNEL  = ../arm/imin.c
+IDMINKERNEL  = ../arm/imin.c
 
-SASUMKERNEL  = ../mips/asum.c
-DASUMKERNEL  = ../mips/asum.c
-CASUMKERNEL  = ../mips/zasum.c
-ZASUMKERNEL  = ../mips/zasum.c
+SASUMKERNEL  = ../arm/asum.c
+DASUMKERNEL  = ../arm/asum.c
+CASUMKERNEL  = ../arm/zasum.c
+ZASUMKERNEL  = ../arm/zasum.c
 
-SSUMKERNEL  = ../mips/sum.c
-DSUMKERNEL  = ../mips/sum.c
-CSUMKERNEL  = ../mips/zsum.c
-ZSUMKERNEL  = ../mips/zsum.c
+SSUMKERNEL   = ../arm/sum.c
+DSUMKERNEL   = ../arm/sum.c
+CSUMKERNEL   = ../arm/zsum.c
+ZSUMKERNEL   = ../arm/zsum.c
 
-SAXPYKERNEL  = ../mips/axpy.c
-DAXPYKERNEL  = ../mips/axpy.c
-CAXPYKERNEL  = ../mips/zaxpy.c
-ZAXPYKERNEL  = ../mips/zaxpy.c
+SAXPYKERNEL  = ../arm/axpy.c
+DAXPYKERNEL  = ../arm/axpy.c
+CAXPYKERNEL  = ../arm/zaxpy.c
+ZAXPYKERNEL  = ../arm/zaxpy.c
 
-SCOPYKERNEL  = ../mips/copy.c
-DCOPYKERNEL  = ../mips/copy.c
-CCOPYKERNEL  = ../mips/zcopy.c
-ZCOPYKERNEL  = ../mips/zcopy.c
+SCOPYKERNEL  = ../arm/copy.c
+DCOPYKERNEL  = ../arm/copy.c
+CCOPYKERNEL  = ../arm/zcopy.c
+ZCOPYKERNEL  = ../arm/zcopy.c
 
-SDOTKERNEL   = ../mips/dot.c
-DDOTKERNEL   = ../mips/dot.c
-CDOTKERNEL   = ../mips/zdot.c
-ZDOTKERNEL   = ../mips/zdot.c
+SDOTKERNEL   = ../arm/dot.c
+DDOTKERNEL   = ../arm/dot.c
+CDOTKERNEL   = ../arm/zdot.c
+ZDOTKERNEL   = ../arm/zdot.c
 
-SNRM2KERNEL  = ../mips/nrm2.c
-DNRM2KERNEL  = ../mips/nrm2.c
-CNRM2KERNEL  = ../mips/znrm2.c
-ZNRM2KERNEL  = ../mips/znrm2.c
+SNRM2KERNEL  = ../arm/nrm2.c
+DNRM2KERNEL  = ../arm/nrm2.c
+CNRM2KERNEL  = ../arm/znrm2.c
+ZNRM2KERNEL  = ../arm/znrm2.c
 
-SROTKERNEL   = ../mips/rot.c
-DROTKERNEL   = ../mips/rot.c
-CROTKERNEL   = ../mips/zrot.c
-ZROTKERNEL   = ../mips/zrot.c
+SROTKERNEL   = ../arm/rot.c
+DROTKERNEL   = ../arm/rot.c
+CROTKERNEL   = ../arm/zrot.c
+ZROTKERNEL   = ../arm/zrot.c
 
-SSCALKERNEL  = ../mips/scal.c
-DSCALKERNEL  = ../mips/scal.c
-CSCALKERNEL  = ../mips/zscal.c
-ZSCALKERNEL  = ../mips/zscal.c
+SSCALKERNEL  = ../arm/scal.c
+DSCALKERNEL  = ../arm/scal.c
+CSCALKERNEL  = ../arm/zscal.c
+ZSCALKERNEL  = ../arm/zscal.c
 
-SSWAPKERNEL  = ../mips/swap.c
-DSWAPKERNEL  = ../mips/swap.c
-CSWAPKERNEL  = ../mips/zswap.c
-ZSWAPKERNEL  = ../mips/zswap.c
+SSWAPKERNEL  = ../arm/swap.c
+DSWAPKERNEL  = ../arm/swap.c
+CSWAPKERNEL  = ../arm/zswap.c
+ZSWAPKERNEL  = ../arm/zswap.c
 
-SGEMVNKERNEL = ../mips/gemv_n.c
-DGEMVNKERNEL = ../mips/gemv_n.c
-CGEMVNKERNEL = ../mips/zgemv_n.c
-ZGEMVNKERNEL = ../mips/zgemv_n.c
+SGEMVNKERNEL = ../arm/gemv_n.c
+DGEMVNKERNEL = ../arm/gemv_n.c
+CGEMVNKERNEL = ../arm/zgemv_n.c
+ZGEMVNKERNEL = ../arm/zgemv_n.c
 
-SGEMVTKERNEL = ../mips/gemv_t.c
-DGEMVTKERNEL = ../mips/gemv_t.c
-CGEMVTKERNEL = ../mips/zgemv_t.c
-ZGEMVTKERNEL = ../mips/zgemv_t.c
+SGEMVTKERNEL = ../arm/gemv_t.c
+DGEMVTKERNEL = ../arm/gemv_t.c
+CGEMVTKERNEL = ../arm/zgemv_t.c
+ZGEMVTKERNEL = ../arm/zgemv_t.c
 
 SSYMV_U_KERNEL =  ../generic/symv_k.c
 SSYMV_L_KERNEL =  ../generic/symv_k.c

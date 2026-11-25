@@ -13,10 +13,8 @@ static void srot_kernel(BLASLONG n, FLOAT *x, FLOAT *y, FLOAT c, FLOAT s)
     BLASLONG tail_index_32 = n&(~31);
 
     __m256 c_256, s_256;
-    if (n >= 8) {
-        c_256 = _mm256_set1_ps(c);
-        s_256 = _mm256_set1_ps(s);
-    }
+    c_256 = _mm256_set1_ps(c);
+    s_256 = _mm256_set1_ps(s);
 
     __m256 x0, x1, x2, x3;
     __m256 y0, y1, y2, y3;
@@ -77,10 +75,20 @@ static void srot_kernel(BLASLONG n, FLOAT *x, FLOAT *y, FLOAT c, FLOAT s)
         _mm256_storeu_ps(&y[i], t0);
     }
 
-    for (i = tail_index_8; i < n; ++i) {
-        FLOAT temp = c * x[i] + s * y[i];
-        y[i] = c * y[i] - s * x[i];
-        x[i] = temp;
+    if ((n & 7) > 0) {
+	const int32_t mask_v[16] = {-1,-1,-1,-1, -1,-1,-1,-1,0,0,0,0,0,0,0,0};
+        __m256i tail_mask = _mm256_loadu_si256((__m256i*)&mask_v[8 - (n & 7)]);
+
+        x0 = _mm256_maskload_ps(&x[tail_index_8], tail_mask);
+        y0 = _mm256_maskload_ps(&y[tail_index_8], tail_mask);
+
+        t0 = _mm256_mul_ps(s_256, y0);
+        t0 = _mm256_fmadd_ps(c_256, x0, t0);
+        _mm256_maskstore_ps(&x[tail_index_8], tail_mask, t0);
+
+        t0 = _mm256_mul_ps(s_256, x0);
+        t0 = _mm256_fmsub_ps(c_256, y0, t0);
+        _mm256_maskstore_ps(&y[tail_index_8], tail_mask, t0);
     }
 }
 #endif

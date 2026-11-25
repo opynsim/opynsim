@@ -58,6 +58,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VI3 $vr8
 #define VI4 $vr19
 #define VT0 $vr23
+#define VMASK $vr7
 
     PROLOGUE
     li.d  i0, 0
@@ -76,6 +77,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     li.d I, -1
     vreplgr2vr.d VI4, I
     vffint.d.l VI4, VI4 // -1
+    li.d I, 0x7fffffffffffffff  // Mask for clearing the sign bit
+    vreplgr2vr.d VMASK, I
     bne INCX, TEMP, .L20 // incx != 1
 
     // Init Index
@@ -99,17 +102,15 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vld VX1, X, 2 * SIZE
     vpickev.d x1, VX1, VX0
     vpickod.d x2, VX1, VX0
-    vfmul.d x3, VI4, x1
-    vfmul.d x4, VI4, x2
-    vfcmp.clt.d VT0, x1, VI3
-    vfcmp.clt.d VINC8, x2, VI3
-    vbitsel.v x1, x1, x3, VT0
-    vbitsel.v x2, x2, x4, VINC8
+    vand.v  x1, x1, VMASK
+    vand.v  x2, x2, VMASK
     vfadd.d  VM0, x1, x2
 #else
     li.w I, -1
     vreplgr2vr.w VI4, I
     vffint.s.w VI4, VI4 // -1
+    li.d I, 0x7fffffff  // Mask for clearing the sign bit
+    vreplgr2vr.w VMASK, I
     bne INCX, TEMP, .L20 // incx != 1
 
     // Init Index
@@ -141,12 +142,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vld VX1, X, 4 * SIZE
     vpickev.w x1, VX1, VX0
     vpickod.w x2, VX1, VX0
-    vfmul.s x3, VI4, x1
-    vfmul.s x4, VI4, x2
-    vfcmp.clt.s VT0, x1, VI3
-    vfcmp.clt.s VINC8, x2, VI3
-    vbitsel.v x1, x1, x3, VT0
-    vbitsel.v x2, x2, x4, VINC8
+    vand.v  x1, x1, VMASK
+    vand.v  x2, x2, VMASK
     vfadd.s  VM0, x1, x2
 #endif
     .align 3
@@ -159,12 +156,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     addi.d I, I, -1
     vpickev.d x1, VX1, VX0
     vpickod.d x2, VX1, VX0
-    vfmul.d x3, VI4, x1
-    vfmul.d x4, VI4, x2
-    vfcmp.clt.d VT0, x1, VI3
-    vfcmp.clt.d VINC8, x2, VI3
-    vbitsel.v x1, x1, x3, VT0
-    vbitsel.v x2, x2, x4, VINC8
+    vand.v  x1, x1, VMASK
+    vand.v  x2, x2, VMASK
     vfadd.d x1, x1, x2
     vfmin.d x3, VM0, x1
     vfcmp.ceq.d VT0, x3, VM0
@@ -183,12 +176,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vpickev.w x1, VX1, VX0
     vpickod.w x2, VX1, VX0
 #endif
-    VFMUL  x3, VI4, x1
-    VFMUL  x4, VI4, x2
-    VCMPLT VT0, x1, VI3
-    VCMPLT VINC8, x2, VI3
-    vbitsel.v x1, x1, x3, VT0
-    vbitsel.v x2, x2, x4, VINC8
+    vand.v  x1, x1, VMASK
+    vand.v  x2, x2, VMASK
     VFADD  x1, x1, x2
     VFMIN  x3, VM0, x1
     VCMPEQ VT0, x3, VM0
@@ -264,12 +253,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vinsgr2vr.d x2, t2, 0
     vinsgr2vr.d x1, t3, 1
     vinsgr2vr.d x2, t4, 1
-    vfmul.d x3, VI4, x1
-    vfmul.d x4, VI4, x2
-    vfcmp.clt.d VT0, x1, VI3
-    vfcmp.clt.d VINC8, x2, VI3
-    vbitsel.v x1, x1, x3, VT0
-    vbitsel.v x2, x2, x4, VINC8
+    vand.v  x1, x1, VMASK
+    vand.v  x2, x2, VMASK
     vfadd.d VM0, x1, x2
 #else
     addi.w i0, i0, 1
@@ -339,12 +324,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vinsgr2vr.d x1, t3, 1
     vinsgr2vr.d x2, t4, 1
     vadd.d VI1, VI1, VINC4
-    vfmul.d x3, VI4, x1
-    vfmul.d x4, VI4, x2
-    vfcmp.clt.d VT0, x1, VI3
-    vfcmp.clt.d VINC8, x2, VI3
-    vbitsel.v x1, x1, x3, VT0
-    vbitsel.v x2, x2, x4, VINC8
+    vand.v  x1, x1, VMASK
+    vand.v  x2, x2, VMASK
     vfadd.d x1, x1, x2
     vfmin.d x3, VM0, x1
     ld.d t1, X, 0 * SIZE
@@ -385,12 +366,8 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     vinsgr2vr.w x2, t4, 3
 #endif
     addi.d I, I, -1
-    VFMUL  x3, VI4, x1
-    VFMUL  x4, VI4, x2
-    VCMPLT VT0, x1, VI3
-    VCMPLT VINC8, x2, VI3
-    vbitsel.v x1, x1, x3, VT0
-    vbitsel.v x2, x2, x4, VINC8
+    vand.v  x1, x1, VMASK
+    vand.v  x2, x2, VMASK
     VFADD  x1, x1, x2
     VFMIN  x3, VM0, x1
     VCMPEQ VT0, x3, VM0

@@ -70,7 +70,7 @@ extern long int syscall (long int __sysno, ...);
 static inline int my_mbind(void *addr, unsigned long len, int mode,
 			   unsigned long *nodemask, unsigned long maxnode,
 			   unsigned flags) {
-#if defined (__LSB_VERSION__) || defined(ARCH_ZARCH)
+#if defined (__LSB_VERSION__) || defined(ARCH_ZARCH) || defined(__PIZLONATOR_WAS_HERE__)
 // So far,  LSB (Linux Standard Base) don't support syscall().
 // https://lsbbugs.linuxfoundation.org/show_bug.cgi?id=3482
         return 0;

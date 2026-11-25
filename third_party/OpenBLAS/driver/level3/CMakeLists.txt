@@ -67,7 +67,7 @@ GenerateCombinationObjects("syr2k_kernel.c" "LOWER" "U" "" 2)
 if (USE_THREAD)
 
   # N.B. these do NOT have a float type (e.g. DOUBLE) defined!
-  GenerateNamedObjects("gemm_thread_m.c;gemm_thread_n.c;gemm_thread_mn.c;gemm_thread_variable.c;syrk_thread.c" "" "" 0 "" "" 1)
+  GenerateNamedObjects("gemm_thread_m.c;gemm_thread_n.c;gemm_thread_mn.c;gemm_thread_variable.c;syrk_thread.c;level3_thread_lock.c" "" "" 0 "" "" 1)
 
   if (NOT USE_SIMPLE_THREADED_LEVEL3)
     GenerateCombinationObjects("syrk_k.c" "LOWER;TRANS" "U;N" "THREADED_LEVEL3" 2 "syrk_thread")

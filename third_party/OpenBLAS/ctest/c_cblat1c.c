@@ -23,17 +23,10 @@ typedef struct { real r, i; } complex;
 typedef struct { doublereal r, i; } doublecomplex;
 #ifdef _MSC_VER
 static inline _Fcomplex Cf(complex *z) {_Fcomplex zz={z->r , z->i}; return zz;}
-static inline _Dcomplex Cd(doublecomplex *z) {_Dcomplex zz={z->r , z->i};return zz;}
 static inline _Fcomplex * _pCf(complex *z) {return (_Fcomplex*)z;}
-static inline _Dcomplex * _pCd(doublecomplex *z) {return (_Dcomplex*)z;}
 #else
 static inline _Complex float Cf(complex *z) {return z->r + z->i*_Complex_I;}
-static inline _Complex double Cd(doublecomplex *z) {return z->r + z->i*_Complex_I;}
-static inline _Complex float * _pCf(complex *z) {return (_Complex float*)z;}
-static inline _Complex double * _pCd(doublecomplex *z) {return (_Complex double*)z;}
 #endif
-#define pCf(z) (*_pCf(z))
-#define pCd(z) (*_pCd(z))
 typedef int logical;
 typedef short int shortlogical;
 typedef char logical1;
@@ -440,12 +433,12 @@ static real c_b43 = (float)1.;
     extern /* Subroutine */ int ctest_(integer*, complex*, complex*, complex*, real*);
     static complex mwpcs[5], mwpct[5];
     extern /* Subroutine */ int itest1_(integer*, integer*), stest1_(real*,real*,real*,real*);
-    extern /* Subroutine */ int cscaltest_(integer*, complex*, complex*, integer*);
+    extern /* Subroutine */ void cscaltest_(integer*, complex*, complex*, integer*);
     static complex cx[8];
     extern real scnrm2test_(integer*, complex*, integer*);
     static integer np1;
     extern integer icamaxtest_(integer*, complex*, integer*);
-    extern /* Subroutine */ int csscaltest_(integer*, real*, complex*, integer*);
+    extern /* Subroutine */ void csscaltest_(integer*, real*, complex*, integer*);
     extern real scasumtest_(integer*, complex*, integer*);
     static integer len;
 
@@ -468,7 +461,7 @@ static real c_b43 = (float)1.;
 	    i__1 = len;
 	    for (i__ = 1; i__ <= i__1; ++i__) {
 		i__2 = i__ - 1;
-		i__3 = i__ + (np1 + combla_1.incx * 5 << 3) - 49;
+		i__3 = i__ + ((np1 + combla_1.incx * 5) << 3) - 49;
 		cx[i__2].r = cv[i__3].r, cx[i__2].i = cv[i__3].i;
 /* L20: */
 	    }
@@ -483,13 +476,13 @@ static real c_b43 = (float)1.;
 	    } else if (combla_1.icase == 8) {
 /*              .. CSCAL .. */
 		cscaltest_(&combla_1.n, &ca, cx, &combla_1.incx);
-		ctest_(&len, cx, &ctrue5[(np1 + combla_1.incx * 5 << 3) - 48],
-			 &ctrue5[(np1 + combla_1.incx * 5 << 3) - 48], sfac);
+		ctest_(&len, cx, &ctrue5[((np1 + combla_1.incx * 5) << 3) - 48],
+			 &ctrue5[((np1 + combla_1.incx * 5) << 3) - 48], sfac);
 	    } else if (combla_1.icase == 9) {
 /*              .. CSSCALTEST .. */
 		csscaltest_(&combla_1.n, &sa, cx, &combla_1.incx);
-		ctest_(&len, cx, &ctrue6[(np1 + combla_1.incx * 5 << 3) - 48],
-			 &ctrue6[(np1 + combla_1.incx * 5 << 3) - 48], sfac);
+		ctest_(&len, cx, &ctrue6[((np1 + combla_1.incx * 5) << 3) - 48],
+			 &ctrue6[((np1 + combla_1.incx * 5) << 3) - 48], sfac);
 	    } else if (combla_1.icase == 10) {
 /*              .. ICAMAXTEST .. */
 		i__1 = icamaxtest_(&combla_1.n, cx, &combla_1.incx);
@@ -737,7 +730,7 @@ static real c_b43 = (float)1.;
     static complex ctemp;
     extern /* Subroutine */ int ctest_(integer*, complex*, complex*, complex*, real*);
     static integer ksize;
-    extern /* Subroutine */ int cdotctest_(integer*, complex*, integer*, complex*, integer*,complex*), ccopytest_(integer*, complex*, integer*, complex*, integer*), cdotutest_(integer*, complex*, integer*, complex*, integer*, complex*), 
+    extern /* Subroutine */ void cdotctest_(integer*, complex*, integer*, complex*, integer*,complex*), ccopytest_(integer*, complex*, integer*, complex*, integer*), cdotutest_(integer*, complex*, integer*, complex*, integer*, complex*), 
 	    cswaptest_(integer*, complex*, integer*, complex*, integer*), caxpytest_(integer*, complex*, complex*, integer*, complex*, integer*);
     static integer ki, kn;
     static complex cx[7], cy[7];

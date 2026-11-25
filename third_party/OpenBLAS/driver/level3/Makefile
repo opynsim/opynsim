@@ -237,7 +237,7 @@ XBLASOBJS   +=  \
 endif
 
 ifdef SMP
-COMMONOBJS  += gemm_thread_m.$(SUFFIX) gemm_thread_n.$(SUFFIX) gemm_thread_mn.$(SUFFIX) gemm_thread_variable.$(SUFFIX)
+COMMONOBJS  += gemm_thread_m.$(SUFFIX) gemm_thread_n.$(SUFFIX) gemm_thread_mn.$(SUFFIX) gemm_thread_variable.$(SUFFIX) level3_thread_lock.$(SUFFIX)
 COMMONOBJS  += syrk_thread.$(SUFFIX)
 
 ifneq ($(USE_SIMPLE_THREADED_LEVEL3), 1)
@@ -607,6 +607,9 @@ gemm_thread_mn.$(SUFFIX) : gemm_thread_mn.c ../../common.h
 	$(CC) -c $(CFLAGS) $< -o $(@F)
 
 gemm_thread_variable.$(SUFFIX) : gemm_thread_variable.c ../../common.h
+	$(CC) -c $(CFLAGS) $< -o $(@F)
+
+level3_thread_lock.$(SUFFIX) : level3_thread_lock.c ../../common.h
 	$(CC) -c $(CFLAGS) $< -o $(@F)
 
 beta_thread.$(SUFFIX) : beta_thread.c ../../common.h
@@ -3035,6 +3038,9 @@ gemm_thread_mn.$(PSUFFIX) : gemm_thread_mn.c ../../common.h
 	$(CC) -c $(PFLAGS) $< -o $(@F)
 
 gemm_thread_variable.$(PSUFFIX) : gemm_thread_variable.c ../../common.h
+	$(CC) -c $(PFLAGS) $< -o $(@F)
+
+level3_thread_lock.$(PSUFFIX) : level3_thread_lock.c ../../common.h
 	$(CC) -c $(PFLAGS) $< -o $(@F)
 
 beta_thread.$(PSUFFIX) : beta_thread.c ../../common.h

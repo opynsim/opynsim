@@ -190,8 +190,8 @@ typedef struct Namelist Namelist;
 #define c_abs(z) (cabsf(Cf(z)))
 #define c_cos(R,Z) { pCf(R)=ccos(Cf(Z)); }
 #ifdef _MSC_VER
-#define c_div(c, a, b) {Cf(c)._Val[0] = (Cf(a)._Val[0]/Cf(b)._Val[0]); Cf(c)._Val[1]=(Cf(a)._Val[1]/Cf(b)._Val[1]);}
-#define z_div(c, a, b) {Cd(c)._Val[0] = (Cd(a)._Val[0]/Cd(b)._Val[0]); Cd(c)._Val[1]=(Cd(a)._Val[1]/df(b)._Val[1]);}
+#define c_div(c, a, b) {float nenn=crealf(_FCmulcc(Cf(b),conjf(Cf(b)))); _Fcomplex zaehl=_FCmulcc(Cf(a),conjf(Cf(b))); pCf(c)=_FCbuild(crealf(zaehl)/nenn,cimagf(zaehl)/nenn);}
+#define z_div(c, a, b) {double nenn=creal(_Cmulcc(Cd(b),conj(Cd(b)))); _Dcomplex zaehl=_Cmulcc(Cd(a),conj(Cd(b))); pCd(c)=_Cbuild(creal(zaehl)/nenn,cimag(zaehl)/nenn);}
 #else
 #define c_div(c, a, b) {pCf(c) = Cf(a)/Cf(b);}
 #define z_div(c, a, b) {pCd(c) = Cd(a)/Cd(b);}
@@ -247,7 +247,6 @@ typedef struct Namelist Namelist;
 #define s_copy(A,B,C,D) { int __i,__m; for (__i=0, __m=f2cmin((C),(D)); __i<__m && (B)[__i] != 0; ++__i) (A)[__i] = (B)[__i]; }
 #define sig_die(s, kill) { exit(1); }
 #define s_stop(s, n) {exit(0);}
-static char junk[] = "\n@(#)LIBF77 VERSION 19990503\n";
 #define z_abs(z) (cabs(Cd(z)))
 #define z_exp(R, Z) {pCd(R) = cexp(Cd(Z));}
 #define z_sqrt(R, Z) {pCd(R) = csqrt(Cd(Z));}
@@ -378,19 +377,24 @@ static integer smaxloc_(float *w, integer s, integer e, integer *n)
 		if (w[i-1]>m) mi=i ,m=w[i-1];
 	return mi-s+1;
 }
+
 static inline void cdotc_(complex *z, integer *n_, complex *x, integer *incx_, complex *y, integer *incy_) {
 	integer n = *n_, incx = *incx_, incy = *incy_, i;
 #ifdef _MSC_VER
 	_Fcomplex zdotc = {0.0, 0.0};
 	if (incx == 1 && incy == 1) {
 		for (i=0;i<n;i++) { /* zdotc = zdotc + dconjg(x(i))* y(i) */
-			zdotc._Val[0] += conjf(Cf(&x[i]))._Val[0] * Cf(&y[i])._Val[0];
-			zdotc._Val[1] += conjf(Cf(&x[i]))._Val[1] * Cf(&y[i])._Val[1];
+			zdotc._Val[0] += Cf(&x[i])._Val[0] * Cf(&y[i])._Val[0]
+				+ Cf(&x[i])._Val[1] * Cf(&y[i])._Val[1];
+			zdotc._Val[1] -= Cf(&x[i])._Val[1] * Cf(&y[i])._Val[0]
+				- Cf(&x[i])._Val[0] * Cf(&y[i])._Val[1];
 		}
 	} else {
 		for (i=0;i<n;i++) { /* zdotc = zdotc + dconjg(x(i))* y(i) */
-			zdotc._Val[0] += conjf(Cf(&x[i*incx]))._Val[0] * Cf(&y[i*incy])._Val[0];
-			zdotc._Val[1] += conjf(Cf(&x[i*incx]))._Val[1] * Cf(&y[i*incy])._Val[1];
+			zdotc._Val[0] += Cf(&x[i*incx])._Val[0] * Cf(&y[i*incy])._Val[0]
+				+ Cf(&x[i*incx])._Val[1] * Cf(&y[i*incy])._Val[1];
+			zdotc._Val[1] -= Cf(&x[i*incx])._Val[1] * Cf(&y[i*incy])._Val[1]
+				- Cf(&x[i*incx])._Val[0] * Cf(&y[i*incy])._Val[1];
 		}
 	}
 	pCf(z) = zdotc;
@@ -415,13 +419,17 @@ static inline void zdotc_(doublecomplex *z, integer *n_, doublecomplex *x, integ
 	_Dcomplex zdotc = {0.0, 0.0};
 	if (incx == 1 && incy == 1) {
 		for (i=0;i<n;i++) { /* zdotc = zdotc + dconjg(x(i))* y(i) */
-			zdotc._Val[0] += conj(Cd(&x[i]))._Val[0] * Cd(&y[i])._Val[0];
-			zdotc._Val[1] += conj(Cd(&x[i]))._Val[1] * Cd(&y[i])._Val[1];
+			zdotc._Val[0] += conj(Cd(&x[i]))._Val[0] * Cd(&y[i])._Val[0]
+				+ Cd(&x[i*incx])._Val[1] * Cd(&y[i*incy])._Val[1];
+			zdotc._Val[1] += conj(Cd(&x[i]))._Val[1] * Cd(&y[i])._Val[1]
+				- Cd(&x[i])._Val[0] * Cd(&y[i])._Val[1];
 		}
 	} else {
 		for (i=0;i<n;i++) { /* zdotc = zdotc + dconjg(x(i))* y(i) */
-			zdotc._Val[0] += conj(Cd(&x[i*incx]))._Val[0] * Cd(&y[i*incy])._Val[0];
-			zdotc._Val[1] += conj(Cd(&x[i*incx]))._Val[1] * Cd(&y[i*incy])._Val[1];
+			zdotc._Val[0] += conj(Cd(&x[i*incx]))._Val[0] * Cd(&y[i*incy])._Val[0]
+				+ Cd(&x[i*incx])._Val[1] * Cd(&y[i*incy])._Val[1];
+			zdotc._Val[1] += conj(Cd(&x[i*incx]))._Val[1] * Cd(&y[i*incy])._Val[1]
+				- Cd(&x[i*incx])._Val[0] * Cd(&y[i*incy])._Val[1];
 		}
 	}
 	pCd(z) = zdotc;
@@ -446,13 +454,17 @@ static inline void cdotu_(complex *z, integer *n_, complex *x, integer *incx_, c
 	_Fcomplex zdotc = {0.0, 0.0};
 	if (incx == 1 && incy == 1) {
 		for (i=0;i<n;i++) { /* zdotc = zdotc + dconjg(x(i))* y(i) */
-			zdotc._Val[0] += Cf(&x[i])._Val[0] * Cf(&y[i])._Val[0];
-			zdotc._Val[1] += Cf(&x[i])._Val[1] * Cf(&y[i])._Val[1];
+			zdotc._Val[0] += Cf(&x[i])._Val[0] * Cf(&y[i])._Val[0]
+				- Cf(&x[i])._Val[1] * Cf(&y[i])._Val[1];
+			zdotc._Val[1] += Cf(&x[i])._Val[1] * Cf(&y[i])._Val[1]
+				+ Cf(&x[i])._Val[0] * Cf(&y[i])._Val[1];
 		}
 	} else {
 		for (i=0;i<n;i++) { /* zdotc = zdotc + dconjg(x(i))* y(i) */
-			zdotc._Val[0] += Cf(&x[i*incx])._Val[0] * Cf(&y[i*incy])._Val[0];
-			zdotc._Val[1] += Cf(&x[i*incx])._Val[1] * Cf(&y[i*incy])._Val[1];
+			zdotc._Val[0] += Cf(&x[i*incx])._Val[0] * Cf(&y[i*incy])._Val[0]
+				- Cf(&x[i*incx])._Val[1] * Cf(&y[i*incy])._Val[1];
+			zdotc._Val[1] += Cf(&x[i*incx])._Val[1] * Cf(&y[i*incy])._Val[1]
+				+ Cf(&x[i*incx])._Val[0] * Cf(&y[i*incy])._Val[1];
 		}
 	}
 	pCf(z) = zdotc;
@@ -477,13 +489,17 @@ static inline void zdotu_(doublecomplex *z, integer *n_, doublecomplex *x, integ
 	_Dcomplex zdotc = {0.0, 0.0};
 	if (incx == 1 && incy == 1) {
 		for (i=0;i<n;i++) { /* zdotc = zdotc + dconjg(x(i))* y(i) */
-			zdotc._Val[0] += Cd(&x[i])._Val[0] * Cd(&y[i])._Val[0];
-			zdotc._Val[1] += Cd(&x[i])._Val[1] * Cd(&y[i])._Val[1];
+			zdotc._Val[0] += Cd(&x[i])._Val[0] * Cd(&y[i])._Val[0]
+				- Cd(&x[i])._Val[1] * Cd(&y[i])._Val[1];
+			zdotc._Val[1] += Cd(&x[i])._Val[1] * Cd(&y[i])._Val[1]
+				+ Cd(&x[i])._Val[0] * Cd(&y[i])._Val[1];
 		}
 	} else {
 		for (i=0;i<n;i++) { /* zdotc = zdotc + dconjg(x(i))* y(i) */
-			zdotc._Val[0] += Cd(&x[i*incx])._Val[0] * Cd(&y[i*incy])._Val[0];
-			zdotc._Val[1] += Cd(&x[i*incx])._Val[1] * Cd(&y[i*incy])._Val[1];
+			zdotc._Val[0] += Cd(&x[i*incx])._Val[0] * Cd(&y[i*incy])._Val[0]
+				- Cd(&x[i*incx])._Val[1] * Cd(&y[i*incy])._Val[1];
+			zdotc._Val[1] += Cd(&x[i*incx])._Val[1] * Cd(&y[i*incy])._Val[1]
+				+ Cd(&x[i*incx])._Val[0] * Cd(&y[i*incy])._Val[1];
 		}
 	}
 	pCd(z) = zdotc;
@@ -508,12 +524,13 @@ static inline void zdotu_(doublecomplex *z, integer *n_, doublecomplex *x, integ
 */
 
 
-
-
 /* Table of constant values */
 
-static integer c__1 = 1;
-static doublereal c_b6 = 1.;
+static integer c__3 = 3;
+static integer c_n1 = -1;
+static integer c__2 = 2;
+static doublereal c_b13 = 1.;
+static doublereal c_b22 = -1.;
 
 /* > \brief \b DLARFT forms the triangular factor T of a block reflector H = I - vtvH */
 
@@ -522,7 +539,6 @@ static doublereal c_b6 = 1.;
 /* Online html documentation available at */
 /*            http://www.netlib.org/lapack/explore-html/ */
 
-/* > \htmlonly */
 /* > Download DLARFT + dependencies */
 /* > <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dlarft.
 f"> */
@@ -533,12 +549,11 @@ f"> */
 /* > <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dlarft.
 f"> */
 /* > [TXT]</a> */
-/* > \endhtmlonly */
 
 /*  Definition: */
 /*  =========== */
 
-/*       SUBROUTINE DLARFT( DIRECT, STOREV, N, K, V, LDV, TAU, T, LDT ) */
+/*        SUBROUTINE DLARFT( DIRECT, STOREV, N, K, V, LDV, TAU, T, LDT ) */
 
 /*       CHARACTER          DIRECT, STOREV */
 /*       INTEGER            K, LDT, LDV, N */
@@ -646,9 +661,7 @@ f"> */
 /* > \author Univ. of Colorado Denver */
 /* > \author NAG Ltd. */
 
-/* > \date December 2016 */
-
-/* > \ingroup doubleOTHERauxiliary */
+/* > \ingroup larft */
 
 /* > \par Further Details: */
 /*  ===================== */
@@ -677,212 +690,536 @@ f"> */
 /* > \endverbatim */
 /* > */
 /*  ===================================================================== */
-/* Subroutine */ void dlarft_(char *direct, char *storev, integer *n, integer *
+/* Subroutine */ int dlarft_(char *direct, char *storev, integer *n, integer *
 	k, doublereal *v, integer *ldv, doublereal *tau, doublereal *t, 
 	integer *ldt)
 {
     /* System generated locals */
-    integer t_dim1, t_offset, v_dim1, v_offset, i__1, i__2, i__3;
-    doublereal d__1;
+    address a__1[2];
+    integer t_dim1, t_offset, v_dim1, v_offset, i__1[2], i__2, i__3;
+    char ch__1[2];
 
     /* Local variables */
-    integer i__, j;
+    integer i__, j, l;
+    logical lq, ql, qr;
+    integer nx;
+    extern /* Subroutine */ int dlarft_lvl2__(char *, char *, integer *, 
+	    integer *, doublereal *, integer *, doublereal *, doublereal *, 
+	    integer *);
+    logical dirf, colv;
+    extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *, 
+	    integer *, doublereal *, doublereal *, integer *, doublereal *, 
+	    integer *, doublereal *, doublereal *, integer *);
     extern logical lsame_(char *, char *);
-    extern /* Subroutine */ void dgemv_(char *, integer *, integer *, 
-	    doublereal *, doublereal *, integer *, doublereal *, integer *, 
-	    doublereal *, doublereal *, integer *);
-    integer lastv;
-    extern /* Subroutine */ void dtrmv_(char *, char *, char *, integer *, 
-	    doublereal *, integer *, doublereal *, integer *);
-    integer prevlastv;
+    extern /* Subroutine */ int dtrmm_(char *, char *, char *, char *, 
+	    integer *, integer *, doublereal *, doublereal *, integer *, 
+	    doublereal *, integer *), dlacpy_(
+	    char *, integer *, integer *, doublereal *, integer *, doublereal 
+	    *, integer *);
+    extern integer ilaenv_(integer *, char *, char *, integer *, integer *, 
+	    integer *, integer *, ftnlen, ftnlen);
 
 
-/*  -- LAPACK auxiliary routine (version 3.7.0) -- */
+/*  -- LAPACK auxiliary routine -- */
 /*  -- LAPACK is a software package provided by Univ. of Tennessee,    -- */
 /*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..-- */
-/*     December 2016 */
 
 
-/*  ===================================================================== */
 
+
+
+
+
+
+
+
+
+
+/*     The general scheme used is inspired by the approach inside DGEQRT3 */
+/*     which was (at the time of writing this code): */
+/*     Based on the algorithm of Elmroth and Gustavson, */
+/*     IBM J. Res. Develop. Vol 44 No. 4 July 2000. */
 
 /*     Quick return if possible */
 
     /* Parameter adjustments */
     v_dim1 = *ldv;
-    v_offset = 1 + v_dim1 * 1;
+    v_offset = 1 + v_dim1;
     v -= v_offset;
     --tau;
     t_dim1 = *ldt;
-    t_offset = 1 + t_dim1 * 1;
+    t_offset = 1 + t_dim1;
     t -= t_offset;
 
     /* Function Body */
-    if (*n == 0) {
-	return;
+    if (*n == 0 || *k == 0) {
+	return 0;
     }
 
-    if (lsame_(direct, "F")) {
-	prevlastv = *n;
-	i__1 = *k;
-	for (i__ = 1; i__ <= i__1; ++i__) {
-	    prevlastv = f2cmax(i__,prevlastv);
-	    if (tau[i__] == 0.) {
+/*     Base case */
 
-/*              H(i)  =  I */
+    if (*n == 1 || *k == 1) {
+	t[t_dim1 + 1] = tau[1];
+	return 0;
+    }
 
-		i__2 = i__;
-		for (j = 1; j <= i__2; ++j) {
-		    t[j + i__ * t_dim1] = 0.;
-		}
-	    } else {
+/*     Determine when to cross over into the level 2 based implementation */
 
-/*              general case */
+/* Writing concatenation */
+    i__1[0] = 1, a__1[0] = direct;
+    i__1[1] = 1, a__1[1] = storev;
+    s_cat(ch__1, a__1, i__1, &c__2, (ftnlen)2);
+    nx = ilaenv_(&c__3, "DLARFT", ch__1, n, k, &c_n1, &c_n1, (ftnlen)6, (
+	    ftnlen)2);
+    if (*k < nx) {
+	dlarft_lvl2__(direct, storev, n, k, &v[v_offset], ldv, &tau[1], &t[
+		t_offset], ldt);
+	return 0;
+    }
 
-		if (lsame_(storev, "C")) {
-/*                 Skip any trailing zeros. */
-		    i__2 = i__ + 1;
-		    for (lastv = *n; lastv >= i__2; --lastv) {
-			if (v[lastv + i__ * v_dim1] != 0.) {
-			    myexit_();
-			}
-		    }
-		    i__2 = i__ - 1;
-		    for (j = 1; j <= i__2; ++j) {
-			t[j + i__ * t_dim1] = -tau[i__] * v[i__ + j * v_dim1];
-		    }
-		    j = f2cmin(lastv,prevlastv);
+/*     Beginning of executable statements */
 
-/*                 T(1:i-1,i) := - tau(i) * V(i:j,1:i-1)**T * V(i:j,i) */
+    l = *k / 2;
 
-		    i__2 = j - i__;
-		    i__3 = i__ - 1;
-		    d__1 = -tau[i__];
-		    dgemv_("Transpose", &i__2, &i__3, &d__1, &v[i__ + 1 + 
-			    v_dim1], ldv, &v[i__ + 1 + i__ * v_dim1], &c__1, &
-			    c_b6, &t[i__ * t_dim1 + 1], &c__1);
-		} else {
-/*                 Skip any trailing zeros. */
-		    i__2 = i__ + 1;
-		    for (lastv = *n; lastv >= i__2; --lastv) {
-			if (v[i__ + lastv * v_dim1] != 0.) {
-			    myexit_();
-			}
-		    }
-		    i__2 = i__ - 1;
-		    for (j = 1; j <= i__2; ++j) {
-			t[j + i__ * t_dim1] = -tau[i__] * v[j + i__ * v_dim1];
-		    }
-		    j = f2cmin(lastv,prevlastv);
+/*     Determine what kind of Q we need to compute */
+/*     We assume that if the user doesn't provide 'F' for DIRECT, */
+/*     then they meant to provide 'B' and if they don't provide */
+/*     'C' for STOREV, then they meant to provide 'R' */
 
-/*                 T(1:i-1,i) := - tau(i) * V(1:i-1,i:j) * V(i,i:j)**T */
+    dirf = lsame_(direct, "F");
+    colv = lsame_(storev, "C");
 
-		    i__2 = i__ - 1;
-		    i__3 = j - i__;
-		    d__1 = -tau[i__];
-		    dgemv_("No transpose", &i__2, &i__3, &d__1, &v[(i__ + 1) *
-			     v_dim1 + 1], ldv, &v[i__ + (i__ + 1) * v_dim1], 
-			    ldv, &c_b6, &t[i__ * t_dim1 + 1], &c__1);
-		}
+/*     QR happens when we have forward direction in column storage */
 
-/*              T(1:i-1,i) := T(1:i-1,1:i-1) * T(1:i-1,i) */
+    qr = dirf && colv;
 
-		i__2 = i__ - 1;
-		dtrmv_("Upper", "No transpose", "Non-unit", &i__2, &t[
-			t_offset], ldt, &t[i__ * t_dim1 + 1], &c__1);
-		t[i__ + i__ * t_dim1] = tau[i__];
-		if (i__ > 1) {
-		    prevlastv = f2cmax(prevlastv,lastv);
-		} else {
-		    prevlastv = lastv;
-		}
+/*     LQ happens when we have forward direction in row storage */
+
+    lq = dirf && ! colv;
+
+/*     QL happens when we have backward direction in column storage */
+
+    ql = ! dirf && colv;
+
+/*     The last case is RQ. Due to how we structured this, if the */
+/*     above 3 are false, then RQ must be true, so we never store */
+/*     this */
+/*     RQ happens when we have backward direction in row storage */
+/*     RQ = (.NOT.DIRF).AND.(.NOT.COLV) */
+
+    if (qr) {
+
+/*        Break V apart into 6 components */
+
+/*        V = |---------------| */
+/*            |V_{1,1} 0      | */
+/*            |V_{2,1} V_{2,2}| */
+/*            |V_{3,1} V_{3,2}| */
+/*            |---------------| */
+
+/*        V_{1,1}\in\R^{l,l}      unit lower triangular */
+/*        V_{2,1}\in\R^{k-l,l}    rectangular */
+/*        V_{3,1}\in\R^{n-k,l}    rectangular */
+
+/*        V_{2,2}\in\R^{k-l,k-l}  unit lower triangular */
+/*        V_{3,2}\in\R^{n-k,k-l}  rectangular */
+
+/*        We will construct the T matrix */
+/*        T = |---------------| */
+/*            |T_{1,1} T_{1,2}| */
+/*            |0       T_{2,2}| */
+/*            |---------------| */
+
+/*        T is the triangular factor obtained from block reflectors. */
+/*        To motivate the structure, assume we have already computed T_{1,1} */
+/*        and T_{2,2}. Then collect the associated reflectors in V_1 and V_2 */
+
+/*        T_{1,1}\in\R^{l, l}     upper triangular */
+/*        T_{2,2}\in\R^{k-l, k-l} upper triangular */
+/*        T_{1,2}\in\R^{l, k-l}   rectangular */
+
+/*        Where l = floor(k/2) */
+
+/*        Then, consider the product: */
+
+/*        (I - V_1*T_{1,1}*V_1')*(I - V_2*T_{2,2}*V_2') */
+/*        = I - V_1*T_{1,1}*V_1' - V_2*T_{2,2}*V_2' + V_1*T_{1,1}*V_1'*V_2*T_{2,2}*V_2' */
+
+/*        Define T_{1,2} = -T_{1,1}*V_1'*V_2*T_{2,2} */
+
+/*        Then, we can define the matrix V as */
+/*        V = |-------| */
+/*            |V_1 V_2| */
+/*            |-------| */
+
+/*        So, our product is equivalent to the matrix product */
+/*        I - V*T*V' */
+/*        This means, we can compute T_{1,1} and T_{2,2}, then use this information */
+/*        to compute T_{1,2} */
+
+/*        Compute T_{1,1} recursively */
+
+	dlarft_(direct, storev, n, &l, &v[v_offset], ldv, &tau[1], &t[
+		t_offset], ldt);
+
+/*        Compute T_{2,2} recursively */
+
+	i__2 = *n - l;
+	i__3 = *k - l;
+	dlarft_(direct, storev, &i__2, &i__3, &v[l + 1 + (l + 1) * v_dim1], 
+		ldv, &tau[l + 1], &t[l + 1 + (l + 1) * t_dim1], ldt);
+
+/*        Compute T_{1,2} */
+/*        T_{1,2} = V_{2,1}' */
+
+	i__2 = l;
+	for (j = 1; j <= i__2; ++j) {
+	    i__3 = *k - l;
+	    for (i__ = 1; i__ <= i__3; ++i__) {
+		t[j + (l + i__) * t_dim1] = v[l + i__ + j * v_dim1];
 	    }
 	}
+
+/*        T_{1,2} = T_{1,2}*V_{2,2} */
+
+	i__2 = *k - l;
+	dtrmm_("Right", "Lower", "No transpose", "Unit", &l, &i__2, &c_b13, &
+		v[l + 1 + (l + 1) * v_dim1], ldv, &t[(l + 1) * t_dim1 + 1], 
+		ldt);
+
+/*        T_{1,2} = V_{3,1}'*V_{3,2} + T_{1,2} */
+/*        Note: We assume K <= N, and GEMM will do nothing if N=K */
+
+	i__2 = *k - l;
+	i__3 = *n - *k;
+	dgemm_("Transpose", "No transpose", &l, &i__2, &i__3, &c_b13, &v[*k + 
+		1 + v_dim1], ldv, &v[*k + 1 + (l + 1) * v_dim1], ldv, &c_b13, 
+		&t[(l + 1) * t_dim1 + 1], ldt);
+
+/*        At this point, we have that T_{1,2} = V_1'*V_2 */
+/*        All that is left is to pre and post multiply by -T_{1,1} and T_{2,2} */
+/*        respectively. */
+
+/*        T_{1,2} = -T_{1,1}*T_{1,2} */
+
+	i__2 = *k - l;
+	dtrmm_("Left", "Upper", "No transpose", "Non-unit", &l, &i__2, &c_b22,
+		 &t[t_offset], ldt, &t[(l + 1) * t_dim1 + 1], ldt);
+
+/*        T_{1,2} = T_{1,2}*T_{2,2} */
+
+	i__2 = *k - l;
+	dtrmm_("Right", "Upper", "No transpose", "Non-unit", &l, &i__2, &
+		c_b13, &t[l + 1 + (l + 1) * t_dim1], ldt, &t[(l + 1) * t_dim1 
+		+ 1], ldt);
+    } else if (lq) {
+
+/*        Break V apart into 6 components */
+
+/*        V = |----------------------| */
+/*            |V_{1,1} V_{1,2} V{1,3}| */
+/*            |0       V_{2,2} V{2,3}| */
+/*            |----------------------| */
+
+/*        V_{1,1}\in\R^{l,l}      unit upper triangular */
+/*        V_{1,2}\in\R^{l,k-l}    rectangular */
+/*        V_{1,3}\in\R^{l,n-k}    rectangular */
+
+/*        V_{2,2}\in\R^{k-l,k-l}  unit upper triangular */
+/*        V_{2,3}\in\R^{k-l,n-k}  rectangular */
+
+/*        Where l = floor(k/2) */
+
+/*        We will construct the T matrix */
+/*        T = |---------------| */
+/*            |T_{1,1} T_{1,2}| */
+/*            |0       T_{2,2}| */
+/*            |---------------| */
+
+/*        T is the triangular factor obtained from block reflectors. */
+/*        To motivate the structure, assume we have already computed T_{1,1} */
+/*        and T_{2,2}. Then collect the associated reflectors in V_1 and V_2 */
+
+/*        T_{1,1}\in\R^{l, l}     upper triangular */
+/*        T_{2,2}\in\R^{k-l, k-l} upper triangular */
+/*        T_{1,2}\in\R^{l, k-l}   rectangular */
+
+/*        Then, consider the product: */
+
+/*        (I - V_1'*T_{1,1}*V_1)*(I - V_2'*T_{2,2}*V_2) */
+/*        = I - V_1'*T_{1,1}*V_1 - V_2'*T_{2,2}*V_2 + V_1'*T_{1,1}*V_1*V_2'*T_{2,2}*V_2 */
+
+/*        Define T_{1,2} = -T_{1,1}*V_1*V_2'*T_{2,2} */
+
+/*        Then, we can define the matrix V as */
+/*        V = |---| */
+/*            |V_1| */
+/*            |V_2| */
+/*            |---| */
+
+/*        So, our product is equivalent to the matrix product */
+/*        I - V'*T*V */
+/*        This means, we can compute T_{1,1} and T_{2,2}, then use this information */
+/*        to compute T_{1,2} */
+
+/*        Compute T_{1,1} recursively */
+
+	dlarft_(direct, storev, n, &l, &v[v_offset], ldv, &tau[1], &t[
+		t_offset], ldt);
+
+/*        Compute T_{2,2} recursively */
+
+	i__2 = *n - l;
+	i__3 = *k - l;
+	dlarft_(direct, storev, &i__2, &i__3, &v[l + 1 + (l + 1) * v_dim1], 
+		ldv, &tau[l + 1], &t[l + 1 + (l + 1) * t_dim1], ldt);
+
+/*        Compute T_{1,2} */
+/*        T_{1,2} = V_{1,2} */
+
+	i__2 = *k - l;
+	dlacpy_("All", &l, &i__2, &v[(l + 1) * v_dim1 + 1], ldv, &t[(l + 1) * 
+		t_dim1 + 1], ldt);
+
+/*        T_{1,2} = T_{1,2}*V_{2,2}' */
+
+	i__2 = *k - l;
+	dtrmm_("Right", "Upper", "Transpose", "Unit", &l, &i__2, &c_b13, &v[l 
+		+ 1 + (l + 1) * v_dim1], ldv, &t[(l + 1) * t_dim1 + 1], ldt);
+
+/*        T_{1,2} = V_{1,3}*V_{2,3}' + T_{1,2} */
+/*        Note: We assume K <= N, and GEMM will do nothing if N=K */
+
+	i__2 = *k - l;
+	i__3 = *n - *k;
+	dgemm_("No transpose", "Transpose", &l, &i__2, &i__3, &c_b13, &v[(*k 
+		+ 1) * v_dim1 + 1], ldv, &v[l + 1 + (*k + 1) * v_dim1], ldv, &
+		c_b13, &t[(l + 1) * t_dim1 + 1], ldt);
+
+/*        At this point, we have that T_{1,2} = V_1*V_2' */
+/*        All that is left is to pre and post multiply by -T_{1,1} and T_{2,2} */
+/*        respectively. */
+
+/*        T_{1,2} = -T_{1,1}*T_{1,2} */
+
+	i__2 = *k - l;
+	dtrmm_("Left", "Upper", "No transpose", "Non-unit", &l, &i__2, &c_b22,
+		 &t[t_offset], ldt, &t[(l + 1) * t_dim1 + 1], ldt);
+
+/*        T_{1,2} = T_{1,2}*T_{2,2} */
+
+	i__2 = *k - l;
+	dtrmm_("Right", "Upper", "No transpose", "Non-unit", &l, &i__2, &
+		c_b13, &t[l + 1 + (l + 1) * t_dim1], ldt, &t[(l + 1) * t_dim1 
+		+ 1], ldt);
+    } else if (ql) {
+
+/*        Break V apart into 6 components */
+
+/*        V = |---------------| */
+/*            |V_{1,1} V_{1,2}| */
+/*            |V_{2,1} V_{2,2}| */
+/*            |0       V_{3,2}| */
+/*            |---------------| */
+
+/*        V_{1,1}\in\R^{n-k,k-l}  rectangular */
+/*        V_{2,1}\in\R^{k-l,k-l}  unit upper triangular */
+
+/*        V_{1,2}\in\R^{n-k,l}    rectangular */
+/*        V_{2,2}\in\R^{k-l,l}    rectangular */
+/*        V_{3,2}\in\R^{l,l}      unit upper triangular */
+
+/*        We will construct the T matrix */
+/*        T = |---------------| */
+/*            |T_{1,1} 0      | */
+/*            |T_{2,1} T_{2,2}| */
+/*            |---------------| */
+
+/*        T is the triangular factor obtained from block reflectors. */
+/*        To motivate the structure, assume we have already computed T_{1,1} */
+/*        and T_{2,2}. Then collect the associated reflectors in V_1 and V_2 */
+
+/*        T_{1,1}\in\R^{k-l, k-l} non-unit lower triangular */
+/*        T_{2,2}\in\R^{l, l}     non-unit lower triangular */
+/*        T_{2,1}\in\R^{k-l, l}   rectangular */
+
+/*        Where l = floor(k/2) */
+
+/*        Then, consider the product: */
+
+/*        (I - V_2*T_{2,2}*V_2')*(I - V_1*T_{1,1}*V_1') */
+/*        = I - V_2*T_{2,2}*V_2' - V_1*T_{1,1}*V_1' + V_2*T_{2,2}*V_2'*V_1*T_{1,1}*V_1' */
+
+/*        Define T_{2,1} = -T_{2,2}*V_2'*V_1*T_{1,1} */
+
+/*        Then, we can define the matrix V as */
+/*        V = |-------| */
+/*            |V_1 V_2| */
+/*            |-------| */
+
+/*        So, our product is equivalent to the matrix product */
+/*        I - V*T*V' */
+/*        This means, we can compute T_{1,1} and T_{2,2}, then use this information */
+/*        to compute T_{2,1} */
+
+/*        Compute T_{1,1} recursively */
+
+	i__2 = *n - l;
+	i__3 = *k - l;
+	dlarft_(direct, storev, &i__2, &i__3, &v[v_offset], ldv, &tau[1], &t[
+		t_offset], ldt);
+
+/*        Compute T_{2,2} recursively */
+
+	dlarft_(direct, storev, n, &l, &v[(*k - l + 1) * v_dim1 + 1], ldv, &
+		tau[*k - l + 1], &t[*k - l + 1 + (*k - l + 1) * t_dim1], ldt);
+
+/*        Compute T_{2,1} */
+/*        T_{2,1} = V_{2,2}' */
+
+	i__2 = *k - l;
+	for (j = 1; j <= i__2; ++j) {
+	    i__3 = l;
+	    for (i__ = 1; i__ <= i__3; ++i__) {
+		t[*k - l + i__ + j * t_dim1] = v[*n - *k + j + (*k - l + i__) 
+			* v_dim1];
+	    }
+	}
+
+/*        T_{2,1} = T_{2,1}*V_{2,1} */
+
+	i__2 = *k - l;
+	dtrmm_("Right", "Upper", "No transpose", "Unit", &l, &i__2, &c_b13, &
+		v[*n - *k + 1 + v_dim1], ldv, &t[*k - l + 1 + t_dim1], ldt);
+
+/*        T_{2,1} = V_{2,2}'*V_{2,1} + T_{2,1} */
+/*        Note: We assume K <= N, and GEMM will do nothing if N=K */
+
+	i__2 = *k - l;
+	i__3 = *n - *k;
+	dgemm_("Transpose", "No transpose", &l, &i__2, &i__3, &c_b13, &v[(*k 
+		- l + 1) * v_dim1 + 1], ldv, &v[v_offset], ldv, &c_b13, &t[*k 
+		- l + 1 + t_dim1], ldt);
+
+/*        At this point, we have that T_{2,1} = V_2'*V_1 */
+/*        All that is left is to pre and post multiply by -T_{2,2} and T_{1,1} */
+/*        respectively. */
+
+/*        T_{2,1} = -T_{2,2}*T_{2,1} */
+
+	i__2 = *k - l;
+	dtrmm_("Left", "Lower", "No transpose", "Non-unit", &l, &i__2, &c_b22,
+		 &t[*k - l + 1 + (*k - l + 1) * t_dim1], ldt, &t[*k - l + 1 + 
+		t_dim1], ldt);
+
+/*        T_{2,1} = T_{2,1}*T_{1,1} */
+
+	i__2 = *k - l;
+	dtrmm_("Right", "Lower", "No transpose", "Non-unit", &l, &i__2, &
+		c_b13, &t[t_offset], ldt, &t[*k - l + 1 + t_dim1], ldt);
     } else {
-	prevlastv = 1;
-	for (i__ = *k; i__ >= 1; --i__) {
-	    if (tau[i__] == 0.) {
 
-/*              H(i)  =  I */
+/*        Else means RQ case */
 
-		i__1 = *k;
-		for (j = i__; j <= i__1; ++j) {
-		    t[j + i__ * t_dim1] = 0.;
-		}
-	    } else {
+/*        Break V apart into 6 components */
 
-/*              general case */
+/*        V = |-----------------------| */
+/*            |V_{1,1} V_{1,2} 0      | */
+/*            |V_{2,1} V_{2,2} V_{2,3}| */
+/*            |-----------------------| */
 
-		if (i__ < *k) {
-		    if (lsame_(storev, "C")) {
-/*                    Skip any leading zeros. */
-			i__1 = i__ - 1;
-			for (lastv = 1; lastv <= i__1; ++lastv) {
-			    if (v[lastv + i__ * v_dim1] != 0.) {
-				myexit_();
-			    }
-			}
-			i__1 = *k;
-			for (j = i__ + 1; j <= i__1; ++j) {
-			    t[j + i__ * t_dim1] = -tau[i__] * v[*n - *k + i__ 
-				    + j * v_dim1];
-			}
-			j = f2cmax(lastv,prevlastv);
+/*        V_{1,1}\in\R^{k-l,n-k}  rectangular */
+/*        V_{1,2}\in\R^{k-l,k-l}  unit lower triangular */
 
-/*                    T(i+1:k,i) = -tau(i) * V(j:n-k+i,i+1:k)**T * V(j:n-k+i,i) */
+/*        V_{2,1}\in\R^{l,n-k}    rectangular */
+/*        V_{2,2}\in\R^{l,k-l}    rectangular */
+/*        V_{2,3}\in\R^{l,l}      unit lower triangular */
 
-			i__1 = *n - *k + i__ - j;
-			i__2 = *k - i__;
-			d__1 = -tau[i__];
-			dgemv_("Transpose", &i__1, &i__2, &d__1, &v[j + (i__ 
-				+ 1) * v_dim1], ldv, &v[j + i__ * v_dim1], &
-				c__1, &c_b6, &t[i__ + 1 + i__ * t_dim1], &
-				c__1);
-		    } else {
-/*                    Skip any leading zeros. */
-			i__1 = i__ - 1;
-			for (lastv = 1; lastv <= i__1; ++lastv) {
-			    if (v[i__ + lastv * v_dim1] != 0.) {
-				myexit_();
-			    }
-			}
-			i__1 = *k;
-			for (j = i__ + 1; j <= i__1; ++j) {
-			    t[j + i__ * t_dim1] = -tau[i__] * v[j + (*n - *k 
-				    + i__) * v_dim1];
-			}
-			j = f2cmax(lastv,prevlastv);
+/*        We will construct the T matrix */
+/*        T = |---------------| */
+/*            |T_{1,1} 0      | */
+/*            |T_{2,1} T_{2,2}| */
+/*            |---------------| */
 
-/*                    T(i+1:k,i) = -tau(i) * V(i+1:k,j:n-k+i) * V(i,j:n-k+i)**T */
+/*        T is the triangular factor obtained from block reflectors. */
+/*        To motivate the structure, assume we have already computed T_{1,1} */
+/*        and T_{2,2}. Then collect the associated reflectors in V_1 and V_2 */
 
-			i__1 = *k - i__;
-			i__2 = *n - *k + i__ - j;
-			d__1 = -tau[i__];
-			dgemv_("No transpose", &i__1, &i__2, &d__1, &v[i__ + 
-				1 + j * v_dim1], ldv, &v[i__ + j * v_dim1], 
-				ldv, &c_b6, &t[i__ + 1 + i__ * t_dim1], &c__1);
-		    }
+/*        T_{1,1}\in\R^{k-l, k-l} non-unit lower triangular */
+/*        T_{2,2}\in\R^{l, l}     non-unit lower triangular */
+/*        T_{2,1}\in\R^{k-l, l}   rectangular */
 
-/*                 T(i+1:k,i) := T(i+1:k,i+1:k) * T(i+1:k,i) */
+/*        Where l = floor(k/2) */
 
-		    i__1 = *k - i__;
-		    dtrmv_("Lower", "No transpose", "Non-unit", &i__1, &t[i__ 
-			    + 1 + (i__ + 1) * t_dim1], ldt, &t[i__ + 1 + i__ *
-			     t_dim1], &c__1)
-			    ;
-		    if (i__ > 1) {
-			prevlastv = f2cmin(prevlastv,lastv);
-		    } else {
-			prevlastv = lastv;
-		    }
-		}
-		t[i__ + i__ * t_dim1] = tau[i__];
-	    }
-	}
+/*        Then, consider the product: */
+
+/*        (I - V_2'*T_{2,2}*V_2)*(I - V_1'*T_{1,1}*V_1) */
+/*        = I - V_2'*T_{2,2}*V_2 - V_1'*T_{1,1}*V_1 + V_2'*T_{2,2}*V_2*V_1'*T_{1,1}*V_1 */
+
+/*        Define T_{2,1} = -T_{2,2}*V_2*V_1'*T_{1,1} */
+
+/*        Then, we can define the matrix V as */
+/*        V = |---| */
+/*            |V_1| */
+/*            |V_2| */
+/*            |---| */
+
+/*        So, our product is equivalent to the matrix product */
+/*        I - V'*T*V */
+/*        This means, we can compute T_{1,1} and T_{2,2}, then use this information */
+/*        to compute T_{2,1} */
+
+/*        Compute T_{1,1} recursively */
+
+	i__2 = *n - l;
+	i__3 = *k - l;
+	dlarft_(direct, storev, &i__2, &i__3, &v[v_offset], ldv, &tau[1], &t[
+		t_offset], ldt);
+
+/*        Compute T_{2,2} recursively */
+
+	dlarft_(direct, storev, n, &l, &v[*k - l + 1 + v_dim1], ldv, &tau[*k 
+		- l + 1], &t[*k - l + 1 + (*k - l + 1) * t_dim1], ldt);
+
+/*        Compute T_{2,1} */
+/*        T_{2,1} = V_{2,2} */
+
+	i__2 = *k - l;
+	dlacpy_("All", &l, &i__2, &v[*k - l + 1 + (*n - *k + 1) * v_dim1], 
+		ldv, &t[*k - l + 1 + t_dim1], ldt);
+
+/*        T_{2,1} = T_{2,1}*V_{1,2}' */
+
+	i__2 = *k - l;
+	dtrmm_("Right", "Lower", "Transpose", "Unit", &l, &i__2, &c_b13, &v[(*
+		n - *k + 1) * v_dim1 + 1], ldv, &t[*k - l + 1 + t_dim1], ldt);
+
+/*        T_{2,1} = V_{2,1}*V_{1,1}' + T_{2,1} */
+/*        Note: We assume K <= N, and GEMM will do nothing if N=K */
+
+	i__2 = *k - l;
+	i__3 = *n - *k;
+	dgemm_("No transpose", "Transpose", &l, &i__2, &i__3, &c_b13, &v[*k - 
+		l + 1 + v_dim1], ldv, &v[v_offset], ldv, &c_b13, &t[*k - l + 
+		1 + t_dim1], ldt);
+
+/*        At this point, we have that T_{2,1} = V_2*V_1' */
+/*        All that is left is to pre and post multiply by -T_{2,2} and T_{1,1} */
+/*        respectively. */
+
+/*        T_{2,1} = -T_{2,2}*T_{2,1} */
+
+	i__2 = *k - l;
+	dtrmm_("Left", "Lower", "No tranpose", "Non-unit", &l, &i__2, &c_b22, 
+		&t[*k - l + 1 + (*k - l + 1) * t_dim1], ldt, &t[*k - l + 1 + 
+		t_dim1], ldt);
+
+/*        T_{2,1} = T_{2,1}*T_{1,1} */
+
+	i__2 = *k - l;
+	dtrmm_("Right", "Lower", "No tranpose", "Non-unit", &l, &i__2, &c_b13,
+		 &t[t_offset], ldt, &t[*k - l + 1 + t_dim1], ldt);
     }
-    return;
-
-/*     End of DLARFT */
-
+    return 0;
 } /* dlarft_ */
 

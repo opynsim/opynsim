@@ -23,6 +23,7 @@ config="$2"
 compiler_name="$3"
 shift 3
 flags="$*"
+darwin_os=""
 
 # First, we need to know the target OS and compiler name
 {
@@ -69,7 +70,7 @@ case "$data" in *OS_FREEBSD*) os=FreeBSD ;; esac
 case "$data" in *OS_NETBSD*) os=NetBSD ;; esac
 case "$data" in *OS_OPENBSD*) os=OpenBSD ;; esac
 case "$data" in *OS_DRAGONFLY*) os=DragonFly ;; esac
-case "$data" in *OS_DARWIN*) os=Darwin ;; esac
+case "$data" in *OS_DARWIN*) os=Darwin; darwin_os=macOS ;; esac
 case "$data" in *OS_SUNOS*) os=SunOS ;; esac
 case "$data" in *OS_AIX*) os=AIX ;; esac
 case "$data" in *OS_OSF*) os=osf ;; esac
@@ -78,6 +79,7 @@ case "$data" in *OS_CYGWIN_NT*) os=CYGWIN_NT ;; esac
 case "$data" in *OS_INTERIX*) os=Interix ;; esac
 case "$data" in *OS_ANDROID*) os=Android ;; esac
 case "$data" in *OS_HAIKU*) os=Haiku ;; esac
+case "$data" in *OS_IOS*) darwin_os=iOS ;; esac
 
 case "$data" in
     *ARCH_X86_64*) architecture=x86_64 ;;
@@ -95,6 +97,7 @@ case "$data" in
     *ARCH_RISCV64*) architecture=riscv64 ;;
     *ARCH_LOONGARCH64*) architecture=loongarch64 ;;
     *ARCH_CSKY*) architecture=csky ;;
+    *ARCH_WASM*) architecture=wasm ;;
 esac
 
 defined=0
@@ -128,7 +131,7 @@ case "$architecture" in
     	defined=1
     	;;
     arm|arm64) defined=1 ;;
-    zarch|e2k|alpha|ia64|riscv64|loonarch64)
+    zarch|e2k|alpha|ia64|riscv64|loongarch64|wasm)
     	defined=1
     	BINARY=64
     	;;
@@ -252,6 +255,7 @@ case "$data" in
     *ARCH_ZARCH*) architecture=zarch ;;
     *ARCH_LOONGARCH64*) architecture=loongarch64 ;;
     *ARCH_CSKY*) architecture=csky ;;
+    *ARCH_WASM*) architecture=wasm ;;
 esac
 
 binformat='bin32'
@@ -338,8 +342,8 @@ no_sme=0
 is_appleclang=0
 if [ "$architecture" = "arm64" ]; then
     if [ "$compiler" = "CLANG" ]; then
-        data=`$compiler_name --version`
-	case "$data" in Apple*)
+        vdata=`$compiler_name --version`
+	case "$vdata" in Apple*)
 	is_appleclang=1
 	esac
     fi
@@ -400,7 +404,7 @@ fi
 data=`$compiler_name $flags -S ctest1.c && grep globl ctest1.s | head -n 1 && rm -f ctest1.s`
 
 need_fu=''
-if echo "$data" | grep 'globl[[:space:]][_\.]'; then
+if echo "$data" | grep -q 'globl[[:space:]][_\.]'; then
     need_fu="${data##*globl[[:space:]]}"
     need_fu="${need_fu%%[!_\.]*}"
 fi
@@ -416,6 +420,8 @@ fi
 [ "$os" != "$hostos" ] && cross=1
 [ "$os" = "Android" ] && [ "$hostos" = "Linux" ] && [ -n "$TERMUX_APP_PID" ] \
     && cross=0
+
+[ "$darwin_os" = iOS ] && cross=1
 
 [ "$USE_OPENMP" != 1 ] && openmp=''
 
@@ -483,11 +489,11 @@ done
 :> "$makefile" || exit 1
 :> "$config" || exit 1
 
-
 # print $data, "\n";
 
 {
     printf "OSNAME=%s\n" "$os"
+    [ -n "$darwin_os" ] && printf "OSNAME_DISPLAY=%s\n" "$darwin_os"
     printf "ARCH=%s\n" "$architecture"
     printf "C_COMPILER=%s\n" "$compiler"
     [ $binformat != 'bin32' ] && printf "BINARY32=\n"

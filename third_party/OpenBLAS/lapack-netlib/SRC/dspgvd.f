@@ -225,7 +225,8 @@
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      EXTERNAL           LSAME
+      DOUBLE PRECISION   DROUNDUP_LWORK
+      EXTERNAL           LSAME, DROUNDUP_LWORK
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DPPTRF, DSPEVD, DSPGST, DTPMV, DTPSV, XERBLA
@@ -267,7 +268,7 @@
                LWMIN = 2*N
             END IF
          END IF
-         WORK( 1 ) = LWMIN
+         WORK( 1 ) = DROUNDUP_LWORK(LWMIN)
          IWORK( 1 ) = LIWMIN
          IF( LWORK.LT.LWMIN .AND. .NOT.LQUERY ) THEN
             INFO = -11
@@ -301,8 +302,8 @@
       CALL DSPGST( ITYPE, UPLO, N, AP, BP, INFO )
       CALL DSPEVD( JOBZ, UPLO, N, AP, W, Z, LDZ, WORK, LWORK, IWORK,
      $             LIWORK, INFO )
-      LWMIN = INT( MAX( DBLE( LWMIN ), DBLE( WORK( 1 ) ) ) )
-      LIWMIN = INT( MAX( DBLE( LIWMIN ), DBLE( IWORK( 1 ) ) ) )
+      LWMIN = MAX( LWMIN, INT( WORK( 1 ) ) )
+      LIWMIN = MAX( LIWMIN, IWORK( 1 ) )
 *
       IF( WANTZ ) THEN
 *
@@ -345,7 +346,7 @@
          END IF
       END IF
 *
-      WORK( 1 ) = LWMIN
+      WORK( 1 ) = DROUNDUP_LWORK(LWMIN)
       IWORK( 1 ) = LIWMIN
 *
       RETURN

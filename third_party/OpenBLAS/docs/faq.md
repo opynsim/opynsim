@@ -47,7 +47,8 @@ You can find the full list of modifications in Changelog.txt.
 The detailed explanation is probably in the original publication authored by Kazushige Goto - Goto, Kazushige; van de Geijn, Robert A; Anatomy of high-performance matrix multiplication. ACM Transactions on Mathematical Software (TOMS). Volume 34 Issue 3, May 2008
 While this article is paywalled and too old for preprints to be available on arxiv.org, more recent
 publications like https://arxiv.org/pdf/1609.00076 contain at least a brief description of the algorithm.
-In practice, the values are derived by experimentation to yield the block sizes that give the highest performance. A general rule of thumb for selecting a starting point seems to be that PxQ is about half the size of L2 cache.
+In practice, the values are derived by experimentation to yield the block sizes that give the highest performance. A general rule of thumb for selecting a starting point seems to be that PxQ is about half the size of L2 cache. R needs to be greater than the bigger of P and Q by
+at least 64, or bad things will happen with the work splitting in (at least) POTRF.
 
 ### <a name="reportbug"></a>How can I report a bug?
 
@@ -109,7 +110,7 @@ Zaheer has fixed this bug. You can now use the structure instead of C99 complex 
 
 ### <a name="Linux_SEGFAULT"></a>I get a SEGFAULT with multi-threading on Linux. What's wrong?
 
-This may be related to a bug in the Linux kernel 2.6.32 (?). Try applying the patch segaults.patch to disable mbind using
+This may be related to a bug in the Linux kernel 2.6.32 (?). Try applying the patch segfaults.patch to disable mbind using
 
      patch < segfaults.patch
 
@@ -212,7 +213,7 @@ AVX-512 (SKYLAKEX) support requires devtoolset-8-gcc-gfortran (which exceeds for
 
 ### <a name="qemu"></a>Building OpenBLAS in QEMU/KVM/XEN
 
-By default, QEMU reports the CPU as "QEMU Virtual CPU version 2.2.0", which shares CPUID with existing 32bit CPU even in 64bit virtual machine, and OpenBLAS recognizes it as PENTIUM2. Depending on the exact combination of CPU features the hypervisor choses to expose, this may not correspond to any CPU that exists, and OpenBLAS will error when trying to build. To fix this, pass `-cpu host` or `-cpu passthough` to QEMU, or another CPU model.
+By default, QEMU reports the CPU as "QEMU Virtual CPU version 2.2.0", which shares CPUID with existing 32bit CPU even in 64bit virtual machine, and OpenBLAS recognizes it as PENTIUM2. Depending on the exact combination of CPU features the hypervisor chooses to expose, this may not correspond to any CPU that exists, and OpenBLAS will error when trying to build. To fix this, pass `-cpu host` to QEMU, or choose another CPU model.
 Similarly, the XEN hypervisor may not pass through all features of the host cpu while reporting the cpu type itself correctly, which can
 lead to compiler error messages about an "ABI change" when compiling AVX512 code. Again changing the Xen configuration by running e.g. 
 "xen-cmdline --set-xen cpuid=avx512" should get around this (as would building OpenBLAS for an older cpu lacking that particular feature, e.g. TARGET=HASWELL)
@@ -289,7 +290,7 @@ There have been a few reports of wrong calculation results and build-time test f
 
 ### <a name="allocmorebuffers"></a>Program is Terminated. Because you tried to allocate too many memory regions
 
-In OpenBLAS, we mange a pool of memory buffers and allocate the number of buffers as the following.
+In OpenBLAS, we manage a pool of memory buffers and set the number of buffers as follows.
 ```
 #define NUM_BUFFERS (MAX_CPU_NUMBER * 2)
 ```
@@ -300,7 +301,7 @@ In `Makefile.system`, we will set `MAX_CPU_NUMBER=NUM_THREADS`.
 
 ### <a name="choose_target_dynamic"></a>How to choose TARGET manually at runtime when compiled with DYNAMIC_ARCH
 
-The environment variable which control the kernel selection is `OPENBLAS_CORETYPE` (see `driver/others/dynamic.c`)
+The environment variable that controls the kernel selection is `OPENBLAS_CORETYPE` (see `driver/others/dynamic.c`)
 e.g. `export OPENBLAS_CORETYPE=Haswell`. And the function `char* openblas_get_corename()` returns the used target.
 
 ### <a name="missgoto"></a>After updating the installed OpenBLAS, a program complains about "undefined symbol gotoblas"
@@ -324,7 +325,7 @@ Specifying the "correct" library location with the `-L` flag (like `-L /opt/Open
 
 ### <a name="cudahpl"></a>I want to use OpenBLAS with CUDA in the HPL 2.3 benchmark code but it keeps looking for Intel MKL
 
-You need to edit file src/cuda/cuda_dgemm.c in the NVIDIA version of HPL, change the "handle2" and "handle" dlopen calls to use libopenblas.so instead of libmkl_intel_lp64.so, and add an trailing underscore in the dlsym lines for dgemm_mkl and dtrsm_mkl (like  `dgemm_mkl = (void(*)())dlsym(handle, “dgemm_”);`)
+You need to edit file src/cuda/cuda_dgemm.c in the NVIDIA version of HPL, change the "handle2" and "handle" dlopen calls to use libopenblas.so instead of libmkl_intel_lp64.so, and add a trailing underscore in the dlsym lines for dgemm_mkl and dtrsm_mkl (like  `dgemm_mkl = (void(*)())dlsym(handle, "dgemm_");`)
 
 ### <a name="cpusoffline"></a>Multithreaded OpenBLAS runs no faster or is even slower than singlethreaded on my ARMV7 board
 
@@ -344,7 +345,12 @@ Multithreading support in OpenBLAS requires the use of internal buffers for shar
 If you get a message "error while loading shared libraries: libopenblas.so.0: ELF load command address/offset not properly aligned" when starting a program that is (dynamically) linked to OpenBLAS, this is very likely due to a bug in the GNU linker (ld) that is part of the
 GNU binutils package. This error was specifically observed on older versions of Ubuntu Linux updated with the (at the time) most recent binutils version 2.38, but an internet search turned up sporadic reports involving various other libraries dating back several years. A bugfix was created by the binutils developers and should be available in later versions of binutils.(See issue 3708 for details)
 
-#### <a name="OpenMP"></a>Using OpenBLAS with OpenMP
+### <a name="CallingConvention"></a>The tests work fine, but calling any complex function from my code produces wrong or no results
+
+This is almost certainly a problem with the calling convention used, in particular with the way the computed result is transported back to the caller. By default, OpenBLAS follows the F2C convention of returning the result on the stack rather than as the first argument to the function. So if your code has a prototype like "void cdotu ( complex *res, int n,...)" change it to "complex cdotu (int n,...)". Better yet,
+use the CBLAS interface rather than the Fortran one.
+
+### <a name="OpenMP"></a>Using OpenBLAS with OpenMP
 
 OpenMP provides its own locking mechanisms, so when your code makes BLAS/LAPACK calls from inside OpenMP parallel regions it is imperative
 that you use an OpenBLAS that is built with USE_OPENMP=1, as otherwise deadlocks might occur. Furthermore, OpenBLAS will automatically restrict itself to using only a single thread when called from an OpenMP parallel region. When it is certain that calls will only occur

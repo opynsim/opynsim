@@ -39,7 +39,7 @@
 #include <stdio.h>
 #include "common.h"
 #include <altivec.h>
-#define PREFETCHA(x, y) asm volatile ("dcbt %0, %1" : : "r" (x), "b" (y) : "memory");
+#define PREFETCHA(x, y) asm volatile ("dcbt %0, %1" : : "b" (x), "r" (y) : "memory");
 
 int CNAME(BLASLONG m, BLASLONG n, IFLOAT *a, BLASLONG lda, IFLOAT *b){
   BLASLONG i, j;

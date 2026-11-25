@@ -70,6 +70,10 @@ ifeq ($(ARCH), riscv64)
 USE_TRMM = 1
 endif
 
+ifeq ($(ARCH), wasm)
+USE_TRMM = 1
+endif
+
 ifneq ($(DYNAMIC_ARCH), 1)
 ifeq ($(TARGET), GENERIC)
 USE_TRMM = 1

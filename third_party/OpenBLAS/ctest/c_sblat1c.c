@@ -342,7 +342,8 @@ static real c_b34 = (float)1.;
 
     /* Local variables */
     static integer k;
-    extern /* Subroutine */ int srotgtest_(real*,real*,real*,real*), stest1_(real*,real*,real*,real*);
+    extern /* Subroutine */ void srotgtest_(real*,real*,real*,real*);
+    extern int stest1_(real*,real*,real*,real*);
     static real sa, sb, sc, ss;
 
 /*     .. Parameters .. */
@@ -435,7 +436,8 @@ L40:
     static integer i__;
     extern real snrm2test_(integer*,real*,integer*);
     static real stemp[1], strue[8];
-    extern /* Subroutine */ int stest_(integer*, real*,real*,real*,real*), sscaltest_(integer*,real*,real*,integer*);
+    extern /* Subroutine */ int stest_(integer*, real*,real*,real*,real*);
+    extern void sscaltest_(integer*,real*,real*,integer*);
     extern real sasumtest_(integer*,real*,integer*);
     extern /* Subroutine */ int itest1_(integer*,integer*), stest1_(real*,real*,real*,real*);
     static real sx[8];
@@ -462,7 +464,7 @@ L40:
 /*           .. Set vector arguments .. */
 	    i__1 = len;
 	    for (i__ = 1; i__ <= i__1; ++i__) {
-		sx[i__ - 1] = dv[i__ + (np1 + combla_1.incx * 5 << 3) - 49];
+		sx[i__ - 1] = dv[i__ + ((np1 + combla_1.incx * 5) << 3) - 49];
 /* L20: */
 	    }
 
@@ -482,7 +484,7 @@ L40:
 			, sx, &combla_1.incx);
 		i__1 = len;
 		for (i__ = 1; i__ <= i__1; ++i__) {
-		    strue[i__ - 1] = dtrue5[i__ + (np1 + combla_1.incx * 5 << 
+		    strue[i__ - 1] = dtrue5[i__ + ((np1 + combla_1.incx * 5) << 
 			    3) - 49];
 /* L40: */
 		}
@@ -592,7 +594,8 @@ L40:
     static integer lenx, leny;
     extern real sdottest_(integer*,real*,integer*,real*,integer*);
     static integer i__, j, ksize;
-    extern /* Subroutine */ int stest_(integer*,real*,real*,real*,real*), scopytest_(integer*,real*,integer*,real*,integer*), sswaptest_(integer*,real*,integer*,real*,integer*), 
+    extern /* Subroutine */ int stest_(integer*,real*,real*,real*,real*);
+    extern void scopytest_(integer*,real*,integer*,real*,integer*), sswaptest_(integer*,real*,integer*,real*,integer*), 
 	    saxpytest_(integer*,real*,real*,integer*,real*,integer*);
     static integer ki;
     extern /* Subroutine */ int stest1_(real*,real*,real*,real*);
@@ -710,7 +713,8 @@ L40:
     /* Local variables */
     extern /* Subroutine */ void srottest_(integer*,real*,integer*,real*,integer*,real*,real*);
     static integer i__, k, ksize;
-    extern /* Subroutine */ int stest_(integer*,real*,real*,real*,real*), srotmtest_(integer*,real*,integer*,real*,integer*,real*);
+    extern /* Subroutine */ int stest_(integer*,real*,real*,real*,real*);
+    extern void srotmtest_(integer*,real*,integer*,real*,integer*,real*);
     static integer ki, kn;
     static real sx[19], sy[19], sparam[5], stx[19], sty[19];
 

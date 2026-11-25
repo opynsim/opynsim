@@ -42,7 +42,7 @@ FLOAT CNAME(BLASLONG n, FLOAT *x, BLASLONG inc_x)
 	n *= inc_x;
 	if (inc_x == 1)
 	{
-#if V_SIMD && (!defined(DOUBLE) || (defined(DOUBLE) && V_SIMD_F64 && V_SIMD > 128))
+#if V_SIMD && (!defined(DOUBLE) || (defined(DOUBLE) && V_SIMD_F64 && (V_SIMD > 128 || defined(ARCH_WASM))))
 #ifdef DOUBLE
 		const int vstep = v_nlanes_f64;
 		const int unrollx4 = n & (-vstep * 4);

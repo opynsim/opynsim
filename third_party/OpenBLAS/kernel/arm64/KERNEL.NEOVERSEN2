@@ -191,25 +191,48 @@ ZGEMMOTCOPYOBJ =  zgemm_otcopy$(TSUFFIX).$(SUFFIX)
 ifeq ($(BUILD_BFLOAT16), 1)
 BGEMM_BETA    =  bgemm_beta_neon.c
 BGEMMKERNEL    = sbgemm_kernel_$(BGEMM_UNROLL_M)x$(BGEMM_UNROLL_N)_neoversen2.c
+ifneq ($(BGEMM_UNROLL_M), $(BGEMM_UNROLL_N))
 BGEMMINCOPY    = sbgemm_ncopy_$(BGEMM_UNROLL_M)_neoversen2.c
 BGEMMITCOPY    = sbgemm_tcopy_$(BGEMM_UNROLL_M)_neoversen2.c
-BGEMMONCOPY    = sbgemm_ncopy_$(BGEMM_UNROLL_N)_neoversen2.c
-BGEMMOTCOPY    = sbgemm_tcopy_$(BGEMM_UNROLL_N)_neoversen2.c
 BGEMMINCOPYOBJ =  bgemm_incopy$(TSUFFIX).$(SUFFIX)
 BGEMMITCOPYOBJ =  bgemm_itcopy$(TSUFFIX).$(SUFFIX)
+endif
+BGEMMONCOPY    = sbgemm_ncopy_$(BGEMM_UNROLL_N)_neoversen2.c
+BGEMMOTCOPY    = sbgemm_tcopy_$(BGEMM_UNROLL_N)_neoversen2.c
 BGEMMONCOPYOBJ =  bgemm_oncopy$(TSUFFIX).$(SUFFIX)
 BGEMMOTCOPYOBJ =  bgemm_otcopy$(TSUFFIX).$(SUFFIX)
 BGEMVTKERNEL = sbgemv_t_bfdot.c
 BGEMVNKERNEL = bgemv_n_sve_v3x4.c
 
+ifeq ($(BUILD_HFLOAT16), 1)
+SHGEMMKERNEL    = shgemm_kernel_$(SHGEMM_UNROLL_M)x$(SHGEMM_UNROLL_N)_neoversen2.c
+SHGEMMINCOPY    = shgemm_ncopy_$(SHGEMM_UNROLL_M)_neoversen2.c
+SHGEMMITCOPY    = shgemm_tcopy_$(SHGEMM_UNROLL_M)_neoversen2.c
+ifneq ($(SHGEMM_UNROLL_M), $(SHGEMM_UNROLL_N))
+    SHGEMMINCOPY    = ../generic/gemm_ncopy_$(SHGEMM_UNROLL_M).c
+    SHGEMMITCOPY    = ../generic/gemm_tcopy_$(SHGEMM_UNROLL_M).c
+endif
+SHGEMMONCOPY    = shgemm_ncopy_$(SHGEMM_UNROLL_N)_neoversen2.c
+SHGEMMOTCOPY    = shgemm_tcopy_$(SHGEMM_UNROLL_N)_neoversen2.c
+SHGEMMINCOPYOBJ = shgemm_incopy$(TSUFFIX).$(SUFFIX)
+SHGEMMITCOPYOBJ = shgemm_itcopy$(TSUFFIX).$(SUFFIX)
+SHGEMMONCOPYOBJ = shgemm_oncopy$(TSUFFIX).$(SUFFIX)
+SHGEMMOTCOPYOBJ = shgemm_otcopy$(TSUFFIX).$(SUFFIX)
+ifndef SHGEMM_BETA
+SHGEMM_BETA =  sbgemm_beta_neoversen2.c
+endif
+endif
+
 SBGEMM_BETA    =  sbgemm_beta_neoversen2.c
 SBGEMMKERNEL    = sbgemm_kernel_$(SBGEMM_UNROLL_M)x$(SBGEMM_UNROLL_N)_neoversen2.c
+ifneq ($(SBGEMM_UNROLL_M), $(SBGEMM_UNROLL_N))
 SBGEMMINCOPY    = sbgemm_ncopy_$(SBGEMM_UNROLL_M)_neoversen2.c
 SBGEMMITCOPY    = sbgemm_tcopy_$(SBGEMM_UNROLL_M)_neoversen2.c
-SBGEMMONCOPY    = sbgemm_ncopy_$(SBGEMM_UNROLL_N)_neoversen2.c
-SBGEMMOTCOPY    = sbgemm_tcopy_$(SBGEMM_UNROLL_N)_neoversen2.c
 SBGEMMINCOPYOBJ =  sbgemm_incopy$(TSUFFIX).$(SUFFIX)
 SBGEMMITCOPYOBJ =  sbgemm_itcopy$(TSUFFIX).$(SUFFIX)
+endif
+SBGEMMONCOPY    = sbgemm_ncopy_$(SBGEMM_UNROLL_N)_neoversen2.c
+SBGEMMOTCOPY    = sbgemm_tcopy_$(SBGEMM_UNROLL_N)_neoversen2.c
 SBGEMMONCOPYOBJ =  sbgemm_oncopy$(TSUFFIX).$(SUFFIX)
 SBGEMMOTCOPYOBJ =  sbgemm_otcopy$(TSUFFIX).$(SUFFIX)
 SBGEMVTKERNEL = sbgemv_t_bfdot.c
