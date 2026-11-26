@@ -23,88 +23,110 @@ TEST_CASE("parsing - comments")
 	parsing_should_succeed(FILE_LINE_ARGS,
 						   R"(# this = "looks like a KVP but is commented out)"sv,
 						   [](table&& tbl) { CHECK(tbl.size() == 0); });
+}
 
-#if TOML_LANG_AT_LEAST(1, 0, 0)
+TEST_CASE("parsing - comments (control characters)")
+{
+	// toml/issues/567 (disallow non-TAB control characters in comments)
+	parsing_should_fail(
+		FILE_LINE_ARGS,
+		"# \u0000 some trailing garbage"sv,
+		"1:3: Error while parsing comment: control characters other than TAB (U+0009) are prohibited in comments, saw "
+			+ quoted_control_character('\0'));
+	for (unsigned cp = 0; cp <= 0x7Fu; cp++)
 	{
-		// toml/issues/567 (disallow non-TAB control characters in comments)
-		// 00 - 08
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0000 some trailing garbage"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0001"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0002"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0003"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0004"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0005"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0006"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0007"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0008"sv);
+		if ((cp >= 0x20u && cp < 0x7Fu) || cp == '\t' || cp == '\n' || cp == '\v' || cp == '\f' || cp == '\r')
+			continue;
 
-		// skip tab and line breaks (real and otherwise)
-		// \u0009 is \t
-		// \u000A is \n
-		// \u000B is \v (vertical tab)
-		// \u000C is \f (form feed)
-		// \u000D is \r
-
-		// 0E - 1F
-		parsing_should_fail(FILE_LINE_ARGS, "# \u000E"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u000F"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0010"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0011"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0012"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0013"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0014"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0015"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0016"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0017"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0018"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u0019"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u001A"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u001B"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u001C"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u001D"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u001E"sv);
-		parsing_should_fail(FILE_LINE_ARGS, "# \u001F"sv);
-		// 7F
-		parsing_should_fail(FILE_LINE_ARGS, "# \u007F"sv);
+		CAPTURE(cp);
+		const char input[] = { '#', ' ', static_cast<char>(cp) };
+		parsing_should_fail(FILE_LINE_ARGS,
+							std::string_view{ input, sizeof(input) },
+							"1:3: Error while parsing comment: control characters other than TAB (U+0009) are "
+							"prohibited in comments, saw "
+								+ quoted_control_character(static_cast<char>(cp)));
 	}
-#else
+	parsing_should_fail(
+		FILE_LINE_ARGS,
+		"# \v"sv,
+		R"(1:3: Error while parsing comment: vertical tabs '\v' and form-feeds '\f' are not legal line breaks in TOML)"sv);
+	parsing_should_fail(
+		FILE_LINE_ARGS,
+		"# \f"sv,
+		R"(1:3: Error while parsing comment: vertical tabs '\v' and form-feeds '\f' are not legal line breaks in TOML)"sv);
+}
+
+TEST_CASE("parsing - comments (an encoded surrogate is invalid UTF-8)")
+{
+	// toml/pull/720 (disallow surrogates in comments)
+	parsing_should_fail(FILE_LINE_ARGS, "# \xED\xA0\x80"sv, "1:3: Encountered invalid UTF-8 sequence"sv);
+}
+
+TEST_CASE("parsing - comments (every ascii byte after a long comment)")
+{
+	std::string accented;
+	for (size_t i = 0; i < 40u; i++)
+		accented += "\xC3\xA9";
+
+	for (const auto& filler : { std::string(40u, 'x'), accented })
 	{
-		parsing_should_succeed(FILE_LINE_ARGS,
-							   S("## 00 - 08"
-								 "# \u0000  "
-								 "# \u0001  "
-								 "# \u0002  "
-								 "# \u0003  "
-								 "# \u0004  "
-								 "# \u0005  "
-								 "# \u0006  "
-								 "# \u0007  "
-								 "# \u0008  "
-								 "## 0A - 1F"
-								 "# \u000A  "
-								 "# \u000B  "
-								 "# \u000C  "
-								 "# \u000D  "
-								 "# \u000E  "
-								 "# \u000F  "
-								 "# \u0010  "
-								 "# \u0011  "
-								 "# \u0012  "
-								 "# \u0013  "
-								 "# \u0014  "
-								 "# \u0015  "
-								 "# \u0016  "
-								 "# \u0017  "
-								 "# \u0018  "
-								 "# \u0019  "
-								 "# \u001A  "
-								 "# \u001B  "
-								 "# \u001C  "
-								 "# \u001D  "
-								 "# \u001E  "
-								 "# \u001F  "
-								 "## 7F	   "
-								 "# \u007F  "sv));
+		for (unsigned byte = 0; byte < 0x80u; byte++)
+		{
+			INFO("byte " << byte);
+			const auto c   = static_cast<char>(byte);
+			const auto doc = "# " + filler + c + "\na = 1";
+			if (c == '\v' || c == '\f')
+				parsing_should_fail(
+					FILE_LINE_ARGS,
+					doc,
+					R"(1:43: Error while parsing comment: vertical tabs '\v' and form-feeds '\f' are not legal line breaks in TOML)"sv);
+			else if (c != '\t' && c != '\n' && c != '\r' && (byte < 0x20u || byte == 0x7Fu))
+				parsing_should_fail(FILE_LINE_ARGS,
+									doc,
+									"1:43: Error while parsing comment: control characters other than TAB (U+0009) are "
+									"prohibited in comments, saw "
+										+ quoted_control_character(c));
+			else
+				parsing_should_succeed(FILE_LINE_ARGS, doc, [](table&& tbl) { CHECK(tbl["a"] == 1); });
+		}
 	}
-#endif
+}
+
+TEST_CASE("parsing - comments (bytes within a 16-byte block)")
+{
+	const auto check = [](const std::string& filler, size_t columns, char c, std::string_view after)
+	{
+		INFO("byte " << static_cast<unsigned>(c) << " after " << filler.length() << " bytes");
+		const auto doc = "# " + filler + c + std::string{ after };
+		const auto at  = "1:" + std::to_string(3u + columns) + ": Error while parsing comment: ";
+		if (c == '\v' || c == '\f')
+			parsing_should_fail(FILE_LINE_ARGS,
+								doc,
+								at + R"(vertical tabs '\v' and form-feeds '\f' are not legal line breaks in TOML)");
+		else if (c != '\t' && c != '\n' && c != '\r' && (static_cast<unsigned char>(c) < 0x20u || c == '\x7F'))
+			parsing_should_fail(FILE_LINE_ARGS,
+								doc,
+								at + "control characters other than TAB (U+0009) are prohibited in comments, saw "
+									+ quoted_control_character(c));
+		else
+			parsing_should_succeed(FILE_LINE_ARGS, doc, [](table&& tbl) { CHECK(tbl["a"] == 1); });
+	};
+
+	static constexpr auto next_lines = "\n#yyyyyyyyyyyyyyyy\na = 1"sv;
+	for (unsigned byte = 0; byte < 0x80u; byte++)
+	{
+		check(std::string(5u, 'x'), 5u, static_cast<char>(byte), next_lines);
+		check("\xC3\xA9" + std::string(3u, 'x'), 4u, static_cast<char>(byte), next_lines);
+	}
+
+	static constexpr auto accented = "\xC3\xA9\xC3\xA9\xC3\xA9\xC3\xA9\xC3\xA9\xC3\xA9\xC3\xA9\xC3\xA9"sv;
+	for (size_t length = 0; length < 18u; length++)
+	{
+		for (const char c : { '\x01', '\x7F' })
+		{
+			check(std::string(length, 'x'), length, c, accented);
+			if (length >= 2u)
+				check("\xC3\xA9" + std::string(length - 2u, 'x'), length - 1u, c, accented);
+		}
+	}
 }

@@ -10,7 +10,7 @@
 
 TOML_NAMESPACE_START
 {
-	/// \brief Indicates type of path component, either a key, an index in an array, or invalid
+	/// \brief Indicates type of path component, either a key or an index in an array
 	enum class TOML_CLOSED_ENUM path_component_type : uint8_t
 	{
 		key			= 0x1,
@@ -30,7 +30,7 @@ TOML_NAMESPACE_START
 
 			alignas(align) unsigned char bytes[size];
 		};
-		alignas(storage_t::align) mutable storage_t value_storage_;
+		alignas(storage_t::align) storage_t value_storage_;
 
 		path_component_type type_;
 
@@ -45,14 +45,26 @@ TOML_NAMESPACE_START
 			return TOML_LAUNDER(reinterpret_cast<Type*>(s.bytes));
 		}
 
-		static void store_key(std::string_view key, storage_t& storage_)
+		template <typename Type>
+		TOML_PURE_INLINE_GETTER
+		static const Type* get_as(const storage_t& s) noexcept
 		{
-			::new (static_cast<void*>(storage_.bytes)) std::string{ key };
+			return TOML_LAUNDER(reinterpret_cast<const Type*>(s.bytes));
 		}
 
-		static void store_index(size_t index, storage_t& storage_) noexcept
+		static void store_key(std::string_view key, storage_t& storage)
 		{
-			::new (static_cast<void*>(storage_.bytes)) std::size_t{ index };
+			::new (static_cast<void*>(storage.bytes)) std::string{ key };
+		}
+
+		static void store_key(std::string&& key, storage_t& storage) noexcept
+		{
+			::new (static_cast<void*>(storage.bytes)) std::string{ std::move(key) };
+		}
+
+		static void store_index(size_t index, storage_t& storage) noexcept
+		{
+			::new (static_cast<void*>(storage.bytes)) size_t{ index };
 		}
 
 		void destroy() noexcept
@@ -123,11 +135,11 @@ TOML_NAMESPACE_START
 
 		/// \brief Assigns an array index to this path component.
 		TOML_EXPORTED_MEMBER_FUNCTION
-		path_component& operator=(size_t new_index) noexcept;
+		path_component& operator=(size_t rhs) noexcept;
 
 		/// \brief Assigns a path key to this path component.
 		TOML_EXPORTED_MEMBER_FUNCTION
-		path_component& operator=(std::string_view new_key);
+		path_component& operator=(std::string_view rhs);
 
 #if TOML_ENABLE_WINDOWS_COMPAT
 
@@ -135,7 +147,7 @@ TOML_NAMESPACE_START
 		///
 		/// \availability This overload is only available when #TOML_ENABLE_WINDOWS_COMPAT is enabled.
 		TOML_EXPORTED_MEMBER_FUNCTION
-		path_component& operator=(std::wstring_view new_key);
+		path_component& operator=(std::wstring_view rhs);
 
 #endif
 
@@ -150,7 +162,7 @@ TOML_NAMESPACE_START
 		/// Check #type() to determine the component's value type.
 		/// @{
 
-		/// \brief	Returns the array index (const lvalue overload).
+		/// \brief	Returns the array index.
 		TOML_PURE_GETTER
 		size_t index() const noexcept
 		{
@@ -158,7 +170,7 @@ TOML_NAMESPACE_START
 			return *get_as<const size_t>(value_storage_);
 		}
 
-		/// \brief	Returns the array index (const lvalue).
+		/// \brief	Returns the array index.
 		TOML_PURE_INLINE_GETTER
 		explicit operator size_t() const noexcept
 		{
@@ -189,7 +201,8 @@ TOML_NAMESPACE_START
 
 		/// @}
 
-		/// \brief Retrieve the type of this path component, either path_component::key or path_component::array_index
+		/// \brief Retrieve the type of this path component, either path_component_type::key or
+		/// path_component_type::array_index
 		TOML_PURE_INLINE_GETTER
 		path_component_type type() const noexcept
 		{
@@ -228,12 +241,12 @@ TOML_NAMESPACE_START
 	///
 	/// // can use with tbl.at_path or operator[]
 	/// std::cout << "second cat: " << tbl[the_path] << "\n";
-	/// std::cout << "cats: " << tbl.at_path(the_path.parent_path()) << "\n";
+	/// std::cout << "cats: " << tbl.at_path(the_path.parent()) << "\n";
 	/// \ecpp
 	///
 	/// \out
-	/// second cat: lion
-	/// cats: ['tiger', 'lion', 'puma']
+	/// second cat: 'lion'
+	/// cats: [ 'tiger', 'lion', 'puma' ]
 	/// \eout
 	class TOML_EXPORTED_CLASS path
 	{
@@ -257,6 +270,18 @@ TOML_NAMESPACE_START
 		path() noexcept = default;
 
 		/// \brief Construct a path by parsing from a string.
+		///
+		/// \note Keys in paths are interpreted literally, so whitespace (or lack thereof) matters:
+		/// \cpp
+		/// toml::path("foo.bar")  // the keys "foo" and "bar"
+		/// toml::path("foo. bar") // the keys "foo" and " bar"
+		/// toml::path("foo..bar") // the keys "foo", "" and "bar"
+		/// toml::path(".foo.bar") // the keys "", "foo" and "bar"
+		/// \ecpp
+		/// <br>
+		/// Additionally, TOML allows '.' (period) characters to appear in keys if they are quoted strings.
+		/// This constructor makes no allowance for this, instead treating all period characters as sub-table
+		/// delimiters.
 		TOML_NODISCARD_CTOR
 		TOML_EXPORTED_MEMBER_FUNCTION
 		explicit path(std::string_view);
@@ -761,7 +786,7 @@ TOML_NAMESPACE_START
 		path subpath(const_iterator start, const_iterator end) const;
 
 		/// \brief	Returns a toml::path object that is a specified subpath of the current path, representing the
-		/// range of path components with indexes from [start, start + length].
+		/// range of path components with indexes from [start, start + length), clamped to the end of the path.
 		TOML_NODISCARD
 		TOML_EXPORTED_MEMBER_FUNCTION
 		path subpath(size_t start, size_t length) const;
@@ -777,7 +802,7 @@ TOML_NAMESPACE_START
 		/// using namespace toml::literals;
 		///
 		/// auto path = "main.settings.devices[2]"_tpath;
-		/// std::cout << path.parent_path() << "\n";
+		/// std::cout << path.parent() << "\n";
 		/// \ecpp
 		///
 		/// \out
@@ -790,7 +815,7 @@ TOML_NAMESPACE_START
 		/// \returns	A #toml::path generated from the string literal.
 		TOML_NODISCARD
 		TOML_ALWAYS_INLINE
-		path operator"" _tpath(const char* str, size_t len)
+		path operator""_tpath(const char* str, size_t len)
 		{
 			return path(std::string_view{ str, len });
 		}
@@ -809,42 +834,30 @@ TOML_NAMESPACE_START
 	/// toml::path path1("foo.bar[2]");
 	/// toml::path path2("foo.bar[4].kek");
 	/// std::cout << toml::at_path(config, path1) << "\n";
-	/// std::cout << toml::at_path(config, path1.parent_path()) << "\n";
+	/// std::cout << toml::at_path(config, path1.parent()) << "\n";
 	/// std::cout << toml::at_path(config, path2) << "\n";
-	/// std::cout << toml::at_path(config, path2.parent_path()) << "\n";
+	/// std::cout << toml::at_path(config, path2.parent()) << "\n";
 	/// \ecpp
 	///
 	/// \out
 	/// 2
 	/// [ 0, 1, 2, [ 3 ], { kek = 4 } ]
 	/// 4
-	/// { kek  = 4 }
+	/// { kek = 4 }
 	/// \eout
 	///
-	///
-	/// \note Keys in paths are interpreted literally, so whitespace (or lack thereof) matters:
-	/// \cpp
-	/// toml::at_path(config, toml::path("foo.bar"))  // same as config["foo"]["bar"]
-	/// toml::at_path(config, toml::path("foo. bar")) // same as config["foo"][" bar"]
-	/// toml::at_path(config, toml::path("foo..bar")) // same as config["foo"][""]["bar"]
-	/// toml::at_path(config, toml::path(".foo.bar")) // same as config[""]["foo"]["bar"]
-	/// \ecpp
-	/// <br>
-	/// Additionally, TOML allows '.' (period) characters to appear in keys if they are quoted strings.
-	/// This function makes no allowance for this, instead treating all period characters as sub-table delimiters.
-	///
 	/// \param root		The root node from which the path will be traversed.
-	/// \param path		The "TOML path" to traverse.
+	/// \param p		The "TOML path" to traverse.
 	TOML_NODISCARD
 	TOML_EXPORTED_FREE_FUNCTION
-	node_view<node> TOML_CALLCONV at_path(node & root, const toml::path& path) noexcept;
+	node_view<node> TOML_CALLCONV at_path(node & root, const toml::path& p) noexcept;
 
 	/// \brief Returns a const view of the node matching a fully-qualified "TOML path".
 	///
-	/// \see #toml::at_path(node&, const toml::path& path)
+	/// \see #toml::at_path(node&, const toml::path&)
 	TOML_NODISCARD
 	TOML_EXPORTED_FREE_FUNCTION
-	node_view<const node> TOML_CALLCONV at_path(const node& root, const toml::path& path) noexcept;
+	node_view<const node> TOML_CALLCONV at_path(const node& root, const toml::path& p) noexcept;
 }
 TOML_NAMESPACE_END;
 

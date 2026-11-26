@@ -1,12 +1,12 @@
 [![banner](docs/images/banner.png)][homepage]
 [![Releases](https://img.shields.io/github/v/release/marzer/tomlplusplus?style=flat-square)](https://github.com/marzer/tomlplusplus/releases)
 [![C++17](docs/images/badge-C++17.svg)][cpp_compilers]
-[![TOML](docs/images/badge-TOML.svg)][v1.0.0]
+[![TOML](docs/images/badge-TOML.svg)][v1.1.0]
 [![MIT license](docs/images/badge-license-MIT.svg)](./LICENSE)
 [![ci](https://github.com/marzer/tomlplusplus/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/marzer/tomlplusplus/actions/workflows/ci.yaml)
+[![Coverage](https://marzer.github.io/tomlplusplus/coverage/badge.svg)](https://marzer.github.io/tomlplusplus/coverage/)
 [![Mentioned in Awesome C++](docs/images/badge-awesome.svg)](https://github.com/fffaraz/awesome-cpp)
 [![Sponsor](docs/images/badge-sponsor.svg)](https://github.com/sponsors/marzer)
-[![Gitter](docs/images/badge-gitter.svg)](https://gitter.im/marzer/tomlplusplus)
 ====
 
 ## toml++ homepage
@@ -19,16 +19,17 @@
 
 ## Library features
 
--   Header-only (optional!)
--   Supports the latest [TOML] release ([v1.0.0]), plus optional support for some unreleased TOML features
--   Passes all tests in the [toml-test](https://github.com/BurntSushi/toml-test) suite
--   Supports serializing to JSON and YAML
--   Proper UTF-8 handling (incl. BOM)
--   C++17 (plus some C++20 features where available, e.g. experimental support for [char8_t] strings)
--   Doesn't require RTTI
--   Works with or without exceptions
--   Tested on Clang (8+), GCC (8+) and MSVC (VS2019)
--   Tested on x64, x86 and ARM
+- Header-only (optional!)
+- Module support
+- Supports [TOML] [v1.1.0], plus opt-in support for some unreleased features
+- Passes all TOML v1.1.0 tests in the [toml-test](https://github.com/toml-lang/toml-test) suite
+- Supports serializing to JSON and YAML
+- Proper UTF-8 handling (incl. BOM)
+- C++17 (plus some C++20 features where available, e.g. experimental support for [char8_t] strings)
+- Doesn't require RTTI
+- Works with or without exceptions
+- Tested on GCC 11 and 15, Clang 21, Apple Clang 21 and MSVC 19.51 (VS 2026); other compilers are best effort
+- Tested on x64 and ARM64
 
 <br>
 
@@ -51,7 +52,9 @@ cpp = 17
 Reading it in C++ is easy with toml++:
 
 ```cpp
-#include <toml.hpp>
+#include <toml++/toml.hpp>
+
+using namespace std::literals;
 
 auto config = toml::parse_file( "configuration.toml" );
 
@@ -108,24 +111,14 @@ You'll find some more code examples in the `examples` directory, and plenty more
 ### 🍨&#xFE0F; Regular flavour
 
 1. Clone the repository
-2. Add `tomlplusplus/include` to your include paths
-3. `#include <toml++/toml.hpp>`
+2. Add `tomlplusplus/include` to your include paths. For module support, also compile
+   `tomlplusplus/src/modules/tomlplusplus.cppm`, which CMake does when `TOMLPLUSPLUS_BUILD_MODULES` is on (link
+   `tomlplusplus::modules`)
+3. `#include <toml++/toml.hpp>` (or `import tomlplusplus;`)
 
 ### Conan
 
-Add `tomlplusplus/3.4.0` to your conanfile.
-
-### DDS
-
-Add `tomlpp` to your `package.json5`, e.g.:
-
-```plaintext
-depends: [
-    'tomlpp^3.4.0',
-]
-```
-
-> ℹ&#xFE0F; _[What is DDS?](https://dds.pizza/)_
+Add `tomlplusplus/3.5.1` to your conanfile.
 
 ### Tipi.build
 
@@ -133,7 +126,7 @@ depends: [
 
 ```json
 {
-	"marzer/tomlplusplus": {}
+    "marzer/tomlplusplus": {}
 }
 ```
 
@@ -166,9 +159,10 @@ include(FetchContent)
 FetchContent_Declare(
     tomlplusplus
     GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-    GIT_TAG        v3.4.0
+    GIT_TAG        v3.5.1
 )
 FetchContent_MakeAvailable(tomlplusplus)
+# Example add library: target_link_libraries(MyApp tomlplusplus::tomlplusplus)
 ```
 
 > ℹ&#xFE0F; _[What is FetchContent?](https://cmake.org/cmake/help/latest/module/FetchContent.html)_
@@ -201,12 +195,13 @@ won't need to mess with these at all, but if you do, set them before including t
 
 | Option                            |      Type      | Description                                                                                               | Default               |
 | --------------------------------- | :------------: | --------------------------------------------------------------------------------------------------------- | --------------------- |
-| `TOML_ASSERT(expr)`               | function macro | Sets the assert function used by the library.                                                             | `assert()`            |
+| `TOML_ASSERT(expr)`               | function macro | Sets the assert function used by the library. Ignored when `NDEBUG` is defined.                           | `assert()`            |
 | `TOML_CALLCONV`                   |     define     | Calling convention to apply to exported free/static functions.                                            | undefined             |
 | `TOML_CONFIG_HEADER`              | string literal | Includes the given header file before the rest of the library.                                            | undefined             |
-| `TOML_ENABLE_FORMATTERS`          |    boolean     | Enables the formatters. Set to `0` if you don't need them to improve compile times and binary size.       | `1`                   |
-| `TOML_ENABLE_FLOAT16`             |    boolean     | Enables support for the built-in `_Float16` type.                                                         | per compiler settings |
-| `TOML_ENABLE_PARSER`              |    boolean     | Enables the parser. Set to `0` if you don't need it to improve compile times and binary size.             | `1`                   |
+| `TOML_ENABLE_CHRONO`              |    boolean     | Enables support for C++20 `std::chrono` types. Set to `0` if you don't need it to improve compile times.  | `1` from C++20        |
+| `TOML_ENABLE_FORMATTERS`          |    boolean     | Enables the formatters. Set to `0` if you don't need them to improve compile times.                       | `1`                   |
+| `TOML_ENABLE_FLOAT16`             |    boolean     | Enables support for the built-in `_Float16` type.                                                         | `0`                   |
+| `TOML_ENABLE_PARSER`              |    boolean     | Enables the parser. Set to `0` if you don't need it to improve compile times.                             | `1`                   |
 | `TOML_ENABLE_UNRELEASED_FEATURES` |    boolean     | Enables support for [unreleased TOML language features].                                                  | `0`                   |
 | `TOML_ENABLE_WINDOWS_COMPAT`      |    boolean     | Enables support for transparent conversion between wide and narrow strings.                               | `1` on Windows        |
 | `TOML_EXCEPTIONS`                 |    boolean     | Sets whether the library uses exceptions.                                                                 | per compiler settings |
@@ -216,7 +211,7 @@ won't need to mess with these at all, but if you do, set them before including t
 | `TOML_EXPORTED_STATIC_FUNCTION`   |     define     | API export annotation to add to static functions.                                                         | undefined             |
 | `TOML_HEADER_ONLY`                |    boolean     | Disable this to explicitly control where toml++'s implementation is compiled (e.g. as part of a library). | `1`                   |
 | `TOML_IMPLEMENTATION`             |     define     | Define this to enable compilation of the library's implementation when `TOML_HEADER_ONLY` == `0`.         | undefined             |
-| `TOML_OPTIONAL_TYPE`              |   type name    | Overrides the `optional<T>` type used by the library if you need [something better than std::optional].   | undefined             |
+| `TOML_OPTIONAL_TYPE`              |   type name    | Overrides the `optional<T>` type used by the library if you prefer something other than `std::optional`.  | undefined             |
 | `TOML_SMALL_FLOAT_TYPE`           |   type name    | If your codebase has a custom 'small float' type (e.g. half-precision), this tells toml++ about it.       | undefined             |
 | `TOML_SMALL_INT_TYPE`             |   type name    | If your codebase has a custom 'small integer' type (e.g. 24-bits), this tells toml++ about it.            | undefined             |
 
@@ -236,26 +231,31 @@ defines `TOML_LANG_MAJOR`, `TOML_LANG_MINOR` and `TOML_LANG_PATCH`.
 
 ### **Unreleased language features:**
 
--   [#516]: Allow newlines and trailing commas in inline tables
--   [#562]: Allow hex floating-point values
--   [#644]: Support `+` in key names
--   [#671]: Local time of day format should support `09:30` as opposed to `09:30:00`
--   [#687]: Relax bare key restrictions to allow additional unicode characters
--   [#790]: Include an `\e` escape code sequence (shorthand for `\u001B`)
--   [#796]: Include an `\xHH` escape code sequence
--   [#891]: Allow non-English scripts for unquoted keys
+- [#562]: Allow hex floating-point values
+- [#644]: Support `+` in key names
+- [#687]: Relax bare key restrictions to allow additional unicode characters
+- [#891]: Allow non-English scripts for unquoted keys (backed out of TOML in [#979], see [possible v4 changes])
 
-> ℹ&#xFE0F; _`#define TOML_ENABLE_UNRELEASED_FEATURES 1` to enable these features (see [Configuration](#Configuration))._
+> ℹ&#xFE0F; _`#define TOML_ENABLE_UNRELEASED_FEATURES 1` to enable these features (see [Configuration](#configuration))._
+
+### 🔹&#xFE0F; **TOML v1.1.0:**
+
+All features supported, including:
+
+- [#516]: Allow newlines and trailing commas in inline tables
+- [#671]: Local time of day format should support `09:30` as opposed to `09:30:00`
+- [#790]: Include an `\e` escape code sequence (shorthand for `\u001B`)
+- [#796]: Include an `\xHH` escape code sequence
 
 ### 🔹&#xFE0F; **TOML v1.0.0:**
 
 All features supported, including:
 
--   [#356]: Allow leading zeros in the exponent part of a float
--   [#567]: Control characters are not permitted in comments
--   [#571]: Allow raw tabs inside strings
--   [#665]: Make arrays heterogeneous
--   [#766]: Allow comments before commas in arrays
+- [#356]: Allow leading zeros in the exponent part of a float
+- [#567]: Control characters are not permitted in comments
+- [#571]: Allow raw tabs inside strings
+- [#665]: Make arrays heterogeneous
+- [#766]: Allow comments before commas in arrays
 
 ### 🔹&#xFE0F; **TOML v0.5.0:**
 
@@ -278,30 +278,47 @@ UTF-8 decoding is performed using a state machine based on Bjoern Hoehrmann's '[
 
 ### With thanks to:
 
--   **[@beastle9end](https://github.com/beastle9end)** - Made Windows.h include bypass
--   **[@bjadamson](https://github.com/bjadamson)** - Reported some bugs and helped design a new feature
--   **[@bobfang1992](https://github.com/bobfang1992)** - Reported a bug and created a [wrapper in python](https://github.com/bobfang1992/pytomlpp)
--   **[@GiulioRomualdi](https://github.com/GiulioRomualdi)** - Added cmake+meson support
--   **[@jonestristand](https://github.com/jonestristand)** - Designed and implemented the `toml::path`s feature
--   **[@kcsaul](https://github.com/kcsaul)** - Fixed a bug
--   **[@levicki](https://github.com/levicki)** - Helped design some new features
--   **[@moorereason](https://github.com/moorereason)** - Reported a whole bunch of bugs
--   **[@mosra](https://github.com/mosra)** - Created the awesome [m.css] used to generate the API docs
--   **[@ned14](https://github.com/ned14)** - Reported a bunch of bugs and helped design some new features
--   **[@okureta](https://github.com/okureta)** - Reported a bug
--   **[@prince-chrismc](https://github.com/prince-chrismc)** - Added toml++ to ConanCenter, and fixed some typos
--   **[@rbrugo](https://github.com/rbrugo)** - Helped design a new feature
--   **[@Reedbeta](https://github.com/Reedbeta)** - Fixed a bug and added additional Visual Studio debugger native visualizers
--   **[@Ryan-rsm-McKenzie](https://github.com/Ryan-rsm-McKenzie)** - Add natvis file to cmake install script
--   **[@shdnx](https://github.com/shdnx)** - Fixed a bug on GCC 8.2.0 and some meson config issues
--   **[@sneves](https://github.com/sneves)** - Helped fix a number of parser bugs
--   **[@sobczyk](https://github.com/sobczyk)** - Reported some bugs
--   **[@std-any-emplace](https://github.com/std-any-emplace)** - Reported some bugs
--   **[@Tachi107](https://github.com/Tachi107)** - Made some tweaks to meson.build, added compile_library build option
--   **[@traversaro](https://github.com/traversaro)** - Added vcpkg support and reported a bunch of bugs
--   **[@whiterabbit963](https://github.com/whiterabbit963)** - Fixed a bug with value_or conversions
--   **[@ximion](https://github.com/ximion)** - Added support for installation with meson
--   **[@a-is](https://github.com/a-is)** - Fixed a bug
+- **[@a-is](https://github.com/a-is)** - Fixed a bug
+- **[@ac1982](https://github.com/ac1982)** - Fixed shared-library parse error visibility
+- **[@aouxwoux](https://github.com/aouxwoux)** - Fixed out-of-bounds read in `path::subpath`
+- **[@beastle9end](https://github.com/beastle9end)** - Made `<Windows.h>` include bypass
+- **[@bjadamson](https://github.com/bjadamson)** - Reported some bugs and helped design a new feature
+- **[@bobfang1992](https://github.com/bobfang1992)** - Reported a bug and created a [wrapper in python](https://github.com/bobfang1992/pytomlpp)
+- **[@capuanob](https://github.com/capuanob)** - Integrated this project into OSSFuzz
+- **[@danielbodorin](https://github.com/danielbodorin)** - Fixed stack overflow from deeply nested arrays/inline tables
+- **[@davidstone](http://github.com/davidstone)** - Fixed bug in CMake for modules support
+- **[@DhirenTheHeadlights](https://github.com/DhirenTheHeadlights)** - Reported a bug
+- **[@GiulioRomualdi](https://github.com/GiulioRomualdi)** - Added cmake+meson support
+- **[@jonestristand](https://github.com/jonestristand)** - Designed and implemented the `toml::path`s feature
+- **[@kcsaul](https://github.com/kcsaul)** - Fixed a bug
+- **[@KevDi](https://github.com/KevDi)** - Reported a bug
+- **[@levicki](https://github.com/levicki)** - Helped design some new features
+- **[@mikomikotaishi](https://github.com/mikomikotaishi)** - Added support for C++20 modules, `std::chrono`, and custom strings
+- **[@moorereason](https://github.com/moorereason)** - Reported a whole bunch of bugs
+- **[@mosra](https://github.com/mosra)** - Created the awesome [m.css] used to generate the API docs
+- **[@N-Dekker](https://github.com/N-Dekker)** - Added a workaround for the legacy lambda processor of MSVC 2019/2022, added `get_line`
+- **[@ned14](https://github.com/ned14)** - Reported a bunch of bugs and helped design some new features
+- **[@okureta](https://github.com/okureta)** - Reported a bug
+- **[@peppergrayxyz](https://github.com/peppergrayxyz)** - Reported and suggested a fix for shared-library parse error visibility
+- **[@prince-chrismc](https://github.com/prince-chrismc)** - Added toml++ to ConanCenter, and fixed some typos
+- **[@rbrugo](https://github.com/rbrugo)** - Helped design a new feature
+- **[@Reedbeta](https://github.com/Reedbeta)** - Fixed a bug and added additional Visual Studio debugger native visualizers
+- **[@Ryan-rsm-McKenzie](https://github.com/Ryan-rsm-McKenzie)** - Add natvis file to cmake install script
+- **[@Scrumplex](https://github.com/Scrumplex)** - Tweaked the build scripts
+- **[@shdnx](https://github.com/shdnx)** - Fixed a bug on GCC 8.2.0 and some meson config issues
+- **[@sneves](https://github.com/sneves)** - Helped fix a number of parser bugs
+- **[@sobczyk](https://github.com/sobczyk)** - Reported some bugs
+- **[@std-any-emplace](https://github.com/std-any-emplace)** - Reported some bugs
+- **[@Tachi107](https://github.com/Tachi107)** - Made some tweaks to `meson.build`, added `compile_library` build option
+- **[@theakman2](https://github.com/theakman2)** - Reported a bug
+- **[@traversaro](https://github.com/traversaro)** - Added vcpkg support and reported a bunch of bugs
+- **[@tyler92](https://github.com/tyler92)** - Fixed stack overflow that occurred during fuzzing tests
+- **[@whiterabbit963](https://github.com/whiterabbit963)** - Fixed a bug with `value_or` conversions
+- **[@ximion](https://github.com/ximion)** - Added support for installation with meson
+- **[@rafal-c](https://github.com/rafal-c)** - Added a formatting flag
+- **[@jfsimoneau](https://github.com/jfsimoneau)** - Fixed a meson option
+- **[@ShereeMorphett](https://github.com/ShereeMorphett)** - Fixed `reinterpret_cast` usage
+- **[@SAY-5](https://github.com/SAY-5)** - Fixed a parser bug
 
 <br>
 
@@ -310,11 +327,10 @@ UTF-8 decoding is performed using a state machine based on Bjoern Hoehrmann's '[
 For bug reports and feature requests please consider using the [issues] system here on GitHub. For anything else
 though you're welcome to reach out via other means. In order of likely response time:
 
--   Gitter: [marzer/tomlplusplus](https://gitter.im/marzer/tomlplusplus) ("Discord for repos")
--   Twitter: [marzer8789](https://twitter.com/marzer8789)
--   Email: [mark.gillard@outlook.com.au](mailto:mark.gillard@outlook.com.au)
--   Facebook: [marzer](https://www.facebook.com/marzer)
--   LinkedIn: [marzer](https://www.linkedin.com/in/marzer/)
+- Twitter: [marzer8789](https://twitter.com/marzer8789)
+- Email: [mark.gillard@outlook.com.au](mailto:mark.gillard@outlook.com.au)
+- Facebook: [marzer](https://www.facebook.com/marzer)
+- LinkedIn: [marzer](https://www.linkedin.com/in/marzer/)
 
 [API documentation]: https://marzer.github.io/tomlplusplus/
 [homepage]: https://marzer.github.io/tomlplusplus/
@@ -324,7 +340,7 @@ though you're welcome to reach out via other means. In order of likely response 
 [TOML]: https://toml.io/
 [TOML master]: https://github.com/toml-lang/toml/blob/master/README.md
 [TOML issues list]: https://github.com/toml-lang/toml/issues
-[v1.0.0]: https://toml.io/en/v1.0.0
+[v1.1.0]: https://toml.io/en/v1.1.0
 [CONTRIBUTING]: ./CONTRIBUTING.md
 [LICENSE]: ./LICENSE
 [Flexible and Economical UTF-8 Decoder]: http://bjoern.hoehrmann.de/utf-8/decoder/dfa/
@@ -344,6 +360,7 @@ though you're welcome to reach out via other means. In order of likely response 
 [#790]: https://github.com/toml-lang/toml/pull/790
 [#796]: https://github.com/toml-lang/toml/pull/796
 [#891]: https://github.com/toml-lang/toml/pull/891
-[something better than std::optional]: https://github.com/TartanLlama/optional
+[#979]: https://github.com/toml-lang/toml/pull/979
+[possible v4 changes]: https://marzer.github.io/tomlplusplus/v4.html
 [m.css]: https://mcss.mosra.cz/documentation/doxygen
 [`toml.hpp`]: https://raw.githubusercontent.com/marzer/tomlplusplus/master/toml.hpp

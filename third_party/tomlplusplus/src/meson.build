@@ -7,12 +7,12 @@ assert(build_lib) # not header-only mode
 
 # These are the arguments needed to compile and consume the library, and
 # are exposed to users with  the `compile_args` kwarg of declare_dependency()
-lib_args = cpp.get_supported_arguments('-DTOML_HEADER_ONLY=0')
+lib_args = ['-DTOML_HEADER_ONLY=0']
 if get_option('default_library') != 'static'
-	lib_args += cpp.get_supported_arguments('-DTOML_SHARED_LIB=1')
+	lib_args += '-DTOML_SHARED_LIB=1'
 endif
 if unreleased_features
-	lib_args += cpp.get_supported_arguments('-DTOML_ENABLE_UNRELEASED_FEATURES=1')
+	lib_args += '-DTOML_ENABLE_UNRELEASED_FEATURES=1'
 endif
 
 # these are the _internal_ args, just for compiling the lib
@@ -25,12 +25,18 @@ if is_pedantic and is_release
 		'-Wsuggest-attribute=pure'
 	)
 endif
+if get_option('default_library') != 'shared'
+	lib_internal_args += cpp.get_supported_arguments('-ffunction-sections', '-fdata-sections')
+endif
+if get_option('default_library') != 'static' and is_gcc
+	lib_internal_args += cpp.get_supported_arguments('-fno-semantic-interposition')
+endif
 
 tomlplusplus_lib = library(
 	meson.project_name(),
 	files('toml.cpp'),
 	cpp_args: lib_internal_args,
-	gnu_symbol_visibility: get_option('default_library') == 'static' ? '' : 'hidden',
+	gnu_symbol_visibility: get_option('default_library') == 'static' ? '' : 'inlineshidden',
 	include_directories: include_dir,
 	install: not is_subproject,
 	version: meson.project_version(),

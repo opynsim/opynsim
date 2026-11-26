@@ -8,10 +8,19 @@ on:
             - "**.h"
             - "**.hpp"
             - "**.cpp"
+            - "**.cppm"
             - "**.inl"
             - "**.py"
             - "**/meson.build"
+            - "**/CMakeLists.txt"
+            - "**.cmake"
+            - "**.in"
             - "**/workflows/**.yaml"
+            - "pyproject.toml"
+            - "tests/sources.txt"
+            - "VERSION.txt"
+            - "LICENSE"
+            - ".clang-tidy"
     pull_request:
         branches-ignore:
             - "gh-pages"
@@ -19,34 +28,81 @@ on:
             - "**.h"
             - "**.hpp"
             - "**.cpp"
+            - "**.cppm"
             - "**.inl"
             - "**.py"
             - "**/meson.build"
+            - "**/CMakeLists.txt"
+            - "**.cmake"
+            - "**.in"
             - "**/workflows/**.yaml"
+            - "pyproject.toml"
+            - "tests/sources.txt"
+            - "VERSION.txt"
+            - "LICENSE"
+            - ".clang-tidy"
     workflow_dispatch:
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+    cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
-env:
-    clang_version: "14"
-    gcc_version: "11"
+permissions:
+    contents: read
 
 jobs:
-    linux:
-        strategy:
-            fail-fast: false
-            matrix:
-                compiler:
-                    - "clang"
-                    - "gcc"
-                linker:
-                    - "lld"
-                type:
-                    - "debug"
-                    - "release"
+    generated:
+        runs-on: ubuntu-latest
 
+        permissions:
+            contents: write
+
+        outputs:
+            sha: ${{ steps.commit.outputs.sha }}
+
+        defaults:
+            run:
+                shell: bash
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Regenerate
+              run: |
+                  python3 tools/regenerate.py
+                  git status --short
+
+            - name: Commit to master
+              id: commit
+              if: github.repository == 'marzer/tomlplusplus' && github.ref == 'refs/heads/master'
+              run: |
+                  if [ -n "$(git status --porcelain)" ]; then
+                    git config user.name 'github-actions[bot]'
+                    git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+                    git add --all
+                    git commit -m 'Regenerate derived files'
+                    git pull --rebase origin master
+                    git push origin HEAD:master
+                  fi
+                  echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+    pyright:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: actions/setup-python@v7
+              with:
+                  python-version: "3.13"
+
+            - name: Install python dependencies
+              run: python -m pip install -r tools/requirements.txt pyright
+
+            - name: Run pyright
+              run: pyright
+
+    clang-tidy:
         runs-on: ubuntu-latest
 
         defaults:
@@ -57,47 +113,268 @@ jobs:
             - name: Install base dependencies
               run: |
                   sudo apt -y update
-                  sudo apt -y install --no-install-recommends git python3 python3-pip ninja-build libstdc++-${{ env.gcc_version }}-dev locales-all
+                  sudo apt -y install --no-install-recommends ninja-build clang-22 clang-tidy-22
+                  mkdir -p "$RUNNER_TEMP/bin"
+                  ln -s "$(command -v clang-tidy-22)" "$RUNNER_TEMP/bin/clang-tidy"
+                  echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
 
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v7
 
-            - name: Install python dependencies
+            - name: Install clang-tidier
+              run: pipx install clang-tidier
+
+            - name: Print tool versions
               run: |
-                  sudo -H pip3 install --no-cache-dir --upgrade meson
-                  sudo -H pip3 install --no-cache-dir --upgrade -r tools/requirements.txt
+                  clang++-22 --version
+                  clang-tidy --version
+                  clang-tidier --version
 
-            - name: Check toml.hpp
+            - name: Check regular configuration
               run: |
-                  cd tools
-                  python3 ci_single_header_check.py
+                  cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER=clang++-22 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+                    -Dtomlplusplus_BUILD_LIB=ON -DBUILD_EXAMPLES=ON -Dtomlplusplus_BUILD_TOML_TEST=ON \
+                    -Dtomlplusplus_BUILD_BENCHMARKS=ON -Dtomlplusplus_BUILD_TESTS=ON
+                  clang-tidier build --werror
+                  rm -rf build
 
-            - name: Install lld
-              if: ${{ startsWith(matrix.linker, 'lld')  }}
+            - name: Check configuration no exceptions, no charconv, with unreleased features
               run: |
-                  sudo apt -y install --no-install-recommends lld-${{ env.clang_version }}
-                  sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-${{ env.clang_version }} 1000
+                  cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER=clang++-22 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+                    -Dtomlplusplus_BUILD_LIB=ON -Dtomlplusplus_EXCEPTIONS=OFF -Dtomlplusplus_UNRELEASED_FEATURES=ON \
+                    -DCMAKE_CXX_FLAGS="-DTOML_FLOAT_CHARCONV=0"
+                  clang-tidier build --werror
+                  rm -rf build
 
-            - name: Install clang
-              if: ${{ startsWith(matrix.compiler, 'clang')  }}
-              run: |
-                  sudo apt -y install --no-install-recommends clang-${{ env.clang_version }}
-                  sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-${{ env.clang_version }} 1000
-                  sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-${{ env.clang_version }} 1000
+    linux-cmake:
+        name: ${{ matrix.name }}
 
-            - name: Install gcc
-              if: ${{ startsWith(matrix.compiler, 'gcc') }}
-              run: |
-                  sudo apt -y install --no-install-recommends gcc-${{ env.gcc_version }} g++-${{ env.gcc_version }}
-                  sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-${{ env.gcc_version }} 1000
-                  sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-${{ env.gcc_version }} 1000
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - name: linux-gcc-x64-sanitizers
+                      compiler: "g++"
+                      type: "Debug"
+                      args: "-Dtomlplusplus_ASAN=ON -Dtomlplusplus_UBSAN=ON -Dtomlplusplus_TESTS_SINGLE_HEADER=ON"
+                      consumers: true
+                    - name: linux-gcc-x64-shared
+                      compiler: "g++"
+                      type: "Release"
+                      args: "-DCMAKE_CXX_STANDARD=23 -Dtomlplusplus_BUILD_LIB=ON -DBUILD_SHARED_LIBS=ON"
+                      modules: true
+                      consumers: true
+                      check_symbols: true
+                      toml_test: true
+                    - name: linux-clang-x64-coverage
+                      compiler: "clang++"
+                      type: "Debug"
+                      args: >-
+                          -DCMAKE_CXX_STANDARD=26 -DCMAKE_CXX_FLAGS=-stdlib=libc++ -DCMAKE_EXE_LINKER_FLAGS=-stdlib=libc++
+                          -Dtomlplusplus_TESTS_LEAK=ON -Dtomlplusplus_COVERAGE=ON
+                      coverage: true
+                      alt_cxx_flags: "-stdlib=libc++ -DTOML_FLOAT_CHARCONV=0 -DTOML_ENABLE_CHRONO=0"
+                    - name: linux-clang-x64-static
+                      compiler: "clang++"
+                      type: "Release"
+                      args: "-DCMAKE_CXX_STANDARD=20 -Dtomlplusplus_BUILD_LIB=ON -Dtomlplusplus_UNRELEASED_FEATURES=ON"
+                      modules: true
+                      consumers: true
+                    - name: linux-gcc-arm64
+                      runner: ubuntu-26.04-arm
+                      compiler: "g++"
+                      type: "Debug"
+                      args: "-Dtomlplusplus_ASAN=ON -Dtomlplusplus_UBSAN=ON -DCMAKE_CXX_FLAGS=-DTOML_ENABLE_FLOAT16=1"
+                      # asan's fake stacks make the tests ~200x slower on ubuntu arm64: https://bugs.launchpad.net/bugs/2142105
+                      asan_options: "detect_stack_use_after_return=0"
 
-            - name: Configure locales
+        runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
+
+        defaults:
+            run:
+                shell: bash
+
+        env:
+            CXX: ${{ matrix.compiler }}
+            MODULES: ${{ matrix.modules && 'ON' || 'OFF' }}
+            ASAN_OPTIONS: ${{ matrix.asan_options }}
+
+        steps:
+            - name: Install base dependencies
               run: |
-                  sudo locale-gen 'en_US.utf8' 'ja_JP.utf8' 'de_DE.utf8' 'it_IT.utf8' 'tr_TR.utf8' 'fi_FI.utf8' 'fr_FR.utf8' 'zh_CN.utf8'
+                  sudo apt -y update
+                  sudo apt -y install --no-install-recommends ninja-build locales-all pkg-config
+
+            - name: Install libc++, clang-scan-deps and llvm-cov
+              if: matrix.compiler == 'clang++'
+              run: |
+                  version=$(clang++ -dumpversion | cut -d. -f1)
+                  sudo apt -y install --no-install-recommends "libc++-$version-dev" "libc++abi-$version-dev" "clang-tools-$version" "llvm-$version"
+                  echo "/usr/lib/llvm-$version/bin" >> "$GITHUB_PATH"
+
+            - name: Install check-symbols
+              if: matrix.check_symbols
+              run: pipx install check-symbols
+
+            - uses: actions/checkout@v7
+
+            - name: Print tool versions
+              run: |
+                  grep PRETTY_NAME /etc/os-release
+                  "$CXX" --version
+                  cmake --version
+                  ninja --version
+
+            - name: Configure
+              run: >-
+                  cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.type }}
+                  -Dtomlplusplus_BUILD_TESTS=ON -DBUILD_EXAMPLES=ON -Dtomlplusplus_BUILD_TOML_TEST=ON
+                  -Dtomlplusplus_BUILD_BENCHMARKS=ON
+                  -Dtomlplusplus_PEDANTIC=ON -Dtomlplusplus_WERROR=ON -DTOMLPLUSPLUS_BUILD_MODULES="$MODULES"
+                  ${{ matrix.args }}
+
+            - name: Build
+              run: cmake --build build
+
+            - name: Test
+              working-directory: build
+              run: ctest --output-on-failure
+
+            - name: Run toml-test
+              if: matrix.toml_test
+              run: |
+                  curl -fsSL https://github.com/toml-lang/toml-test/releases/download/v2.2.0/toml-test-v2.2.0-linux-amd64.gz \
+                    | gunzip > "$RUNNER_TEMP/toml-test"
+                  chmod +x "$RUNNER_TEMP/toml-test"
+                  "$RUNNER_TEMP/toml-test" test -toml 1.1 -decoder build/toml-test/tt_decoder -encoder build/toml-test/tt_encoder
+
+            - name: Build and test without exceptions, charconv or chrono, with unreleased features
+              if: matrix.coverage
+              run: |
+                  cmake -S . -B build-alt -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.type }} -Dtomlplusplus_BUILD_TESTS=ON \
+                    -Dtomlplusplus_PEDANTIC=ON -Dtomlplusplus_WERROR=ON ${{ matrix.args }} \
+                    -DCMAKE_CXX_FLAGS="${{ matrix.alt_cxx_flags }}" \
+                    -Dtomlplusplus_EXCEPTIONS=OFF -Dtomlplusplus_UNRELEASED_FEATURES=ON
+                  cmake --build build-alt
+                  ctest --test-dir build-alt --output-on-failure
+
+            - name: Report coverage
+              if: matrix.coverage
+              env:
+                  TOMLPLUSPLUS_COVERAGE_MIN_LINES: "97.0"
+                  TOMLPLUSPLUS_COVERAGE_MIN_FUNCTIONS: "97.0"
+                  TOMLPLUSPLUS_COVERAGE_MIN_REGIONS: "80.8"
+                  TOMLPLUSPLUS_COVERAGE_MIN_BRANCHES: "79.0"
+              run: python3 tools/coverage.py build build-alt
+
+            - name: Upload coverage report
+              if: matrix.coverage
+              uses: actions/upload-artifact@v7
+              with:
+                  name: coverage
+                  path: build/coverage/html
+
+            - name: Test the installed package
+              if: matrix.consumers
+              run: |
+                  prefix="$RUNNER_TEMP/prefix"
+                  cmake --install build --prefix "$prefix"
+                  cmake -S tests/consumer -B "$RUNNER_TEMP/consumer" -G Ninja -DCMAKE_PREFIX_PATH="$prefix"
+                  cmake --build "$RUNNER_TEMP/consumer"
+                  "$RUNNER_TEMP/consumer/consumer"
+                  if [ "$MODULES" = ON ]; then "$RUNNER_TEMP/consumer/consumer_import"; fi
+                  read -ra flags <<< "$(PKG_CONFIG_PATH="$prefix/lib/pkgconfig:$prefix/share/pkgconfig" pkg-config --cflags --libs tomlplusplus)"
+                  "$CXX" -std=c++17 tests/consumer/main.cpp "${flags[@]}" -o "$RUNNER_TEMP/pkg-config-consumer"
+                  LD_LIBRARY_PATH="$prefix/lib" "$RUNNER_TEMP/pkg-config-consumer"
+
+            - name: Report regenerated files
+              run: git status --short
+
+    linux-gcc-x64-oldest-cmake:
+        runs-on: ubuntu-latest
+
+        defaults:
+            run:
+                shell: bash
+
+        steps:
+            - name: Install base dependencies
+              run: |
+                  sudo apt -y update
+                  sudo apt -y install --no-install-recommends ninja-build locales-all
+
+            - name: Install the oldest supported CMake
+              run: |
+                  python3 -m venv "$RUNNER_TEMP/cmake"
+                  "$RUNNER_TEMP/cmake/bin/pip" install cmake==3.14.4.post1
+                  echo "$RUNNER_TEMP/cmake/bin" >> "$GITHUB_PATH"
+
+            - uses: actions/checkout@v7
+
+            - name: Print tool versions
+              run: |
+                  g++ --version
+                  cmake --version
+                  ninja --version
+
+            - name: Test as a subproject
+              run: |
+                  cmake -S tests/consumer -B "$RUNNER_TEMP/subproject" -G Ninja -DADD_SUBDIRECTORY="$GITHUB_WORKSPACE"
+                  cmake --build "$RUNNER_TEMP/subproject"
+                  "$RUNNER_TEMP/subproject/consumer"
+                  if grep -q tomlplusplus_tests "$RUNNER_TEMP/subproject/build.ninja"; then
+                    echo '::error::the subproject build enabled developer options'
+                    exit 1
+                  fi
+                  if [ -n "$(git status --porcelain)" ]; then
+                    git status --short
+                    echo '::error::the subproject build wrote to the source tree'
+                    exit 1
+                  fi
+
+            - name: Configure
+              run: >-
+                  cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+                  -Dtomlplusplus_BUILD_TESTS=ON -DBUILD_EXAMPLES=ON -Dtomlplusplus_BUILD_BENCHMARKS=ON
+                  -Dtomlplusplus_PEDANTIC=ON -Dtomlplusplus_WERROR=ON -Dtomlplusplus_EXCEPTIONS=OFF
+
+            - name: Build
+              run: cmake --build build
+
+            - name: Test
+              working-directory: build
+              run: ctest --output-on-failure
+
+    linux-clang-x64-meson:
+        runs-on: ubuntu-latest
+
+        defaults:
+            run:
+                shell: bash
+
+        env:
+            CXX: clang++
+
+        steps:
+            - name: Install base dependencies
+              run: |
+                  sudo apt -y update
+                  sudo apt -y install --no-install-recommends ninja-build locales-all
+
+            - uses: actions/checkout@v7
+
+            - name: Install meson
+              run: pipx install meson
+
+            - name: Print tool versions
+              run: |
+                  grep PRETTY_NAME /etc/os-release
+                  "$CXX" --version
+                  meson --version
+                  ninja --version
+                  python3 --version
 
             - name: Configure Meson
-              run: |
-                  CXX=c++ CXX_LD=${{ matrix.linker }} meson setup build --buildtype=${{ matrix.type }} -Ddevel=true -Db_lto=false
+              run: meson setup build --buildtype=debug -Ddevel=true
 
             - name: Build
               run: meson compile -C build
@@ -105,15 +382,114 @@ jobs:
             - name: Test
               run: meson test -C build --verbose
 
-    windows:
+            - name: Report regenerated files
+              run: git status --short
+
+    linux-gcc-x64-oldest-meson:
+        runs-on: ubuntu-latest
+
+        container: ubuntu:22.04
+
+        defaults:
+            run:
+                shell: bash
+
+        steps:
+            - name: Install dependencies
+              env:
+                  DEBIAN_FRONTEND: noninteractive
+              run: |
+                  apt-get -y update
+                  apt-get -y install --no-install-recommends ca-certificates git g++ meson ninja-build python3 locales-all
+
+            - uses: actions/checkout@v7
+
+            - name: Print tool versions
+              run: |
+                  g++ --version
+                  meson --version
+                  ninja --version
+                  python3 --version
+
+            - name: Configure Meson
+              run: meson setup build --buildtype=release -Ddevel=true
+
+            - name: Build
+              run: meson compile -C build
+
+            - name: Test
+              run: meson test -C build --verbose
+
+            - name: Report regenerated files
+              run: |
+                  git config --global --add safe.directory "$GITHUB_WORKSPACE"
+                  git status --short
+
+    windows-cmake:
+        name: ${{ matrix.name }}
+
         strategy:
             fail-fast: false
             matrix:
-                type:
-                    - "debug"
-                    - "release"
+                include:
+                    - name: windows-msvc-x64
+                      runner: windows-latest
+                      arch: x64
+                    - name: windows-msvc-arm64
+                      runner: windows-11-arm
+                      arch: arm64
 
-        runs-on: windows-2022
+        runs-on: ${{ matrix.runner }}
+
+        defaults:
+            run:
+                shell: cmd
+
+        steps:
+            - name: Install dependencies
+              run: |
+                  python3 -m pip install -U pip
+                  pip3 install ninja
+
+            - uses: actions/checkout@v7
+
+            - uses: ilammy/msvc-dev-cmd@v1
+              with:
+                  arch: ${{ matrix.arch }}
+
+            - name: Print tool versions
+              run: |
+                  cmake --version
+                  ninja --version
+
+            - name: Configure
+              run: >-
+                  cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER=cl -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=20
+                  -Dtomlplusplus_BUILD_TESTS=ON -DBUILD_EXAMPLES=ON -Dtomlplusplus_BUILD_TOML_TEST=ON
+                  -Dtomlplusplus_BUILD_BENCHMARKS=ON
+                  -Dtomlplusplus_PEDANTIC=ON -Dtomlplusplus_WERROR=ON
+                  -Dtomlplusplus_BUILD_LIB=ON -DBUILD_SHARED_LIBS=ON
+
+            - name: Build
+              run: cmake --build build
+
+            - name: Test
+              working-directory: build
+              run: ctest --output-on-failure
+
+            - name: Test as a subproject with modules
+              run: >-
+                  cmake -S tests/consumer -B "%RUNNER_TEMP%\subproject" -G Ninja -DCMAKE_CXX_COMPILER=cl
+                  -DCMAKE_BUILD_TYPE=Release -DADD_SUBDIRECTORY="%GITHUB_WORKSPACE%" -DTOMLPLUSPLUS_BUILD_MODULES=ON
+                  && cmake --build "%RUNNER_TEMP%\subproject"
+                  && "%RUNNER_TEMP%\subproject\consumer"
+                  && "%RUNNER_TEMP%\subproject\consumer_import"
+
+            - name: Report regenerated files
+              run: git status --short
+
+    windows-msvc-x64-permissive:
+        runs-on: windows-latest
 
         defaults:
             run:
@@ -125,67 +501,112 @@ jobs:
                   python3 -m pip install -U pip
                   pip3 install meson ninja
 
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v7
 
             - uses: ilammy/msvc-dev-cmd@v1
 
             - name: Configure Meson
-              run: meson setup build --vsenv --buildtype=${{ matrix.type }} -Ddevel=true -Db_lto=false
+              run: meson setup build --vsenv --buildtype=release -Ddevel=true -Ddefault_library=static -Dpermissive=true
 
             - name: Build
               run: meson compile -C build
 
             - name: Test
               run: meson test -C build --verbose
-#  tipi-build-linux:
-#    name: tipi.build project build and dependency resolution
-#    runs-on: ubuntu-latest
-#    if: github.ref == 'refs/heads/master'
-#    container: tipibuild/tipi-ubuntu
-#
-#    env:
-#      HOME: /root
-#
-#    steps:
-#      - uses: actions/checkout@v3
-#      - run: mkdir -p ~/.tipi
-#
-#      # checking if the tomlplusplus project builds and passes tests
-#      - name: Build as project target linux-cxx17 (run tests 'odr_test_1' and 'main')
-#        run: tipi . --dont-upgrade --verbose -t linux-cxx17 --test "odr_test_1|main"
-#
-#      - name: Build as project target linux-cxx20 (run tests 'odr_test_1' and 'main')
-#        run: tipi . --dont-upgrade --verbose -t linux-cxx20 --test "odr_test_1|main"
-#
-#      - name: Cleanup project builds
-#        run: rm -r ./build
-#
-#      - name: "Get branch name and save to env"
-#        env:
-#          IS_PR: ${{ github.EVENT_NAME == 'pull_request' }}
-#        run: |
-#          if ${IS_PR}; then
-#            BRANCH_NAME="${GITHUB_HEAD_REF}"
-#          else
-#            BRANCH_NAME="${GITHUB_REF##*/}"
-#          fi
-#          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
-#
-#      # trying if pulling the dependency with tipi works properly
-#      - name: Build as dependency
-#        run: |
-#          cd examples/
-#
-#          # create test directory and copy the simple_parser.cpp in there
-#          mkdir test-as-dep
-#          cp examples.h test-as-dep/.
-#          cp simple_parser.cpp test-as-dep/.
-#          cd test-as-dep/
-#
-#          # create a deps file referencing the commit that triggered this build as dependency
-#          mkdir .tipi
-#          echo '{ "requires": { "${{ github.event.repository.full_name }}": { "@": "${{ env.BRANCH_NAME }}" } } }' > .tipi/deps
-#
-#          # build
-#          tipi . --dont-upgrade --verbose -t linux-cxx17
-#          ./build/linux-cxx17/bin/simple_parser ../example.toml
+
+            - name: Report regenerated files
+              run: git status --short
+
+    macos-appleclang-arm64:
+        runs-on: macos-latest
+
+        # libc++'s floating-point from_chars needs macOS 26, so this tests the fallback against apple's libc
+        env:
+            MACOSX_DEPLOYMENT_TARGET: "13.3"
+
+        defaults:
+            run:
+                shell: bash
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Install meson
+              run: |
+                  python3 -m venv "$RUNNER_TEMP/meson"
+                  "$RUNNER_TEMP/meson/bin/pip" install meson ninja
+                  echo "$RUNNER_TEMP/meson/bin" >> "$GITHUB_PATH"
+
+            - name: Print tool versions
+              run: |
+                  sw_vers
+                  c++ --version
+                  meson --version
+                  ninja --version
+
+            - name: Configure Meson
+              run: meson setup build --buildtype=release -Ddevel=true
+
+            - name: Build
+              run: meson compile -C build
+
+            - name: Test
+              run: meson test -C build --verbose
+
+            - name: Report regenerated files
+              run: git status --short
+
+    release:
+        needs:
+            - generated
+            - pyright
+            - clang-tidy
+            - linux-cmake
+            - linux-gcc-x64-oldest-cmake
+            - linux-clang-x64-meson
+            - linux-gcc-x64-oldest-meson
+            - windows-cmake
+            - windows-msvc-x64-permissive
+            - macos-appleclang-arm64
+
+        if: github.repository == 'marzer/tomlplusplus' && github.ref == 'refs/heads/master'
+
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: write
+
+        defaults:
+            run:
+                shell: bash
+
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  ref: ${{ needs.generated.outputs.sha }}
+
+            - name: Create release from VERSION.txt
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  TARGET_SHA: ${{ needs.generated.outputs.sha }}
+              run: |
+                  version=$(tr -d '[:space:]' < VERSION.txt)
+                  echo "VERSION.txt: $version"
+
+                  tag="v$version"
+                  if gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+                    echo "release with tag $tag already exists; nothing to do."
+                    exit 0
+                  fi
+
+                  notes="This release was triggered automatically by a merge to \`$GITHUB_REF_NAME\`."
+                  notes+='<br/><br/>'
+                  notes+="See [CHANGELOG.md](https://github.com/$GITHUB_REPOSITORY/blob/$tag/CHANGELOG.md)"
+                  notes+=' for a human-friendly change log. :tada:'
+
+                  gh release create "$tag" toml.hpp \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --target "$TARGET_SHA" \
+                    --title "$tag" \
+                    --generate-notes \
+                    --notes "$notes"

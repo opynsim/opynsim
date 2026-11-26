@@ -41,11 +41,14 @@ TOML_NAMESPACE_START
 	}
 
 	TOML_EXTERNAL_LINKAGE
-	node& node::operator=(const node& /*rhs*/) noexcept
+	node& node::operator=(const node& rhs) noexcept
 	{
 		// does not copy source information - this is not an error
 		//
 		// see https://github.com/marzer/tomlplusplus/issues/49#issuecomment-665089577
+
+		if (&rhs == this)
+			return *this;
 
 		source_ = {};
 		return *this;
@@ -127,13 +130,7 @@ TOML_IMPL_NAMESPACE_START
 		if ((!lhs != !rhs) || lhs->type() != rhs->type())
 			return false;
 
-		return lhs->visit(
-			[=](auto& l) noexcept
-			{
-				using concrete_type = remove_cvref<decltype(l)>;
-
-				return l == *(rhs->as<concrete_type>());
-			});
+		return lhs->visit(equal_to_same_type{ rhs });
 	}
 }
 TOML_IMPL_NAMESPACE_END;

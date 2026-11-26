@@ -23,12 +23,12 @@ TOML_NAMESPACE_START
 	/// \detail \cpp
 	/// auto table = toml::parse_file("config.toml"sv);
 	/// std::cout << "The node 'description' was defined at "sv
-	///		<< table.get("description")->source().begin()
+	///		<< table.get("description")->source().begin
 	///		<< "\n";
 	/// \ecpp
 	///
 	/// \out
-	///	The value 'description' was defined at line 7, column 15
+	///	The node 'description' was defined at line 7, column 15
 	/// \eout
 	///
 	/// \remarks toml++'s parser is unicode-aware insofar as it knows how to handle
@@ -59,7 +59,7 @@ TOML_NAMESPACE_START
 
 		/// \brief	Equality operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator==(const source_position& lhs, const source_position& rhs) noexcept
+		friend constexpr bool operator==(source_position lhs, source_position rhs) noexcept
 		{
 			return lhs.line == rhs.line //
 				&& lhs.column == rhs.column;
@@ -67,7 +67,7 @@ TOML_NAMESPACE_START
 
 		/// \brief	Inequality operator.
 		TOML_PURE_INLINE_GETTER
-		friend constexpr bool operator!=(const source_position& lhs, const source_position& rhs) noexcept
+		friend constexpr bool operator!=(source_position lhs, source_position rhs) noexcept
 		{
 			return !(lhs == rhs);
 		}
@@ -76,7 +76,7 @@ TOML_NAMESPACE_START
 		/// \cond
 
 		TOML_PURE_GETTER
-		static constexpr uint64_t pack(const source_position& pos) noexcept
+		static constexpr uint64_t pack(source_position pos) noexcept
 		{
 			return static_cast<uint64_t>(pos.line) << 32 | static_cast<uint64_t>(pos.column);
 		}
@@ -86,28 +86,28 @@ TOML_NAMESPACE_START
 	  public:
 		/// \brief	Less-than operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator<(const source_position& lhs, const source_position& rhs) noexcept
+		friend constexpr bool operator<(source_position lhs, source_position rhs) noexcept
 		{
 			return pack(lhs) < pack(rhs);
 		}
 
 		/// \brief	Less-than-or-equal-to operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator<=(const source_position& lhs, const source_position& rhs) noexcept
+		friend constexpr bool operator<=(source_position lhs, source_position rhs) noexcept
 		{
 			return pack(lhs) <= pack(rhs);
 		}
 
 		/// \brief	Greater-than operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator>(const source_position& lhs, const source_position& rhs) noexcept
+		friend constexpr bool operator>(source_position lhs, source_position rhs) noexcept
 		{
 			return pack(lhs) > pack(rhs);
 		}
 
 		/// \brief	Greater-than-or-equal-to operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator>=(const source_position& lhs, const source_position& rhs) noexcept
+		friend constexpr bool operator>=(source_position lhs, source_position rhs) noexcept
 		{
 			return pack(lhs) >= pack(rhs);
 		}
@@ -118,7 +118,7 @@ TOML_NAMESPACE_START
 		/// auto tbl = toml::parse("bar = 42"sv);
 		///
 		/// std::cout << "The value for 'bar' was found on "sv
-		///		<< tbl.get("bar")->source().begin()
+		///		<< tbl.get("bar")->source().begin
 		///		<< "\n";
 		/// \ecpp
 		///
@@ -196,7 +196,7 @@ TOML_NAMESPACE_START
 		/// \brief	Prints a source_region to a stream.
 		///
 		/// \detail \cpp
-		/// auto tbl = toml::parse("bar = 42", "config.toml");
+		/// auto tbl = toml::parse("bar = 42"sv, "config.toml"sv);
 		///
 		/// std::cout << "The value for 'bar' was found on "sv
 		///		<< tbl.get("bar")->source()
@@ -204,11 +204,11 @@ TOML_NAMESPACE_START
 		/// \ecpp
 		///
 		/// \out
-		/// The value for 'bar' was found on line 1, column 7 of 'config.toml'
+		/// The value for 'bar' was found on line 1, column 7 to line 1, column 9 of 'config.toml'
 		/// \eout
 		///
 		/// \param 	lhs	The stream.
-		/// \param 	rhs	The source_position.
+		/// \param 	rhs	The source_region.
 		///
 		/// \returns	The input stream.
 		friend std::ostream& operator<<(std::ostream& lhs, const source_region& rhs)
@@ -217,6 +217,54 @@ TOML_NAMESPACE_START
 			return lhs;
 		}
 	};
+
+	/// \brief	Returns the line at the specified line number, from the specified document.
+	///
+	/// \detail \cpp
+	/// auto doc = "alpha = 1\nbeta = 2"sv;
+	/// auto second_line = toml::get_line(doc, 2);
+	///
+	/// std::cout << "The second line says \"" << second_line.value() << "\"\n";
+	/// \ecpp
+	///
+	/// \out
+	/// The second line says "beta = 2"
+	/// \eout
+	///
+	/// \param 	doc	The document.
+	/// \param 	line_num	The line number (1-based).
+	///
+	/// \returns	The specified line, excluding any possible trailing carriage return or line feed character.
+	/// \remarks	Returns an empty `optional` when the specified line number is out of range, i.e., when
+	///				the line number is zero or greater than the total number of lines of the specified document.
+	TOML_NODISCARD
+	constexpr optional<std::string_view> get_line(std::string_view doc, source_index line_num) noexcept
+	{
+		// Invalid line number. Should be greater than zero.
+		if (line_num == 0)
+			return {};
+
+		// The position of the first character of the specified line.
+		size_t begin_of_line{};
+		for (source_index current_line_num{ 1 }; current_line_num < line_num; ++current_line_num)
+		{
+			const auto line_break = doc.find('\n', begin_of_line);
+			if (line_break == std::string_view::npos)
+				return {};
+			begin_of_line = line_break + 1;
+		}
+
+		if (begin_of_line >= doc.size())
+			return {};
+
+		// The last line of a doc with no trailing line break runs to the end of the doc.
+		auto line = doc.substr(begin_of_line, doc.find('\n', begin_of_line) - begin_of_line);
+
+		// Trim an optional trailing carriage return.
+		if (!line.empty() && line.back() == '\r')
+			line.remove_suffix(1u);
+		return line;
+	}
 }
 TOML_NAMESPACE_END;
 

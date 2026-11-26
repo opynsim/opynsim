@@ -18,15 +18,48 @@ TEST_CASE("parsing - booleans")
 							   CHECK(tbl["bool2"] == false);
 						   });
 
-	// "Always lowercase."
-	parsing_should_fail(FILE_LINE_ARGS, "bool = True"sv);
-	parsing_should_fail(FILE_LINE_ARGS, "bool = TRUE"sv);
-	parsing_should_fail(FILE_LINE_ARGS, "bool = tRUE"sv);
-	parsing_should_fail(FILE_LINE_ARGS, "bool = False"sv);
-	parsing_should_fail(FILE_LINE_ARGS, "bool = FALSE"sv);
-	parsing_should_fail(FILE_LINE_ARGS, "bool = fALSE"sv);
-
-	// value tests
 	parse_expected_value(FILE_LINE_ARGS, " true", true);
 	parse_expected_value(FILE_LINE_ARGS, "false", false);
+}
+
+TEST_CASE("parsing - booleans (always lowercase)")
+{
+	parsing_should_fail(FILE_LINE_ARGS,
+						"bool = True"sv,
+						"1:8: Error while parsing boolean: expected 'true', saw 'T'"sv);
+	parsing_should_fail(FILE_LINE_ARGS,
+						"bool = TRUE"sv,
+						"1:8: Error while parsing boolean: expected 'true', saw 'T'"sv);
+	parsing_should_fail(FILE_LINE_ARGS,
+						"bool = tRUE"sv,
+						"1:9: Error while parsing boolean: expected 'true', saw 'tR'"sv);
+	parsing_should_fail(FILE_LINE_ARGS,
+						"bool = False"sv,
+						"1:8: Error while parsing boolean: expected 'false', saw 'F'"sv);
+	parsing_should_fail(FILE_LINE_ARGS,
+						"bool = FALSE"sv,
+						"1:8: Error while parsing boolean: expected 'false', saw 'F'"sv);
+	parsing_should_fail(FILE_LINE_ARGS,
+						"bool = fALSE"sv,
+						"1:9: Error while parsing boolean: expected 'false', saw 'fA'"sv);
+}
+
+TEST_CASE("parsing - booleans (trailing characters)")
+{
+	parsing_should_fail(FILE_LINE_ARGS,
+						"bool = truex"sv,
+						"1:12: Error while parsing boolean: expected end of value, saw 'x'"sv);
+	parsing_should_fail(FILE_LINE_ARGS,
+						"bool = false1"sv,
+						"1:13: Error while parsing boolean: expected end of value, saw '1'"sv);
+}
+
+TEST_CASE("parsing - booleans (cut short by a control character)")
+{
+	parsing_should_fail(FILE_LINE_ARGS,
+						"bool = t\n"sv,
+						"1:9: Error while parsing boolean: expected 'true', saw 't\\n'"sv);
+	parsing_should_fail(FILE_LINE_ARGS,
+						"bool = fal\tse"sv,
+						"1:11: Error while parsing boolean: expected 'false', saw 'fal\\t'"sv);
 }

@@ -6,6 +6,12 @@
 
 // toml++ config
 #define TOML_UNDEF_MACROS 0
+#ifdef TOML_FLOAT_CHARCONV
+#define FLOAT_CHARCONV_SET_BY_BUILD 1
+#endif
+#ifdef TOML_INT_CHARCONV
+#define INT_CHARCONV_SET_BY_BUILD 1
+#endif
 #ifndef TOML_HEADER_ONLY
 #define TOML_HEADER_ONLY 0
 #endif
@@ -31,9 +37,6 @@
 #define CATCH_CONFIG_CPP17_STRING_VIEW
 #define CATCH_CONFIG_FAST_COMPILE
 #define CATCH_CONFIG_CONSOLE_WIDTH 120
-#define CATCH_CONFIG_CPP11_TO_STRING
-#define CATCH_CONFIG_DISABLE_MATCHERS
-#define CATCH_CONFIG_NO_NOMINMAX
 
 // windows.h config (included transitively by catch2 on windows)
 #ifdef _WIN32
@@ -81,18 +84,9 @@
 #endif
 
 // test harness stuff
-#ifndef SHOULD_HAVE_FP16
-#define SHOULD_HAVE_FP16 0
-#endif
-#ifndef SHOULD_HAVE_FLOAT16
-#define SHOULD_HAVE_FLOAT16 0
-#endif
-#ifndef SHOULD_HAVE_FLOAT128
-#define SHOULD_HAVE_FLOAT128 0
-#endif
-#ifndef SHOULD_HAVE_INT128
-#define SHOULD_HAVE_INT128 0
-#endif
 #ifndef SHOULD_HAVE_EXCEPTIONS
 #define SHOULD_HAVE_EXCEPTIONS 1
+#endif
+#ifndef USE_VENDORED_LIBS
+#define USE_VENDORED_LIBS 1
 #endif

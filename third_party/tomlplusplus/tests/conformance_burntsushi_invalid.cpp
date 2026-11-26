@@ -9,24 +9,39 @@
 
 namespace
 {
-	static constexpr auto array_double_comma_1				= R"(array = [1,,2])"sv;
-	static constexpr auto array_double_comma_2				= R"(array = [1,2,,])"sv;
+	static constexpr auto array_double_comma_01				= R"(double-comma-01 = [1,,2])"sv;
+	static constexpr auto array_double_comma_02				= R"(double-comma-02 = [1,2,,])"sv;
+	static constexpr auto array_extend_defined_aot			= R"([[tab.arr]]
+[tab]
+arr.val1=1)"sv;
 	static constexpr auto array_extending_table				= R"(a = [{ b = 1 }]
 
 # Cannot extend tables within static arrays
 # https://github.com/toml-lang/toml/issues/908
 [a.c]
 foo = 1)"sv;
-	static constexpr auto array_missing_separator			= R"(wrong = [ 1 2 3 ])"sv;
-	static constexpr auto array_no_close_2					= R"(x = [42 #)"sv;
-	static constexpr auto array_no_close_table_2			= R"(x = [{ key = 42 #)"sv;
-	static constexpr auto array_no_close_table				= R"(x = [{ key = 42)"sv;
-	static constexpr auto array_no_close					= R"(long_array = [ 1, 2, 3)"sv;
-	static constexpr auto array_tables_1					= R"(# INVALID TOML DOC
+	static constexpr auto array_missing_separator_01		= R"(arrr = [true false])"sv;
+	static constexpr auto array_missing_separator_02		= R"(wrong = [ 1 2 3 ])"sv;
+	static constexpr auto array_no_close_01					= R"(no-close-01 = [ 1, 2, 3)"sv;
+	static constexpr auto array_no_close_02					= R"(no-close-02 = [1,)"sv;
+	static constexpr auto array_no_close_03					= R"(no-close-03 = [42 #])"sv;
+	static constexpr auto array_no_close_04					= R"(no-close-04 = [{ key = 42)"sv;
+	static constexpr auto array_no_close_05					= R"(no-close-05 = [{ key = 42})"sv;
+	static constexpr auto array_no_close_06					= R"(no-close-06 = [{ key = 42 #}])"sv;
+	static constexpr auto array_no_close_07					= R"(no-close-07 = [{ key = 42} #])"sv;
+	static constexpr auto array_no_close_08					= R"(no-close-08 = [)"sv;
+	static constexpr auto array_no_close_table_01			= R"(x = [{ key = 42)"sv;
+	static constexpr auto array_no_close_table_02			= R"(x = [{ key = 42 #)"sv;
+	static constexpr auto array_no_comma_01					= R"(no-comma-01 = [true false])"sv;
+	static constexpr auto array_no_comma_02					= R"(no-comma-02 = [ 1 2 3 ])"sv;
+	static constexpr auto array_no_comma_03					= R"(no-comma-03 = [ 1 #,])"sv;
+	static constexpr auto array_only_comma_01				= R"(only-comma-01 = [,])"sv;
+	static constexpr auto array_only_comma_02				= R"(only-comma-02 = [,,])"sv;
+	static constexpr auto array_tables_01					= R"(# INVALID TOML DOC
 fruit = []
 
 [[fruit]] # Not allowed)"sv;
-	static constexpr auto array_tables_2					= R"(# INVALID TOML DOC
+	static constexpr auto array_tables_02					= R"(# INVALID TOML DOC
 [[fruit]]
   name = "apple"
 
@@ -50,47 +65,62 @@ fruit = []
   "Entry 2",
 ])"sv;
 
-	static constexpr auto bool_almost_false_with_extra = R"(a = falsify)"sv;
-	static constexpr auto bool_almost_false			   = R"(a = fals)"sv;
-	static constexpr auto bool_almost_true_with_extra  = R"(a = truthy)"sv;
-	static constexpr auto bool_almost_true			   = R"(a = tru)"sv;
-	static constexpr auto bool_just_f				   = R"(a = f)"sv;
-	static constexpr auto bool_just_t				   = R"(a = t)"sv;
-	static constexpr auto bool_mixed_case			   = R"(valid = False)"sv;
-	static constexpr auto bool_starting_same_false	   = R"(a = falsey)"sv;
-	static constexpr auto bool_starting_same_true	   = R"(a = truer)"sv;
-	static constexpr auto bool_wrong_case_false		   = R"(b = FALSE)"sv;
-	static constexpr auto bool_wrong_case_true		   = R"(a = TRUE)"sv;
+	static constexpr auto bool_almost_false_with_extra = R"(almost-false-with-extra = falsify)"sv;
+	static constexpr auto bool_almost_false			   = R"(almost-false            = fals)"sv;
+	static constexpr auto bool_almost_true_with_extra  = R"(almost-true-with-extra  = truthy)"sv;
+	static constexpr auto bool_almost_true			   = R"(almost-true             = tru)"sv;
+	static constexpr auto bool_capitalized_false	   = R"(capitalized-false        = False)"sv;
+	static constexpr auto bool_capitalized_true		   = R"(capitalized-true         = True)"sv;
+	static constexpr auto bool_just_f				   = R"(just-f                  = f)"sv;
+	static constexpr auto bool_just_t				   = R"(just-t                  = t)"sv;
+	static constexpr auto bool_mixed_case_false		   = R"(mixed-case-false        = falsE)"sv;
+	static constexpr auto bool_mixed_case_true		   = R"(mixed-case-true         = trUe)"sv;
+	static constexpr auto bool_mixed_case			   = R"(mixed-case              = valid   = False)"sv;
+	static constexpr auto bool_starting_same_false	   = R"(starting-same-false     = falsey)"sv;
+	static constexpr auto bool_starting_same_true	   = R"(starting-same-true      = truer)"sv;
+	static constexpr auto bool_wrong_case_false		   = R"(wrong-case-false        = FALSE)"sv;
+	static constexpr auto bool_wrong_case_true		   = R"(wrong-case-true         = TRUE)"sv;
 
 	static constexpr auto control_bare_cr =
 		"# The following line contains a single carriage return control character\r\n"
 		"\r"sv;
-	static constexpr auto control_bare_formfeed		= "bare-formfeed = \f"sv;
-	static constexpr auto control_bare_null			= "bare-null = \"some value\" \x00"sv;
+	static constexpr auto control_bare_formfeed		= "bare-formfeed     = \f"sv;
+	static constexpr auto control_bare_null			= "bare-null         = \"some value\" \x00"sv;
 	static constexpr auto control_bare_vertical_tab = "bare-vertical-tab = \v"sv;
-	static constexpr auto control_comment_cr		= "comment-cr = \"Carriage return in comment\" # \ra=1"sv;
-	static constexpr auto control_comment_del		= "comment-del = \"0x7f\" # \x7F"sv;
-	static constexpr auto control_comment_lf		= "comment-lf = \"ctrl-P\" # \x10"sv;
-	static constexpr auto control_comment_null		= "comment-null = \"null\" # \x00"sv;
-	static constexpr auto control_comment_us		= "comment-us = \"ctrl-_\" # \x1F"sv;
-	static constexpr auto control_multi_del			= "multi-del = \"\"\"null\x7F\"\"\""sv;
-	static constexpr auto control_multi_lf			= "multi-lf = \"\"\"null\x10\"\"\""sv;
+	static constexpr auto control_comment_cr		= "comment-cr   = \"Carriage return in comment\" # \ra=1"sv;
+	static constexpr auto control_comment_del		= "comment-del  = \"0x7f\"   # \x7F"sv;
+	static constexpr auto control_comment_ff		= "comment-ff   = \"0x7f\"   # \f"sv;
+	static constexpr auto control_comment_lf		= "comment-lf   = \"ctrl-P\" # \x10"sv;
+	static constexpr auto control_comment_null		= "comment-null = \"null\"   # \x00"sv;
+	static constexpr auto control_comment_us		= "comment-us   = \"ctrl-_\" # \x1F"sv;
+	static constexpr auto control_multi_cr			= "multi-cr   = \"\"\"null\r\"\"\""sv;
+	static constexpr auto control_multi_del			= "multi-del  = \"\"\"null\x7F\"\"\""sv;
+	static constexpr auto control_multi_lf			= "multi-lf   = \"\"\"null\x10\"\"\""sv;
 	static constexpr auto control_multi_null		= "multi-null = \"\"\"null\x00\"\"\""sv;
-	static constexpr auto control_multi_us			= "multi-us = \"\"\"null\x1F\"\"\""sv;
-	static constexpr auto control_rawmulti_del		= "rawmulti-del = '''null\x7F'''"sv;
-	static constexpr auto control_rawmulti_lf		= "rawmulti-lf = '''null\x10'''"sv;
+	static constexpr auto control_multi_us			= "multi-us   = \"\"\"null\x1F\"\"\""sv;
+	static constexpr auto control_only_ff			= "\f"sv;
+	static constexpr auto control_only_null			= "\x00"sv;
+	static constexpr auto control_only_vt			= "\v"sv;
+	static constexpr auto control_rawmulti_cr		= "rawmulti-cr   = '''null\r'''"sv;
+	static constexpr auto control_rawmulti_del		= "rawmulti-del  = '''null\x7F'''"sv;
+	static constexpr auto control_rawmulti_lf		= "rawmulti-lf   = '''null\x10'''"sv;
 	static constexpr auto control_rawmulti_null		= "rawmulti-null = '''null\x00'''"sv;
-	static constexpr auto control_rawmulti_us		= "rawmulti-us = '''null\x1F'''"sv;
-	static constexpr auto control_rawstring_del		= "rawstring-del = 'null\x7F'"sv;
-	static constexpr auto control_rawstring_lf		= "rawstring-lf = 'null\x10'"sv;
+	static constexpr auto control_rawmulti_us		= "rawmulti-us   = '''null\x1F'''"sv;
+	static constexpr auto control_rawstring_cr		= "rawstring-cr   = 'null\r'"sv;
+	static constexpr auto control_rawstring_del		= "rawstring-del  = 'null\x7F'"sv;
+	static constexpr auto control_rawstring_lf		= "rawstring-lf   = 'null\x10'"sv;
 	static constexpr auto control_rawstring_null	= "rawstring-null = 'null\x00'"sv;
-	static constexpr auto control_rawstring_us		= "rawstring-us = 'null\x1F'"sv;
-	static constexpr auto control_string_bs			= "string-bs = \"backspace\x08\""sv;
-	static constexpr auto control_string_del		= "string-del = \"null\x7F\""sv;
-	static constexpr auto control_string_lf			= "string-lf = \"null\x10\""sv;
+	static constexpr auto control_rawstring_us		= "rawstring-us   = 'null\x1F'"sv;
+	static constexpr auto control_string_bs			= "string-bs   = \"backspace\x08\""sv;
+	static constexpr auto control_string_cr			= "string-cr   = \"null\r\""sv;
+	static constexpr auto control_string_del		= "string-del  = \"null\x7F\""sv;
+	static constexpr auto control_string_lf			= "string-lf   = \"null\x10\""sv;
 	static constexpr auto control_string_null		= "string-null = \"null\x00\""sv;
-	static constexpr auto control_string_us			= "string-us = \"null\x1F\""sv;
+	static constexpr auto control_string_us			= "string-us   = \"null\x1F\""sv;
 
+	static constexpr auto datetime_day_zero	   = R"(foo = 1997-09-00T09:09:09.09Z)"sv;
+	static constexpr auto datetime_feb_29	   = R"("not a leap year" = 2100-02-29T15:15:15Z)"sv;
+	static constexpr auto datetime_feb_30	   = R"("only 28 or 29 days in february" = 1988-02-30T15:15:15Z)"sv;
 	static constexpr auto datetime_hour_over   = R"(# time-hour       = 2DIGIT  ; 00-23
 d = 2006-01-01T24:00:00-00:00)"sv;
 	static constexpr auto datetime_mday_over   = R"(# date-mday       = 2DIGIT  ; 01-28, 01-29, 01-30, 01-31 based on
@@ -105,6 +135,7 @@ d = 2006-01-01T00:60:00-00:00)"sv;
 d = 2006-13-01T00:00:00-00:00)"sv;
 	static constexpr auto datetime_month_under = R"(# date-month      = 2DIGIT  ; 01-12
 d = 2007-00-01T00:00:00-00:00)"sv;
+	static constexpr auto datetime_no_date_time_sep	   = R"(foo = 1997-09-0909:09:09)"sv;
 	static constexpr auto datetime_no_leads_month	   = R"(# Month "7" instead of "07"; the leading zero is required.
 no-leads = 1987-7-05T17:45:00Z)"sv;
 	static constexpr auto datetime_no_leads_with_milli = R"(# Day "5" instead of "05"; the leading zero is required.
@@ -113,19 +144,32 @@ with-milli = 1987-07-5T17:45:00.12Z)"sv;
 no-leads = 1987-7-05T17:45:00Z)"sv;
 	static constexpr auto datetime_no_t				   = R"(# No "t" or "T" between the date and time.
 no-t = 1987-07-0517:45:00Z)"sv;
+	static constexpr auto datetime_no_year_month_sep   = R"(foo = 199709-09)"sv;
+	static constexpr auto datetime_offset_minus_minute_1digit	   = R"(foo = 1997-09-09T09:09:09.09+09:9)"sv;
+	static constexpr auto datetime_offset_minus_no_hour_minute_sep = R"(foo = 1997-09-09T09:09:09.09+0909)"sv;
+	static constexpr auto datetime_offset_minus_no_hour_minute	   = R"(foo = 1997-09-09T09:09:09.09+)"sv;
+	static constexpr auto datetime_offset_minus_no_minute		   = R"(foo = 1997-09-09T09:09:09.09+09)"sv;
+	static constexpr auto datetime_offset_overflow_hour			   = R"(# Hour must be 00-24
+d = 1985-06-18 17:04:07+25:00)"sv;
+	static constexpr auto datetime_offset_overflow_minute		   = R"(d = 1985-06-18 17:04:07+12:60)"sv;
+	static constexpr auto datetime_offset_plus_minute_1digit	   = R"(foo = 1997-09-09T09:09:09.09+09:9)"sv;
+	static constexpr auto datetime_offset_plus_no_hour_minute_sep  = R"(foo = 1997-09-09T09:09:09.09+0909)"sv;
+	static constexpr auto datetime_offset_plus_no_hour_minute	   = R"(foo = 1997-09-09T09:09:09.09+)"sv;
+	static constexpr auto datetime_offset_plus_no_minute		   = R"(foo = 1997-09-09T09:09:09.09+09)"sv;
+	static constexpr auto datetime_only_T						   = R"(foo = T)"sv;
+	static constexpr auto datetime_only_TZ						   = R"(foo = TZ)"sv;
+	static constexpr auto datetime_only_Tdot					   = R"(foo = T.)"sv;
 	static constexpr auto datetime_second_over =
 		R"(# time-second     = 2DIGIT  ; 00-58, 00-59, 00-60 based on leap second
 #                           ; rules
 d = 2006-01-01T00:00:61-00:00)"sv;
-	static constexpr auto datetime_time_no_leads = R"(# Leading 0 is always required.
+	static constexpr auto datetime_second_trailing_dot	= R"(foo = 1997-09-09T09:09:09.)"sv;
+	static constexpr auto datetime_second_trailing_dotz = R"(foo = 2016-09-09T09:09:09.Z)"sv;
+	static constexpr auto datetime_time_no_leads		= R"(# Leading 0 is always required.
 d = 2023-10-01T1:32:00Z)"sv;
-
-#if !TOML_LANG_UNRELEASED
-
-	static constexpr auto datetime_no_secs = R"(# No seconds in time.
-no-secs = 1987-07-05T17:45Z)"sv;
-
-#endif // !TOML_LANG_UNRELEASED
+	static constexpr auto datetime_trailing_x			= R"(sign=2020-01-01x)"sv;
+	static constexpr auto datetime_y10k					= R"(# Maximum RFC3399 year is 9999.
+d = 10000-01-01 00:00:00z)"sv;
 
 	static constexpr auto encoding_bad_codepoint =
 		"\x23\x20\x49\x6E\x76\x61\x6C\x69\x64\x20\x63\x6F\x64\x65\x70\x6F\x69\x6E\x74\x20\x55\x2B\x44\x38\x30"
@@ -141,6 +185,11 @@ no-secs = 1987-07-05T17:45Z)"sv;
 		"\x20\x69\x73\x20\x6E\x6F\x20\x62\x79\x74\x65\x20\x74\x6F\x20\x66\x6F\x6C\x6C\x6F\x77\x20\x62\x65\x63"
 		"\x61\x75\x73\x65\x20\x69\x74\x27\x73\x20\x74\x68\x65\x20\x65\x6E\x64\x20\x6F\x66\x20\x74\x68\x65\x20"
 		"\x66\x69\x6C\x65\x2E\x0A\x78\x20\x3D\x20\x22\x22\x22\x22\x22\x22\xDA"sv;
+	static constexpr auto encoding_bad_utf8_in_array =
+		"\x23\x20\x68\x74\x74\x70\x73\x3A\x2F\x2F\x67\x69\x74\x68\x75\x62\x2E\x63\x6F\x6D\x2F\x6D\x61\x72\x7A"
+		"\x65\x72\x2F\x74\x6F\x6D\x6C\x70\x6C\x75\x73\x70\x6C\x75\x73\x2F\x69\x73\x73\x75\x65\x73\x2F\x31\x30"
+		"\x30\x0A\x66\x6C\x20\x3D\x5B\x20\x5B\x5B\x5B\x5B\x5B\x5B\x5B\x5B\x5B\x5B\x5B\x5B\x5B\x5B\x5B\x36\x80"
+		"\x86\x00\x00\x00\x2D\x36\xC2\x9F\x20\x00"sv;
 	static constexpr auto encoding_bad_utf8_in_comment = "\x23\x20\xC3\x0A"sv;
 	static constexpr auto encoding_bad_utf8_in_multiline_literal =
 		"\x23\x20\x54\x68\x65\x20\x66\x6F\x6C\x6C\x6F\x77\x69\x6E\x67\x20\x6C\x69\x6E\x65\x20\x63\x6F\x6E\x74"
@@ -158,164 +207,242 @@ no-secs = 1987-07-05T17:45Z)"sv;
 		"\x23\x20\x54\x68\x65\x20\x66\x6F\x6C\x6C\x6F\x77\x69\x6E\x67\x20\x6C\x69\x6E\x65\x20\x63\x6F\x6E\x74"
 		"\x61\x69\x6E\x73\x20\x61\x6E\x20\x69\x6E\x76\x61\x6C\x69\x64\x20\x55\x54\x46\x2D\x38\x20\x73\x65\x71"
 		"\x75\x65\x6E\x63\x65\x2E\x0A\x62\x61\x64\x20\x3D\x20\x22\xC3\x22\x0A"sv;
-	static constexpr auto encoding_bom_not_at_start_1 =
+	static constexpr auto encoding_bom_not_at_start_01 =
 		"\x62\x6F\x6D\x2D\x6E\x6F\x74\x2D\x61\x74\x2D\x73\x74\x61\x72\x74\x20\xFF\xFD\x0A"sv;
-	static constexpr auto encoding_bom_not_at_start_2 =
+	static constexpr auto encoding_bom_not_at_start_02 =
 		"\x62\x6F\x6D\x2D\x6E\x6F\x74\x2D\x61\x74\x2D\x73\x74\x61\x72\x74\x3D\x20\xFF\xFD\x0A"sv;
 	static constexpr auto encoding_utf16_bom =
 		"\xFE\xFF\x00\x23\x00\x20\x00\x55\x00\x54\x00\x46\x00\x2D\x00\x31\x00\x36\x00\x20\x00\x77\x00\x69\x00"
 		"\x74\x00\x68\x00\x20\x00\x42\x00\x4F\x00\x4D\x00\x0A"sv;
-	static constexpr auto encoding_utf16 =
-		"\x00#\x00 \x00U\x00T\x00F\x00-\x001\x006\x00 \x00w\x00i\x00t\x00h\x00o\x00u\x00t\x00 \x00B\x00O\x00M\x00"sv;
+	static constexpr auto encoding_utf16_comment = "\x00#\x00 \x00U\x00T\x00"
+												   "F\x00-\x00"
+												   "1\x00"
+												   "6\x00 \x00w\x00i\x00t\x00h\x00o\x00u\x00t\x00 \x00"
+												   "B\x00O\x00M\x00"sv;
+	static constexpr auto encoding_utf16_key	 = "\x00k\x00 \x00=\x00 \x00\"\x00v\x00\"\x00"sv;
 
-	static constexpr auto float_double_point_1		= R"(double-point-1 = 0..1)"sv;
-	static constexpr auto float_double_point_2		= R"(double-point-2 = 0.1.2)"sv;
-	static constexpr auto float_exp_double_e_1		= R"(exp-double-e-1 = 1ee2)"sv;
-	static constexpr auto float_exp_double_e_2		= R"(exp-double-e-2 = 1e2e3)"sv;
-	static constexpr auto float_exp_double_us		= R"(exp-double-us = 1e__23)"sv;
-	static constexpr auto float_exp_leading_us		= R"(exp-leading-us = 1e_23)"sv;
-	static constexpr auto float_exp_point_1			= R"(exp-point-1 = 1e2.3)"sv;
-	static constexpr auto float_exp_point_2			= R"(exp-point-2 = 1.e2)"sv;
-	static constexpr auto float_exp_trailing_us		= R"(exp-trailing-us = 1e23_)"sv;
-	static constexpr auto float_inf_capital			= R"(v = Inf)"sv;
-	static constexpr auto float_inf_incomplete_1	= R"(inf-incomplete-1 = in)"sv;
-	static constexpr auto float_inf_incomplete_2	= R"(inf-incomplete-2 = +in)"sv;
-	static constexpr auto float_inf_incomplete_3	= R"(inf-incomplete-3 = -in)"sv;
-	static constexpr auto float_inf_underscore		= R"(inf_underscore = in_f)"sv;
-	static constexpr auto float_leading_point_neg	= R"(leading-point-neg = -.12345)"sv;
-	static constexpr auto float_leading_point_plus	= R"(leading-point-plus = +.12345)"sv;
-	static constexpr auto float_leading_point		= R"(leading-point = .12345)"sv;
-	static constexpr auto float_leading_us			= R"(leading-us = _1.2)"sv;
-	static constexpr auto float_leading_zero_neg	= R"(leading-zero-neg = -03.14)"sv;
-	static constexpr auto float_leading_zero_plus	= R"(leading-zero-plus = +03.14)"sv;
-	static constexpr auto float_leading_zero		= R"(leading-zero = 03.14)"sv;
-	static constexpr auto float_nan_capital			= R"(v = NaN)"sv;
-	static constexpr auto float_nan_incomplete_1	= R"(nan-incomplete-1 = na)"sv;
-	static constexpr auto float_nan_incomplete_2	= R"(nan-incomplete-2 = +na)"sv;
-	static constexpr auto float_nan_incomplete_3	= R"(nan-incomplete-3 = -na)"sv;
-	static constexpr auto float_nan_underscore		= R"(nan_underscore = na_n)"sv;
-	static constexpr auto float_trailing_point_min	= R"(trailing-point-min = -1.)"sv;
-	static constexpr auto float_trailing_point_plus = R"(trailing-point-plus = +1.)"sv;
-	static constexpr auto float_trailing_point		= R"(trailing-point = 1.)"sv;
-	static constexpr auto float_trailing_us_exp_1	= R"(trailing-us-exp-1 = 1_e2)"sv;
-	static constexpr auto float_trailing_us_exp_2	= R"(trailing-us-exp-2 = 1.2_e2)"sv;
-	static constexpr auto float_trailing_us			= R"(trailing-us = 1.2_)"sv;
-	static constexpr auto float_us_after_point		= R"(us-after-point = 1._2)"sv;
-	static constexpr auto float_us_before_point		= R"(us-before-point = 1_.2)"sv;
+#if UNICODE_LITERALS_OK
 
-	static constexpr auto inline_table_add				   = R"(a={}
-# Inline tables are immutable and can't be extended
-[a.b])"sv;
-	static constexpr auto inline_table_bad_key_syntax	   = R"(tbl = { a = 1, [b] })"sv;
-	static constexpr auto inline_table_dotted_key_conflict = R"(tbl = { a.b = "a_b", a.b.c = "a_b_c" })"sv;
-	static constexpr auto inline_table_double_comma		   = R"(t = {x=3,,y=4})"sv;
-	static constexpr auto inline_table_duplicate_key	   = R"(# Duplicate keys within an inline table are invalid
+	static constexpr auto encoding_ideographic_space = R"(# First on next line is U+3000 IDEOGRAPHIC SPACE
+　foo = "bar")"sv;
+
+#endif // UNICODE_LITERALS_OK
+
+	static constexpr auto float_double_dot_01	   = R"(double-dot-01 = 0..1)"sv;
+	static constexpr auto float_double_dot_02	   = R"(double-dot-02 = 0.1.2)"sv;
+	static constexpr auto float_exp_dot_01		   = R"(exp-dot-01 = 1e2.3)"sv;
+	static constexpr auto float_exp_dot_02		   = R"(exp-dot-02 = 1.e2)"sv;
+	static constexpr auto float_exp_dot_03		   = R"(exp-dot-03 = 3.e+20)"sv;
+	static constexpr auto float_exp_double_e_01	   = R"(exp-double-e-01 = 1ee2)"sv;
+	static constexpr auto float_exp_double_e_02	   = R"(exp-double-e-02 = 1e2e3)"sv;
+	static constexpr auto float_exp_double_us	   = R"(exp-double-us = 1e__23)"sv;
+	static constexpr auto float_exp_leading_us	   = R"(exp-leading-us = 1e_23)"sv;
+	static constexpr auto float_exp_trailing_us_01 = R"(exp-trailing-us-01 = 1_e2)"sv;
+	static constexpr auto float_exp_trailing_us_02 = R"(exp-trailing-us-02 = 1.2_e2)"sv;
+	static constexpr auto float_exp_trailing_us	   = R"(exp-trailing-us = 1e23_)"sv;
+	static constexpr auto float_inf_capital		   = R"(v = Inf)"sv;
+	static constexpr auto float_inf_incomplete_01  = R"(inf-incomplete-01 = in)"sv;
+	static constexpr auto float_inf_incomplete_02  = R"(inf-incomplete-02 = +in)"sv;
+	static constexpr auto float_inf_incomplete_03  = R"(inf-incomplete-03 = -in)"sv;
+	static constexpr auto float_inf_underscore	   = R"(inf_underscore = in_f)"sv;
+	static constexpr auto float_leading_dot_neg	   = R"(leading-dot-neg = -.12345)"sv;
+	static constexpr auto float_leading_dot_plus   = R"(leading-dot-plus = +.12345)"sv;
+	static constexpr auto float_leading_dot		   = R"(leading-dot = .12345)"sv;
+	static constexpr auto float_leading_us		   = R"(leading-us = _1.2)"sv;
+	static constexpr auto float_leading_zero_neg   = R"(leading-zero-neg = -03.14)"sv;
+	static constexpr auto float_leading_zero_plus  = R"(leading-zero-plus = +03.14)"sv;
+	static constexpr auto float_leading_zero	   = R"(leading-zero = 03.14)"sv;
+	static constexpr auto float_nan_capital		   = R"(v = NaN)"sv;
+	static constexpr auto float_nan_incomplete_01  = R"(nan-incomplete-01 = na)"sv;
+	static constexpr auto float_nan_incomplete_02  = R"(nan-incomplete-02 = +na)"sv;
+	static constexpr auto float_nan_incomplete_03  = R"(nan-incomplete-03 = -na)"sv;
+	static constexpr auto float_nan_underscore	   = R"(nan_underscore = na_n)"sv;
+	static constexpr auto float_trailing_dot_01	   = R"(trailing-point = 1.)"sv;
+	static constexpr auto float_trailing_dot_02	   = R"(a = 1.
+b = 2)"sv;
+	static constexpr auto float_trailing_dot_min   = R"(trailing-dot-min = -1.)"sv;
+	static constexpr auto float_trailing_dot_plus  = R"(trailing-dot-plus = +1.)"sv;
+	static constexpr auto float_trailing_dot	   = R"(trailing-dot = 1.)"sv;
+	static constexpr auto float_trailing_exp_dot   = R"(trailing-exp-dot =  0.e)"sv;
+	static constexpr auto float_trailing_exp_minus = R"(trailing-exp-minus = 0.0e-)"sv;
+	static constexpr auto float_trailing_exp_plus  = R"(trailing-exp-plus = 0.0e+)"sv;
+	static constexpr auto float_trailing_exp	   = R"(trailing-exp = 0.0E)"sv;
+	static constexpr auto float_trailing_us_exp_01 = R"(trailing-us-exp-1 = 1_e2)"sv;
+	static constexpr auto float_trailing_us_exp_02 = R"(trailing-us-exp-2 = 1.2_e2)"sv;
+	static constexpr auto float_trailing_us		   = R"(trailing-us = 1.2_)"sv;
+	static constexpr auto float_us_after_dot	   = R"(us-after-dot = 1._2)"sv;
+	static constexpr auto float_us_before_dot	   = R"(us-before-dot = 1_.2)"sv;
+
+	static constexpr auto inline_table_bad_key_syntax	= R"(tbl = { a = 1, [b] })"sv;
+	static constexpr auto inline_table_double_comma		= R"(t = {x=3,,y=4})"sv;
+	static constexpr auto inline_table_duplicate_key_01 = R"(# Duplicate keys within an inline table are invalid
 a={b=1, b=2})"sv;
-	static constexpr auto inline_table_empty			   = R"(t = {,})"sv;
-	static constexpr auto inline_table_nested_key_conflict =
+	static constexpr auto inline_table_duplicate_key_02 = R"(table1 = { table2.dupe = 1, table2.dupe = 2 })"sv;
+	static constexpr auto inline_table_duplicate_key_03 =
 		R"(tbl = { fruit = { apple.color = "red" }, fruit.apple.texture = { smooth = true } })"sv;
-	static constexpr auto inline_table_no_comma	 = R"(t = {x = 3 y = 4})"sv;
-	static constexpr auto inline_table_overwrite = R"(a.b=0
+	static constexpr auto inline_table_duplicate_key_04 = R"(tbl = { a.b = "a_b", a.b.c = "a_b_c" })"sv;
+	static constexpr auto inline_table_empty_01			= R"(t = {,})"sv;
+	static constexpr auto inline_table_empty_02			= R"(t = {,
+})"sv;
+	static constexpr auto inline_table_empty_03			= R"(t = {
+,
+})"sv;
+	static constexpr auto inline_table_no_close_01		= R"(a={)"sv;
+	static constexpr auto inline_table_no_close_02		= R"(a={b=1)"sv;
+	static constexpr auto inline_table_no_comma_01		= R"(t = {x = 3 y = 4})"sv;
+	static constexpr auto inline_table_no_comma_02		= R"(arrr = { comma-missing = true valid-toml = false })"sv;
+	static constexpr auto inline_table_overwrite_01		= R"(a.b=0
 # Since table "a" is already defined, it can't be replaced by an inline table.
 a={})"sv;
+	static constexpr auto inline_table_overwrite_02		= R"(a={}
+# Inline tables are immutable and can't be extended
+[a.b])"sv;
+	static constexpr auto inline_table_overwrite_03		= R"(a = { b = 1 }
+a.b = 2)"sv;
+	static constexpr auto inline_table_overwrite_04		= R"(inline-t = { nest = {} }
 
-#if !TOML_LANG_UNRELEASED
+[[inline-t.nest]])"sv;
+	static constexpr auto inline_table_overwrite_05		= R"(inline-t = { nest = {} }
 
-	static constexpr auto inline_table_linebreak_1 =
-		R"(# No newlines are allowed between the curly braces unless they are valid within
-# a value.
-simple = { a = 1 
-})"sv;
-	static constexpr auto inline_table_linebreak_2 = R"(t = {a=1,
-b=2})"sv;
-	static constexpr auto inline_table_linebreak_3 = R"(t = {a=1
-,b=2})"sv;
-	static constexpr auto inline_table_linebreak_4 = R"(json_like = {
-          first = "Tom",
-          last = "Preston-Werner"
-})"sv;
-	static constexpr auto inline_table_trailing_comma =
-		R"(# A terminating comma (also called trailing comma) is not permitted after the
-# last key/value pair in an inline table
-abc = { abc = 123, })"sv;
+[inline-t.nest])"sv;
+	static constexpr auto inline_table_overwrite_06		= R"(a = { b = 1, b.c = 2 })"sv;
+	static constexpr auto inline_table_overwrite_07		= R"(tab = { inner.table = [{}], inner.table.val = "bad" })"sv;
+	static constexpr auto inline_table_overwrite_08 = R"(tab = { inner = { dog = "best" }, inner.cat = "worst" })"sv;
+	static constexpr auto inline_table_overwrite_09 = R"([tab.nested]
+inline-t = { nest = {} }
 
-#endif // !TOML_LANG_UNRELEASED
+[tab]
+nested.inline-t.nest = 2)"sv;
+	static constexpr auto inline_table_overwrite_10 =
+		R"(# Set implicit "b", overwrite "b" (illegal!) and then set another implicit.
+#
+# Caused panic: https://github.com/BurntSushi/toml/issues/403
+a = {b.a = 1, b = 2, b.c = 3})"sv;
 
-	static constexpr auto integer_capital_bin		  = R"(capital-bin = 0B0)"sv;
-	static constexpr auto integer_capital_hex		  = R"(capital-hex = 0X1)"sv;
-	static constexpr auto integer_capital_oct		  = R"(capital-oct = 0O0)"sv;
-	static constexpr auto integer_double_sign_nex	  = R"(double-sign-nex = --99)"sv;
-	static constexpr auto integer_double_sign_plus	  = R"(double-sign-plus = ++99)"sv;
-	static constexpr auto integer_double_us			  = R"(double-us = 1__23)"sv;
-	static constexpr auto integer_incomplete_bin	  = R"(incomplete-bin = 0b)"sv;
-	static constexpr auto integer_incomplete_hex	  = R"(incomplete-hex = 0x)"sv;
-	static constexpr auto integer_incomplete_oct	  = R"(incomplete-oct = 0o)"sv;
-	static constexpr auto integer_invalid_bin		  = R"(invalid-bin = 0b0012)"sv;
-	static constexpr auto integer_invalid_hex		  = R"(invalid-hex = 0xaafz)"sv;
-	static constexpr auto integer_invalid_oct		  = R"(invalid-oct = 0o778)"sv;
-	static constexpr auto integer_leading_us_bin	  = R"(leading-us-bin = _0o1)"sv;
-	static constexpr auto integer_leading_us_hex	  = R"(leading-us-hex = _0o1)"sv;
-	static constexpr auto integer_leading_us_oct	  = R"(leading-us-oct = _0o1)"sv;
-	static constexpr auto integer_leading_us		  = R"(leading-us = _123)"sv;
-	static constexpr auto integer_leading_zero_1	  = R"(leading-zero-1 = 01)"sv;
-	static constexpr auto integer_leading_zero_2	  = R"(leading-zero-2 = 00)"sv;
-	static constexpr auto integer_leading_zero_3	  = R"(leading-zero-3 = 0_0)"sv;
-	static constexpr auto integer_leading_zero_sign_1 = R"(leading-zero-sign-1 = -01)"sv;
-	static constexpr auto integer_leading_zero_sign_2 = R"(leading-zero-sign-2 = +01)"sv;
-	static constexpr auto integer_leading_zero_sign_3 = R"(leading-zero-sign-3 = +0_1)"sv;
-	static constexpr auto integer_negative_bin		  = R"(negative-bin = -0b11010110)"sv;
-	static constexpr auto integer_negative_hex		  = R"(negative-hex = -0xff)"sv;
-	static constexpr auto integer_negative_oct		  = R"(negative-oct = -0o99)"sv;
-	static constexpr auto integer_positive_bin		  = R"(positive-bin = +0b11010110)"sv;
-	static constexpr auto integer_positive_hex		  = R"(positive-hex = +0xff)"sv;
-	static constexpr auto integer_positive_oct		  = R"(positive-oct = +0o99)"sv;
-	static constexpr auto integer_text_after_integer  = R"(answer = 42 the ultimate answer?)"sv;
-	static constexpr auto integer_trailing_us_bin	  = R"(trailing-us-bin = 0b1_)"sv;
-	static constexpr auto integer_trailing_us_hex	  = R"(trailing-us-hex = 0x1_)"sv;
-	static constexpr auto integer_trailing_us_oct	  = R"(trailing-us-oct = 0o1_)"sv;
-	static constexpr auto integer_trailing_us		  = R"(trailing-us = 123_)"sv;
-	static constexpr auto integer_us_after_bin		  = R"(us-after-bin = 0b_1)"sv;
-	static constexpr auto integer_us_after_hex		  = R"(us-after-hex = 0x_1)"sv;
-	static constexpr auto integer_us_after_oct		  = R"(us-after-oct = 0o_1)"sv;
+	static constexpr auto integer_capital_bin		   = R"(capital-bin = 0B0)"sv;
+	static constexpr auto integer_capital_hex		   = R"(capital-hex = 0X1)"sv;
+	static constexpr auto integer_capital_oct		   = R"(capital-oct = 0O0)"sv;
+	static constexpr auto integer_double_sign_nex	   = R"(double-sign-nex = --99)"sv;
+	static constexpr auto integer_double_sign_plus	   = R"(double-sign-plus = ++99)"sv;
+	static constexpr auto integer_double_us			   = R"(double-us = 1__23)"sv;
+	static constexpr auto integer_incomplete_bin	   = R"(incomplete-bin = 0b)"sv;
+	static constexpr auto integer_incomplete_hex	   = R"(incomplete-hex = 0x)"sv;
+	static constexpr auto integer_incomplete_oct	   = R"(incomplete-oct = 0o)"sv;
+	static constexpr auto integer_invalid_bin		   = R"(invalid-bin = 0b0012)"sv;
+	static constexpr auto integer_invalid_hex_01	   = R"(invalid-hex-01 = 0xaafz)"sv;
+	static constexpr auto integer_invalid_hex_02	   = R"(invalid-hex-02 = 0xgabba00f1)"sv;
+	static constexpr auto integer_invalid_hex_03	   = R"(a = 0x-1)"sv;
+	static constexpr auto integer_invalid_oct		   = R"(invalid-oct = 0o778)"sv;
+	static constexpr auto integer_leading_us_bin	   = R"(leading-us-bin = _0b1)"sv;
+	static constexpr auto integer_leading_us_hex	   = R"(leading-us-hex = _0x1)"sv;
+	static constexpr auto integer_leading_us_oct	   = R"(leading-us-oct = _0o1)"sv;
+	static constexpr auto integer_leading_us		   = R"(leading-us = _123)"sv;
+	static constexpr auto integer_leading_zero_01	   = R"(leading-zero-01 = 01)"sv;
+	static constexpr auto integer_leading_zero_02	   = R"(leading-zero-02 = 00)"sv;
+	static constexpr auto integer_leading_zero_03	   = R"(leading-zero-03 = 0_0)"sv;
+	static constexpr auto integer_leading_zero_sign_01 = R"(leading-zero-sign-01 = -01)"sv;
+	static constexpr auto integer_leading_zero_sign_02 = R"(leading-zero-sign-02 = +01)"sv;
+	static constexpr auto integer_leading_zero_sign_03 = R"(leading-zero-sign-03 = +0_1)"sv;
+	static constexpr auto integer_negative_bin		   = R"(negative-bin = -0b11010110)"sv;
+	static constexpr auto integer_negative_hex		   = R"(negative-hex = -0xff)"sv;
+	static constexpr auto integer_negative_oct		   = R"(negative-oct = -0o755)"sv;
+	static constexpr auto integer_positive_bin		   = R"(positive-bin = +0b11010110)"sv;
+	static constexpr auto integer_positive_hex		   = R"(positive-hex = +0xff)"sv;
+	static constexpr auto integer_positive_oct		   = R"(positive-oct = +0o755)"sv;
+	static constexpr auto integer_text_after_integer   = R"(answer = 42 the ultimate answer?)"sv;
+	static constexpr auto integer_trailing_us_bin	   = R"(trailing-us-bin = 0b1_)"sv;
+	static constexpr auto integer_trailing_us_hex	   = R"(trailing-us-hex = 0x1_)"sv;
+	static constexpr auto integer_trailing_us_oct	   = R"(trailing-us-oct = 0o1_)"sv;
+	static constexpr auto integer_trailing_us		   = R"(trailing-us = 123_)"sv;
+	static constexpr auto integer_us_after_bin		   = R"(us-after-bin = 0b_1)"sv;
+	static constexpr auto integer_us_after_hex		   = R"(us-after-hex = 0x_1)"sv;
+	static constexpr auto integer_us_after_oct		   = R"(us-after-oct = 0o_1)"sv;
 
-	static constexpr auto key_after_array			 = R"([[agencies]] owner = "S Cjelli")"sv;
-	static constexpr auto key_after_table			 = R"([error] this = "should not be here")"sv;
-	static constexpr auto key_after_value			 = R"(first = "Tom" last = "Preston-Werner" # INVALID)"sv;
-	static constexpr auto key_bare_invalid_character = R"(bare!key = 123)"sv;
-	static constexpr auto key_dotted_redefine_table	 = R"(# Defined a.b as int
+	static constexpr auto key_after_array				= R"([[agencies]] owner = "S Cjelli")"sv;
+	static constexpr auto key_after_table				= R"([error] this = "should not be here")"sv;
+	static constexpr auto key_after_value				= R"(first = "Tom" last = "Preston-Werner" # INVALID)"sv;
+	static constexpr auto key_bare_invalid_character_01 = R"(! = 123)"sv;
+	static constexpr auto key_bare_invalid_character_02 = R"(bare!key = 123)"sv;
+	static constexpr auto key_dot						= R"(. = 1)"sv;
+	static constexpr auto key_dotdot					= R"(.. = 1)"sv;
+	static constexpr auto key_dotted_redefine_table_01	= R"(a = false
+a.b = true)"sv;
+	static constexpr auto key_dotted_redefine_table_02	= R"(# Defined a.b as int
 a.b = 1
 # Tries to access it as table: error
 a.b.c = 2)"sv;
-	static constexpr auto key_duplicate_keys		 = R"(dupe = false
-dupe = true)"sv;
-	static constexpr auto key_duplicate				 = R"(# DO NOT DO THIS
-name = "Tom"
+	static constexpr auto key_duplicate_keys_01			= R"(name = "Tom"
 name = "Pradyun")"sv;
-	static constexpr auto key_empty					 = R"( = 1)"sv;
-	static constexpr auto key_escape				 = R"(\u00c0 = "latin capital letter A with grave")"sv;
-	static constexpr auto key_hash					 = R"(a# = 1)"sv;
-	static constexpr auto key_multiline				 = R"("""long
+	static constexpr auto key_duplicate_keys_02			= R"(dupe = false
+dupe = true)"sv;
+	static constexpr auto key_duplicate_keys_03			= R"(spelling   = "favorite"
+"spelling" = "favourite")"sv;
+	static constexpr auto key_duplicate_keys_04			= R"(spelling   = "favorite"
+'spelling' = "favourite")"sv;
+	static constexpr auto key_duplicate_keys_05			= R"(a        = 1
+"\u0061" = 1)"sv;
+	static constexpr auto key_duplicate_keys_06			= R"("a'b"      = 1
+"a\u0027b" = 2)"sv;
+	static constexpr auto key_duplicate_keys_07			= R"("" = 1
+"" = 2)"sv;
+	static constexpr auto key_duplicate_keys_08			= R"(arr = [1]
+arr = [2])"sv;
+	static constexpr auto key_duplicate_keys_09			= R"(tbl = {k=1}
+tbl = {kk=2})"sv;
+	static constexpr auto key_empty						= R"( = 1)"sv;
+	static constexpr auto key_end_in_escape				= R"("backslash is the last char\)"sv;
+	static constexpr auto key_escape					= R"(\u00c0 = "latin capital letter A with grave")"sv;
+	static constexpr auto key_hash						= R"(a# = 1)"sv;
+	static constexpr auto key_multiline_key_01			= R"("""key""" = 1)"sv;
+	static constexpr auto key_multiline_key_02			= R"('''key''' = 1)"sv;
+	static constexpr auto key_multiline_key_03			= R"("""key""" = """v""")"sv;
+	static constexpr auto key_multiline_key_04			= R"('''key''' = '''v''')"sv;
+	static constexpr auto key_newline_01				= R"(barekey
+   = 1)"sv;
+	static constexpr auto key_newline_02				= R"("quoted
+key" = 1)"sv;
+	static constexpr auto key_newline_03				= R"('quoted
+key' = 1)"sv;
+	static constexpr auto key_newline_04				= R"("""long
 key""" = 1)"sv;
-	static constexpr auto key_newline				 = R"(barekey
-   = 123)"sv;
-	static constexpr auto key_no_eol				 = R"(a = 1 b = 2)"sv;
-	static constexpr auto key_open_bracket			 = R"([abc = 1)"sv;
-	static constexpr auto key_partial_quoted		 = R"(partial"quoted" = 5)"sv;
-	static constexpr auto key_quoted_unclosed_1		 = R"("key = x)"sv;
-	static constexpr auto key_quoted_unclosed_2		 = R"("key)"sv;
-	static constexpr auto key_single_open_bracket	 = R"([)"sv;
-	static constexpr auto key_space					 = R"(a b = 1)"sv;
-	static constexpr auto key_start_bracket			 = R"([a]
+	static constexpr auto key_newline_05				= R"('''long
+key''' = 1)"sv;
+	static constexpr auto key_newline_06				= R"(key =
+1)"sv;
+	static constexpr auto key_no_eol_01					= R"(a = 1 b = 2)"sv;
+	static constexpr auto key_no_eol_02					= R"(0=0r=false)"sv;
+	static constexpr auto key_no_eol_03					= R"(0=""o=""m=""r=""00="0"q="""0"""e="""0""")"sv;
+	static constexpr auto key_no_eol_04					= R"([[0000l0]]
+0="0"[[0000l0]]
+0="0"[[0000l0]]
+0="0"l="0")"sv;
+	static constexpr auto key_no_eol_05 =
+		R"(0=[0]00=[0,0,0]t=["0","0","0"]s=[1000-00-00T00:00:00Z,2000-00-00T00:00:00Z])"sv;
+	static constexpr auto key_no_eol_06			  = R"(0=0r0=0r=false)"sv;
+	static constexpr auto key_no_eol_07			  = R"(0=0r0=0r=falsefal=false)"sv;
+	static constexpr auto key_only_float		  = R"(1.1)"sv;
+	static constexpr auto key_only_int			  = R"(1)"sv;
+	static constexpr auto key_only_str			  = R"("")"sv;
+	static constexpr auto key_open_bracket		  = R"([abc = 1)"sv;
+	static constexpr auto key_partial_quoted	  = R"(partial"quoted" = 5)"sv;
+	static constexpr auto key_quoted_unclosed_01  = R"("key = x)"sv;
+	static constexpr auto key_quoted_unclosed_02  = R"("key)"sv;
+	static constexpr auto key_single_open_bracket = R"([)"sv;
+	static constexpr auto key_space				  = R"(a b = 1)"sv;
+	static constexpr auto key_start_bracket		  = R"([a]
 [xyz = 5
 [b])"sv;
-	static constexpr auto key_start_dot				 = R"(.key = 1)"sv;
-	static constexpr auto key_two_equals			 = R"(key= = 1)"sv;
-	static constexpr auto key_two_equals2			 = R"(a==1)"sv;
-	static constexpr auto key_two_equals3			 = R"(a=b=1)"sv;
-	static constexpr auto key_without_value_1		 = R"(key)"sv;
-	static constexpr auto key_without_value_2		 = R"(key = )"sv;
-	static constexpr auto key_without_value_3		 = R"("key")"sv;
-	static constexpr auto key_without_value_4		 = R"("key" = )"sv;
+	static constexpr auto key_start_dot			  = R"(.key = 1)"sv;
+	static constexpr auto key_two_equals_01		  = R"(key= = 1)"sv;
+	static constexpr auto key_two_equals_02		  = R"(a==1)"sv;
+	static constexpr auto key_two_equals_03		  = R"(a=b=1)"sv;
+	static constexpr auto key_without_value_01	  = R"(key)"sv;
+	static constexpr auto key_without_value_02	  = R"(key = )"sv;
+	static constexpr auto key_without_value_03	  = R"("key")"sv;
+	static constexpr auto key_without_value_04	  = R"("key" = )"sv;
+	static constexpr auto key_without_value_05	  = R"(fs.fw)"sv;
+	static constexpr auto key_without_value_06	  = R"(fs.fw =)"sv;
+	static constexpr auto key_without_value_07	  = R"(fs.)"sv;
 
 #if !TOML_LANG_UNRELEASED && UNICODE_LITERALS_OK
 
@@ -323,15 +450,18 @@ key""" = 1)"sv;
 
 #endif // !TOML_LANG_UNRELEASED && UNICODE_LITERALS_OK
 
-	static constexpr auto local_date_mday_over	= R"(# date-mday       = 2DIGIT  ; 01-28, 01-29, 01-30, 01-31 based on
+	static constexpr auto local_date_day_1digit	 = R"(foo = 1997-09-9)"sv;
+	static constexpr auto local_date_feb_29		 = R"("not a leap year" = 2100-02-29)"sv;
+	static constexpr auto local_date_feb_30		 = R"("only 28 or 29 days in february" = 1988-02-30)"sv;
+	static constexpr auto local_date_mday_over	 = R"(# date-mday       = 2DIGIT  ; 01-28, 01-29, 01-30, 01-31 based on
 #                           ; month/year
 d = 2006-01-32)"sv;
-	static constexpr auto local_date_mday_under = R"(# date-mday       = 2DIGIT  ; 01-28, 01-29, 01-30, 01-31 based on
+	static constexpr auto local_date_mday_under	 = R"(# date-mday       = 2DIGIT  ; 01-28, 01-29, 01-30, 01-31 based on
 #                           ; month/year
 d = 2006-01-00)"sv;
-	static constexpr auto local_date_month_over = R"(# date-month      = 2DIGIT  ; 01-12
+	static constexpr auto local_date_month_over	 = R"(# date-month      = 2DIGIT  ; 01-12
 d = 2006-13-01)"sv;
-	static constexpr auto local_date_month_under		 = R"(# date-month      = 2DIGIT  ; 01-12
+	static constexpr auto local_date_month_under = R"(# date-month      = 2DIGIT  ; 01-12
 d = 2007-00-01)"sv;
 	static constexpr auto local_date_no_leads_with_milli = R"(# Day "5" instead of "05"; the leading zero is required.
 with-milli = 1987-07-5)"sv;
@@ -339,6 +469,11 @@ with-milli = 1987-07-5)"sv;
 no-leads = 1987-7-05)"sv;
 	static constexpr auto local_date_trailing_t	   = R"(# Date cannot end with trailing T
 d = 2006-01-30T)"sv;
+	static constexpr auto local_date_y10k		   = R"(# Maximum RFC3399 year is 9999.
+d = 10000-01-01)"sv;
+	static constexpr auto local_date_year_3digits  = R"(foo = 199-09-09)"sv;
+	static constexpr auto local_datetime_feb_29	   = R"("not a leap year" = 2100-02-29T15:15:15)"sv;
+	static constexpr auto local_datetime_feb_30	   = R"("only 28 or 29 days in february" = 1988-02-30T15:15:15)"sv;
 	static constexpr auto local_datetime_hour_over = R"(# time-hour       = 2DIGIT  ; 00-23
 d = 2006-01-01T24:00:00)"sv;
 	static constexpr auto local_datetime_mday_over =
@@ -360,8 +495,6 @@ d = 2007-00-01T00:00:00)"sv;
 with-milli = 1987-07-5T17:45:00.12)"sv;
 	static constexpr auto local_datetime_no_leads = R"(# Month "7" instead of "07"; the leading zero is required.
 no-leads = 1987-7-05T17:45:00)"sv;
-	static constexpr auto local_datetime_no_secs  = R"(# No seconds in time.
-no-secs = 1987-07-05T17:45)"sv;
 	static constexpr auto local_datetime_no_t	  = R"(# No "t" or "T" between the date and time.
 no-t = 1987-07-0517:45:00)"sv;
 	static constexpr auto local_datetime_second_over =
@@ -370,46 +503,39 @@ no-t = 1987-07-0517:45:00)"sv;
 d = 2006-01-01T00:00:61)"sv;
 	static constexpr auto local_datetime_time_no_leads = R"(# Leading 0 is always required.
 d = 2023-10-01T1:32:00Z)"sv;
+	static constexpr auto local_datetime_y10k		   = R"(# Maximum RFC3399 year is 9999.
+d = 10000-01-01 00:00:00)"sv;
 	static constexpr auto local_time_hour_over		   = R"(# time-hour       = 2DIGIT  ; 00-23
 d = 24:00:00)"sv;
 	static constexpr auto local_time_minute_over	   = R"(# time-minute     = 2DIGIT  ; 00-59
 d = 00:60:00)"sv;
-	static constexpr auto local_time_no_secs		   = R"(# No seconds in time.
-no-secs = 17:45)"sv;
 	static constexpr auto local_time_second_over =
 		R"(# time-second     = 2DIGIT  ; 00-58, 00-59, 00-60 based on leap second
 #                           ; rules
 d = 00:00:61)"sv;
-	static constexpr auto local_time_time_no_leads_2 = R"(# Leading 0 is always required.
-d = 01:32:0)"sv;
-	static constexpr auto local_time_time_no_leads	 = R"(# Leading 0 is always required.
+	static constexpr auto local_time_time_no_leads_01 = R"(# Leading 0 is always required.
 d = 1:32:00)"sv;
+	static constexpr auto local_time_time_no_leads_02 = R"(# Leading 0 is always required.
+d = 01:32:0)"sv;
+	static constexpr auto local_time_trailing_dot	  = R"(t = 12:13:14.)"sv;
+	static constexpr auto local_time_trailing_dotdot  = R"(t = 12:13:14..)"sv;
 
-	static constexpr auto spec_inline_table_2_0 = R"([product]
-type = { name = "Nail" }
-type.edible = false  # INVALID)"sv;
-	static constexpr auto spec_inline_table_3_0 = R"([product]
-type.name = "Nail"
-type = { edible = false }  # INVALID)"sv;
-	static constexpr auto spec_key_value_pair_1 = R"(key = # INVALID)"sv;
-	static constexpr auto spec_keys_2			= R"(= "no key name"  # INVALID
-"" = "blank"     # VALID but discouraged
-'' = 'blank'     # VALID but discouraged)"sv;
-	static constexpr auto spec_string_4_0		= R"(str4 = """Here are two quotation marks: "". Simple enough."""
+	static constexpr auto spec_1_1_0_common_16_0 = R"(str4 = """Here are two quotation marks: "". Simple enough."""
 str5 = """Here are three quotation marks: """."""  # INVALID
 str5 = """Here are three quotation marks: ""\"."""
 str6 = """Here are fifteen quotation marks: ""\"""\"""\"""\"""\"."""
 
 # "This," she said, "is just a pointless statement."
 str7 = """"This," she said, "is just a pointless statement."""")"sv;
-	static constexpr auto spec_string_7_0		= R"(quot15 = '''Here are fifteen quotation marks: """""""""""""""'''
+	static constexpr auto spec_1_1_0_common_19_0 = R"(quot15 = '''Here are fifteen quotation marks: """""""""""""""'''
 
 apos15 = '''Here are fifteen apostrophes: ''''''''''''''''''  # INVALID
 apos15 = "Here are fifteen apostrophes: '''''''''''''''"
 
 # 'That,' she said, 'is still pointless.'
 str = ''''That,' she said, 'is still pointless.'''')"sv;
-	static constexpr auto spec_table_9_0		= R"([fruit]
+	static constexpr auto spec_1_1_0_common_2	 = R"(key = # INVALID)"sv;
+	static constexpr auto spec_1_1_0_common_46_0 = R"([fruit]
 apple.color = "red"
 apple.taste.sweet = true
 
@@ -418,7 +544,7 @@ apple.taste.sweet = true
 
 [fruit.apple.texture]  # you can add sub-tables
 smooth = true)"sv;
-	static constexpr auto spec_table_9_1		= R"([fruit]
+	static constexpr auto spec_1_1_0_common_46_1 = R"([fruit]
 apple.color = "red"
 apple.taste.sweet = true
 
@@ -427,64 +553,128 @@ apple.taste.sweet = true
 
 [fruit.apple.texture]  # you can add sub-tables
 smooth = true)"sv;
+	static constexpr auto spec_1_1_0_common_49_0 = R"([product]
+type = { name = "Nail" }
+type.edible = false  # INVALID)"sv;
+	static constexpr auto spec_1_1_0_common_5	 = R"(= "no key name"           # INVALID
+"""key""" = "not allowed" # INVALID
+"" = "blank"              # VALID but discouraged
+'' = 'blank'              # VALID but discouraged)"sv;
+	static constexpr auto spec_1_1_0_common_50_0 = R"([product]
+type.name = "Nail"
+type = { edible = false }  # INVALID)"sv;
 
 	static constexpr auto string_bad_byte_escape = R"(naughty = "\xAg")"sv;
-	static constexpr auto string_bad_codepoint =
-		R"(invalid-codepoint = "This string contains a non scalar unicode codepoint \uD801")"sv;
-	static constexpr auto string_bad_concat	   = R"(no_concat = "first" "second")"sv;
-	static constexpr auto string_bad_escape_1  = R"(invalid-escape = "This string has a bad \a escape character.")"sv;
-	static constexpr auto string_bad_escape_2  = R"(invalid-escape = "This string has a bad \  escape character.")"sv;
-	static constexpr auto string_bad_hex_esc_1 = R"(bad-hex-esc-1 = "\x0g")"sv;
-	static constexpr auto string_bad_hex_esc_2 = R"(bad-hex-esc-2 = "\xG0")"sv;
-	static constexpr auto string_bad_hex_esc_3 = R"(bad-hex-esc-3 = "\x")"sv;
-	static constexpr auto string_bad_hex_esc_4 = R"(bad-hex-esc-4 = "\x 50")"sv;
-	static constexpr auto string_bad_hex_esc_5 = R"(bad-hex-esc-5 = "\x 50")"sv;
-	static constexpr auto string_bad_multiline = R"(multi = "first line
+	static constexpr auto string_bad_concat		 = R"(no_concat = "first" "second")"sv;
+	static constexpr auto string_bad_escape_01	 = R"(invalid-escape = "This string has a bad \a escape character.")"sv;
+	static constexpr auto string_bad_escape_02	 = R"(invalid-escape = "This string has a bad \  escape character.")"sv;
+	static constexpr auto string_bad_escape_03	 = R"(backslash = "\")"sv;
+	static constexpr auto string_bad_escape_04	 = R"(a = "a \\\ b")"sv;
+	static constexpr auto string_bad_escape_05	 = R"(a = "a \\\\\ b")"sv;
+	static constexpr auto string_bad_hex_esc_01	 = R"(bad-hex-esc-01 = "\x0g")"sv;
+	static constexpr auto string_bad_hex_esc_02	 = R"(bad-hex-esc-02 = "\xG0")"sv;
+	static constexpr auto string_bad_hex_esc_03	 = R"(bad-hex-esc-03 = "\x")"sv;
+	static constexpr auto string_bad_hex_esc_04	 = R"(bad-hex-esc-04 = "\x 50")"sv;
+	static constexpr auto string_bad_hex_esc_05	 = R"(bad-hex-esc-5 = "\x 50")"sv;
+	static constexpr auto string_bad_multiline	 = R"(multi = "first line
 second line")"sv;
 	static constexpr auto string_bad_slash_escape =
 		R"(invalid-escape = "This string has a bad \/ escape character.")"sv;
-	static constexpr auto string_bad_uni_esc_1								   = R"(str = "val\ue")"sv;
-	static constexpr auto string_bad_uni_esc_2								   = R"(str = "val\Ux")"sv;
-	static constexpr auto string_bad_uni_esc_3								   = R"(str = "val\U0000000")"sv;
-	static constexpr auto string_bad_uni_esc_4								   = R"(str = "val\U0000")"sv;
-	static constexpr auto string_bad_uni_esc_5								   = R"(str = "val\Ugggggggg")"sv;
-	static constexpr auto string_basic_multiline_out_of_range_unicode_escape_1 = R"(a = """\UFFFFFFFF""")"sv;
-	static constexpr auto string_basic_multiline_out_of_range_unicode_escape_2 = R"(a = """\U00D80000""")"sv;
+	static constexpr auto string_bad_uni_esc_01 = R"(bad-uni-esc-01 = "val\ue")"sv;
+	static constexpr auto string_bad_uni_esc_02 = R"(bad-uni-esc-02 = "val\Ux")"sv;
+	static constexpr auto string_bad_uni_esc_03 = R"(bad-uni-esc-03 = "val\U0000000")"sv;
+	static constexpr auto string_bad_uni_esc_04 = R"(bad-uni-esc-04 = "val\U0000")"sv;
+	static constexpr auto string_bad_uni_esc_05 = R"(bad-uni-esc-05 = "val\Ugggggggg")"sv;
+	static constexpr auto string_bad_uni_esc_06 =
+		R"(bad-uni-esc-06 = "This string contains a non scalar unicode codepoint \uD801")"sv;
+	static constexpr auto string_bad_uni_esc_07	   = R"(bad-uni-esc-07 = "\uabag")"sv;
+	static constexpr auto string_bad_uni_esc_ml_01 = R"(bad-uni-esc-ml-01 = """val\ue""")"sv;
+	static constexpr auto string_bad_uni_esc_ml_02 = R"(bad-uni-esc-ml-02 = """val\Ux""")"sv;
+	static constexpr auto string_bad_uni_esc_ml_03 = R"(bad-uni-esc-ml-03 = """val\U0000000""")"sv;
+	static constexpr auto string_bad_uni_esc_ml_04 = R"(bad-uni-esc-ml-04 = """val\U0000""")"sv;
+	static constexpr auto string_bad_uni_esc_ml_05 = R"(bad-uni-esc-ml-05 = """val\Ugggggggg""")"sv;
+	static constexpr auto string_bad_uni_esc_ml_06 =
+		R"(bad-uni-esc-ml-06 = """This string contains a non scalar unicode codepoint \uD801""")"sv;
+	static constexpr auto string_bad_uni_esc_ml_07 = R"(bad-uni-esc-ml-07 = """\uabag""")"sv;
+	static constexpr auto string_basic_multiline_out_of_range_unicode_escape_01 = R"(a = """\UFFFFFFFF""")"sv;
+	static constexpr auto string_basic_multiline_out_of_range_unicode_escape_02 = R"(a = """\U00D80000""")"sv;
 	static constexpr auto string_basic_multiline_quotes = R"(str5 = """Here are three quotation marks: """.""")"sv;
-	static constexpr auto string_basic_multiline_unknown_escape		 = R"(a = """\@""")"sv;
-	static constexpr auto string_basic_out_of_range_unicode_escape_1 = R"(a = "\UFFFFFFFF")"sv;
-	static constexpr auto string_basic_out_of_range_unicode_escape_2 = R"(a = "\U00D80000")"sv;
-	static constexpr auto string_basic_unknown_escape				 = R"(a = "\@")"sv;
-	static constexpr auto string_literal_multiline_quotes_1			 = R"(a = '''6 apostrophes: '''''')"sv;
-	static constexpr auto string_literal_multiline_quotes_2			 = R"(a = '''15 apostrophes: '''''''''''''''''')"sv;
-	static constexpr auto string_missing_quotes						 = R"(name = value)"sv;
-	static constexpr auto string_multiline_bad_escape_1				 = R"(k = """t\a""")"sv;
-	static constexpr auto string_multiline_bad_escape_2				 = R"(# \<Space> is not a valid escape.
+	static constexpr auto string_basic_multiline_unknown_escape		  = R"(a = """\@""")"sv;
+	static constexpr auto string_basic_out_of_range_unicode_escape_01 = R"(a = "\UFFFFFFFF")"sv;
+	static constexpr auto string_basic_out_of_range_unicode_escape_02 = R"(a = "\U00D80000")"sv;
+	static constexpr auto string_basic_unknown_escape				  = R"(a = "\@")"sv;
+	static constexpr auto string_literal_multiline_quotes_01		  = R"(a = '''6 apostrophes: '''''')"sv;
+	static constexpr auto string_literal_multiline_quotes_02 = R"(a = '''15 apostrophes: '''''''''''''''''')"sv;
+	static constexpr auto string_missing_quotes_array		 = R"(name = [value])"sv;
+	static constexpr auto string_missing_quotes_inline_table = R"(name = { key = value })"sv;
+	static constexpr auto string_missing_quotes				 = R"(name = value)"sv;
+	static constexpr auto string_multiline_bad_escape_01	 = R"(k = """t\a""")"sv;
+	static constexpr auto string_multiline_bad_escape_02	 = R"(# \<Space> is not a valid escape.
 k = """t\ t""")"sv;
-	static constexpr auto string_multiline_bad_escape_3				 = R"(# \<Space> is not a valid escape.
+	static constexpr auto string_multiline_bad_escape_03	 = R"(# \<Space> is not a valid escape.
 k = """t\ """)"sv;
-	static constexpr auto string_multiline_escape_space				 = R"(a = """
+	static constexpr auto string_multiline_bad_escape_04	 = R"(backslash = """\""")"sv;
+	static constexpr auto string_multiline_escape_space_01	 = R"(a = """
   foo \ \n
   bar""")"sv;
-	static constexpr auto string_multiline_no_close_2				 = R"(x=""")"sv;
-	static constexpr auto string_multiline_no_close					 = R"(invalid = """
+	static constexpr auto string_multiline_escape_space_02	 = R"(bee = """
+hee \
+
+gee \   """)"sv;
+	static constexpr auto string_multiline_lit_no_close_01	 = R"(invalid = '''
     this will fail)"sv;
-	static constexpr auto string_multiline_quotes_1					 = R"(a = """6 quotes: """""")"sv;
-	static constexpr auto string_no_close							 = R"(no-ending-quote = "One time, at band camp)"sv;
-	static constexpr auto string_text_after_string = R"(string = "Is there life after strings?" No.)"sv;
-	static constexpr auto string_wrong_close	   = R"(bad-ending-quote = "double and single')"sv;
+	static constexpr auto string_multiline_lit_no_close_02	 = R"(x=''')"sv;
+	static constexpr auto string_multiline_lit_no_close_03	 = R"(not-closed= '''
+diibaa
+blibae ete
+eteta)"sv;
+	static constexpr auto string_multiline_lit_no_close_04	 = R"(bee = '''
+hee
+gee '')"sv;
+	static constexpr auto string_multiline_no_close_01		 = R"(invalid = """
+    this will fail)"sv;
+	static constexpr auto string_multiline_no_close_02		 = R"(x=""")"sv;
+	static constexpr auto string_multiline_no_close_03		 = R"(not-closed= """
+diibaa
+blibae ete
+eteta)"sv;
+	static constexpr auto string_multiline_no_close_04		 = R"(bee = """
+hee
+gee "")"sv;
+	static constexpr auto string_multiline_no_close_05		 = "bee = \"\"\"\n"
+															   "hee\n"
+															   "gee\\	 "sv;
+	static constexpr auto string_multiline_quotes_01		 = R"(a = """6 quotes: """""")"sv;
+	static constexpr auto string_no_close_01				 = R"(no-ending-quote = "One time, at band camp)"sv;
+	static constexpr auto string_no_close_02				 = R"("a-string".must-be = "closed)"sv;
+	static constexpr auto string_no_close_03				 = R"(no-ending-quote = 'One time, at band camp)"sv;
+	static constexpr auto string_no_close_04				 = R"('a-string'.must-be = 'closed)"sv;
+	static constexpr auto string_no_close_05				 = R"(# No newline at end
+no-ending-quote = "One time, at band camp)"sv;
+	static constexpr auto string_no_close_06				 = R"(# No newline at end
+"a-string".must-be = "closed)"sv;
+	static constexpr auto string_no_close_07				 = R"(# No newline at end
+no-ending-quote = 'One time, at band camp)"sv;
+	static constexpr auto string_no_close_08				 = R"(# No newline at end
+'a-string'.must-be = 'closed)"sv;
+	static constexpr auto string_no_close_09				 = R"(# Newlines are not allowed in "-strings.
+a = "
+")"sv;
+	static constexpr auto string_no_close_10				 = R"(# Newlines are not allowed in '-strings.
+a = '
+')"sv;
+	static constexpr auto string_no_open_01					 = R"(s = a")"sv;
+	static constexpr auto string_no_open_02					 = R"(a = [a"])"sv;
+	static constexpr auto string_no_open_03					 = R"(s = a')"sv;
+	static constexpr auto string_no_open_04					 = R"(a = [a'])"sv;
+	static constexpr auto string_no_open_05					 = R"(a = a""")"sv;
+	static constexpr auto string_no_open_06					 = R"(a = [a"""])"sv;
+	static constexpr auto string_no_open_07					 = R"(a = a''')"sv;
+	static constexpr auto string_no_open_08					 = R"(a = [a'''])"sv;
+	static constexpr auto string_text_after_string			 = R"(string = "Is there life after strings?" No.)"sv;
+	static constexpr auto string_wrong_close				 = R"(bad-ending-quote = "double and single')"sv;
 
-#if !TOML_LANG_UNRELEASED
-
-	static constexpr auto string_basic_byte_escapes = R"(answer = "\x33")"sv;
-
-#endif // !TOML_LANG_UNRELEASED
-
-	static constexpr auto table_append_to_array_with_dotted_keys = R"([[a.b]]
-
-[a]
-b.y = 2)"sv;
-	static constexpr auto table_append_with_dotted_keys_1		 = R"(# First a.b.c defines a table: a.b.c = {z=9}
+	static constexpr auto table_append_with_dotted_keys_01 = R"(# First a.b.c defines a table: a.b.c = {z=9}
 #
 # Then we define a.b.c.t = "str" to add a str to the above table, making it:
 #
@@ -501,7 +691,7 @@ b.y = 2)"sv;
 
 [a]
   b.c.t = "Using dotted keys to add to [a.b.c] after explicitly defining it above is not allowed")"sv;
-	static constexpr auto table_append_with_dotted_keys_2 =
+	static constexpr auto table_append_with_dotted_keys_02 =
 		R"(# This is the same issue as in injection-1.toml, except that nests one level
 # deeper. See that file for a more complete description.
 
@@ -510,10 +700,34 @@ b.y = 2)"sv;
 
 [a]
   b.c.d.k.t = "Using dotted keys to add to [a.b.c.d] after explicitly defining it above is not allowed")"sv;
-	static constexpr auto table_array_empty = R"([[]]
+	static constexpr auto table_append_with_dotted_keys_03 = R"([[a.b]]
+
+[a]
+b.y = 2)"sv;
+	static constexpr auto table_append_with_dotted_keys_04 = R"([dependencies.foo]
+version = "0.16"
+
+[dependencies]
+libc = "0.2"
+
+[dependencies]
+rand = "0.3.14")"sv;
+	static constexpr auto table_append_with_dotted_keys_05 = R"(a.b.c = 1
+a.b = 2)"sv;
+	static constexpr auto table_append_with_dotted_keys_06 = R"(a = 1
+a.b = 2)"sv;
+	static constexpr auto table_append_with_dotted_keys_07 = R"(a = {k1 = 1, k1.name = "joe"})"sv;
+	static constexpr auto table_append_with_dotted_keys_08 = R"([a.b.c]
+z = 9
+
+[[totally_unrelated]]
+x = 123
+
+[a]
+b.c.t = "this should NOT be allowed")"sv;
+	static constexpr auto table_array_empty				   = R"([[]]
 name = "Born to Run")"sv;
-	static constexpr auto table_array_implicit =
-		R"(# This test is a bit tricky. It should fail because the first use of
+	static constexpr auto table_array_implicit = R"(# This test is a bit tricky. It should fail because the first use of
 # `[[albums.songs]]` without first declaring `albums` implies that `albums`
 # must be a table. The alternative would be quite weird. Namely, it wouldn't
 # comply with the TOML spec: "Each double-bracketed sub-table will belong to 
@@ -527,1496 +741,2484 @@ name = "Glory Days"
 
 [[albums]]
 name = "Born in the USA")"sv;
-	static constexpr auto table_array_missing_bracket		= R"([[albums]
+	static constexpr auto table_array_no_close_01		  = R"([[albums]
 name = "Born to Run")"sv;
-	static constexpr auto table_duplicate_key_dotted_array	= R"([fruit]
-apple.color = "red"
-
-[[fruit.apple]])"sv;
-	static constexpr auto table_duplicate_key_dotted_table	= R"([fruit]
-apple.color = "red"
-
-[fruit.apple] # INVALID)"sv;
-	static constexpr auto table_duplicate_key_dotted_table2 = R"([fruit]
-apple.taste.sweet = true
-
-[fruit.apple.taste] # INVALID)"sv;
-	static constexpr auto table_duplicate_key_table			= R"([fruit]
-type = "apple"
-
-[fruit.type]
-apple = "yes")"sv;
-	static constexpr auto table_duplicate_table_array		= R"([tbl]
-[[tbl]])"sv;
-	static constexpr auto table_duplicate_table_array2		= R"([[tbl]]
-[tbl])"sv;
-	static constexpr auto table_duplicate					= R"([a]
+	static constexpr auto table_array_no_close_02		  = R"([[closing-bracket.missing]
+blaa=2)"sv;
+	static constexpr auto table_array_no_close_03		  = R"([[a
+[[b]])"sv;
+	static constexpr auto table_array_no_close_04		  = R"([[a
+b = 2)"sv;
+	static constexpr auto table_bare_invalid_character_01 = R"([!]
+k = 123)"sv;
+	static constexpr auto table_bare_invalid_character_02 = R"([bare!key]
+k = 123)"sv;
+	static constexpr auto table_dot						  = R"([.]
+k = 1)"sv;
+	static constexpr auto table_dotdot					  = R"([..]
+k = 1)"sv;
+	static constexpr auto table_duplicate_key_01		  = R"([a]
 b = 1
 
 [a]
 c = 2)"sv;
-	static constexpr auto table_empty_implicit_table		= R"([naughty..naughty])"sv;
-	static constexpr auto table_empty						= R"([])"sv;
-	static constexpr auto table_equals_sign					= R"([name=bad])"sv;
-	static constexpr auto table_llbrace						= R"([ [table]])"sv;
-	static constexpr auto table_nested_brackets_close		= R"([a]b]
+	static constexpr auto table_duplicate_key_02		  = R"([fruit]
+type = "apple"
+
+[fruit.type]
+apple = "yes")"sv;
+	static constexpr auto table_duplicate_key_03		  = R"([fruit]
+apple.color = "red"
+
+[[fruit.apple]])"sv;
+	static constexpr auto table_duplicate_key_04		  = R"([fruit]
+apple.color = "red"
+
+[fruit.apple] # INVALID)"sv;
+	static constexpr auto table_duplicate_key_05		  = R"([fruit]
+apple.taste.sweet = true
+
+[fruit.apple.taste] # INVALID)"sv;
+	static constexpr auto table_duplicate_key_06		  = R"([tbl]
+[[tbl]])"sv;
+	static constexpr auto table_duplicate_key_07		  = R"([[tbl]]
+[tbl])"sv;
+	static constexpr auto table_duplicate_key_08		  = R"([a]
+b = { c = 2, d = {} }
+[a.b]
+c = 2)"sv;
+	static constexpr auto table_duplicate_key_09		  = R"([a]
+foo="bar"
+[a.b]
+foo="bar"
+[a])"sv;
+	static constexpr auto table_duplicate_key_10		  = R"(a = []
+[[a.b]])"sv;
+	static constexpr auto table_empty_implicit_table	  = R"([naughty..naughty])"sv;
+	static constexpr auto table_empty					  = R"([])"sv;
+	static constexpr auto table_equals_sign				  = R"([name=bad])"sv;
+	static constexpr auto table_llbrace					  = R"([ [table]])"sv;
+	static constexpr auto table_multiline_key_01		  = R"(["""tbl"""]
+k = 1)"sv;
+	static constexpr auto table_multiline_key_02		  = R"(['''tbl''']
+k = 1)"sv;
+	static constexpr auto table_nested_brackets_close	  = R"([a]b]
 zyx = 42)"sv;
-	static constexpr auto table_nested_brackets_open		= R"([a[b]
+	static constexpr auto table_nested_brackets_open	  = R"([a[b]
 zyx = 42)"sv;
-	static constexpr auto table_quoted_no_close				= R"(["where will it end]
+	static constexpr auto table_newline_01				  = R"([tbl
+]
+k = 1)"sv;
+	static constexpr auto table_newline_02				  = R"(["tbl
+"]
+k = 1)"sv;
+	static constexpr auto table_newline_03				  = R"(["tbl"
+]
+k = 1)"sv;
+	static constexpr auto table_newline_04				  = R"([tbl.
+]
+k = 1)"sv;
+	static constexpr auto table_newline_05				  = R"([tbl
+.sub]
+k = 1)"sv;
+	static constexpr auto table_no_close_01				  = R"([where will it end
 name = value)"sv;
-	static constexpr auto table_redefine		 = R"(# Define b as int, and try to use it as a table: error
+	static constexpr auto table_no_close_03				  = R"(["where will it end]
+name = value)"sv;
+	static constexpr auto table_no_close_04				  = R"([)"sv;
+	static constexpr auto table_no_close_05				  = R"([fwfw.wafw)"sv;
+	static constexpr auto table_no_close_06				  = R"([a
+[b]
+[c
+[d])"sv;
+	static constexpr auto table_no_close_07				  = R"(['])"sv;
+	static constexpr auto table_no_close_08				  = R"(['''])"sv;
+	static constexpr auto table_no_close_09				  = R"(["where will it end""]
+name = value)"sv;
+	static constexpr auto table_overwrite_array_in_parent = R"([[parent-table.arr]]
+[parent-table]
+not-arr = 1
+arr = 2)"sv;
+	static constexpr auto table_overwrite_bool_with_array = R"(a=true
+[[a]])"sv;
+	static constexpr auto table_overwrite_with_deep_table = R"(a=1
+[a.b.c.d])"sv;
+	static constexpr auto table_redefine_01				  = R"(# Define b as int, and try to use it as a table: error
 [a]
 b = 1
 
 [a.b]
 c = 2)"sv;
-	static constexpr auto table_rrbrace			 = R"([[table] ])"sv;
-	static constexpr auto table_text_after_table = R"([error] this shouldn't be here)"sv;
-	static constexpr auto table_whitespace		 = R"([invalid key])"sv;
-	static constexpr auto table_with_pound		 = R"([key#group]
+	static constexpr auto table_redefine_02				  = R"([t1]
+t2.t3.v = 0
+[t1.t2])"sv;
+	static constexpr auto table_redefine_03				  = R"([t1]
+t2.t3.v = 0
+[t1.t2.t3])"sv;
+	static constexpr auto table_rrbrace					  = R"([[table] ])"sv;
+	static constexpr auto table_super_twice				  = R"([a.b]
+[a]
+[a])"sv;
+	static constexpr auto table_text_after_table		  = R"([error] this shouldn't be here)"sv;
+	static constexpr auto table_trailing_dot			  = R"([a.])"sv;
+	static constexpr auto table_whitespace				  = R"([invalid key])"sv;
+	static constexpr auto table_with_pound				  = R"([key#group]
 answer = 42)"sv;
+
+#if UNICODE_LITERALS_OK
+
+	static constexpr auto table_no_close_02 = R"([closing-bracket.missingö
+blaa=2)"sv;
+
+#endif // UNICODE_LITERALS_OK
 }
 
 TEST_CASE("conformance - burntsushi/invalid")
 {
-	SECTION("array-double-comma-1")
+	SECTION("array-double-comma-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_double_comma_1); // array-double-comma-1
+		parsing_should_fail(FILE_LINE_ARGS, array_double_comma_01);
 	}
 
-	SECTION("array-double-comma-2")
+	SECTION("array-double-comma-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_double_comma_2); // array-double-comma-2
+		parsing_should_fail(FILE_LINE_ARGS, array_double_comma_02);
+	}
+
+	SECTION("array-extend-defined-aot")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_extend_defined_aot);
 	}
 
 	SECTION("array-extending-table")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_extending_table); // array-extending-table
+		parsing_should_fail(FILE_LINE_ARGS, array_extending_table);
 	}
 
-	SECTION("array-missing-separator")
+	SECTION("array-missing-separator-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_missing_separator); // array-missing-separator
+		parsing_should_fail(FILE_LINE_ARGS, array_missing_separator_01);
 	}
 
-	SECTION("array-no-close-2")
+	SECTION("array-missing-separator-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_no_close_2); // array-no-close-2
+		parsing_should_fail(FILE_LINE_ARGS, array_missing_separator_02);
 	}
 
-	SECTION("array-no-close-table-2")
+	SECTION("array-no-close-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_no_close_table_2); // array-no-close-table-2
+		parsing_should_fail(FILE_LINE_ARGS, array_no_close_01);
 	}
 
-	SECTION("array-no-close-table")
+	SECTION("array-no-close-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_no_close_table); // array-no-close-table
+		parsing_should_fail(FILE_LINE_ARGS, array_no_close_02);
 	}
 
-	SECTION("array-no-close")
+	SECTION("array-no-close-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_no_close); // array-no-close
+		parsing_should_fail(FILE_LINE_ARGS, array_no_close_03);
 	}
 
-	SECTION("array-tables-1")
+	SECTION("array-no-close-04")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_tables_1); // array-tables-1
+		parsing_should_fail(FILE_LINE_ARGS, array_no_close_04);
 	}
 
-	SECTION("array-tables-2")
+	SECTION("array-no-close-05")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_tables_2); // array-tables-2
+		parsing_should_fail(FILE_LINE_ARGS, array_no_close_05);
+	}
+
+	SECTION("array-no-close-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_no_close_06);
+	}
+
+	SECTION("array-no-close-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_no_close_07);
+	}
+
+	SECTION("array-no-close-08")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_no_close_08);
+	}
+
+	SECTION("array-no-close-table-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_no_close_table_01);
+	}
+
+	SECTION("array-no-close-table-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_no_close_table_02);
+	}
+
+	SECTION("array-no-comma-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_no_comma_01);
+	}
+
+	SECTION("array-no-comma-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_no_comma_02);
+	}
+
+	SECTION("array-no-comma-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_no_comma_03);
+	}
+
+	SECTION("array-only-comma-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_only_comma_01);
+	}
+
+	SECTION("array-only-comma-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_only_comma_02);
+	}
+
+	SECTION("array-tables-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_tables_01);
+	}
+
+	SECTION("array-tables-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, array_tables_02);
 	}
 
 	SECTION("array-text-after-array-entries")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_text_after_array_entries); // array-text-after-array-entries
+		parsing_should_fail(FILE_LINE_ARGS, array_text_after_array_entries);
 	}
 
 	SECTION("array-text-before-array-separator")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_text_before_array_separator); // array-text-before-array-separator
+		parsing_should_fail(FILE_LINE_ARGS, array_text_before_array_separator);
 	}
 
 	SECTION("array-text-in-array")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, array_text_in_array); // array-text-in-array
+		parsing_should_fail(FILE_LINE_ARGS, array_text_in_array);
 	}
 
 	SECTION("bool-almost-false-with-extra")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_almost_false_with_extra); // bool-almost-false-with-extra
+		parsing_should_fail(FILE_LINE_ARGS, bool_almost_false_with_extra);
 	}
 
 	SECTION("bool-almost-false")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_almost_false); // bool-almost-false
+		parsing_should_fail(FILE_LINE_ARGS, bool_almost_false);
 	}
 
 	SECTION("bool-almost-true-with-extra")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_almost_true_with_extra); // bool-almost-true-with-extra
+		parsing_should_fail(FILE_LINE_ARGS, bool_almost_true_with_extra);
 	}
 
 	SECTION("bool-almost-true")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_almost_true); // bool-almost-true
+		parsing_should_fail(FILE_LINE_ARGS, bool_almost_true);
+	}
+
+	SECTION("bool-capitalized-false")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, bool_capitalized_false);
+	}
+
+	SECTION("bool-capitalized-true")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, bool_capitalized_true);
 	}
 
 	SECTION("bool-just-f")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_just_f); // bool-just-f
+		parsing_should_fail(FILE_LINE_ARGS, bool_just_f);
 	}
 
 	SECTION("bool-just-t")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_just_t); // bool-just-t
+		parsing_should_fail(FILE_LINE_ARGS, bool_just_t);
+	}
+
+	SECTION("bool-mixed-case-false")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, bool_mixed_case_false);
+	}
+
+	SECTION("bool-mixed-case-true")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, bool_mixed_case_true);
 	}
 
 	SECTION("bool-mixed-case")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_mixed_case); // bool-mixed-case
+		parsing_should_fail(FILE_LINE_ARGS, bool_mixed_case);
 	}
 
 	SECTION("bool-starting-same-false")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_starting_same_false); // bool-starting-same-false
+		parsing_should_fail(FILE_LINE_ARGS, bool_starting_same_false);
 	}
 
 	SECTION("bool-starting-same-true")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_starting_same_true); // bool-starting-same-true
+		parsing_should_fail(FILE_LINE_ARGS, bool_starting_same_true);
 	}
 
 	SECTION("bool-wrong-case-false")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_wrong_case_false); // bool-wrong-case-false
+		parsing_should_fail(FILE_LINE_ARGS, bool_wrong_case_false);
 	}
 
 	SECTION("bool-wrong-case-true")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, bool_wrong_case_true); // bool-wrong-case-true
+		parsing_should_fail(FILE_LINE_ARGS, bool_wrong_case_true);
 	}
 
 	SECTION("control-bare-cr")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_bare_cr); // control-bare-cr
+		parsing_should_fail(FILE_LINE_ARGS, control_bare_cr);
 	}
 
 	SECTION("control-bare-formfeed")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_bare_formfeed); // control-bare-formfeed
+		parsing_should_fail(FILE_LINE_ARGS, control_bare_formfeed);
 	}
 
 	SECTION("control-bare-null")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_bare_null); // control-bare-null
+		parsing_should_fail(FILE_LINE_ARGS, control_bare_null);
 	}
 
 	SECTION("control-bare-vertical-tab")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_bare_vertical_tab); // control-bare-vertical-tab
+		parsing_should_fail(FILE_LINE_ARGS, control_bare_vertical_tab);
 	}
 
 	SECTION("control-comment-cr")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_comment_cr); // control-comment-cr
+		parsing_should_fail(FILE_LINE_ARGS, control_comment_cr);
 	}
 
 	SECTION("control-comment-del")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_comment_del); // control-comment-del
+		parsing_should_fail(FILE_LINE_ARGS, control_comment_del);
+	}
+
+	SECTION("control-comment-ff")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, control_comment_ff);
 	}
 
 	SECTION("control-comment-lf")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_comment_lf); // control-comment-lf
+		parsing_should_fail(FILE_LINE_ARGS, control_comment_lf);
 	}
 
 	SECTION("control-comment-null")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_comment_null); // control-comment-null
+		parsing_should_fail(FILE_LINE_ARGS, control_comment_null);
 	}
 
 	SECTION("control-comment-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_comment_us); // control-comment-us
+		parsing_should_fail(FILE_LINE_ARGS, control_comment_us);
+	}
+
+	SECTION("control-multi-cr")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, control_multi_cr);
 	}
 
 	SECTION("control-multi-del")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_multi_del); // control-multi-del
+		parsing_should_fail(FILE_LINE_ARGS, control_multi_del);
 	}
 
 	SECTION("control-multi-lf")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_multi_lf); // control-multi-lf
+		parsing_should_fail(FILE_LINE_ARGS, control_multi_lf);
 	}
 
 	SECTION("control-multi-null")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_multi_null); // control-multi-null
+		parsing_should_fail(FILE_LINE_ARGS, control_multi_null);
 	}
 
 	SECTION("control-multi-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_multi_us); // control-multi-us
+		parsing_should_fail(FILE_LINE_ARGS, control_multi_us);
+	}
+
+	SECTION("control-only-ff")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, control_only_ff);
+	}
+
+	SECTION("control-only-null")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, control_only_null);
+	}
+
+	SECTION("control-only-vt")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, control_only_vt);
+	}
+
+	SECTION("control-rawmulti-cr")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_cr);
 	}
 
 	SECTION("control-rawmulti-del")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_del); // control-rawmulti-del
+		parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_del);
 	}
 
 	SECTION("control-rawmulti-lf")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_lf); // control-rawmulti-lf
+		parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_lf);
 	}
 
 	SECTION("control-rawmulti-null")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_null); // control-rawmulti-null
+		parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_null);
 	}
 
 	SECTION("control-rawmulti-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_us); // control-rawmulti-us
+		parsing_should_fail(FILE_LINE_ARGS, control_rawmulti_us);
+	}
+
+	SECTION("control-rawstring-cr")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, control_rawstring_cr);
 	}
 
 	SECTION("control-rawstring-del")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_rawstring_del); // control-rawstring-del
+		parsing_should_fail(FILE_LINE_ARGS, control_rawstring_del);
 	}
 
 	SECTION("control-rawstring-lf")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_rawstring_lf); // control-rawstring-lf
+		parsing_should_fail(FILE_LINE_ARGS, control_rawstring_lf);
 	}
 
 	SECTION("control-rawstring-null")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_rawstring_null); // control-rawstring-null
+		parsing_should_fail(FILE_LINE_ARGS, control_rawstring_null);
 	}
 
 	SECTION("control-rawstring-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_rawstring_us); // control-rawstring-us
+		parsing_should_fail(FILE_LINE_ARGS, control_rawstring_us);
 	}
 
 	SECTION("control-string-bs")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_string_bs); // control-string-bs
+		parsing_should_fail(FILE_LINE_ARGS, control_string_bs);
+	}
+
+	SECTION("control-string-cr")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, control_string_cr);
 	}
 
 	SECTION("control-string-del")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_string_del); // control-string-del
+		parsing_should_fail(FILE_LINE_ARGS, control_string_del);
 	}
 
 	SECTION("control-string-lf")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_string_lf); // control-string-lf
+		parsing_should_fail(FILE_LINE_ARGS, control_string_lf);
 	}
 
 	SECTION("control-string-null")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_string_null); // control-string-null
+		parsing_should_fail(FILE_LINE_ARGS, control_string_null);
 	}
 
 	SECTION("control-string-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, control_string_us); // control-string-us
+		parsing_should_fail(FILE_LINE_ARGS, control_string_us);
+	}
+
+	SECTION("datetime-day-zero")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_day_zero);
+	}
+
+	SECTION("datetime-feb-29")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_feb_29);
+	}
+
+	SECTION("datetime-feb-30")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_feb_30);
 	}
 
 	SECTION("datetime-hour-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_hour_over); // datetime-hour-over
+		parsing_should_fail(FILE_LINE_ARGS, datetime_hour_over);
 	}
 
 	SECTION("datetime-mday-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_mday_over); // datetime-mday-over
+		parsing_should_fail(FILE_LINE_ARGS, datetime_mday_over);
 	}
 
 	SECTION("datetime-mday-under")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_mday_under); // datetime-mday-under
+		parsing_should_fail(FILE_LINE_ARGS, datetime_mday_under);
 	}
 
 	SECTION("datetime-minute-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_minute_over); // datetime-minute-over
+		parsing_should_fail(FILE_LINE_ARGS, datetime_minute_over);
 	}
 
 	SECTION("datetime-month-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_month_over); // datetime-month-over
+		parsing_should_fail(FILE_LINE_ARGS, datetime_month_over);
 	}
 
 	SECTION("datetime-month-under")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_month_under); // datetime-month-under
+		parsing_should_fail(FILE_LINE_ARGS, datetime_month_under);
+	}
+
+	SECTION("datetime-no-date-time-sep")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_no_date_time_sep);
 	}
 
 	SECTION("datetime-no-leads-month")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_no_leads_month); // datetime-no-leads-month
+		parsing_should_fail(FILE_LINE_ARGS, datetime_no_leads_month);
 	}
 
 	SECTION("datetime-no-leads-with-milli")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_no_leads_with_milli); // datetime-no-leads-with-milli
+		parsing_should_fail(FILE_LINE_ARGS, datetime_no_leads_with_milli);
 	}
 
 	SECTION("datetime-no-leads")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_no_leads); // datetime-no-leads
+		parsing_should_fail(FILE_LINE_ARGS, datetime_no_leads);
 	}
 
 	SECTION("datetime-no-t")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_no_t); // datetime-no-t
+		parsing_should_fail(FILE_LINE_ARGS, datetime_no_t);
+	}
+
+	SECTION("datetime-no-year-month-sep")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_no_year_month_sep);
+	}
+
+	SECTION("datetime-offset-minus-minute-1digit")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_offset_minus_minute_1digit);
+	}
+
+	SECTION("datetime-offset-minus-no-hour-minute-sep")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_offset_minus_no_hour_minute_sep);
+	}
+
+	SECTION("datetime-offset-minus-no-hour-minute")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_offset_minus_no_hour_minute);
+	}
+
+	SECTION("datetime-offset-minus-no-minute")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_offset_minus_no_minute);
+	}
+
+	SECTION("datetime-offset-overflow-hour")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_offset_overflow_hour);
+	}
+
+	SECTION("datetime-offset-overflow-minute")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_offset_overflow_minute);
+	}
+
+	SECTION("datetime-offset-plus-minute-1digit")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_offset_plus_minute_1digit);
+	}
+
+	SECTION("datetime-offset-plus-no-hour-minute-sep")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_offset_plus_no_hour_minute_sep);
+	}
+
+	SECTION("datetime-offset-plus-no-hour-minute")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_offset_plus_no_hour_minute);
+	}
+
+	SECTION("datetime-offset-plus-no-minute")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_offset_plus_no_minute);
+	}
+
+	SECTION("datetime-only-T")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_only_T);
+	}
+
+	SECTION("datetime-only-TZ")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_only_TZ);
+	}
+
+	SECTION("datetime-only-Tdot")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_only_Tdot);
 	}
 
 	SECTION("datetime-second-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_second_over); // datetime-second-over
+		parsing_should_fail(FILE_LINE_ARGS, datetime_second_over);
+	}
+
+	SECTION("datetime-second-trailing-dot")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_second_trailing_dot);
+	}
+
+	SECTION("datetime-second-trailing-dotz")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_second_trailing_dotz);
 	}
 
 	SECTION("datetime-time-no-leads")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_time_no_leads); // datetime-time-no-leads
+		parsing_should_fail(FILE_LINE_ARGS, datetime_time_no_leads);
 	}
 
-#if !TOML_LANG_UNRELEASED
-
-	SECTION("datetime-no-secs")
+	SECTION("datetime-trailing-x")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, datetime_no_secs); // datetime-no-secs
+		parsing_should_fail(FILE_LINE_ARGS, datetime_trailing_x);
 	}
 
-#endif // !TOML_LANG_UNRELEASED
+	SECTION("datetime-y10k")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, datetime_y10k);
+	}
 
 	SECTION("encoding-bad-codepoint")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_codepoint); // encoding-bad-codepoint
+		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_codepoint);
 	}
 
 	SECTION("encoding-bad-utf8-at-end")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_at_end); // encoding-bad-utf8-at-end
+		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_at_end);
+	}
+
+	SECTION("encoding-bad-utf8-in-array")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_array);
 	}
 
 	SECTION("encoding-bad-utf8-in-comment")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_comment); // encoding-bad-utf8-in-comment
+		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_comment);
 	}
 
 	SECTION("encoding-bad-utf8-in-multiline-literal")
 	{
-		parsing_should_fail(FILE_LINE_ARGS,
-							encoding_bad_utf8_in_multiline_literal); // encoding-bad-utf8-in-multiline-literal
+		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_multiline_literal);
 	}
 
 	SECTION("encoding-bad-utf8-in-multiline")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_multiline); // encoding-bad-utf8-in-multiline
+		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_multiline);
 	}
 
 	SECTION("encoding-bad-utf8-in-string-literal")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_string_literal); // encoding-bad-utf8-in-string-literal
+		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_string_literal);
 	}
 
 	SECTION("encoding-bad-utf8-in-string")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_string); // encoding-bad-utf8-in-string
+		parsing_should_fail(FILE_LINE_ARGS, encoding_bad_utf8_in_string);
 	}
 
-	SECTION("encoding-bom-not-at-start-1")
+	SECTION("encoding-bom-not-at-start-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, encoding_bom_not_at_start_1); // encoding-bom-not-at-start-1
+		parsing_should_fail(FILE_LINE_ARGS, encoding_bom_not_at_start_01);
 	}
 
-	SECTION("encoding-bom-not-at-start-2")
+	SECTION("encoding-bom-not-at-start-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, encoding_bom_not_at_start_2); // encoding-bom-not-at-start-2
+		parsing_should_fail(FILE_LINE_ARGS, encoding_bom_not_at_start_02);
 	}
 
 	SECTION("encoding-utf16-bom")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, encoding_utf16_bom); // encoding-utf16-bom
+		parsing_should_fail(FILE_LINE_ARGS, encoding_utf16_bom);
 	}
 
-	SECTION("encoding-utf16")
+	SECTION("encoding-utf16-comment")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, encoding_utf16); // encoding-utf16
+		parsing_should_fail(FILE_LINE_ARGS, encoding_utf16_comment);
 	}
 
-	SECTION("float-double-point-1")
+	SECTION("encoding-utf16-key")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_double_point_1); // float-double-point-1
+		parsing_should_fail(FILE_LINE_ARGS, encoding_utf16_key);
 	}
 
-	SECTION("float-double-point-2")
+#if UNICODE_LITERALS_OK
+
+	SECTION("encoding-ideographic-space")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_double_point_2); // float-double-point-2
+		parsing_should_fail(FILE_LINE_ARGS, encoding_ideographic_space);
 	}
 
-	SECTION("float-exp-double-e-1")
+#endif // UNICODE_LITERALS_OK
+
+	SECTION("float-double-dot-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_exp_double_e_1); // float-exp-double-e-1
+		parsing_should_fail(FILE_LINE_ARGS, float_double_dot_01);
 	}
 
-	SECTION("float-exp-double-e-2")
+	SECTION("float-double-dot-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_exp_double_e_2); // float-exp-double-e-2
+		parsing_should_fail(FILE_LINE_ARGS, float_double_dot_02);
+	}
+
+	SECTION("float-exp-dot-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_exp_dot_01);
+	}
+
+	SECTION("float-exp-dot-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_exp_dot_02);
+	}
+
+	SECTION("float-exp-dot-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_exp_dot_03);
+	}
+
+	SECTION("float-exp-double-e-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_exp_double_e_01);
+	}
+
+	SECTION("float-exp-double-e-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_exp_double_e_02);
 	}
 
 	SECTION("float-exp-double-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_exp_double_us); // float-exp-double-us
+		parsing_should_fail(FILE_LINE_ARGS, float_exp_double_us);
 	}
 
 	SECTION("float-exp-leading-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_exp_leading_us); // float-exp-leading-us
+		parsing_should_fail(FILE_LINE_ARGS, float_exp_leading_us);
 	}
 
-	SECTION("float-exp-point-1")
+	SECTION("float-exp-trailing-us-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_exp_point_1); // float-exp-point-1
+		parsing_should_fail(FILE_LINE_ARGS, float_exp_trailing_us_01);
 	}
 
-	SECTION("float-exp-point-2")
+	SECTION("float-exp-trailing-us-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_exp_point_2); // float-exp-point-2
+		parsing_should_fail(FILE_LINE_ARGS, float_exp_trailing_us_02);
 	}
 
 	SECTION("float-exp-trailing-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_exp_trailing_us); // float-exp-trailing-us
+		parsing_should_fail(FILE_LINE_ARGS, float_exp_trailing_us);
 	}
 
 	SECTION("float-inf-capital")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_inf_capital); // float-inf-capital
+		parsing_should_fail(FILE_LINE_ARGS, float_inf_capital);
 	}
 
-	SECTION("float-inf-incomplete-1")
+	SECTION("float-inf-incomplete-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_inf_incomplete_1); // float-inf-incomplete-1
+		parsing_should_fail(FILE_LINE_ARGS, float_inf_incomplete_01);
 	}
 
-	SECTION("float-inf-incomplete-2")
+	SECTION("float-inf-incomplete-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_inf_incomplete_2); // float-inf-incomplete-2
+		parsing_should_fail(FILE_LINE_ARGS, float_inf_incomplete_02);
 	}
 
-	SECTION("float-inf-incomplete-3")
+	SECTION("float-inf-incomplete-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_inf_incomplete_3); // float-inf-incomplete-3
+		parsing_should_fail(FILE_LINE_ARGS, float_inf_incomplete_03);
 	}
 
 	SECTION("float-inf_underscore")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_inf_underscore); // float-inf_underscore
+		parsing_should_fail(FILE_LINE_ARGS, float_inf_underscore);
 	}
 
-	SECTION("float-leading-point-neg")
+	SECTION("float-leading-dot-neg")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_leading_point_neg); // float-leading-point-neg
+		parsing_should_fail(FILE_LINE_ARGS, float_leading_dot_neg);
 	}
 
-	SECTION("float-leading-point-plus")
+	SECTION("float-leading-dot-plus")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_leading_point_plus); // float-leading-point-plus
+		parsing_should_fail(FILE_LINE_ARGS, float_leading_dot_plus);
 	}
 
-	SECTION("float-leading-point")
+	SECTION("float-leading-dot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_leading_point); // float-leading-point
+		parsing_should_fail(FILE_LINE_ARGS, float_leading_dot);
 	}
 
 	SECTION("float-leading-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_leading_us); // float-leading-us
+		parsing_should_fail(FILE_LINE_ARGS, float_leading_us);
 	}
 
 	SECTION("float-leading-zero-neg")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_leading_zero_neg); // float-leading-zero-neg
+		parsing_should_fail(FILE_LINE_ARGS, float_leading_zero_neg);
 	}
 
 	SECTION("float-leading-zero-plus")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_leading_zero_plus); // float-leading-zero-plus
+		parsing_should_fail(FILE_LINE_ARGS, float_leading_zero_plus);
 	}
 
 	SECTION("float-leading-zero")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_leading_zero); // float-leading-zero
+		parsing_should_fail(FILE_LINE_ARGS, float_leading_zero);
 	}
 
 	SECTION("float-nan-capital")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_nan_capital); // float-nan-capital
+		parsing_should_fail(FILE_LINE_ARGS, float_nan_capital);
 	}
 
-	SECTION("float-nan-incomplete-1")
+	SECTION("float-nan-incomplete-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_nan_incomplete_1); // float-nan-incomplete-1
+		parsing_should_fail(FILE_LINE_ARGS, float_nan_incomplete_01);
 	}
 
-	SECTION("float-nan-incomplete-2")
+	SECTION("float-nan-incomplete-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_nan_incomplete_2); // float-nan-incomplete-2
+		parsing_should_fail(FILE_LINE_ARGS, float_nan_incomplete_02);
 	}
 
-	SECTION("float-nan-incomplete-3")
+	SECTION("float-nan-incomplete-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_nan_incomplete_3); // float-nan-incomplete-3
+		parsing_should_fail(FILE_LINE_ARGS, float_nan_incomplete_03);
 	}
 
 	SECTION("float-nan_underscore")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_nan_underscore); // float-nan_underscore
+		parsing_should_fail(FILE_LINE_ARGS, float_nan_underscore);
 	}
 
-	SECTION("float-trailing-point-min")
+	SECTION("float-trailing-dot-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_trailing_point_min); // float-trailing-point-min
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_dot_01);
 	}
 
-	SECTION("float-trailing-point-plus")
+	SECTION("float-trailing-dot-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_trailing_point_plus); // float-trailing-point-plus
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_dot_02);
 	}
 
-	SECTION("float-trailing-point")
+	SECTION("float-trailing-dot-min")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_trailing_point); // float-trailing-point
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_dot_min);
 	}
 
-	SECTION("float-trailing-us-exp-1")
+	SECTION("float-trailing-dot-plus")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_trailing_us_exp_1); // float-trailing-us-exp-1
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_dot_plus);
 	}
 
-	SECTION("float-trailing-us-exp-2")
+	SECTION("float-trailing-dot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_trailing_us_exp_2); // float-trailing-us-exp-2
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_dot);
+	}
+
+	SECTION("float-trailing-exp-dot")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_exp_dot);
+	}
+
+	SECTION("float-trailing-exp-minus")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_exp_minus);
+	}
+
+	SECTION("float-trailing-exp-plus")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_exp_plus);
+	}
+
+	SECTION("float-trailing-exp")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_exp);
+	}
+
+	SECTION("float-trailing-us-exp-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_us_exp_01);
+	}
+
+	SECTION("float-trailing-us-exp-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_us_exp_02);
 	}
 
 	SECTION("float-trailing-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_trailing_us); // float-trailing-us
+		parsing_should_fail(FILE_LINE_ARGS, float_trailing_us);
 	}
 
-	SECTION("float-us-after-point")
+	SECTION("float-us-after-dot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_us_after_point); // float-us-after-point
+		parsing_should_fail(FILE_LINE_ARGS, float_us_after_dot);
 	}
 
-	SECTION("float-us-before-point")
+	SECTION("float-us-before-dot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, float_us_before_point); // float-us-before-point
-	}
-
-	SECTION("inline-table-add")
-	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_add); // inline-table-add
+		parsing_should_fail(FILE_LINE_ARGS, float_us_before_dot);
 	}
 
 	SECTION("inline-table-bad-key-syntax")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_bad_key_syntax); // inline-table-bad-key-syntax
-	}
-
-	SECTION("inline-table-dotted-key-conflict")
-	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_dotted_key_conflict); // inline-table-dotted-key-conflict
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_bad_key_syntax);
 	}
 
 	SECTION("inline-table-double-comma")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_double_comma); // inline-table-double-comma
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_double_comma);
 	}
 
-	SECTION("inline-table-duplicate-key")
+	SECTION("inline-table-duplicate-key-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_duplicate_key); // inline-table-duplicate-key
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_duplicate_key_01);
 	}
 
-	SECTION("inline-table-empty")
+	SECTION("inline-table-duplicate-key-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_empty); // inline-table-empty
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_duplicate_key_02);
 	}
 
-	SECTION("inline-table-nested_key_conflict")
+	SECTION("inline-table-duplicate-key-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_nested_key_conflict); // inline-table-nested_key_conflict
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_duplicate_key_03);
 	}
 
-	SECTION("inline-table-no-comma")
+	SECTION("inline-table-duplicate-key-04")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_no_comma); // inline-table-no-comma
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_duplicate_key_04);
 	}
 
-	SECTION("inline-table-overwrite")
+	SECTION("inline-table-empty-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite); // inline-table-overwrite
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_empty_01);
 	}
 
-#if !TOML_LANG_UNRELEASED
-
-	SECTION("inline-table-linebreak-1")
+	SECTION("inline-table-empty-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_linebreak_1); // inline-table-linebreak-1
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_empty_02);
 	}
 
-	SECTION("inline-table-linebreak-2")
+	SECTION("inline-table-empty-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_linebreak_2); // inline-table-linebreak-2
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_empty_03);
 	}
 
-	SECTION("inline-table-linebreak-3")
+	SECTION("inline-table-no-close-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_linebreak_3); // inline-table-linebreak-3
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_no_close_01);
 	}
 
-	SECTION("inline-table-linebreak-4")
+	SECTION("inline-table-no-close-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_linebreak_4); // inline-table-linebreak-4
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_no_close_02);
 	}
 
-	SECTION("inline-table-trailing-comma")
+	SECTION("inline-table-no-comma-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, inline_table_trailing_comma); // inline-table-trailing-comma
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_no_comma_01);
 	}
 
-#endif // !TOML_LANG_UNRELEASED
+	SECTION("inline-table-no-comma-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_no_comma_02);
+	}
+
+	SECTION("inline-table-overwrite-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite_01);
+	}
+
+	SECTION("inline-table-overwrite-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite_02);
+	}
+
+	SECTION("inline-table-overwrite-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite_03);
+	}
+
+	SECTION("inline-table-overwrite-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite_04);
+	}
+
+	SECTION("inline-table-overwrite-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite_05);
+	}
+
+	SECTION("inline-table-overwrite-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite_06);
+	}
+
+	SECTION("inline-table-overwrite-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite_07);
+	}
+
+	SECTION("inline-table-overwrite-08")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite_08);
+	}
+
+	SECTION("inline-table-overwrite-09")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite_09);
+	}
+
+	SECTION("inline-table-overwrite-10")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, inline_table_overwrite_10);
+	}
 
 	SECTION("integer-capital-bin")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_capital_bin); // integer-capital-bin
+		parsing_should_fail(FILE_LINE_ARGS, integer_capital_bin);
 	}
 
 	SECTION("integer-capital-hex")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_capital_hex); // integer-capital-hex
+		parsing_should_fail(FILE_LINE_ARGS, integer_capital_hex);
 	}
 
 	SECTION("integer-capital-oct")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_capital_oct); // integer-capital-oct
+		parsing_should_fail(FILE_LINE_ARGS, integer_capital_oct);
 	}
 
 	SECTION("integer-double-sign-nex")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_double_sign_nex); // integer-double-sign-nex
+		parsing_should_fail(FILE_LINE_ARGS, integer_double_sign_nex);
 	}
 
 	SECTION("integer-double-sign-plus")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_double_sign_plus); // integer-double-sign-plus
+		parsing_should_fail(FILE_LINE_ARGS, integer_double_sign_plus);
 	}
 
 	SECTION("integer-double-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_double_us); // integer-double-us
+		parsing_should_fail(FILE_LINE_ARGS, integer_double_us);
 	}
 
 	SECTION("integer-incomplete-bin")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_incomplete_bin); // integer-incomplete-bin
+		parsing_should_fail(FILE_LINE_ARGS, integer_incomplete_bin);
 	}
 
 	SECTION("integer-incomplete-hex")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_incomplete_hex); // integer-incomplete-hex
+		parsing_should_fail(FILE_LINE_ARGS, integer_incomplete_hex);
 	}
 
 	SECTION("integer-incomplete-oct")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_incomplete_oct); // integer-incomplete-oct
+		parsing_should_fail(FILE_LINE_ARGS, integer_incomplete_oct);
 	}
 
 	SECTION("integer-invalid-bin")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_invalid_bin); // integer-invalid-bin
+		parsing_should_fail(FILE_LINE_ARGS, integer_invalid_bin);
 	}
 
-	SECTION("integer-invalid-hex")
+	SECTION("integer-invalid-hex-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_invalid_hex); // integer-invalid-hex
+		parsing_should_fail(FILE_LINE_ARGS, integer_invalid_hex_01);
+	}
+
+	SECTION("integer-invalid-hex-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, integer_invalid_hex_02);
+	}
+
+	SECTION("integer-invalid-hex-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, integer_invalid_hex_03);
 	}
 
 	SECTION("integer-invalid-oct")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_invalid_oct); // integer-invalid-oct
+		parsing_should_fail(FILE_LINE_ARGS, integer_invalid_oct);
 	}
 
 	SECTION("integer-leading-us-bin")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_leading_us_bin); // integer-leading-us-bin
+		parsing_should_fail(FILE_LINE_ARGS, integer_leading_us_bin);
 	}
 
 	SECTION("integer-leading-us-hex")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_leading_us_hex); // integer-leading-us-hex
+		parsing_should_fail(FILE_LINE_ARGS, integer_leading_us_hex);
 	}
 
 	SECTION("integer-leading-us-oct")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_leading_us_oct); // integer-leading-us-oct
+		parsing_should_fail(FILE_LINE_ARGS, integer_leading_us_oct);
 	}
 
 	SECTION("integer-leading-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_leading_us); // integer-leading-us
+		parsing_should_fail(FILE_LINE_ARGS, integer_leading_us);
 	}
 
-	SECTION("integer-leading-zero-1")
+	SECTION("integer-leading-zero-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_1); // integer-leading-zero-1
+		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_01);
 	}
 
-	SECTION("integer-leading-zero-2")
+	SECTION("integer-leading-zero-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_2); // integer-leading-zero-2
+		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_02);
 	}
 
-	SECTION("integer-leading-zero-3")
+	SECTION("integer-leading-zero-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_3); // integer-leading-zero-3
+		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_03);
 	}
 
-	SECTION("integer-leading-zero-sign-1")
+	SECTION("integer-leading-zero-sign-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_sign_1); // integer-leading-zero-sign-1
+		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_sign_01);
 	}
 
-	SECTION("integer-leading-zero-sign-2")
+	SECTION("integer-leading-zero-sign-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_sign_2); // integer-leading-zero-sign-2
+		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_sign_02);
 	}
 
-	SECTION("integer-leading-zero-sign-3")
+	SECTION("integer-leading-zero-sign-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_sign_3); // integer-leading-zero-sign-3
+		parsing_should_fail(FILE_LINE_ARGS, integer_leading_zero_sign_03);
 	}
 
 	SECTION("integer-negative-bin")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_negative_bin); // integer-negative-bin
+		parsing_should_fail(FILE_LINE_ARGS, integer_negative_bin);
 	}
 
 	SECTION("integer-negative-hex")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_negative_hex); // integer-negative-hex
+		parsing_should_fail(FILE_LINE_ARGS, integer_negative_hex);
 	}
 
 	SECTION("integer-negative-oct")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_negative_oct); // integer-negative-oct
+		parsing_should_fail(FILE_LINE_ARGS, integer_negative_oct);
 	}
 
 	SECTION("integer-positive-bin")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_positive_bin); // integer-positive-bin
+		parsing_should_fail(FILE_LINE_ARGS, integer_positive_bin);
 	}
 
 	SECTION("integer-positive-hex")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_positive_hex); // integer-positive-hex
+		parsing_should_fail(FILE_LINE_ARGS, integer_positive_hex);
 	}
 
 	SECTION("integer-positive-oct")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_positive_oct); // integer-positive-oct
+		parsing_should_fail(FILE_LINE_ARGS, integer_positive_oct);
 	}
 
 	SECTION("integer-text-after-integer")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_text_after_integer); // integer-text-after-integer
+		parsing_should_fail(FILE_LINE_ARGS, integer_text_after_integer);
 	}
 
 	SECTION("integer-trailing-us-bin")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_trailing_us_bin); // integer-trailing-us-bin
+		parsing_should_fail(FILE_LINE_ARGS, integer_trailing_us_bin);
 	}
 
 	SECTION("integer-trailing-us-hex")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_trailing_us_hex); // integer-trailing-us-hex
+		parsing_should_fail(FILE_LINE_ARGS, integer_trailing_us_hex);
 	}
 
 	SECTION("integer-trailing-us-oct")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_trailing_us_oct); // integer-trailing-us-oct
+		parsing_should_fail(FILE_LINE_ARGS, integer_trailing_us_oct);
 	}
 
 	SECTION("integer-trailing-us")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_trailing_us); // integer-trailing-us
+		parsing_should_fail(FILE_LINE_ARGS, integer_trailing_us);
 	}
 
 	SECTION("integer-us-after-bin")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_us_after_bin); // integer-us-after-bin
+		parsing_should_fail(FILE_LINE_ARGS, integer_us_after_bin);
 	}
 
 	SECTION("integer-us-after-hex")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_us_after_hex); // integer-us-after-hex
+		parsing_should_fail(FILE_LINE_ARGS, integer_us_after_hex);
 	}
 
 	SECTION("integer-us-after-oct")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, integer_us_after_oct); // integer-us-after-oct
+		parsing_should_fail(FILE_LINE_ARGS, integer_us_after_oct);
 	}
 
 	SECTION("key-after-array")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_after_array); // key-after-array
+		parsing_should_fail(FILE_LINE_ARGS, key_after_array);
 	}
 
 	SECTION("key-after-table")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_after_table); // key-after-table
+		parsing_should_fail(FILE_LINE_ARGS, key_after_table);
 	}
 
 	SECTION("key-after-value")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_after_value); // key-after-value
+		parsing_should_fail(FILE_LINE_ARGS, key_after_value);
 	}
 
-	SECTION("key-bare-invalid-character")
+	SECTION("key-bare-invalid-character-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_bare_invalid_character); // key-bare-invalid-character
+		parsing_should_fail(FILE_LINE_ARGS, key_bare_invalid_character_01);
 	}
 
-	SECTION("key-dotted-redefine-table")
+	SECTION("key-bare-invalid-character-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_dotted_redefine_table); // key-dotted-redefine-table
+		parsing_should_fail(FILE_LINE_ARGS, key_bare_invalid_character_02);
 	}
 
-	SECTION("key-duplicate-keys")
+	SECTION("key-dot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_duplicate_keys); // key-duplicate-keys
+		parsing_should_fail(FILE_LINE_ARGS, key_dot);
 	}
 
-	SECTION("key-duplicate")
+	SECTION("key-dotdot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_duplicate); // key-duplicate
+		parsing_should_fail(FILE_LINE_ARGS, key_dotdot);
+	}
+
+	SECTION("key-dotted-redefine-table-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_dotted_redefine_table_01);
+	}
+
+	SECTION("key-dotted-redefine-table-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_dotted_redefine_table_02);
+	}
+
+	SECTION("key-duplicate-keys-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_duplicate_keys_01);
+	}
+
+	SECTION("key-duplicate-keys-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_duplicate_keys_02);
+	}
+
+	SECTION("key-duplicate-keys-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_duplicate_keys_03);
+	}
+
+	SECTION("key-duplicate-keys-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_duplicate_keys_04);
+	}
+
+	SECTION("key-duplicate-keys-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_duplicate_keys_05);
+	}
+
+	SECTION("key-duplicate-keys-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_duplicate_keys_06);
+	}
+
+	SECTION("key-duplicate-keys-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_duplicate_keys_07);
+	}
+
+	SECTION("key-duplicate-keys-08")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_duplicate_keys_08);
+	}
+
+	SECTION("key-duplicate-keys-09")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_duplicate_keys_09);
 	}
 
 	SECTION("key-empty")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_empty); // key-empty
+		parsing_should_fail(FILE_LINE_ARGS, key_empty);
+	}
+
+	SECTION("key-end-in-escape")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_end_in_escape);
 	}
 
 	SECTION("key-escape")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_escape); // key-escape
+		parsing_should_fail(FILE_LINE_ARGS, key_escape);
 	}
 
 	SECTION("key-hash")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_hash); // key-hash
+		parsing_should_fail(FILE_LINE_ARGS, key_hash);
 	}
 
-	SECTION("key-multiline")
+	SECTION("key-multiline-key-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_multiline); // key-multiline
+		parsing_should_fail(FILE_LINE_ARGS, key_multiline_key_01);
 	}
 
-	SECTION("key-newline")
+	SECTION("key-multiline-key-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_newline); // key-newline
+		parsing_should_fail(FILE_LINE_ARGS, key_multiline_key_02);
 	}
 
-	SECTION("key-no-eol")
+	SECTION("key-multiline-key-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_no_eol); // key-no-eol
+		parsing_should_fail(FILE_LINE_ARGS, key_multiline_key_03);
+	}
+
+	SECTION("key-multiline-key-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_multiline_key_04);
+	}
+
+	SECTION("key-newline-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_newline_01);
+	}
+
+	SECTION("key-newline-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_newline_02);
+	}
+
+	SECTION("key-newline-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_newline_03);
+	}
+
+	SECTION("key-newline-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_newline_04);
+	}
+
+	SECTION("key-newline-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_newline_05);
+	}
+
+	SECTION("key-newline-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_newline_06);
+	}
+
+	SECTION("key-no-eol-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_no_eol_01);
+	}
+
+	SECTION("key-no-eol-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_no_eol_02);
+	}
+
+	SECTION("key-no-eol-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_no_eol_03);
+	}
+
+	SECTION("key-no-eol-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_no_eol_04);
+	}
+
+	SECTION("key-no-eol-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_no_eol_05);
+	}
+
+	SECTION("key-no-eol-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_no_eol_06);
+	}
+
+	SECTION("key-no-eol-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_no_eol_07);
+	}
+
+	SECTION("key-only-float")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_only_float);
+	}
+
+	SECTION("key-only-int")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_only_int);
+	}
+
+	SECTION("key-only-str")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_only_str);
 	}
 
 	SECTION("key-open-bracket")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_open_bracket); // key-open-bracket
+		parsing_should_fail(FILE_LINE_ARGS, key_open_bracket);
 	}
 
 	SECTION("key-partial-quoted")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_partial_quoted); // key-partial-quoted
+		parsing_should_fail(FILE_LINE_ARGS, key_partial_quoted);
 	}
 
-	SECTION("key-quoted-unclosed-1")
+	SECTION("key-quoted-unclosed-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_quoted_unclosed_1); // key-quoted-unclosed-1
+		parsing_should_fail(FILE_LINE_ARGS, key_quoted_unclosed_01);
 	}
 
-	SECTION("key-quoted-unclosed-2")
+	SECTION("key-quoted-unclosed-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_quoted_unclosed_2); // key-quoted-unclosed-2
+		parsing_should_fail(FILE_LINE_ARGS, key_quoted_unclosed_02);
 	}
 
 	SECTION("key-single-open-bracket")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_single_open_bracket); // key-single-open-bracket
+		parsing_should_fail(FILE_LINE_ARGS, key_single_open_bracket);
 	}
 
 	SECTION("key-space")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_space); // key-space
+		parsing_should_fail(FILE_LINE_ARGS, key_space);
 	}
 
 	SECTION("key-start-bracket")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_start_bracket); // key-start-bracket
+		parsing_should_fail(FILE_LINE_ARGS, key_start_bracket);
 	}
 
 	SECTION("key-start-dot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_start_dot); // key-start-dot
+		parsing_should_fail(FILE_LINE_ARGS, key_start_dot);
 	}
 
-	SECTION("key-two-equals")
+	SECTION("key-two-equals-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_two_equals); // key-two-equals
+		parsing_should_fail(FILE_LINE_ARGS, key_two_equals_01);
 	}
 
-	SECTION("key-two-equals2")
+	SECTION("key-two-equals-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_two_equals2); // key-two-equals2
+		parsing_should_fail(FILE_LINE_ARGS, key_two_equals_02);
 	}
 
-	SECTION("key-two-equals3")
+	SECTION("key-two-equals-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_two_equals3); // key-two-equals3
+		parsing_should_fail(FILE_LINE_ARGS, key_two_equals_03);
 	}
 
-	SECTION("key-without-value-1")
+	SECTION("key-without-value-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_without_value_1); // key-without-value-1
+		parsing_should_fail(FILE_LINE_ARGS, key_without_value_01);
 	}
 
-	SECTION("key-without-value-2")
+	SECTION("key-without-value-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_without_value_2); // key-without-value-2
+		parsing_should_fail(FILE_LINE_ARGS, key_without_value_02);
 	}
 
-	SECTION("key-without-value-3")
+	SECTION("key-without-value-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_without_value_3); // key-without-value-3
+		parsing_should_fail(FILE_LINE_ARGS, key_without_value_03);
 	}
 
-	SECTION("key-without-value-4")
+	SECTION("key-without-value-04")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_without_value_4); // key-without-value-4
+		parsing_should_fail(FILE_LINE_ARGS, key_without_value_04);
+	}
+
+	SECTION("key-without-value-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_without_value_05);
+	}
+
+	SECTION("key-without-value-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_without_value_06);
+	}
+
+	SECTION("key-without-value-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, key_without_value_07);
 	}
 
 #if !TOML_LANG_UNRELEASED && UNICODE_LITERALS_OK
 
 	SECTION("key-special-character")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, key_special_character); // key-special-character
+		parsing_should_fail(FILE_LINE_ARGS, key_special_character);
 	}
 
 #endif // !TOML_LANG_UNRELEASED && UNICODE_LITERALS_OK
 
+	SECTION("local-date-day-1digit")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, local_date_day_1digit);
+	}
+
+	SECTION("local-date-feb-29")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, local_date_feb_29);
+	}
+
+	SECTION("local-date-feb-30")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, local_date_feb_30);
+	}
+
 	SECTION("local-date-mday-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_date_mday_over); // local-date-mday-over
+		parsing_should_fail(FILE_LINE_ARGS, local_date_mday_over);
 	}
 
 	SECTION("local-date-mday-under")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_date_mday_under); // local-date-mday-under
+		parsing_should_fail(FILE_LINE_ARGS, local_date_mday_under);
 	}
 
 	SECTION("local-date-month-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_date_month_over); // local-date-month-over
+		parsing_should_fail(FILE_LINE_ARGS, local_date_month_over);
 	}
 
 	SECTION("local-date-month-under")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_date_month_under); // local-date-month-under
+		parsing_should_fail(FILE_LINE_ARGS, local_date_month_under);
 	}
 
 	SECTION("local-date-no-leads-with-milli")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_date_no_leads_with_milli); // local-date-no-leads-with-milli
+		parsing_should_fail(FILE_LINE_ARGS, local_date_no_leads_with_milli);
 	}
 
 	SECTION("local-date-no-leads")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_date_no_leads); // local-date-no-leads
+		parsing_should_fail(FILE_LINE_ARGS, local_date_no_leads);
 	}
 
 	SECTION("local-date-trailing-t")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_date_trailing_t); // local-date-trailing-t
+		parsing_should_fail(FILE_LINE_ARGS, local_date_trailing_t);
+	}
+
+	SECTION("local-date-y10k")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, local_date_y10k);
+	}
+
+	SECTION("local-date-year-3digits")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, local_date_year_3digits);
+	}
+
+	SECTION("local-datetime-feb-29")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_feb_29);
+	}
+
+	SECTION("local-datetime-feb-30")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_feb_30);
 	}
 
 	SECTION("local-datetime-hour-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_hour_over); // local-datetime-hour-over
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_hour_over);
 	}
 
 	SECTION("local-datetime-mday-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_mday_over); // local-datetime-mday-over
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_mday_over);
 	}
 
 	SECTION("local-datetime-mday-under")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_mday_under); // local-datetime-mday-under
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_mday_under);
 	}
 
 	SECTION("local-datetime-minute-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_minute_over); // local-datetime-minute-over
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_minute_over);
 	}
 
 	SECTION("local-datetime-month-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_month_over); // local-datetime-month-over
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_month_over);
 	}
 
 	SECTION("local-datetime-month-under")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_month_under); // local-datetime-month-under
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_month_under);
 	}
 
 	SECTION("local-datetime-no-leads-with-milli")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_no_leads_with_milli); // local-datetime-no-leads-with-milli
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_no_leads_with_milli);
 	}
 
 	SECTION("local-datetime-no-leads")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_no_leads); // local-datetime-no-leads
-	}
-
-	SECTION("local-datetime-no-secs")
-	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_no_secs); // local-datetime-no-secs
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_no_leads);
 	}
 
 	SECTION("local-datetime-no-t")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_no_t); // local-datetime-no-t
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_no_t);
 	}
 
 	SECTION("local-datetime-second-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_second_over); // local-datetime-second-over
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_second_over);
 	}
 
 	SECTION("local-datetime-time-no-leads")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_datetime_time_no_leads); // local-datetime-time-no-leads
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_time_no_leads);
+	}
+
+	SECTION("local-datetime-y10k")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, local_datetime_y10k);
 	}
 
 	SECTION("local-time-hour-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_time_hour_over); // local-time-hour-over
+		parsing_should_fail(FILE_LINE_ARGS, local_time_hour_over);
 	}
 
 	SECTION("local-time-minute-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_time_minute_over); // local-time-minute-over
-	}
-
-	SECTION("local-time-no-secs")
-	{
-		parsing_should_fail(FILE_LINE_ARGS, local_time_no_secs); // local-time-no-secs
+		parsing_should_fail(FILE_LINE_ARGS, local_time_minute_over);
 	}
 
 	SECTION("local-time-second-over")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_time_second_over); // local-time-second-over
+		parsing_should_fail(FILE_LINE_ARGS, local_time_second_over);
 	}
 
-	SECTION("local-time-time-no-leads-2")
+	SECTION("local-time-time-no-leads-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_time_time_no_leads_2); // local-time-time-no-leads-2
+		parsing_should_fail(FILE_LINE_ARGS, local_time_time_no_leads_01);
 	}
 
-	SECTION("local-time-time-no-leads")
+	SECTION("local-time-time-no-leads-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, local_time_time_no_leads); // local-time-time-no-leads
+		parsing_should_fail(FILE_LINE_ARGS, local_time_time_no_leads_02);
 	}
 
-	SECTION("spec-inline-table-2-0")
+	SECTION("local-time-trailing-dot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, spec_inline_table_2_0); // spec-inline-table-2-0
+		parsing_should_fail(FILE_LINE_ARGS, local_time_trailing_dot);
 	}
 
-	SECTION("spec-inline-table-3-0")
+	SECTION("local-time-trailing-dotdot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, spec_inline_table_3_0); // spec-inline-table-3-0
+		parsing_should_fail(FILE_LINE_ARGS, local_time_trailing_dotdot);
 	}
 
-	SECTION("spec-key-value-pair-1")
+	SECTION("spec-1.1.0-common-16-0")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, spec_key_value_pair_1); // spec-key-value-pair-1
+		parsing_should_fail(FILE_LINE_ARGS, spec_1_1_0_common_16_0);
 	}
 
-	SECTION("spec-keys-2")
+	SECTION("spec-1.1.0-common-19-0")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, spec_keys_2); // spec-keys-2
+		parsing_should_fail(FILE_LINE_ARGS, spec_1_1_0_common_19_0);
 	}
 
-	SECTION("spec-string-4-0")
+	SECTION("spec-1.1.0-common-2")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, spec_string_4_0); // spec-string-4-0
+		parsing_should_fail(FILE_LINE_ARGS, spec_1_1_0_common_2);
 	}
 
-	SECTION("spec-string-7-0")
+	SECTION("spec-1.1.0-common-46-0")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, spec_string_7_0); // spec-string-7-0
+		parsing_should_fail(FILE_LINE_ARGS, spec_1_1_0_common_46_0);
 	}
 
-	SECTION("spec-table-9-0")
+	SECTION("spec-1.1.0-common-46-1")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, spec_table_9_0); // spec-table-9-0
+		parsing_should_fail(FILE_LINE_ARGS, spec_1_1_0_common_46_1);
 	}
 
-	SECTION("spec-table-9-1")
+	SECTION("spec-1.1.0-common-49-0")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, spec_table_9_1); // spec-table-9-1
+		parsing_should_fail(FILE_LINE_ARGS, spec_1_1_0_common_49_0);
+	}
+
+	SECTION("spec-1.1.0-common-5")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, spec_1_1_0_common_5);
+	}
+
+	SECTION("spec-1.1.0-common-50-0")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, spec_1_1_0_common_50_0);
 	}
 
 	SECTION("string-bad-byte-escape")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_byte_escape); // string-bad-byte-escape
-	}
-
-	SECTION("string-bad-codepoint")
-	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_codepoint); // string-bad-codepoint
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_byte_escape);
 	}
 
 	SECTION("string-bad-concat")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_concat); // string-bad-concat
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_concat);
 	}
 
-	SECTION("string-bad-escape-1")
+	SECTION("string-bad-escape-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_escape_1); // string-bad-escape-1
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_escape_01);
 	}
 
-	SECTION("string-bad-escape-2")
+	SECTION("string-bad-escape-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_escape_2); // string-bad-escape-2
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_escape_02);
 	}
 
-	SECTION("string-bad-hex-esc-1")
+	SECTION("string-bad-escape-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_hex_esc_1); // string-bad-hex-esc-1
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_escape_03);
 	}
 
-	SECTION("string-bad-hex-esc-2")
+	SECTION("string-bad-escape-04")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_hex_esc_2); // string-bad-hex-esc-2
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_escape_04);
 	}
 
-	SECTION("string-bad-hex-esc-3")
+	SECTION("string-bad-escape-05")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_hex_esc_3); // string-bad-hex-esc-3
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_escape_05);
 	}
 
-	SECTION("string-bad-hex-esc-4")
+	SECTION("string-bad-hex-esc-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_hex_esc_4); // string-bad-hex-esc-4
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_hex_esc_01);
 	}
 
-	SECTION("string-bad-hex-esc-5")
+	SECTION("string-bad-hex-esc-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_hex_esc_5); // string-bad-hex-esc-5
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_hex_esc_02);
+	}
+
+	SECTION("string-bad-hex-esc-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_hex_esc_03);
+	}
+
+	SECTION("string-bad-hex-esc-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_hex_esc_04);
+	}
+
+	SECTION("string-bad-hex-esc-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_hex_esc_05);
 	}
 
 	SECTION("string-bad-multiline")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_multiline); // string-bad-multiline
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_multiline);
 	}
 
 	SECTION("string-bad-slash-escape")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_slash_escape); // string-bad-slash-escape
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_slash_escape);
 	}
 
-	SECTION("string-bad-uni-esc-1")
+	SECTION("string-bad-uni-esc-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_1); // string-bad-uni-esc-1
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_01);
 	}
 
-	SECTION("string-bad-uni-esc-2")
+	SECTION("string-bad-uni-esc-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_2); // string-bad-uni-esc-2
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_02);
 	}
 
-	SECTION("string-bad-uni-esc-3")
+	SECTION("string-bad-uni-esc-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_3); // string-bad-uni-esc-3
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_03);
 	}
 
-	SECTION("string-bad-uni-esc-4")
+	SECTION("string-bad-uni-esc-04")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_4); // string-bad-uni-esc-4
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_04);
 	}
 
-	SECTION("string-bad-uni-esc-5")
+	SECTION("string-bad-uni-esc-05")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_5); // string-bad-uni-esc-5
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_05);
 	}
 
-	SECTION("string-basic-multiline-out-of-range-unicode-escape-1")
+	SECTION("string-bad-uni-esc-06")
 	{
-		parsing_should_fail(
-			FILE_LINE_ARGS,
-			string_basic_multiline_out_of_range_unicode_escape_1); // string-basic-multiline-out-of-range-unicode-escape-1
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_06);
 	}
 
-	SECTION("string-basic-multiline-out-of-range-unicode-escape-2")
+	SECTION("string-bad-uni-esc-07")
 	{
-		parsing_should_fail(
-			FILE_LINE_ARGS,
-			string_basic_multiline_out_of_range_unicode_escape_2); // string-basic-multiline-out-of-range-unicode-escape-2
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_07);
+	}
+
+	SECTION("string-bad-uni-esc-ml-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_ml_01);
+	}
+
+	SECTION("string-bad-uni-esc-ml-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_ml_02);
+	}
+
+	SECTION("string-bad-uni-esc-ml-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_ml_03);
+	}
+
+	SECTION("string-bad-uni-esc-ml-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_ml_04);
+	}
+
+	SECTION("string-bad-uni-esc-ml-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_ml_05);
+	}
+
+	SECTION("string-bad-uni-esc-ml-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_ml_06);
+	}
+
+	SECTION("string-bad-uni-esc-ml-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_bad_uni_esc_ml_07);
+	}
+
+	SECTION("string-basic-multiline-out-of-range-unicode-escape-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_basic_multiline_out_of_range_unicode_escape_01);
+	}
+
+	SECTION("string-basic-multiline-out-of-range-unicode-escape-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_basic_multiline_out_of_range_unicode_escape_02);
 	}
 
 	SECTION("string-basic-multiline-quotes")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_basic_multiline_quotes); // string-basic-multiline-quotes
+		parsing_should_fail(FILE_LINE_ARGS, string_basic_multiline_quotes);
 	}
 
 	SECTION("string-basic-multiline-unknown-escape")
 	{
-		parsing_should_fail(FILE_LINE_ARGS,
-							string_basic_multiline_unknown_escape); // string-basic-multiline-unknown-escape
+		parsing_should_fail(FILE_LINE_ARGS, string_basic_multiline_unknown_escape);
 	}
 
-	SECTION("string-basic-out-of-range-unicode-escape-1")
+	SECTION("string-basic-out-of-range-unicode-escape-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS,
-							string_basic_out_of_range_unicode_escape_1); // string-basic-out-of-range-unicode-escape-1
+		parsing_should_fail(FILE_LINE_ARGS, string_basic_out_of_range_unicode_escape_01);
 	}
 
-	SECTION("string-basic-out-of-range-unicode-escape-2")
+	SECTION("string-basic-out-of-range-unicode-escape-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS,
-							string_basic_out_of_range_unicode_escape_2); // string-basic-out-of-range-unicode-escape-2
+		parsing_should_fail(FILE_LINE_ARGS, string_basic_out_of_range_unicode_escape_02);
 	}
 
 	SECTION("string-basic-unknown-escape")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_basic_unknown_escape); // string-basic-unknown-escape
+		parsing_should_fail(FILE_LINE_ARGS, string_basic_unknown_escape);
 	}
 
-	SECTION("string-literal-multiline-quotes-1")
+	SECTION("string-literal-multiline-quotes-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_literal_multiline_quotes_1); // string-literal-multiline-quotes-1
+		parsing_should_fail(FILE_LINE_ARGS, string_literal_multiline_quotes_01);
 	}
 
-	SECTION("string-literal-multiline-quotes-2")
+	SECTION("string-literal-multiline-quotes-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_literal_multiline_quotes_2); // string-literal-multiline-quotes-2
+		parsing_should_fail(FILE_LINE_ARGS, string_literal_multiline_quotes_02);
+	}
+
+	SECTION("string-missing-quotes-array")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_missing_quotes_array);
+	}
+
+	SECTION("string-missing-quotes-inline-table")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_missing_quotes_inline_table);
 	}
 
 	SECTION("string-missing-quotes")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_missing_quotes); // string-missing-quotes
+		parsing_should_fail(FILE_LINE_ARGS, string_missing_quotes);
 	}
 
-	SECTION("string-multiline-bad-escape-1")
+	SECTION("string-multiline-bad-escape-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_multiline_bad_escape_1); // string-multiline-bad-escape-1
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_bad_escape_01);
 	}
 
-	SECTION("string-multiline-bad-escape-2")
+	SECTION("string-multiline-bad-escape-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_multiline_bad_escape_2); // string-multiline-bad-escape-2
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_bad_escape_02);
 	}
 
-	SECTION("string-multiline-bad-escape-3")
+	SECTION("string-multiline-bad-escape-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_multiline_bad_escape_3); // string-multiline-bad-escape-3
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_bad_escape_03);
 	}
 
-	SECTION("string-multiline-escape-space")
+	SECTION("string-multiline-bad-escape-04")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_multiline_escape_space); // string-multiline-escape-space
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_bad_escape_04);
 	}
 
-	SECTION("string-multiline-no-close-2")
+	SECTION("string-multiline-escape-space-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_multiline_no_close_2); // string-multiline-no-close-2
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_escape_space_01);
 	}
 
-	SECTION("string-multiline-no-close")
+	SECTION("string-multiline-escape-space-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_multiline_no_close); // string-multiline-no-close
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_escape_space_02);
 	}
 
-	SECTION("string-multiline-quotes-1")
+	SECTION("string-multiline-lit-no-close-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_multiline_quotes_1); // string-multiline-quotes-1
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_lit_no_close_01);
 	}
 
-	SECTION("string-no-close")
+	SECTION("string-multiline-lit-no-close-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_no_close); // string-no-close
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_lit_no_close_02);
+	}
+
+	SECTION("string-multiline-lit-no-close-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_lit_no_close_03);
+	}
+
+	SECTION("string-multiline-lit-no-close-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_lit_no_close_04);
+	}
+
+	SECTION("string-multiline-no-close-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_no_close_01);
+	}
+
+	SECTION("string-multiline-no-close-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_no_close_02);
+	}
+
+	SECTION("string-multiline-no-close-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_no_close_03);
+	}
+
+	SECTION("string-multiline-no-close-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_no_close_04);
+	}
+
+	SECTION("string-multiline-no-close-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_no_close_05);
+	}
+
+	SECTION("string-multiline-quotes-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_multiline_quotes_01);
+	}
+
+	SECTION("string-no-close-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_close_01);
+	}
+
+	SECTION("string-no-close-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_close_02);
+	}
+
+	SECTION("string-no-close-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_close_03);
+	}
+
+	SECTION("string-no-close-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_close_04);
+	}
+
+	SECTION("string-no-close-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_close_05);
+	}
+
+	SECTION("string-no-close-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_close_06);
+	}
+
+	SECTION("string-no-close-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_close_07);
+	}
+
+	SECTION("string-no-close-08")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_close_08);
+	}
+
+	SECTION("string-no-close-09")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_close_09);
+	}
+
+	SECTION("string-no-close-10")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_close_10);
+	}
+
+	SECTION("string-no-open-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_open_01);
+	}
+
+	SECTION("string-no-open-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_open_02);
+	}
+
+	SECTION("string-no-open-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_open_03);
+	}
+
+	SECTION("string-no-open-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_open_04);
+	}
+
+	SECTION("string-no-open-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_open_05);
+	}
+
+	SECTION("string-no-open-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_open_06);
+	}
+
+	SECTION("string-no-open-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_open_07);
+	}
+
+	SECTION("string-no-open-08")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, string_no_open_08);
 	}
 
 	SECTION("string-text-after-string")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_text_after_string); // string-text-after-string
+		parsing_should_fail(FILE_LINE_ARGS, string_text_after_string);
 	}
 
 	SECTION("string-wrong-close")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_wrong_close); // string-wrong-close
+		parsing_should_fail(FILE_LINE_ARGS, string_wrong_close);
 	}
 
-#if !TOML_LANG_UNRELEASED
-
-	SECTION("string-basic-byte-escapes")
+	SECTION("table-append-with-dotted-keys-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, string_basic_byte_escapes); // string-basic-byte-escapes
+		parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_01);
 	}
 
-#endif // !TOML_LANG_UNRELEASED
-
-	SECTION("table-append-to-array-with-dotted-keys")
+	SECTION("table-append-with-dotted-keys-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS,
-							table_append_to_array_with_dotted_keys); // table-append-to-array-with-dotted-keys
+		parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_02);
 	}
 
-	SECTION("table-append-with-dotted-keys-1")
+	SECTION("table-append-with-dotted-keys-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_1); // table-append-with-dotted-keys-1
+		parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_03);
 	}
 
-	SECTION("table-append-with-dotted-keys-2")
+	SECTION("table-append-with-dotted-keys-04")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_2); // table-append-with-dotted-keys-2
+		parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_04);
+	}
+
+	SECTION("table-append-with-dotted-keys-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_05);
+	}
+
+	SECTION("table-append-with-dotted-keys-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_06);
+	}
+
+	SECTION("table-append-with-dotted-keys-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_07);
+	}
+
+	SECTION("table-append-with-dotted-keys-08")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_append_with_dotted_keys_08);
 	}
 
 	SECTION("table-array-empty")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_array_empty); // table-array-empty
+		parsing_should_fail(FILE_LINE_ARGS, table_array_empty);
 	}
 
 	SECTION("table-array-implicit")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_array_implicit); // table-array-implicit
+		parsing_should_fail(FILE_LINE_ARGS, table_array_implicit);
 	}
 
-	SECTION("table-array-missing-bracket")
+	SECTION("table-array-no-close-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_array_missing_bracket); // table-array-missing-bracket
+		parsing_should_fail(FILE_LINE_ARGS, table_array_no_close_01);
 	}
 
-	SECTION("table-duplicate-key-dotted-array")
+	SECTION("table-array-no-close-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_dotted_array); // table-duplicate-key-dotted-array
+		parsing_should_fail(FILE_LINE_ARGS, table_array_no_close_02);
 	}
 
-	SECTION("table-duplicate-key-dotted-table")
+	SECTION("table-array-no-close-03")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_dotted_table); // table-duplicate-key-dotted-table
+		parsing_should_fail(FILE_LINE_ARGS, table_array_no_close_03);
 	}
 
-	SECTION("table-duplicate-key-dotted-table2")
+	SECTION("table-array-no-close-04")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_dotted_table2); // table-duplicate-key-dotted-table2
+		parsing_should_fail(FILE_LINE_ARGS, table_array_no_close_04);
 	}
 
-	SECTION("table-duplicate-key-table")
+	SECTION("table-bare-invalid-character-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_table); // table-duplicate-key-table
+		parsing_should_fail(FILE_LINE_ARGS, table_bare_invalid_character_01);
 	}
 
-	SECTION("table-duplicate-table-array")
+	SECTION("table-bare-invalid-character-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_table_array); // table-duplicate-table-array
+		parsing_should_fail(FILE_LINE_ARGS, table_bare_invalid_character_02);
 	}
 
-	SECTION("table-duplicate-table-array2")
+	SECTION("table-dot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_table_array2); // table-duplicate-table-array2
+		parsing_should_fail(FILE_LINE_ARGS, table_dot);
 	}
 
-	SECTION("table-duplicate")
+	SECTION("table-dotdot")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_duplicate); // table-duplicate
+		parsing_should_fail(FILE_LINE_ARGS, table_dotdot);
+	}
+
+	SECTION("table-duplicate-key-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_01);
+	}
+
+	SECTION("table-duplicate-key-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_02);
+	}
+
+	SECTION("table-duplicate-key-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_03);
+	}
+
+	SECTION("table-duplicate-key-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_04);
+	}
+
+	SECTION("table-duplicate-key-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_05);
+	}
+
+	SECTION("table-duplicate-key-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_06);
+	}
+
+	SECTION("table-duplicate-key-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_07);
+	}
+
+	SECTION("table-duplicate-key-08")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_08);
+	}
+
+	SECTION("table-duplicate-key-09")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_09);
+	}
+
+	SECTION("table-duplicate-key-10")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_duplicate_key_10);
 	}
 
 	SECTION("table-empty-implicit-table")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_empty_implicit_table); // table-empty-implicit-table
+		parsing_should_fail(FILE_LINE_ARGS, table_empty_implicit_table);
 	}
 
 	SECTION("table-empty")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_empty); // table-empty
+		parsing_should_fail(FILE_LINE_ARGS, table_empty);
 	}
 
 	SECTION("table-equals-sign")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_equals_sign); // table-equals-sign
+		parsing_should_fail(FILE_LINE_ARGS, table_equals_sign);
 	}
 
 	SECTION("table-llbrace")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_llbrace); // table-llbrace
+		parsing_should_fail(FILE_LINE_ARGS, table_llbrace);
+	}
+
+	SECTION("table-multiline-key-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_multiline_key_01);
+	}
+
+	SECTION("table-multiline-key-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_multiline_key_02);
 	}
 
 	SECTION("table-nested-brackets-close")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_nested_brackets_close); // table-nested-brackets-close
+		parsing_should_fail(FILE_LINE_ARGS, table_nested_brackets_close);
 	}
 
 	SECTION("table-nested-brackets-open")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_nested_brackets_open); // table-nested-brackets-open
+		parsing_should_fail(FILE_LINE_ARGS, table_nested_brackets_open);
 	}
 
-	SECTION("table-quoted-no-close")
+	SECTION("table-newline-01")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_quoted_no_close); // table-quoted-no-close
+		parsing_should_fail(FILE_LINE_ARGS, table_newline_01);
 	}
 
-	SECTION("table-redefine")
+	SECTION("table-newline-02")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_redefine); // table-redefine
+		parsing_should_fail(FILE_LINE_ARGS, table_newline_02);
+	}
+
+	SECTION("table-newline-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_newline_03);
+	}
+
+	SECTION("table-newline-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_newline_04);
+	}
+
+	SECTION("table-newline-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_newline_05);
+	}
+
+	SECTION("table-no-close-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_no_close_01);
+	}
+
+	SECTION("table-no-close-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_no_close_03);
+	}
+
+	SECTION("table-no-close-04")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_no_close_04);
+	}
+
+	SECTION("table-no-close-05")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_no_close_05);
+	}
+
+	SECTION("table-no-close-06")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_no_close_06);
+	}
+
+	SECTION("table-no-close-07")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_no_close_07);
+	}
+
+	SECTION("table-no-close-08")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_no_close_08);
+	}
+
+	SECTION("table-no-close-09")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_no_close_09);
+	}
+
+	SECTION("table-overwrite-array-in-parent")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_overwrite_array_in_parent);
+	}
+
+	SECTION("table-overwrite-bool-with-array")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_overwrite_bool_with_array);
+	}
+
+	SECTION("table-overwrite-with-deep-table")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_overwrite_with_deep_table);
+	}
+
+	SECTION("table-redefine-01")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_redefine_01);
+	}
+
+	SECTION("table-redefine-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_redefine_02);
+	}
+
+	SECTION("table-redefine-03")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_redefine_03);
 	}
 
 	SECTION("table-rrbrace")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_rrbrace); // table-rrbrace
+		parsing_should_fail(FILE_LINE_ARGS, table_rrbrace);
+	}
+
+	SECTION("table-super-twice")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_super_twice);
 	}
 
 	SECTION("table-text-after-table")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_text_after_table); // table-text-after-table
+		parsing_should_fail(FILE_LINE_ARGS, table_text_after_table);
+	}
+
+	SECTION("table-trailing-dot")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_trailing_dot);
 	}
 
 	SECTION("table-whitespace")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_whitespace); // table-whitespace
+		parsing_should_fail(FILE_LINE_ARGS, table_whitespace);
 	}
 
 	SECTION("table-with-pound")
 	{
-		parsing_should_fail(FILE_LINE_ARGS, table_with_pound); // table-with-pound
+		parsing_should_fail(FILE_LINE_ARGS, table_with_pound);
 	}
+
+#if UNICODE_LITERALS_OK
+
+	SECTION("table-no-close-02")
+	{
+		parsing_should_fail(FILE_LINE_ARGS, table_no_close_02);
+	}
+
+#endif // UNICODE_LITERALS_OK
 }

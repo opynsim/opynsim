@@ -21,7 +21,7 @@ TOML_NAMESPACE_START
 	/// )"_toml;
 	///
 	/// for (auto&& [k, v] : tbl)
-	/// 	std::cout << "key '"sv << k << "' defined at "sv << k.source() << "\n";
+	/// 	std::cout << "key '"sv << k << "' defined at "sv << k.source().begin << "\n";
 	/// \ecpp
 	/// \out
 	/// key 'a' defined at line 2, column 5
@@ -32,7 +32,7 @@ TOML_NAMESPACE_START
 	{
 	  private:
 		std::string key_;
-		source_region source_;
+		source_region source_{};
 
 	  public:
 		/// \brief	Default constructor.
@@ -74,7 +74,7 @@ TOML_NAMESPACE_START
 			  source_{ std::move(src) }
 		{}
 
-		/// \brief	Constructs a key from a c-string view and source region.
+		/// \brief	Constructs a key from a c-string and source region.
 		TOML_NODISCARD_CTOR
 		explicit key(const char* k, const source_region& src) //
 			: key_{ k },
@@ -92,7 +92,7 @@ TOML_NAMESPACE_START
 			  source_{ std::move(src) }
 		{}
 
-		/// \brief	Constructs a key from a wide string and source region.
+		/// \brief	Constructs a key from a wide string view and source region.
 		///
 		/// \availability This constructor is only available when #TOML_ENABLE_WINDOWS_COMPAT is enabled.
 		TOML_NODISCARD_CTOR

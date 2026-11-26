@@ -34,12 +34,12 @@ TOML_NAMESPACE_START
 	/// \ecpp
 	///
 	/// \out
-	/// description = "This is some TOML, yo."
-	/// fruit = ["apple", "orange", "pear"]
-	/// numbers = [1, 2, 3, 4, 5]
+	/// description = 'This is some TOML, yo.'
+	/// fruit = [ 'apple', 'orange', 'pear' ]
+	/// numbers = [ 1, 2, 3, 4, 5 ]
 	///
 	/// [table]
-	/// foo = "bar"
+	/// foo = 'bar'
 	/// \eout
 	class TOML_EXPORTED_CLASS toml_formatter : impl::formatter
 	{
@@ -48,13 +48,19 @@ TOML_NAMESPACE_START
 
 		using base = impl::formatter;
 		std::vector<const key*> key_path_;
-		bool pending_table_separator_ = false;
+		bool pending_table_separator_ = {};
 
 		TOML_EXPORTED_MEMBER_FUNCTION
 		void print_pending_table_separator();
 
 		TOML_EXPORTED_MEMBER_FUNCTION
 		void print(const key&);
+
+		TOML_EXPORTED_MEMBER_FUNCTION
+		void print_equals();
+
+		TOML_EXPORTED_MEMBER_FUNCTION
+		void print_inline(const toml::node&);
 
 		TOML_EXPORTED_MEMBER_FUNCTION
 		void print_inline(const toml::table&);
@@ -66,8 +72,18 @@ TOML_NAMESPACE_START
 		void print(const toml::table&);
 
 		TOML_EXPORTED_MEMBER_FUNCTION
+		void print_key_path();
+
+		TOML_EXPORTED_MEMBER_FUNCTION
+		void print_sub_table(const key&, const toml::table&);
+
+		TOML_EXPORTED_MEMBER_FUNCTION
+		void print_table_array(const key&, const toml::array&);
+
+		TOML_EXPORTED_MEMBER_FUNCTION
 		void print();
 
+		TOML_EXPORTED_CONSTANT
 		static constexpr impl::formatter_constants constants = { format_flags::none, // mandatory
 																 format_flags::none, // ignored
 																 "inf"sv,
@@ -133,10 +149,10 @@ TOML_NAMESPACE_START
 		/// \brief	Prints the bound TOML object out to the stream as formatted TOML.
 		friend std::ostream& operator<<(std::ostream& lhs, toml_formatter& rhs)
 		{
-			rhs.attach(lhs);
+			const attach_scope attached{ rhs, lhs };
 			rhs.key_path_.clear();
+			rhs.pending_table_separator_ = false;
 			rhs.print();
-			rhs.detach();
 			return lhs;
 		}
 

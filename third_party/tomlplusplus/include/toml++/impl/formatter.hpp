@@ -33,9 +33,19 @@ TOML_IMPL_NAMESPACE_START
 		std::string_view indent;
 	};
 
+	enum class TOML_CLOSED_ENUM string_dialect : uint8_t
+	{
+		toml,
+		json,
+		yaml
+	};
+
+	class formatter_buffer;
+
 	class TOML_EXPORTED_CLASS formatter
 	{
 	  private:
+		friend class formatter_buffer;
 		const node* source_;
 #if TOML_ENABLE_PARSER && !TOML_EXCEPTIONS
 		const parse_result* result_;
@@ -62,6 +72,12 @@ TOML_IMPL_NAMESPACE_START
 		}
 
 		TOML_PURE_INLINE_GETTER
+		format_flags effective_flags() const noexcept
+		{
+			return config_.flags;
+		}
+
+		TOML_PURE_INLINE_GETTER
 		int indent() const noexcept
 		{
 			return indent_;
@@ -81,6 +97,52 @@ TOML_IMPL_NAMESPACE_START
 		{
 			indent_--;
 		}
+
+		class indent_scope
+		{
+		  private:
+			formatter* formatter_;
+			int previous_;
+
+		  public:
+			TOML_NODISCARD_CTOR
+			explicit indent_scope(formatter& fmt, bool enabled = true) noexcept //
+				: formatter_{ &fmt },
+				  previous_{ fmt.indent_ }
+			{
+				if (enabled)
+					fmt.indent_++;
+			}
+
+			// restores instead of decrementing, as the parser's scopes do (#288)
+			~indent_scope() noexcept
+			{
+				formatter_->indent_ = previous_;
+			}
+
+			TOML_DELETE_DEFAULTS(indent_scope);
+		};
+
+		class attach_scope
+		{
+		  private:
+			formatter* formatter_;
+
+		  public:
+			TOML_NODISCARD_CTOR
+			explicit attach_scope(formatter& fmt, std::ostream& stream) noexcept //
+				: formatter_{ &fmt }
+			{
+				fmt.attach(stream);
+			}
+
+			~attach_scope() noexcept
+			{
+				formatter_->detach();
+			}
+
+			TOML_DELETE_DEFAULTS(attach_scope);
+		};
 
 		TOML_PURE_INLINE_GETTER
 		size_t indent_columns() const noexcept
@@ -130,6 +192,18 @@ TOML_IMPL_NAMESPACE_START
 			return !!(config_.flags & format_flags::terse_key_value_pairs);
 		}
 
+		TOML_PURE_INLINE_GETTER
+		bool force_multi_line_arrays() const noexcept
+		{
+			return !!(config_.flags & format_flags::force_multi_line_arrays);
+		}
+
+		TOML_PURE_INLINE_GETTER
+		bool relaxed_float_precision() const noexcept
+		{
+			return !!(config_.flags & format_flags::relaxed_float_precision);
+		}
+
 		TOML_EXPORTED_MEMBER_FUNCTION
 		void attach(std::ostream& stream) noexcept;
 
@@ -153,6 +227,13 @@ TOML_IMPL_NAMESPACE_START
 						  bool allow_multi_line			= true,
 						  bool allow_bare				= false,
 						  bool allow_literal_whitespace = true);
+
+		TOML_EXPORTED_MEMBER_FUNCTION
+		void print_string(std::string_view str,
+						  bool allow_multi_line,
+						  bool allow_bare,
+						  bool allow_literal_whitespace,
+						  string_dialect dialect);
 
 		TOML_EXPORTED_MEMBER_FUNCTION
 		void print(const value<std::string>&);

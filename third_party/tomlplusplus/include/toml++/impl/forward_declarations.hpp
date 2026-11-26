@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
+#include "std_chrono.hpp"
 #include "std_string.hpp"
 #include "std_new.hpp"
 TOML_DISABLE_WARNINGS;
@@ -12,11 +13,16 @@ TOML_DISABLE_WARNINGS;
 #include <cstring>
 #include <cfloat>
 #include <climits>
-#include <cmath>
 #include <limits>
 #include <memory>
 #include <iosfwd>
 #include <type_traits>
+#if TOML_IMPLEMENTATION
+#include <cfenv>
+#if !TOML_GCC_LIKE
+#include <cmath>
+#endif
+#endif
 TOML_ENABLE_WARNINGS;
 #include "header_start.hpp"
 
@@ -175,6 +181,13 @@ TOML_IMPL_NAMESPACE_START
 	};
 
 	// clang-format on
+
+	template <typename T>
+	TOML_CONST_INLINE_GETTER
+	constexpr std::underlying_type_t<T> unwrap_enum(T val) noexcept
+	{
+		return static_cast<std::underlying_type_t<T>>(val);
+	}
 }
 TOML_IMPL_NAMESPACE_END;
 
@@ -242,7 +255,7 @@ TOML_NAMESPACE_START // abi namespace
 	///
 	/// \detail \cpp
 	/// auto arr = toml::array{ 1, 2.0, "3", false };
-	/// for (size_t i = 0; i < arr.size() i++)
+	/// for (size_t i = 0; i < arr.size(); i++)
 	/// 	std::cout << "Element ["sv << i << "] is: "sv << arr[i].type() << "\n";
 	/// \ecpp
 	///
@@ -255,7 +268,7 @@ TOML_NAMESPACE_START // abi namespace
 	template <typename Char>
 	inline std::basic_ostream<Char>& operator<<(std::basic_ostream<Char>& lhs, node_type rhs)
 	{
-		const auto str	 = impl::node_type_friendly_names[static_cast<std::underlying_type_t<node_type>>(rhs)];
+		const auto str	 = impl::node_type_friendly_names[impl::unwrap_enum(rhs)];
 		using str_char_t = decltype(str)::value_type;
 		if constexpr (std::is_same_v<Char, str_char_t>)
 			return lhs << str;
@@ -269,10 +282,13 @@ TOML_NAMESPACE_START // abi namespace
 	}
 
 	/// \brief Metadata associated with TOML values.
+	///
+	/// \note	The three integer formats are mutually exclusive, and #format_as_hexadecimal has the bits of the
+	///			other two. To test for one, mask the flags with #format_as_hexadecimal and compare with `==`.
 	enum class TOML_OPEN_FLAGS_ENUM value_flags : uint16_t // being an "OPEN" flags enum is not an error
 	{
 		/// \brief None.
-		none,
+		none = 0,
 
 		/// \brief Format integer values as binary.
 		format_as_binary = 1,
@@ -297,7 +313,7 @@ TOML_NAMESPACE_START // abi namespace
 	enum class TOML_CLOSED_FLAGS_ENUM format_flags : uint64_t
 	{
 		/// \brief None.
-		none,
+		none = 0,
 
 		/// \brief Dates and times will be emitted as quoted strings.
 		quote_dates_and_times = (1ull << 0),
@@ -315,6 +331,9 @@ TOML_NAMESPACE_START // abi namespace
 		allow_real_tabs_in_strings = (1ull << 4),
 
 		/// \brief Allow non-ASCII characters in strings (as opposed to their escaped form, e.g. `\u00DA`).
+		///
+		/// \detail C1 control characters, U+2028 and U+2029 are always escaped, as are U+FEFF, U+FFFE and U+FFFF
+		/// in YAML.
 		allow_unicode_strings = (1ull << 5),
 
 		/// \brief Allow integers with #value_flags::format_as_binary to be emitted as binary.
@@ -335,7 +354,7 @@ TOML_NAMESPACE_START // abi namespace
 		/// \brief Combination mask of all indentation-enabling flags.
 		indentation = indent_sub_tables | indent_array_elements,
 
-		/// \brief Emit floating-point values with relaxed (human-friendly) precision.
+		/// \brief Emit floating-point values rounded to at most six significant digits, laid out as C's `%g` does.
 		/// \warning	Setting this flag may cause serialized documents to no longer round-trip correctly
 		///				since floats might have a less precise value upon being written out than they did when being
 		///				read in. Use this flag at your own risk.
@@ -343,6 +362,16 @@ TOML_NAMESPACE_START // abi namespace
 
 		/// \brief Avoids the use of whitespace around key-value pairs.
 		terse_key_value_pairs = (1ull << 12),
+
+		/// \brief Print every non-empty array with one element per line.
+		///
+		/// \remarks Only #toml::toml_formatter uses this flag.
+		force_multi_line_arrays = (1ull << 13),
+
+		/// \cond
+		// the flag's first spelling; removed in v4
+		force_multiline_arrays = force_multi_line_arrays,
+		/// \endcond
 	};
 	TOML_MAKE_FLAGS(format_flags);
 
@@ -352,8 +381,8 @@ TOML_NAMESPACE_START // abi namespace
 	/// // desired result: [ [ 42 ] ]
 	/// auto bad = toml::array{ toml::array{ 42 } };
 	/// auto good = toml::array{ toml::inserter{ toml::array{ 42 } } };
-	/// std::cout << "bad: " << bad << "\n";
-	/// std::cout << "good:" << good << "\n";
+	/// std::cout << "bad:  " << bad << "\n";
+	/// std::cout << "good: " << good << "\n";
 	/// \ecpp
 	/// \out
 	/// bad:  [ 42 ]
@@ -404,13 +433,90 @@ TOML_IMPL_NAMESPACE_START
 	inline constexpr bool is_wide_string =
 		is_one_of<std::decay_t<T>, const wchar_t*, wchar_t*, std::wstring_view, std::wstring>;
 
-	template <typename T>
-	inline constexpr bool value_retrieval_is_nothrow = !std::is_same_v<remove_cvref<T>, std::string>
-#if TOML_HAS_CHAR8
-													&& !std::is_same_v<remove_cvref<T>, std::u8string>
-#endif
+	// user-defined 'string-like' types (see toml::is_string_like), detected via expression SFINAE as any type with:
+	//   - a const-qualified data() or c_str() member returning (something convertible to) const char*, and
+	//   - a const-qualified length() member returning (something convertible to) size_t.
 
-													&& !is_wide_string<T>;
+	template <typename T, typename = void>
+	struct has_string_like_data : std::false_type
+	{};
+	template <typename T>
+	struct has_string_like_data<
+		T,
+		std::enable_if_t<std::is_convertible_v<decltype(std::declval<const T&>().data()), const char*>>>
+		: std::true_type
+	{};
+
+	template <typename T, typename = void>
+	struct has_string_like_c_str : std::false_type
+	{};
+	template <typename T>
+	struct has_string_like_c_str<
+		T,
+		std::enable_if_t<std::is_convertible_v<decltype(std::declval<const T&>().c_str()), const char*>>>
+		: std::true_type
+	{};
+
+	template <typename T, typename = void>
+	struct has_string_like_length : std::false_type
+	{};
+	template <typename T>
+	struct has_string_like_length<
+		T,
+		std::enable_if_t<std::is_convertible_v<decltype(std::declval<const T&>().length()), size_t>>> : std::true_type
+	{};
+
+	// (std::string and std::string_view would satisfy the member checks but are first-class citizens
+	// with their own dedicated handling, so they're excluded from the user-defined detection)
+	template <typename T>
+	inline constexpr bool is_string_like =							  //
+		std::is_class_v<remove_cvref<T>>							  //
+		&& !is_one_of<remove_cvref<T>, std::string, std::string_view> //
+		&& (has_string_like_data<remove_cvref<T>>::value			  //
+			|| has_string_like_c_str<remove_cvref<T>>::value)		  //
+		&& has_string_like_length<remove_cvref<T>>::value;
+
+	// the view over a string-like's character data (preferring data() where both it and c_str() are present)
+	template <typename T>
+	TOML_NODISCARD
+	inline std::string_view string_like_to_view(const T& str)
+	{
+		static_assert(is_string_like<T>);
+
+		if constexpr (has_string_like_data<remove_cvref<T>>::value)
+			return std::string_view{ static_cast<const char*>(str.data()), static_cast<size_t>(str.length()) };
+		else
+			return std::string_view{ static_cast<const char*>(str.c_str()), static_cast<size_t>(str.length()) };
+	}
+
+	// ... usable as a target type when retrieving a TOML string value (storage is always std::string,
+	// so the type must be constructible from the stored string or a view/pointer into it)
+	template <typename T>
+	inline constexpr bool string_like_is_target = is_string_like<T>
+											   && (std::is_constructible_v<remove_cvref<T>, std::string_view>
+												   || std::is_constructible_v<remove_cvref<T>, const char*, size_t>
+												   || std::is_constructible_v<remove_cvref<T>, const std::string&>);
+
+	// ... and whether constructing that target can throw (it is built from the first of
+	// std::string_view / (const char*, size_t) / const std::string& that the type supports)
+	template <typename T>
+	inline constexpr bool string_like_target_is_nothrow =
+		(std::is_constructible_v<remove_cvref<T>, std::string_view>
+			 ? std::is_nothrow_constructible_v<remove_cvref<T>, std::string_view>
+			 : (std::is_constructible_v<remove_cvref<T>, const char*, size_t>
+					? std::is_nothrow_constructible_v<remove_cvref<T>, const char*, size_t>
+					: std::is_nothrow_constructible_v<remove_cvref<T>, const std::string&>))
+		&& std::is_nothrow_move_constructible_v<remove_cvref<T>>;
+
+	template <typename T>
+	inline constexpr bool value_retrieval_is_nothrow =
+		!std::is_same_v<remove_cvref<T>, std::string>
+#if TOML_HAS_CHAR8
+		&& !std::is_same_v<remove_cvref<T>, std::u8string>
+#endif
+		// user-defined string types are constructed from the stored
+		// std::string, so they can throw iff that construction can
+		&& !(string_like_is_target<T> && !string_like_target_is_nothrow<T>) && !is_wide_string<T>;
 
 	template <typename, typename>
 	struct copy_ref_;
@@ -504,12 +610,17 @@ TOML_IMPL_NAMESPACE_START
 	template <typename T>
 	struct value_traits;
 
+	// (defined alongside the other string traits, below)
+	template <typename T>
+	struct user_string_traits;
+
+	// note: enums cannot have member functions, so the enum and string-like cases are mutually exclusive
 	template <typename T, bool = std::is_enum_v<T>>
 	struct value_traits_base_selector
 	{
 		static_assert(!is_cvref<T>);
 
-		using type = default_value_traits;
+		using type = std::conditional_t<is_string_like<T>, user_string_traits<T>, default_value_traits>;
 	};
 	template <typename T>
 	struct value_traits_base_selector<T, true>
@@ -564,7 +675,6 @@ TOML_IMPL_NAMESPACE_START
 	template <typename T>
 	struct signed_integer_traits : integer_traits_base<T>
 	{
-		using native_type = int64_t;
 		static constexpr bool is_losslessly_convertible_to_native =
 			integer_limits<underlying_type<T>>::min >= (-9223372036854775807LL - 1LL)
 			&& integer_limits<underlying_type<T>>::max <= 9223372036854775807LL;
@@ -678,6 +788,39 @@ TOML_IMPL_NAMESPACE_START
 	{};
 #endif
 
+	template <typename T>
+	struct float_limits
+	{
+		TOML_NODISCARD
+		static constexpr T lowest() noexcept
+		{
+			return (std::numeric_limits<T>::lowest)();
+		}
+
+		TOML_NODISCARD
+		static constexpr T highest() noexcept
+		{
+			return (std::numeric_limits<T>::max)();
+		}
+	};
+#if TOML_ENABLE_FLOAT16
+	template <>
+	struct float_limits<_Float16>
+	{
+		TOML_NODISCARD
+		static constexpr _Float16 lowest() noexcept
+		{
+			return static_cast<_Float16>(-65504.0f);
+		}
+
+		TOML_NODISCARD
+		static constexpr _Float16 highest() noexcept
+		{
+			return static_cast<_Float16>(65504.0f);
+		}
+	};
+#endif
+
 	// floating-point traits
 	template <>
 	struct value_traits<float> : float_traits<float>
@@ -738,6 +881,24 @@ TOML_IMPL_NAMESPACE_START
 	template <size_t N>
 	struct value_traits<char[N]> : string_traits<char[N]>
 	{};
+
+	// string value_traits specializations - user-defined string-like types (see toml::is_string_like)
+	//
+	// unlike the built-in string types these are never 'native' (storage is always std::string), and the two
+	// directions are tracked independently, since a type may support only one of them:
+	//   - is_losslessly_convertible_to_native => usable as an initializer (always true - the detected
+	//     data()/c_str() + length() members provide the character data)
+	//   - can_represent_native                => usable as a retrieval target (requires a suitable constructor)
+	template <typename T>
+	struct user_string_traits
+	{
+		using native_type										  = std::string;
+		static constexpr bool is_native							  = false;
+		static constexpr bool is_losslessly_convertible_to_native = true;
+		static constexpr bool can_represent_native				  = string_like_is_target<T>;
+		static constexpr bool can_partially_represent_native	  = can_represent_native;
+		static constexpr auto type								  = node_type::string;
+	};
 
 	// string value_traits specializations - char8_t-based strings
 #if TOML_HAS_CHAR8
@@ -816,6 +977,50 @@ TOML_IMPL_NAMESPACE_START
 	template <>
 	struct value_traits<date_time> : native_value_traits<date_time, node_type::date_time>
 	{};
+
+#if TOML_ENABLE_CHRONO
+	template <typename T>
+	struct is_chrono_local_time : std::false_type
+	{};
+	template <typename Duration>
+	struct is_chrono_local_time<std::chrono::local_time<Duration>> : std::true_type
+	{};
+
+	template <typename T>
+	struct is_chrono_hh_mm_ss : std::false_type
+	{};
+	template <typename Duration>
+	struct is_chrono_hh_mm_ss<std::chrono::hh_mm_ss<Duration>> : std::true_type
+	{
+		using duration_type = Duration;
+	};
+
+	template <typename Duration, typename T, node_type NodeType>
+	struct chrono_value_traits : native_value_traits<T, NodeType>
+	{
+		static constexpr bool is_native = false;
+		static constexpr bool is_losslessly_convertible_to_native =
+			!std::chrono::treat_as_floating_point_v<typename Duration::rep>
+			&& std::ratio_divide<typename Duration::period, std::nano>::den == 1;
+		static constexpr bool can_represent_native = !std::chrono::treat_as_floating_point_v<typename Duration::rep>
+												  && std::ratio_divide<std::nano, typename Duration::period>::den == 1;
+	};
+
+	template <typename Duration>
+	struct value_traits<std::chrono::local_time<Duration>>
+		: chrono_value_traits<Duration, date_time, node_type::date_time>
+	{};
+
+	template <typename Duration>
+	struct value_traits<std::chrono::hh_mm_ss<Duration>> : chrono_value_traits<Duration, time, node_type::time>
+	{};
+
+	template <>
+	struct value_traits<std::chrono::year_month_day> : native_value_traits<date, node_type::date>
+	{
+		static constexpr bool is_native = false;
+	};
+#endif
 
 	// native value category queries
 	template <typename T>
@@ -919,6 +1124,9 @@ TOML_IMPL_NAMESPACE_START
 	template <typename T>
 	using unwrap_node = typename node_unwrapper<std::remove_reference_t<T>>::type;
 
+	template <typename T, typename Container>
+	using for_each_ref = copy_cvref<wrap_node<remove_cvref<unwrap_node<T>>>, Container>;
+
 	template <typename T>
 	struct node_type_getter
 	{
@@ -945,6 +1153,23 @@ TOML_IMPL_NAMESPACE_START
 	template <typename T, typename ConvertFrom>
 	inline constexpr bool is_constructible_or_convertible = std::is_constructible_v<T, ConvertFrom> //
 														 || std::is_convertible_v<ConvertFrom, T>;
+
+	// calls a for_each() visitor; false means it returned something that converts to false, to stop the loop
+	template <typename Func, typename... Args>
+	TOML_NODISCARD
+	TOML_ALWAYS_INLINE
+	bool for_each_keep_going(Func && visitor, Args && ... args) noexcept(std::is_nothrow_invocable_v<Func&&, Args&&...>)
+	{
+		using return_type = decltype(static_cast<Func&&>(visitor)(static_cast<Args&&>(args)...));
+
+		if constexpr (is_constructible_or_convertible<bool, return_type>)
+			return static_cast<bool>(static_cast<Func&&>(visitor)(static_cast<Args&&>(args)...));
+		else
+		{
+			static_cast<Func&&>(visitor)(static_cast<Args&&>(args)...);
+			return true;
+		}
+	}
 }
 TOML_IMPL_NAMESPACE_END;
 /// \endcond
@@ -1025,6 +1250,44 @@ TOML_NAMESPACE_START
 	/// \brief	Metafunction for determining if a type is, or is a reference to, a toml::node_view.
 	template <typename T>
 	inline constexpr bool is_node_view = impl::is_one_of<impl::remove_cvref<T>, node_view<node>, node_view<const node>>;
+
+	/// \brief	Metafunction for determining if a type is a user-defined 'string-like' type.
+	///
+	/// \detail User-defined string types are detected automatically. One may be used as an initializer for
+	/// 		TOML string values, as a target type for node::value(), node::value_or() and friends, and in
+	/// 		comparisons with a node_view or an array: \cpp
+	/// tbl.insert("hostname", foo::String{ "localhost" });
+	/// auto hostname = tbl["hostname"].value<foo::String>();
+	/// \ecpp
+	///
+	/// 		Table keys, path strings and the documents given to toml::parse() take the standard string
+	/// 		types only.
+	///
+	/// 		A type is detected as string-like when it has:
+	/// 		 - a const-qualified `data()` or `c_str()` member returning (something convertible to) `const char*`, and
+	/// 		 - a const-qualified `length()` member returning (something convertible to) `size_t`.
+	///
+	/// 		`std::string` and `std::string_view` are not detected, because the library handles them itself.
+	/// 		Neither is a type that is not a class, such as `const char*`, nor one whose characters are not
+	/// 		`char`, such as `std::wstring`.
+	///
+	/// 		Being detected is sufficient to use a type as an initializer; to also be usable as a
+	/// 		retrieval target it must additionally be constructible from one of `std::string_view`,
+	/// 		`(const char*, size_t)` or `const std::string&`. Attempting to retrieve a value as a
+	/// 		string-like type without a suitable constructor is a compile error.
+	///
+	/// 		A string-like initializer is converted as `std::string{ str }` would be where that compiles,
+	/// 		unless it would go through a conversion to `const char*`. Otherwise its text is read from
+	/// 		`data()` (or `c_str()`) and `length()`, which keeps embedded NULs.
+	///
+	/// 		toml::key is detected as string-like too, so a key can initialize a string value and be the
+	/// 		target of a retrieval. Only the key's text is copied; its source region is not.
+	///
+	/// \note	TOML string values are always stored internally as std::string; detection governs conversions
+	/// 		at the API boundary only, not the underlying storage, so retrieving a value as a user-defined
+	/// 		string type makes a copy.
+	template <typename T>
+	inline constexpr bool is_string_like = impl::is_string_like<T>;
 }
 TOML_NAMESPACE_END;
 
@@ -1034,13 +1297,6 @@ TOML_NAMESPACE_END;
 /// \cond
 TOML_IMPL_NAMESPACE_START
 {
-	template <typename T>
-	TOML_CONST_INLINE_GETTER
-	constexpr std::underlying_type_t<T> unwrap_enum(T val) noexcept
-	{
-		return static_cast<std::underlying_type_t<T>>(val);
-	}
-
 	// Q: "why not use std::fpclassify?"
 	// A: Because it gets broken by -ffast-math and friends
 	enum class TOML_CLOSED_ENUM fp_class : unsigned
@@ -1051,6 +1307,7 @@ TOML_IMPL_NAMESPACE_START
 		nan
 	};
 
+	// by reference on purpose: a by-value copy has lost its inf/nan bits under fast-math on some compilers
 	TOML_PURE_GETTER
 	inline fp_class fpclassify(const double& val) noexcept
 	{
@@ -1060,7 +1317,7 @@ TOML_IMPL_NAMESPACE_START
 		static constexpr uint64_t exponent = 0b0111111111110000000000000000000000000000000000000000000000000000ull;
 		static constexpr uint64_t mantissa = 0b0000000000001111111111111111111111111111111111111111111111111111ull;
 
-		uint64_t val_bits;
+		uint64_t val_bits = {};
 		std::memcpy(&val_bits, &val, sizeof(val));
 		if ((val_bits & exponent) != exponent)
 			return fp_class::ok;
@@ -1069,24 +1326,56 @@ TOML_IMPL_NAMESPACE_START
 		return (val_bits & sign) ? fp_class::neg_inf : fp_class::pos_inf;
 	}
 
-	// Q: "why not use std::find and std::min?"
-	// A: Because <algorithm> is _huge_ and these would be the only things I used from it.
-	//    I don't want to impose such a heavy compile-time burden on users.
-
-	template <typename Iterator, typename T>
-	TOML_PURE_GETTER
-	inline auto find(Iterator start, Iterator end, const T& needle) noexcept //
-		->decltype(&(*start))
+#if TOML_IMPLEMENTATION
+#if TOML_GCC_LIKE
+	TOML_CONST_INLINE_GETTER
+	double ldexp(double x, int exp) noexcept
 	{
-		for (; start != end; start++)
-			if (*start == needle)
-				return &(*start);
-		return nullptr;
+		return __builtin_ldexp(x, exp);
 	}
 
 	template <typename T>
+	TOML_CONST_INLINE_GETTER
+	bool signbit(T x) noexcept
+	{
+		return __builtin_signbit(x);
+	}
+#else
+	using std::ldexp;
+	using std::signbit;
+#endif
+
+	// printf, strtod and libc++'s from_chars follow the rounding mode, and strtod raises floating-point exceptions
+	// that trap in programs which unmask them
+	struct default_fenv
+	{
+		std::fenv_t saved = {};
+
+		default_fenv() noexcept
+		{
+			std::feholdexcept(&saved);
+#ifdef FE_TONEAREST
+			std::fesetround(FE_TONEAREST);
+#endif
+		}
+
+		~default_fenv() noexcept
+		{
+			std::fesetenv(&saved);
+		}
+
+		default_fenv(const default_fenv&)			 = delete;
+		default_fenv& operator=(const default_fenv&) = delete;
+	};
+#endif
+
+	// Q: "why not use std::min?"
+	// A: Because <algorithm> is _huge_ and this would be the only thing I used from it.
+	//    I don't want to impose such a heavy compile-time burden on users.
+
+	template <typename T>
 	TOML_PURE_INLINE_GETTER
-	constexpr const T& min(const T& a, const T& b) noexcept //
+	constexpr T min(const T& a, const T& b) noexcept //
 	{
 		return a < b ? a : b;
 	}

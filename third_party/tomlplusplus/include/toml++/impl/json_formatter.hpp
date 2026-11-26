@@ -16,6 +16,8 @@ TOML_NAMESPACE_START
 	///
 	/// \availability This class is only available when #TOML_ENABLE_FORMATTERS is enabled.
 	///
+	/// \remarks Flags that would make the output invalid JSON are ignored, and infinities and NaNs are always quoted.
+	///
 	/// \detail \cpp
 	/// auto some_toml = toml::parse(R"(
 	///		[fruit]
@@ -51,6 +53,12 @@ TOML_NAMESPACE_START
 		using base = impl::formatter;
 
 		TOML_EXPORTED_MEMBER_FUNCTION
+		void print_json_string(std::string_view);
+
+		TOML_EXPORTED_MEMBER_FUNCTION
+		void print_node(const toml::node&);
+
+		TOML_EXPORTED_MEMBER_FUNCTION
 		void print(const toml::table&);
 
 		TOML_EXPORTED_MEMBER_FUNCTION
@@ -59,9 +67,12 @@ TOML_NAMESPACE_START
 		TOML_EXPORTED_MEMBER_FUNCTION
 		void print();
 
+		TOML_EXPORTED_CONSTANT
 		static constexpr impl::formatter_constants constants = {
-			format_flags::quote_dates_and_times,										  // mandatory
-			format_flags::allow_literal_strings | format_flags::allow_multi_line_strings, // ignored
+			format_flags::quote_dates_and_times | format_flags::quote_infinities_and_nans,		 // mandatory
+			format_flags::allow_literal_strings | format_flags::allow_multi_line_strings		 //
+				| format_flags::allow_real_tabs_in_strings | format_flags::allow_binary_integers //
+				| format_flags::allow_octal_integers | format_flags::allow_hexadecimal_integers, // ignored
 			"Infinity"sv,
 			"-Infinity"sv,
 			"NaN"sv,
@@ -73,9 +84,8 @@ TOML_NAMESPACE_START
 
 	  public:
 		/// \brief	The default flags for a json_formatter.
-		static constexpr format_flags default_flags = constants.mandatory_flags				  //
-													| format_flags::quote_infinities_and_nans //
-													| format_flags::allow_unicode_strings	  //
+		static constexpr format_flags default_flags = constants.mandatory_flags			  //
+													| format_flags::allow_unicode_strings //
 													| format_flags::indentation;
 
 		/// \brief	Constructs a JSON formatter and binds it to a TOML object.
@@ -123,9 +133,8 @@ TOML_NAMESPACE_START
 		/// \brief	Prints the bound TOML object out to the stream as JSON.
 		friend std::ostream& operator<<(std::ostream& lhs, json_formatter& rhs)
 		{
-			rhs.attach(lhs);
+			const attach_scope attached{ rhs, lhs };
 			rhs.print();
-			rhs.detach();
 			return lhs;
 		}
 

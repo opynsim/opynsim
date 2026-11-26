@@ -7,16 +7,17 @@
 @section mainpage-features Features
 
 -   Header-only (optional!)
--   Supports the latest [TOML](https://toml.io/) release ([v1.0.0](https://toml.io/en/v1.0.0)), plus
-    optional support for some unreleased TOML features
--   Passes all tests in the [toml-test](https://github.com/BurntSushi/toml-test) suite
+-   Module support
+-   Supports [TOML](https://toml.io/) [v1.1.0](https://toml.io/en/v1.1.0), plus opt-in support for some unreleased
+    features
+-   Passes all TOML v1.1.0 tests in the [toml-test](https://github.com/toml-lang/toml-test) suite
 -   Supports serializing to JSON and YAML
 -   Proper UTF-8 handling (incl. BOM)
 -   C++17 (plus some C++20 features where available, e.g. experimental support for char8_t strings)
 -   Doesn't require RTTI
 -   Works with or without exceptions
--   Tested on Clang (8+), GCC (8+) and MSVC (VS2019)
--   Tested on x64, x86 and ARM
+-   Tested on GCC 11 and 15, Clang 21, Apple Clang 21 and MSVC 19.51 (VS 2026); other compilers are best effort
+-   Tested on x64 and ARM64
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
@@ -37,23 +38,24 @@ Call toml::parse_file() and work with the toml::table you get back, or handle an
 @cpp
 #include <iostream>
 #include <toml++/toml.hpp>
+// or alternatively:
+import tomlplusplus; // if C++20 or later
 
 int main(int argc, char\*\* argv)
 {
-toml::table tbl;
-try
-{
-tbl = toml::parse_file(argv[1]);
-std::cout << tbl << "\n";
-}
-catch (const toml::parse_error& err)
-{
-std::cerr << "Parsing failed:\n" << err << "\n";
-return 1;
-}
+    toml::table tbl;
+    try
+    {
+        tbl = toml::parse_file(argv[1]);
+        std::cout << tbl << "\n";
+    }
+    catch (const toml::parse_error& err)
+    {
+        std::cerr << "Parsing failed:\n" << err << "\n";
+        return 1;
+    }
 
     return 0;
-
 }
 
 @endcpp
@@ -80,34 +82,33 @@ using namespace std::string_view_literals;
 
 int main()
 {
-static constexpr std::string_view some_toml = R"(
-[library]
-name = "toml++"
-authors = ["Mark Gillard <mark.gillard@outlook.com.au>"]
-cpp = 17
-)"sv;
+    static constexpr std::string_view some_toml = R"(
+        [library]
+        name = "toml++"
+        authors = ["Mark Gillard <mark.gillard@outlook.com.au>"]
+        cpp = 17
+    )"sv;
 
     try
     {
+        // parse directly from a string view:
+        {
+        toml::table tbl = toml::parse(some_toml);
+        std::cout << tbl << "\n";
+        }
 
-// parse directly from a string view:
-{
-toml::table tbl = toml::parse(some_toml);
-std::cout << tbl << "\n";
-}
-
-// parse from a string stream:
-{
-std::stringstream ss{ std::string{ some_toml } };
-toml::table tbl = toml::parse(ss);
-std::cout << tbl << "\n";
-}
-}
-catch (const toml::parse_error& err)
-{
-std::cerr << "Parsing failed:\n" << err << "\n";
-return 1;
-}
+        // parse from a string stream:
+        {
+        std::stringstream ss{ std::string{ some_toml } };
+        toml::table tbl = toml::parse(ss);
+        std::cout << tbl << "\n";
+        }
+    }
+    catch (const toml::parse_error& err)
+    {
+        std::cerr << "Parsing failed:\n" << err << "\n";
+        return 1;
+    }
 
     return 0;
 
@@ -148,16 +149,16 @@ the parsing functions return a toml::parse_result instead of a toml::table:
 
 int main()
 {
-toml::parse_result result = toml::parse_file("configuration.toml");
-if (!result)
-{
-std::cerr << "Parsing failed:\n" << result.error() << "\n";
-return 1;
-}
+    toml::parse_result result = toml::parse_file("configuration.toml");
+
+    if (!result)
+    {
+        std::cerr << "Parsing failed:\n" << result.error() << "\n";
+        return 1;
+    }
 
     do_stuff_with_your_config(std::move(result).table()); // 'steal' the table from the result
     return 0;
-
 }
 @endcpp
 
@@ -179,15 +180,15 @@ and description() members:
 toml::table tbl;
 try
 {
-tbl = toml::parse_file("configuration.toml");
+    tbl = toml::parse_file("configuration.toml");
 }
 catch (const toml::parse_error& err)
 {
-std::cerr
-<< "Error parsing file '" << \*err.source().path
-<< "':\n" << err.description()
-<< "\n (" << err.source().begin << ")\n";
-return 1;
+    std::cerr
+        << "Error parsing file '" << \*err.source().path
+        << "':\n" << err.description()
+        << "\n (" << err.source().begin << ")\n";
+    return 1;
 }
 @endcpp
 
@@ -214,18 +215,17 @@ using namespace std::string_view_literals;
 
 int main()
 {
-static constexpr auto source = R"(
-str = "hello world"
+    static constexpr auto source = R"(
+        str = "hello world"
 
-numbers = [ 1, 2, 3, "four", 5.0 ]
-vegetables = [ "tomato", "onion", "mushroom", "lettuce" ]
-minerals = [ "quartz", "iron", "copper", "diamond" ]
+        numbers = [ 1, 2, 3, "four", 5.0 ]
+        vegetables = [ "tomato", "onion", "mushroom", "lettuce" ]
+        minerals = [ "quartz", "iron", "copper", "diamond" ]
 
-[animals]
-cats = [ "tiger", "lion", "puma" ]
-birds = [ "macaw", "pigeon", "canary" ]
-fish = [ "salmon", "trout", "carp" ]
-
+        [animals]
+        cats = [ "tiger", "lion", "puma" ]
+        birds = [ "macaw", "pigeon", "canary" ]
+        fish = [ "salmon", "trout", "carp" ]
     )"sv;
     toml::table tbl = toml::parse(source);
 
@@ -249,20 +249,20 @@ fish = [ "salmon", "trout", "carp" ]
     // get the underlying array object to do some more advanced stuff
     if (toml::array* arr = numbers.as_array())
     {
-    	// visitation with for_each() helps deal with heterogeneous data
-    	arr->for_each([](auto&& el)
-    	{
-    		if constexpr (toml::is_number<decltype(el)>)
-    			(*el)++;
-    		else if constexpr (toml::is_string<decltype(el)>)
-    			el = "five"sv;
-    	});
+        // visitation with for_each() helps deal with heterogeneous data
+        arr->for_each([](auto&& el)
+        {
+            if constexpr (toml::is_number<decltype(el)>)
+                (*el)++;
+            else if constexpr (toml::is_string<decltype(el)>)
+                el = "five"sv;
+        });
 
-// arrays are very similar to std::vector
-arr->push_back(7);
-arr->emplace_back<toml::array>(8, 9);
-std::cout << "numbers: " << numbers << "\n";
-}
+        // arrays are very similar to std::vector
+        arr->push_back(7);
+        arr->emplace_back<toml::array>(8, 9);
+        std::cout << "numbers: " << numbers << "\n";
+    }
 
     // node-views can be chained to quickly query deeper
     std::cout << "cats: " << tbl["animals"]["cats"] << "\n";
@@ -318,18 +318,18 @@ but via a toml::json_formatter and toml::yaml_formatter.
 
 int main()
 {
-auto tbl = toml::table{
-{ "lib", "toml++" },
-{ "cpp", toml::array{ 17, 20, "and beyond" } },
-{ "toml", toml::array{ "1.0.0", "and beyond" } },
-{ "repo", "https://github.com/marzer/tomlplusplus/" },
-{ "author", toml::table{
-{ "name", "Mark Gillard" },
-{ "github", "https://github.com/marzer" },
-{ "twitter", "https://twitter.com/marzer8789" }
-}
-},
-};
+    auto tbl = toml::table{
+        { "lib", "toml++" },
+        { "cpp", toml::array{ 17, 20, "and beyond" } },
+        { "toml", toml::array{ "1.0.0", "and beyond" } },
+        { "repo", "https://github.com/marzer/tomlplusplus/" },
+        { "author", toml::table{
+                { "name", "Mark Gillard" },
+                { "github", "https://github.com/marzer" },
+                { "twitter", "https://twitter.com/marzer8789" }
+            }
+        },
+    };
 
     // serializing as TOML
     std::cout << "###### TOML ######" << "\n\n";
@@ -365,22 +365,22 @@ twitter = 'https://twitter.com/marzer8789'
 ###### JSON
 
 {
-"author" : {
-"github" : "https://github.com/marzer",
-"name" : "Mark Gillard",
-"twitter" : "https://twitter.com/marzer8789"
-},
-"cpp" : [
-17,
-20,
-"and beyond"
-],
-"lib" : "toml++",
-"repo" : "https://github.com/marzer/tomlplusplus/",
-"toml" : [
-"1.0.0",
-"and beyond"
-]
+    "author" : {
+        "github" : "https://github.com/marzer",
+        "name" : "Mark Gillard",
+        "twitter" : "https://twitter.com/marzer8789"
+    },
+    "cpp" : [
+        17,
+        20,
+        "and beyond"
+    ],
+    "lib" : "toml++",
+    "repo" : "https://github.com/marzer/tomlplusplus/",
+    "toml" : [
+        "1.0.0",
+        "and beyond"
+    ]
 }
 
 ###### YAML
@@ -390,22 +390,38 @@ github: 'https://github.com/marzer'
 name: 'Mark Gillard'
 twitter: 'https://twitter.com/marzer8789'
 cpp:
-
 -   17
 -   20
 -   'and beyond'
-    lib: 'toml++'
-    repo: 'https://github.com/marzer/tomlplusplus/'
-    toml:
+lib: 'toml++'
+repo: 'https://github.com/marzer/tomlplusplus/'
+toml:
 -   '1.0.0'
 -   'and beyond'
-    @endout
+@endout
 
 @see
 
 -   toml::toml_formatter
 -   toml::json_formatter
 -   toml::yaml_formatter
+
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+
+@subsection mainpage-example-floats Floating-point values
+
+A float parses to the nearest `double`. A value too large for a `double` is a parse error, and one too small becomes a
+subnormal, or a zero with the literal's sign. Decimal float literals are limited to 128 characters, not counting a
+leading sign or underscores.
+
+The formatters print a float as the shortest text that parses back to the same `double`, laid out as Python's `repr()`
+does: fixed notation from `1e-4` up to `1e16`, and exponent notation outside that range. So `0.1` prints as `0.1`,
+`100000.0` as `100000.0` and `1e16` as `1e+16`. toml::format_flags::relaxed_float_precision rounds floats to at most
+six significant digits instead, laid out as C's `%g` does, so `1000000.0` prints as `1e+06`. The text may then parse
+back to a different value.
+
+toml::yaml_formatter writes exponent forms with a decimal point, as in `1.0e+16`, because YAML 1.1 loaders read
+`1e+16` as a string.
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
@@ -438,10 +454,12 @@ do it manually before including toml++ in some global header that's used everywh
 
 <strong>Bonus Step: Disable any library features you don't need</strong>
 
-Some library features can be disabled wholesale so you can avoid paying their the compilation cost if you don't need them.
-For example, if all you need to do is serialize some code-generated TOML and don't actually need the parser at all you, can
+Some library features can be disabled wholesale so you can avoid paying the compilation cost if you don't need them.
+For example, if all you need to do is serialize some code-generated TOML and don't actually need the parser at all, you can
 set #TOML_ENABLE_PARSER to `0` to disable the parser altogether. This can yield fairly significant compilation
 speedups since the parser accounts for a good chunk of the library's code.
+
+From C++20, setting #TOML_ENABLE_CHRONO to `0` stops toml++ including `<chrono>`, which is expensive to compile.
 
 @see @ref configuration
 
@@ -464,26 +482,16 @@ and [emoji sundae] Regular. The API is the same for both.
 
 <h3>[emoji sundae] Regular flavour</h3>
 1. Clone \github{marzer/tomlplusplus, the repository} from GitHub
-2. Add `tomlplusplus/include` to your include paths
-3. `#include <toml++/toml.hpp>`
+2. Add `tomlplusplus/include` to your include paths. For module support, also compile
+   `tomlplusplus/src/modules/tomlplusplus.cppm`, which CMake does when `TOMLPLUSPLUS_BUILD_MODULES` is on (link
+   `tomlplusplus::modules`)
+3. `#include <toml++/toml.hpp>` (or `import tomlplusplus;`)
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 @subsection mainpage-adding-lib-conan Conan
 
-Add `tomlplusplus/3.4.0` to your conanfile.
-
-<!-- --------------------------------------------------------------------------------------------------------------- -->
-
-@subsection mainpage-adding-lib-dds DDS
-Add `tomlpp` to your `package.json5`, e.g.:
-@json
-depends: [
-'tomlpp^3.4.0',
-]
-@endjson
-
-@see [What is DDS?](https://dds.pizza/)
+Add `tomlplusplus/3.5.1` to your conanfile.
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
@@ -510,7 +518,7 @@ You can also add it as a subproject directly.
 
 @json
 {
-"marzer/tomlplusplus": { }
+    "marzer/tomlplusplus": { }
 }
 @endjson
 
@@ -529,9 +537,9 @@ vcpkg install tomlplusplus
 @cmake
 include(FetchContent)
 FetchContent_Declare(
-tomlplusplus
-GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-GIT_TAG v3.4.0
+    tomlplusplus
+    GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+    GIT_TAG v3.5.1
 )
 FetchContent_MakeAvailable(tomlplusplus)
 @endcmake
@@ -619,5 +627,4 @@ For bug reports and feature requests please use the \github{marzer/tomlplusplus/
 system. For anything else you're welcome to reach out via other means. In order of likely response speed:
 
 -   Twitter: [marzer8789](https://twitter.com/marzer8789)
--   Gitter: [marzer/tomlplusplus](https://gitter.im/marzer/tomlplusplus) ("Discord for repos")
 -   Email: [mark.gillard@outlook.com.au](mailto:mark.gillard@outlook.com.au)

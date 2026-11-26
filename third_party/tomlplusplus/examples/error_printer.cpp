@@ -8,25 +8,28 @@
 
 #include "examples.hpp"
 #include <toml++/toml.hpp>
+#include <cctype>  // For iscntrl.
+#include <cstring> // For memcpy.
+#include <iomanip> // For setfill, hex, etc.
+#include <optional>
 
 using namespace std::string_view_literals;
 
 namespace
 {
-	inline constexpr auto invalid_parses = std::array{
+	constexpr auto invalid_parses = std::array{
 		"########## comments and whitespace"sv,
 		"# bar\rkek"sv,
 		"# bar\bkek"sv,
+		"# DEL character: '\x7f'"sv,
 		"# \xf1\x63"sv,
 		"# val1 = 1\fval2 = 2"sv,
 		"foo = 1\n\u2000\nbar = 2"sv,
 
 		"########## inline tables"sv,
 		"val = {,}"sv,
-		"val = {a='b',}"sv, // allowed when TOML_ENABLE_UNRELEASED_FEATURES == 1
 		"val = {a='b',,}"sv,
 		"val = {a='b',"sv,
-		"val = {a='b',\n c='d'}"sv, // allowed when TOML_ENABLE_UNRELEASED_FEATURES == 1
 		"val = {?='b'}"sv,
 		"foo = {} \n [foo.bar]"sv,
 
@@ -69,7 +72,6 @@ namespace
 		"val = \" \r \""sv,
 		R"(val = ")"sv,
 		R"(val = "\g")"sv,
-		R"(val = "\x20")"sv, // allowed when TOML_ENABLE_UNRELEASED_FEATURES == 1
 		R"(val = "\uFFF")"sv,
 		R"(val = "\uFFFG")"sv,
 		R"(val = "\UFFFFFFF")"sv,
@@ -102,8 +104,51 @@ namespace
 		R"(val = 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.0)"sv,
 	};
 
-	inline constexpr auto divider =
-		"################################################################################"sv;
+	constexpr auto divider = "################################################################################"sv;
+
+	void print_string(std::string_view str)
+	{
+		for (const char c : str)
+		{
+			if (std::optional<std::string_view> escape_sequence = (c == '\\') ? "\\\\"sv
+																: (c == '\a') ? "\\a"sv
+																: (c == '\b') ? "\\b"sv
+																: (c == '\f') ? "\\f"sv
+																: (c == '\n') ? "\\n"sv
+																: (c == '\r') ? "\\r"sv
+																: (c == '\t') ? "\\t"sv
+																: (c == '\v') ? "\\v"sv
+																			  : std::optional<std::string_view>{})
+			{
+				std::cout << *escape_sequence;
+			}
+			else if (const auto byte = static_cast<unsigned char>(c); byte < 0x80u && std::iscntrl(byte))
+			{
+				// Print a string, just like `toml::impl::control_char_escapes[c]`.
+				std::ostringstream stream;
+				stream << "\\u00"sv << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << int{ c };
+				std::cout << stream.str();
+			}
+			else
+			{
+				std::cout << c;
+			}
+		}
+	}
+
+	void print_parse_error(std::string_view doc, const toml::parse_error& err)
+	{
+		std::cout << err;
+
+		auto line_num = err.source().begin.line;
+
+		if (auto line = toml::get_line(doc, line_num))
+		{
+			std::cout << "\nLine "sv << line_num << ": "sv;
+			print_string(*line);
+		}
+		std::cout << "\n\n"sv;
+	}
 }
 
 int main()
@@ -118,19 +163,16 @@ int main()
 		}
 		catch (const toml::parse_error& err)
 		{
-			std::cout << err << "\n\n"sv;
+			print_parse_error(str, err);
 		}
 #else
 		if (auto result = toml::parse(str); !result)
-			std::cout << result.error() << "\n\n"sv;
+			print_parse_error(str, result.error());
 #endif
 	};
 
 	for (auto str : invalid_parses)
 	{
-		if (str.empty())
-			continue;
-
 		// section headings
 		if (str.substr(0, 10) == "##########"sv)
 		{
@@ -142,13 +184,11 @@ int main()
 		// error messages
 		else
 		{
-			toml::parse_result result;
-
 			if (str == "PATHOLOGICALLY_NESTED"sv)
 			{
 				std::string s(1000u, '[');
 				constexpr auto start = "array = "sv;
-				memcpy(s.data(), start.data(), start.length());
+				std::memcpy(s.data(), start.data(), start.length());
 				parse_and_print_if_error(s);
 			}
 			else

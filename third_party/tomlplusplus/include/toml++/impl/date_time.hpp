@@ -6,11 +6,67 @@
 
 #include "forward_declarations.hpp"
 #include "print_to_stream.hpp"
+#include "std_optional.hpp"
 #include "header_start.hpp"
+
+#if TOML_ENABLE_CHRONO
+TOML_IMPL_NAMESPACE_START
+{
+	template <typename ToDuration, typename FromDuration>
+	TOML_NODISCARD
+	constexpr optional<ToDuration> duration_cast_checked(FromDuration value) noexcept
+	{
+		using to_rep = typename ToDuration::rep;
+		static_assert(std::is_integral_v<typename FromDuration::rep>);
+
+		if constexpr (!std::is_integral_v<to_rep>)
+			return std::chrono::duration_cast<ToDuration>(value);
+		else
+		{
+			using ratio		 = std::ratio_divide<typename FromDuration::period, typename ToDuration::period>;
+			using to_limits	 = std::numeric_limits<to_rep>;
+			using max_limits = std::numeric_limits<std::intmax_t>;
+			static_assert(ratio::num <= (max_limits::max)() / ratio::den,
+						  "the periods of the two durations are too far apart to convert between");
+
+			// the result is count * num / den, worked out in intmax_t without overflowing it
+			constexpr bool wide = sizeof(to_rep) >= sizeof(std::intmax_t);
+			constexpr std::intmax_t highest =
+				wide ? (max_limits::max)() : static_cast<std::intmax_t>((to_limits::max)());
+			constexpr std::intmax_t lowest = !to_limits::is_signed ? std::intmax_t{}
+										   : wide				   ? (max_limits::lowest)()
+																   : static_cast<std::intmax_t>((to_limits::lowest)());
+
+			const auto count = static_cast<std::intmax_t>(value.count());
+			const auto whole = count / ratio::den;
+			if (whole > highest / ratio::num || whole < lowest / ratio::num)
+				return {};
+
+			const auto scaled	 = whole * ratio::num;
+			const auto remainder = (count % ratio::den) * ratio::num / ratio::den;
+			if ((remainder > 0 && remainder > highest - scaled) || (remainder < 0 && remainder < lowest - scaled))
+				return {};
+
+			return ToDuration{ static_cast<to_rep>(scaled + remainder) };
+		}
+	}
+
+	TOML_CONST_GETTER
+	constexpr auto time_of_day(uint8_t hour, uint8_t minute, uint8_t second, uint32_t nanosecond) noexcept
+	{
+		return std::chrono::hours{ hour } + std::chrono::minutes{ minute } + std::chrono::seconds{ second }
+			 + std::chrono::nanoseconds{ nanosecond };
+	}
+}
+TOML_IMPL_NAMESPACE_END;
+#endif
 
 TOML_NAMESPACE_START
 {
 	/// \brief	A local date.
+	///
+	/// \remarks The fields are not validated. Formatters print them as they are, so a field outside
+	/// 		 its range prints as invalid TOML.
 	struct TOML_TRIVIAL_ABI date
 	{
 		/// \brief	The year component.
@@ -35,9 +91,29 @@ TOML_NAMESPACE_START
 			  day{ static_cast<uint8_t>(d) }
 		{}
 
+#if TOML_DOXYGEN || TOML_ENABLE_CHRONO
+		/// \brief Constructs a date from a year_month_day value.
+		///
+		/// \attention The year is stored as a `uint16_t`, so a year outside 0 to 65535 wraps.
+		TOML_NODISCARD_CTOR
+		constexpr date(std::chrono::year_month_day value) noexcept
+			: year{ static_cast<uint16_t>(static_cast<int>(value.year())) },
+			  month{ static_cast<uint8_t>(static_cast<unsigned>(value.month())) },
+			  day{ static_cast<uint8_t>(static_cast<unsigned>(value.day())) }
+		{}
+
+		/// \brief Constructs a date from year/month/day values.
+		///
+		/// \attention The year is stored as a `uint16_t`, so a year outside 0 to 65535 wraps.
+		TOML_NODISCARD_CTOR
+		constexpr date(std::chrono::year y, std::chrono::month m, std::chrono::day d) noexcept
+			: date{ std::chrono::year_month_day{ y, m, d } }
+		{}
+#endif
+
 		/// \brief	Equality operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator==(const date& lhs, const date& rhs) noexcept
+		friend constexpr bool operator==(date lhs, date rhs) noexcept
 		{
 			return lhs.year == rhs.year	  //
 				&& lhs.month == rhs.month //
@@ -46,7 +122,7 @@ TOML_NAMESPACE_START
 
 		/// \brief	Inequality operator.
 		TOML_PURE_INLINE_GETTER
-		friend constexpr bool operator!=(const date& lhs, const date& rhs) noexcept
+		friend constexpr bool operator!=(date lhs, date rhs) noexcept
 		{
 			return !(lhs == rhs);
 		}
@@ -55,7 +131,7 @@ TOML_NAMESPACE_START
 		/// \cond
 
 		TOML_PURE_GETTER
-		static constexpr uint32_t pack(const date& d) noexcept
+		static constexpr uint32_t pack(date d) noexcept
 		{
 			return (static_cast<uint32_t>(d.year) << 16) | (static_cast<uint32_t>(d.month) << 8)
 				 | static_cast<uint32_t>(d.day);
@@ -66,31 +142,42 @@ TOML_NAMESPACE_START
 	  public:
 		/// \brief	Less-than operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator<(const date& lhs, const date& rhs) noexcept
+		friend constexpr bool operator<(date lhs, date rhs) noexcept
 		{
 			return pack(lhs) < pack(rhs);
 		}
 
 		/// \brief	Less-than-or-equal-to operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator<=(const date& lhs, const date& rhs) noexcept
+		friend constexpr bool operator<=(date lhs, date rhs) noexcept
 		{
 			return pack(lhs) <= pack(rhs);
 		}
 
 		/// \brief	Greater-than operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator>(const date& lhs, const date& rhs) noexcept
+		friend constexpr bool operator>(date lhs, date rhs) noexcept
 		{
 			return pack(lhs) > pack(rhs);
 		}
 
 		/// \brief	Greater-than-or-equal-to operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator>=(const date& lhs, const date& rhs) noexcept
+		friend constexpr bool operator>=(date lhs, date rhs) noexcept
 		{
 			return pack(lhs) >= pack(rhs);
 		}
+
+#if TOML_DOXYGEN || TOML_ENABLE_CHRONO
+		/// \brief	Converts the date to a std::chrono::year_month_day.
+		TOML_PURE_GETTER
+		constexpr std::chrono::year_month_day to_chrono() const noexcept
+		{
+			return { std::chrono::year{ static_cast<int>(year) },
+					 std::chrono::month{ month },
+					 std::chrono::day{ day } };
+		}
+#endif
 
 		/// \brief	Prints a date out to a stream as `YYYY-MM-DD` (per RFC 3339).
 		///
@@ -109,6 +196,9 @@ TOML_NAMESPACE_START
 	};
 
 	/// \brief	A local time-of-day.
+	///
+	/// \remarks The fields are not validated. Formatters print them as they are, so a field outside
+	/// 		 its range prints as invalid TOML.
 	struct TOML_TRIVIAL_ABI time
 	{
 		/// \brief	The hour component, from 0 - 23.
@@ -117,7 +207,7 @@ TOML_NAMESPACE_START
 		/// \brief	The minute component, from 0 - 59.
 		uint8_t minute;
 
-		/// \brief	The second component, from 0 - 59.
+		/// \brief	The second component, from 0 - 59, or 60 for a leap second.
 		uint8_t second;
 
 		/// \brief	The fractional nanoseconds component, from 0 - 999999999.
@@ -141,9 +231,24 @@ TOML_NAMESPACE_START
 			  nanosecond{ static_cast<uint32_t>(ns) }
 		{}
 
+#if TOML_DOXYGEN || TOML_ENABLE_CHRONO
+		/// \brief Constructs a time from a hh_mm_ss value.
+		///
+		/// \attention The value is taken as a time of day: its sign is dropped, and hours above 255 wrap.
+		template <typename Duration>
+		TOML_NODISCARD_CTOR
+		constexpr time(std::chrono::hh_mm_ss<Duration> value) noexcept
+			: hour{ static_cast<uint8_t>(value.hours().count()) },
+			  minute{ static_cast<uint8_t>(value.minutes().count()) },
+			  second{ static_cast<uint8_t>(value.seconds().count()) },
+			  nanosecond{ static_cast<uint32_t>(
+				  std::chrono::duration_cast<std::chrono::nanoseconds>(value.subseconds()).count()) }
+		{}
+#endif
+
 		/// \brief	Equality operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator==(const time& lhs, const time& rhs) noexcept
+		friend constexpr bool operator==(time lhs, time rhs) noexcept
 		{
 			return lhs.hour == rhs.hour		//
 				&& lhs.minute == rhs.minute //
@@ -153,7 +258,7 @@ TOML_NAMESPACE_START
 
 		/// \brief	Inequality operator.
 		TOML_PURE_INLINE_GETTER
-		friend constexpr bool operator!=(const time& lhs, const time& rhs) noexcept
+		friend constexpr bool operator!=(time lhs, time rhs) noexcept
 		{
 			return !(lhs == rhs);
 		}
@@ -162,10 +267,10 @@ TOML_NAMESPACE_START
 		/// \cond
 
 		TOML_PURE_GETTER
-		static constexpr uint64_t pack(const time& t) noexcept
+		static constexpr uint64_t pack(time t) noexcept
 		{
-			return static_cast<uint64_t>(t.hour) << 48 | static_cast<uint64_t>(t.minute) << 40
-				 | static_cast<uint64_t>(t.second) << 32 | static_cast<uint64_t>(t.nanosecond);
+			return (static_cast<uint64_t>(t.hour) << 48) | (static_cast<uint64_t>(t.minute) << 40)
+				 | (static_cast<uint64_t>(t.second) << 32) | static_cast<uint64_t>(t.nanosecond);
 		}
 
 		/// \endcond
@@ -173,33 +278,50 @@ TOML_NAMESPACE_START
 	  public:
 		/// \brief	Less-than operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator<(const time& lhs, const time& rhs) noexcept
+		friend constexpr bool operator<(time lhs, time rhs) noexcept
 		{
 			return pack(lhs) < pack(rhs);
 		}
 
 		/// \brief	Less-than-or-equal-to operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator<=(const time& lhs, const time& rhs) noexcept
+		friend constexpr bool operator<=(time lhs, time rhs) noexcept
 		{
 			return pack(lhs) <= pack(rhs);
 		}
 
 		/// \brief	Greater-than operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator>(const time& lhs, const time& rhs) noexcept
+		friend constexpr bool operator>(time lhs, time rhs) noexcept
 		{
 			return pack(lhs) > pack(rhs);
 		}
 
 		/// \brief	Greater-than-or-equal-to operator.
 		TOML_PURE_GETTER
-		friend constexpr bool operator>=(const time& lhs, const time& rhs) noexcept
+		friend constexpr bool operator>=(time lhs, time rhs) noexcept
 		{
 			return pack(lhs) >= pack(rhs);
 		}
 
-		/// \brief	Prints a time out to a stream as `HH:MM:SS.FFFFFF` (per RFC 3339).
+#if TOML_DOXYGEN || TOML_ENABLE_CHRONO
+		/// \brief	Converts the time to a std::chrono::hh_mm_ss.
+		///
+		/// \tparam	Duration	The duration type of the result. Finer parts are truncated.
+		///
+		/// \returns	The time of day, or an empty optional if it is out of range for Duration.
+		template <typename Duration = std::chrono::nanoseconds>
+		TOML_PURE_GETTER
+		constexpr optional<std::chrono::hh_mm_ss<Duration>> to_chrono() const noexcept
+		{
+			if (auto value = impl::duration_cast_checked<Duration>(impl::time_of_day(hour, minute, second, nanosecond)))
+				return std::chrono::hh_mm_ss<Duration>{ *value };
+			return {};
+		}
+#endif
+
+		/// \brief	Prints a time out to a stream as `HH:MM:SS` (per RFC 3339), followed by a fraction of up to
+		/// 		nine digits when the nanoseconds are not zero.
 		/// \detail \cpp
 		/// std::cout << toml::time{ 10, 20, 34 } << "\n";
 		/// std::cout << toml::time{ 10, 20, 34, 500000000 } << "\n";
@@ -217,9 +339,12 @@ TOML_NAMESPACE_START
 	};
 
 	/// \brief	A timezone offset.
+	///
+	/// \remarks The offset is not validated. Formatters print it as it is, so an offset outside
+	/// 		 its range prints as invalid TOML.
 	struct TOML_TRIVIAL_ABI time_offset
 	{
-		/// \brief	Offset from UTC+0, in minutes.
+		/// \brief	Offset from UTC+0, in minutes, from -1439 to 1439.
 		int16_t minutes;
 
 		/// \brief	Default constructor. Does not initialize the members.
@@ -250,10 +375,32 @@ TOML_NAMESPACE_START
 		TOML_CONSTRAINED_TEMPLATE((impl::all_integral<H, M>), typename H, typename M)
 		TOML_NODISCARD_CTOR
 		constexpr time_offset(H h, M m) noexcept //
-			: minutes{ static_cast<int16_t>(static_cast<impl::common_signed_type<H, M>>(h)
-												* impl::common_signed_type<H, M>{ 60 }
-											+ static_cast<impl::common_signed_type<H, M>>(m)) }
+			: minutes{ static_cast<int16_t>(
+				  (static_cast<impl::common_signed_type<H, M>>(h) * impl::common_signed_type<H, M>{ 60 })
+				  + static_cast<impl::common_signed_type<H, M>>(m)) }
 		{}
+
+#if TOML_DOXYGEN || TOML_ENABLE_CHRONO
+		/// \brief Constructs a time_offset from hours/minutes values.
+		///
+		/// \param 	h  	The total hours.
+		/// \param 	m	The total minutes.
+		///
+		/// \attention The offset is stored as an `int16_t` of minutes, so a total outside -32768 to 32767 wraps.
+		TOML_NODISCARD_CTOR
+		constexpr time_offset(std::chrono::hours h, std::chrono::minutes m) noexcept //
+			: time_offset{ h + m }
+		{}
+
+		/// \brief Constructs a time_offset from a minutes value.
+		///
+		/// \param 	m	The total minutes.
+		///
+		/// \attention The offset is stored as an `int16_t` of minutes, so a total outside -32768 to 32767 wraps.
+		TOML_NODISCARD_CTOR
+		constexpr time_offset(std::chrono::minutes m) noexcept : minutes{ static_cast<int16_t>(m.count()) }
+		{}
+#endif
 
 		/// \brief	Equality operator.
 		TOML_PURE_INLINE_GETTER
@@ -297,7 +444,17 @@ TOML_NAMESPACE_START
 			return lhs.minutes >= rhs.minutes;
 		}
 
-		/// \brief	Prints a time_offset out to a stream as `+-HH:MM or Z` (per RFC 3339).
+#if TOML_DOXYGEN || TOML_ENABLE_CHRONO
+		/// \brief	Converts the offset to std::chrono::minutes.
+		TOML_PURE_GETTER
+		constexpr std::chrono::minutes to_chrono() const noexcept
+		{
+			return std::chrono::minutes{ minutes };
+		}
+#endif
+
+		/// \brief	Prints a time_offset out to a stream as `+HH:MM` or `-HH:MM`, or as `Z` when it is zero
+		/// 		(per RFC 3339).
 		/// \detail \cpp
 		/// std::cout << toml::time_offset{ 2, 30 } << "\n";
 		/// std::cout << toml::time_offset{ 2, -30 } << "\n";
@@ -345,7 +502,7 @@ TOML_NAMESPACE_START
 		/// \param 	d	The date component.
 		/// \param 	t	The time component.
 		TOML_NODISCARD_CTOR
-		constexpr date_time(const toml::date& d, const toml::time& t) noexcept //
+		constexpr date_time(toml::date d, toml::time t) noexcept //
 			: date{ d },
 			  time{ t },
 			  offset{} // TINAE - icc bugfix
@@ -355,7 +512,7 @@ TOML_NAMESPACE_START
 		///
 		/// \param 	d	The date component.
 		TOML_NODISCARD_CTOR
-		explicit constexpr date_time(const toml::date& d) noexcept //
+		explicit constexpr date_time(toml::date d) noexcept //
 			: date{ d },
 			  time{},
 			  offset{} // TINAE - icc bugfix
@@ -365,7 +522,7 @@ TOML_NAMESPACE_START
 		///
 		/// \param 	t	The time component.
 		TOML_NODISCARD_CTOR
-		explicit constexpr date_time(const toml::time& t) noexcept //
+		explicit constexpr date_time(toml::time t) noexcept //
 			: date{},
 			  time{ t },
 			  offset{} // TINAE - icc bugfix
@@ -377,11 +534,66 @@ TOML_NAMESPACE_START
 		/// \param 	t	  	The time component.
 		/// \param 	off	The timezone offset.
 		TOML_NODISCARD_CTOR
-		constexpr date_time(const toml::date& d, const toml::time& t, const toml::time_offset& off) noexcept
+		constexpr date_time(toml::date d, toml::time t, toml::time_offset off) noexcept
 			: date{ d },
 			  time{ t },
 			  offset{ off }
 		{}
+
+#if TOML_DOXYGEN || TOML_ENABLE_CHRONO
+		/// \brief Constructs a date_time from year_month_day/hh_mm_ss values.
+		///
+		/// \param 	d  	The date component.
+		/// \param 	t	The time component.
+		template <typename Duration>
+		TOML_NODISCARD_CTOR
+		constexpr date_time(std::chrono::year_month_day d, std::chrono::hh_mm_ss<Duration> t) noexcept
+			: date_time{ toml::date{ d }, toml::time{ t } }
+		{}
+
+		/// \brief Constructs a date_time from a year_month_day value.
+		///
+		/// \param 	d  	The date component.
+		TOML_NODISCARD_CTOR
+		explicit constexpr date_time(std::chrono::year_month_day d) noexcept //
+			: date_time{ toml::date{ d } }
+		{}
+
+		/// \brief Constructs a date_time from year_month_day/hh_mm_ss/minutes values.
+		///
+		/// \param 	d  	The date component.
+		/// \param 	t	The time component.
+		/// \param 	off	The timezone offset.
+		template <typename Duration>
+		TOML_NODISCARD_CTOR
+		constexpr date_time(std::chrono::year_month_day d,
+							std::chrono::hh_mm_ss<Duration> t,
+							std::chrono::minutes off) noexcept
+			: date_time{ toml::date{ d }, toml::time{ t }, toml::time_offset{ off } }
+		{}
+
+		/// \brief Constructs a date_time from a local_time value.
+		///
+		/// \param 	dt  	The local_time component.
+		template <typename Duration>
+		TOML_NODISCARD_CTOR
+		constexpr date_time(std::chrono::local_time<Duration> dt) noexcept
+			: date_time{ std::chrono::year_month_day{ std::chrono::floor<std::chrono::days>(dt) },
+						 std::chrono::hh_mm_ss<Duration>{ dt - std::chrono::floor<std::chrono::days>(dt) } }
+		{}
+
+		/// \brief Constructs a date_time from a local_time value and a timezone offset.
+		///
+		/// \param 	dt  	The local_time component.
+		/// \param 	off	The timezone offset.
+		template <typename Duration>
+		TOML_NODISCARD_CTOR
+		constexpr date_time(std::chrono::local_time<Duration> dt, std::chrono::minutes off) noexcept
+			: date_time{ std::chrono::year_month_day{ std::chrono::floor<std::chrono::days>(dt) },
+						 std::chrono::hh_mm_ss<Duration>{ dt - std::chrono::floor<std::chrono::days>(dt) },
+						 off }
+		{}
+#endif
 
 		/// \brief	Returns true if this date_time does not contain timezone offset information.
 		TOML_PURE_INLINE_GETTER
@@ -441,6 +653,28 @@ TOML_NAMESPACE_START
 		{
 			return !(lhs < rhs);
 		}
+
+#if TOML_DOXYGEN || TOML_ENABLE_CHRONO
+		/// \brief	Converts the date and time to a std::chrono::local_time. The offset is ignored.
+		///
+		/// \tparam	Duration	The duration type of the result. Finer parts are truncated.
+		///
+		/// \returns	The local time point, or an empty optional if it is out of range for Duration.
+		template <typename Duration = std::chrono::nanoseconds>
+		TOML_PURE_GETTER
+		constexpr optional<std::chrono::local_time<Duration>> to_chrono() const noexcept
+		{
+			const auto days			 = std::chrono::local_days{ date.to_chrono() }.time_since_epoch();
+			const auto time_value	 = impl::time_of_day(time.hour, time.minute, time.second, time.nanosecond);
+			const auto day_duration	 = impl::duration_cast_checked<Duration>(days);
+			const auto time_duration = impl::duration_cast_checked<Duration>(time_value);
+			if (!day_duration || !time_duration
+				|| day_duration->count()
+					   > (std::numeric_limits<typename Duration::rep>::max)() - time_duration->count())
+				return {};
+			return std::chrono::local_time<Duration>{ *day_duration + *time_duration };
+		}
+#endif
 
 		/// \brief	Prints a date_time out to a stream in RFC 3339 format.
 		/// \detail \cpp

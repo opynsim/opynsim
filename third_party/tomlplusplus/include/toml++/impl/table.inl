@@ -40,12 +40,12 @@ TOML_NAMESPACE_START
 		TOML_TABLE_CREATED;
 #endif
 
+		if TOML_UNLIKELY(b == e)
+			return;
+
 		TOML_ASSERT_ASSUME(b);
 		TOML_ASSERT_ASSUME(e);
 		TOML_ASSERT_ASSUME(b <= e);
-
-		if TOML_UNLIKELY(b == e)
-			return;
 
 		for (; b != e; b++)
 		{
@@ -62,13 +62,14 @@ TOML_NAMESPACE_START
 		  inline_{ other.inline_ }
 	{
 		for (auto&& [k, v] : other.map_)
-			map_.emplace_hint(map_.end(), k, impl::make_node(*v));
+			map_.emplace_hint(map_.end(), k, impl::make_node(std::as_const(*v)));
 
 #if TOML_LIFETIME_HOOKS
 		TOML_TABLE_CREATED;
 #endif
 	}
 
+	// NOLINTBEGIN(bugprone-use-after-move)
 	TOML_EXTERNAL_LINKAGE
 	table::table(table && other) noexcept //
 		: node(std::move(other)),
@@ -79,54 +80,47 @@ TOML_NAMESPACE_START
 		TOML_TABLE_CREATED;
 #endif
 	}
+	// NOLINTEND(bugprone-use-after-move)
 
 	TOML_EXTERNAL_LINKAGE
 	table& table::operator=(const table& rhs)
 	{
-		if (&rhs != this)
-		{
-			node::operator=(rhs);
-			map_.clear();
-			for (auto&& [k, v] : rhs.map_)
-				map_.emplace_hint(map_.end(), k, impl::make_node(*v));
-			inline_ = rhs.inline_;
-		}
+		if (&rhs == this)
+			return *this;
+
+		map_type copy;
+		for (auto&& [k, v] : rhs.map_)
+			copy.emplace_hint(copy.end(), k, impl::make_node(std::as_const(*v)));
+		node::operator=(rhs);
+		inline_ = rhs.inline_;
+		map_.swap(copy);
 		return *this;
 	}
 
+	// NOLINTBEGIN(bugprone-use-after-move)
 	TOML_EXTERNAL_LINKAGE
 	table& table::operator=(table&& rhs) noexcept
 	{
-		if (&rhs != this)
-		{
-			node::operator=(std::move(rhs));
-			map_	= std::move(rhs.map_);
-			inline_ = rhs.inline_;
-		}
+		if (&rhs == this)
+			return *this;
+
+		node::operator=(std::move(rhs));
+		inline_			= rhs.inline_;
+		map_type stolen = std::move(rhs.map_);
+		map_.swap(stolen);
 		return *this;
 	}
+	// NOLINTEND(bugprone-use-after-move)
 
 	TOML_PURE_GETTER
 	TOML_EXTERNAL_LINKAGE
 	bool table::is_homogeneous(node_type ntype) const noexcept
 	{
-		if (map_.empty())
-			return false;
-
-		if (ntype == node_type::none)
-			ntype = map_.cbegin()->second->type();
-
-		for (auto&& [k, v] : map_)
-		{
-			TOML_UNUSED(k);
-			if (v->type() != ntype)
-				return false;
-		}
-
-		return true;
+		const node* first_nonmatch = {};
+		return is_homogeneous(ntype, first_nonmatch);
 	}
 
-	TOML_PURE_GETTER
+	TOML_NODISCARD
 	TOML_EXTERNAL_LINKAGE
 	bool table::is_homogeneous(node_type ntype, node * &first_nonmatch) noexcept
 	{
@@ -149,13 +143,13 @@ TOML_NAMESPACE_START
 		return true;
 	}
 
-	TOML_PURE_GETTER
+	TOML_NODISCARD
 	TOML_EXTERNAL_LINKAGE
 	bool table::is_homogeneous(node_type ntype, const node*& first_nonmatch) const noexcept
 	{
-		node* fnm		  = nullptr;
-		const auto result = const_cast<table&>(*this).is_homogeneous(ntype, fnm);
-		first_nonmatch	  = fnm;
+		node* nonmatch	  = {};
+		const auto result = const_cast<table&>(*this).is_homogeneous(ntype, nonmatch);
+		first_nonmatch	  = nonmatch;
 		return result;
 	}
 
@@ -171,7 +165,7 @@ TOML_NAMESPACE_START
 	TOML_EXTERNAL_LINKAGE
 	node& table::at(std::string_view key)
 	{
-		auto n = get(key);
+		const auto n = get(key);
 
 #if TOML_COMPILER_HAS_EXCEPTIONS
 
@@ -185,7 +179,7 @@ TOML_NAMESPACE_START
 
 #else
 
-		TOML_ASSERT_ASSUME(n && "key not found in table!");
+		TOML_ASSERT_ASSUME(n && "key not found in table");
 
 #endif
 
@@ -237,11 +231,8 @@ TOML_NAMESPACE_START
 	}
 
 	TOML_EXTERNAL_LINKAGE
-	table& table::prune(bool recursive)& noexcept
+	table& table::prune(bool recursive) & noexcept
 	{
-		if (map_.empty())
-			return *this;
-
 		for (auto it = map_.begin(); it != map_.end();)
 		{
 			if (auto arr = it->second->as_array())
@@ -298,16 +289,9 @@ TOML_NAMESPACE_START
 			if (l->first != r->first)
 				return false;
 
-			const auto lhs_type = l->second->type();
-			const node& rhs_	= *r->second;
-			const auto rhs_type = rhs_.type();
-			if (lhs_type != rhs_type)
-				return false;
-
-			const bool equal = l->second->visit(
-				[&](const auto& lhs_) noexcept
-				{ return lhs_ == *reinterpret_cast<std::remove_reference_t<decltype(lhs_)>*>(&rhs_); });
-			if (!equal)
+			const node& lhs_val = *l->second;
+			const node& rhs_val = *r->second;
+			if (lhs_val.type() != rhs_val.type() || !lhs_val.visit(impl::equal_to_same_type{ &rhs_val }))
 				return false;
 		}
 		return true;

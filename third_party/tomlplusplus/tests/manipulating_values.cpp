@@ -7,7 +7,7 @@
 
 #ifdef _WIN32
 TOML_DISABLE_WARNINGS;
-#include <Windows.h>
+#include <windows.h>
 TOML_ENABLE_WARNINGS;
 #endif
 
@@ -173,6 +173,11 @@ TEST_CASE("values - construction")
 	check_value(one<unsigned long long>, type_tag<int64_t>{});
 	check_value(true, type_tag<bool>{});
 	check_value(false, type_tag<bool>{});
+	check_value(one<float>, type_tag<double>{});
+	check_value(one<double>, type_tag<double>{});
+	check_value(date{ 2024, 1, 2 }, type_tag<date>{});
+	check_value(toml::time{ 3, 4, 5 }, type_tag<toml::time>{});
+	check_value(date_time{ date{ 2024, 1, 2 }, toml::time{ 3, 4, 5 } }, type_tag<date_time>{});
 	check_value("kek", type_tag<std::string>{});
 	check_value("kek"s, type_tag<std::string>{});
 	check_value("kek"sv, type_tag<std::string>{});
@@ -212,6 +217,22 @@ TEST_CASE("values - construction")
 #endif // TOML_ENABLE_WINDOWS_COMPAT
 
 #endif
+}
+
+TEST_CASE("values - self-assignment keeps the source region")
+{
+	parsing_should_succeed(FILE_LINE_ARGS,
+						   "a = 1"sv,
+						   [](table&& tbl)
+						   {
+							   auto val = tbl["a"].as_integer();
+							   REQUIRE(val);
+							   const auto& same = *val;
+							   *val				= same;
+							   CHECK(val->get() == 1);
+							   CHECK(val->source().begin == source_position{ 1, 5 });
+							   CHECK(val->source().end == source_position{ 1, 6 });
+						   });
 }
 
 TEST_CASE("values - toml_formatter")
@@ -255,6 +276,103 @@ TEST_CASE("values - toml_formatter")
 	// large floats might get output as scientific notation and that's fine
 	CHECK(print_value(10000000000) == "10000000000");
 	CHECK(print_value(100000000000000) == "100000000000000");
+}
+
+TEST_CASE("values - an integer compares with a floating-point number as numbers")
+{
+	const value<int64_t> one{ 1 };
+
+	SECTION("a fraction is not truncated")
+	{
+		CHECK(!(one == 1.5));
+		CHECK(!(1.5 == one));
+		CHECK(one != 1.5);
+		CHECK(1.5 != one);
+
+		CHECK(one < 1.5);
+		CHECK(one <= 1.5);
+		CHECK(!(one > 1.5));
+		CHECK(!(one >= 1.5));
+		CHECK(1.5 > one);
+		CHECK(1.5 >= one);
+		CHECK(!(1.5 < one));
+		CHECK(!(1.5 <= one));
+
+		CHECK(one > 0.5);
+		CHECK(one >= 0.5);
+		CHECK(!(one < 0.5));
+		CHECK(!(one <= 0.5));
+		CHECK(0.5 < one);
+		CHECK(0.5 <= one);
+		CHECK(!(0.5 > one));
+		CHECK(!(0.5 >= one));
+
+		const value<int64_t> minus_two{ -2 };
+		CHECK(minus_two > -2.5);
+		CHECK(minus_two < -1.5);
+		CHECK(minus_two != -2.5);
+		CHECK(one < 1.5f);
+		CHECK(one != 1.5f);
+	}
+
+	SECTION("whole numbers")
+	{
+		CHECK(one == 1.0);
+		CHECK(1.0 == one);
+		CHECK(!(one != 1.0));
+		CHECK(!(1.0 != one));
+		CHECK(one <= 1.0);
+		CHECK(one >= 1.0);
+		CHECK(1.0 <= one);
+		CHECK(1.0 >= one);
+		CHECK(!(one < 1.0));
+		CHECK(!(one > 1.0));
+		CHECK(one == 1.0f);
+	}
+
+	SECTION("integers that double cannot represent")
+	{
+		const value<int64_t> odd{ 9007199254740993 };
+		CHECK(odd != 9007199254740992.0);
+		CHECK(odd > 9007199254740992.0);
+		CHECK(odd < 9007199254740994.0);
+		CHECK(9007199254740992.0 < odd);
+
+		const value<int64_t> highest{ (std::numeric_limits<int64_t>::max)() };
+		const value<int64_t> lowest{ (std::numeric_limits<int64_t>::min)() };
+		CHECK(highest != 9223372036854775808.0);
+		CHECK(highest < 9223372036854775808.0);
+		CHECK(lowest == -9223372036854775808.0);
+		CHECK(lowest >= -9223372036854775808.0);
+		CHECK(lowest > -1e300);
+		CHECK(highest < 1e300);
+	}
+
+	SECTION("infinities and NaN")
+	{
+		const auto inf = std::numeric_limits<double>::infinity();
+		const auto nan = std::numeric_limits<double>::quiet_NaN();
+		CHECK(one < inf);
+		CHECK(one > -inf);
+		CHECK(one != inf);
+		CHECK(one != nan);
+		CHECK(nan != one);
+		CHECK(!(one == nan));
+		CHECK(!(one < nan));
+		CHECK(!(one <= nan));
+		CHECK(!(one > nan));
+		CHECK(!(one >= nan));
+		CHECK(!(nan < one));
+		CHECK(!(nan >= one));
+	}
+
+	SECTION("integers still compare as integers")
+	{
+		CHECK(one == 1);
+		CHECK(one != 2);
+		CHECK(one < 2);
+		CHECK(2 > one);
+	}
 }
 
 TEST_CASE("nodes - value() int/float/bool conversions")
@@ -588,3 +706,419 @@ TEST_CASE("nodes - value() int/float/bool conversions")
 		CHECK_VALUE_FAIL(toml::date_time);
 	}
 }
+
+TEST_CASE("nodes - value() and value_or() with scoped enums")
+{
+	enum class u8 : uint8_t
+	{
+		zero
+	};
+	enum class u16 : uint16_t
+	{
+		zero
+	};
+	enum class u32 : uint32_t
+	{
+		zero
+	};
+	enum class u64 : uint64_t
+	{
+		zero
+	};
+	enum class i8 : int8_t
+	{
+		zero
+	};
+
+	const value<int64_t> small{ 200 };
+	const value<int64_t> large{ 70000 };
+	const value<int64_t> negative{ -1 };
+	const node& small_node	  = small;
+	const node& large_node	  = large;
+	const node& negative_node = negative;
+
+	CHECK(small_node.value<u8>() == u8{ 200 });
+	CHECK(!large_node.value<u8>());
+	CHECK(!negative_node.value<u8>());
+	CHECK(large_node.value_or(u8::zero) == u8::zero);
+
+	CHECK(small_node.value<u16>() == u16{ 200 });
+	CHECK(!large_node.value<u16>());
+	CHECK(!negative_node.value<u16>());
+
+	CHECK(large_node.value<u32>() == u32{ 70000 });
+	CHECK(!negative_node.value<u32>());
+	CHECK(negative_node.value_or(u32::zero) == u32::zero);
+
+	CHECK(large_node.value<u64>() == u64{ 70000 });
+	CHECK(!negative_node.value<u64>());
+
+	CHECK(negative_node.value<i8>() == i8{ -1 });
+	CHECK(!small_node.value<i8>());
+}
+
+namespace string_like_types
+{
+	struct code_point_counted_string
+	{
+		std::string text;
+
+		explicit code_point_counted_string(std::string_view sv) //
+			: text{ sv }
+		{}
+
+		const char* data() const noexcept
+		{
+			return text.data();
+		}
+
+		size_t length() const noexcept
+		{
+			size_t count = {};
+			for (const auto c : text)
+				if ((static_cast<unsigned char>(c) & 0xC0u) != 0x80u)
+					count++;
+			return count;
+		}
+	};
+
+	struct convertible_to_string : code_point_counted_string
+	{
+		using code_point_counted_string::code_point_counted_string;
+
+		operator std::string() const
+		{
+			return text;
+		}
+	};
+
+	struct convertible_to_string_view : code_point_counted_string
+	{
+		using code_point_counted_string::code_point_counted_string;
+
+		operator std::string_view() const noexcept
+		{
+			return text;
+		}
+	};
+
+	struct derived_from_string : std::string
+	{
+		using std::string::string;
+	};
+
+	struct retrievable_string
+	{
+		std::string text;
+
+		explicit retrievable_string(std::string_view sv) //
+			: text{ sv }
+		{}
+
+		const char* data() const noexcept
+		{
+			return text.data();
+		}
+
+		size_t length() const noexcept
+		{
+			return text.length();
+		}
+	};
+
+	struct convertible_to_c_string : retrievable_string
+	{
+		using retrievable_string::retrievable_string;
+
+		operator const char*() const noexcept
+		{
+			return text.c_str();
+		}
+	};
+
+	struct initialiser_only_string : retrievable_string
+	{
+		explicit initialiser_only_string(const char* str) //
+			: retrievable_string{ str }
+		{}
+	};
+
+	struct move_only_string : retrievable_string
+	{
+		using retrievable_string::retrievable_string;
+
+		move_only_string(move_only_string&&)	  = default;
+		move_only_string(const move_only_string&) = delete;
+	};
+
+	struct potentially_throwing_copy_string
+	{
+		std::string_view text;
+
+		explicit potentially_throwing_copy_string(std::string_view sv) noexcept //
+			: text{ sv }
+		{}
+
+		potentially_throwing_copy_string(const potentially_throwing_copy_string& other) noexcept(false) //
+			: text{ other.text }
+		{}
+
+		const char* data() const noexcept
+		{
+			return text.data();
+		}
+
+		size_t length() const noexcept
+		{
+			return text.length();
+		}
+	};
+
+	template <typename T>
+	void check_existing_conversion_is_used()
+	{
+		static constexpr auto text = "h\xC3\xA9llo w\xC3\xB6rld"sv;
+
+		const T str{ text };
+		REQUIRE(str.length() < text.length());
+		REQUIRE(std::string_view{ str.data(), text.length() } == text);
+
+		CHECK(value<std::string>{ str }.get() == text);
+		CHECK(value<std::string>{ T{ text } }.get() == text);
+
+		array arr;
+		arr.emplace_back<std::string>(str);
+		arr.push_back(T{ text });
+		CHECK(*arr.get_as<std::string>(0) == text);
+		CHECK(*arr.get_as<std::string>(1) == text);
+
+		table tbl;
+		tbl.emplace<std::string>("k", str);
+		tbl.insert("inserted", T{ text });
+		CHECK(tbl["k"] == text);
+		CHECK(tbl["inserted"] == text);
+	}
+}
+
+using namespace string_like_types;
+
+TEST_CASE("string-like types - construction uses existing conversions to std::string")
+{
+	check_existing_conversion_is_used<convertible_to_string>();
+	check_existing_conversion_is_used<convertible_to_string_view>();
+}
+
+TEST_CASE("string-like types - construction keeps embedded NULs when the type converts to const char*")
+{
+	static constexpr auto text = "a\0b"sv;
+	const convertible_to_c_string str{ text };
+
+	CHECK(value<std::string>{ str }.get() == text);
+	CHECK(value<std::string>{ convertible_to_c_string{ text } }.get() == text);
+
+	array arr;
+	arr.emplace_back<std::string>(str);
+	arr.push_back(convertible_to_c_string{ text });
+	CHECK(*arr.get_as<std::string>(0) == text);
+	CHECK(*arr.get_as<std::string>(1) == text);
+
+	table tbl;
+	tbl.emplace<std::string>("k", str);
+	tbl.insert("inserted", convertible_to_c_string{ text });
+	CHECK(tbl["k"] == text);
+	CHECK(tbl["inserted"] == text);
+}
+
+TEST_CASE("string-like types - construction moves from types derived from std::string when std::string does")
+{
+	static_assert(std::is_nothrow_constructible_v<value<std::string>, derived_from_string>
+				  == std::is_nothrow_constructible_v<std::string, derived_from_string>);
+
+	if constexpr (std::is_nothrow_constructible_v<std::string, derived_from_string>)
+	{
+		derived_from_string str{ "a string long enough that no implementation can store it in a small-string buffer" };
+		const auto buffer = std::as_const(str).data();
+
+		const value<std::string> val{ std::move(str) };
+		CHECK(val.get().data() == buffer);
+	}
+}
+
+TEST_CASE("string-like types - lossless conversion implies equality comparison")
+{
+	table tbl{ { "k", "x"sv } };
+	CHECK(tbl["k"] == retrievable_string{ "x" });
+	CHECK(tbl["k"] != retrievable_string{ "y" });
+	CHECK(tbl["missing"] != retrievable_string{ "x" });
+
+	array arr{ "x"sv };
+	CHECK(arr == std::vector<retrievable_string>{ retrievable_string{ "x" } });
+	CHECK(arr != std::vector<retrievable_string>{ retrievable_string{ "y" } });
+}
+
+TEST_CASE("string-like types - lossless conversion implies insertion")
+{
+	static_assert(std::is_same_v<inserted_type_of<initialiser_only_string>, value<std::string>>);
+
+	table tbl;
+	tbl.insert("a", initialiser_only_string{ "x" });
+	tbl.insert_or_assign("b", initialiser_only_string{ "x" });
+	tbl.emplace("c", initialiser_only_string{ "x" });
+	CHECK(tbl["a"] == "x"sv);
+	CHECK(tbl["b"] == "x"sv);
+	CHECK(tbl["c"] == "x"sv);
+
+	array arr;
+	arr.push_back(initialiser_only_string{ "x" });
+	arr.emplace_back(initialiser_only_string{ "x" });
+	CHECK(arr == array{ "x"sv, "x"sv });
+}
+
+TEST_CASE("string-like types - value_or() supports move-only retrieval targets")
+{
+	table tbl{ { "k", "x"sv } };
+	CHECK(tbl["k"].value_or(move_only_string{ "y" }).text == "x"sv);
+	CHECK(tbl["missing"].value_or(move_only_string{ "y" }).text == "y"sv);
+}
+
+TEST_CASE("string-like types - retrieval is not noexcept when copying can throw")
+{
+	static_assert(!noexcept(std::declval<const node&>().value<potentially_throwing_copy_string>()));
+	static_assert(!noexcept(std::declval<const node&>().value_exact<potentially_throwing_copy_string>()));
+	static_assert(!noexcept(std::declval<const node&>().value_or(std::declval<potentially_throwing_copy_string>())));
+}
+
+TEST_CASE("string-like types - retrieval works when copying can throw")
+{
+	table tbl{ { "k", "x"sv }, { "i", 1 } };
+	const node& str		= *tbl.get("k");
+	const node& integer = *tbl.get("i");
+
+	CHECK(str.value<potentially_throwing_copy_string>()->text == "x"sv);
+	CHECK(str.value_exact<potentially_throwing_copy_string>()->text == "x"sv);
+	CHECK(str.value_or(potentially_throwing_copy_string{ "y"sv }).text == "x"sv);
+	CHECK(!integer.value<potentially_throwing_copy_string>());
+	CHECK(!integer.value_exact<potentially_throwing_copy_string>());
+	CHECK(integer.value_or(potentially_throwing_copy_string{ "y"sv }).text == "y"sv);
+}
+
+#if TOML_ENABLE_CHRONO
+
+namespace
+{
+	template <typename T>
+	constexpr bool comparable_with_nodes = requires(const node_view<const node>& v, const T& t) { v == t; };
+}
+
+TEST_CASE("chrono types - retrieval")
+{
+	using namespace std::chrono;
+
+	const auto time_of_day = hours{ 10 } + minutes{ 20 } + milliseconds{ 30040 };
+	const auto local	   = local_days{ year{ 1987 } / 3 / 16 } + time_of_day;
+	const table tbl{ { "dt", date_time{ local } },
+					 { "odt", date_time{ local, minutes{ -570 } } },
+					 { "d", date{ 1987, 3, 16 } },
+					 { "t", toml::time{ 10, 20, 30, 40000000 } } };
+
+	SECTION("local_time")
+	{
+		CHECK(tbl["dt"].value<local_time<nanoseconds>>() == local);
+		CHECK(tbl["dt"].value<local_time<seconds>>() == time_point_cast<seconds>(local));
+		CHECK(tbl["dt"].value_exact<local_time<nanoseconds>>() == local);
+		CHECK(tbl["dt"].value_or(local_time<seconds>{}) == time_point_cast<seconds>(local));
+		CHECK(tbl["d"].value_or(local_time<seconds>{}) == local_time<seconds>{});
+		CHECK(tbl["missing"].value_or(local_time<seconds>{}) == local_time<seconds>{});
+	}
+
+	SECTION("local_time is refused for an offset date-time")
+	{
+		CHECK(!tbl["odt"].value<local_time<nanoseconds>>());
+		CHECK(!tbl["odt"].value_exact<local_time<nanoseconds>>());
+		CHECK(tbl["odt"].value_or(local_time<seconds>{}) == local_time<seconds>{});
+		CHECK(tbl["odt"].value<date_time>()->to_chrono() == local);
+	}
+
+	SECTION("year_month_day")
+	{
+		CHECK(tbl["d"].value<year_month_day>() == year{ 1987 } / 3 / 16);
+		CHECK(tbl["d"].value_exact<year_month_day>() == year{ 1987 } / 3 / 16);
+		CHECK(!tbl["dt"].value<year_month_day>());
+	}
+
+	SECTION("hh_mm_ss")
+	{
+		CHECK(tbl["t"].value_or(hh_mm_ss<milliseconds>{}).to_duration() == time_of_day);
+		CHECK(tbl["t"].value_or(hh_mm_ss<seconds>{}).to_duration() == seconds{ 37230 });
+		CHECK(tbl["dt"].value_or(hh_mm_ss<seconds>{}).to_duration() == seconds{});
+
+		const auto exact = tbl["t"].value_exact<hh_mm_ss<nanoseconds>>();
+		REQUIRE(exact);
+		CHECK(exact->to_duration() == time_of_day);
+	}
+
+	SECTION("out of range for the duration")
+	{
+		const table limits{ { "dt", date_time{ date{ 2038, 1, 19 }, toml::time{ 3, 14, 8 } } },
+							{ "t", toml::time{ 0, 2, 8 } } };
+		CHECK(!limits["dt"].value<local_time<duration<int32_t>>>());
+		CHECK(limits["dt"].value_or(local_time<duration<int32_t>>{}) == local_time<duration<int32_t>>{});
+		CHECK(!limits["t"].value<hh_mm_ss<duration<int8_t>>>());
+		CHECK(limits["t"].value_or(hh_mm_ss<duration<int8_t>>{}).to_duration() == seconds{});
+	}
+}
+
+TEST_CASE("chrono types - lossless conversion implies insertion and equality comparison")
+{
+	using namespace std::chrono;
+
+	const auto local = local_days{ year{ 1987 } / 3 / 16 } + hours{ 10 } + minutes{ 20 } + seconds{ 30 };
+	const auto ymd	 = year{ 1987 } / 3 / 16;
+	const auto hms	 = hh_mm_ss{ hours{ 10 } + minutes{ 20 } + milliseconds{ 30500 } };
+
+	static_assert(std::is_same_v<inserted_type_of<decltype(local)>, value<date_time>>);
+	static_assert(std::is_same_v<inserted_type_of<decltype(ymd)>, value<date>>);
+	static_assert(std::is_same_v<inserted_type_of<decltype(hms)>, value<toml::time>>);
+
+	table tbl;
+	tbl.insert("dt", local);
+	tbl.insert_or_assign("d", ymd);
+	tbl.emplace("t", hms);
+	CHECK(tbl["dt"] == date_time{ date{ 1987, 3, 16 }, toml::time{ 10, 20, 30 } });
+	CHECK(tbl["d"] == date{ 1987, 3, 16 });
+	CHECK(tbl["t"] == toml::time{ 10, 20, 30, 500000000 });
+
+	CHECK(tbl["dt"] == local);
+	CHECK(tbl["dt"] != local + seconds{ 1 });
+	CHECK(tbl["d"] == ymd);
+	CHECK(tbl["t"] == hms);
+
+	array arr;
+	arr.push_back(local);
+	arr.emplace_back(ymd);
+	CHECK(arr == array{ date_time{ date{ 1987, 3, 16 }, toml::time{ 10, 20, 30 } }, date{ 1987, 3, 16 } });
+	CHECK(array{ local } == std::vector{ local });
+}
+
+TEST_CASE("chrono types - conversion is lossless only for integral durations that convert exactly")
+{
+	using namespace std::chrono;
+	using picoseconds		= duration<int64_t, std::pico>;
+	using float_nanoseconds = duration<double, std::nano>;
+
+	static_assert(comparable_with_nodes<local_time<seconds>>);
+	static_assert(comparable_with_nodes<local_time<nanoseconds>>);
+	static_assert(!comparable_with_nodes<local_time<picoseconds>>);
+	static_assert(!comparable_with_nodes<local_time<float_nanoseconds>>);
+	static_assert(comparable_with_nodes<hh_mm_ss<milliseconds>>);
+	static_assert(!comparable_with_nodes<hh_mm_ss<picoseconds>>);
+
+	static_assert(impl::can_represent_native<local_time<nanoseconds>>);
+	static_assert(impl::can_represent_native<local_time<picoseconds>>);
+	static_assert(!impl::can_represent_native<local_time<microseconds>>);
+	static_assert(!impl::can_represent_native<local_time<float_nanoseconds>>);
+	static_assert(impl::can_represent_native<hh_mm_ss<nanoseconds>>);
+	static_assert(!impl::can_represent_native<hh_mm_ss<seconds>>);
+}
+
+#endif

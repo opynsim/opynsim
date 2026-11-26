@@ -12,6 +12,11 @@
 #include "print_to_stream.hpp"
 #include "header_start.hpp"
 
+#if TOML_MSVC
+// MSVC's std::runtime_error is implemented inline without a DLL annotation.
+#pragma warning(disable : 4275)
+#endif
+
 #if TOML_DOXYGEN || !TOML_EXCEPTIONS
 #define TOML_PARSE_ERROR_BASE
 #else
@@ -26,7 +31,7 @@ TOML_NAMESPACE_START
 	///
 	/// \remarks This class inherits from std::runtime_error when exceptions are enabled.
 	/// 		 The public interface is the same regardless of exception mode.
-	class parse_error TOML_PARSE_ERROR_BASE
+	class TOML_EXPORTED_CLASS parse_error TOML_PARSE_ERROR_BASE
 	{
 	  private:
 #if !TOML_EXCEPTIONS
@@ -110,11 +115,10 @@ TOML_NAMESPACE_START
 		///
 		/// \out
 		/// Parsing failed:
-		/// Encountered unexpected character while parsing boolean; expected 'true', saw 'trU'
+		/// Error while parsing boolean: expected 'true', saw 'trU'
 		///		(error occurred at line 1, column 13)
 		/// \eout
 		///
-		/// \tparam Char The output stream's underlying character type. Must be 1 byte in size.
 		/// \param 	lhs	The stream.
 		/// \param 	rhs	The parse_error.
 		///
