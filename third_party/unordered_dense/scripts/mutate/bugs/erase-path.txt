@@ -1,0 +1,83 @@
+# What erase() has to put back before it returns, and what notices when it does not.
+# Erasing touches three things that have to stay in step: the slot the entry sat in
+# is freed and every overflow counter it was ever counted in comes back down,
+# m_values closes the hole it just made by moving the last element into it, and that
+# moved element's slot has to be repointed at its new index. Any one of the three
+# can be dropped and the map still answers most questions correctly, which is what
+# makes them worth asking about.
+#
+# Run alongside a sweep over the same functions - the named bugs the tests were
+# written for, and the token-level ones nobody thought to ask:
+#
+#     scripts/mutate/mutate.py --bugs scripts/mutate/bugs/erase-path.txt \
+#                              --lines 1630-1650 --reuse
+#
+# A snapshot against the code as it was: when a block stops applying, that part has
+# been rewritten and these questions want re-deriving rather than repairing.
+
+# the slot is freed but the counters are left where they were
+# (The four blocks below whose code moved were re-derived against uncount(), erase_group_slot()
+# and repoint_value() on 2026-09-27, #314; the invariants are unchanged.)
+# Nothing is wrong with an answer the map gives afterwards - a counter that is too
+# high only sends a probe one group further - so this is the shape of bug the suite
+# is least able to see, and the reason to ask about it by name. The walk is kept and
+# only the decrement is taken away, because deleting the walk leaves mh unused and
+# the compiler would answer instead of the tests.
+<<<
+            if (groups[group_idx].m_overflows[counter] != 255) {
+                --groups[group_idx].m_overflows[counter];
+            }
+===
+            if (groups[group_idx].m_overflows[counter] == 255) {
+                --groups[group_idx].m_overflows[counter];
+            }
+>>>
+
+# the counters come down along the wrong probe sequence
+# The walk has to retrace the groups the *insert* passed, which is the sequence of
+# this key's own hash. Retracing anything else decrements counters that belong to
+# other keys, and those keys stop being findable once their counter reaches zero.
+<<<
+        value_idx_type delta = 0;
+        while (group_idx != found_in) {
+===
+        value_idx_type delta = 1;
+        while (group_idx != found_in) {
+>>>
+
+# the erased entry's fingerprint is left in place
+# The slot still matches probes for that fingerprint, and the value index in it now
+# names whatever the dense move put at that position: a lookup for the erased key
+# can come back with somebody else's value.
+<<<
+        groups[found_in].m_fingerprints[lane] = 0;
+===
+        groups[found_in].m_fingerprints[lane] = groups[found_in].m_fingerprints[lane];
+>>>
+
+# the moved element's slot is left pointing at the position it came from
+# m_values closed its hole, but one slot still names the index the erased value used
+# to live at, which now holds a different element entirely.
+<<<
+            repoint_value(mh, values_idx_back, value_idx_to_remove);
+===
+            repoint_value(mh, values_idx_back, values_idx_back);
+>>>
+
+# the search for the moved element's slot looks for an index one past the end
+# No slot holds it, so the search walks group after group; what it does when it comes
+# back round to where it started is the question.
+<<<
+            auto const values_idx_back = static_cast<value_idx_type>(m_values.size() - 1);
+===
+            auto const values_idx_back = static_cast<value_idx_type>(m_values.size());
+>>>
+
+# extract() hands back the last element rather than the erased one
+# Only visible when they differ, which is every erase but the one that happens to
+# take the element m_values already ends with.
+<<<
+        auto&& erased_value = std::move(m_values[value_idx_to_remove]);
+===
+        auto&& erased_value = std::move(m_values.back());
+>>>

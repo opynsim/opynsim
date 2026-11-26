@@ -1,0 +1,108 @@
+#pragma once
+
+#include <cstddef>
+#include <memory>
+#include <type_traits>
+
+// An allocator whose instances are distinguishable, for testing allocator propagation.
+//
+// std::allocator makes none of that observable: it is stateless, every instance compares equal and
+// is_always_equal is true, so every branch that asks whether two allocators differ is dead code.
+// This one carries an id, so taking the wrong allocator shows up as a value rather than as
+// undefined behaviour, and optionally counts what was allocated through it, so it is also visible
+// *which* of a container's buffers went where.
+//
+// The defaults match std::pmr::polymorphic_allocator, which is the allocator this library supports
+// whose propagation is worth testing: propagates on nothing, instances differ. Each of the three
+// propagation traits is a template parameter, plus select_on_container_copy_construction, because a
+// container answers them independently and answering one of them for only half of what it holds is
+// exactly the bug these are here to catch. Prefer the named aliases below at call sites -- four
+// bare std::bool_constants in a row say nothing about which question is being asked.
+namespace test {
+
+struct alloc_counts {
+    int allocations = 0;
+    int deallocations = 0;
+};
+
+template <typename T,
+          typename Pocca = std::false_type,
+          typename Soccc = std::true_type,
+          typename Pocma = std::false_type,
+          typename Pocs = std::false_type>
+struct id_allocator {
+    using value_type = T;
+    using propagate_on_container_copy_assignment = Pocca;
+    using propagate_on_container_move_assignment = Pocma;
+    using propagate_on_container_swap = Pocs;
+    using is_always_equal = std::false_type;
+
+    int m_id = 0;
+    alloc_counts* m_counts = nullptr;
+
+    id_allocator() = default;
+
+    explicit id_allocator(int id, alloc_counts* counts = nullptr)
+        : m_id(id)
+        , m_counts(counts) {}
+
+    template <typename U>
+    // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
+    id_allocator(id_allocator<U, Pocca, Soccc, Pocma, Pocs> const& other) noexcept
+        : m_id(other.m_id)
+        , m_counts(other.m_counts) {}
+
+    // Empty requests are not counted, because a container is allowed to make them and they say
+    // nothing about where its memory came from. libc++'s vector deallocates unconditionally when it
+    // propagates an allocator on copy assignment, so an empty container being handed a new
+    // allocator arrives here as deallocate(nullptr, 0) -- one deallocation with no allocation
+    // behind it, which made a balanced allocator look like it had freed something twice. libstdc++
+    // guards the call and does not.
+    auto allocate(std::size_t n) -> T* {
+        if (nullptr != m_counts && 0 != n) {
+            ++m_counts->allocations;
+        }
+        return std::allocator<T>{}.allocate(n);
+    }
+
+    void deallocate(T* p, std::size_t n) {
+        if (nullptr != m_counts && 0 != n) {
+            ++m_counts->deallocations;
+        }
+        std::allocator<T>{}.deallocate(p, n);
+    }
+
+    // Soccc == false_type behaves like std::pmr::polymorphic_allocator: a copy does not inherit
+    // the allocator, it gets the default one. The true_type default is what allocator_traits does
+    // on its own, i.e. hand back a copy.
+    [[nodiscard]] auto select_on_container_copy_construction() const -> id_allocator {
+        if constexpr (Soccc::value) {
+            return *this;
+        } else {
+            return id_allocator{};
+        }
+    }
+
+    friend auto operator==(id_allocator const& a, id_allocator const& b) noexcept -> bool {
+        return a.m_id == b.m_id;
+    }
+
+    friend auto operator!=(id_allocator const& a, id_allocator const& b) noexcept -> bool {
+        return !(a == b);
+    }
+};
+
+// One alias per question, named after the trait it turns on.
+template <typename T>
+using pmr_like_allocator = id_allocator<T, std::false_type, std::false_type>;
+
+template <typename T>
+using pocca_allocator = id_allocator<T, std::true_type>;
+
+template <typename T>
+using pocma_allocator = id_allocator<T, std::false_type, std::true_type, std::true_type>;
+
+template <typename T>
+using pocs_allocator = id_allocator<T, std::false_type, std::true_type, std::false_type, std::true_type>;
+
+} // namespace test

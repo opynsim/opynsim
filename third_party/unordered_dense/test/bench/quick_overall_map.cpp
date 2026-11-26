@@ -2,13 +2,13 @@
 
 #include <app/doctest.h>           // for TestCase, skip, ResultBuilder
 #include <app/geomean.h>           // for geomean
-#include <third-party/nanobench.h> // for Rng, doNotOptimizeAway, Bench
+#include <bench/workloads.h>       // for insert_erase, iterate, build, churn, find_50, find_all, hash_strings
+#include <third-party/nanobench.h> // for Bench
 
-#include <fmt/core.h> // for print, format
+#include <fmt/format.h> // for print, format
 
 #include <chrono>        // for duration, operator-, high_resolu...
 #include <cstdint>       // for uint64_t
-#include <cstring>       // for size_t, memcpy
 #include <deque>         // for deque
 #include <string>        // for string, basic_string, operator==
 #include <string_view>   // for string_view, literals
@@ -19,135 +19,40 @@ using namespace std::literals;
 
 namespace {
 
-template <typename K>
-inline auto init_key() -> K {
-    return {};
-}
-
-template <typename T>
-inline void randomize_key(ankerl::nanobench::Rng* rng, int n, T* key) {
-    // we limit ourselves to 32bit n
-    auto limited = (((*rng)() >> 32U) * static_cast<uint64_t>(n)) >> 32U;
-    *key = static_cast<T>(limited);
-}
-
-template <>
-[[nodiscard]] inline auto init_key<std::string>() -> std::string {
-    std::string str;
-    str.resize(200);
-    return str;
-}
-
-inline void randomize_key(ankerl::nanobench::Rng* rng, int n, std::string* key) {
-    uint64_t k{};
-    randomize_key(rng, n, &k);
-    std::memcpy(key->data(), &k, sizeof(k));
-}
-
-// Random insert & erase
 template <typename Map>
 void bench_random_insert_erase(ankerl::nanobench::Bench* bench, std::string_view name) {
     bench->run(fmt::format("{} random insert erase", name), [&] {
-        ankerl::nanobench::Rng rng(123);
-        size_t verifier{};
-        Map map;
-        auto key = init_key<typename Map::key_type>();
-        for (int n = 1; n < 20000; ++n) {
-            for (int i = 0; i < 200; ++i) {
-                randomize_key(&rng, n, &key);
-                map[key];
-                randomize_key(&rng, n, &key);
-                verifier += map.erase(key);
-            }
-        }
-        CHECK(verifier == 1994641U);
-        CHECK(map.size() == 9987U);
+        auto r = workloads::insert_erase<Map>();
+        CHECK(r.erased == 1994641U);
+        CHECK(r.size == 9987U);
     });
 }
 
-// iterate
 template <typename Map>
 void bench_iterate(ankerl::nanobench::Bench* bench, std::string_view name) {
-    size_t const num_elements = 5000;
-
-    auto key = init_key<typename Map::key_type>();
-
-    // insert
     bench->run(fmt::format("{} iterate while adding then removing", name), [&] {
-        ankerl::nanobench::Rng rng(555);
-        Map map;
-        size_t result = 0;
-        for (size_t n = 0; n < num_elements; ++n) {
-            randomize_key(&rng, 1000000, &key);
-            map[key] = n;
-            for (auto const& key_val : map) {
-                result += key_val.second;
-            }
-        }
-
-        rng = ankerl::nanobench::Rng(555);
-        do {
-            randomize_key(&rng, 1000000, &key);
-            map.erase(key);
-            for (auto const& key_val : map) {
-                result += key_val.second;
-            }
-        } while (!map.empty());
-
-        CHECK(result == 62282755409U);
+        CHECK(workloads::iterate<Map>() == 62282755409U);
     });
 }
 
-// 111.903 222
-// 112.023 123123
+template <typename Map>
+void bench_build(ankerl::nanobench::Bench* bench, std::string_view name) {
+    bench->run(fmt::format("{} build from empty", name), [&] {
+        CHECK(workloads::build<Map>() == 200000U);
+    });
+}
+
+template <typename Map>
+void bench_churn(ankerl::nanobench::Bench* bench, std::string_view name) {
+    bench->run(fmt::format("{} churn at a fixed size", name), [&] {
+        CHECK(workloads::churn<Map>() == 13688565634U);
+    });
+}
+
 template <typename Map>
 void bench_random_find(ankerl::nanobench::Bench* bench, std::string_view name) {
-
     bench->run(fmt::format("{} 50% probability to find", name), [&] {
-        uint64_t const seed = 123123;
-        ankerl::nanobench::Rng numbers_insert_rng(seed);
-        size_t numbers_insert_rng_calls = 0;
-
-        ankerl::nanobench::Rng numbers_search_rng(seed);
-        size_t numbers_search_rng_calls = 0;
-
-        ankerl::nanobench::Rng insertion_rng(123);
-
-        size_t checksum = 0;
-        size_t found = 0;
-        size_t not_found = 0;
-
-        Map map;
-        auto key = init_key<typename Map::key_type>();
-        for (size_t i = 0; i < 100000; ++i) {
-            randomize_key(&numbers_insert_rng, 1000000, &key);
-            ++numbers_insert_rng_calls;
-
-            if (insertion_rng() & 1U) {
-                map[key] = i;
-            }
-
-            // search 100 entries in the map
-            for (size_t search = 0; search < 100; ++search) {
-                randomize_key(&numbers_search_rng, 1000000, &key);
-                ++numbers_search_rng_calls;
-
-                auto it = map.find(key);
-                if (it != map.end()) {
-                    checksum += it->second;
-                    ++found;
-                } else {
-                    ++not_found;
-                }
-                if (numbers_insert_rng_calls == numbers_search_rng_calls) {
-                    numbers_search_rng = ankerl::nanobench::Rng(seed);
-                    numbers_search_rng_calls = 0;
-                }
-            }
-        }
-        ankerl::nanobench::doNotOptimizeAway(checksum);
-        ankerl::nanobench::doNotOptimizeAway(found);
-        ankerl::nanobench::doNotOptimizeAway(not_found);
+        CHECK(workloads::find_50<Map>() == 124865472559U);
     });
 }
 
@@ -157,6 +62,8 @@ void bench_all(ankerl::nanobench::Bench* bench, std::string_view name) {
     bench->minEpochTime(100ms);
     bench_iterate<Map>(bench, name);
     bench_random_insert_erase<Map>(bench, name);
+    bench_build<Map>(bench, name);
+    bench_churn<Map>(bench, name);
     bench_random_find<Map>(bench, name);
 }
 
@@ -223,7 +130,80 @@ TEST_CASE("bench_quick_overall_udm" * doctest::test_suite("bench") * doctest::sk
     using map_str_t = ankerl::unordered_dense::map<std::string, size_t, hash_str_t>;
     bench_all<map_str_t>(&bench, "ankerl::unordered_dense::map<std::string, size_t>");
 
+    // A 64 byte mapped value, where a flat map pays sizeof(value_type) per scattered write and a
+    // dense one pays eight bytes; see workloads::big_value for what the other two could not see.
+    using map_big_t = ankerl::unordered_dense::map<uint64_t, workloads::big_value>;
+    bench_all<map_big_t>(&bench, "ankerl::unordered_dense::map<uint64_t, big_value>");
+
     fmt::print("{} bench_quick_overall_map_udm\n", geomean1(bench));
+}
+
+// The two ends of what a workload's hit rate can do to the probe; not part of the score.
+TEST_CASE("bench_find_all_hits_or_misses_udm" * doctest::test_suite("bench") * doctest::skip()) {
+    ankerl::nanobench::Bench bench;
+    bench.title("find").minEpochTime(100ms);
+    using map_t = ankerl::unordered_dense::map<uint64_t, size_t>;
+    using map_str_t = ankerl::unordered_dense::map<std::string, size_t, hash_str_t>;
+    // The tables are built here and searched below, so what is timed is the lookups and not a
+    // fill; see workloads::lookup_table.
+    auto ints = workloads::lookup_table<map_t>();
+    auto strings = workloads::lookup_table<map_str_t>();
+    bench.run("map<uint64_t, size_t> all hits", [&] {
+        ankerl::nanobench::doNotOptimizeAway(workloads::find_all<true>(&ints));
+    });
+    bench.run("map<uint64_t, size_t> no hits", [&] {
+        ankerl::nanobench::doNotOptimizeAway(workloads::find_all<false>(&ints));
+    });
+    bench.run("map<std::string, size_t> all hits", [&] {
+        ankerl::nanobench::doNotOptimizeAway(workloads::find_all<true>(&strings));
+    });
+    bench.run("map<std::string, size_t> no hits", [&] {
+        ankerl::nanobench::doNotOptimizeAway(workloads::find_all<false>(&strings));
+    });
+}
+
+// The string hash on its own; not part of the score. A lookup is ~224 instructions and only ~60
+// of them are the hash, so a change to the hash is easier to resolve here than in the score.
+// Hits in tables that fit in the caches, 1000 to 16000 entries, from a quiet loop and from a busy one
+// (#346): the case main measured behind 4.x in real callers (#317, #319, #341). Not in the score.
+TEST_CASE("bench_small_hits_udm" * doctest::test_suite("bench") * doctest::skip()) {
+    using map_t = ankerl::unordered_dense::map<uint64_t, size_t>;
+    using map_str_t = ankerl::unordered_dense::map<std::string, size_t>;
+    ankerl::nanobench::Bench bench;
+    bench.title("small hits").minEpochTime(100ms);
+    auto sink = workloads::busy_sink();
+    for (size_t n : {size_t{1000}, size_t{4000}, size_t{16000}}) {
+        auto ints = workloads::lookup_table<map_t>(n);
+        auto strings = workloads::lookup_table<map_str_t>(n);
+        bench.run(fmt::format("map<uint64_t, size_t> {} quiet", n), [&] {
+            ankerl::nanobench::doNotOptimizeAway(workloads::find_all<true>(&ints));
+        });
+        bench.run(fmt::format("map<uint64_t, size_t> {} busy", n), [&] {
+            ankerl::nanobench::doNotOptimizeAway(workloads::find_hits_busy(&ints, &sink));
+        });
+        auto dense = workloads::dense_id_table<map_t>(n);
+        bench.run(fmt::format("map<uint64_t, size_t> {} dense ids quiet", n), [&] {
+            ankerl::nanobench::doNotOptimizeAway(workloads::find_dense_ids(&dense));
+        });
+        bench.run(fmt::format("map<uint64_t, size_t> {} dense ids busy", n), [&] {
+            ankerl::nanobench::doNotOptimizeAway(workloads::find_dense_ids_busy(&dense, &sink));
+        });
+        bench.run(fmt::format("map<std::string, size_t> {} quiet", n), [&] {
+            ankerl::nanobench::doNotOptimizeAway(workloads::find_all<true>(&strings));
+        });
+        bench.run(fmt::format("map<std::string, size_t> {} busy", n), [&] {
+            ankerl::nanobench::doNotOptimizeAway(workloads::find_hits_busy(&strings, &sink));
+        });
+    }
+}
+
+TEST_CASE("bench_hash_string_udm" * doctest::test_suite("bench") * doctest::skip()) {
+    ankerl::nanobench::Bench bench;
+    bench.title("hash").minEpochTime(100ms).unit("hash").batch(workloads::hash_keys().size());
+    using map_str_t = ankerl::unordered_dense::map<std::string, size_t, hash_str_t>;
+    bench.run("map<std::string, size_t> hash only", [] {
+        ankerl::nanobench::doNotOptimizeAway(workloads::hash_strings<map_str_t>());
+    });
 }
 
 TEST_CASE("bench_quick_overall_segmented_vector" * doctest::test_suite("bench") * doctest::skip()) {
@@ -256,7 +236,7 @@ TEST_CASE("bench_quick_overall_deque" * doctest::test_suite("bench") * doctest::
 }
 
 TEST_CASE("bench_quick_overall_udm_bigbucket" * doctest::test_suite("bench") * doctest::skip()) {
-    using bucket_t = ankerl::unordered_dense::bucket_type::big;
+    using bucket_t = ankerl::unordered_dense::bucket_type::group_big;
 
     ankerl::nanobench::Bench bench;
     // bench.minEpochTime(1s);

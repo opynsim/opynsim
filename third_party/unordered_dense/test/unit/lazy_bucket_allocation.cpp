@@ -1,0 +1,540 @@
+#include <ankerl/unordered_dense.h>
+
+#include <app/doctest.h>
+#include <app/hashers.h>
+#include <app/id_allocator.h>
+#include <app/map_fixtures.h>
+
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+// Issue #159: default construction used to allocate the bucket array, so a map declared in a scope
+// that might never use it still cost an allocation. It is now allocated by the first insert, which
+// means "no elements" and "no buckets" are the same state -- and every operation has to keep
+// working in it.
+namespace {
+
+using pair_t = std::pair<int, int>;
+
+template <typename Alloc>
+using map_of = ankerl::unordered_dense::map<int, int, ankerl::unordered_dense::hash<int>, std::equal_to<int>, Alloc>;
+
+template <typename Alloc>
+using segmented_map_of =
+    ankerl::unordered_dense::segmented_map<int, int, ankerl::unordered_dense::hash<int>, std::equal_to<int>, Alloc>;
+
+template <typename Alloc>
+using set_of = ankerl::unordered_dense::set<int, ankerl::unordered_dense::hash<int>, std::equal_to<int>, Alloc>;
+
+using counting_alloc = test::id_allocator<pair_t>;
+using counting_map = map_of<counting_alloc>;
+using counting_segmented_map = segmented_map_of<counting_alloc>;
+using counting_set = set_of<test::id_allocator<int>>;
+
+using transparent_set =
+    ankerl::unordered_dense::set<std::string, test::transparent_hash, std::equal_to<>, test::id_allocator<std::string>>;
+
+// An empty container whose allocator reports back. Built through the (bucket_count, allocator)
+// constructor with a count of zero, which is what a default construction resolves to. Not
+// test::filled, which needs a mapped_type and so cannot serve the set cases below.
+template <typename Container>
+auto tracked(test::alloc_counts& counts) -> Container {
+    return Container(0, typename Container::allocator_type(0, &counts));
+}
+
+// What a table costs before it has allocated anything of its own. Not zero everywhere: MSVC's debug
+// iterator support allocates a _Container_proxy through the allocator for every std::vector as it is
+// constructed, and a table holds the values' vector plus however many the index does. So the floor
+// is measured rather than assumed: that many empty vectors' worth, whatever that is here. The index
+// has held two, one and now no vectors, which is the kind of thing only a Windows leg notices.
+auto empty_table_cost() -> int {
+    using index_t =
+        ankerl::unordered_dense::detail::group_storage<ankerl::unordered_dense::bucket_type::group, std::allocator<pair_t>>;
+    auto counts = test::alloc_counts{};
+    for (size_t i = 0; i < 1 + index_t::vector_count; ++i) {
+        auto v = std::vector<pair_t, test::id_allocator<pair_t>>(test::id_allocator<pair_t>(0, &counts));
+        static_cast<void>(v);
+    }
+    return counts.allocations;
+}
+
+} // namespace
+
+TEST_CASE("default_construction_allocates_nothing") {
+    auto counts = test::alloc_counts{};
+
+    SUBCASE("map") {
+        auto map = tracked<counting_map>(counts);
+        REQUIRE(counts.allocations == empty_table_cost());
+        REQUIRE(map.bucket_count() == 0);
+        REQUIRE(map.size() == 0);
+        REQUIRE(map.empty());
+    }
+
+    SUBCASE("segmented map") {
+        auto map = tracked<counting_segmented_map>(counts);
+        REQUIRE(counts.allocations == empty_table_cost());
+        REQUIRE(map.bucket_count() == 0);
+    }
+
+    SUBCASE("set") {
+        auto set = tracked<counting_set>(counts);
+        REQUIRE(counts.allocations == empty_table_cost());
+        REQUIRE(set.bucket_count() == 0);
+    }
+}
+
+// Nothing may reach the bucket array while it is not there. The read paths get this by returning
+// early on empty(); this pins that they actually do. The list itself is shared with the test for a
+// table that just failed an assignment, which lands in the same state by a different route.
+TEST_CASE("a_table_without_buckets_answers_every_query") {
+    auto map = ankerl::unordered_dense::map<int, int>();
+    test::require_empty_table_answers(map);
+
+    auto swapped = ankerl::unordered_dense::map<int, int>();
+    auto other = ankerl::unordered_dense::map<int, int>();
+    swapped.swap(other);
+    REQUIRE(swapped.empty());
+
+    // extract() clears the buckets on the way out, with none to clear.
+    auto extracted = ankerl::unordered_dense::map<int, int>();
+    REQUIRE(std::move(extracted).extract().empty());
+}
+
+// One case per insert entry point, each starting from a container that has no buckets.
+TEST_CASE("the_first_insert_allocates_the_buckets") {
+    auto counts = test::alloc_counts{};
+
+    SUBCASE("operator[]") {
+        auto map = tracked<counting_map>(counts);
+        map[1] = 2;
+        REQUIRE(map.bucket_count() > 0);
+        REQUIRE(map[1] == 2);
+        REQUIRE(counts.allocations >= 2); // values and buckets
+    }
+
+    SUBCASE("try_emplace") {
+        auto map = tracked<counting_map>(counts);
+        REQUIRE(map.try_emplace(1, 2).second);
+        REQUIRE(map.find(1)->second == 2);
+    }
+
+    SUBCASE("insert") {
+        auto map = tracked<counting_map>(counts);
+        REQUIRE(map.insert(pair_t(1, 2)).second);
+        REQUIRE(map.find(1)->second == 2);
+    }
+
+    SUBCASE("emplace") {
+        auto map = tracked<counting_map>(counts);
+        REQUIRE(map.emplace(1, 2).second);
+        REQUIRE(map.find(1)->second == 2);
+    }
+
+    SUBCASE("insert_or_assign") {
+        auto map = tracked<counting_map>(counts);
+        REQUIRE(map.insert_or_assign(1, 2).second);
+        REQUIRE(map.find(1)->second == 2);
+    }
+
+    SUBCASE("range insert") {
+        auto source = std::vector<pair_t>{{1, 2}, {3, 4}};
+        auto map = tracked<counting_map>(counts);
+        map.insert(source.begin(), source.end());
+        REQUIRE(map.size() == 2);
+    }
+
+    // A range insert hashes ahead of where it places, so it has to have an array to prefetch
+    // against and allocates one before it looks at anything. Inserting *nothing* must still not
+    // allocate, which means the empty case has to be answered before that -- a mutation sweep on
+    // 2026-09-11 removed the check and nothing noticed.
+    SUBCASE("empty range insert") {
+        auto source = std::vector<pair_t>();
+        auto map = tracked<counting_map>(counts);
+        map.insert(source.begin(), source.end());
+        REQUIRE(map.empty());
+        REQUIRE(map.bucket_count() == 0);
+
+        // and an empty sub-range of a container that is not empty
+        source.emplace_back(1, 2);
+        map.insert(source.begin(), source.begin());
+        REQUIRE(map.bucket_count() == 0);
+        map.insert(source.begin(), source.end());
+        REQUIRE(map.bucket_count() != 0);
+    }
+
+    SUBCASE("initializer list insert") {
+        auto map = tracked<counting_map>(counts);
+        map.insert({{1, 2}, {3, 4}});
+        REQUIRE(map.size() == 2);
+    }
+
+    SUBCASE("set emplace") {
+        auto set = tracked<counting_set>(counts);
+        REQUIRE(set.emplace(1).second);
+        REQUIRE(set.contains(1));
+    }
+
+    // The single-argument transparent overload, which probes the buckets before constructing
+    // anything at all.
+    SUBCASE("transparent set emplace") {
+        auto set = transparent_set(0, test::id_allocator<std::string>(0, &counts));
+        REQUIRE(counts.allocations == empty_table_cost());
+        REQUIRE(set.emplace(std::string_view("hello")).second);
+        REQUIRE(set.contains(std::string_view("hello")));
+    }
+
+    SUBCASE("replace") {
+        auto map = tracked<counting_map>(counts);
+        map.replace(counting_map::value_container_type{{1, 2}, {3, 4}});
+        REQUIRE(map.size() == 2);
+        REQUIRE(map.find(3)->second == 4);
+    }
+
+    SUBCASE("segmented map") {
+        auto map = tracked<counting_segmented_map>(counts);
+        map[1] = 2;
+        REQUIRE(map.bucket_count() > 0);
+        REQUIRE(map[1] == 2);
+    }
+}
+
+TEST_CASE("copying_an_empty_table_allocates_nothing") {
+    auto counts = test::alloc_counts{};
+    auto source = tracked<counting_map>(counts);
+
+    auto copy = source;
+    REQUIRE(counts.allocations == 2 * empty_table_cost()); // the source and the copy, nothing else
+    REQUIRE(copy.bucket_count() == 0);
+
+    auto assigned = tracked<counting_map>(counts);
+    assigned[1] = 2;
+    assigned = source;
+    REQUIRE(assigned.empty());
+    REQUIRE(assigned.bucket_count() == 0);
+
+    // ... and it is still a working map afterwards.
+    assigned[7] = 8;
+    REQUIRE(assigned.find(7)->second == 8);
+}
+
+// A moved-from table used to be handed a freshly allocated bucket array so that it stayed usable.
+// It is usable without one now, so the move does not allocate.
+TEST_CASE("a_moved_from_table_keeps_no_buckets") {
+    auto counts = test::alloc_counts{};
+
+    SUBCASE("move assignment") {
+        auto source = tracked<counting_map>(counts);
+        for (int i = 0; i < 100; ++i) {
+            source[i] = i;
+        }
+        auto target = tracked<counting_map>(counts);
+        auto const before = counts.allocations;
+
+        target = std::move(source);
+
+        REQUIRE(counts.allocations == before);
+        test::require_holds(target, 100);
+        REQUIRE(source.bucket_count() == 0); // NOLINT(bugprone-use-after-move,clang-analyzer-cplusplus.Move)
+        REQUIRE(source.empty());             // NOLINT(bugprone-use-after-move,clang-analyzer-cplusplus.Move)
+
+        source[1] = 2; // NOLINT(bugprone-use-after-move,clang-analyzer-cplusplus.Move)
+        REQUIRE(source.find(1)->second == 2);
+    }
+
+    SUBCASE("move construction") {
+        auto source = tracked<counting_map>(counts);
+        source[1] = 2;
+        auto const before = counts.allocations;
+
+        auto target = std::move(source);
+
+        // Nothing beyond bringing the target's own three containers into existence.
+        REQUIRE(counts.allocations == before + empty_table_cost());
+        REQUIRE(target.find(1)->second == 2);
+        REQUIRE(source.bucket_count() == 0); // NOLINT(bugprone-use-after-move,clang-analyzer-cplusplus.Move)
+    }
+}
+
+// An explicit request is still honoured up front -- laziness applies to the count that was not
+// asked for, not to the one that was.
+TEST_CASE("an_explicit_bucket_count_is_still_allocated_up_front") {
+    auto counts = test::alloc_counts{};
+
+    auto map = counting_map(150U, counting_alloc(0, &counts));
+    REQUIRE(map.bucket_count() == 256U);
+    REQUIRE(counts.allocations > 0);
+
+    auto reserved = tracked<counting_map>(counts);
+    reserved.reserve(1000);
+    REQUIRE(reserved.bucket_count() >= 1000);
+}
+
+// The lazily allocated table has to behave like the eagerly allocated one did, including on the
+// paths that grow and shrink it.
+TEST_CASE("a_lazily_allocated_table_grows_and_empties_like_any_other") {
+    auto map = ankerl::unordered_dense::map<int, int>();
+    auto const count = 1000;
+
+    for (int i = 0; i < count; ++i) {
+        map[i] = i;
+    }
+    test::require_holds(map, count);
+
+    for (int i = 0; i < count; ++i) {
+        REQUIRE(map.erase(i) == 1);
+    }
+    REQUIRE(map.empty());
+    REQUIRE(map.bucket_count() > 0); // erasing does not give the buckets back
+
+    // Refilling reuses them.
+    for (int i = 0; i < count; ++i) {
+        map[i] = i;
+    }
+    test::require_holds(map, count);
+}
+
+// Two tables in different states, swapped both ways round.
+TEST_CASE("swapping_an_unallocated_table_with_a_full_one") {
+    auto empty = ankerl::unordered_dense::map<int, int>();
+    auto full = ankerl::unordered_dense::map<int, int>();
+    for (int i = 0; i < 100; ++i) {
+        full[i] = i;
+    }
+
+    empty.swap(full);
+
+    test::require_holds(empty, 100);
+    REQUIRE(full.empty());
+    REQUIRE(full.bucket_count() == 0);
+
+    full[1] = 2;
+    REQUIRE(full.find(1)->second == 2);
+}
+
+// The three routes to "empty, and looks like it was always empty". Answering every query is the
+// easy half, and the one already covered above; the hard half is the shift, which nothing exposes
+// and which decides how big an array the next insert asks for. A table that kept the shift of the
+// table it used to be allocates that whole array again for one element.
+TEST_CASE_MAP("an_emptied_table_looks_default_constructed", int, int) {
+    // Enough to have grown the bucket array well past the size a first insert allocates, which is
+    // the whole point -- a table that kept its old shift asks for that array again for one element.
+    // Nothing here gets truer with more.
+    static constexpr int grown = 64;
+
+    SUBCASE("moved from") {
+        auto source = test::filled<map_t>(grown);
+        auto const sink = std::move(source);
+        REQUIRE(sink.size() == grown);
+
+        // Using a moved-from object is exactly what is being tested: the standard requires it to be
+        // valid, and this table promises more than that -- it promises to be indistinguishable from
+        // a fresh one.
+        // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
+        test::require_empty_table_answers(source);
+    }
+
+    // Move construction and move assignment leave the source behind by different code: the
+    // constructor exchanges the members itself, the assignment goes through move_everything_from.
+    // Both have to leave the same thing.
+    SUBCASE("moved from by assignment") {
+        auto source = test::filled<map_t>(grown);
+        auto sink = map_t();
+        sink[1] = 1;
+        sink = std::move(source);
+        REQUIRE(sink.size() == grown);
+
+        // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
+        test::require_empty_table_answers(source);
+    }
+
+    SUBCASE("a copy of a table that was cleared") {
+        auto source = test::filled<map_t>(grown);
+        source.clear();
+        auto copy = source;
+        test::require_empty_table_answers(copy);
+    }
+
+    SUBCASE("assigned from a table that was cleared") {
+        auto source = test::filled<map_t>(grown);
+        source.clear();
+
+        auto target = test::filled<map_t>(20);
+        target = source;
+        test::require_empty_table_answers(target);
+    }
+}
+
+// max_load_factor is carried by hand in the copy constructor and by hand again in the move, and it
+// is the one piece of configuration a table has. A copy that quietly reverts to the default grows
+// at a different point than the table it was copied from.
+TEST_CASE_MAP("a_copy_keeps_the_max_load_factor", int, int) {
+    auto source = map_t();
+    source.max_load_factor(0.5F);
+    for (int i = 0; i < 100; ++i) {
+        source[i] = i;
+    }
+    REQUIRE(source.max_load_factor() == 0.5F);
+
+    auto const copy = source;
+    REQUIRE(copy.max_load_factor() == 0.5F);
+    // Same configuration, same number of buckets for the same elements.
+    REQUIRE(copy.bucket_count() == source.bucket_count());
+
+    auto assigned = map_t();
+    assigned[1] = 1;
+    assigned = source;
+    REQUIRE(assigned.max_load_factor() == 0.5F);
+    REQUIRE(assigned.bucket_count() == source.bucket_count());
+
+    auto const source_buckets = source.bucket_count();
+    auto const moved = std::move(source);
+    REQUIRE(moved.max_load_factor() == 0.5F);
+    REQUIRE(moved.bucket_count() == source_buckets);
+}
+
+// reserve() is a promise about the buckets as much as about the values: after it, inserting that
+// many elements must not rehash. Only the bucket count can see the difference -- the answers are
+// right either way, the table just does the growing it was asked to do in advance.
+TEST_CASE_MAP("reserve_sizes_the_buckets_not_just_the_values", int, int) {
+    auto map = map_t();
+    map[1] = 1; // so the table already has buckets, which is the case that regressed
+
+    map.reserve(200);
+    auto const after_reserve = map.bucket_count();
+    REQUIRE(after_reserve >= 200);
+
+    for (int i = 0; i < 200; ++i) {
+        map[i] = i;
+    }
+    REQUIRE(map.bucket_count() == after_reserve);
+    REQUIRE(map.size() == 200);
+}
+
+// An emptied table is meant to be indistinguishable from a fresh one: its first insert allocates
+// the smallest array, whatever size the table had grown to before it was cleared. Copying one has
+// to carry that over -- the copy must also start from the smallest array, not from the source's
+// grown shift. Only visible when the copy already has buckets of its own, i.e. copy-assignment
+// into a grown target, since a fresh target is at the initial shift anyway.
+// rehash() and reserve() take the same decision -- "is the array I have already the right one" --
+// and answer it differently on a table that has no array at all. rehash() is allowed to leave it
+// that way, because a caller who rehashes an empty map has asked for nothing; reserve() is not,
+// because the whole point of it is to have the room before the inserts arrive. Both arms of that
+// were unasserted: a mutation sweep on 2026-09-10 could delete rehash()'s early return, and turn
+// reserve()'s `0 == bucket_count()` into `1 == bucket_count()` -- which is never true, since a
+// table has either no buckets or at least sixty-four -- with the whole suite green.
+TEST_CASE_MAP("rehash_on_an_empty_table_allocates_nothing_and_reserve_allocates", uint64_t, uint64_t) {
+    auto map = map_t();
+    REQUIRE(map.bucket_count() == 0);
+
+    map.rehash(0);
+    REQUIRE(map.bucket_count() == 0); // still nothing: an empty map has nothing to index
+
+    map.reserve(0);
+    REQUIRE(map.bucket_count() > 0); // but reserve() is a request for room, even for none of it
+
+    auto fresh = map_t();
+    fresh.rehash(100);
+    REQUIRE(fresh.bucket_count() >= 100);
+}
+
+TEST_CASE_MAP("copying_an_emptied_table_starts_from_the_smallest_array", uint64_t, uint64_t) {
+    auto source = map_t();
+    for (uint64_t i = 0; i < 1000; ++i) {
+        source[i] = i;
+    }
+    source.clear(); // grown, then empty
+    REQUIRE(source.empty());
+
+    auto target = map_t();
+    for (uint64_t i = 0; i < 1000; ++i) {
+        target[i] = i; // so the target has a grown array of its own to overwrite
+    }
+    auto const grown = target.bucket_count();
+    REQUIRE(grown > 64);
+
+    target = source;
+    REQUIRE(target.empty());
+    REQUIRE(target.bucket_count() == 0);
+
+    target[7] = 7;
+    REQUIRE(target.bucket_count() == 64); // the smallest array, not the source's or the target's old one
+}
+
+// A table without a bucket array reads a shared sentinel index (#329), so that a lookup needs no test
+// for the empty table. Every empty table of the same group type in the process reads it, so nothing
+// may ever write it: after every route into the empty state has had lookups, erases and a first
+// insert, a fresh table must still find nothing, for any key.
+TEST_CASE_MAP("the_sentinel_index_is_never_written", int, int) {
+    static constexpr int grown = 64;
+    for (int round = 0; round < 20; ++round) {
+        auto moved_from = test::filled<map_t>(grown);
+        auto const sink = std::move(moved_from);
+
+        auto move_assigned_from = test::filled<map_t>(grown);
+        auto assign_sink = map_t();
+        assign_sink = std::move(move_assigned_from);
+
+        auto copy_assigned = test::filled<map_t>(grown);
+        auto const empty = map_t();
+        copy_assigned = empty;
+
+        auto default_constructed = map_t();
+
+        // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
+        for (auto* m : {&moved_from, &move_assigned_from, &copy_assigned, &default_constructed}) {
+            for (int k = 0; k < 200; ++k) {
+                REQUIRE(m->find(k * 7919 + round) == m->end());
+                REQUIRE(m->erase(k * 7919 + round) == 0);
+            }
+            test::require_empty_table_answers(*m);
+        }
+        test::require_holds(sink, grown);
+        test::require_holds(assign_sink, grown);
+    }
+    auto const fresh = map_t();
+    for (int k = 0; k < 20000; ++k) {
+        REQUIRE(fresh.find(k) == fresh.end());
+    }
+}
+
+// The index is a pointer and a count (#329): the sentinel made a std::vector's own data pointer a
+// second copy, and its capacity was never read. With an empty allocator it takes two words, so
+// that a map is its values' vector plus 40 bytes on a 64 bit target, 8 fewer than 5.2.0's 48.
+TEST_CASE("the_index_is_two_words") {
+    using index_t =
+        ankerl::unordered_dense::detail::group_storage<ankerl::unordered_dense::bucket_type::group, std::allocator<pair_t>>;
+    using index_big_t = ankerl::unordered_dense::detail::group_storage<ankerl::unordered_dense::bucket_type::group_big,
+                                                                       std::allocator<pair_t>>;
+    REQUIRE(sizeof(index_t) == 2 * sizeof(void*));
+    REQUIRE(sizeof(index_big_t) == 2 * sizeof(void*));
+}
+
+// The index frees what it allocated, through the allocator that allocated it: after a swap under
+// propagate_on_container_swap, the index has to go back to the allocator it came from, which is the
+// other table's now. One table has no index, so a swap that forgot the allocator frees the one index
+// through the wrong counter; each counter has to balance at the end.
+TEST_CASE("the_index_frees_through_the_allocator_that_allocated_it") {
+    using alloc_t = test::id_allocator<pair_t, std::false_type, std::true_type, std::false_type, std::true_type>;
+    using swap_map = map_of<alloc_t>;
+    auto counts_a = test::alloc_counts{};
+    auto counts_b = test::alloc_counts{};
+    {
+        auto a = swap_map(0, alloc_t(1, &counts_a));
+        auto b = swap_map(0, alloc_t(2, &counts_b));
+        for (int i = 0; i < 100; ++i) {
+            a[i] = i;
+        }
+        a.swap(b);
+        REQUIRE(a.empty());
+        REQUIRE(b.contains(0));
+    }
+    REQUIRE(counts_a.allocations == counts_a.deallocations);
+    REQUIRE(counts_b.allocations == counts_b.deallocations);
+    REQUIRE(counts_a.allocations > 0);
+}

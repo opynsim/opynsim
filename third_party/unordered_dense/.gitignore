@@ -12,3 +12,41 @@ compile_commands.json
 *.pcm
 a.out
 *.o
+# local fuzzing output, see scripts/fuzz_afl.py
+fuzz-findings/
+
+# left behind by importing anything under scripts/
+__pycache__/
+
+# compiler cache, populated by the MinGW CI job
+.ccache/
+
+# Core dumps. kernel.core_pattern is often a bare `core`, so a crashing test or a
+# hand-run reproducer drops one wherever it was started from -- which is usually here.
+# scripts/mutate/mutate.py sets RLIMIT_CORE to 0 for what it spawns; this is for everything else.
+core
+core.*
+
+# doc/ charts and the measurements behind them: everything under doc/ is derived, so it is not
+# tracked. `regen.sh` measures and draws; `regen.sh --redraw` only draws, and needs the CSVs to be
+# there.
+/doc/*.csv
+/doc/*.svg
+/doc/charts.html
+
+# ... except what the README itself shows. A reader of the README on GitHub has no build directory
+# to draw from, so the two benchmark charts and the CSV they are drawn from are in the tree, the
+# same way doc/allocated_memory.png is. `scripts/ab/bench_readme.sh` regenerates all three.
+!/doc/bench_readme.csv
+!/doc/bench-readme-u64.svg
+!/doc/bench-readme-str.svg
+!/doc/bench-readme-udm-u64.svg
+!/doc/bench-readme-udm-str.svg
+
+# ... and the layout figure doc/design.md shows, for the same reason. `scripts/ab/diagrams.py
+# --surface doc` regenerates it; the --surface flag is what makes it readable on GitHub's dark
+# theme, and is off for the copies that go on the blog.
+!/doc/group-block.svg
+
+# scripts/release_assets.sh writes here
+release-assets/

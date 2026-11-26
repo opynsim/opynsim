@@ -1,0 +1,648 @@
+# The invariants the table is built on, each one broken on purpose, and what notices.
+#
+# A sweep asks "would anything notice this token changing". This asks the question the other way
+# round: here is a mistake a person would plausibly make in this code, does the suite say so. The
+# two find different things -- a sweep cannot express "pop_back before repointing instead of
+# after", and a person would not think to try "2 -> 3" in a distance comparison.
+#
+# Grouped by the invariant being broken rather than by function, because that is what a survivor
+# here means: not "this line is untested" but "this promise is untested".
+#
+#     scripts/mutate/mutate.py --bugs scripts/mutate/bugs/invariants.txt
+#
+# A snapshot against the code as it was: when a block stops applying, that part has been rewritten
+# and the question wants re-deriving rather than repairing.
+
+# ---------------------------------------------------------------- probing and the group index
+
+# the home bucket comes from the low bits of the hash rather than the high ones
+# m_shifts and m_bucket_mask describe the same array two ways, and only the shift is applied to a
+# first probe -- do_find_hashed indexes with hash >> m_shifts and does not mask. Taking the low
+# bits still lands inside the array, so this is not a crash; it is every key whose low bits collide
+# piling into one run.
+<<<
+        return static_cast<value_idx_type>(hash >> m_shifts);
+===
+        return static_cast<value_idx_type>(hash) & m_bucket_mask;
+>>>
+
+# the probe walks off the end of the group array instead of wrapping
+# m_group_mask is the number of groups minus one, so masking is the wrap. Without it the walk runs
+# past the array as soon as a probe starts near the end, which is a read out of bounds long before
+# it is a wrong answer -- so a plain build may well stay green where a sanitizer build screams.
+<<<
+        return static_cast<value_idx_type>((group_idx + (++delta)) & m_group_mask);
+===
+        return static_cast<value_idx_type>(group_idx + (++delta));
+>>>
+
+# the probe stays on the same group forever instead of stepping through the sequence
+# delta is what makes the sequence triangular, and incrementing it is what makes it move at all.
+# Read without the increment the first step is zero, so a probe that has to leave its home group
+# never leaves it: a miss in a full group does not terminate.
+<<<
+        return static_cast<value_idx_type>((group_idx + (++delta)) & m_group_mask);
+===
+        return static_cast<value_idx_type>((group_idx + delta) & m_group_mask);
+>>>
+
+# a fingerprint of zero is stored as zero, which is the marker for "empty slot"
+# The low byte of a hash is zero for one key in 256, and mapping that to 8 is the whole reason an
+# empty slot can be told from an occupied one by the fingerprint alone. Without the remap such a
+# key is stored in a slot that every later probe reads as free: the key cannot be found, and the
+# next insert overwrites its slot.
+<<<
+        t[i] = (i == 0 ? 8U : i) * 0x01010101U;
+===
+        t[i] = i * 0x01010101U;
+>>>
+
+# an insert that leaves a full group behind does not record that it did
+# The counter is the only thing that tells a later probe to look past this group. Without the
+# increment the probe stops at the home group, and every key that had to move on is unfindable --
+# but only once a group actually fills, so a small table stays green.
+<<<
+            if (group.m_overflows[counter] != 255) {
+                ++group.m_overflows[counter];
+            }
+===
+            if (group.m_overflows[counter] == 255) {
+                ++group.m_overflows[counter];
+            }
+>>>
+
+# an erase undoes the counters from the group the entry landed in rather than from its home
+# The walk has to retrace exactly the groups the insert passed. Starting it at the group the entry
+# landed in retraces nothing, so the counters only ever grow. Before the probe was bounded this
+# hung -- every group left with a stale count for a class, and a miss with nothing to stop at -- so
+# the sibling bug in bugs/erase-path.txt was caught as a hang. The bound stops the miss at the end
+# of the array instead, which made this SURVIVE for a while: counters that are too high only
+# lengthen probes, and no answer shows that.
+#
+# It is caught again since erase_uncounts.cpp, which measures the lengthening instead of an answer
+# -- it counts how often a miss asks KeyEqual and requires a table that reached its contents by
+# erasing to compare exactly as often as one built from the survivors directly. That is the way to
+# test anything in this family, and this block is the reason the test exists.
+<<<
+        auto const home_idx = group_idx_from_hash(mh);
+        auto const counter = fingerprint_word(mh) & 7U;
+        groups[found_in].m_fingerprints[lane] = 0;
+===
+        auto const home_idx = found_in;
+        auto const counter = fingerprint_word(mh) & 7U;
+        groups[found_in].m_fingerprints[lane] = 0;
+>>>
+
+# the erase clears the fingerprint in the entry's home group instead of the group it is in
+# Re-derived 2026-09-27 (#314): the slot used to arrive as one index over the whole array, and the
+# mistake was taking group and lane out of it the wrong way round. It arrives as the group it is in
+# and the lane now, next to the home group the counters need, and those two group indices are the
+# ones to confuse. For an entry at home they are the same group, so this is wrong only for an entry
+# that was placed past home: its own fingerprint stays, and the lane in home -- somebody else's, or
+# empty -- is cleared.
+<<<
+        groups[found_in].m_fingerprints[lane] = 0;
+===
+        groups[home_idx].m_fingerprints[lane] = 0;
+>>>
+
+# a probe trusts the fingerprint and never compares the key
+# One byte of hash matches by accident once in 256, so this is wrong from the first collision and
+# not before: a lookup for an absent key comes back with somebody else's value.
+<<<
+                auto const value_idx = group.m_index[lane];
+                if (m_equal(key, get_key(m_values[value_idx]))) {
+                    return {group_idx, value_idx, static_cast<std::uint8_t>(lane), true};
+                }
+===
+                auto const value_idx = group.m_index[lane];
+                static_cast<void>(key);
+                if (true) {
+                    return {group_idx, value_idx, static_cast<std::uint8_t>(lane), true};
+                }
+>>>
+
+# an insert trusts the fingerprint in the home group and never compares the key
+# The same mistake in the other copy of the home group's loop, the one #321 inlined into every
+# insert: a new key whose fingerprint matches one already at home is reported as present, and is
+# never inserted.
+<<<
+                auto const value_idx = home.m_index[first_lane(lanes)];
+                if (m_equal(key, get_key(m_values[value_idx]))) {
+===
+                auto const value_idx = home.m_index[first_lane(lanes)];
+                if (true) {
+>>>
+
+# the candidate loop drops the lowest bit by shifting instead of clearing it
+# `lanes &= lanes - 1` clears the lowest set bit; a shift moves every remaining candidate down one
+# lane as well, so after the first mismatch every further candidate is looked up in the wrong slot.
+<<<
+                lanes &= lanes - 1;
+            }
+            // Not here if nothing of this class ever overflowed past this group, and not anywhere
+===
+                lanes >>= 1;
+            }
+            // Not here if nothing of this class ever overflowed past this group, and not anywhere
+>>>
+
+# the search for the slot that points at a value accepts any fingerprint match
+# slot_of_value is how an erase by iterator and the dense move find the slot of a *known* value.
+# The fingerprint narrows the candidates; only the index identifies the one. Without that check the
+# first key sharing a fingerprint is repointed instead, which corrupts two entries at once.
+<<<
+                if (group.m_index[lane] == value_idx) {
+                    return {group_idx, static_cast<std::uint8_t>(lane)};
+                }
+===
+                static_cast<void>(value_idx);
+                return {group_idx, static_cast<std::uint8_t>(lane)};
+>>>
+
+# the backfill's search for the slot accepts any fingerprint match
+# repoint_value is the same search, walked for the value the dense move just brought into the hole,
+# and it writes rather than returns. Without the index check it overwrites the first slot sharing a
+# fingerprint: that entry now names the moved value and the moved value is reachable from nothing.
+<<<
+                if (group.m_index[lane] == value_idx) {
+                    group.m_index[lane] = new_value_idx;
+===
+                if (static_cast<void>(value_idx), true) {
+                    group.m_index[lane] = new_value_idx;
+>>>
+
+# ---------------------------------------------------------------- growth and load factor
+
+# the table never decides it is full, so it fills up completely and probes forever
+# is_full() is what triggers growth. Once every bucket is taken, place_and_shift_up looks for an
+# empty slot that no longer exists.
+<<<
+    [[nodiscard]] auto is_full() const -> bool {
+        return size() > m_max_bucket_capacity;
+    }
+===
+    [[nodiscard]] auto is_full() const -> bool {
+        return false;
+    }
+>>>
+
+# growing keeps the same number of buckets instead of doubling
+# m_shifts - 1 is the doubling. Without it the table decides it is full, does the work of a rehash,
+# and comes back just as full.
+<<<
+            try {
+                allocate_buckets_from_shift(static_cast<std::uint8_t>(m_shifts - 1));
+            } catch (...) {
+===
+            try {
+                allocate_buckets_from_shift(static_cast<std::uint8_t>(m_shifts));
+            } catch (...) {
+>>>
+
+# growth allocates the bigger array but never refills it from the values
+# Every bucket is then zero, so the table reports the right size and finds nothing at all.
+<<<
+        fill_buckets_from_values();
+    }
+
+    // Closes the hole that the erased value left in m_values
+===
+    }
+
+    // Closes the hole that the erased value left in m_values
+>>>
+
+
+# the load factor limit is taken as a count of buckets rather than a fraction of them
+# m_max_bucket_capacity would exceed bucket_count(), is_full() would never fire, and the table
+# fills completely -- the same end state as never growing, reached a different way.
+<<<
+            m_max_bucket_capacity = static_cast<value_idx_type>(static_cast<float>(num_buckets) * max_load_factor());
+        }
+    }
+===
+            m_max_bucket_capacity = static_cast<value_idx_type>(num_buckets);
+        }
+    }
+>>>
+
+# max_load_factor accepts a value above 1
+# The comment on this line says what happens: the capacity exceeds the bucket count, is_full() never
+# fires, and place_and_shift_up probes forever for an empty bucket that does not exist.
+<<<
+        m_max_load_factor = (std::min)(ml, 1.0F);
+===
+        m_max_load_factor = ml;
+>>>
+
+# calc_shifts_for_size sizes the array for one element too few
+# The table is then born exactly one insert short of needing to grow, which is only visible if
+# something reserves and then inserts precisely that many.
+<<<
+        while (shifts > 0 && calc_num_buckets(shifts) < max_bucket_count() &&
+               static_cast<std::size_t>(static_cast<float>(calc_num_buckets(shifts)) * max_load_factor()) < s) {
+===
+        while (shifts > 0 && calc_num_buckets(shifts) < max_bucket_count() &&
+               static_cast<std::size_t>(static_cast<float>(calc_num_buckets(shifts)) * max_load_factor()) < s - 1) {
+>>>
+
+# reserve grows the values but not the buckets
+# So reserve() stops being a promise about lookups and becomes one about m_values only; the table
+# still rehashes on the way up, just later than asked.
+<<<
+        auto shifts = calc_shifts_for_size((std::max)(capa, size()));
+        if (0 == bucket_count() || shifts < m_shifts) {
+            allocate_buckets_from_shift(shifts);
+            fill_buckets_from_values();
+        }
+    }
+===
+        auto shifts = calc_shifts_for_size((std::max)(capa, size()));
+        if (0 == bucket_count()) {
+            allocate_buckets_from_shift(shifts);
+            fill_buckets_from_values();
+        }
+    }
+>>>
+
+# rehash resizes the bucket array and leaves it empty
+# Same shape as the growth bug above, reached through the public API instead.
+<<<
+        m_values.shrink_to_fit();
+        fill_buckets_from_values();
+    }
+===
+        m_values.shrink_to_fit();
+    }
+>>>
+
+# the group mask is the number of groups rather than one less than it
+# Masking with the count instead of count-1 lets a probe address one group past the end, and stops
+# masking off the top bit that a hash puts there: the wrap is wrong and the read is out of bounds.
+<<<
+        m_group_mask = static_cast<value_idx_type>(num_groups - 1);
+===
+        m_group_mask = static_cast<value_idx_type>(num_groups);
+>>>
+
+# ---------------------------------------------------------------- the dense value array
+
+
+# the hole is closed only when the erased element was the last one
+# Reversed condition: the one case that needs no repair gets it, and every case that does is left
+# with a hole in a container that promises to have none.
+<<<
+        if (value_idx_to_remove != m_values.size() - 1) {
+===
+        if (value_idx_to_remove == m_values.size() - 1) {
+>>>
+
+
+# an insert that cannot grow the bucket array leaves the value behind anyway
+# A failed single-element insert has to have no effect. Here size() counts an element that find()
+# will never reach.
+<<<
+            // remove the value again, we can't add it!
+            m_values.pop_back();
+            on_error_bucket_overflow();
+===
+            on_error_bucket_overflow();
+>>>
+
+# extract() hands the values over and leaves the buckets pointing into them
+# "*this is emptied" then holds only for size() and find(); the next insert probes a bucket that
+# indexes a container which has moved out.
+<<<
+        m_values.clear();
+        clear_buckets();
+        return values;
+===
+        m_values.clear();
+        return values;
+>>>
+
+# the last value is popped before the moved element's slot is repointed
+# slot_of_value walks the probe sequence comparing indices, and the index it looks for is the one
+# the value had before the pop. Popping first is a search for something that is no longer there,
+# which does not terminate.
+<<<
+            auto const values_idx_back = static_cast<value_idx_type>(m_values.size() - 1);
+            auto const mh = mixed_hash(get_key(val));
+            repoint_value(mh, values_idx_back, value_idx_to_remove);
+        }
+        m_values.pop_back();
+===
+            m_values.pop_back();
+            auto const values_idx_back = static_cast<value_idx_type>(m_values.size() - 1);
+            auto const mh = mixed_hash(get_key(val));
+            repoint_value(mh, values_idx_back, value_idx_to_remove);
+            return;
+        }
+        m_values.pop_back();
+>>>
+
+# emplace leaves the duplicate it speculatively constructed in m_values
+# emplace has to build the value before it can see the key, so a duplicate is appended and then
+# taken back out. Without the pop the table holds an element no slot points at: size() counts it,
+# iteration yields it, and find() cannot see it.
+<<<
+            m_values.pop_back(); // value was already there, so get rid of it
+            move_home(r.group_idx, r.lane, mh);
+===
+            move_home(r.group_idx, r.lane, mh);
+>>>
+
+# ---------------------------------------------------------------- copying, moving, assignment
+
+# copying a table does not carry its max_load_factor over
+# The copy then grows at a different point than the original, which is invisible until something
+# compares bucket_count() or inserts exactly enough to straddle the difference.
+<<<
+        : m_values(other.m_values, alloc)
+        , m_buckets(alloc)
+        , m_max_load_factor(other.m_max_load_factor)
+        , m_hash(other.m_hash)
+        , m_equal(other.m_equal) {
+        copy_buckets(other);
+===
+        : m_values(other.m_values, alloc)
+        , m_buckets(alloc)
+        , m_hash(other.m_hash)
+        , m_equal(other.m_equal) {
+        copy_buckets(other);
+>>>
+
+
+# copying an empty table leaves the shift wherever the source had it
+# An empty table is meant to be indistinguishable from a fresh one, so that the first insert
+# allocates the smallest array rather than the one the source had grown to.
+<<<
+            // first insert allocate. Copying an empty table therefore allocates nothing either.
+            m_shifts = initial_shifts;
+===
+            // first insert allocate. Copying an empty table therefore allocates nothing either.
+>>>
+
+# (Removed 2026-09-27, #314: "a moved-from table keeps the mask of an index it no longer owns",
+# which kept `m_group_mask` in the source of a move assignment. It survived, and nothing can catch
+# it any more: nothing reads the mask of a table without a bucket array -- bucket_count() returns 0
+# before it looks, every probe needs the array, and the first insert allocates one, which sets the
+# mask anew. A stale mask became unobservable when bucket_count() learned to ask m_buckets first.
+# Put a block back here if the mask is ever read on a path that can run without the array.)
+
+# ---------------------------------------------------------------- the API's own promises
+
+# two tables compare equal as soon as their keys match, whatever the values are
+# For a map this is simply the wrong operator, and it is the sort of thing a test suite checks with
+# two tables built the same way -- which agree on both.
+<<<
+                if (a.end() == it || !(b_entry.second == it->second)) {
+                    return false;
+                }
+===
+                if (a.end() == it) {
+                    return false;
+                }
+>>>
+
+# tables of different sizes are compared element by element instead of being rejected
+# Every entry of the smaller can be present in the larger, so a subset now compares equal to its
+# superset in one direction.
+<<<
+        if (a.size() != b.size()) {
+            return false;
+        }
+        for (auto const& b_entry : b) {
+===
+        for (auto const& b_entry : b) {
+>>>
+
+# equal_range hands back an empty range for a key that is present
+# Standard containers promise [it, it+1) for a found key, and code that iterates the range then
+# silently does nothing.
+<<<
+    auto equal_range(Key const& key) -> std::pair<iterator, iterator> {
+        auto it = do_find(key);
+        return {it, it == end() ? end() : it + 1};
+    }
+===
+    auto equal_range(Key const& key) -> std::pair<iterator, iterator> {
+        auto it = do_find(key);
+        return {it, it};
+    }
+>>>
+
+# insert_or_assign does not assign when the key is already there
+# It becomes try_emplace, which is a real function with a real caller, so nothing about the shape of
+# it looks wrong.
+<<<
+        auto it_isinserted = try_emplace(std::forward<K>(key), std::forward<M>(mapped));
+        if (!it_isinserted.second) {
+            it_isinserted.first->second = std::forward<M>(mapped);
+        }
+        return it_isinserted;
+===
+        auto it_isinserted = try_emplace(std::forward<K>(key), std::forward<M>(mapped));
+        return it_isinserted;
+>>>
+
+# erase(iterator) returns an iterator to the start of the table
+# The returned iterator is meant to be the position the erased element occupied, which after the
+# swap-with-last holds a different element -- that is what makes an erase-while-iterating loop work.
+<<<
+        return begin() + static_cast<difference_type>(e.value_idx);
+    }
+
+    auto extract(iterator it) -> value_type {
+===
+        return begin();
+    }
+
+    auto extract(iterator it) -> value_type {
+>>>
+
+# load_factor divides by the number of elements instead of the number of buckets
+# Right at zero and right at full, wrong everywhere in between.
+<<<
+        return bucket_count() ? static_cast<float>(size()) / static_cast<float>(bucket_count()) : 0.0F;
+===
+        return bucket_count() ? static_cast<float>(bucket_count()) / static_cast<float>(size()) : 0.0F;
+>>>
+
+
+# clearing the table keeps the buckets, which now index nothing
+# clear() has to leave a table that the next insert can use. Buckets surviving it point into an
+# empty container.
+<<<
+    void clear() {
+        if (!empty()) {
+            m_values.clear();
+===
+    void clear() {
+        if (false) {
+            m_values.clear();
+>>>
+
+# replace_key does not check whether the new key is already in the table
+# The promise is that a key already present is left alone and reported. Without the check the table
+# ends up holding the same key twice, and only one of them can ever be found.
+<<<
+        auto const r = probe(new_key, new_key_hash);
+        if (r.found) {
+            return {begin() + static_cast<difference_type>(r.value_idx), false};
+        }
+===
+        auto const r = probe(new_key, new_key_hash);
+        if (false) {
+            return {begin() + static_cast<difference_type>(r.value_idx), false};
+        }
+>>>
+
+# replace_key places the new slot without freeing the old one
+# The value keeps its position in the vector and gets a second slot pointing at it, while the slot
+# for the old key stays behind with a fingerprint no key will match and a counter trail nothing
+# will ever undo.
+<<<
+        erase_group_slot(at.group_idx, at.lane, old_key_hash);
+        place_group(new_key_hash, value_idx);
+===
+        static_cast<void>(at);
+        place_group(new_key_hash, value_idx);
+>>>
+
+# ---------------------------------------------------------------- hashing
+
+# a hash that never said it avalanches is used as-is
+# wyhash is what turns std::hash<int>'s identity function into something with entropy in the high
+# bits -- which is where group_idx_from_hash takes the index from. Without it every small integer
+# key lands in the same handful of buckets.
+<<<
+            // not is_avalanching => run it through this library's own hash
+            return detail::hash_int(m_hash(key));
+===
+            // not is_avalanching => run it through this library's own hash
+            return m_hash(key);
+>>>
+
+# a 32 bit avalanching hash is used without being spread into the high bits
+# The multiply is what moves 32 bits of entropy up to where the shift reads them. Without it every
+# key hashes into bucket zero.
+<<<
+                return m_hash(key) * UINT64_C(0x9ddfea08eb382d69);
+===
+                return m_hash(key);
+>>>
+
+# wyhash reads the wrong three bytes of a very short key
+# Keys of 1 to 3 bytes then collide in groups instead of being told apart, which is a distribution
+# bug and never a wrong answer -- the sort of thing only a statistical test sees.
+<<<
+    return (static_cast<std::uint64_t>(p[0]) << 16U) | (static_cast<std::uint64_t>(p[k >> 1U]) << 8U) | p[k - 1];
+===
+    return (static_cast<std::uint64_t>(p[0]) << 16U) | (static_cast<std::uint64_t>(p[0]) << 8U) | p[0];
+>>>
+
+# ---------------------------------------------------------------- segmented_vector
+
+# the block index and the offset within a block are taken from the same bits
+# operator[] is how every element is reached, so this is either instantly fatal or, if the tests
+# never fill more than one block, entirely invisible.
+<<<
+    [[nodiscard]] constexpr auto operator[](std::size_t i) noexcept -> T& {
+        return m_blocks[i >> num_bits][i & mask];
+    }
+===
+    [[nodiscard]] constexpr auto operator[](std::size_t i) noexcept -> T& {
+        return m_blocks[i >> num_bits][i >> num_bits];
+    }
+>>>
+
+# the block count for a capacity rounds down instead of up
+# A capacity that is not a whole number of blocks then gets one block too few, and the last few
+# elements are written past the end of the last one.
+<<<
+        return (capacity + num_elements_in_block - 1U) / num_elements_in_block;
+===
+        return capacity / num_elements_in_block;
+>>>
+
+# shrinking a segmented_vector does not destroy the elements it drops
+# Only visible with a value type whose destructor does something -- so a suite that tests with
+# integers cannot see it at all, and one with a sanitizer only sees the leak.
+<<<
+    void destroy_tail(std::size_t new_size) {
+        if constexpr (!std::is_trivially_destructible_v<T>) {
+            for (auto i = m_size; i != new_size; --i) {
+                operator[](i - 1).~T();
+            }
+        }
+        m_size = new_size;
+===
+    void destroy_tail(std::size_t new_size) {
+        m_size = new_size;
+>>>
+
+# a segmented_vector destroys its elements first to last again
+# Nothing leaks and nothing reads freed memory, so only a test of the order sees it; what it costs is
+# the allocator's, a build after a teardown that faults its heap back in (the teardown-order tests).
+<<<
+            for (auto i = m_size; i != new_size; --i) {
+                operator[](i - 1).~T();
+            }
+===
+            for (auto i = new_size; i != m_size; ++i) {
+                operator[](i).~T();
+            }
+>>>
+
+# a segmented_vector frees its first block first again
+<<<
+        for (auto it = m_blocks.rbegin(); it != m_blocks.rend(); ++it) {
+            std::allocator_traits<Allocator>::deallocate(ba, *it, num_elements_in_block);
+        }
+===
+        for (auto ptr : m_blocks) {
+            std::allocator_traits<Allocator>::deallocate(ba, ptr, num_elements_in_block);
+        }
+>>>
+
+# clear() does not run the destructors of what it drops
+# Same shape, on the path every table takes when it is emptied rather than resized.
+<<<
+    void clear() {
+        destroy_tail(0);
+===
+    void clear() {
+        m_size = 0;
+>>>
+
+# pop_back drops the element without destroying it
+<<<
+    void pop_back() {
+        back().~T();
+        --m_size;
+    }
+===
+    void pop_back() {
+        --m_size;
+    }
+>>>
+
+# shrink_to_fit hands back one block too many
+# The block still holding live elements is deallocated, and everything in it is a use after free
+# that a plain build has no way to notice.
+<<<
+        while (m_blocks.size() > num_blocks_required) {
+===
+        while (m_blocks.size() >= num_blocks_required) {
+>>>
+
+# a miss walks on past the last group instead of stopping there
+# Every counter on a sequence can be positive at once -- eight chosen keys do it -- and then this
+# lookup never returns. The bound is the only thing that makes a miss terminate for every input.
+<<<
+            if (group.m_overflows[counter] == 0 || delta == m_group_mask) {
+===
+            if (group.m_overflows[counter] == 0) {
+>>>

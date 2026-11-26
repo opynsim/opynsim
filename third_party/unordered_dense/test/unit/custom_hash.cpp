@@ -24,7 +24,7 @@ struct custom_hash_avalanching {
     using is_avalanching = void;
 
     auto operator()(id const& x) const noexcept -> uint64_t {
-        return ankerl::unordered_dense::detail::wyhash::hash(x.value);
+        return ankerl::unordered_dense::detail::hash_int(x.value);
     }
 };
 
@@ -42,7 +42,7 @@ struct custom_hash_unique_object_representation {
 
     [[nodiscard]] auto operator()(point const& f) const noexcept -> uint64_t {
         static_assert(std::has_unique_object_representations_v<point>);
-        return ankerl::unordered_dense::detail::wyhash::hash(&f, sizeof(f));
+        return ankerl::unordered_dense::detail::hash_bytes(&f, sizeof(f));
     }
 };
 
@@ -53,7 +53,7 @@ struct ankerl::unordered_dense::hash<id> {
     using is_avalanching = void;
 
     [[nodiscard]] auto operator()(id const& x) const noexcept -> uint64_t {
-        return detail::wyhash::hash(x.value);
+        return ankerl::unordered_dense::detail::hash_int(x.value);
     }
 };
 
@@ -82,13 +82,12 @@ TEST_CASE_SET("custom_hash_default", id) {
     set.insert(id{124});
 }
 
-static_assert(
-    !ankerl::unordered_dense::detail::is_detected_v<ankerl::unordered_dense::detail::detect_avalanching, custom_hash_simple>);
+// Asked of the public trait rather than of the private detector, because the trait is the contract:
+// it is what the table consults, and a hash can be named avalanching without carrying the member
+// the detector looks for.
+static_assert(!ankerl::unordered_dense::hash_is_avalanching_v<custom_hash_simple>);
 
-static_assert(ankerl::unordered_dense::detail::is_detected_v<ankerl::unordered_dense::detail::detect_avalanching,
-                                                             custom_hash_avalanching>);
-static_assert(ankerl::unordered_dense::detail::is_detected_v<ankerl::unordered_dense::detail::detect_avalanching,
-                                                             custom_hash_unique_object_representation>);
+static_assert(ankerl::unordered_dense::hash_is_avalanching_v<custom_hash_avalanching>);
+static_assert(ankerl::unordered_dense::hash_is_avalanching_v<custom_hash_unique_object_representation>);
 
-static_assert(!ankerl::unordered_dense::detail::is_detected_v<ankerl::unordered_dense::detail::detect_avalanching,
-                                                              ankerl::unordered_dense::hash<point>>);
+static_assert(!ankerl::unordered_dense::hash_is_avalanching_v<ankerl::unordered_dense::hash<point>>);

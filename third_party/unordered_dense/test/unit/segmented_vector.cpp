@@ -7,7 +7,13 @@
 #include <cstddef>
 #include <third-party/nanobench.h>
 
+#include <algorithm>
 #include <deque>
+#include <iterator>
+#include <numeric>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 TEST_CASE("segmented_vector") {
     counter counts;
@@ -99,6 +105,34 @@ TEST_CASE("segmented_vector_reserve") {
 
     // 3: 2 for std::vector<T*> reallocates, 1 for the new segment
     REQUIRE(counts.size() == 3);
+}
+
+// PR #188. Growing one segment at a time used to call m_blocks.reserve(size + 1), which
+// std::vector takes literally: the new capacity is exactly size + 1, so the next segment
+// reallocated the pointer array again, and every segment paid for copying every pointer before
+// it. Quadratic overall, and slow enough to notice from a plain insert loop once the map held a
+// few million elements. The index has to keep growing geometrically, the way push_back would
+// have grown it.
+TEST_CASE("segmented_vector_grows_the_block_index_geometrically") {
+    auto counts = counts_for_allocator{};
+    auto vec = ankerl::unordered_dense::segmented_vector<int, counting_allocator<int>, sizeof(int) * 16>(&counts);
+
+    static constexpr auto num_blocks = size_t{256};
+    static constexpr auto elements_per_block = size_t{16};
+    for (size_t i = 0; i < num_blocks * elements_per_block; ++i) {
+        vec.emplace_back(static_cast<int>(i));
+    }
+
+    // One allocation per segment is the unavoidable part. Doubling adds an allocate/deallocate
+    // pair each of the log2(num_blocks) + 1 times the index grows, and the slack covers a
+    // standard library that takes an extra allocation per container (MSVC's debug iterators do).
+    // The reserve(size + 1) version reallocated the index for every segment and lands near
+    // 3 * num_blocks events, far past this bound.
+    REQUIRE(counts.size() <= num_blocks + 64);
+
+    for (size_t i = 0; i < vec.size(); ++i) {
+        REQUIRE(vec[i] == static_cast<int>(i));
+    }
 }
 
 TEST_CASE("segmented_vector_resize") {
@@ -317,4 +351,414 @@ TEST_CASE("bench_segmented_vector" * doctest::test_suite("bench") * doctest::ski
     ankerl::nanobench::Bench().minEpochTime(100ms).batch(sv.size()).run("shuffle std::vector", [&] {
         rng.shuffle(v);
     });
+}
+// The iterator indexes, so every random access operation is a single step -- but it used to
+// advertise forward_iterator_tag, which sent std::distance walking element by element and made
+// every algorithm that requires random access ill-formed over it.
+TEST_CASE("segmented_vector_iterator_is_random_access") {
+    using int_vec_t = ankerl::unordered_dense::segmented_vector<int>;
+
+    static_assert(
+        std::is_same_v<std::iterator_traits<int_vec_t::iterator>::iterator_category, std::random_access_iterator_tag>);
+    static_assert(
+        std::is_same_v<std::iterator_traits<int_vec_t::const_iterator>::iterator_category, std::random_access_iterator_tag>);
+    static_assert(
+        std::is_same_v<std::iterator_traits<ankerl::unordered_dense::segmented_map<int, int>::iterator>::iterator_category,
+                       std::random_access_iterator_tag>);
+#if defined(__cpp_lib_concepts)
+    static_assert(std::random_access_iterator<int_vec_t::iterator>);
+    static_assert(std::random_access_iterator<int_vec_t::const_iterator>);
+#endif
+
+    auto vec = int_vec_t();
+    for (int i = 0; i < 1000; ++i) {
+        vec.emplace_back(999 - i);
+    }
+
+    // this is the operator-() answer, not a walk
+    REQUIRE(std::distance(vec.begin(), vec.end()) == 1000);
+    REQUIRE(std::distance(vec.begin() + 400, vec.end() - 100) == 500);
+
+    // it[n] and n + it
+    REQUIRE(vec.begin()[7] == 992);
+    REQUIRE(*(3 + vec.begin()) == 996);
+    REQUIRE(*(vec.begin() + 3) == 996);
+
+    // and an algorithm that only compiles for a random access iterator
+    std::sort(vec.begin(), vec.end());
+    for (int i = 0; i < 1000; ++i) {
+        REQUIRE(vec[static_cast<size_t>(i)] == i);
+    }
+    REQUIRE(std::binary_search(vec.begin(), vec.end(), 727));
+}
+
+// Four elements to a block, so every step in these tests crosses a block boundary -- which is
+// where an index-based iterator is least like a pointer.
+using small_block_vec_t = ankerl::unordered_dense::segmented_vector<int, std::allocator<int>, sizeof(int) * 4>;
+
+// The rest of the random access iterator interface. The map only ever uses ++, *, - and the
+// comparisons against end(), so everything else here is reached by user code and by algorithms and
+// by nothing in these tests -- post-increment could have called operator--, -= could have added,
+// and all four relational operators could have been each other.
+//
+// The block size is four elements, so every one of these steps crosses a block boundary, which is
+// where an index-based iterator is least like a pointer.
+TEST_CASE("segmented_vector_iterator_operations") {
+    auto vec = small_block_vec_t();
+    for (int i = 0; i < 20; ++i) {
+        vec.emplace_back(i);
+    }
+
+    auto const first = vec.begin();
+    auto const fifth = vec.begin() + 5;
+
+    // Strict, so `<` becoming `<=` is a different answer for the equal case, and becoming `>` is a
+    // different answer for the unequal one.
+    REQUIRE(first < fifth);
+    REQUIRE(!(fifth < first));
+    REQUIRE(!(first < first));
+
+    REQUIRE(fifth > first);
+    REQUIRE(!(first > fifth));
+    REQUIRE(!(first > first));
+
+    REQUIRE(first <= fifth);
+    REQUIRE(first <= first);
+    REQUIRE(!(fifth <= first));
+
+    REQUIRE(fifth >= first);
+    REQUIRE(first >= first);
+    REQUIRE(!(first >= fifth));
+
+    // Post-increment returns the old position and moves forward; post-decrement the other way.
+    auto it = vec.begin() + 3;
+    auto const before_inc = it++;
+    REQUIRE(before_inc == vec.begin() + 3);
+    REQUIRE(it == vec.begin() + 4);
+    REQUIRE(*before_inc == 3);
+    REQUIRE(*it == 4);
+
+    auto const before_dec = it--;
+    REQUIRE(before_dec == vec.begin() + 4);
+    REQUIRE(it == vec.begin() + 3);
+    REQUIRE(*it == 3);
+
+    // += and -= move by the amount given, in the direction the name says.
+    auto moving = vec.begin();
+    moving += 11;
+    REQUIRE(*moving == 11);
+    moving -= 7;
+    REQUIRE(*moving == 4);
+    REQUIRE(moving == vec.begin() + 4);
+    REQUIRE(moving - vec.begin() == 4);
+
+    // const_iterator compares against iterator, which is the pair the map's own end() checks use.
+    auto const cit = vec.cbegin() + 4;
+    REQUIRE(cit == moving);
+    REQUIRE(cit <= moving);
+    REQUIRE(cit >= moving);
+    REQUIRE(vec.cbegin() < cit);
+}
+
+TEST_CASE("segmented_vector_back_is_the_last_element") {
+    auto vec = small_block_vec_t();
+
+    // Every size from one element to several blocks, so back() is asked both in the middle of a
+    // block and at its very first slot -- the two cases an off-by-one index lands differently in.
+    for (int i = 0; i < 20; ++i) {
+        vec.emplace_back(i * 1000 + 7);
+        REQUIRE(vec.back() == i * 1000 + 7);
+        REQUIRE(vec.back() == vec[vec.size() - 1]);
+        REQUIRE(std::as_const(vec).back() == i * 1000 + 7);
+    }
+
+    while (!vec.empty()) {
+        auto const expected = static_cast<int>(vec.size() - 1) * 1000 + 7;
+        REQUIRE(vec.back() == expected);
+        vec.pop_back();
+    }
+}
+
+// resize() growing a vector that is not empty. Every existing case grows from zero, where "how many
+// more do we need" is the same number whichever way it is worked out.
+TEST_CASE("segmented_vector_resize_grows_a_non_empty_vector") {
+    auto vec = small_block_vec_t();
+    vec.resize(5, 1);
+    REQUIRE(vec.size() == 5);
+
+    vec.resize(23, 2);
+    REQUIRE(vec.size() == 23);
+    for (size_t i = 0; i < 5; ++i) {
+        REQUIRE(vec[i] == 1);
+    }
+    for (size_t i = 5; i < 23; ++i) {
+        REQUIRE(vec[i] == 2);
+    }
+
+    // ... and the value-initializing overload, from a non-empty vector as well.
+    vec.resize(30);
+    REQUIRE(vec.size() == 30);
+    for (size_t i = 23; i < 30; ++i) {
+        REQUIRE(vec[i] == 0);
+    }
+    REQUIRE(vec[22] == 2);
+}
+
+// shrink_to_fit has to actually hand blocks back -- a loop that never runs leaves the memory held,
+// and one that runs once too often frees a block that still has elements in it. The allocator is
+// what can see the first; the sanitizer legs see the second.
+TEST_CASE("segmented_vector_shrink_to_fit_frees_exactly_the_empty_blocks") {
+    auto counts = counts_for_allocator{};
+    auto vec = ankerl::unordered_dense::segmented_vector<int, counting_allocator<int>, sizeof(int) * 4>(&counts);
+
+    for (int i = 0; i < 100; ++i) {
+        vec.emplace_back(i);
+    }
+    REQUIRE(counts.size() > 20);
+    REQUIRE(vec.capacity() == 100);
+
+    vec.resize(9);
+    REQUIRE(vec.capacity() == 100); // shrinking the size does not hand anything back
+    vec.shrink_to_fit();
+
+    // 9 elements at 4 per block is 3 blocks, so exactly 12 slots -- capacity() is m_blocks.size()
+    // times the block size, which makes it a direct count of the blocks still held. Asking the
+    // allocator instead would not do: m_blocks is itself allocated through it, and its own
+    // shrink_to_fit records an event whether or not a single block was freed.
+    REQUIRE(vec.capacity() == 12);
+    REQUIRE(vec.size() == 9);
+    for (int i = 0; i < 9; ++i) {
+        REQUIRE(vec[static_cast<size_t>(i)] == i);
+    }
+    REQUIRE(vec.back() == 8);
+
+    // Shrinking again has nothing left to give back.
+    counts.reset();
+    vec.shrink_to_fit();
+    REQUIRE(counts.size() == 0);
+    REQUIRE(vec.capacity() == 12);
+}
+
+// The free swap beside the member one is what an unqualified `swap(a, b)` finds by ADL, which is
+// how generic code swaps two of these. Nothing was calling it: its body could be deleted, leaving a
+// swap that silently did nothing, with the whole suite still green. The member swap is exercised
+// through the table, so only this one-line forwarder was uncovered.
+TEST_CASE("segmented_vector_free_swap_forwards_to_the_member") {
+    auto a = ankerl::unordered_dense::segmented_vector<int>();
+    auto b = ankerl::unordered_dense::segmented_vector<int>();
+    for (int i = 0; i < 100; ++i) {
+        a.emplace_back(i);
+    }
+    b.emplace_back(-1);
+
+    using std::swap;
+    swap(a, b);
+
+    REQUIRE(a.size() == 1);
+    REQUIRE(a[0] == -1);
+    REQUIRE(b.size() == 100);
+    for (int i = 0; i < 100; ++i) {
+        REQUIRE(b[static_cast<size_t>(i)] == i);
+    }
+}
+
+// The segment size the alias takes, against the things it must not disturb: the default names the
+// type it always named, and a caller who brought their own container keeps it. Passing both a
+// container and a size is a static_assert, which is why only the legal spelling appears here.
+TEST_CASE("segmented_map_segment_size_reaches_the_container_and_defaults_unchanged") {
+    namespace udm = ankerl::unordered_dense;
+    using pair_t = std::pair<int, int>;
+
+    static_assert(
+        std::is_same_v<
+            udm::segmented_map<int, int>,
+            udm::detail::
+                table<int, int, udm::hash<int>, std::equal_to<int>, std::allocator<pair_t>, udm::bucket_type::group, true>>,
+        "the default spelling has to stay the type it has always been");
+    static_assert(
+        std::is_same_v<
+            udm::segmented_set<int>,
+            udm::detail::
+                table<int, void, udm::hash<int>, std::equal_to<int>, std::allocator<int>, udm::bucket_type::group, true>>);
+
+    // The size reaches the container, for every alias that takes one -- each is a hand-written
+    // parameter list that could have dropped or misordered it.
+    constexpr auto mb = std::size_t{1} << 20U;
+    static_assert(std::is_same_v<udm::segmented_map<int,
+                                                    int,
+                                                    udm::hash<int>,
+                                                    std::equal_to<int>,
+                                                    std::allocator<pair_t>,
+                                                    udm::bucket_type::group,
+                                                    mb>::value_container_type,
+                                 udm::segmented_vector<pair_t, std::allocator<pair_t>, mb>>);
+    static_assert(
+        std::is_same_v<
+            udm::segmented_set<int, udm::hash<int>, std::equal_to<int>, std::allocator<int>, udm::bucket_type::group, mb>::
+                value_container_type,
+            udm::segmented_vector<int, std::allocator<int>, mb>>);
+#if defined(ANKERL_UNORDERED_DENSE_PMR)
+    static_assert(
+        std::is_same_v<udm::pmr::segmented_map<int, int, udm::hash<int>, std::equal_to<int>, udm::bucket_type::group, mb>::
+                           value_container_type,
+                       udm::segmented_vector<pair_t, ANKERL_UNORDERED_DENSE_PMR::polymorphic_allocator<pair_t>, mb>>);
+    static_assert(
+        std::is_same_v<udm::pmr::segmented_set<int, udm::hash<int>, std::equal_to<int>, udm::bucket_type::group, mb>::
+                           value_container_type,
+                       udm::segmented_vector<int, ANKERL_UNORDERED_DENSE_PMR::polymorphic_allocator<int>, mb>>);
+#endif
+
+    // A container in the allocator slot is passed through, which is the only spelling that compiles
+    // once a container is there.
+    using own = udm::segmented_vector<pair_t, std::allocator<pair_t>, 8192>;
+    static_assert(
+        std::is_same_v<udm::segmented_map<int, int, udm::hash<int>, std::equal_to<int>, own>::value_container_type, own>);
+
+    auto map = udm::
+        segmented_map<int, int, udm::hash<int>, std::equal_to<int>, std::allocator<pair_t>, udm::bucket_type::group, mb>();
+    for (int i = 0; i < 10000; ++i) {
+        map[i] = i;
+    }
+    REQUIRE(map.size() == 10000);
+    REQUIRE(map.find(9999)->second == 9999);
+}
+
+namespace {
+
+// Writes its id into a log when it is destroyed. Built in place and never moved in these tests; a
+// default-constructed one, which resize() would make, logs nothing.
+struct logs_destruction {
+    std::vector<int>* log = nullptr;
+    int id = -1;
+
+    logs_destruction() = default;
+
+    logs_destruction(std::vector<int>* l, int i)
+        : log(l)
+        , id(i) {}
+    logs_destruction(logs_destruction const&) = delete;
+    logs_destruction(logs_destruction&&) = delete;
+    auto operator=(logs_destruction const&) -> logs_destruction& = delete;
+    auto operator=(logs_destruction&&) -> logs_destruction& = delete;
+    ~logs_destruction() {
+        if (log != nullptr) {
+            log->push_back(id);
+        }
+    }
+};
+
+// Records the address of every block of int it hands back, in order. The block index, a vector of
+// pointers, goes through a rebound copy and is not recorded.
+template <typename T>
+struct logs_deallocation {
+    using value_type = T;
+    std::vector<void const*>* freed;
+
+    explicit logs_deallocation(std::vector<void const*>* f)
+        : freed(f) {}
+    template <typename U>
+    logs_deallocation(logs_deallocation<U> const& other) // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
+        : freed(other.freed) {}
+
+    auto allocate(std::size_t n) -> T* {
+        return std::allocator<T>{}.allocate(n);
+    }
+    void deallocate(T* p, std::size_t n) {
+        if constexpr (std::is_same_v<T, int>) {
+            freed->push_back(p);
+        }
+        std::allocator<T>{}.deallocate(p, n);
+    }
+    template <typename U>
+    auto operator==(logs_deallocation<U> const& other) const -> bool {
+        return freed == other.freed;
+    }
+    template <typename U>
+    auto operator!=(logs_deallocation<U> const& other) const -> bool {
+        return !(*this == other);
+    }
+};
+
+// n-1, n-2, ..., 0
+auto descending(int n) -> std::vector<int> {
+    auto v = std::vector<int>(static_cast<std::size_t>(n));
+    std::iota(v.rbegin(), v.rend(), 0);
+    return v;
+}
+
+// four elements to a block, so fifty cross thirteen blocks
+using logging_vector = ankerl::unordered_dense::
+    segmented_vector<logs_destruction, std::allocator<logs_destruction>, sizeof(logs_destruction) * 4>;
+
+void fill(logging_vector& vec, std::vector<int>& log, int n) {
+    for (int i = 0; i < n; ++i) {
+        vec.emplace_back(&log, i);
+    }
+}
+
+} // namespace
+
+// Everything goes in the reverse of the order it was made, the element destroyed last first and the
+// block freed last first: notes/index-design.md, "Tearing a segmented_map down in reverse".
+TEST_CASE("segmented_vector_destroys_last_element_first") {
+    constexpr int n = 50;
+    auto log = std::vector<int>();
+    {
+        auto vec = logging_vector();
+        fill(vec, log, n);
+    }
+    REQUIRE(log == descending(n));
+
+    log.clear();
+    auto vec = logging_vector();
+    fill(vec, log, n);
+    vec.clear();
+    REQUIRE(log == descending(n));
+
+    // resize() to a smaller size takes the tail off the same way
+    log.clear();
+    fill(vec, log, n);
+    vec.resize(n / 2);
+    auto tail = descending(n);
+    tail.resize(n / 2);
+    REQUIRE(log == tail);
+    REQUIRE(vec.size() == n / 2);
+    log.clear();
+}
+
+TEST_CASE("segmented_vector_frees_last_block_first") {
+    auto freed = std::vector<void const*>();
+    auto expected = std::vector<void const*>();
+    {
+        using alloc = logs_deallocation<int>;
+        auto vec = ankerl::unordered_dense::segmented_vector<int, alloc, sizeof(int) * 4>(alloc(&freed));
+        for (int i = 0; i < 50; ++i) {
+            vec.emplace_back(i);
+        }
+        for (std::size_t i = 0; i < vec.size(); i += 4) {
+            expected.push_back(&vec[i]); // the start of each block
+        }
+    }
+    REQUIRE(expected.size() == 13);
+    REQUIRE(freed == std::vector<void const*>(expected.rbegin(), expected.rend()));
+}
+
+TEST_CASE("segmented_map_destroys_the_last_inserted_value_first") {
+    constexpr int n = 1000;
+    auto log = std::vector<int>();
+    {
+        auto map = ankerl::unordered_dense::segmented_map<int, logs_destruction>();
+        for (int i = 0; i < n; ++i) {
+            map.try_emplace(i, &log, i);
+        }
+    }
+    REQUIRE(log == descending(n));
+
+    log.clear();
+    auto map = ankerl::unordered_dense::segmented_map<int, logs_destruction>();
+    for (int i = 0; i < n; ++i) {
+        map.try_emplace(i, &log, i);
+    }
+    map.clear();
+    REQUIRE(log == descending(n));
 }
