@@ -1264,12 +1264,12 @@ namespace osc::ui
         }
 
         struct PlotSpec {
-            std::optional<Color> line_color;
+            std::optional<Color> line_color{};
             MarkerType marker_type = MarkerType::None;
-            std::optional<float> marker_size;
-            std::optional<Color> marker_fill;
-            std::optional<float> marker_weight;
-            std::optional<Color> marker_outline;
+            std::optional<float> marker_size{};
+            std::optional<Color> marker_fill{};
+            std::optional<float> marker_weight{};
+            std::optional<Color> marker_outline{};
         };
 
         // draws the plotting demo in its own panel
