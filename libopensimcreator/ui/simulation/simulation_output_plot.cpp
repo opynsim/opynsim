@@ -366,7 +366,6 @@ private:
         // setup drawing area for drawing
         ui::set_next_item_width(ui::get_content_region_available().x());
         const float plot_width = ui::get_content_region_available().x();
-        Rect plot_rect{};
 
         // draw the plot
         {
