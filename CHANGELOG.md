@@ -6,6 +6,10 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Upcoming Release] - YYYY/MM/DD
 
+- All dependencies were updated: OpenBLAS, v0.3.34; ImGui, v1.92; ImPlot, v1.1;
+  googletest, v1.18.0; mdspan, v5.3.0; stb, 6b5799b; tomlplusplus, v3.5.1;
+  unordered_dense, v5.3.3 (#62).
+
 ## [0.9.0] - 2026/11/19
 
 v0.9.0 is effectively a re-tagged v0.1.0. The reason for this is so that OPynSim's version
