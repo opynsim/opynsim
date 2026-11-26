@@ -30,6 +30,8 @@
 #
 #   Bazel Build for Google C++ Testing Framework(Google Test)
 
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
 package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])
@@ -151,10 +153,7 @@ cc_library(
             "@abseil-cpp//absl/flags:reflection",
             "@abseil-cpp//absl/flags:usage",
             "@abseil-cpp//absl/strings",
-            "@abseil-cpp//absl/types:any",
-            "@abseil-cpp//absl/types:optional",
-            "@abseil-cpp//absl/types:variant",
-            "@re2//:re2",
+            "@re2",
         ],
         "//conditions:default": [],
     }) + select({
@@ -164,7 +163,6 @@ cc_library(
         # Otherwise, builds targeting Fuchsia would fail to compile.
         ":fuchsia": [
             "@fuchsia_sdk//pkg/fdio",
-            "@fuchsia_sdk//pkg/syslog",
             "@fuchsia_sdk//pkg/zx",
         ],
         "//conditions:default": [],
@@ -174,8 +172,8 @@ cc_library(
 # `gtest`, but testonly. See guidance on `gtest` for when to use this.
 alias(
     name = "gtest_for_library",
-    actual = ":gtest",
     testonly = True,
+    actual = ":gtest",
 )
 
 # Implements main() for tests using gtest. Prefer to depend on `gtest` as well
@@ -189,6 +187,7 @@ cc_library(
         "//conditions:default": [],
     }),
     deps = [":gtest"],
+    alwayslink = True,
 )
 
 # The following rules build samples of how to use gTest.

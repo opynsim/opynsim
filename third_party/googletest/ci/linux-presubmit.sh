@@ -31,15 +31,22 @@
 
 set -euox pipefail
 
-readonly LINUX_LATEST_CONTAINER="gcr.io/google.com/absl-177019/linux_hybrid-latest:20241218"
-readonly LINUX_GCC_FLOOR_CONTAINER="gcr.io/google.com/absl-177019/linux_gcc-floor:20250205"
+readonly LINUX_LATEST_CONTAINER="gcr.io/google.com/absl-177019/linux_hybrid-latest@sha256:baa99e65a3cc837bab8e5246f1870d25c76d0adf2b1d598ee5a3ec77fd2e19bd"
 
 if [[ -z ${GTEST_ROOT:-} ]]; then
   GTEST_ROOT="$(realpath $(dirname ${0})/..)"
 fi
 
+# Use Bazel Vendor mode to reduce reliance on external dependencies.
+# See https://bazel.build/external/vendor and the Dockerfile for
+# an explaination of how this works.
+if [[ ${KOKORO_GFILE_DIR:-} ]] && [[ -f "${KOKORO_GFILE_DIR}/distdir/googletest_vendor.tar.gz" ]]; then
+  DOCKER_EXTRA_ARGS="--mount type=bind,source=${KOKORO_GFILE_DIR}/distdir,target=/distdir,readonly --env=BAZEL_VENDOR_ARCHIVE=/distdir/googletest_vendor.tar.gz ${DOCKER_EXTRA_ARGS:-}"
+  BAZEL_EXTRA_ARGS="--vendor_dir=/googletest_vendor ${BAZEL_EXTRA_ARGS:-}"
+fi
+
 if [[ -z ${STD:-} ]]; then
-  STD="c++17 c++20"
+  STD="c++17 c++20 c++23"
 fi
 
 # Test CMake + GCC
@@ -71,7 +78,7 @@ for cmake_off_on in OFF ON; do
     --tmpfs="/build:exec" \
     --workdir="/build" \
     --rm \
-    --env="CC=/opt/llvm/clang/bin/clang" \
+    --env="CC=/opt/llvm/bin/clang" \
     --env=CXXFLAGS="-Werror -Wdeprecated --gcc-toolchain=/usr/local" \
     ${LINUX_LATEST_CONTAINER} \
     /bin/bash -c "
@@ -91,20 +98,27 @@ time docker run \
   --volume="${GTEST_ROOT}:/src:ro" \
   --workdir="/src" \
   --rm \
-  --env="CC=/usr/local/bin/gcc" \
+  --env="CC=/opt/gcc-10/bin/gcc" \
   --env="BAZEL_CXXOPTS=-std=c++17" \
-  ${LINUX_GCC_FLOOR_CONTAINER} \
+  --env="BAZEL_LINKOPTS=-L/opt/gcc-10/lib64:-Wl,-rpath=/opt/gcc-10/lib64" \
+  --env="USE_BAZEL_VERSION=8.5.1" \
+  ${DOCKER_EXTRA_ARGS:-} \
+  ${LINUX_LATEST_CONTAINER} \
+  /bin/bash --login -c "
     /usr/local/bin/bazel test ... \
-      --copt="-Wall" \
-      --copt="-Werror" \
-      --copt="-Wuninitialized" \
-      --copt="-Wundef" \
-      --copt="-Wno-error=pragmas" \
+      --copt=\"-Wall\" \
+      --copt=\"-Werror\" \
+      --copt=\"-Wuninitialized\" \
+      --copt=\"-Wundef\" \
+      --copt=\"-Wno-error=pragmas\" \
       --enable_bzlmod=false \
+      --enable_workspace=true \
       --features=external_include_paths \
       --keep_going \
+      --per_file_copt=\"external/.*@-w\" \
       --show_timestamps \
-      --test_output=errors
+      --test_output=errors \
+      ${BAZEL_EXTRA_ARGS:-}"
 
 # Test GCC
 for std in ${STD}; do
@@ -115,18 +129,23 @@ for std in ${STD}; do
       --rm \
       --env="CC=/usr/local/bin/gcc" \
       --env="BAZEL_CXXOPTS=-std=${std}" \
+      --env="USE_BAZEL_VERSION=9.1.0" \
+      ${DOCKER_EXTRA_ARGS:-} \
       ${LINUX_LATEST_CONTAINER} \
-      /usr/local/bin/bazel test ... \
-        --copt="-Wall" \
-        --copt="-Werror" \
-        --copt="-Wuninitialized" \
-        --copt="-Wundef" \
-        --define="absl=${absl}" \
-        --enable_bzlmod=true \
-        --features=external_include_paths \
-        --keep_going \
-        --show_timestamps \
-        --test_output=errors
+      /bin/bash --login -c "
+        /usr/local/bin/bazel test ... \
+          --copt=\"-Wall\" \
+          --copt=\"-Werror\" \
+          --copt=\"-Wuninitialized\" \
+          --copt=\"-Wundef\" \
+          --define=\"absl=${absl}\" \
+          --enable_bzlmod=true \
+          --features=external_include_paths \
+          --keep_going \
+          --per_file_copt=\"external/.*@-w\" \
+          --show_timestamps \
+          --test_output=errors \
+          ${BAZEL_EXTRA_ARGS:-}"
   done
 done
 
@@ -137,21 +156,26 @@ for std in ${STD}; do
       --volume="${GTEST_ROOT}:/src:ro" \
       --workdir="/src" \
       --rm \
-      --env="CC=/opt/llvm/clang/bin/clang" \
+      --env="CC=/opt/llvm/bin/clang" \
       --env="BAZEL_CXXOPTS=-std=${std}" \
+      --env="USE_BAZEL_VERSION=9.1.0" \
+      ${DOCKER_EXTRA_ARGS:-} \
       ${LINUX_LATEST_CONTAINER} \
-      /usr/local/bin/bazel test ... \
-        --copt="--gcc-toolchain=/usr/local" \
-        --copt="-Wall" \
-        --copt="-Werror" \
-        --copt="-Wuninitialized" \
-        --copt="-Wundef" \
-        --define="absl=${absl}" \
-        --enable_bzlmod=true \
-        --features=external_include_paths \
-        --keep_going \
-        --linkopt="--gcc-toolchain=/usr/local" \
-        --show_timestamps \
-        --test_output=errors
+      /bin/bash --login -c "
+        /usr/local/bin/bazel test ... \
+          --copt=\"--gcc-toolchain=/usr/local\" \
+          --copt=\"-Wall\" \
+          --copt=\"-Werror\" \
+          --copt=\"-Wuninitialized\" \
+          --copt=\"-Wundef\" \
+          --define=\"absl=${absl}\" \
+          --enable_bzlmod=true \
+          --features=external_include_paths \
+          --keep_going \
+          --linkopt=\"--gcc-toolchain=/usr/local\" \
+          --per_file_copt=\"external/.*@-w\" \
+          --show_timestamps \
+          --test_output=errors \
+          ${BAZEL_EXTRA_ARGS:-}"
   done
 done
