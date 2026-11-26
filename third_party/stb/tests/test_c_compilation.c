@@ -1,12 +1,12 @@
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include "stb_image_resize2.h"
+//#define STB_IMAGE_RESIZE_IMPLEMENTATION
+//#include "stb_image_resize2.h"
 
-#define STB_SPRINTF_IMPLEMENTATION
-#include "stb_sprintf.h"
+//#define STB_SPRINTF_IMPLEMENTATION
+//#include "stb_sprintf.h"
 
 #define STB_PERLIN_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_C_LEXER_IMPLEMENTATIOn
+//#define STB_C_LEXER_IMPLEMENTATIOn
 #define STB_DIVIDE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_HERRINGBONE_WANG_TILE_IMEPLEMENTATIOn
@@ -15,16 +15,18 @@
 #define STB_EASY_FONT_IMPLEMENTATION
 #define STB_DXT_IMPLEMENTATION
 #define STB_INCLUDE_IMPLEMENTATION
+#define STB_HEXWAVE_IMPLEMENTATION
 
 #include "stb_herringbone_wang_tile.h"
 #include "stb_image.h"
 #include "stb_image_write.h"
 #include "stb_perlin.h"
-#include "stb_c_lexer.h"
+//#include "stb_c_lexer.h"
 #include "stb_divide.h"
 #include "stb_rect_pack.h"
 #include "stb_dxt.h"
 #include "stb_include.h"
+#include "stb_hexwave.h"
 
 #include "stb_ds.h"
 
@@ -44,7 +46,7 @@ void STBTE_DRAW_TILE(int x0, int y0, unsigned short id, int highlight, float *da
 
 int quicktest(void)
 {
-   char buffer[999];
-   stbsp_sprintf(buffer, "test%%test");
+//   char buffer[999];
+//   stbsp_sprintf(buffer, "test%%test");
    return 0;
 }

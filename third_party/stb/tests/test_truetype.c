@@ -33,20 +33,82 @@ unsigned char temp_bitmap[BITMAP_H][BITMAP_W];
 stbtt_bakedchar cdata[256*2]; // ASCII 32..126 is 95 glyphs
 stbtt_packedchar pdata[256*2];
 
+extern void stbds_unit_tests(void);
+
 int main(int argc, char **argv)
 {
    stbtt_fontinfo font;
    unsigned char *bitmap;
    int w,h,i,j,c = (argc > 1 ? atoi(argv[1]) : '@'), s = (argc > 2 ? atoi(argv[2]) : 32);
 
+   for (j=1; j < 0x800; ++j) {
+      char buffer[4] = { (j>>8), (j&255), 0,0 };
+      char decode[10];
+      int len = stbtt__ConvertUTF16BEtoUTF8(NULL, 0, (char*) buffer, 2);
+      printf("%d", len);
+      if (len == -1)
+         len = len;
+
+      for (i=1; i < 10; ++i) {
+         int ilen;
+         memset(decode, 0xff, 10);
+         ilen = stbtt__ConvertUTF16BEtoUTF8(decode, i, (char*) buffer, 2);
+         if (len >= 0)
+            assert(ilen >= 0 && ilen <= len);
+         if (ilen >= 0) {
+            for (w=0; w < ilen; ++w)
+               assert((unsigned char) decode[w] != 0xff);
+            for (w=0; w < ilen-1; ++w)
+               assert(decode[w] != 0);
+            assert(decode[w] == 0);
+         }
+         for (w=i; w < 10; ++w)
+            assert((unsigned char) decode[w] == 0xff);
+      }
+   }
+
+   for (j=1; j < 0x8000; ++j) {
+      short buffer[2] = { j,0 };
+      char decode[10];
+      int len = stbtt__ConvertUTF16BEtoUTF8(NULL, 0, (char*) buffer, 2);
+      printf("%d", len);
+      if (len == -1)
+         len = len;
+
+      for (i=1; i < 10; ++i) {
+         int ilen;
+         memset(decode, 0xff, 10);
+         ilen = stbtt__ConvertUTF16BEtoUTF8(decode, i, (char*) buffer, 2);
+         if (len >= 0)
+            assert(ilen >= 0 && ilen <= len);
+         if (ilen >= 0) {
+            for (w=0; w < ilen; ++w)
+               assert((unsigned char) decode[w] != 0xff);
+            for (w=0; w < ilen-1; ++w)
+               assert(decode[w] != 0);
+            assert(decode[w] == 0);
+         }
+         for (w=i; w < 10; ++w)
+            assert((unsigned char) decode[w] == 0xff);
+      }
+   }
+
+   stbds_unit_tests();
+
    //debug();
 
-   // @TODO: why is minglui.ttc failing? 
    //fread(ttf_buffer, 1, 1<<25, fopen(argc > 3 ? argv[3] : "c:/windows/fonts/mingliu.ttc", "rb"));
 
-   fread(ttf_buffer, 1, 1<<25, fopen(argc > 3 ? argv[3] : "c:/windows/fonts/DejaVuSans.ttf", "rb"));
-
+   //fread(ttf_buffer, 1, 1<<25, fopen(argc > 3 ? argv[3] : "c:/windows/fonts/DejaVuSans.ttf", "rb"));
+   fread(ttf_buffer, 1, 1<<25, fopen(argc > 3 ? argv[3] : "c:/windows/fonts/msgothic.ttc", "rb"));
+   
    stbtt_InitFont(&font, ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer,0));
+
+   {
+      char buffer[999];
+      stbtt_GetFontNameDefault(&font, buffer, sizeof(buffer));
+      printf("%s\n", buffer);
+   }
 
 #if 0
    {

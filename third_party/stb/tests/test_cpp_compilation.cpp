@@ -13,9 +13,9 @@
 #include "stb_ds.h"
 #include "stb_hexwave.h"
 
-#include "stb_sprintf.h"
-#define STB_SPRINTF_IMPLEMENTATION
-#include "stb_sprintf.h"
+//#include "stb_sprintf.h"
+//#define STB_SPRINTF_IMPLEMENTATION
+//#include "stb_sprintf.h"
 
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -31,6 +31,7 @@
 #define STB_CONNECTED_COMPONENTS_IMPLEMENTATION
 #define STB_HEXWAVE_IMPLEMENTATION
 #define STB_DS_IMPLEMENTATION
+#define STB_INCLUDE_IMPLEMENTATION
 #define STBDS_UNIT_TESTS
 
 #define STBI_MALLOC     my_malloc
@@ -51,6 +52,7 @@ void my_free(void *) { }
 #include "stb_herringbone_wang_tile.h"
 #include "stb_ds.h"
 #include "stb_hexwave.h"
+#include "stb_include.h"
 
 #define STBCC_GRID_COUNT_X_LOG2  10
 #define STBCC_GRID_COUNT_Y_LOG2  10
@@ -69,8 +71,8 @@ void my_free(void *) { }
 #define STB_LEAKCHECK_IMPLEMENTATION
 #include "stb_leakcheck.h"
 
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include "stb_image_resize2.h"
+//#define STB_IMAGE_RESIZE_IMPLEMENTATION
+//#include "stb_image_resize2.h"
 
 //#include "stretchy_buffer.h"  // deprecating
 
@@ -184,3 +186,12 @@ void dummy3(void)
 }
 
 #include "stb_c_lexer.h"
+
+#ifdef DEFINE_MAIN
+
+int main()
+{
+   return 0;
+}
+
+#endif

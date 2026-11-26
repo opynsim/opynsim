@@ -66,7 +66,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I ".." /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "TT_TEST" /FR /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /WX /GX /Zi /Od /I ".." /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "TEST_VORBIS" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -87,6 +87,10 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\grid_reachability.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\Release_Notes.txt
 # End Source File
 # Begin Source File
 
@@ -126,11 +130,11 @@ SOURCE=..\stb_herringbone_wang_tile.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\stb_image.h
+SOURCE=..\stb_hexwave.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\stb_image_resize2.h
+SOURCE=..\stb_image.h
 # End Source File
 # Begin Source File
 
@@ -155,10 +159,6 @@ SOURCE=..\stb_perlin.h
 # Begin Source File
 
 SOURCE=..\stb_rect_pack.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\stb_sprintf.h
 # End Source File
 # Begin Source File
 
@@ -191,6 +191,10 @@ SOURCE=.\test_c_compilation.c
 # Begin Source File
 
 SOURCE=.\test_c_lexer.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\test_c_lexer.txt
 # End Source File
 # Begin Source File
 
