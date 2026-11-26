@@ -1169,9 +1169,6 @@ namespace osc::ui
         };
 
         enum class PlotColorVar {
-            // plot line/outline color (defaults to the next unused color in the current colormap)
-            Line,
-
             // plot area background color (defaults to `ColorVar::PanelBg`)
             PlotBackground,
 
@@ -1266,6 +1263,15 @@ namespace osc::ui
             return static_cast<LegendFlags>(std::to_underlying(lhs) ^ std::to_underlying(rhs));
         }
 
+        struct PlotSpec {
+            std::optional<Color> line_color;
+            MarkerType marker_type = MarkerType::None;
+            std::optional<float> marker_size;
+            std::optional<Color> marker_fill;
+            std::optional<float> marker_weight;
+            std::optional<Color> marker_outline;
+        };
+
         // draws the plotting demo in its own panel
         void show_demo_panel();
 
@@ -1330,20 +1336,16 @@ namespace osc::ui
         //   call it on the first setup-locking API call (e.g. `plot::draw_line`)
         void setup_finish();
 
-        // sets the marker style for the next item only
-        void set_next_marker_style(
-            MarkerType = MarkerType::None,
-            std::optional<float> size = std::nullopt,
-            std::optional<Color> fill = std::nullopt,
-            std::optional<float> weight = std::nullopt,
-            std::optional<Color> outline = std::nullopt);
-
         // plots a standard 2D line plot
-        void plot_line(CStringView name, std::span<const Vector2> points);
+        void plot_line(
+            CStringView name,
+            std::span<const Vector2> points,
+            const std::optional<PlotSpec>& plot_spec = std::nullopt);
         void plot_line(
             CStringView name,
             std::span<const float> y_values,
-            std::optional<ClosedInterval<float>> x_range = std::nullopt);
+            std::optional<ClosedInterval<float>> x_range = std::nullopt,
+            const std::optional<PlotSpec>& plot_spec = std::nullopt);
 
         // returns the plot's rectangle in ui space
         //

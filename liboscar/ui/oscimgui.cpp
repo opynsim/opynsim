@@ -810,7 +810,7 @@ namespace
         }
 
         bd->camera.set_projection_matrix_override(display_projection_matrix(*draw_data));
-        for (int n = 0; n < draw_data->CmdListsCount; ++n) {
+        for (int n = 0; n < draw_data->CmdLists.Size; ++n) {
             render_drawlist(*bd, *draw_data, *draw_data->CmdLists[n], maybe_target);
         }
     }
@@ -1063,8 +1063,11 @@ namespace
                 static_assert(
                     sizeof(decltype(icon_font->codepoint_range.lower)) == sizeof(ImWchar));
                 // CARE: icon_font_glyph_ranges has to outlive the ImGui context
-                bd.icon_font_glyph_ranges = std::to_array<ImWchar>(
-                    {icon_font->codepoint_range.lower, icon_font->codepoint_range.upper, 0});
+                bd.icon_font_glyph_ranges = std::to_array<ImWchar>({
+                    static_cast<ImWchar>(icon_font->codepoint_range.lower),
+                    static_cast<ImWchar>(icon_font->codepoint_range.upper),
+                    static_cast<ImWchar>(0),
+                });
 
                 add_resource_as_font(
                     loader,
@@ -1899,6 +1902,45 @@ struct osc::Converter<ImGuiTableColumnSortSpecs, ui::TableColumnSortSpec> final 
             .sort_order = static_cast<size_t>(specs.SortOrder),
             .sort_direction = to<ui::SortDirection>(specs.SortDirection),
         };
+    }
+};
+
+namespace
+{
+    constexpr ImPlotMarker to_ImPlotMarker(  // NOLINT(readability-identifier-naming)
+    plot::MarkerType marker_type)
+    {
+        static_assert(num_options_v<plot::MarkerType> == 2);
+        switch (marker_type) {
+        case plot::MarkerType::None: return ImPlotMarker_None;
+        case plot::MarkerType::Circle: return ImPlotMarker_Circle;
+        default: std::unreachable();
+        }
+    }
+}
+
+template<>
+struct osc::Converter<plot::PlotSpec, ImPlotSpec> final {
+    ImPlotSpec operator()(const plot::PlotSpec& spec) const
+    {
+        ImPlotSpec rv;
+        if (spec.line_color) {
+            rv.LineColor = osc::to<ImVec4>(*spec.line_color);
+        }
+        rv.Marker = to_ImPlotMarker(spec.marker_type);
+        if (spec.marker_size) {
+            rv.MarkerSize = *spec.marker_size;
+        }
+        if (spec.marker_fill) {
+            rv.MarkerFillColor = ImVec4{*spec.marker_fill};
+        }
+        if (spec.marker_weight) {
+            rv.LineWeight = *spec.marker_weight;
+        }
+        if (spec.marker_outline) {
+            rv.MarkerLineColor = ImVec4{*spec.marker_outline};
+        }
+        return rv;
     }
 };
 
@@ -4271,9 +4313,7 @@ std::optional<Transform> osc::ui::Gizmo::draw_to(
     auto& gizmo_context = get_backend_data().gizmo_context;
 
     gizmo_context.push_id(id_);
-    const ScopeExit g{[&gizmo_context] {
-        gizmo_context.pop_id();
-    }};
+    const ScopeExit g{[&gizmo_context] { gizmo_context.pop_id(); }};
 
     // update last-frame cache
     was_using_last_frame_ = gizmo_context.is_using();
@@ -4383,9 +4423,8 @@ namespace
     constexpr ImPlotCol to_ImPlotCol(  // NOLINT(readability-identifier-naming)
         plot::PlotColorVar var)
     {
-        static_assert(num_options_v<plot::PlotColorVar> == 2);
+        static_assert(num_options_v<plot::PlotColorVar> == 1);
         switch (var) {
-        case plot::PlotColorVar::Line: return ImPlotCol_Line;
         case plot::PlotColorVar::PlotBackground: return ImPlotCol_PlotBg;
         default: std::unreachable();
         }
@@ -4430,17 +4469,6 @@ namespace
         switch (condition) {
         case plot::Condition::Always: return ImPlotCond_Always;
         case plot::Condition::Once: return ImPlotCond_Once;
-        default: std::unreachable();
-        }
-    }
-
-    constexpr ImPlotMarker to_ImPlotMarker(  // NOLINT(readability-identifier-naming)
-        plot::MarkerType marker_type)
-    {
-        static_assert(num_options_v<plot::MarkerType> == 2);
-        switch (marker_type) {
-        case plot::MarkerType::None: return ImPlotMarker_None;
-        case plot::MarkerType::Circle: return ImPlotMarker_Circle;
         default: std::unreachable();
         }
     }
@@ -4558,35 +4586,24 @@ void osc::ui::plot::setup_finish()
     ImPlot::SetupFinish();
 }
 
-void osc::ui::plot::set_next_marker_style(
-    MarkerType marker_type,
-    std::optional<float> size,
-    std::optional<Color> fill,
-    std::optional<float> weight,
-    std::optional<Color> outline)
+void osc::ui::plot::plot_line(
+    CStringView name, std::span<const Vector2> points, const std::optional<PlotSpec>& plot_spec)
 {
-    ImPlot::SetNextMarkerStyle(
-        to_ImPlotMarker(marker_type),
-        size ? *size : IMPLOT_AUTO,
-        fill ? ImVec4{*fill} : IMPLOT_AUTO_COL,
-        weight ? *weight : IMPLOT_AUTO,
-        outline ? ImVec4{*outline} : IMPLOT_AUTO_COL);
-}
-
-void osc::ui::plot::plot_line(CStringView name, std::span<const Vector2> points)
-{
+    ImPlotSpec effective_spec = plot_spec ? osc::to<ImPlotSpec>(*plot_spec) : ImPlotSpec{};
+    effective_spec.Stride = sizeof(Vector2);
     ImPlot::PlotLine(
         name.c_str(),
         points.empty() ? nullptr : &points.front().x(),
         points.empty() ? nullptr : &points.front().y(),
         static_cast<int>(points.size()),
-        0,
-        0,
-        sizeof(Vector2));
+        effective_spec);
 }
 
 void osc::ui::plot::plot_line(
-    CStringView name, std::span<const float> y_values, std::optional<ClosedInterval<float>> x_range)
+    CStringView name,
+    std::span<const float> y_values,
+    std::optional<ClosedInterval<float>> x_range,
+    const std::optional<PlotSpec>& plot_spec)
 {
     double xscale = 1.0;
     double xstart = 0.0;
@@ -4596,7 +4613,12 @@ void osc::ui::plot::plot_line(
     }
 
     ImPlot::PlotLine(
-        name.c_str(), y_values.data(), static_cast<int>(y_values.size()), xscale, xstart);
+        name.c_str(),
+        y_values.data(),
+        static_cast<int>(y_values.size()),
+        xscale,
+        xstart,
+        plot_spec ? to<ImPlotSpec>(*plot_spec) : ImPlotSpec{});
 }
 
 Rect osc::ui::plot::get_plot_ui_rect()

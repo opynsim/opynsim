@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(ImPlotExample LANGUAGES CXX C)
 
 # Set the C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
 
@@ -24,7 +24,7 @@ FetchContent_MakeAvailable(glfw)
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY "https://github.com/ocornut/imgui"
-    GIT_TAG "v1.92.4"
+    GIT_TAG "v1.93.0"
     GIT_PROGRESS TRUE
     GIT_SHALLOW TRUE
 )

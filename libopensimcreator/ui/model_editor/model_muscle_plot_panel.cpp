@@ -1653,15 +1653,17 @@ namespace
                     color.a *= static_cast<float>(i + 1) / static_cast<float>(counts.total + 1);
                 }
 
-                if (show_markers_on_other_plots_) {
-                    plot::set_next_marker_style(plot::MarkerType::Circle, 3.0f);
-                }
-
                 const std::string line_name = ith_plot_line_name(plot, i + 1);
 
-                plot::push_style_color(plot::PlotColorVar::Line, color);
-                plot::plot_line(line_name, *plot.lock_data_points());
-                plot::pop_style_color();
+                plot::plot_line(
+                    line_name,
+                    *plot.lock_data_points(),
+                    plot::PlotSpec{
+                        .line_color = color,
+                        .marker_type = show_markers_on_other_plots_ ? plot::MarkerType::Circle
+                                                                    : plot::MarkerType::None,
+                        .marker_size = 3.0f,
+                    });
 
                 if (plot::begin_legend_popup(line_name)) {
                     legend_popup_is_open_ = true;
@@ -1705,13 +1707,11 @@ namespace
                     color *= locked_curve_tint_;
                 }
 
-                if (show_markers_on_active_plot_) {
-                    plot::set_next_marker_style(plot::MarkerType::Circle, 3.0f);
-                }
-
-                plot::push_style_color(plot::PlotColorVar::Line, color);
-                plot::plot_line(line_name, *plot.lock_data_points());
-                plot::pop_style_color();
+                plot::plot_line(line_name, *plot.lock_data_points(), plot::PlotSpec{
+                    .line_color = color,
+                    .marker_type = show_markers_on_active_plot_ ? plot::MarkerType::Circle : plot::MarkerType::None,
+                    .marker_size = 3.0f,
+                });
 
                 if (plot::begin_legend_popup(line_name)) {
                     legend_popup_is_open_ = true;

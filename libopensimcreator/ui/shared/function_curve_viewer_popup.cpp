@@ -152,10 +152,11 @@ private:
                 plot::Axis::Y1, plot_points_.y_range(), 0.05f, plot::Condition::Always);
             plot::setup_finish();
 
-            plot::set_next_marker_style(plot::MarkerType::Circle, 2.0f);
-            plot::push_style_color(plot::PlotColorVar::Line, Color::white());
-            plot::plot_line("Function Output", plot_points_);
-            plot::pop_style_color();
+            plot::plot_line("Function Output", plot_points_, plot::PlotSpec{
+                .line_color = Color::white(),
+                .marker_type = plot::MarkerType::Circle,
+                .marker_size = 2.0f,
+            });
 
             plot::end();
         }

@@ -247,10 +247,12 @@ private:
                     std::nullopt,
                     plot::AxisFlags::NoDecorations | plot::AxisFlags::NoMenus |
                         plot::AxisFlags::AutoFit);
-                plot::push_style_color(plot::PlotColorVar::Line, Color::white().with_alpha(0.7f));
                 plot::push_style_color(plot::PlotColorVar::PlotBackground, Color::clear());
-                plot::plot_line("##", buf);
-                plot::pop_style_color();
+                plot::plot_line(
+                    "##",
+                    buf,
+                    std::nullopt,
+                    plot::PlotSpec{.line_color = Color::white().with_alpha(0.7f)});
                 plot::pop_style_color();
 
                 plot_rect = plot::get_plot_ui_rect();
@@ -392,13 +394,10 @@ private:
                     std::nullopt,
                     plot::AxisFlags::NoDecorations | plot::AxisFlags::NoMenus |
                         plot::AxisFlags::AutoFit);
-                plot::push_style_color(plot::PlotColorVar::Line, Color::white().with_alpha(0.7f));
                 plot::push_style_color(plot::PlotColorVar::PlotBackground, Color::clear());
-                plot::plot_line("##", buf);
+                plot::plot_line(
+                    "##", buf, plot::PlotSpec{.line_color = Color::white().with_alpha(0.7f)});
                 plot::pop_style_color();
-                plot::pop_style_color();
-
-                plot_rect = plot::get_plot_ui_rect();
 
                 // overlays
                 {
