@@ -1,23 +1,11 @@
-//@HEADER
-// ************************************************************************
-//
-//                        Kokkos v. 4.0
-//       Copyright (2022) National Technology & Engineering
-//               Solutions of Sandia, LLC (NTESS).
-//
-// Under the terms of Contract DE-NA0003525 with NTESS,
-// the U.S. Government retains certain rights in this software.
-//
-// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
-// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-//
-//@HEADER
+// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+
 #include "ctest_common.hpp"
 
 #include <mdspan/mdspan.hpp>
 
-
+// clang-format off
 
 MDSPAN_STATIC_TEST(
   std::is_constructible<
@@ -301,3 +289,5 @@ MDSPAN_STATIC_TEST(
 MDSPAN_STATIC_TEST(
   Kokkos::extents<size_t, Kokkos::dynamic_extent, 1>{Kokkos::extents<size_t, 0, 1>{}}.extent(0) == 0
 );
+
+// clang-format on

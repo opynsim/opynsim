@@ -26,7 +26,13 @@ function(mdspan_add_test name)
   target_compile_definitions(${name}
     PUBLIC
     MDSPAN_IMPL_CHECK_PRECONDITION=$<BOOL:${ARGUMENT_ENABLE_PRECONDITIONS}>
-  )
+    )
+  if(MDSPAN_IMPL_ENABLE_P3663)
+    target_compile_definitions(${name}
+      PUBLIC
+      MDSPAN_IMPL_ENABLE_P3663=1
+    )
+  endif()
 endfunction()
 
 if(MDSPAN_USE_SYSTEM_GTEST)
@@ -37,20 +43,13 @@ else()
   if (MSVC)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
   endif()
-  fetchcontent_declare(
+  set(INSTALL_GTEST OFF)
+  FetchContent_Declare(
       googletest
       GIT_REPOSITORY https://github.com/google/googletest.git
       GIT_TAG v1.17.0
   )
-  
-  # TODO CMake 3.28, we can pass EXCLUDE_FROM_ALL directly to fetchcontent_makeavailable
-  fetchcontent_getproperties(googletest)
-  if (NOT googletest_POPULATED)
-    fetchcontent_populate(googletest)
-    add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
-  endif()
-  
-  add_library(GTest::gtest_main ALIAS gtest_main)
+  FetchContent_MakeAvailable(googletest)
 endif()
 
 # FIXME_MSVC
@@ -78,7 +77,7 @@ mdspan_add_test(test_macros ENABLE_PRECONDITIONS)
 mdspan_add_test(test_layout_preconditions ENABLE_PRECONDITIONS)
 
 mdspan_add_test(test_dims)
-mdspan_add_test(test_extents)
+mdspan_add_test(test_extents ENABLE_PRECONDITIONS)
 mdspan_add_test(test_mdspan_at)
 mdspan_add_test(test_mdspan_ctors)
 mdspan_add_test(test_mdspan_swap)
@@ -93,6 +92,7 @@ if(NOT CMAKE_CXX_STANDARD STREQUAL "14")
   mdspan_add_test(test_submdspan_static_slice)
   mdspan_add_test(test_layout_padded_left ENABLE_PRECONDITIONS)
   mdspan_add_test(test_layout_padded_right ENABLE_PRECONDITIONS)
+  mdspan_add_test(test_canonicalize_slices)
 endif()
 # both of those don't work yet since its using vector
 if(NOT MDSPAN_ENABLE_CUDA AND NOT MDSPAN_ENABLE_HIP)
@@ -105,3 +105,6 @@ if((CMAKE_CXX_COMPILER_ID STREQUAL Clang) OR ((CMAKE_CXX_COMPILER_ID STREQUAL GN
   add_subdirectory(libcxx-backports)
 endif()
 endif()
+
+mdspan_add_test(test_constant_wrapper)
+mdspan_add_test(test_strided_slice)

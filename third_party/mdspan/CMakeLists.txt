@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.22)
 
-project(MDSpan
-  VERSION 0.6.0
+project(mdspan
+  VERSION 5.3.0
   LANGUAGES CXX
 )
 
@@ -28,9 +28,11 @@ option(MDSPAN_GENERATE_STD_NAMESPACE_TARGETS "Whether to generate and install ta
 
 # Option to override which C++ standard to use
 set(MDSPAN_CXX_STANDARD DETECT CACHE STRING "Override the default CXX_STANDARD to compile with.")
-set_property(CACHE MDSPAN_CXX_STANDARD PROPERTY STRINGS DETECT 14 17 20 23)
+set_property(CACHE MDSPAN_CXX_STANDARD PROPERTY STRINGS DETECT 14 17 20 23 26)
 
 option(MDSPAN_ENABLE_CONCEPTS "Try to enable concepts support by giving extra flags." On)
+
+option(MDSPAN_IMPL_ENABLE_P3663 "Enable implementation of P3663 (Future-proof submdspan_mapping)." On)
 
 ################################################################################
 
@@ -63,8 +65,18 @@ elseif(MDSPAN_CXX_STANDARD STREQUAL "23")
   else()
     message(FATAL_ERROR "Requested MDSPAN_CXX_STANDARD \"23\" not supported by provided C++ compiler")
   endif()
+elseif(MDSPAN_CXX_STANDARD STREQUAL "26")
+  if("cxx_std_26" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+    message(STATUS "Using C++26 standard")
+    set(CMAKE_CXX_STANDARD 26)
+  else()
+    message(WARNING "Requested MDSPAN_CXX_STANDARD \"26\" not supported by provided C++ compiler")
+  endif()
 else()
-  if("cxx_std_23" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+  if("cxx_std_26" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+    set(CMAKE_CXX_STANDARD 26)
+    message(STATUS "Detected support for C++26 standard")
+  elseif("cxx_std_23" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
     set(CMAKE_CXX_STANDARD 23)
     message(STATUS "Detected support for C++23 standard")
   elseif("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
@@ -170,9 +182,6 @@ endif()
 install(DIRECTORY include/mdspan DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 if (MDSPAN_INSTALL_STDMODE_HEADERS)
   install(DIRECTORY include/experimental DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-else()
-  install(DIRECTORY include/experimental DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-          REGEX "/mdspan$|/mdarray$" EXCLUDE)
 endif()
 
 include(CMakePackageConfigHelpers)

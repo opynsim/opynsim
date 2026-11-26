@@ -1,23 +1,11 @@
-//@HEADER
-// ************************************************************************
-//
-//                        Kokkos v. 4.0
-//       Copyright (2022) National Technology & Engineering
-//               Solutions of Sandia, LLC (NTESS).
-//
-// Under the terms of Contract DE-NA0003525 with NTESS,
-// the U.S. Government retains certain rights in this software.
-//
-// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
-// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-//
-//@HEADER
+// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+
 #include "ctest_common.hpp"
 
 #include <mdspan/mdspan.hpp>
 
-
+// clang-format off
 using E1 = Kokkos::extents<int32_t, Kokkos::dynamic_extent, 3>;
 using MLR1 = Kokkos::layout_right::mapping<E1>;
 // Note we already separately tested that the extents interface is correct
@@ -85,3 +73,4 @@ MDSPAN_STATIC_TEST(
   (MLS1::is_always_exhaustive()== false) &&
   (MLS1::is_always_strided() == true)
 );
+// clang-format on

@@ -1,25 +1,13 @@
-//@HEADER
-// ************************************************************************
-//
-//                        Kokkos v. 4.0
-//       Copyright (2022) National Technology & Engineering
-//               Solutions of Sandia, LLC (NTESS).
-//
-// Under the terms of Contract DE-NA0003525 with NTESS,
-// the U.S. Government retains certain rights in this software.
-//
-// Part of Kokkos, under the Apache License v2.0 with LLVM Exceptions.
-// See https://kokkos.org/LICENSE for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-//
-//@HEADER
+// SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
+
 #include "ctest_common.hpp"
 
 #include <mdspan/mdspan.hpp>
 
 #include <type_traits>
 
-
+// clang-format off
 //==============================================================================
 // <editor-fold desc="extents"> {{{1
 
@@ -78,7 +66,7 @@ MDSPAN_STATIC_TEST(
     Kokkos::extents<size_t,42, Kokkos::dynamic_extent, 73>
   >) == 4 * sizeof(size_t)
 );
-
+// clang-format on
 
 // </editor-fold> end layouts }}}1
 //==============================================================================
