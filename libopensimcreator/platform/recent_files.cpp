@@ -100,7 +100,7 @@ osc::RecentFiles::RecentFiles(std::filesystem::path recent_files_file) :
     files_{load_recent_files_file(disk_location_)}
 {}
 
-osc::RecentFiles::~RecentFiles() noexcept  // NOLINT(bugprone-exception-escape)
+osc::RecentFiles::~RecentFiles() noexcept
 {
     try {
         sync();

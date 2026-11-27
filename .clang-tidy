@@ -11,6 +11,7 @@ Checks: >
   -bugprone-branch-clone,
   -bugprone-macro-parentheses,
   -bugprone-unhandled-self-assignment,
+  -bugprone-exception-escape,
   misc-*,
   -misc-no-recursion,
   -misc-include-cleaner,

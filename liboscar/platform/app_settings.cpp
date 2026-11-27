@@ -538,7 +538,7 @@ osc::AppSettings::AppSettings(const AppSettings&) = default;
 osc::AppSettings::AppSettings(AppSettings&&) noexcept = default;
 AppSettings& osc::AppSettings::operator=(const AppSettings&) = default;
 AppSettings& osc::AppSettings::operator=(AppSettings&&) noexcept = default;
-osc::AppSettings::~AppSettings() noexcept  // NOLINT(bugprone-exception-escape)
+osc::AppSettings::~AppSettings() noexcept
 {
     impl_->sync();
 }

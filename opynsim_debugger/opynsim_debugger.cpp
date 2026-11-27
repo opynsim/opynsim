@@ -59,7 +59,7 @@ namespace
 }
 
 // This is what's ran when running `opynsim_debugger.exe`
-int main()  // NOLINT(bugprone-exception-escape)
+int main()
 {
     // Set PYTHONPATH to the local virtual environment and `opynsim`
     set_pythonpath({R"(@Python_SITELIB@)", R"(@OPYN_CORE_DIRECTORY@/..)"});
